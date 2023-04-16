@@ -10,10 +10,10 @@
 
 body{
   min-height: 95vh;
-  background-image: url("../img/menteUpScale.webp");
+  background-image: url("../img/paisajeUpScale.webp");
   background-repeat: no-repeat;
   background-attachment: fixed;
-  background-position: top center;
+  background-position: center center;
   background-size: cover;
   display: flex;
   flex-direction: column;
@@ -169,7 +169,7 @@ body{
   padding-right: 1.3em;
   border-bottom: 1px solid #fff;
   color: #fff;
-  font-size: .7em;
+  font-size: .9em;
 }
 .email label{
   position: absolute;
@@ -208,7 +208,7 @@ body{
   padding-right: 1.3em;
   border-bottom: 1px solid #fff;
   color: #fff;
-  font-size: .7em;
+  font-size: .9em;
 }
 .pass label{
   position: absolute;
@@ -223,6 +223,45 @@ body{
 }
 
 .pass i{
+  position: absolute;
+  right: .5em;
+  font-size: .6em;
+  line-height: 20em;
+}
+
+.username{
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.username input{
+  width: 100%;
+  height: 100%;
+  outline: none;
+  border: none;
+  background-color: transparent;
+  padding: .5em;
+  padding-right: 1.3em;
+  border-bottom: 1px solid #fff;
+  color: #fff;
+  font-size: .9em;
+}
+.username label{
+  position: absolute;
+  left: .4em;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: top .4s;
+}
+.username input:focus~label,
+.username input:valid~label{
+  top: -.5em;
+}
+
+.username i{
   position: absolute;
   right: .5em;
   font-size: .6em;
@@ -251,7 +290,7 @@ label:hover{
 
 .enlace_alternativo{
   font-size: 1.1em;
-  margin-bottom: 2em;
+  margin-bottom: 1em;
 }
 .enlace_alternativo a{
   color: #00A8E8;

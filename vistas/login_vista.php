@@ -55,23 +55,23 @@
         data-logo_alignment="left">
     </div>
   </div>
-  <div class="separador"><div class="or">O</div></div>
   <div class="credenciales">
     <div class="email">
-      <label for="email">Email:</label>
-      <input type="email" name="email" id="email">
+      <input type="text" required autocomplete="off" name="email" id="email">
+      <label for="email">Email</label>
       <i class="fa-solid fa-at"></i>
     </div>
     <div class="pass">
-      <label for="pass">Contraseña:</label>
-      <input type="password" name="pass" id="pass">
+      <input type="password" required autocomplete="off" name="pass" id="pass">
+      <label for="pass">Contraseña</label>
       <i class="fa-solid fa-key"></i>
     </div>
   </div>
   <div class="boton_submit">Iniciar sesión</div>
-  <div class="enlace_alternativo">¿No tienes cuenta aún? Crea tu cuenta <a href="http://localhost/HubGames/vistas/registro_vista.php">aquí</a></div>
+  <div class="enlace_alternativo">¿No tienes cuenta aún? <a href="http://localhost/HubGames/vistas/registro_vista.php">Crea tu cuenta aquí</a></div>
+  <div class="enlace_alternativo2"><a href="http://localhost/HubGames/vistas/forgetpass_vista.php">He olvidado mi contraseña</a></div>
 </div>
 
-<?php include_once("../includes/footer.php"); ?>
+
 </body>
 </html>
