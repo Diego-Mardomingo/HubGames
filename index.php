@@ -21,7 +21,7 @@
   <meta name="description" content="Encuentra los mejores videojuegos en nuestro buscador.">
   <meta name="keywords" content="hubgames,hub games,videojuegos, juegos, buscador, entretenimiento">
   <meta name="author" content="Diego López Mardomingo">
-  <link rel="shortcut icon" href="img/HGLogo.png" type="image/x-icon">
+  <link rel="shortcut icon" href="img/HGLogo.webp" type="image/x-icon">
   <link rel="stylesheet" href="css/index_style.css">
   <link rel="canonical" href="https://hubgames.es" />
   <script src="https://kit.fontawesome.com/ed0e2390af.js" crossorigin="anonymous"></script>

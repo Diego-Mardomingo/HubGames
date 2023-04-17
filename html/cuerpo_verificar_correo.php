@@ -15,6 +15,6 @@
 </head>
 <body>
   <h1>Verifica tu correo electrónico</h1>
-  <a href="https://hubgames.es?id=<?php echo random_int(1,10000) ?>">Clica aquí</a>
+  <a href="https://hubgames.es/vistas/verificar_token_vista.php?token=<?php echo $_GET['token'] ?>">Clica aquí</a>
 </body>
 </html>

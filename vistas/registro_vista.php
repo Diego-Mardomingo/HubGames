@@ -20,7 +20,7 @@
   <meta name="description" content="Regístrate en HubGames y encuentra los mejores videojuegos en nuestro buscador.">
   <meta name="keywords" content="hubgames,hub games,videojuegos, juegos, buscador, entretenimiento">
   <meta name="author" content="Diego López Mardomingo">
-  <link rel="shortcut icon" href="../img/HGLogo.png" type="image/x-icon">
+  <link rel="shortcut icon" href="../img/HGLogo.webp" type="image/x-icon">
   <script src="https://kit.fontawesome.com/ed0e2390af.js" crossorigin="anonymous"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="../css/registro_style.css">

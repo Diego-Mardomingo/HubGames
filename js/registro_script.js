@@ -4,7 +4,24 @@ $(document).ready(function () {
 
   $('.boton_submit').click(function (e) { 
     if(validar_inputs()){
-      console.log('Correcto');
+      $.ajax({
+        type: "post",
+        url: "../ajax/get_usuario.php",
+        data: { email: $('#email').val(),
+                nocache: Math.random()},
+        dataType: "json",
+        success: function (response) {
+          if(response){
+            let error = document.createElement('div');
+            $(error).addClass('error');
+            $(error).html('Ya existe una cuenta con ese email');
+            $(error).insertAfter('.boton_google');
+          }else{
+            window.location.href = '../vistas/verificar_correo_vista.php?email='+$('#email').val();
+          }
+        }
+      });
+      
     }
   });
 
@@ -83,4 +100,19 @@ function validar_inputs(){
   }
 
   return valido;
+}
+
+function mandar_correo_verificacion(){
+  $.ajax({
+    type: "post",
+    url: "",
+    data: { nocache: Math.random(),
+            username: $('#username').val(),
+            email: $('#email').val(),
+            pass: $('#pass').val()},
+    dataType: "json",
+    success: function (response) {
+      
+    }
+  });
 }
