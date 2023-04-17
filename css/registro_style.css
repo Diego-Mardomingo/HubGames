@@ -138,6 +138,13 @@ body{
 .boton_google{
   margin: .4em;
 }
+.error{
+  color: #ff0000;
+  max-width: max-content;
+  text-align: center;
+  margin: .5em;
+  font-weight: 600;
+}
 .credenciales{
   display: flex;
   flex-direction: column;

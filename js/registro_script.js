@@ -2,6 +2,12 @@ $(document).ready(function () {
   
   evento_menu();
 
+  $('.boton_submit').click(function (e) { 
+    if(validar_inputs()){
+      console.log('Correcto');
+    }
+  });
+
 });
 
 function googleLogin(credenciales) {
@@ -14,6 +20,7 @@ function googleLogin(credenciales) {
     dataType: "json",
     success: function (response) {
       console.log(response);
+
     },
     error: function(error){
       console.log("Ha ocurrido un error");
@@ -41,4 +48,39 @@ function evento_menu(){
     $('.barras i').removeClass('fa-xmark');
     $('.barras i').addClass('fa-bars');
   })
+}
+
+function validar_inputs(){
+  let valido = true;
+  let cadenaError ='';
+  let passRegEx = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]{4,16}$/;
+  // pass -> Entre 4 y 16 carácteres, letras y números
+  if(!passRegEx.test($('#pass').val())){
+    valido = false;
+    cadenaError = 'Contraseña no válida.<br> Longitud entre 4 y 16 carácteres.<br> Se permiten letras y números';
+  }
+
+  let emailRegEx = /^[a-zA-Z0-9._]+@[a-zA-Z0-9]+.[a-zA-Z]{2,}$/;
+  // email -> Debe tener una @ y 1 punto después, éste no puede estar en la primera o última posición del dominio. Permitido letras, números, guiones bajos y puntos.
+  if(!emailRegEx.test($('#email').val())){
+    valido = false;
+    cadenaError = 'Email no válido';
+  }
+
+  let usernameRegEx = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ][a-zA-Z0-9_áéíóúÁÉÍÓÚñÑ]{3,15}$/;
+  // username -> Entre 4 y 16 carácteres, letras, números y guiones bajos, debe comenzar por letra
+  if(!usernameRegEx.test($('#username').val())){
+    valido = false;
+    cadenaError = 'Nombre de usuario no válido.<br> Longitud entre 4 y 16 carácteres y comenzar por letra.<br> Se permiten letras, números y guiones bajos';
+  }
+
+  $('.error').remove();
+  if(!valido){
+    let error = document.createElement('div');
+    $(error).addClass('error');
+    $(error).html(cadenaError);
+    $(error).insertAfter('.boton_google');
+  }
+
+  return valido;
 }

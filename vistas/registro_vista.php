@@ -76,6 +76,5 @@
   <div class="enlace_alternativo">¿Ya tienes cuenta?  <a href="http://localhost/HubGames/vistas/login_vista.php">Inicia sesión aquí</a></div>
 </div>
 
-
 </body>
 </html>
