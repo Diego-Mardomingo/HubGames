@@ -32,7 +32,7 @@
 <body>
 <?php
   session_start();
-  $_SESSION ? include_once("../includes/nav_con_sesion.php") : include_once("../includes/nav_sin_sesion.php");?>
+  isset($_SESSION['username']) ? include_once("../includes/nav_con_sesion.php") : include_once("../includes/nav_sin_sesion.php");?>
 
 <div class="cuerpo">
   <h1 class="encabezado">Iniciar sesión</h1>
@@ -68,8 +68,8 @@
     </div>
   </div>
   <div class="boton_submit">Iniciar sesión</div>
-  <div class="enlace_alternativo">¿No tienes cuenta aún? <a href="http://localhost/HubGames/vistas/registro_vista.php">Crea tu cuenta aquí</a></div>
-  <div class="enlace_alternativo2"><a href="http://localhost/HubGames/vistas/forgetpass_vista.php">He olvidado mi contraseña</a></div>
+  <div class="enlace_alternativo">¿No tienes cuenta aún? <a href="./registro_vista.php">Crea tu cuenta aquí</a></div>
+  <div class="enlace_alternativo2"><a href="./forgetpass_vista.php">He olvidado mi contraseña</a></div>
 </div>
 
 

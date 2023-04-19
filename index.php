@@ -35,7 +35,7 @@
 <body>
   <?php
   session_start();
-  $_SESSION ? include_once("includes/nav_con_sesion.php") : include_once("includes/nav_sin_sesion.php");?>
+  isset($_SESSION['username']) ? include_once("includes/nav_con_sesion.php") : include_once("includes/nav_sin_sesion.php");?>
 
 <div class="cuerpo">
   <div class="cuerpo_cabecera">

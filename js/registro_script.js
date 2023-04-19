@@ -17,8 +17,35 @@ $(document).ready(function () {
             $(error).html('Ya existe una cuenta con ese email');
             $(error).insertAfter('.boton_google');
           }else{
-            window.location.href = '../vistas/verificar_correo_vista.php?email='+$('#email').val();
+            $.ajax({
+              type: "post",
+              url: "../ajax/insertar_usuario.php",
+              data: {
+                nocache: Math.random(),
+                username: $('#username').val(),
+                email: $('#email').val(),
+                pass: $('#pass').val(),
+                email_verificado: 0,
+                fecha_creacion: new Date().toISOString().split('T')[0],
+                cuenta_google: 0
+              },
+              dataType: "json",
+              success: function (response) {
+                if(response){
+                  console.log('Usuario insertado');
+                  window.location.href = '../vistas/verificar_correo_vista.php?email='+$('#email').val();
+                }else{
+                  console.log('Ha ocurrido un problema');
+                }
+              },
+              error: function(error){
+                console.log(error);
+              }
+            });
           }
+        },
+        error: function(error){
+          console.log(error);
         }
       });
       
@@ -37,7 +64,57 @@ function googleLogin(credenciales) {
     dataType: "json",
     success: function (response) {
       console.log(response);
-
+      let email_verif = response.email_verified ? 1 : 0;
+      let username = response.given_name;
+      let email = response.email;
+      $.ajax({
+        type: "post",
+        url: "../ajax/get_usuario.php",
+        data: { email: email,
+                nocache: Math.random()},
+        dataType: "json",
+        success: function (response) {
+          if(response){
+            let error = document.createElement('div');
+            $(error).addClass('error');
+            $(error).html('Ya existe una cuenta con ese email');
+            $(error).insertAfter('.boton_google');
+          }else{
+            $.ajax({
+              type: "post",
+              url: "../ajax/insertar_usuario.php",
+              data: {
+                nocache: Math.random(),
+                username: username,
+                email: email,
+                pass: null,
+                email_verificado: email_verif,
+                fecha_creacion: new Date().toISOString().split('T')[0],
+                cuenta_google: 1
+              },
+              dataType: "json",
+              success: function (response) {
+                if(response){
+                  // console.log('Usuario insertado');
+                  if(email_verif === 0){
+                    window.location.href = '../vistas/verificar_correo_vista.php?email='+email;
+                  }else{
+                    window.location.href = '../vistas/login_vista.php';
+                  }
+                }else{
+                  // console.log('Ha ocurrido un problema');
+                }
+              },
+              error: function(error){
+                console.log(error);
+              }
+            });
+          }
+        },
+        error: function(error){
+          console.log(error);
+        }
+      });
     },
     error: function(error){
       console.log("Ha ocurrido un error");
@@ -100,19 +177,4 @@ function validar_inputs(){
   }
 
   return valido;
-}
-
-function mandar_correo_verificacion(){
-  $.ajax({
-    type: "post",
-    url: "",
-    data: { nocache: Math.random(),
-            username: $('#username').val(),
-            email: $('#email').val(),
-            pass: $('#pass').val()},
-    dataType: "json",
-    success: function (response) {
-      
-    }
-  });
 }

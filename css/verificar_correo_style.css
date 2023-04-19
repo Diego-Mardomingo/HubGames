@@ -32,3 +32,20 @@ body{
 span{
   font-weight: 400;
 }
+.enlace{
+  width: fit-content;
+  text-decoration: none;
+  margin: auto;
+}
+.enlace > div{
+  background-color: #00171F;
+  border-radius: 5px;
+  color: #fff;
+  padding: 1em;
+  font-size: 1.2em;
+  font-weight: 700;
+  margin-top: 2em;
+}
+.enlace > div:hover{
+  background-color: #052935;
+}

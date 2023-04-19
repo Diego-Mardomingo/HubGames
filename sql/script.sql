@@ -6,8 +6,9 @@ CREATE TABLE Usuarios (
   id_usuario INT PRIMARY KEY AUTO_INCREMENT,
   username TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
-  password TEXT CHECK (cuenta_google = false OR password = ''),
-  email_verificado BOOLEAN NOT NULL,
+  password TEXT CHECK (cuenta_google = true 
+    OR (cuenta_google = false AND password IS NOT NULL AND password <> '')),
+  email_verificado BOOLEAN NOT NULL DEFAULT false,
   fecha_creacion TEXT NOT NULL,
   cuenta_google BOOLEAN NOT NULL,
   administrador BOOLEAN NOT NULL
