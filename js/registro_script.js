@@ -32,10 +32,8 @@ $(document).ready(function () {
               dataType: "json",
               success: function (response) {
                 if(response){
-                  console.log('Usuario insertado');
                   window.location.href = '../vistas/verificar_correo_vista.php?email='+$('#email').val();
                 }else{
-                  console.log('Ha ocurrido un problema');
                 }
               },
               error: function(error){
@@ -55,6 +53,7 @@ $(document).ready(function () {
 });
 
 function googleLogin(credenciales) {
+  //* Primero desencriptamos el token de google para acceder a los datos del usuario
   $.ajax({
     type: "post",
     url: "../ajax/googleLogin.php",
@@ -64,9 +63,11 @@ function googleLogin(credenciales) {
     dataType: "json",
     success: function (response) {
       console.log(response);
+      //* Obtenemos los datos del usuario de google en RESPONSE
       let email_verif = response.email_verified ? 1 : 0;
       let username = response.given_name;
       let email = response.email;
+      //* Comprobamos si el usuario ya tiene una cuenta en la base de datos o no
       $.ajax({
         type: "post",
         url: "../ajax/get_usuario.php",
@@ -75,11 +76,31 @@ function googleLogin(credenciales) {
         dataType: "json",
         success: function (response) {
           if(response){
-            let error = document.createElement('div');
-            $(error).addClass('error');
-            $(error).html('Ya existe una cuenta con ese email');
-            $(error).insertAfter('.boton_google');
+            //* Tiene una cuenta ya creada
+            //* Comprobamos si el email está verificado
+            if(email_verif === 0){
+              //* El email NO está verificado
+              window.location.href = '../vistas/verificar_correo_vista.php?email='+email;
+            }else{
+              //* El email está verificado
+              //* Iniciamos sesión con su cuenta de google
+              $.ajax({
+                type: "post",
+                url: "../php/start_sesion.php",
+                data: {
+                  nocache: Math.random(),
+                  username: username,
+                  identificador: response.id_usuario
+                },
+                dataType: "json",
+                success: function (response) {
+                  window.location.href = 'https://HubGames.es';
+                }
+              });
+            }
           }else{
+            //* No tiene una cuenta ya creada
+            //* Creamos la cuenta para el usuario
             $.ajax({
               type: "post",
               url: "../ajax/insertar_usuario.php",
@@ -94,15 +115,29 @@ function googleLogin(credenciales) {
               },
               dataType: "json",
               success: function (response) {
+                console.log(response);
                 if(response){
-                  // console.log('Usuario insertado');
+                  //* Comprobamos si el email está verificado
                   if(email_verif === 0){
+                    //* El email NO está verificado
                     window.location.href = '../vistas/verificar_correo_vista.php?email='+email;
                   }else{
-                    window.location.href = '../vistas/login_vista.php';
+                    //* El email está verificado
+                    //* Iniciamos sesión con su cuenta de google
+                    $.ajax({
+                      type: "post",
+                      url: "../php/start_sesion.php",
+                      data: {
+                        nocache: Math.random(),
+                        username: username,
+                        identificador: response.id_usuario
+                      },
+                      dataType: "json",
+                      success: function (response) {
+                        window.location.href = 'https://HubGames.es';
+                      }
+                    });
                   }
-                }else{
-                  // console.log('Ha ocurrido un problema');
                 }
               },
               error: function(error){
@@ -117,7 +152,6 @@ function googleLogin(credenciales) {
       });
     },
     error: function(error){
-      console.log("Ha ocurrido un error");
       console.log(error);
     }
   });

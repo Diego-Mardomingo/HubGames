@@ -18,6 +18,12 @@
   $pdo = $conn->prepare("INSERT INTO Usuarios VALUES(NULL,:username,:email,:pass,:email_verificado,:fecha_creacion,:cuenta_google, 0)");
   $pdo->execute($params);
 
-  echo json_encode($pdo->rowCount());
+  $conn2 = database::conectar();
+  $params2 = array(':email'=>$email);
+  $pdo2 = $conn2->prepare("SELECT id_usuario FROM Usuarios WHERE email = :email");
+  $pdo2->execute($params2);
+  $resultado = $pdo2->fetch(PDO::FETCH_ASSOC);
+
+  echo json_encode($resultado);
 
 ?>

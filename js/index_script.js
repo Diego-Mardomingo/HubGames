@@ -48,7 +48,6 @@ $(document).ready(function () {
 
   // Evento para móviles de mostrar el menú
   document.querySelector('.barras').addEventListener('click',()=>{
-    console.log('Hola');
     $('.nav_list').toggleClass('mostrar_menu');
     if($('.nav_list').hasClass('mostrar_menu')){
       $('.barras i').addClass('fa-xmark');

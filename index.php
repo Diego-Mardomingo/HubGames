@@ -27,7 +27,6 @@
   <script src="https://kit.fontawesome.com/ed0e2390af.js" crossorigin="anonymous"></script>
   <script type="text/javascript" src="js/lazysizes.min.js" async=""></script>
   <script type="text/javascript" src="js/jquery-3.6.4.min.js"></script>
-  <script type="text/javascript" src="js/pica.min.js"></script>
   <script type="text/javascript" src="js/index_script.js"></script>
   <title>HubGames</title>
 </head>
@@ -35,6 +34,7 @@
 <body>
   <?php
   session_start();
+  
   isset($_SESSION['username']) ? include_once("includes/nav_con_sesion.php") : include_once("includes/nav_sin_sesion.php");?>
 
 <div class="cuerpo">
