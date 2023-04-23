@@ -15,7 +15,7 @@
   $params = array(':username' => $username,':email' => $email,':pass' => $pass,':email_verificado' => $email_verificado,':fecha_creacion'=>$fecha_creacion,':cuenta_google'=>$cuenta_google);
 
   $conn = database::conectar();
-  $pdo = $conn->prepare("INSERT INTO Usuarios VALUES(NULL,:username,:email,:pass,:email_verificado,:fecha_creacion,:cuenta_google, 0)");
+  $pdo = $conn->prepare("INSERT INTO Usuarios(id_usuario,username,email,password,email_verificado,fecha_creacion,cuenta_google,administrador) VALUES(NULL,:username,:email,:pass,:email_verificado,:fecha_creacion,:cuenta_google, 0)");
   $pdo->execute($params);
 
   $conn2 = database::conectar();

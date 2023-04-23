@@ -178,7 +178,7 @@ function pintar_juegos(resultados){
     let div_juego = document.createElement('a');
     $(div_juego).addClass('juego');
     $(div_juego).attr('id', resultados[i].id);
-    $(div_juego).attr('href', 'http://localhost/HubGames/vistas/detalles_juego_vista.php?id='+resultados[i].id);
+    $(div_juego).attr('href', 'https://Hubgames.es/vistas/detalles_juego_vista.php?id='+resultados[i].id);
     $(div_juego).attr('target', '_blank');
     let div_nombre = document.createElement('div');
     $(div_nombre).addClass('nombre');
@@ -408,8 +408,8 @@ function pintar_filtros_activos(){
 
 function boton_borrar_todos_filtros(){
   $('#borrar_todos_filtros').remove();
-  let filtros_activados = document.querySelectorAll('.filtro_activado');
-  if(filtros_activados.length >= 3){
+  let filtros_activos = document.querySelectorAll('.filtro_activo');
+  if(filtros_activos.length >= 3){
     let borrar_todos_filtros = document.createElement('div');
     $(borrar_todos_filtros).addClass('filtro_activo');
     $(borrar_todos_filtros).attr('id', 'borrar_todos_filtros');

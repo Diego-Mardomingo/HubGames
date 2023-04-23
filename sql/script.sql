@@ -128,3 +128,23 @@ CREATE TABLE Logs (
   evento TEXT NOT NULL,
   fecha_insercion TEXT NOT NULL
 );
+
+
+
+
+
+
+
+
+
+
+-- TRIGGERS
+DELIMITER //
+CREATE OR REPLACE TRIGGER nuevo_usuario_log
+AFTER INSERT ON Usuarios
+FOR EACH ROW
+BEGIN
+    INSERT INTO Logs (evento, fecha_insercion)
+    VALUES (CONCAT(CONCAT('Se ha creado el usuario ', NEW.username),CONCAT(' con id: ', NEW.id_usuario)) , DATE_FORMAT(NOW(), '%d/%m/%Y'));
+END; //
+DELIMITER ;
