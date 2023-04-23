@@ -21,8 +21,8 @@
 </html>
 <?php
 
-$to = "diego.lopez.mardomingo@gmail.com";
-// $to = $_GET['email'];
+// $to = "diego.lopez.mardomingo@gmail.com";
+$to = $_GET['email'];
 $subject = "Verifica tu email en HubGames.es";
 
 $token = base64_encode($_GET['email']);
