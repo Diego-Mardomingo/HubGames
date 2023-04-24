@@ -27,9 +27,48 @@
 <body>
 <?php
   session_start();
-  isset($_SESSION['username']) ? include_once("../includes/nav_con_sesion.php") : include_once("../includes/nav_sin_sesion.php");?>
+  isset($_SESSION['username']) ? include_once("../includes/nav_con_sesion.php") : include_once("../includes/nav_sin_sesion.php");
+?>
 
   <div class="cuerpo"></div>
+  <div class="reviews">
+    <?php
+    if(isset($_SESSION['username'])){
+      echo '<div class="boton_new_review">Crear reseña <i class="fa-solid fa-plus"></i></div>';
+    }else{
+      echo '<div class="review_sin_sesion">Para crear reseñas debes <a href="https://HubGames.es/vistas/login_vista.php">iniciar sesión</a></div>';
+    }
+    ?>
+    <div class="div_review"></div>
+  </div>
+  <!-- Modal -->
+  <div id="modal" class="modal">
+    <div class="modal-contenido">
+      <h2>Crear reseña</h2>
+      <div class="crear_encabezado">
+        <label for="encabezado">Título:</label>
+        <input type="text" id="encabezado">
+      </div>
+      <div class="crear_contenido">
+        <label for="contenido">Contenido:</label>
+        <textarea id="contenido"></textarea>
+      </div>
+      <div class="crear_valoracion">
+        <label for="valoracion">Valoración:</label>
+        <select name="valoracion" id="valoracion">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+      <div class="botones">
+        <button id="cancelar">Cancelar</button>
+        <button id="crear">Crear</button>
+      </div>
+    </div>
+  </div>
 
   <?php include_once("../includes/footer.php"); ?>
 </body>

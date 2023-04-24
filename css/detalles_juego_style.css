@@ -553,7 +553,13 @@ body{
   font-size: 1em;
 }
 
-
+/* REVIEWS */
+.reviews{
+  margin: auto;
+  background-color: rgba(0, 23, 31, .4);
+  display: grid;
+  place-content: center;
+}
 
 
 

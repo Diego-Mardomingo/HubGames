@@ -11,13 +11,45 @@ $(document).ready(function () {
     dataType: "json",
     success: function (response) {
       pintar_datos_juego(response);
-      console.log(response);
-    }
+      obtener_reviews_juego(id_juego);
+    },
+    
   });
 
   // Evento para móviles de mostrar el menú
+  evento_moviles();
+
+  //* Creación de reseñas 
+  $('.boton_new_review').click(function (e) { 
+    $('.modal').addClass('mostrar');
+  });
+  $('#cancelar').click(function (e) { 
+    $('.modal').removeClass('mostrar');
+  });
+  $('#crear').click(function (e) { 
+    if(validar_inputs()){
+      $.ajax({
+        type: "post",
+        url: "../ajax/crear_review.php",
+        data: {
+          nocache: Math.random(),
+          encabezado: $('#encabezado').val(),
+          contenido: $('#contenido').val(),
+          valoracion: $('#valoracion').val(),
+          id_juego: id_juego
+        },
+        dataType: "json",
+        success: function (response) {
+          location.reload();
+        }
+      });
+    }
+  });
+
+});
+
+function evento_moviles(){
   document.querySelector('.barras').addEventListener('click',()=>{
-    console.log('Hola');
     $('.nav_list').toggleClass('mostrar_menu');
     if($('.nav_list').hasClass('mostrar_menu')){
       $('.barras i').addClass('fa-xmark');
@@ -28,13 +60,38 @@ $(document).ready(function () {
     }
   })
   document.querySelector('.barras').addEventListener('mouseout',()=>{
-    console.log('Adiós');
     $('.nav_list').removeClass('mostrar_menu');
     $('.barras i').removeClass('fa-xmark');
     $('.barras i').addClass('fa-bars');
   })
+}
 
-});
+function validar_inputs(){
+  let valido = true;
+  let cadenaError ='';
+
+  // Validar encabezado
+  if($('#encabezado').val().trim() === ''){
+    valido = false;
+    cadenaError += 'El encabezado no puede estar vacío.<br>';
+  }
+
+  // Validar contenido
+  if($('#contenido').val().trim() === ''){
+    valido = false;
+    cadenaError += 'El contenido no puede estar vacío.<br>';
+  }
+
+  $('.error').remove();
+  if(!valido){
+    let error = document.createElement('div');
+    $(error).addClass('error');
+    $(error).html(cadenaError);
+    $(error).insertAfter('.modal-contenido  h2');
+  }
+
+  return valido;
+}
 
 function pintar_datos_juego(juego){
   pintar_nombre(juego);
@@ -54,6 +111,106 @@ function pintar_datos_juego(juego){
   if(juego.website){pintar_website(juego);}
   if(juego.metacritic_url){pintar_enlace_metacritic(juego);}
   if(juego.reddit_url){pintar_enlace_reddit(juego);}
+}
+
+function obtener_reviews_juego(id_juego){
+  //* Obtenemos todas las reviews asociadas a este videojuego
+  $.ajax({
+    type: "post",
+    url: "../ajax/get_reviews.php",
+    data: {
+      nocache: Math.random(),
+      id_juego: id_juego
+    },
+    dataType: "json",
+    success: function (response) {
+      pintar_reviews_juego(response,0);
+    }
+  });
+}
+
+function pintar_reviews_juego(reviews,pagina){
+  $('.div_review').empty();
+
+  let num_reviews_pagina = 3;
+  let inicio = pagina * 3;
+  let fin = inicio + num_reviews_pagina;
+
+  for (let i = inicio; i < fin && i < reviews.length; i++) {
+
+    let div_review = document.createElement('div');
+    $(div_review).addClass('review');
+    
+    let div_encabezado = document.createElement('div');
+    $(div_encabezado).addClass('encabezado');
+    $(div_encabezado).text(reviews[i].encabezado);
+    $(div_review).append(div_encabezado);
+    
+    let div_contenido = document.createElement('div');
+    $(div_contenido).addClass('contenido');
+    $(div_contenido).text(reviews[i].contenido);
+    $(div_review).append(div_contenido);
+    
+    let div_fecha_creacion = document.createElement('div');
+    $(div_fecha_creacion).addClass('fecha_creacion');
+    $(div_fecha_creacion).text(reviews[i].fecha_creacion);
+    $(div_review).append(div_fecha_creacion);
+
+    let div_usuario = document.createElement('div');
+    $(div_usuario).addClass('usuario');
+    let id_usuario = document.createElement('div');
+    $(id_usuario).addClass('id_usuario');
+    $(id_usuario).text('#'+reviews[i].id_usuario);
+    $(div_usuario).append(id_usuario);
+    let username = document.createElement('div');
+    $(username).addClass('username');
+    $(username).text(reviews[i].username);
+    $(div_usuario).append(username);
+    $(div_review).append(div_usuario);
+
+    let div_valoracion = document.createElement('div');
+    $(div_valoracion).addClass('valoracion');
+    for (let j = 1; j <= 5; j++) {
+      if(j <= reviews[i].valoracion){
+        $(div_valoracion).append('<i class="fa-solid fa-star"></i>');
+      }else{
+        $(div_valoracion).append('<i class="fa-regular fa-star"></i>');
+      }
+    }
+    $(div_review).append(div_valoracion);
+
+    $('.div_review').append(div_review);
+
+  }
+
+  if(reviews.length === 0){
+    $('.reviews').append('<div class="review no_reviews">Aún no existen reviews de este videojuego, puedes romper el hielo!</div>');
+  }
+
+  let paginacion = document.createElement('div');
+  $(paginacion).addClass('paginacion');
+  if(fin < reviews.length){
+    let siguiente_review = document.createElement('div');
+    $(siguiente_review).addClass('siguiente_review');
+    $(siguiente_review).html('Siguiente <i class="fa-solid fa-circle-arrow-right"></i>');
+    $(siguiente_review).click(function (e) { 
+      pagina++;
+      pintar_reviews_juego(reviews,pagina);
+    });
+    $(paginacion).append(siguiente_review);
+  }
+  if(pagina != 0){
+    let anterior_review = document.createElement('div');
+    $(anterior_review).addClass('anterior_review');
+    $(anterior_review).html('Anterior <i class="fa-solid fa-circle-arrow-left"></i>');
+    $(anterior_review).click(function (e) { 
+      pagina--;
+      pintar_reviews_juego(reviews,pagina);
+    });
+    $(paginacion).append(anterior_review);
+  }
+  $('.div_review').append(paginacion);
+  
 }
 
 function pintar_nombre(juego){

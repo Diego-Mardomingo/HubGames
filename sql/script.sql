@@ -148,3 +148,13 @@ BEGIN
     VALUES (CONCAT(CONCAT('Se ha creado el usuario ', NEW.username),CONCAT(' con id: ', NEW.id_usuario)) , DATE_FORMAT(NOW(), '%d/%m/%Y'));
 END; //
 DELIMITER ;
+
+DELIMITER //
+CREATE OR REPLACE TRIGGER nueva_review_log
+AFTER INSERT ON Reviews
+FOR EACH ROW
+BEGIN
+    INSERT INTO Logs (evento, fecha_insercion)
+    VALUES (CONCAT('Se ha creado una reseña con id ', NEW.id_review,' para el juego ',NEW.id_videojuego,' por parte del usuario con id ',NEW.id_usuario,' El título de la reseña es ',NEW.encabezado, ' y la valoración es ',NEW.valoracion) , DATE_FORMAT(NOW(), '%d/%m/%Y'));
+END; //
+DELIMITER ;
