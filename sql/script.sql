@@ -168,3 +168,13 @@ BEGIN
     VALUES (CONCAT('Se ha creado un chat con id ', NEW.id_chat,' por parte del usuario con id ',NEW.id_usuario,' El título de la reseña es ',NEW.titulo) , DATE_FORMAT(NOW(), '%d/%m/%Y'));
 END; //
 DELIMITER ;
+
+DELIMITER //
+CREATE OR REPLACE TRIGGER nuevo_comentario_log
+AFTER INSERT ON Comentarios
+FOR EACH ROW
+BEGIN
+    INSERT INTO Logs (evento, fecha_insercion)
+    VALUES (CONCAT('Se ha creado un comentario con id ', NEW.id_comentario,' por parte del usuario con id ',NEW.id_usuario,', en el chat con id ',NEW.id_chat) , DATE_FORMAT(NOW(), '%d/%m/%Y'));
+END; //
+DELIMITER ;
