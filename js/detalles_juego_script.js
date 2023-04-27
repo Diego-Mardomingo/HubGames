@@ -82,6 +82,22 @@ function validar_inputs(){
     cadenaError += 'El contenido no puede estar vacío.<br>';
   }
 
+  // Validar cantidad de palabras
+  // Máximo para el encabezado 75 caracteres
+  let caracteresEncabezado = $('#encabezado').val().trim().split("");
+  if (caracteresEncabezado.length > 75) {
+    valido = false;
+    cadenaError += 'El encabezado excede los 75 caracteres máximos ('+caracteresEncabezado.length+').<br>';
+  }
+
+  // Máximo para el contenido 300 caracteres
+  let caracteresContenido = $('#contenido').val().trim().split("");
+  if (caracteresContenido.length > 300) {
+    valido = false;
+    cadenaError += 'El contenido excede los 300 caracteres máximos ('+caracteresContenido.length+').<br>';
+  }
+  
+
   $('.error').remove();
   if(!valido){
     let error = document.createElement('div');
