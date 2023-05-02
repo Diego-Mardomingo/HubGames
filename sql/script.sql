@@ -155,7 +155,7 @@ AFTER INSERT ON Reviews
 FOR EACH ROW
 BEGIN
     INSERT INTO Logs (evento, fecha_insercion)
-    VALUES (CONCAT('Se ha creado una reseña con id ', NEW.id_review,' para el juego ',NEW.id_videojuego,' por parte del usuario con id ',NEW.id_usuario,' El título de la reseña es ',NEW.encabezado, ' y la valoración es ',NEW.valoracion) , DATE_FORMAT(NOW(), '%d/%m/%Y'));
+    VALUES (CONCAT('Se ha creado una reseña con id ', NEW.id_review,' para el juego ',NEW.id_videojuego,' por parte del usuario con id ',NEW.id_usuario,'.El título de la reseña es ',NEW.encabezado, ' y la valoración es ',NEW.valoracion) , DATE_FORMAT(NOW(), '%d/%m/%Y'));
 END; //
 DELIMITER ;
 
@@ -165,7 +165,7 @@ AFTER INSERT ON Chats
 FOR EACH ROW
 BEGIN
     INSERT INTO Logs (evento, fecha_insercion)
-    VALUES (CONCAT('Se ha creado un chat con id ', NEW.id_chat,' por parte del usuario con id ',NEW.id_usuario,' El título de la reseña es ',NEW.titulo) , DATE_FORMAT(NOW(), '%d/%m/%Y'));
+    VALUES (CONCAT('Se ha creado un chat con id ', NEW.id_chat,' por parte del usuario con id ',NEW.id_usuario,'.El título del chat es ',NEW.titulo) , DATE_FORMAT(NOW(), '%d/%m/%Y'));
 END; //
 DELIMITER ;
 

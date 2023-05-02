@@ -4,7 +4,7 @@
   <div class="nav_list">
       <?php 
       if(isset($_SESSION['administrador']) && ($_SESSION['administrador'] == 1)){
-        echo '<div class="nav_item"><a href="">Administrar</a></div>';
+        echo '<div class="nav_item"><a href="https://HubGames.es/vistas/administrar_vista.php">Administrar</a></div>';
       } 
       ?>
     <div class="nav_item"><a href="https://HubGames.es">Buscador</a></div>

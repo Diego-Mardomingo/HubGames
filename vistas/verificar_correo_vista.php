@@ -7,8 +7,6 @@
   <link rel="shortcut icon" href="../img/HGLogo.webp" type="image/x-icon">
   <title>Verificar correo | HubGames</title>
   <link rel="stylesheet" href="../css/verificar_correo_style.css">
-  <script type="text/javascript" src="../js/jquery-3.6.4.min.js"></script>
-  <!-- <script type="text/javascript" src="../js/registro_script.js"></script> -->
 </head>
 <body>
   <div class="cuerpo">
