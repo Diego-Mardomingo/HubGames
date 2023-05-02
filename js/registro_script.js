@@ -62,7 +62,6 @@ function googleLogin(credenciales) {
             nocache: Math.random()},
     dataType: "json",
     success: function (response) {
-      console.log(response);
       //* Obtenemos los datos del usuario de google en RESPONSE
       let email_verif = response.email_verified ? 1 : 0;
       let username = response.given_name;
@@ -94,7 +93,11 @@ function googleLogin(credenciales) {
                 },
                 dataType: "json",
                 success: function (response) {
-                  window.location.href = 'https://HubGames.es';
+                  if(document.referrer == 'https://hubgames.es/vistas/login_vista.php' || !document.referrer.includes('https://hubgames.es')){
+                    window.location.href = 'https://HubGames.es';
+                  }else{
+                    window.history.back();
+                  }
                 }
               });
             }
@@ -115,7 +118,6 @@ function googleLogin(credenciales) {
               },
               dataType: "json",
               success: function (response) {
-                console.log(response);
                 if(response){
                   //* Comprobamos si el email está verificado
                   if(email_verif === 0){
@@ -134,7 +136,11 @@ function googleLogin(credenciales) {
                       },
                       dataType: "json",
                       success: function (response) {
-                        window.location.href = 'https://HubGames.es';
+                        if(document.referrer == 'https://hubgames.es/vistas/login_vista.php' || !document.referrer.includes('https://hubgames.es')){
+                          window.location.href = 'https://HubGames.es';
+                        }else{
+                          window.history.back();
+                        }
                       }
                     });
                   }
@@ -160,7 +166,6 @@ function googleLogin(credenciales) {
 function evento_menu(){
   // Evento para móviles de mostrar el menú
   document.querySelector('.barras').addEventListener('click',()=>{
-    console.log('Hola');
     $('.nav_list').toggleClass('mostrar_menu');
     if($('.nav_list').hasClass('mostrar_menu')){
       $('.barras i').addClass('fa-xmark');
@@ -171,7 +176,6 @@ function evento_menu(){
     }
   })
   document.querySelector('.barras').addEventListener('mouseout',()=>{
-    console.log('Adiós');
     $('.nav_list').removeClass('mostrar_menu');
     $('.barras i').removeClass('fa-xmark');
     $('.barras i').addClass('fa-bars');

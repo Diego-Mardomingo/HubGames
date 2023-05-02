@@ -16,6 +16,7 @@ require_once('../php/database.php');
   if(password_verify($pass,$passHash)){
     $resultado['id_usuario'] = $fila['id_usuario'];
     $resultado['username'] = $fila['username'];
+    $resultado['administrador'] = $fila['administrador'];
   }else{
     $resultado = 0;
   }
