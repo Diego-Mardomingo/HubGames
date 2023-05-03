@@ -66,7 +66,7 @@ CREATE TABLE JUDI_fases_usuario (
   id_lista_JUDI INT,
   id_usuario INT,
   completado BOOLEAN NOT NULL DEFAULT false,
-  fecha_completado TEXT NOT NULL,
+  fecha_completado TEXT ,
   fase1 BOOLEAN NOT NULL DEFAULT false,
   fase2 BOOLEAN NOT NULL DEFAULT false,
   fase3 BOOLEAN NOT NULL DEFAULT false,
@@ -77,7 +77,7 @@ CREATE TABLE JUDI_fases_usuario (
   PRIMARY KEY (id_lista_JUDI,id_usuario),
   CONSTRAINT fk_fases_id_lista_JUDI
       FOREIGN KEY (id_lista_JUDI)
-      REFERENCES Lista_videojuegos_JUDI(id_lista_JUDI) ON UPDATE CASCADE,
+      REFERENCES Lista_videojuegos_JUDI(id_lista_JUDI) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk_fases_id_usuario
       FOREIGN KEY (id_usuario)
       REFERENCES Usuarios(id_usuario) ON UPDATE CASCADE
@@ -88,7 +88,7 @@ CREATE TABLE Capturas (
   id_videojuego INT,
   CONSTRAINT fk_capturas_id_videojuego
       FOREIGN KEY (id_videojuego)
-      REFERENCES Lista_videojuegos_JUDI(id_videojuego) ON UPDATE CASCADE
+      REFERENCES Lista_videojuegos_JUDI(id_videojuego) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE Plataformas (
@@ -105,7 +105,7 @@ CREATE TABLE Videojuego_Plataforma (
   PRIMARY KEY (id_videojuego,plataforma),
   CONSTRAINT fk_vj_pl_id_videojuego
       FOREIGN KEY (id_videojuego)
-      REFERENCES Lista_videojuegos_JUDI(id_videojuego) ON UPDATE CASCADE,
+      REFERENCES Lista_videojuegos_JUDI(id_videojuego) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk_vj_pl_plataforma
       FOREIGN KEY (plataforma)
       REFERENCES Plataformas(plataforma) ON UPDATE CASCADE
@@ -117,7 +117,7 @@ CREATE TABLE Videojuego_Genero (
   PRIMARY KEY (id_videojuego,genero),
   CONSTRAINT fk_vj_ge_id_videojuego
       FOREIGN KEY (id_videojuego)
-      REFERENCES Lista_videojuegos_JUDI(id_videojuego) ON UPDATE CASCADE,
+      REFERENCES Lista_videojuegos_JUDI(id_videojuego) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk_vj_ge_genero
       FOREIGN KEY (genero)
       REFERENCES Generos(genero) ON UPDATE CASCADE
