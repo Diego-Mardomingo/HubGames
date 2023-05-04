@@ -1,0 +1,75 @@
+$(document).ready(function () {
+  
+  evento_moviles();
+
+  obtener_juegos();
+
+});
+
+function obtener_juegos(){
+  $.ajax({
+    type: "post",
+    url: "../ajax/get_lista_juegos.php",
+    data: {
+      nocache: Math.random()
+    },
+    dataType: "json",
+    success: function (response) {
+      console.log(response);
+      for (let i = 0; i < response.length; i++) {
+        let juego = document.createElement('div');
+        $(juego).addClass('juego');
+
+        let id_lista = document.createElement('div');
+        $(id_lista).addClass('id_lista');
+        $(id_lista).text('# '+response[i].id_lista_JUDI);
+        $(juego).append(id_lista);
+
+        let fecha = document.createElement('div');
+        $(fecha).addClass('fecha');
+        $(fecha).text(response[i].fecha);
+        $(juego).append(fecha);
+
+        let boton = document.createElement('div');
+        $(boton).addClass('boton');
+        if(response[i].completado == 0 && response[i].fase6 == 0){
+          //* Juego no terminado
+          $(boton).addClass('fondo_blanco');
+          $(boton).html('<span>¡Jugar!</span> <i class="fa-solid fa-arrow-right"></i>');
+        }else if(response[i].completado == 1 && response[i].fase6 == 0){
+          //* Juego acertado
+          $(boton).addClass('fondo_verde');
+          $(boton).html('<i class="fa-solid fa-check"></i>');
+        }else if(response[i].completado == 1 && response[i].fase6 == 1){
+          //* Juego fallado
+          $(boton).addClass('fondo_rojo');
+          $(boton).html('<i class="fa-solid fa-xmark"></i>');
+        }
+        $(juego).append(boton);
+
+        $('.lista').append(juego);
+      }
+    },
+    error: function(error){
+      console.log(error);
+    }
+  });
+}
+
+function evento_moviles(){
+  document.querySelector('.barras').addEventListener('click',()=>{
+    $('.nav_list').toggleClass('mostrar_menu');
+    if($('.nav_list').hasClass('mostrar_menu')){
+      $('.barras i').addClass('fa-xmark');
+      $('.barras i').removeClass('fa-bars');
+    }else{
+      $('.barras i').removeClass('fa-xmark');
+      $('.barras i').addClass('fa-bars');
+    }
+  })
+  document.querySelector('.barras').addEventListener('mouseout',()=>{
+    $('.nav_list').removeClass('mostrar_menu');
+    $('.barras i').removeClass('fa-xmark');
+    $('.barras i').addClass('fa-bars');
+  })
+}
