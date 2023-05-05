@@ -43,7 +43,7 @@
       $lista_JUDI = unserialize($_COOKIE['lista_JUDI']);
       //* Ahora inicializamos todos aquellos juegos que no estén inicializados
       for ($i=0; $i < sizeof($juegos); $i++) { 
-        if($juegos[$i]['id_videojuego'] == $lista_JUDI[$i]['id_videojuego']){
+        if(isset($lista_JUDI[$i]) && $juegos[$i]['id_videojuego'] == $lista_JUDI[$i]['id_videojuego']){
           //* El juego ya está inicializado
           //* Guardamos su progreso
           $juegos[$i]['completado'] = $lista_JUDI[$i]['completado'];
@@ -52,6 +52,11 @@
           //* El juego NO está inicializado
           //* Inicializamos el juego
           $juegos[$i]['completado'] = 0;
+          $juegos[$i]['fase1'] = 0;
+          $juegos[$i]['fase2'] = 0;
+          $juegos[$i]['fase3'] = 0;
+          $juegos[$i]['fase4'] = 0;
+          $juegos[$i]['fase5'] = 0;
           $juegos[$i]['fase6'] = 0;
         }
       }
@@ -65,6 +70,11 @@
       //* Inicializamos todos los juegos
       for ($i=0; $i < sizeof($juegos); $i++) { 
         $juegos[$i]['completado'] = 0;
+        $juegos[$i]['fase1'] = 0;
+        $juegos[$i]['fase2'] = 0;
+        $juegos[$i]['fase3'] = 0;
+        $juegos[$i]['fase4'] = 0;
+        $juegos[$i]['fase5'] = 0;
         $juegos[$i]['fase6'] = 0;
       }
       //* Para poder almacenar el array en una cookie debemos serializarlo

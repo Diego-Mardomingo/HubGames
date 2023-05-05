@@ -36,6 +36,9 @@ function obtener_juegos(){
           //* Juego no terminado
           $(boton).addClass('fondo_blanco');
           $(boton).html('<span>¡Jugar!</span> <i class="fa-solid fa-arrow-right"></i>');
+          $(boton).click(function (e) { 
+            window.location.href = 'https://hubgames.es/vistas/juego_JUDI_vista.php?id_lista='+response[i].id_lista_JUDI;
+          });
         }else if(response[i].completado == 1 && response[i].fase6 == 0){
           //* Juego acertado
           $(boton).addClass('fondo_verde');
@@ -46,6 +49,7 @@ function obtener_juegos(){
           $(boton).html('<i class="fa-solid fa-xmark"></i>');
         }
         $(juego).append(boton);
+
 
         $('.lista').append(juego);
       }
