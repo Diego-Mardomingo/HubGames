@@ -15,7 +15,6 @@ function obtener_juegos(){
     },
     dataType: "json",
     success: function (response) {
-      console.log(response);
       for (let i = 0; i < response.length; i++) {
         let juego = document.createElement('div');
         $(juego).addClass('juego');

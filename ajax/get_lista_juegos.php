@@ -37,16 +37,21 @@
   }else{
     //* Sesión NO iniciada
     //* Deberemos guardarlo en una cookie
-    if(isset($_COOKIE['lista_JUDI'])){
+    if(isset($_COOKIE['lista'])){
       //* La cookie existe
       //* Primero debemos deserializarla
-      $lista_JUDI = unserialize($_COOKIE['lista_JUDI']);
+      $lista_JUDI = unserialize($_COOKIE['lista']);
       //* Ahora inicializamos todos aquellos juegos que no estén inicializados
       for ($i=0; $i < sizeof($juegos); $i++) { 
         if(isset($lista_JUDI[$i]) && $juegos[$i]['id_videojuego'] == $lista_JUDI[$i]['id_videojuego']){
           //* El juego ya está inicializado
           //* Guardamos su progreso
           $juegos[$i]['completado'] = $lista_JUDI[$i]['completado'];
+          $juegos[$i]['fase1'] = $lista_JUDI[$i]['fase1'];
+          $juegos[$i]['fase2'] = $lista_JUDI[$i]['fase2'];
+          $juegos[$i]['fase3'] = $lista_JUDI[$i]['fase3'];
+          $juegos[$i]['fase4'] = $lista_JUDI[$i]['fase4'];
+          $juegos[$i]['fase5'] = $lista_JUDI[$i]['fase5'];
           $juegos[$i]['fase6'] = $lista_JUDI[$i]['fase6'];
         }else{
           //* El juego NO está inicializado
@@ -64,7 +69,8 @@
       //* Para poder almacenar el array en una cookie debemos serializarlo
       $lista_JUDI_serializada = serialize($juegos);
       //* Actualizamos la cookie con 10 años de expiración
-      setcookie("lista_JUDI",$lista_JUDI_serializada,time() + (10 * 365 * 24 * 60 * 60));
+      setcookie("lista",'',time()-3600);
+      setcookie("lista",$lista_JUDI_serializada,time() + (10 * 365 * 24 * 60 * 60));
     }else{
       //* La cookie no existe
       //* Inicializamos todos los juegos
@@ -80,11 +86,10 @@
       //* Para poder almacenar el array en una cookie debemos serializarlo
       $lista_JUDI_serializada = serialize($juegos);
       //* Creamos la cookie con 10 años de expiración
-      setcookie("lista_JUDI",$lista_JUDI_serializada,time() + (10 * 365 * 24 * 60 * 60));
+      setcookie("lista",'',time()-3600);
+      setcookie("lista",$lista_JUDI_serializada,time() + (10 * 365 * 24 * 60 * 60));
     }
   }
-
-
 
   echo json_encode($juegos);
 ?>

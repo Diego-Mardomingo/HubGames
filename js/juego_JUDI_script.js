@@ -21,7 +21,6 @@ function obtener_datos_juego(id_lista){
     },
     dataType: "json",
     success: function (response) {
-      console.log(response);
       pintar_fase_inicial(response);
     },
     error: function (error) {
@@ -88,7 +87,7 @@ function pintar_fase_inicial(response){
     clearTimeout(timer);
     timer = setTimeout(() => {
       busqueda_api();
-    }, 1000);
+    }, 500);
   })
 
   let adivinar = document.createElement('div');
@@ -96,10 +95,8 @@ function pintar_fase_inicial(response){
   $(adivinar).text('Adivinar');
   $(contenido).append(adivinar);
   $(adivinar).click(function (e) { 
-    console.log('ADIVINAR');
     if(($('.buscador input').val()).toUpperCase() == response.juego.nombre.toUpperCase()){
       //* Juego adivinado
-      console.log('adivinado');
       let resultado = response.juego.nombre;
       $.ajax({
         type: "post",
@@ -113,12 +110,14 @@ function pintar_fase_inicial(response){
         success: function (response) {
           $('.contenido').empty();
           $('.contenido').html('<div class="acertado">Enhorabuena! El juego del día de hoy es '+resultado+'</div>');
+        },
+        error: function(error){
+          console.log(error);
         }
       });
     }else{
       //* Juego fallado
-      console.log('fallado');
-      console.log(FASE_ACTUAL++);
+      FASE_ACTUAL++;
       let id_lista = response.juego.id_lista_JUDI;
       let resultado = response.juego.nombre;
       $.ajax({
@@ -126,12 +125,11 @@ function pintar_fase_inicial(response){
         url: "../ajax/actualizar_fase.php",
         data: {
           nocache: Math.random(),
-          fase: 'fase'+(FASE_ACTUAL++),
+          fase: 'fase'+(FASE_ACTUAL),
           id_lista_JUDI: response.juego.id_lista_JUDI
         },
         dataType: "json",
         success: function (response) {
-          console.log('RESPUESTA: '+response);
           if(response == 'fallido'){
             $('.contenido').empty();
             $('.contenido').html('<div class="fallado">Fallaste! El juego del día de hoy es '+resultado+'</div>');
@@ -139,6 +137,9 @@ function pintar_fase_inicial(response){
             $('.cuerpo').empty();
             obtener_datos_juego(id_lista);
           }
+        },
+        error: function(error){
+          console.log(error);
         }
       });
     }
@@ -206,6 +207,10 @@ function pintar_data(fase,response){
 
 function comprobar_fases(fases, response){
   $('.fases').empty();
+
+  if(response.juego.completado == 1){
+    window.location.href = 'https://hubgames.es/vistas/JUDI_vista.php';
+  }
 
   let fase_inicial = document.createElement('div');
   $(fase_inicial).addClass('fase_inicial');
@@ -287,8 +292,12 @@ function comprobar_fases(fases, response){
 
 function pintar_vidas(numVidas){
   $('.vidas').empty();
-  for (let i = 0; i < numVidas; i++) {
-    $('.vidas').append('<div><i class="fa-solid fa-heart"></i></div>');
+  for (let i = 0; i < 6; i++) {
+    if(i < numVidas){
+      $('.vidas').append('<div><i class="fa-solid fa-heart"></i></div>');
+    }else{
+      $('.vidas').append('<div><i class="fa-regular fa-heart"></i></div>');
+    }
   }
 }
 
