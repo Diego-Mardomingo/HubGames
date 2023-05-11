@@ -15,7 +15,7 @@
       $data['juego'] = $row;
     }
   }else{
-    $juegos = unserialize($_COOKIE['lista']);
+    $juegos = json_decode($_COOKIE['lista']);
     for ($i=0; $i < sizeof($juegos); $i++) { 
       if($juegos[$i]['id_lista_JUDI'] == $id_lista_JUDI){
         $data['juego'] = $juegos[$i];

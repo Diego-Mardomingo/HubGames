@@ -40,7 +40,7 @@
     if(isset($_COOKIE['lista'])){
       //* La cookie existe
       //* Primero debemos deserializarla
-      $lista_JUDI = unserialize($_COOKIE['lista']);
+      $lista_JUDI = json_decode($_COOKIE['lista']);
       //* Ahora inicializamos todos aquellos juegos que no estén inicializados
       for ($i=0; $i < sizeof($juegos); $i++) { 
         if(isset($lista_JUDI[$i]) && $juegos[$i]['id_videojuego'] == $lista_JUDI[$i]['id_videojuego']){
@@ -67,7 +67,7 @@
       }
       //* Ahora actualizamos la cookie
       //* Para poder almacenar el array en una cookie debemos serializarlo
-      $lista_JUDI_serializada = serialize($juegos);
+      $lista_JUDI_serializada = json_encode($juegos);
       //* Actualizamos la cookie con 10 años de expiración
       setcookie("lista",'',time()-3600);
       setcookie("lista",$lista_JUDI_serializada,time() + (10 * 365 * 24 * 60 * 60));
@@ -84,7 +84,7 @@
         $juegos[$i]['fase6'] = 0;
       }
       //* Para poder almacenar el array en una cookie debemos serializarlo
-      $lista_JUDI_serializada = serialize($juegos);
+      $lista_JUDI_serializada = json_encode($juegos);
       //* Creamos la cookie con 10 años de expiración
       setcookie("lista",'',time()-3600);
       setcookie("lista",$lista_JUDI_serializada,time() + (10 * 365 * 24 * 60 * 60));

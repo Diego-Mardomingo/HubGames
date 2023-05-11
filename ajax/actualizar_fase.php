@@ -41,7 +41,7 @@
     }
   }else{
     //* Sin sesión iniciada
-    $juegos = unserialize($_COOKIE['lista']);
+    $juegos = json_decode($_COOKIE['lista']);
     for ($i=0; $i < sizeof($juegos); $i++) { 
       if($juegos[$i]['id_lista_JUDI'] == $id_lista_JUDI){
 
@@ -64,7 +64,7 @@
         break;
       }
     }
-    $lista_JUDI_serializada = serialize($juegos);
+    $lista_JUDI_serializada = json_encode($juegos);
     setcookie("lista",'',time()-3600);
     setcookie("lista",$lista_JUDI_serializada,time() + (10 * 365 * 24 * 60 * 60));
     if($fase == 'fase6'){
