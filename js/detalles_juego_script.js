@@ -246,8 +246,31 @@ function pintar_imagen(juego){
 function pintar_description(juego){
   let juego_description = document.createElement('div');
   $(juego_description).addClass('juego_description');
-  $(juego_description).html(juego.description);
-  $('.cuerpo').append(juego_description);
+  let idioma_origen = 'en';
+  let idioma_destino = 'es';
+  let texto = juego.description;
+  $.ajax({
+    url: "https://translate.googleapis.com/translate_a/single",
+    type: "GET",
+    data: {
+      client: "gtx",
+      sl: idioma_origen,
+      tl: idioma_destino,
+      dt: "t",
+      q: texto
+    },
+    dataType: "json",
+    success: function (response) {
+      let texto_traducido='';
+      for (let i = 0; i < response[0].length; i++) {
+        texto_traducido += response[0][i][0];
+      }
+      $('.cuerpo').append(juego_description);
+      $(juego_description).html(texto_traducido);
+    }
+  });
+  // $(juego_description).html(juego.description);
+  // $('.cuerpo').append(juego_description);
 
 }
 
