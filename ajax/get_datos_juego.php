@@ -15,7 +15,11 @@
       $data['juego'] = $row;
     }
   }else{
-    $juegos = json_decode($_COOKIE['lista']);
+    $user = $_COOKIE['user_hubgames'];
+    $nombreArchivo = '../datos_judi/'.$user.'.txt';
+    $juegos = json_decode(file_get_contents($nombreArchivo,true));
+    //* Formateamos los valores del archivo txt para facilitar su posterior tratamiento
+    $juegos = json_decode(json_encode($juegos), true);
     for ($i=0; $i < sizeof($juegos); $i++) { 
       if($juegos[$i]['id_lista_JUDI'] == $id_lista_JUDI){
         $data['juego'] = $juegos[$i];

@@ -41,7 +41,11 @@
     }
   }else{
     //* Sin sesión iniciada
-    $juegos = json_decode($_COOKIE['lista']);
+    $user = $_COOKIE['user_hubgames'];
+    $nombreArchivo = '../datos_judi/'.$user.'.txt';
+    $juegos = json_decode(file_get_contents($nombreArchivo,true));
+    //* Formateamos los valores del archivo txt para facilitar su posterior tratamiento
+    $juegos = json_decode(json_encode($juegos), true);
     for ($i=0; $i < sizeof($juegos); $i++) { 
       if($juegos[$i]['id_lista_JUDI'] == $id_lista_JUDI){
 
@@ -64,9 +68,10 @@
         break;
       }
     }
-    $lista_JUDI_serializada = json_encode($juegos);
-    setcookie("lista",'',time()-3600);
-    setcookie("lista",$lista_JUDI_serializada,time() + (10 * 365 * 24 * 60 * 60));
+    $lista_JUDI_json = json_encode($juegos);
+    file_put_contents($nombreArchivo,$lista_JUDI_json);
+    //* Actualizamos la cookie con 1 año de expiración
+    setcookie("user_hubgames",$user,time() + (365 * 24 * 60 * 60));
     if($fase == 'fase6'){
       echo json_encode('fallido');
     }else{

@@ -36,11 +36,22 @@
     }
   }else{
     //* Sesión NO iniciada
-    //* Deberemos guardarlo en una cookie
-    if(isset($_COOKIE['lista'])){
+    //* Comprobamos si el usuario tiene una cookie asociada
+    if(isset($_COOKIE['user_hubgames'])){
+      $user = $_COOKIE['user_hubgames'];
       //* La cookie existe
-      //* Primero debemos deserializarla
-      $lista_JUDI = json_decode($_COOKIE['lista']);
+      //* Comprobamos que exista el archivo asociado
+      $nombreArchivo = '../datos_judi/'.$user.'.txt';
+      if(file_exists($nombreArchivo)){
+        //* El archivo existe
+        //* Primero debemos obtener los datos de su archivo txt asociado
+        $lista_JUDI = json_decode(file_get_contents($nombreArchivo,true));
+        //* Formateamos los valores del archivo txt para facilitar su posterior tratamiento
+        $lista_JUDI = json_decode(json_encode($lista_JUDI), true);
+      }else{
+        //* El archivo no existe
+        $lista_JUDI = array();
+      }
       //* Ahora inicializamos todos aquellos juegos que no estén inicializados
       for ($i=0; $i < sizeof($juegos); $i++) { 
         if(isset($lista_JUDI[$i]) && $juegos[$i]['id_videojuego'] == $lista_JUDI[$i]['id_videojuego']){
@@ -65,14 +76,13 @@
           $juegos[$i]['fase6'] = 0;
         }
       }
-      //* Ahora actualizamos la cookie
-      //* Para poder almacenar el array en una cookie debemos serializarlo
-      $lista_JUDI_serializada = json_encode($juegos);
-      //* Actualizamos la cookie con 10 años de expiración
-      setcookie("lista",'',time()-3600);
-      setcookie("lista",$lista_JUDI_serializada,time() + (10 * 365 * 24 * 60 * 60));
+      //* Ahora actualizamos el archivo txt asociado
+      $lista_JUDI_json = json_encode($juegos);
+      file_put_contents($nombreArchivo,$lista_JUDI_json);
+      //* Actualizamos la cookie con 1 año de expiración
+      setcookie("user_hubgames",$user,time() + (365 * 24 * 60 * 60));
     }else{
-      //* La cookie no existe
+      //* La cookie asociada no existe
       //* Inicializamos todos los juegos
       for ($i=0; $i < sizeof($juegos); $i++) { 
         $juegos[$i]['completado'] = 0;
@@ -83,11 +93,15 @@
         $juegos[$i]['fase5'] = 0;
         $juegos[$i]['fase6'] = 0;
       }
-      //* Para poder almacenar el array en una cookie debemos serializarlo
-      $lista_JUDI_serializada = json_encode($juegos);
-      //* Creamos la cookie con 10 años de expiración
-      setcookie("lista",'',time()-3600);
-      setcookie("lista",$lista_JUDI_serializada,time() + (10 * 365 * 24 * 60 * 60));
+      //* Creamos el archivo txt asociado a su id
+      $user_id = uniqid();
+      $nombreArchivo = '../datos_judi/'.$user_id.'.txt';
+      if(!file_exists($nombreArchivo)){
+        $lista_JUDI_json = json_encode($juegos);
+        file_put_contents($nombreArchivo,$lista_JUDI_json);
+      }
+      //* Actualizamos la cookie con 1 año de expiración
+      setcookie("user_hubgames",$user_id,time() + (365 * 24 * 60 * 60));
     }
   }
 

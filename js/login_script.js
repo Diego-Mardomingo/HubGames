@@ -42,11 +42,12 @@ $(document).ready(function () {
                     dataType: "json",
                     success: function (response) {
                       if(response){
-                        if(document.referrer == 'https://hubgames.es/vistas/registro_vista.php' || !document.referrer.includes('https://hubgames.es')){
-                          window.location.href = 'https://HubGames.es';
-                        }else{
-                          window.history.back();
-                        }
+                        window.location.href = 'https://HubGames.es';
+                        // if(document.referrer == 'https://hubgames.es/vistas/registro_vista.php' || !document.referrer.includes('https://hubgames.es')){
+                        //   window.location.href = 'https://HubGames.es';
+                        // }else{
+                        //   window.history.back();
+                        // }
                       }
                     }
                   });
@@ -119,11 +120,12 @@ function googleLogin(credenciales) {
                 },
                 dataType: "json",
                 success: function (response) {
-                  if(document.referrer == 'https://hubgames.es/vistas/registro_vista.php' || !document.referrer.includes('https://hubgames.es')){
-                    window.location.href = 'https://HubGames.es';
-                  }else{
-                    window.history.back();
-                  }
+                  window.location.href = 'https://HubGames.es';
+                  // if(document.referrer == 'https://hubgames.es/vistas/registro_vista.php' || !document.referrer.includes('https://hubgames.es')){
+                  //   window.location.href = 'https://HubGames.es';
+                  // }else{
+                  //   window.history.back();
+                  // }
                 }
               });
             }
@@ -162,11 +164,12 @@ function googleLogin(credenciales) {
                       },
                       dataType: "json",
                       success: function (response) {
-                        if(document.referrer == 'https://hubgames.es/vistas/registro_vista.php' || !document.referrer.includes('https://hubgames.es')){
-                          window.location.href = 'https://HubGames.es';
-                        }else{
-                          window.history.back();
-                        }
+                        window.location.href = 'https://HubGames.es';
+                        // if(document.referrer == 'https://hubgames.es/vistas/registro_vista.php' || !document.referrer.includes('https://hubgames.es')){
+                        //   window.location.href = 'https://HubGames.es';
+                        // }else{
+                        //   window.history.back();
+                        // }
                       }
                     });
                   }
