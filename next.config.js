@@ -10,7 +10,6 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
     reactStrictMode: true,
     images: {
-        domains: ['media.rawg.io'], // RAWG API images
         remotePatterns: [
             {
                 protocol: 'https',
@@ -18,6 +17,7 @@ const nextConfig = {
             },
         ],
     },
+    turbopack: {},
 }
 
 module.exports = withPWA(nextConfig)
