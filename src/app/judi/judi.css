@@ -14,17 +14,20 @@
 }
 
 .cuerpo {
-  width: 90vw;
+  width: 95vw;
+  max-width: 1200px;
   flex-grow: 1;
   margin: 1em auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  gap: 1em;
-  background-color: rgba(240, 240, 240, .2);
-  border-radius: 5px;
-  padding: 1em;
+  gap: 1.5em;
+  background-color: rgba(240, 240, 240, .1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 2em;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .titulo {
@@ -32,275 +35,336 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: rgba(240, 240, 240, .8);
-  padding: .5em 1em;
-  border-radius: 5px;
-  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 1em 2em;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-.titulo h1, .titulo h3 {
+.titulo h1 {
+  font-size: 2.5em;
+  font-weight: 800;
   margin: 0;
-  padding: 0;
+  color: #00171F;
+}
+
+.titulo h3 {
+  font-size: 1.1em;
+  font-weight: 500;
+  margin: 0;
+  opacity: 0.8;
 }
 
 .sesion-msg {
-  width: fit-content;
-  background-color: rgba(0, 23, 31, .9);
+  background-color: rgba(0, 23, 31, 0.85);
   color: #fff;
-  padding: 1em;
-  border-radius: 5px;
+  padding: 0.8em 1.5em;
+  border-radius: 8px;
+  font-size: 0.9em;
 }
 
-.sesion-msg a {
-  color: #00A8E8;
-  text-decoration: none;
-  font-weight: 700;
+/* Grid Layout */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5em;
+  width: 100%;
+  margin-top: 1em;
 }
 
-.lista {
+.juego-card {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 1.5em;
   display: flex;
   flex-direction: column;
-  gap: .6em;
-  width: 100%;
-  max-width: 800px;
-}
-
-.juego-row {
-  height: 4.5em;
-  background-color: #00171F;
-  border-radius: 10px;
-  display: grid;
-  grid-template-columns: 80px 1fr 120px;
-  align-content: center;
-  color: #fff;
+  gap: 1em;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
   overflow: hidden;
 }
 
-.juego-row > div {
-  padding: 1em;
+.juego-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-id {
+  font-weight: 800;
+  font-size: 0.9em;
+  color: #00A8E8;
+}
+
+.card-date {
+  font-weight: 600;
+  font-size: 1em;
+  color: #00171F;
+}
+
+.card-status {
+  height: 3.5em;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.id-lista {
-  background-color: #fff;
-  color: #00171F;
-  font-weight: 800;
-  height: 100%;
-}
-
-.fecha-col {
-  font-weight: 600;
-}
-
-.boton-jugar {
-  background-color: #fff;
-  color: #00171F;
-  font-weight: 600;
+.btn-jugar {
+  background-color: #00171F;
+  color: #fff;
   cursor: pointer;
   transition: background-color 0.2s;
-  display: flex;
-  gap: 0.5em;
 }
 
-.boton-jugar:hover {
+.btn-jugar:hover {
   background-color: #00A8E8;
 }
 
-.fondo-verde {
+.status-won {
   background-color: #70e770;
   color: #00171F;
+  font-size: 1.5em;
 }
 
-.fondo-rojo {
+.status-lost {
   background-color: rgb(200, 70, 70);
-  color: #00171F;
+  color: #fff;
+  font-size: 1.5em;
 }
 
-/* Game View */
+/* Game View Specifics */
 .cabecera {
   width: 100%;
-  display: grid;
-  grid-template-columns: auto 1fr;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 2em;
-  margin-bottom: 1em;
+  gap: 1em;
 }
 
 .boton-volver {
-  background-color: rgba(0, 23, 31, .8);
-  padding: 1em;
-  border-radius: 5px;
+  background-color: #00171F;
+  color: #fff;
+  padding: 0.8em 1.5em;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  color: #fff;
-  gap: .7em;
-  font-weight: 500;
-  cursor: pointer;
+  gap: 0.5em;
+  transition: opacity 0.2s;
+}
+
+.boton-volver:hover {
+  opacity: 0.9;
 }
 
 .fecha-banner {
-  background-color: rgba(240, 240, 240, .8);
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 0.8em 1.5em;
+  border-radius: 8px;
   font-weight: 800;
-  font-size: 1.5em;
-  padding: 0.5em 1em;
-  border-radius: 5px;
-  text-align: center;
-}
-
-.contenido {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: .5em;
-  width: 100%;
+  font-size: 1.2em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .fases {
   display: flex;
-  gap: .3em;
-  justify-content: center;
-  align-items: center;
+  gap: 0.6em;
+  margin-bottom: 1em;
 }
 
 .fase {
-  padding: .6em 1em;
+  width: 3.5em;
+  height: 3.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: #00171F;
-  border-radius: 5px;
   color: #fff;
-  font-weight: 600;
+  border-radius: 50%;
+  font-weight: 700;
   cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
-.fase.seleccionado {
-  background-color: #fff;
-  color: #00171F;
+.fase.locked {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.fase.active {
+  background-color: #00A8E8;
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(0, 168, 232, 0.4);
 }
 
 .game-data-box {
-  width: 35em;
-  height: 25em;
-  max-width: 100%;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  border-radius: 5px;
+  width: 100%;
+  max-width: 600px;
+  height: 400px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  position: relative;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  background-color: #000;
 }
 
 .game-image {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: filter 0.5s;
 }
 
 .pista-overlay {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  font-weight: 600;
-  background-color: rgba(0, 23, 31, .8);
-  padding: .6em;
+  top: 1em;
+  left: 1em;
+  right: 1em;
+  background-color: rgba(0, 23, 31, 0.8);
   color: #fff;
+  padding: 0.8em 1.2em;
+  border-radius: 8px;
+  font-weight: 600;
   font-size: 0.9em;
+  backdrop-filter: blur(5px);
 }
 
-.vidas-container {
+/* Integrated Hearts */
+.hearts-container {
   display: flex;
-  gap: .4em;
-  font-size: 1.5em;
-  background-color: #fff;
-  border-radius: 5px;
-  padding: .2em .8em;
-  box-shadow: inset 0px 0px 10px 0px rgba(0,0,0,0.5);
-  margin: 0.5em 0;
+  gap: 1em;
+  padding: 1em 2em;
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 50px;
+  margin: 1em 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.heart-full { color: #FF0000; }
-.heart-empty { color: #ccc; }
+.heart-icon {
+  font-size: 1.8em;
+  transition: filter 0.3s, transform 0.3s;
+}
 
-.buscador-container {
-  width: 35em;
-  max-width: 100%;
+.heart-full {
+  filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.5));
+  transform: scale(1.1);
+}
+
+.heart-empty {
+  opacity: 0.2;
+  grayscale: 100%;
+  filter: none;
+}
+
+/* Guessing UI */
+.guess-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1em;
+  width: 100%;
+  max-width: 500px;
+}
+
+.input-group {
   position: relative;
+  width: 100%;
 }
 
 .buscador-input {
-  outline: none;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #fff;
-  padding: .8em 1em;
   width: 100%;
-  font-size: 1em;
+  padding: 1em 1.5em;
+  border-radius: 50px;
+  border: 2px solid rgba(0, 23, 31, 0.1);
+  outline: none;
+  font-size: 1.1em;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s;
 }
 
-.autocomplete-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  max-height: 12em;
-  overflow-y: auto;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-top: none;
-  z-index: 100;
-  border-radius: 0 0 5px 5px;
+.buscador-input:focus {
+  border-color: #00A8E8;
 }
 
-.autocomplete-item {
-  padding: .6em 1em;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.autocomplete-item:hover {
-  background-color: #f0f0f0;
-}
-
-.boton-adivinar {
-  padding: .8em 2em;
-  background-color: #00FF00;
-  border-radius: 5px;
-  width: fit-content;
+.feedback-toast {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1em 2em;
+  border-radius: 10px;
+  color: #fff;
   font-weight: 700;
-  cursor: pointer;
-  margin-top: 1em;
-  color: #00171F;
-  transition: transform 0.1s;
+  z-index: 1000;
+  animation: fadeInOut 2.5s forwards;
 }
 
-.boton-adivinar:active {
-  transform: scale(0.95);
+.feedback-wrong {
+  background-color: #ff4757;
 }
 
-.resultado-banner {
-  font-size: 1.5em;
+.feedback-correct {
+  background-color: #2ed573;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+
+  10% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  90% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+}
+
+.resultado-final {
+  padding: 2em;
+  border-radius: 12px;
+  color: #fff;
   text-align: center;
-  font-weight: 700;
-  padding: 1.5em;
-  border-radius: 5px;
-  background-color: #00171F;
-  margin-top: 1em;
+  width: 100%;
+  max-width: 600px;
 }
 
-.acertado { color: #00FF00; }
-.fallado { color: #FF0000; }
+.victory {
+  background: linear-gradient(135deg, #2ed573, #70e770);
+}
+
+.defeat {
+  background: linear-gradient(135deg, #ff4757, #ff6b81);
+}
 
 @media (max-width: 730px) {
   .cabecera {
-    grid-template-columns: 1fr;
-    justify-items: center;
+    flex-direction: column;
+    align-items: stretch;
   }
-  .boton-volver { order: 2; }
-  .fecha-banner { order: 1; width: 100%; }
+
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
 }

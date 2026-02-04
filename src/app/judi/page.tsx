@@ -37,12 +37,15 @@ export default function JUDIPage() {
     const [selectedGame, setSelectedGame] = useState<GameData | null>(null)
 
     // Game State
-    const [currentPhase, setCurrentPhase] = useState(1)
+    const [highestUnlockedPhase, setHighestUnlockedPhase] = useState(1)
+    const [activeViewedPhase, setActiveViewedPhase] = useState(1)
     const [lives, setLives] = useState(6)
     const [searchQuery, setSearchQuery] = useState('')
     const [searchResults, setSearchResults] = useState<any[]>([])
     const [showResults, setShowResults] = useState(false)
     const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing')
+    const [guessFeedback, setGuessFeedback] = useState<'correct' | 'wrong' | null>(null)
+
     const searchTimeout = useRef<NodeJS.Timeout | null>(null)
 
     useEffect(() => {
@@ -77,7 +80,7 @@ export default function JUDIPage() {
                 return {
                     ...game,
                     completado: progress?.completado || false,
-                    fase6: progress?.fase6 || false // Used to detect if game was lost (all phases failed)
+                    fase6: progress?.fase6 || false
                 }
             })
             setGames(gamesWithProgress)
@@ -88,7 +91,6 @@ export default function JUDIPage() {
     const startJuego = async (game: GameRecord) => {
         setLoading(true)
 
-        // Fetch detailed game data
         const [capturasRes, platformsRes, genresRes] = await Promise.all([
             supabase.from('hubgames_capturas').select('captura').eq('id_videojuego', game.id_videojuego),
             supabase.from('hubgames_videojuego_plataforma').select('plataforma').eq('id_videojuego', game.id_videojuego),
@@ -102,14 +104,14 @@ export default function JUDIPage() {
             generos: (genresRes.data || []).map(g => g.genero)
         }
 
-        // Determine current phase/lives based on progress
         let progress: any = null
-        if (user) {
+        const { data: { user: authUser } } = await supabase.auth.getUser() // Re-check to be safe
+        if (authUser) {
             const { data } = await supabase
                 .from('hubgames_judi_fases_usuario')
                 .select('*')
                 .eq('id_lista_judi', game.id)
-                .eq('id_usuario', user.id)
+                .eq('id_usuario', authUser.id)
                 .single()
             progress = data
         } else {
@@ -120,10 +122,15 @@ export default function JUDIPage() {
 
         if (progress?.completado) {
             setGameState('won')
+            setHighestUnlockedPhase(6)
+            setActiveViewedPhase(6)
+            setLives(6)
         } else if (progress?.fase6) {
             setGameState('lost')
+            setHighestUnlockedPhase(6)
+            setActiveViewedPhase(6)
+            setLives(0)
         } else {
-            // Count completed phases to set current state
             let phase = 1
             if (progress?.fase5) phase = 6
             else if (progress?.fase4) phase = 5
@@ -131,7 +138,8 @@ export default function JUDIPage() {
             else if (progress?.fase2) phase = 3
             else if (progress?.fase1) phase = 2
 
-            setCurrentPhase(phase)
+            setHighestUnlockedPhase(phase)
+            setActiveViewedPhase(phase)
             setLives(7 - phase)
             setGameState('playing')
         }
@@ -172,31 +180,39 @@ export default function JUDIPage() {
         const isCorrect = searchQuery.trim().toLowerCase() === selectedGame.juego.nombre.toLowerCase()
 
         if (isCorrect) {
+            setGuessFeedback('correct')
             await updateProgress(selectedGame.juego.id, 'completado', true)
             setGameState('won')
         } else {
-            const nextPhase = currentPhase + 1
+            setGuessFeedback('wrong')
+            const nextPhase = highestUnlockedPhase + 1
             if (nextPhase > 6) {
                 await updateProgress(selectedGame.juego.id, 'fase6', true)
+                setHighestUnlockedPhase(6)
+                setLives(0)
                 setGameState('lost')
             } else {
-                await updateProgress(selectedGame.juego.id, `fase${currentPhase}`, true)
-                setCurrentPhase(nextPhase)
+                await updateProgress(selectedGame.juego.id, `fase${highestUnlockedPhase}`, true)
+                setHighestUnlockedPhase(nextPhase)
+                setActiveViewedPhase(nextPhase)
                 setLives(7 - nextPhase)
             }
         }
+
+        setTimeout(() => setGuessFeedback(null), 2500)
         setSearchQuery('')
         setShowResults(false)
     }
 
-    const updateProgress = async (gameId: number, field: string, value: boolean) => {
-        if (user) {
-            // Ensure record exists
+    const updateProgress = async (gameId: number, field: string, value: any) => {
+        const { data: { user: authUser } } = await supabase.auth.getUser()
+
+        if (authUser) {
             const { data: existing } = await supabase
                 .from('hubgames_judi_fases_usuario')
-                .select('id')
+                .select('id_lista_judi')
                 .eq('id_lista_judi', gameId)
-                .eq('id_usuario', user.id)
+                .eq('id_usuario', authUser.id)
                 .single()
 
             if (existing) {
@@ -204,11 +220,11 @@ export default function JUDIPage() {
                     .from('hubgames_judi_fases_usuario')
                     .update({ [field]: value })
                     .eq('id_lista_judi', gameId)
-                    .eq('id_usuario', user.id)
+                    .eq('id_usuario', authUser.id)
             } else {
                 await supabase.from('hubgames_judi_fases_usuario').insert({
                     id_lista_judi: gameId,
-                    id_usuario: user.id,
+                    id_usuario: authUser.id,
                     [field]: value
                 })
             }
@@ -221,24 +237,32 @@ export default function JUDIPage() {
         }
     }
 
-    const renderHeart = (full: boolean, index: number) => (
-        <span key={index} className={full ? 'heart-full' : 'heart-empty'}>
-            {full ? '❤️' : '🤍'}
-        </span>
-    )
+    const renderHearts = () => {
+        return (
+            <div className="hearts-container">
+                {[...Array(6)].map((_, i) => (
+                    <span key={i} className={`heart-icon ${i < lives ? 'heart-full' : 'heart-empty'}`}>
+                        ❤️
+                    </span>
+                ))}
+            </div>
+        )
+    }
 
     if (loading && !selectedGame) {
         return (
-            <div className="judi-container">
-                <div className="cuerpo">
-                    <div className="titulo"><h1>Cargando...</h1></div>
-                </div>
-            </div>
+            <div className="judi-container"><div className="cuerpo"><h1>Cargando...</h1></div></div>
         )
     }
 
     return (
         <div className="judi-container">
+            {guessFeedback && (
+                <div className={`feedback-toast ${guessFeedback === 'correct' ? 'feedback-correct' : 'feedback-wrong'}`}>
+                    {guessFeedback === 'correct' ? '¡Correcto!' : '¡Incorrecto! Prueba de nuevo'}
+                </div>
+            )}
+
             <div className="cuerpo">
                 {view === 'list' ? (
                     <>
@@ -248,21 +272,23 @@ export default function JUDIPage() {
                         </div>
                         {!user && (
                             <div className="sesion-msg">
-                                Recomendamos <Link href="/login">iniciar sesión</Link> para poder guardar tu progreso
+                                Recomendamos <Link href="/login" style={{ color: '#00A8E8', fontWeight: 700 }}>iniciar sesión</Link> para guardar tu progreso
                             </div>
                         )}
-                        <div className="lista">
+                        <div className="grid-container">
                             {games.map((game, idx) => (
-                                <div key={game.id} className="juego-row">
-                                    <div className="id-lista"># {games.length - idx}</div>
-                                    <div className="fecha-col">{game.fecha}</div>
+                                <div key={game.id} className="juego-card">
+                                    <div className="card-header">
+                                        <span className="card-id">#{game.id}</span>
+                                        <span className="card-date">{game.fecha}</span>
+                                    </div>
                                     {game.completado ? (
-                                        <div className="fondo-verde">✓</div>
+                                        <div className="card-status status-won">✓</div>
                                     ) : game.fase6 ? (
-                                        <div className="fondo-rojo">✗</div>
+                                        <div className="card-status status-lost">✗</div>
                                     ) : (
-                                        <div className="boton-jugar" onClick={() => startJuego(game)}>
-                                            ¡Jugar! <span>➜</span>
+                                        <div className="card-status btn-jugar" onClick={() => startJuego(game)}>
+                                            ¡Jugar!
                                         </div>
                                     )}
                                 </div>
@@ -274,95 +300,93 @@ export default function JUDIPage() {
                         <>
                             <div className="cabecera">
                                 <div className="boton-volver" onClick={() => { setView('list'); loadUserAndGames(); }}>
-                                    ← Volver
+                                    ← Volver al listado
                                 </div>
                                 <div className="fecha-banner">
-                                    Juego del día: {selectedGame.juego.fecha} #{selectedGame.juego.id}
+                                    {selectedGame.juego.fecha} (#{selectedGame.juego.id})
                                 </div>
                             </div>
 
-                            <div className="contenido">
-                                <div className="fases">
-                                    {[1, 2, 3, 4, 5, 6].map(f => (
-                                        <div
-                                            key={f}
-                                            className={`fase ${f === currentPhase ? 'seleccionado' : ''}`}
-                                            onClick={() => f <= currentPhase && setCurrentPhase(f)}
-                                            style={{ opacity: f <= (gameState !== 'playing' ? 6 : (6 - lives + 1)) ? 1 : 0.4 }}
-                                        >
-                                            {f}
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="game-data-box">
-                                    {selectedGame.capturas.length > 0 && (
-                                        <img
-                                            src={selectedGame.capturas[currentPhase === 1 ? 5 : currentPhase - 2] || selectedGame.capturas[0]}
-                                            alt="Capture"
-                                            className="game-image"
-                                        />
-                                    )}
-                                    <div className="pista-overlay">
-                                        {currentPhase === 1 && "Pista 1: Primera imagen"}
-                                        {currentPhase === 2 && `Popularidad: ${selectedGame.juego.desarrollador}/5`}
-                                        {currentPhase === 3 && `Metacritic: ${selectedGame.juego.calificacion}/100`}
-                                        {currentPhase === 4 && `Plataformas: ${selectedGame.plataformas.join(', ')}`}
-                                        {currentPhase === 5 && `Géneros: ${selectedGame.generos.join(', ')}`}
-                                        {currentPhase === 6 && `Lanzamiento: ${selectedGame.juego.released}`}
+                            <div className="fases">
+                                {[1, 2, 3, 4, 5, 6].map(f => (
+                                    <div
+                                        key={f}
+                                        className={`fase ${f === activeViewedPhase ? 'active' : ''} ${f > highestUnlockedPhase && gameState === 'playing' ? 'locked' : ''}`}
+                                        onClick={() => (f <= highestUnlockedPhase || gameState !== 'playing') && setActiveViewedPhase(f)}
+                                    >
+                                        {f}
                                     </div>
-                                </div>
+                                ))}
+                            </div>
 
-                                <div className="vidas-container">
-                                    {[...Array(6)].map((_, i) => renderHeart(i < lives, i))}
-                                </div>
-
-                                {gameState === 'playing' ? (
-                                    <>
-                                        <div className="buscador-container">
-                                            <input
-                                                className="buscador-input"
-                                                placeholder="Nombre del juego..."
-                                                value={searchQuery}
-                                                onChange={handleSearchInput}
-                                                onFocus={() => setShowResults(true)}
-                                            />
-                                            {showResults && searchResults.length > 0 && (
-                                                <div className="autocomplete-dropdown">
-                                                    {searchResults.map((res: any) => (
-                                                        <div
-                                                            key={res.id}
-                                                            className="autocomplete-item"
-                                                            onClick={() => {
-                                                                setSearchQuery(res.name)
-                                                                setShowResults(false)
-                                                            }}
-                                                        >
-                                                            {res.name}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="boton-adivinar" onClick={handleAdivinar}>
-                                            ADIVINAR
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div className={`resultado-banner ${gameState === 'won' ? 'acertado' : 'fallado'}`}>
-                                        {gameState === 'won'
-                                            ? `¡Enhorabuena! El juego era ${selectedGame.juego.nombre}`
-                                            : `¡Fallaste! El juego era ${selectedGame.juego.nombre}`
-                                        }
-                                    </div>
+                            <div className="game-data-box">
+                                {selectedGame.capturas.length > 0 && (
+                                    <img
+                                        src={selectedGame.capturas[activeViewedPhase === 1 ? 5 : activeViewedPhase - 2] || selectedGame.capturas[0]}
+                                        alt="Pista"
+                                        className="game-image"
+                                    />
                                 )}
+                                <div className="pista-overlay">
+                                    {activeViewedPhase === 1 && "Pista 1: Primera imagen"}
+                                    {activeViewedPhase === 2 && `Popularidad: ${selectedGame.juego.desarrollador}/5`}
+                                    {activeViewedPhase === 3 && `Metacritic: ${selectedGame.juego.calificacion}/100`}
+                                    {activeViewedPhase === 4 && `Plataformas: ${selectedGame.plataformas.join(', ')}`}
+                                    {activeViewedPhase === 5 && `Géneros: ${selectedGame.generos.join(', ')}`}
+                                    {activeViewedPhase === 6 && `Lanzamiento: ${selectedGame.juego.released}`}
+                                </div>
                             </div>
+
+                            {renderHearts()}
+
+                            {gameState === 'playing' ? (
+                                <div className="guess-area">
+                                    <div className="input-group">
+                                        <input
+                                            className="buscador-input"
+                                            placeholder="¿Qué juego es?"
+                                            value={searchQuery}
+                                            onChange={handleSearchInput}
+                                            onFocus={() => setShowResults(true)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleAdivinar()}
+                                        />
+                                        {showResults && searchResults.length > 0 && (
+                                            <div className="autocomplete-dropdown" style={{ width: 'calc(100% - 2em)', left: '1em', top: '100%', position: 'absolute', background: '#fff', borderRadius: '0 0 20px 20px', boxShadow: '0 10px 20px rgba(0,0,0,0.1)', overflow: 'hidden', zIndex: 100 }}>
+                                                {searchResults.map((res: any) => (
+                                                    <div
+                                                        key={res.id}
+                                                        className="autocomplete-item"
+                                                        style={{ padding: '0.8em 1.5em', cursor: 'pointer' }}
+                                                        onClick={() => {
+                                                            setSearchQuery(res.name)
+                                                            setShowResults(false)
+                                                        }}
+                                                    >
+                                                        {res.name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="card-status btn-jugar" style={{ width: '200px', cursor: 'pointer', borderRadius: '50px' }} onClick={handleAdivinar}>
+                                        ADIVINAR
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className={`resultado-final ${gameState === 'won' ? 'victory' : 'defeat'}`}>
+                                    <h2>{gameState === 'won' ? '¡Increíble!' : '¡Mala suerte!'}</h2>
+                                    <p>El juego era: <strong>{selectedGame.juego.nombre}</strong></p>
+                                    <button className="boton-volver" style={{ margin: '1em auto' }} onClick={() => { setView('list'); loadUserAndGames(); }}>
+                                        Volver al listado
+                                    </button>
+                                </div>
+                            )}
                         </>
                     )
                 )}
             </div>
             <footer style={{ marginTop: 'auto', padding: '2em', textAlign: 'center' }}>
-                <div style={{ backgroundColor: 'rgba(240, 240, 240, 0.8)', display: 'inline-block', padding: '0.5em 1em', borderRadius: '5px', fontSize: '0.8em', fontWeight: 600 }}>
+                <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', display: 'inline-block', padding: '0.5em 1.5em', borderRadius: '50px', fontSize: '0.9em', fontWeight: 700, color: '#00171F', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
                     HUBGAMES © 2026
                 </div>
             </footer>
