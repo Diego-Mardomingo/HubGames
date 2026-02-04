@@ -1,0 +1,306 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+.judi-container {
+  min-height: 95vh;
+  background-image: url("/img/IslaUpScale.webp");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Montserrat', sans-serif;
+  color: #00171F;
+}
+
+.cuerpo {
+  width: 90vw;
+  flex-grow: 1;
+  margin: 1em auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1em;
+  background-color: rgba(240, 240, 240, .2);
+  border-radius: 5px;
+  padding: 1em;
+}
+
+.titulo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(240, 240, 240, .8);
+  padding: .5em 1em;
+  border-radius: 5px;
+  backdrop-filter: blur(10px);
+}
+
+.titulo h1, .titulo h3 {
+  margin: 0;
+  padding: 0;
+}
+
+.sesion-msg {
+  width: fit-content;
+  background-color: rgba(0, 23, 31, .9);
+  color: #fff;
+  padding: 1em;
+  border-radius: 5px;
+}
+
+.sesion-msg a {
+  color: #00A8E8;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: .6em;
+  width: 100%;
+  max-width: 800px;
+}
+
+.juego-row {
+  height: 4.5em;
+  background-color: #00171F;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 80px 1fr 120px;
+  align-content: center;
+  color: #fff;
+  overflow: hidden;
+}
+
+.juego-row > div {
+  padding: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.id-lista {
+  background-color: #fff;
+  color: #00171F;
+  font-weight: 800;
+  height: 100%;
+}
+
+.fecha-col {
+  font-weight: 600;
+}
+
+.boton-jugar {
+  background-color: #fff;
+  color: #00171F;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  gap: 0.5em;
+}
+
+.boton-jugar:hover {
+  background-color: #00A8E8;
+}
+
+.fondo-verde {
+  background-color: #70e770;
+  color: #00171F;
+}
+
+.fondo-rojo {
+  background-color: rgb(200, 70, 70);
+  color: #00171F;
+}
+
+/* Game View */
+.cabecera {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 2em;
+  margin-bottom: 1em;
+}
+
+.boton-volver {
+  background-color: rgba(0, 23, 31, .8);
+  padding: 1em;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  gap: .7em;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.fecha-banner {
+  background-color: rgba(240, 240, 240, .8);
+  font-weight: 800;
+  font-size: 1.5em;
+  padding: 0.5em 1em;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.contenido {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: .5em;
+  width: 100%;
+}
+
+.fases {
+  display: flex;
+  gap: .3em;
+  justify-content: center;
+  align-items: center;
+}
+
+.fase {
+  padding: .6em 1em;
+  background-color: #00171F;
+  border-radius: 5px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fase.seleccionado {
+  background-color: #fff;
+  color: #00171F;
+}
+
+.game-data-box {
+  width: 35em;
+  height: 25em;
+  max-width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.game-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pista-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  font-weight: 600;
+  background-color: rgba(0, 23, 31, .8);
+  padding: .6em;
+  color: #fff;
+  font-size: 0.9em;
+}
+
+.vidas-container {
+  display: flex;
+  gap: .4em;
+  font-size: 1.5em;
+  background-color: #fff;
+  border-radius: 5px;
+  padding: .2em .8em;
+  box-shadow: inset 0px 0px 10px 0px rgba(0,0,0,0.5);
+  margin: 0.5em 0;
+}
+
+.heart-full { color: #FF0000; }
+.heart-empty { color: #ccc; }
+
+.buscador-container {
+  width: 35em;
+  max-width: 100%;
+  position: relative;
+}
+
+.buscador-input {
+  outline: none;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  padding: .8em 1em;
+  width: 100%;
+  font-size: 1em;
+}
+
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 12em;
+  overflow-y: auto;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  z-index: 100;
+  border-radius: 0 0 5px 5px;
+}
+
+.autocomplete-item {
+  padding: .6em 1em;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.autocomplete-item:hover {
+  background-color: #f0f0f0;
+}
+
+.boton-adivinar {
+  padding: .8em 2em;
+  background-color: #00FF00;
+  border-radius: 5px;
+  width: fit-content;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 1em;
+  color: #00171F;
+  transition: transform 0.1s;
+}
+
+.boton-adivinar:active {
+  transform: scale(0.95);
+}
+
+.resultado-banner {
+  font-size: 1.5em;
+  text-align: center;
+  font-weight: 700;
+  padding: 1.5em;
+  border-radius: 5px;
+  background-color: #00171F;
+  margin-top: 1em;
+}
+
+.acertado { color: #00FF00; }
+.fallado { color: #FF0000; }
+
+@media (max-width: 730px) {
+  .cabecera {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+  .boton-volver { order: 2; }
+  .fecha-banner { order: 1; width: 100%; }
+}
