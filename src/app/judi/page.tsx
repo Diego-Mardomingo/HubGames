@@ -197,6 +197,16 @@ export default function JUDIPage() {
         }
     }
 
+    // Clear feedback after delay
+    useEffect(() => {
+        if (guessFeedback) {
+            const timer = setTimeout(() => {
+                setGuessFeedback(null)
+            }, 3000)
+            return () => clearTimeout(timer)
+        }
+    }, [guessFeedback])
+
     const handleAdivinar = async () => {
         if (!selectedGame || gameState !== 'playing') return
 
@@ -225,12 +235,6 @@ export default function JUDIPage() {
                 setLives(7 - nextPhase)
                 await updateProgress(selectedGame.juego.id, `fase${currentPhaseToMark}`, true)
             }
-        }
-
-        if (guessFeedback !== null && isCorrect) { // Only wait to clear if it wasn't a game-over
-            setTimeout(() => setGuessFeedback(null), 2500)
-        } else if (guessFeedback !== null) {
-            setTimeout(() => setGuessFeedback(null), 2500)
         }
 
         setSearchQuery('')
@@ -284,7 +288,7 @@ export default function JUDIPage() {
             <div className="hearts-container">
                 {[...Array(6)].map((_, i) => (
                     <span key={i} className={`heart-icon ${i < lives ? 'heart-full' : 'heart-empty'}`}>
-                        ❤️
+                        {i < lives ? '❤️' : '🤍'}
                     </span>
                 ))}
             </div>
