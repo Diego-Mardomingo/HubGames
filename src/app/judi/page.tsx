@@ -91,6 +91,12 @@ export default function JUDIPage() {
     const startJuego = async (game: GameRecord) => {
         setLoading(true)
 
+        // Reset search, feedback and results state
+        setSearchQuery('')
+        setSearchResults([])
+        setShowResults(false)
+        setGuessFeedback(null)
+
         const [capturasRes, platformsRes, genresRes] = await Promise.all([
             supabase.from('hubgames_capturas').select('captura').eq('id_videojuego', game.id_videojuego),
             supabase.from('hubgames_videojuego_plataforma').select('plataforma').eq('id_videojuego', game.id_videojuego),
@@ -105,13 +111,12 @@ export default function JUDIPage() {
         }
 
         let progress: any = null
-        const { data: { user: authUser } } = await supabase.auth.getUser() // Re-check to be safe
-        if (authUser) {
+        if (user) {
             const { data } = await supabase
                 .from('hubgames_judi_fases_usuario')
                 .select('*')
                 .eq('id_lista_judi', game.id)
-                .eq('id_usuario', authUser.id)
+                .eq('id_usuario', user.id)
                 .single()
             progress = data
         } else {
@@ -145,7 +150,6 @@ export default function JUDIPage() {
         }
 
         setSelectedGame(gameData)
-        setSearchQuery('')
         setView('game')
         setLoading(false)
     }
@@ -158,16 +162,19 @@ export default function JUDIPage() {
 
         if (query.length > 2) {
             searchTimeout.current = setTimeout(async () => {
-                const hoy = new Date().toISOString().split('T')[0]
-                const menos10años = new Date()
-                menos10años.setFullYear(menos10años.getFullYear() - 10)
-                const startDate = menos10años.toISOString().split('T')[0]
+                try {
+                    // Optimized query: No restrictive dates to allow older classics, limit results, exclude additions
+                    const res = await fetch(`https://api.rawg.io/api/games?key=3b597a76023d49faa0deba195b7b78b7&search=${encodeURIComponent(query)}&page_size=10&exclude_additions=true`)
+                    const data = await res.json()
 
-                const res = await fetch(`https://api.rawg.io/api/games?key=3b597a76023d49faa0deba195b7b78b7&exclude_additions=true&dates=${startDate},${hoy}&search=${encodeURIComponent(query)}`)
-                const data = await res.json()
-                setSearchResults(data.results || [])
-                setShowResults(true)
-            }, 500)
+                    // Filter out very obscure items if many results returned, or just keep top 10 relevant
+                    setSearchResults(data.results || [])
+                    setShowResults(true)
+                } catch (err) {
+                    console.error("RAWG Search Error:", err)
+                    setSearchResults([])
+                }
+            }, 400) // Slightly faster debounce
         } else {
             setSearchResults([])
             setShowResults(false)
@@ -175,9 +182,13 @@ export default function JUDIPage() {
     }
 
     const handleAdivinar = async () => {
-        if (!selectedGame || gameState !== 'playing') return
+        if (!selectedGame || gameState !== 'playing' || !searchQuery.trim()) return
 
         const isCorrect = searchQuery.trim().toLowerCase() === selectedGame.juego.nombre.toLowerCase()
+
+        // Clear results before showing feedback
+        setSearchResults([])
+        setShowResults(false)
 
         if (isCorrect) {
             setGuessFeedback('correct')
@@ -185,14 +196,16 @@ export default function JUDIPage() {
             setGameState('won')
         } else {
             setGuessFeedback('wrong')
+            const currentPhaseToMark = highestUnlockedPhase
             const nextPhase = highestUnlockedPhase + 1
+
             if (nextPhase > 6) {
                 await updateProgress(selectedGame.juego.id, 'fase6', true)
                 setHighestUnlockedPhase(6)
                 setLives(0)
                 setGameState('lost')
             } else {
-                await updateProgress(selectedGame.juego.id, `fase${highestUnlockedPhase}`, true)
+                await updateProgress(selectedGame.juego.id, `fase${currentPhaseToMark}`, true)
                 setHighestUnlockedPhase(nextPhase)
                 setActiveViewedPhase(nextPhase)
                 setLives(7 - nextPhase)
@@ -201,38 +214,30 @@ export default function JUDIPage() {
 
         setTimeout(() => setGuessFeedback(null), 2500)
         setSearchQuery('')
-        setShowResults(false)
     }
 
     const updateProgress = async (gameId: number, field: string, value: any) => {
-        const { data: { user: authUser } } = await supabase.auth.getUser()
-
-        if (authUser) {
-            const { data: existing } = await supabase
+        if (user) {
+            // Logged in: use upsert for atomic updates
+            const { error } = await supabase
                 .from('hubgames_judi_fases_usuario')
-                .select('id_lista_judi')
-                .eq('id_lista_judi', gameId)
-                .eq('id_usuario', authUser.id)
-                .single()
-
-            if (existing) {
-                await supabase
-                    .from('hubgames_judi_fases_usuario')
-                    .update({ [field]: value })
-                    .eq('id_lista_judi', gameId)
-                    .eq('id_usuario', authUser.id)
-            } else {
-                await supabase.from('hubgames_judi_fases_usuario').insert({
+                .upsert({
                     id_lista_judi: gameId,
-                    id_usuario: authUser.id,
+                    id_usuario: user.id,
                     [field]: value
-                })
-            }
+                }, { onConflict: 'id_lista_judi,id_usuario' })
+
+            if (error) console.error("Update Progress Error:", error)
         } else {
+            // Guest: reliable LocalStorage persistence
             const localProgress = localStorage.getItem('judi_progress')
             const progressData = localProgress ? JSON.parse(localProgress) : {}
-            if (!progressData[gameId]) progressData[gameId] = { id_lista_judi: gameId }
+
+            if (!progressData[gameId]) {
+                progressData[gameId] = { id_lista_judi: gameId }
+            }
             progressData[gameId][field] = value
+
             localStorage.setItem('judi_progress', JSON.stringify(progressData))
         }
     }
@@ -356,7 +361,7 @@ export default function JUDIPage() {
                                                     <div
                                                         key={res.id}
                                                         className="autocomplete-item"
-                                                        style={{ padding: '0.8em 1.5em', cursor: 'pointer' }}
+                                                        style={{ padding: '0.8em 1.5em', cursor: 'pointer', borderBottom: '1px solid #eee' }}
                                                         onClick={() => {
                                                             setSearchQuery(res.name)
                                                             setShowResults(false)
