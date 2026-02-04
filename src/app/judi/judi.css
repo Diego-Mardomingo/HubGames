@@ -1,8 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
 
 .judi-container {
-  height: 100vh;
-  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   background-image: url("/img/IslaUpScale.webp");
   background-repeat: no-repeat;
@@ -16,26 +21,28 @@
   font-family: 'Montserrat', sans-serif;
   color: #00171F;
   box-sizing: border-box;
+  z-index: 10;
 }
 
-/* Everything inside judi-container is scoped */
+/* Scoped elements */
 .judi-container .cuerpo {
-  width: 90vw;
-  max-width: 1000px;
-  max-height: 96vh;
+  width: 92vw;
+  max-width: 900px;
+  max-height: 94vh;
   margin: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: clamp(0.4rem, 1.5vh, 1.2rem);
+  gap: clamp(0.4rem, 1.2vh, 1rem);
   background-color: rgba(240, 240, 240, .1);
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  padding: clamp(0.8rem, 2.5vh, 1.5rem);
+  padding: clamp(0.5rem, 2vh, 1.5rem);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   box-sizing: border-box;
+  position: relative;
 }
 
 .judi-container .titulo {
@@ -44,22 +51,22 @@
   justify-content: center;
   align-items: center;
   background-color: rgba(255, 255, 255, 0.85);
-  padding: 0.4rem 1.5rem;
+  padding: 0.3rem 1.2rem;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-bottom: clamp(0.2rem, 1vh, 0.8rem);
+  margin-bottom: clamp(0.1rem, 0.5vh, 0.5rem);
   flex-shrink: 0;
 }
 
 .judi-container .titulo h1 {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 800;
   margin: 0;
   color: #00171F;
 }
 
 .judi-container .titulo h3 {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 500;
   margin: 0;
   opacity: 0.8;
@@ -68,33 +75,39 @@
 .judi-container .sesion-msg {
   background-color: rgba(0, 23, 31, 0.85);
   color: #fff;
-  padding: 0.4rem 1rem;
+  padding: 0.3rem 0.8rem;
   border-radius: 8px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   flex-shrink: 0;
+  margin-bottom: 0.2rem;
 }
 
 .judi-container .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.8rem;
   width: 100%;
   margin-top: 0.5rem;
   overflow-y: auto;
-  padding-right: 5px;
+  overflow-x: hidden;
+  padding: 0.5rem;
+  box-sizing: border-box;
 }
 
 .judi-container .juego-card {
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: 10px;
-  padding: 0.6rem;
+  padding: 0.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.3rem;
   transition: transform 0.2s, box-shadow 0.2s;
   border: 1px solid rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
+  max-width: 200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .judi-container .juego-card:hover {
@@ -110,18 +123,18 @@
 
 .judi-container .card-id {
   font-weight: 800;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: #00A8E8;
 }
 
 .judi-container .card-date {
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #00171F;
 }
 
 .judi-container .card-status {
-  height: 2rem;
+  height: 1.8rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -129,7 +142,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
 .judi-container .btn-jugar {
@@ -146,13 +159,11 @@
 .judi-container .status-won {
   background-color: #70e770;
   color: #00171F;
-  font-size: 1rem;
 }
 
 .judi-container .status-lost {
   background-color: rgb(200, 70, 70);
   color: #fff;
-  font-size: 1rem;
 }
 
 .judi-container .cabecera {
@@ -160,26 +171,26 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
   flex-shrink: 0;
 }
 
 .judi-container .game-nav-controls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .judi-container .nav-button {
   background-color: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(0, 23, 31, 0.2);
   color: #00171F;
-  padding: 0.3rem 0.6rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 5px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   transition: all 0.2s;
 }
 
@@ -196,41 +207,36 @@
 .judi-container .boton-volver {
   background-color: #00171F;
   color: #fff;
-  padding: 0.4rem 0.8rem;
+  padding: 0.3rem 0.7rem;
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.3rem;
   transition: opacity 0.2s;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   border: none;
-}
-
-.judi-container .boton-volver:hover {
-  opacity: 0.9;
 }
 
 .judi-container .fecha-banner {
   background-color: rgba(255, 255, 255, 0.9);
-  padding: 0.4rem 0.8rem;
+  padding: 0.3rem 0.7rem;
   border-radius: 6px;
   font-weight: 800;
-  font-size: 0.8rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  font-size: 0.75rem;
 }
 
 .judi-container .fases {
   display: flex;
-  gap: clamp(0.4rem, 1vh, 0.8rem);
-  margin-bottom: 0.5rem;
+  gap: clamp(0.3rem, 0.6vh, 0.6rem);
+  margin-bottom: 0.4rem;
   flex-shrink: 0;
 }
 
 .judi-container .fase {
-  width: 2.2rem;
-  height: 2.2rem;
+  width: 1.8rem;
+  height: 1.8rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -240,24 +246,18 @@
   font-weight: 700;
   cursor: pointer;
   transition: background-color 0.2s, transform 0.2s;
-  font-size: 0.8rem;
-}
-
-.judi-container .fase.locked {
-  opacity: 0.3;
-  cursor: not-allowed;
+  font-size: 0.75rem;
 }
 
 .judi-container .fase.active {
   background-color: #00A8E8;
   transform: scale(1.05);
-  box-shadow: 0 0 8px rgba(0, 168, 232, 0.3);
 }
 
 .judi-container .game-data-box {
   width: 100%;
-  max-width: 500px;
-  height: clamp(160px, 32vh, 400px);
+  max-width: 450px;
+  height: clamp(140px, 30vh, 350px);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
@@ -269,124 +269,76 @@
 .judi-container .game-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .judi-container .pista-overlay {
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  right: 0.5rem;
-  background-color: rgba(0, 23, 31, 0.8);
+  top: 0.4rem;
+  left: 0.4rem;
+  right: 0.4rem;
+  background-color: rgba(0, 23, 31, 0.85);
   color: #fff;
-  padding: 0.4rem 0.7rem;
-  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 5px;
   font-weight: 600;
-  font-size: 0.75rem;
-  backdrop-filter: blur(5px);
+  font-size: 0.7rem;
+  backdrop-filter: blur(4px);
 }
 
 .judi-container .hearts-container {
   display: flex;
-  gap: clamp(0.3rem, 1vh, 0.6rem);
-  padding: 0.4rem 1.2rem;
+  gap: clamp(0.2rem, 0.5vh, 0.5rem);
+  padding: 0.3rem 1rem;
   background-color: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(8px);
   border-radius: 50px;
-  margin: clamp(0.3rem, 1.5vh, 1rem) 0;
+  margin: clamp(0.2rem, 1vh, 0.8rem) 0;
   border: 1px solid rgba(255, 255, 255, 0.3);
   flex-shrink: 0;
 }
 
 .judi-container .heart-icon {
-  font-size: 1.1rem;
-}
-
-.judi-container .heart-full {
-  filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.4));
-}
-
-.judi-container .heart-empty {
-  opacity: 0.2;
-  filter: grayscale(100%);
+  font-size: 1rem;
 }
 
 .judi-container .guess-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(0.4rem, 1.2vh, 1rem);
+  gap: clamp(0.3rem, 1vh, 0.8rem);
   width: 100%;
-  max-width: 400px;
+  max-width: 350px;
   flex-shrink: 0;
-}
-
-.judi-container .input-group {
-  position: relative;
-  width: 100%;
 }
 
 .judi-container .buscador-input {
   width: 100%;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 1rem;
   border-radius: 50px;
   border: 2px solid rgba(0, 23, 31, 0.1);
   outline: none;
-  font-size: 0.85rem;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-}
-
-.judi-container .autocomplete-dropdown {
-  width: calc(100% - 1.6rem);
-  left: 0.8rem;
-  top: 100%;
-  position: absolute;
-  background: #fff;
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
-  overflow-y: auto;
-  max-height: 150px;
-  z-index: 100;
-}
-
-.judi-container .autocomplete-item {
-  padding: 0.4rem 1rem;
-  cursor: pointer;
-  border-bottom: 1px solid #eee;
-  font-size: 0.8rem;
-}
-
-.judi-container .feedback-toast {
-  position: fixed;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  color: #fff;
-  font-weight: 700;
-  z-index: 1000;
   font-size: 0.8rem;
 }
 
 .judi-container .resultado-final {
-  padding: 0.8rem;
+  padding: 0.6rem;
   border-radius: 10px;
   color: #fff;
   text-align: center;
   width: 100%;
-  max-width: 500px;
+  max-width: 450px;
   flex-shrink: 0;
 }
 
 .judi-container .resultado-final h2 {
-  font-size: 1.2rem;
-  margin: 0.5rem 0;
+  font-size: 1.1rem;
+  margin: 0.2rem 0;
 }
 
 .judi-container .resultado-final p {
-  font-size: 0.9rem;
-  margin: 0.5rem 0;
+  font-size: 0.85rem;
+  margin: 0.2rem 0;
 }
 
 .judi-container .victory {
@@ -401,34 +353,38 @@
   .judi-container .cabecera {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.4rem;
+    gap: 0.3rem;
   }
 
   .judi-container .grid-container {
-    grid-template-columns: 1fr;
-    gap: 0.8rem;
-    max-height: 55vh;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.6rem;
+    max-height: 50vh;
   }
 
   .judi-container .game-data-box {
-    height: clamp(140px, 22vh, 200px);
+    height: clamp(120px, 25vh, 180px);
   }
 
   .judi-container .cuerpo {
-    padding: 0.8rem;
-    gap: 0.6rem;
-    width: 95vw;
+    padding: 0.6rem;
+    gap: 0.4rem;
+    width: 96vw;
+  }
+
+  .judi-container .titulo h1 {
+    font-size: 1.1rem;
   }
 }
 
-@media (max-height: 700px) {
+@media (max-height: 600px) {
   .judi-container .game-data-box {
-    height: 140px;
+    height: 120px;
   }
 
   .judi-container .cuerpo {
-    gap: 0.4rem;
-    padding: 0.6rem;
+    gap: 0.3rem;
+    padding: 0.4rem;
   }
 
   .judi-container .hearts-container {
@@ -436,10 +392,10 @@
   }
 
   .judi-container .titulo {
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.2rem;
   }
 
   .judi-container .titulo h1 {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
 }
