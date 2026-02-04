@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { searchGames, type Game } from '@/lib/rawg'
 import GameCard from './GameCard'
+import Loader from './Loader'
 
 const GENRES = {
     Action: 'Acción',
@@ -262,9 +263,7 @@ export default function GameSearch() {
             {/* Games Grid */}
             <div className="juegos">
                 {loading ? (
-                    <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#fff' }}>
-                        Cargando juegos...
-                    </div>
+                    <Loader />
                 ) : games.length === 0 ? (
                     <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#fff' }}>
                         No se encontraron juegos

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import Link from 'next/link'
+import Loader from '@/components/Loader'
 import './judi.css'
 
 type GameRecord = {
@@ -297,7 +298,7 @@ export default function JUDIPage() {
 
     if (loading && !selectedGame) {
         return (
-            <div className="judi-container"><div className="cuerpo"><h1>Cargando...</h1></div></div>
+            <div className="judi-container"><div className="cuerpo"><Loader /></div></div>
         )
     }
 
