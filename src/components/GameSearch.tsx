@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { searchGames, type Game } from '@/lib/rawg'
 import GameCard from './GameCard'
 
@@ -30,37 +31,45 @@ const PLATFORMS: { [key: string]: string } = {
 }
 
 export default function GameSearch() {
-    const [searchTerm, setSearchTerm] = useState('')
+    const router = useRouter()
+    const searchParams = useSearchParams()
+
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '')
     const [games, setGames] = useState<Game[]>([])
     const [loading, setLoading] = useState(false)
     const [showFilters, setShowFilters] = useState(false)
-    const [activeGenres, setActiveGenres] = useState<string[]>([])
-    const [activePlatforms, setActivePlatforms] = useState<string[]>([])
-    const [dateStart, setDateStart] = useState('2000-01-01')
-    const [dateEnd, setDateEnd] = useState('')
+    const [activeGenres, setActiveGenres] = useState<string[]>(searchParams.get('genres')?.split(',').filter(Boolean) || [])
+    const [activePlatforms, setActivePlatforms] = useState<string[]>(searchParams.get('platforms')?.split(',').filter(Boolean) || [])
+    const [dateStart, setDateStart] = useState(searchParams.get('start') || '2000-01-01')
+    const [dateEnd, setDateEnd] = useState(searchParams.get('end') || '')
     const [nextPage, setNextPage] = useState<string | null>(null)
     const [prevPage, setPrevPage] = useState<string | null>(null)
-    const [currentPage, setCurrentPage] = useState(1)
+    const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1'))
 
-    useEffect(() => {
-        // Set default end date to 6 months from now
-        const futureDate = new Date()
-        futureDate.setMonth(futureDate.getMonth() + 6)
-        setDateEnd(futureDate.toISOString().split('T')[0])
-
-        // Load initial games
-        handleSearch()
-    }, [])
-
-    const handleSearch = async (page = 1) => {
+    const handleSearch = useCallback(async (page = 1, updateUrl = true) => {
         setLoading(true)
         try {
             const params: any = {
                 search: searchTerm || undefined,
-                genres: activeGenres.length > 0 ? activeGenres.join(',').toLowerCase() : undefined,
+                genres: activeGenres.length > 0 ? activeGenres.map(g => g.toLowerCase()).join(',') : undefined,
                 platforms: activePlatforms.length > 0 ? activePlatforms.join(',') : undefined,
                 dates: `${dateStart},${dateEnd}`,
+                ordering: !searchTerm && activeGenres.length === 0 && activePlatforms.length === 0 ? '-metacritic' : '-added',
                 page,
+            }
+
+            // Sync with URL if requested
+            if (updateUrl) {
+                const newParams = new URLSearchParams()
+                if (searchTerm) newParams.set('q', searchTerm)
+                if (activeGenres.length > 0) newParams.set('genres', activeGenres.join(','))
+                if (activePlatforms.length > 0) newParams.set('platforms', activePlatforms.join(','))
+                if (dateStart !== '2000-01-01') newParams.set('start', dateStart)
+                if (dateEnd) newParams.set('end', dateEnd)
+                if (page > 1) newParams.set('page', String(page))
+
+                const query = newParams.toString()
+                router.push(query ? `?${query}` : '/')
             }
 
             const response = await searchGames(params)
@@ -73,7 +82,19 @@ export default function GameSearch() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [searchTerm, activeGenres, activePlatforms, dateStart, dateEnd, router])
+
+    useEffect(() => {
+        // Set initial end date if not present
+        if (!dateEnd) {
+            const futureDate = new Date()
+            futureDate.setMonth(futureDate.getMonth() + 6)
+            setDateEnd(futureDate.toISOString().split('T')[0])
+        }
+
+        // Initial search load
+        handleSearch(currentPage, false)
+    }, []) // Run once on mount
 
     const toggleGenre = (genre: string) => {
         setActiveGenres((prev) =>

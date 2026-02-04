@@ -22,98 +22,94 @@ export default async function GameDetailsPage({ params }: PageProps) {
     const { data: { user } } = await supabase.auth.getUser()
 
     return (
-        <div className="cuerpo">
-            <div style={{ marginBottom: '2em' }}>
-                <Link href="/" style={{ color: '#00A8E8', fontWeight: 600, textDecoration: 'none' }}>
-                    ← Volver al inicio
-                </Link>
+        <div className="juego_detalles_container">
+            <div className="juego_name">
+                <div style={{ marginBottom: '1em' }}>
+                    <Link href="/" style={{ color: '#00A8E8', fontWeight: 600, textDecoration: 'none' }}>
+                        ← Volver al inicio
+                    </Link>
+                </div>
+                <h1>{gameData.name}</h1>
             </div>
 
-            <h1 style={{ color: '#00171F', marginBottom: '1em' }}>{gameData.name}</h1>
+            <div className="juego_imagen">
+                {gameData.background_image && (
+                    <Image
+                        src={gameData.background_image}
+                        alt={gameData.name}
+                        width={600}
+                        height={400}
+                        priority
+                    />
+                )}
+            </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2em', marginBottom: '2em' }}>
-                <div>
-                    {gameData.background_image && (
-                        <Image
-                            src={gameData.background_image}
-                            alt={gameData.name}
-                            width={600}
-                            height={400}
-                            style={{ width: '100%', height: 'auto', borderRadius: '5px' }}
-                        />
-                    )}
-                </div>
+            <div className="juego_description">
+                <h2>Descripción</h2>
+                <p>{gameData.description_raw}</p>
+            </div>
 
-                <div>
-                    <div style={{ marginBottom: '1em' }}>
-                        <strong>Fecha de lanzamiento:</strong> {gameData.released}
-                    </div>
-                    <div style={{ marginBottom: '1em' }}>
-                        <strong>Desarrollador:</strong>{' '}
-                        {gameData.developers?.map((d: any) => d.name).join(', ') || 'N/A'}
-                    </div>
-                    <div style={{ marginBottom: '1em' }}>
-                        <strong>Géneros:</strong>{' '}
-                        {gameData.genres?.map((g: any) => g.name).join(', ') || 'N/A'}
-                    </div>
-                    <div style={{ marginBottom: '1em' }}>
-                        <strong>Plataformas:</strong>{' '}
-                        {gameData.platforms?.map((p: any) => p.platform.name).join(', ') || 'N/A'}
-                    </div>
-                    {gameData.metacritic && (
-                        <div style={{ marginBottom: '1em' }}>
-                            <strong>Metacritic:</strong>{' '}
-                            <span
-                                style={{
-                                    padding: '0.25em 0.5em',
-                                    borderRadius: '5px',
-                                    backgroundColor:
-                                        gameData.metacritic > 80
-                                            ? '#00FF00'
-                                            : gameData.metacritic > 50
-                                                ? 'rgb(255, 167, 4)'
-                                                : '#FF0000',
-                                    color: '#00171F',
-                                    fontWeight: 700,
-                                }}
-                            >
-                                {gameData.metacritic}
-                            </span>
-                        </div>
-                    )}
+            <div className="juego_plataformas">
+                <div className="titulo_plataformas">Plataformas</div>
+                {gameData.platforms?.map((p: any) => (
+                    <div key={p.platform.id} className="plataforma">{p.platform.name}</div>
+                )) || <div className="plataforma">N/A</div>}
+            </div>
+
+            <div className="juego_generos">
+                <div className="titulo_generos">Géneros</div>
+                {gameData.genres?.map((g: any) => (
+                    <div key={g.id} className="genero">{g.name}</div>
+                )) || <div className="genero">N/A</div>}
+            </div>
+
+            <div className={`juego_edades ${gameData.esrb_rating ? 'fondo_azul' : 'fondo_transparente'}`} style={{ border: 'none' }}>
+                {gameData.esrb_rating?.name || '?'}
+            </div>
+
+            <div className="juego_metacritic" style={{
+                backgroundColor: gameData.metacritic > 80 ? '#99ca3b' : gameData.metacritic > 50 ? '#f9a11c' : '#e1011a',
+                color: '#fff'
+            }}>
+                {gameData.metacritic || 'N/A'}
+            </div>
+
+            <div className="juego_playtime">
+                <div>Media de juego</div>
+                <div className="horas">{gameData.playtime || 0}h</div>
+            </div>
+
+            <div className="juego_fechas">
+                <div className="released">
+                    <div>Lanzamiento</div>
+                    <div>{new Date(gameData.released).toLocaleDateString('es-ES')}</div>
                 </div>
             </div>
 
-            {gameData.description_raw && (
-                <div style={{ marginBottom: '2em' }}>
-                    <h2 style={{ color: '#00171F', marginBottom: '0.5em' }}>Descripción</h2>
-                    <p style={{ lineHeight: '1.6' }}>{gameData.description_raw}</p>
-                </div>
-            )}
+            <div className="juego_developers">
+                <div className="titulo_developers">Desarrollador</div>
+                {gameData.developers?.map((d: any) => (
+                    <div key={d.id} className="developer">{d.name}</div>
+                )) || <div className="developer">N/A</div>}
+            </div>
 
-            {screenshotsData.results && screenshotsData.results.length > 0 && (
-                <div style={{ marginBottom: '2em' }}>
-                    <h2 style={{ color: '#00171F', marginBottom: '0.5em' }}>Capturas</h2>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1em' }}>
-                        {screenshotsData.results.slice(0, 6).map((screenshot: any, index: number) => (
-                            <Image
-                                key={index}
-                                src={screenshot.image}
-                                alt={`Screenshot ${index + 1}`}
-                                width={300}
-                                height={200}
-                                style={{ width: '100%', height: 'auto', borderRadius: '5px' }}
-                            />
-                        ))}
-                    </div>
-                </div>
-            )}
+            <div className="juego_publis">
+                <div className="titulo_publis">Editor</div>
+                {gameData.publishers?.map((p: any) => (
+                    <div key={p.id} className="publisher">{p.name}</div>
+                )) || <div className="publisher">N/A</div>}
+            </div>
 
-            <div style={{ marginTop: '3em' }}>
+            <div className="juego_tags">
+                <div className="titulo_tags">Etiquetas</div>
+                {gameData.tags?.slice(0, 15).map((t: any) => (
+                    <div key={t.id} className="tag">{t.name}</div>
+                )) || <div className="tag">N/A</div>}
+            </div>
+
+            <div style={{ gridArea: '7 / 1 / 8 / -1', marginTop: '2em' }}>
                 <h2 style={{ color: '#00171F', marginBottom: '1em' }}>Reseñas</h2>
-
                 {user && <ReviewForm gameId={gameId} userId={user.id} />}
-
                 <ReviewList gameId={gameId} />
             </div>
         </div>
