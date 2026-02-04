@@ -50,15 +50,15 @@ export default async function GameDetailsPage({ params }: PageProps) {
                     </div>
                     <div style={{ marginBottom: '1em' }}>
                         <strong>Desarrollador:</strong>{' '}
-                        {gameData.developers?.map((d) => d.name).join(', ') || 'N/A'}
+                        {gameData.developers?.map((d: any) => d.name).join(', ') || 'N/A'}
                     </div>
                     <div style={{ marginBottom: '1em' }}>
                         <strong>Géneros:</strong>{' '}
-                        {gameData.genres?.map((g) => g.name).join(', ') || 'N/A'}
+                        {gameData.genres?.map((g: any) => g.name).join(', ') || 'N/A'}
                     </div>
                     <div style={{ marginBottom: '1em' }}>
                         <strong>Plataformas:</strong>{' '}
-                        {gameData.platforms?.map((p) => p.platform.name).join(', ') || 'N/A'}
+                        {gameData.platforms?.map((p: any) => p.platform.name).join(', ') || 'N/A'}
                     </div>
                     {gameData.metacritic && (
                         <div style={{ marginBottom: '1em' }}>
