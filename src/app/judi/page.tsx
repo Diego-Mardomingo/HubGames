@@ -163,18 +163,15 @@ export default function JUDIPage() {
         if (query.length > 2) {
             searchTimeout.current = setTimeout(async () => {
                 try {
-                    // Optimized query: No restrictive dates to allow older classics, limit results, exclude additions
                     const res = await fetch(`https://api.rawg.io/api/games?key=3b597a76023d49faa0deba195b7b78b7&search=${encodeURIComponent(query)}&page_size=10&exclude_additions=true`)
                     const data = await res.json()
-
-                    // Filter out very obscure items if many results returned, or just keep top 10 relevant
                     setSearchResults(data.results || [])
                     setShowResults(true)
                 } catch (err) {
                     console.error("RAWG Search Error:", err)
                     setSearchResults([])
                 }
-            }, 400) // Slightly faster debounce
+            }, 400)
         } else {
             setSearchResults([])
             setShowResults(false)
@@ -186,39 +183,41 @@ export default function JUDIPage() {
 
         const isCorrect = searchQuery.trim().toLowerCase() === selectedGame.juego.nombre.toLowerCase()
 
-        // Clear results before showing feedback
+        // Clear search results immediately
         setSearchResults([])
         setShowResults(false)
 
         if (isCorrect) {
             setGuessFeedback('correct')
-            await updateProgress(selectedGame.juego.id, 'completado', true)
+            // Important: update local state before wait
             setGameState('won')
+            await updateProgress(selectedGame.juego.id, 'completado', true)
         } else {
-            setGuessFeedback('wrong')
-            const currentPhaseToMark = highestUnlockedPhase
             const nextPhase = highestUnlockedPhase + 1
-
             if (nextPhase > 6) {
-                await updateProgress(selectedGame.juego.id, 'fase6', true)
+                // Definitive loss: No feedback toast per user request
                 setHighestUnlockedPhase(6)
                 setLives(0)
                 setGameState('lost')
+                await updateProgress(selectedGame.juego.id, 'fase6', true)
             } else {
-                await updateProgress(selectedGame.juego.id, `fase${currentPhaseToMark}`, true)
+                setGuessFeedback('wrong')
+                const currentPhaseToMark = highestUnlockedPhase
                 setHighestUnlockedPhase(nextPhase)
                 setActiveViewedPhase(nextPhase)
                 setLives(7 - nextPhase)
+                await updateProgress(selectedGame.juego.id, `fase${currentPhaseToMark}`, true)
             }
         }
 
-        setTimeout(() => setGuessFeedback(null), 2500)
+        if (guessFeedback !== null) {
+            setTimeout(() => setGuessFeedback(null), 2500)
+        }
         setSearchQuery('')
     }
 
     const updateProgress = async (gameId: number, field: string, value: any) => {
         if (user) {
-            // Logged in: use upsert for atomic updates
             const { error } = await supabase
                 .from('hubgames_judi_fases_usuario')
                 .upsert({
@@ -229,7 +228,6 @@ export default function JUDIPage() {
 
             if (error) console.error("Update Progress Error:", error)
         } else {
-            // Guest: reliable LocalStorage persistence
             const localProgress = localStorage.getItem('judi_progress')
             const progressData = localProgress ? JSON.parse(localProgress) : {}
 
@@ -332,14 +330,15 @@ export default function JUDIPage() {
                                         className="game-image"
                                     />
                                 )}
-                                <div className="pista-overlay">
-                                    {activeViewedPhase === 1 && "Pista 1: Primera imagen"}
-                                    {activeViewedPhase === 2 && `Popularidad: ${selectedGame.juego.desarrollador}/5`}
-                                    {activeViewedPhase === 3 && `Metacritic: ${selectedGame.juego.calificacion}/100`}
-                                    {activeViewedPhase === 4 && `Plataformas: ${selectedGame.plataformas.join(', ')}`}
-                                    {activeViewedPhase === 5 && `Géneros: ${selectedGame.generos.join(', ')}`}
-                                    {activeViewedPhase === 6 && `Lanzamiento: ${selectedGame.juego.released}`}
-                                </div>
+                                {activeViewedPhase > 1 && (
+                                    <div className="pista-overlay">
+                                        {activeViewedPhase === 2 && `Popularidad: ${selectedGame.juego.desarrollador}/5`}
+                                        {activeViewedPhase === 3 && `Metacritic: ${selectedGame.juego.calificacion}/100`}
+                                        {activeViewedPhase === 4 && `Plataformas: ${selectedGame.plataformas.join(', ')}`}
+                                        {activeViewedPhase === 5 && `Géneros: ${selectedGame.generos.join(', ')}`}
+                                        {activeViewedPhase === 6 && `Lanzamiento: ${selectedGame.juego.released}`}
+                                    </div>
+                                )}
                             </div>
 
                             {renderHearts()}
@@ -356,12 +355,11 @@ export default function JUDIPage() {
                                             onKeyDown={(e) => e.key === 'Enter' && handleAdivinar()}
                                         />
                                         {showResults && searchResults.length > 0 && (
-                                            <div className="autocomplete-dropdown" style={{ width: 'calc(100% - 2em)', left: '1em', top: '100%', position: 'absolute', background: '#fff', borderRadius: '0 0 20px 20px', boxShadow: '0 10px 20px rgba(0,0,0,0.1)', overflow: 'hidden', zIndex: 100 }}>
+                                            <div className="autocomplete-dropdown">
                                                 {searchResults.map((res: any) => (
                                                     <div
                                                         key={res.id}
                                                         className="autocomplete-item"
-                                                        style={{ padding: '0.8em 1.5em', cursor: 'pointer', borderBottom: '1px solid #eee' }}
                                                         onClick={() => {
                                                             setSearchQuery(res.name)
                                                             setShowResults(false)
@@ -381,7 +379,7 @@ export default function JUDIPage() {
                                 <div className={`resultado-final ${gameState === 'won' ? 'victory' : 'defeat'}`}>
                                     <h2>{gameState === 'won' ? '¡Increíble!' : '¡Mala suerte!'}</h2>
                                     <p>El juego era: <strong>{selectedGame.juego.nombre}</strong></p>
-                                    <button className="boton-volver" style={{ margin: '1em auto' }} onClick={() => { setView('list'); loadUserAndGames(); }}>
+                                    <button className="boton-volver" style={{ margin: '1rem auto' }} onClick={() => { setView('list'); loadUserAndGames(); }}>
                                         Volver al listado
                                     </button>
                                 </div>
@@ -390,11 +388,6 @@ export default function JUDIPage() {
                     )
                 )}
             </div>
-            <footer style={{ marginTop: 'auto', padding: '2em', textAlign: 'center' }}>
-                <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', display: 'inline-block', padding: '0.5em 1.5em', borderRadius: '50px', fontSize: '0.9em', fontWeight: 700, color: '#00171F', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
-                    HUBGAMES © 2026
-                </div>
-            </footer>
         </div>
     )
 }
