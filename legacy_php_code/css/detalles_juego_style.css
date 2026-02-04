@@ -1,0 +1,1017 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+*{
+  box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
+}
+body{
+  min-height: 95vh;
+  background-image: url("../img/arboles_lagoUpScale.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+}
+
+/* NAV */
+
+.nav{
+  margin: .5em 2em;
+  color: #fff;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1em;
+}
+.nav img{
+  width: 5rem;
+}
+
+.nav_list{
+  margin: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  background-color: rgba(0, 23, 31, .8);
+  border-radius: 5px;
+  transition: transform .2s;
+}
+.nav_item{
+  padding: 1em;
+}
+.nav_item a{
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  position: relative;
+}
+.nav_item a::after{
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 2px;
+  width: 100%;
+  border-radius: 5px;
+  background-color: #fff;
+  transition: transform .5s;
+  transform-origin: right;
+  transform: scaleX(0);
+}
+.nav_item a:hover::after{
+  transform-origin: left;
+  transform: scaleX(1);
+}
+
+.barras{
+  display: none;
+  color: #fff;
+  font-weight: 600;
+  padding: 1em;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(0, 23, 31, .8);
+  border-radius: 5px;
+}
+/* Media queries para móvil */
+@media (width <= 730px){
+  .barras{
+    display: flex;
+    gap: .6em;
+  }
+  .nav_list{
+    position: absolute;
+    width: 70%;
+    right: 1em;
+    transform: scaleX(0);
+    transform-origin: right;
+    top: 6em;
+    display: flex;
+    flex-direction: column;
+    z-index: 60;
+  }
+  .mostrar_menu{
+    display: flex;
+    transform: scaleX(1);
+    backdrop-filter: blur(20px);
+  }
+  .nav_item a::after{
+    background-color: rgba(0, 23, 31, .8);
+  }
+}
+
+
+/* CUERPO */
+
+.cuerpo{
+  background-color: rgba(250, 250, 250, .2);
+  width: 90vw;
+  height: 100%;
+  margin: auto;
+  flex-grow: 1;
+  padding: 1em;
+  border-radius: 5px;
+  color: #00171F;
+  font-weight: 600;
+  display: grid;
+  grid-template-columns: repeat(7,1fr);
+  /* grid-template-rows: repeat(6, 1fr); */
+  /* grid-template-columns: repeat(auto-fill,minmax(15vw,1fr)); */
+  /* grid-template-rows: repeat(auto-fill,minmax(16vh,1fr)); */
+  gap: 1em;
+}
+
+
+.juego_name{
+  text-align: center;
+  font-size: 1.3em;
+  grid-area: 1 / 1 / 2 / -1;
+  margin: auto;
+}
+.juego_name h1{
+  background-color: rgba(250, 250, 250, .3);
+  padding: .2em;
+  border-radius: 5px;
+  backdrop-filter: blur(50px);
+  margin: 0;
+  box-shadow: 0px 0px 33px 0px rgba(0,0,0,0.5);
+  word-wrap: break-word;
+}
+
+.juego_imagen{
+  grid-area: 2 / 1 / 4 / 3;
+}
+.juego_imagen img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 5px;
+  box-shadow: 0px 0px 33px 0px rgba(0,0,0,0.5);
+}
+
+.juego_description{
+  grid-area: 2 / 3 / 4 / -3;
+  background-color: rgba(0, 23, 31, .8);
+  color: #fff;
+  padding: 1em;
+  border-radius: 5px;
+  font-weight: 400;
+  max-height: 30em;
+  overflow: auto;
+}
+
+
+.juego_plataformas{
+  grid-area: 2 / 6 / 3 / 8;
+  background-color: rgba(240, 240, 240, .5);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: .6em;
+  padding: 1em;
+  border-radius: 5px;
+  height: fit-content;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+.juego_plataformas .titulo_plataformas{
+  text-align: center;
+  width: 100%;
+  font-size: 1.4em;
+  background-color: #00171F;
+  color: #fff;
+  padding: .6em;
+  border-radius: 5px;
+}
+.juego_plataformas .plataforma{
+  background-color: #fff;
+  padding: .3em;
+  border-radius: 5px;
+}
+
+.juego_generos{
+  grid-area: 3 / 6 / 4 / 8;
+  background-color: rgba(240, 240, 240, .5);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: .6em;
+  padding: 1em;
+  border-radius: 5px;
+  height: fit-content;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+.juego_generos .titulo_generos{
+  text-align: center;
+  width: 100%;
+  font-size: 1.4em;
+  background-color: #00171F;
+  color: #fff;
+  padding: .6em;
+  border-radius: 5px;
+}
+.juego_generos .genero{
+  background-color: #fff;
+  padding: .3em;
+  border-radius: 5px;
+}
+
+
+.juego_edades{
+  grid-area: 4 / 1 / 5 / 2;
+  display: grid;
+  place-content: center;
+  border: 2.5px solid #00171F;
+  font-size: 4em;
+  font-weight: 900;
+  color: #fff;
+  height: fit-content;
+  width: fit-content;
+  padding: .4em;
+  margin: auto;
+}
+.fondo_rojo{
+  background-color: #e1011a;
+}
+.fondo_verde{
+  background-color: #99ca3b;
+}
+.fondo_naranja{
+  background-color: #f9a11c;
+}
+.fondo_violeta{
+  background-color: #b12ce1;
+}
+
+.juego_metacritic{
+  grid-area: 4 / 2 / 5 / 3;
+  display: grid;
+  place-content: center;
+  font-size: 4em;
+  font-weight: 900;
+  border-radius: 5px;
+  height: fit-content;
+  width: fit-content;
+  padding: .4em;
+  margin: auto;
+}
+
+
+.juego_playtime{
+  grid-area: 4 / 3 / 5 / 4;
+  background-color: rgba(240, 240, 240, .8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 1em;
+  text-align: center;
+  border-radius: 5px;
+}
+.juego_playtime > div:first-child{
+  background-color: #fff;
+  padding: 1em;
+  border-radius: 5px;
+}
+.juego_playtime .horas{
+  font-size: 4em;
+  font-weight: 700;
+  color: #003459;
+}
+
+
+.juego_fechas{
+  grid-area: 4 / 4 / 5 / 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  font-size: 1.5em;
+  gap: .4em;
+  text-align: center;
+}
+.juego_fechas .released{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 23, 31, .8);
+  padding: 1em;
+  border-radius: 5px;
+  color: #fff;
+  backdrop-filter: blur(30px);
+}
+.juego_fechas .released div:nth-child(2){
+  color: #00A8E8;
+  font-weight: 800;
+  font-size: 1.8em;
+}
+.juego_fechas .updated{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 23, 31, .8);
+  padding: 1em;
+  border-radius: 5px;
+  color: #fff;
+  backdrop-filter: blur(30px);
+  font-size: 1.2rem;
+}
+.juego_fechas .updated div:nth-child(2){
+  color: #00A8E8;
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+
+
+.juego_tags{
+  grid-area: 5 / 1 / 7 / 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(240, 240, 240, .5);
+  border-radius: 5px;
+  padding: .3em;
+  gap: .7em;
+  height: fit-content;
+}
+.juego_tags .titulo_tags{
+  width: 100%;
+  background-color: #00171F;
+  color: #fff;
+  border-radius: 5px;
+  padding: .3em;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.3em;
+}
+.juego_tags .tag{
+  background-color: #fff;
+  padding: .2em;
+  border-radius: 5px;
+  font-weight: 500;
+}
+
+.juego_stores{
+  grid-area: 5 / 5 / 7 / 6;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: fit-content;
+  gap: .4em;
+}
+.juego_stores .titulo_stores{
+  background-color: rgba(255, 255, 255, .9);
+  color: #00171F;
+  padding: .4em;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: 700;
+}
+.juego_stores .store{
+  background-color: #00171F;
+  color: #fff;
+  border-radius: 5px;
+  padding: .5em;
+  width: 100%;
+}
+.juego_stores .store:hover{
+  background-color: #042530;
+}
+.juego_stores .store a{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .3em;
+  text-decoration: none;
+  color: #fff;
+}
+.juego_stores .store a i{
+  font-size: .8em;
+}
+
+
+.juego_website{
+  grid-area: 5 / 6 / 6 / 7;
+  display: flex;
+  text-align: center;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(240, 240, 240, .5);
+  padding: 1em;
+  height: fit-content;
+  border-radius: 5px;
+  margin: auto;
+}
+.juego_website a{
+  text-decoration: none;
+  color: #fff;
+  background-color: #00171F;
+  border-radius: 5px;
+  padding: 1.2em;
+  font-size: 1.2em;
+  font-weight: 700;
+  position: relative;
+}
+.juego_website a:hover{
+  background-color: #042530;
+}
+.juego_website a i{
+  position: absolute;
+  font-size: .8em;
+  top: .3em;
+  right: .3em;
+}
+
+
+.juego_developers{
+  grid-area: 4 / 6 / 5 / 7;
+  background-color: rgba(0, 23, 31, .4);
+  padding: 1em;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4em;
+}
+.juego_developers .titulo_developers{
+  background-color: #fff;
+  padding: 1em;
+  border-radius: 5px;
+  font-weight: 600;
+}
+.juego_developers .developer{
+  background-color: #00171F;
+  color: #fff;
+  text-align: center;
+  padding: .5em;
+  border-radius: 5px;
+}
+
+
+.juego_publis{
+  grid-area: 4 / 7 / 5 / 8;
+  background-color: rgba(0, 23, 31, .4);
+  padding: 1em;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4em;
+}
+.juego_publis .titulo_publis{
+  background-color: #fff;
+  padding: 1em;
+  border-radius: 5px;
+  font-weight: 600;
+}
+.juego_publis .publisher{
+  background-color: #00171F;
+  color: #fff;
+  text-align: center;
+  padding: .5em;
+  border-radius: 5px;
+}
+
+
+.enlaces{
+  grid-area: 5 / 7 / 6 / 8;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  margin: auto;
+}
+
+.juego_enlace_metacritic{
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.juego_enlace_metacritic a{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .4em;
+  width: 100%;
+  color: #00171F;
+  background-color: #fff;
+  padding: 1em;
+  border-radius: 5px;
+}
+.juego_enlace_metacritic a:hover{
+  background-color: #eee;
+}
+.juego_enlace_metacritic a img{
+  width: 6em;
+}
+.juego_enlace_metacritic a i{
+  font-size: 1em;
+}
+
+
+.juego_enlace_reddit{
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.juego_enlace_reddit a{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .4em;
+  width: 100%;
+  color: #00171F;
+  background-color: #fff;
+  padding: 1em;
+  border-radius: 5px;
+}
+.juego_enlace_reddit a:hover{
+  background-color: #eee;
+}
+.juego_enlace_reddit a img{
+  width: 4.1em;
+}
+.juego_enlace_reddit a i{
+  font-size: 1em;
+}
+
+/* REVIEWS */
+.reviews{
+  margin: 1em auto 0 auto;
+  max-width: 90vw;
+  width: fit-content;
+  padding: 1em;
+}
+.review_sin_sesion{
+  background-color: rgba(0, 23, 31, .9);
+  text-align: center;
+  color: #fff;
+  font-weight: 600;
+  padding: 1em;
+  border-radius: 5px;
+}
+.review_sin_sesion > a{
+  text-decoration: none;
+  color: #00A8E8;
+}
+.review_sin_sesion > a:hover{
+  text-decoration: underline;
+}
+.boton_new_review{
+  background-color: #00171F;
+  color: #fff;
+  padding: 1em;
+  border-radius: 5px;
+  text-align: center;
+  width: fit-content;
+  display: flex;
+  gap: .4em;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 0px 33px 0px rgba(0,0,0,0.5);
+}
+.boton_new_review:hover{
+  cursor: pointer;
+  background-color: #042530;
+}
+.paginacion{
+  display: flex;
+  flex-direction: row-reverse;
+  gap: .5em;
+  margin-top: 1em;
+  justify-content: space-between;
+}
+.paginacion > div{
+  background-color: #00171F;
+  padding: .5em 1em;
+  color: #fff;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .5em;
+}
+.paginacion > div:hover{
+  cursor: pointer;
+  background-color: #042530;
+}
+.anterior_review{
+  flex-direction: row-reverse;
+}
+
+.review{
+  background-color: rgba(0, 23, 31, .7);
+  display: grid;
+  align-items: center;
+  grid-template-columns: repeat(4,1fr);
+  grid-template-rows: repeat(3,1fr);
+  gap: .4em;
+  place-content: center;
+  border-radius: 5px;
+  padding: 1em;
+  margin: .7em 0;
+  color: #fff;
+  font-size: 1.05em;
+  font-weight: 600;
+  position: relative;
+  backdrop-filter: blur(10px);
+  word-wrap: break-word;
+}
+.no_reviews{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.encabezado{
+  font-size: larger;
+  grid-area: 1 / 1 / 2 / 4;
+}
+.contenido{
+  font-weight: 400;
+  grid-area: 2 / 1 / 3 / 4;
+}
+.usuario{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .5em;
+  flex-direction: row-reverse;
+  grid-area: 1 / 4 / 2 / -1;
+}
+.usuario div:nth-child(1){
+  color: #AAA;
+}
+.fecha_creacion{
+  grid-area: 3 / 1 / 4 / 2;
+  font-size: .9em;
+  font-weight: 500;
+}
+.valoracion{
+  grid-area: 3 / 4 / 4 / 5;
+  justify-self: center;
+  color: #99ca3b;
+}
+
+/* Estilos para el modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  margin: auto;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.7);
+}
+
+.modal-contenido {
+  background-color: #00171F;
+  color: #fff;
+  border-radius: 5px;
+  /* margin: 15% auto; */
+  
+  padding: 2em;
+  display: flex;
+  flex-direction: column;
+  gap: .5em;
+  text-align: center;
+}
+
+.crear_encabezado{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1em;
+  text-align: left;
+}
+.crear_encabezado input{
+  width: 100%;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  padding: 1em;
+}
+.crear_contenido{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1em;
+  text-align: left;
+}
+.crear_contenido textarea{
+  resize: none;
+  width: 100%;
+  height: 10em;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  padding: 1em;
+}
+.crear_valoracion{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+}
+.crear_valoracion select{
+  padding: .4em;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+}
+.botones{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em;
+  gap: 1em;
+}
+.botones button{
+  outline: none;
+  border: none;
+  background-color: #fff;
+  color: #00171F;
+  padding: 1em;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 1em;
+}
+.botones button:hover{
+  background-color: #ddd;
+  cursor: pointer;
+}
+
+
+/* Clase para mostrar el modal */
+.mostrar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+/* FOOTER */
+.footer{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1em 0;
+}
+.footer .content{
+  padding: 1em;
+  font-weight: 600;
+  font-size: .7em;
+  border-radius: 5px;
+  background-color: rgba(240, 240, 240, .8);
+}
+
+
+
+/* Media queries*/
+@media (width <= 1380px){
+  .cuerpo{
+    grid-template-columns: repeat(6,1fr);
+  }
+  .juego_imagen{
+    grid-area: 2 / 1 / 4 / 3;
+  }
+  .juego_description{
+    grid-area: 2 / 3 / 4 / -1;
+  }
+  .juego_plataformas{
+    grid-area: 4 / 1 / 5 / 4;
+  }
+  .juego_generos{
+    grid-area: 4 / 4 / 5 / -1;
+  }
+  .juego_edades{
+    grid-area: 5 / 1 / 6 / span 1;
+  }
+  .juego_metacritic{
+    grid-area: 5 / 2 / 6 / span 1;
+  }
+  .juego_playtime{
+    grid-area: 5 / 3 / 6 / span 1;
+  }
+  .juego_fechas{
+    grid-area: 5 / 4 / 6 / span 3;
+  }
+  .juego_developers{
+    grid-area: 6 / 1 / 7 / span 1;
+  }
+  .juego_publis{
+    grid-area: 6 / 2 / 7 / span 1;
+  }
+  .juego_tags{
+    grid-area: 7 / 1 / 8 / span 3;
+  }
+  .juego_stores{
+    grid-area: 6 / 5 / 8 / -1;
+  }
+  .juego_website{
+    grid-area: 6 / 3 / 7 / span 1;
+  }
+  .enlaces{
+    grid-area: 6 / 4 / 7 / span 1;
+  }
+}
+@media (width <= 950px){
+  .cuerpo{
+    grid-template-columns: repeat(4,1fr);
+  }
+  .juego_imagen{
+    grid-area: 2 / 1 / 4 / 2;
+  }
+  .juego_description{
+    grid-area: 2 / 2 / 4 / -1;
+  }
+  .juego_plataformas{
+    grid-area: 4 / 1 / 5 / 3;
+  }
+  .juego_generos{
+    grid-area: 4 / 3 / 5 / -1;
+  }
+  .juego_edades{
+    grid-area: 5 / 1 / 6 / span 1;
+  }
+  .juego_metacritic{
+    grid-area: 5 / 2 / 6 / span 1;
+  }
+  .juego_playtime{
+    grid-area: 6 / 1 / 7 / span 1;
+  }
+  .juego_fechas{
+    grid-area: 5 / 3 / 6 / -1;
+  }
+  .juego_developers{
+    grid-area: 6 / 2 / 7 / span 1;
+  }
+  .juego_publis{
+    grid-area: 6 / 3 / 7 / span 1;
+  }
+  .juego_tags{
+    grid-area: 7 / 1 / 8 / span 3;
+  }
+  .juego_stores{
+    grid-area: 6 / 4 / 8 / -1;
+  }
+  .juego_website{
+    grid-area: 8 / 1 / 9 / span 1;
+  }
+  .enlaces{
+    grid-area: 8 / 2 / 9 / span 1;
+  }
+}
+@media (width <= 850px){
+  .cuerpo{
+    grid-template-columns: repeat(4,1fr);
+  }
+  .juego_edades{
+    grid-area: 5 / 1 / 6 / span 2;
+  }
+  .juego_metacritic{
+    grid-area: 5 / 3 / 6 / span 2;
+  }
+  .juego_playtime{
+    grid-area: 7 / 1 / 8 / span 2;
+  }
+  .juego_fechas{
+    grid-area: 6 / 1 / 7 / -1;
+  }
+  .juego_developers{
+    grid-area: 8 / 1 / 9 / span 2;
+  }
+  .juego_publis{
+    grid-area: 8 / 3 / 9 / span 2;
+  }
+  .juego_tags{
+    grid-area: 10 / 1 / 11 / -1;
+  }
+  .juego_stores{
+    grid-area: 9 / 2 / 10 / -1;
+  }
+  .juego_website{
+    grid-area: 7 / 3 / 8 / span 2;
+  }
+  .enlaces{
+    grid-area: 9 / 1 / 10 / span 1;
+  }
+}
+@media (width <= 550px){
+  .encabezado{
+    grid-area: 1 / 1 / 2 / -1;
+  }
+  .contenido{
+    grid-area: 2 / 1 / 3 / -1;
+  }
+  .usuario{
+    grid-area: 4 / 1 / 5 / 3;
+  }
+  .fecha_creacion{
+    grid-area: 3 / 1 / 4 / 4;
+  }
+  .valoracion{
+    grid-area: 4 / 3 / 5 / 5;
+  }
+  .cuerpo{
+    grid-template-columns: repeat(4,1fr);
+  }
+  .juego_imagen{
+    grid-area: 2 / 1 / 3 / -1;
+  }
+  .juego_description{
+    grid-area: 3 / 1 / 4 / -1;
+  }
+  .juego_plataformas{
+    grid-area: 4 / 1 / 5 / -1;
+  }
+  .juego_generos{
+    grid-area: 5 / 1 / 6 / -1;
+  }
+  .juego_edades{
+    grid-area: 7 / 1 / 8 / span 2;
+  }
+  .juego_metacritic{
+    grid-area: 7 / 3 / 8 / span 2;
+  }
+  .juego_playtime{
+    grid-area: 8 / 1 / 9 / span 2;
+  }
+  .juego_fechas{
+    grid-area: 6 / 1 / 7 / -1;
+  }
+  .juego_developers{
+    grid-area: 9 / 1 / 10 / -1;
+  }
+  .juego_publis{
+    grid-area: 10 / 1 / 11 / -1;
+  }
+  .juego_tags{
+    grid-area: 13 / 1 / 14 / -1;
+  }
+  .juego_stores{
+    grid-area: 11 / 1 / 12 / -1;
+  }
+  .juego_website{
+    grid-area: 8 / 3 / 9 / span 2;
+  }
+  .enlaces{
+    grid-area: 12 / 1 / 13 / -1;
+  }
+}
+@media (width <= 380px){
+  .juego_name{
+    font-size: 1.2em;
+  }
+  .juego_fechas .released div:nth-child(2){
+    font-size: 1.4em;
+  }
+  .juego_edades{
+    grid-area: 7 / 1 / 8 / -1;
+  }
+  .juego_metacritic{
+    grid-area: 8 / 1 / 9 / -1;
+  }
+  .juego_playtime{
+    grid-area: 9 / 1 / 10 / -1;
+  }
+  .juego_developers{
+    grid-area: 11 / 1 / 12 / -1;
+  }
+  .juego_publis{
+    grid-area: 12 / 1 / 13 / -1;
+  }
+  .juego_tags{
+    grid-area: 15 / 1 / 16 / -1;
+  }
+  .juego_stores{
+    grid-area: 13 / 1 / 14 / -1;
+  }
+  .juego_website{
+    grid-area: 10 / 1 / 11 / -1;
+  }
+  .enlaces{
+    grid-area: 14 / 1 / 15 / -1;
+  }
+}

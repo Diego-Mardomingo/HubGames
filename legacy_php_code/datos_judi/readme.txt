@@ -1,0 +1,1 @@
+En esta carpeta deben ir todos los archivos generados para guardar el avance en los juegos
