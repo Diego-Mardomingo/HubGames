@@ -1,7 +1,13 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import '@/styles/globals.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+
+export const viewport: Viewport = {
+    themeColor: '#00171F',
+    width: 'device-width',
+    initialScale: 1,
+}
 
 export const metadata: Metadata = {
     title: 'HubGames - Buscador de Videojuegos',
@@ -9,8 +15,6 @@ export const metadata: Metadata = {
     keywords: ['hubgames', 'hub games', 'videojuegos', 'juegos', 'buscador', 'entretenimiento'],
     authors: [{ name: 'Diego López Mardomingo' }],
     manifest: '/manifest.json',
-    themeColor: '#00171F',
-    viewport: 'width=device-width, initial-scale=1',
 }
 
 export default function RootLayout({
