@@ -179,7 +179,7 @@ export default function JUDIPage() {
     }
 
     const handleAdivinar = async () => {
-        if (!selectedGame || gameState !== 'playing' || !searchQuery.trim()) return
+        if (!selectedGame || gameState !== 'playing') return
 
         const isCorrect = searchQuery.trim().toLowerCase() === selectedGame.juego.nombre.toLowerCase()
 
@@ -217,17 +217,39 @@ export default function JUDIPage() {
     }
 
     const updateProgress = async (gameId: number, field: string, value: any) => {
-        if (user) {
-            const { error } = await supabase
-                .from('hubgames_judi_fases_usuario')
-                .upsert({
-                    id_lista_judi: gameId,
-                    id_usuario: user.id,
-                    [field]: value
-                }, { onConflict: 'id_lista_judi,id_usuario' })
+        // Always fetch fresh user to avoid stale closures or state mismatch
+        const { data: { user: authUser } } = await supabase.auth.getUser()
 
-            if (error) console.error("Update Progress Error:", error)
+        if (authUser) {
+            // Check if row exists first - explicit logic aids debugging and avoids implicit upsert behaviors that might conflict with RLS in edge cases
+            const { data: existing } = await supabase
+                .from('hubgames_judi_fases_usuario')
+                .select('id_lista_judi')
+                .eq('id_lista_judi', gameId)
+                .eq('id_usuario', authUser.id)
+                .maybeSingle()
+
+            if (existing) {
+                const { error } = await supabase
+                    .from('hubgames_judi_fases_usuario')
+                    .update({ [field]: value })
+                    .eq('id_lista_judi', gameId)
+                    .eq('id_usuario', authUser.id)
+
+                if (error) console.error("Supabase Update Error:", error)
+            } else {
+                const { error } = await supabase
+                    .from('hubgames_judi_fases_usuario')
+                    .insert({
+                        id_lista_judi: gameId,
+                        id_usuario: authUser.id,
+                        [field]: value
+                    })
+
+                if (error) console.error("Supabase Insert Error:", error)
+            }
         } else {
+            // Guest: reliable LocalStorage persistence
             const localProgress = localStorage.getItem('judi_progress')
             const progressData = localProgress ? JSON.parse(localProgress) : {}
 
