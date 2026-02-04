@@ -149,7 +149,35 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.8rem;
+}
+
+.game-nav-controls {
+  display: flex;
+  align-items: center;
   gap: 1rem;
+}
+
+.nav-button {
+  background-color: transparent;
+  border: 1px solid rgba(0, 23, 31, 0.2);
+  color: #00171F;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.nav-button:hover:not(:disabled) {
+  background-color: #00171F;
+  color: #fff;
+}
+
+.nav-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .boton-volver {

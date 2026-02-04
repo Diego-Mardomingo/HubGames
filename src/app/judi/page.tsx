@@ -111,13 +111,14 @@ export default function JUDIPage() {
         }
 
         let progress: any = null
-        if (user) {
+        const { data: { user: authUser } } = await supabase.auth.getUser() // Always refetch user
+        if (authUser) {
             const { data } = await supabase
                 .from('hubgames_judi_fases_usuario')
                 .select('*')
                 .eq('id_lista_judi', game.id)
-                .eq('id_usuario', user.id)
-                .single()
+                .eq('id_usuario', authUser.id)
+                .maybeSingle() // Fix 406 Error
             progress = data
         } else {
             const localProgress = localStorage.getItem('judi_progress')
@@ -152,6 +153,24 @@ export default function JUDIPage() {
         setSelectedGame(gameData)
         setView('game')
         setLoading(false)
+    }
+
+    const handleNavigate = (direction: 'prev' | 'next') => {
+        if (!selectedGame || games.length === 0) return
+
+        const currentIndex = games.findIndex(g => g.id === selectedGame.juego.id)
+        if (currentIndex === -1) return
+
+        let newIndex = -1
+        if (direction === 'next' && currentIndex > 0) {
+            newIndex = currentIndex - 1 // Array is ordered descending (newest first), so 'next' (newer) is lower index
+        } else if (direction === 'prev' && currentIndex < games.length - 1) {
+            newIndex = currentIndex + 1 // 'prev' (older) is higher index
+        }
+
+        if (newIndex !== -1) {
+            startJuego(games[newIndex])
+        }
     }
 
     const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -189,13 +208,11 @@ export default function JUDIPage() {
 
         if (isCorrect) {
             setGuessFeedback('correct')
-            // Important: update local state before wait
             setGameState('won')
             await updateProgress(selectedGame.juego.id, 'completado', true)
         } else {
             const nextPhase = highestUnlockedPhase + 1
             if (nextPhase > 6) {
-                // Definitive loss: No feedback toast per user request
                 setHighestUnlockedPhase(6)
                 setLives(0)
                 setGameState('lost')
@@ -210,24 +227,25 @@ export default function JUDIPage() {
             }
         }
 
-        if (guessFeedback !== null) {
+        if (guessFeedback !== null && isCorrect) { // Only wait to clear if it wasn't a game-over
+            setTimeout(() => setGuessFeedback(null), 2500)
+        } else if (guessFeedback !== null) {
             setTimeout(() => setGuessFeedback(null), 2500)
         }
+
         setSearchQuery('')
     }
 
     const updateProgress = async (gameId: number, field: string, value: any) => {
-        // Always fetch fresh user to avoid stale closures or state mismatch
         const { data: { user: authUser } } = await supabase.auth.getUser()
 
         if (authUser) {
-            // Check if row exists first - explicit logic aids debugging and avoids implicit upsert behaviors that might conflict with RLS in edge cases
             const { data: existing } = await supabase
                 .from('hubgames_judi_fases_usuario')
                 .select('id_lista_judi')
                 .eq('id_lista_judi', gameId)
                 .eq('id_usuario', authUser.id)
-                .maybeSingle()
+                .maybeSingle() // Fix 406 Error here too
 
             if (existing) {
                 const { error } = await supabase
@@ -249,7 +267,6 @@ export default function JUDIPage() {
                 if (error) console.error("Supabase Insert Error:", error)
             }
         } else {
-            // Guest: reliable LocalStorage persistence
             const localProgress = localStorage.getItem('judi_progress')
             const progressData = localProgress ? JSON.parse(localProgress) : {}
 
@@ -324,11 +341,27 @@ export default function JUDIPage() {
                     selectedGame && (
                         <>
                             <div className="cabecera">
-                                <div className="boton-volver" onClick={() => { setView('list'); loadUserAndGames(); }}>
-                                    ← Volver al listado
-                                </div>
-                                <div className="fecha-banner">
-                                    {selectedGame.juego.fecha} (#{selectedGame.juego.id})
+                                <button className="boton-volver" onClick={() => { setView('list'); loadUserAndGames(); }}>
+                                    ← Volver
+                                </button>
+                                <div className="game-nav-controls">
+                                    <button
+                                        className="nav-button"
+                                        onClick={() => handleNavigate('prev')}
+                                        disabled={games.findIndex(g => g.id === selectedGame.juego.id) >= games.length - 1}
+                                    >
+                                        &lt; Anterior
+                                    </button>
+                                    <div className="fecha-banner">
+                                        {selectedGame.juego.fecha} (#{selectedGame.juego.id})
+                                    </div>
+                                    <button
+                                        className="nav-button"
+                                        onClick={() => handleNavigate('next')}
+                                        disabled={games.findIndex(g => g.id === selectedGame.juego.id) <= 0}
+                                    >
+                                        Siguiente &gt;
+                                    </button>
                                 </div>
                             </div>
 
