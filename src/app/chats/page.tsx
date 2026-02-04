@@ -70,13 +70,6 @@ export default async function ChatsPage() {
                     ))}
                 </div>
             )}
-
-            <style jsx>{`
-        .chat-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
-        }
-      `}</style>
         </div>
     )
 }
