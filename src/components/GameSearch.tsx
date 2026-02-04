@@ -41,7 +41,11 @@ export default function GameSearch() {
     const [activeGenres, setActiveGenres] = useState<string[]>(searchParams.get('genres')?.split(',').filter(Boolean) || [])
     const [activePlatforms, setActivePlatforms] = useState<string[]>(searchParams.get('platforms')?.split(',').filter(Boolean) || [])
     const [dateStart, setDateStart] = useState(searchParams.get('start') || '2000-01-01')
-    const [dateEnd, setDateEnd] = useState(searchParams.get('end') || '')
+    const [dateEnd, setDateEnd] = useState(searchParams.get('end') || (() => {
+        const futureDate = new Date()
+        futureDate.setMonth(futureDate.getMonth() + 6)
+        return futureDate.toISOString().split('T')[0]
+    })())
     const [nextPage, setNextPage] = useState<string | null>(null)
     const [prevPage, setPrevPage] = useState<string | null>(null)
     const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1'))
@@ -53,8 +57,8 @@ export default function GameSearch() {
                 search: searchTerm || undefined,
                 genres: activeGenres.length > 0 ? activeGenres.map(g => g.toLowerCase()).join(',') : undefined,
                 platforms: activePlatforms.length > 0 ? activePlatforms.join(',') : undefined,
-                dates: `${dateStart},${dateEnd}`,
-                ordering: !searchTerm && activeGenres.length === 0 && activePlatforms.length === 0 ? '-metacritic' : '-added',
+                dates: dateEnd ? `${dateStart},${dateEnd}` : undefined,
+                ordering: searchTerm ? undefined : '-added',
                 page,
             }
 
@@ -85,13 +89,6 @@ export default function GameSearch() {
     }, [searchTerm, activeGenres, activePlatforms, dateStart, dateEnd, router])
 
     useEffect(() => {
-        // Set initial end date if not present
-        if (!dateEnd) {
-            const futureDate = new Date()
-            futureDate.setMonth(futureDate.getMonth() + 6)
-            setDateEnd(futureDate.toISOString().split('T')[0])
-        }
-
         // Initial search load
         handleSearch(currentPage, false)
     }, []) // Run once on mount

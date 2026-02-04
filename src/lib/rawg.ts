@@ -24,24 +24,28 @@ export interface SearchParams {
     dates?: string
     page?: number
     page_size?: number
+    ordering?: string
 }
 
 export async function searchGames(params: SearchParams) {
-    const queryParams = new URLSearchParams({
+    const queryParams: any = {
         key: RAWG_API_KEY,
         page_size: String(params.page_size || 20),
-        search_exact: 'true',
         exclude_additions: 'true',
-        ordering: '-added',
         page: String(params.page || 1),
-    })
+    }
 
-    if (params.search) queryParams.append('search', params.search)
-    if (params.genres) queryParams.append('genres', params.genres)
-    if (params.platforms) queryParams.append('platforms', params.platforms)
-    if (params.dates) queryParams.append('dates', params.dates)
+    if (params.ordering) queryParams.ordering = params.ordering
 
-    const response = await fetch(`${RAWG_BASE_URL}/games?${queryParams}`)
+    if (params.search) {
+        queryParams.search = params.search
+    }
+    if (params.genres) queryParams.genres = params.genres
+    if (params.platforms) queryParams.platforms = params.platforms
+    if (params.dates) queryParams.dates = params.dates
+
+    const urlParams = new URLSearchParams(queryParams)
+    const response = await fetch(`${RAWG_BASE_URL}/games?${urlParams}`)
     if (!response.ok) throw new Error('Failed to fetch games')
 
     return response.json()

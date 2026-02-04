@@ -25,7 +25,7 @@ export default function GameCard({ game }: GameCardProps) {
     return (
         <Link href={`/juego/${game.id}`} className="juego">
             <div className="nombre">
-                <a href={`/juego/${game.id}`}>{game.name}</a>
+                {game.name}
             </div>
             <div className="imagen">
                 {game.background_image && (

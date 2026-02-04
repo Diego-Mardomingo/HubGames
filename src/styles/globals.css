@@ -4,6 +4,53 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Pagination Styles - Moved to top for reliability */
+.enlaces_paginas {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin: 1.5em 0 !important;
+  width: 100% !important;
+}
+
+.siguiente_pagina,
+.anterior_pagina {
+  background-color: #00171f !important;
+  color: #fff !important;
+  padding: 0.8em 1.2em !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.8em !important;
+  transition: background-color 0.2s, transform 0.2s !important;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3) !important;
+  z-index: 50 !important;
+}
+
+.siguiente_pagina:hover,
+.anterior_pagina:hover {
+  background-color: #042631 !important;
+  transform: translateY(-2px) !important;
+}
+
+.siguiente_pagina:active,
+.anterior_pagina:active {
+  transform: translateY(0) !important;
+}
+
+.pag_anterior,
+.pag_siguiente {
+  flex: 1 !important;
+  display: flex !important;
+}
+
+.pag_siguiente {
+  justify-content: flex-end !important;
+}
+
+
 * {
   box-sizing: border-box;
   font-family: 'Montserrat', sans-serif;
@@ -238,9 +285,10 @@ body {
   background-color: #00171f;
   border-radius: 5px;
   top: 110%;
-  right: 0;
-  width: fit-content;
-  min-width: 50vw;
+  left: 0;
+  width: max-content;
+  min-width: 300px;
+  max-width: 90vw;
   height: fit-content;
   z-index: 100;
   padding: 1em;
@@ -767,6 +815,7 @@ body {
   gap: .7em;
   height: fit-content;
 }
+
 
 /* Base Responsive */
 @media (width <=1380px) {
