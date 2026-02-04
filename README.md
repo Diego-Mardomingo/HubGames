@@ -12,6 +12,7 @@ HubGames es una plataforma web personal diseñada para entusiastas de los videoj
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green)](https://supabase.com/)
 [![PWA](https://img.shields.io/badge/PWA-Ready-purple)](https://web.dev/progressive-web-apps/)
+[![Deploy Status](https://deploy-badge.vercel.app/vercel/hub-games)](https://hub-games.vercel.app/)
 
 ---
 
