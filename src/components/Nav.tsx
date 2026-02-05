@@ -33,7 +33,7 @@ export default function Nav() {
     return (
         <nav className="nav">
             <Link href="/">
-                <Image src="/img/HGLogo.webp" alt="HubGames Logo" width={80} height={80} />
+                <Image src="/img/HGLogo.webp" alt="HubGames Logo" width={80} height={80} priority />
             </Link>
 
             <div className="barras" onClick={() => setShowMenu(!showMenu)}>
@@ -41,7 +41,7 @@ export default function Nav() {
                 <i className={showMenu ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'}></i>
             </div>
 
-            <ul className={`nav_list ${showMenu ? 'mostrar_menu' : ''}`}>
+            <ul className={`nav_list ${showMenu ? 'mostrar_menu' : ''}`} onClick={() => setShowMenu(false)}>
                 <li className="nav_item">
                     <Link href="/">Inicio</Link>
                 </li>

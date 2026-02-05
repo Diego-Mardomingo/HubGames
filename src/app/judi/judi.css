@@ -533,3 +533,20 @@
     font-size: 1.5rem;
   }
 }
+
+@media (max-width: 480px) {
+  .judi-container .card-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 2px !important;
+  }
+
+  .judi-container .card-id,
+  .judi-container .card-date {
+    white-space: nowrap !important;
+  }
+
+  .judi-container .juego-card {
+    padding: 0.7rem !important;
+  }
+}

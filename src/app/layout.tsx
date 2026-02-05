@@ -10,6 +10,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
     title: {
         default: 'HubGames - Buscador de Videojuegos',
         template: '%s | HubGames'
@@ -21,12 +22,12 @@ export const metadata: Metadata = {
     manifest: '/manifest.json',
     icons: {
         icon: [
-            { url: '/icons/icon-96x96.png', sizes: '96x96', type: 'image/png' },
+            { url: '/icons/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
             { url: '/icons/favicon.ico', sizes: 'any' },
+            { url: '/icons/favicon.svg', type: 'image/svg+xml' },
         ],
         apple: [
-            { url: '/icons/icon-152x152.png', sizes: '152x152', type: 'image/png' },
-            { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+            { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
         ],
     },
     openGraph: {

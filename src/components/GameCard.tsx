@@ -6,9 +6,10 @@ import { type Game } from '@/lib/rawg'
 
 interface GameCardProps {
     game: Game
+    priority?: boolean
 }
 
-export default function GameCard({ game }: GameCardProps) {
+export default function GameCard({ game, priority }: GameCardProps) {
     const getScoreClass = (score: number | null) => {
         if (!score) return 'fondo_transparente'
         if (score > 80) return 'fondo_verde'
@@ -35,6 +36,7 @@ export default function GameCard({ game }: GameCardProps) {
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         style={{ objectFit: 'cover' }}
+                        priority={priority}
                     />
                 )}
             </div>

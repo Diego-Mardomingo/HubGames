@@ -269,7 +269,7 @@ export default function GameSearch() {
                         No se encontraron juegos
                     </div>
                 ) : (
-                    games.map((game) => <GameCard key={game.id} game={game} />)
+                    games.map((game, index) => <GameCard key={game.id} game={game} priority={index < 4} />)
                 )}
             </div>
         </>

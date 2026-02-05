@@ -625,6 +625,12 @@ body {
   height: 2em;
 }
 
+.juego .imagen {
+  position: relative;
+  width: 100%;
+  flex-grow: 1;
+}
+
 .juego .imagen img {
   position: absolute;
   top: 0;
