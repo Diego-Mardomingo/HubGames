@@ -4,9 +4,25 @@ import Image from 'next/image'
 import Link from 'next/link'
 import ReviewForm from '@/components/ReviewForm'
 import ReviewList from '@/components/ReviewList'
+import type { Metadata } from 'next'
 
 interface PageProps {
     params: Promise<{ id: string }>
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const { id } = await params
+    const game = await getGameDetails(parseInt(id))
+
+    return {
+        title: game.name,
+        description: `Detalles, reseñas y más sobre ${game.name}. Lanzado el ${new Date(game.released).toLocaleDateString()}.`,
+        openGraph: {
+            title: `${game.name} - HubGames`,
+            description: `Toda la información sobre ${game.name}`,
+            images: [game.background_image],
+        },
+    }
 }
 
 export default async function GameDetailsPage({ params }: PageProps) {

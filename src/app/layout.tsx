@@ -10,11 +10,51 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-    title: 'HubGames - Buscador de Videojuegos',
-    description: 'Encuentra los mejores videojuegos en nuestro buscador',
-    keywords: ['hubgames', 'hub games', 'videojuegos', 'juegos', 'buscador', 'entretenimiento'],
+    title: {
+        default: 'HubGames - Buscador de Videojuegos',
+        template: '%s | HubGames'
+    },
+    description: 'Encuentra, sigue y comparte tu pasión por los videojuegos. El mejor buscador integrado con la API de RAWG.',
+    keywords: ['hubgames', 'hub games', 'videojuegos', 'juegos', 'buscador', 'review', 'judi', 'juego del día'],
     authors: [{ name: 'Diego López Mardomingo' }],
+    creator: 'Diego López Mardomingo',
     manifest: '/manifest.json',
+    icons: {
+        icon: [
+            { url: '/icons/icon-96x96.png', sizes: '96x96', type: 'image/png' },
+            { url: '/icons/favicon.ico', sizes: 'any' },
+        ],
+        apple: [
+            { url: '/icons/icon-152x152.png', sizes: '152x152', type: 'image/png' },
+            { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+        ],
+    },
+    openGraph: {
+        type: 'website',
+        locale: 'es_ES',
+        url: 'https://hub-games.vercel.app/',
+        siteName: 'HubGames',
+        title: 'HubGames - Tu Biblioteca Gamer',
+        description: 'La plataforma definitiva para gestionar tu colección y descubrir nuevos mundos.',
+        images: [
+            {
+                url: '/img/HGLogo.webp',
+                width: 1200,
+                height: 630,
+                alt: 'HubGames Logo',
+            },
+        ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'HubGames - Tu Biblioteca Gamer',
+        description: 'Encuentra los mejores videojuegos en nuestro buscador.',
+        images: ['/img/HGLogo.webp'],
+    },
+    robots: {
+        index: true,
+        follow: true,
+    },
 }
 
 export default function RootLayout({
@@ -25,12 +65,13 @@ export default function RootLayout({
     return (
         <html lang="es">
             <head>
-                <link rel="icon" href="/img/HGLogo.webp" />
                 <script src="https://kit.fontawesome.com/ed0e2390af.js" crossOrigin="anonymous" async></script>
             </head>
-            <body>
+            <body className="antialiased">
                 <Nav />
-                {children}
+                <main id="main-content">
+                    {children}
+                </main>
                 <Footer />
             </body>
         </html>

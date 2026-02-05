@@ -128,7 +128,8 @@ export default function GameSearch() {
 
     return (
         <>
-            <div className="cuerpo_cabecera" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8em', marginBottom: '1em' }}>
+            <h1 className="sr-only">Buscador de Videojuegos HubGames</h1>
+            <div className="cuerpo_cabecera">
                 <div className="buscador_container">
                     <i className="fa-solid fa-magnifying-glass"></i>
                     <input
@@ -150,70 +151,88 @@ export default function GameSearch() {
                     )}
                 </div>
 
-                <div className="filtro_container">
-                    <div className="boton_filtros" onClick={() => setShowFilters(!showFilters)}>
-                        Filtrar
-                        <i className="fa-solid fa-angles-down"></i>
-                    </div>
-                    {showFilters && (
-                        <div className="mostrar_filtros">
-                            <div className="encabezado_filtros">Fecha lanzamiento:</div>
-                            <div className="cuerpo_filtros_fecha">
-                                <div>
-                                    Desde:{' '}
-                                    <input
-                                        type="date"
-                                        value={dateStart}
-                                        onChange={(e) => setDateStart(e.target.value)}
-                                        min="1990-01-01"
-                                    />
-                                </div>
-                                <div>
-                                    Hasta:{' '}
-                                    <input
-                                        type="date"
-                                        value={dateEnd}
-                                        onChange={(e) => setDateEnd(e.target.value)}
-                                        min="1990-01-01"
-                                    />
-                                </div>
-                                <div className="reinicio_fechas" onClick={resetDates}>
-                                    Reiniciar fechas
-                                </div>
-                            </div>
-
-                            <div className="encabezado_filtros">Géneros:</div>
-                            <div className="cuerpo_filtros">
-                                {Object.entries(GENRES).map(([key, value]) => (
-                                    <div
-                                        key={key}
-                                        className={`genero ${activeGenres.includes(key) ? 'filtro_activado' : ''}`}
-                                        onClick={() => toggleGenre(key)}
-                                    >
-                                        {value}
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="encabezado_filtros">Plataformas:</div>
-                            <div className="cuerpo_filtros">
-                                {Object.entries(PLATFORMS).map(([key, value]) => (
-                                    <div
-                                        key={key}
-                                        className={`plataforma ${activePlatforms.includes(key) ? 'filtro_activado' : ''}`}
-                                        onClick={() => togglePlatform(key)}
-                                    >
-                                        {value}
-                                    </div>
-                                ))}
-                            </div>
+                <div className="controles_cabecera">
+                    <div className="filtro_container">
+                        <div className="boton_filtros" onClick={() => setShowFilters(!showFilters)}>
+                            Filtrar
+                            <i className="fa-solid fa-angles-down"></i>
                         </div>
-                    )}
-                </div>
+                        {showFilters && (
+                            <div className="mostrar_filtros">
+                                <div className="cerrar_filtros_mobile" onClick={() => setShowFilters(false)}>
+                                    <i className="fa-solid fa-xmark"></i>
+                                </div>
+                                <div className="encabezado_filtros">Fecha lanzamiento:</div>
+                                <div className="cuerpo_filtros_fecha">
+                                    <div>
+                                        Desde:{' '}
+                                        <input
+                                            type="date"
+                                            value={dateStart}
+                                            onChange={(e) => setDateStart(e.target.value)}
+                                            min="1990-01-01"
+                                        />
+                                    </div>
+                                    <div>
+                                        Hasta:{' '}
+                                        <input
+                                            type="date"
+                                            value={dateEnd}
+                                            onChange={(e) => setDateEnd(e.target.value)}
+                                            min="1990-01-01"
+                                        />
+                                    </div>
+                                    <div className="reinicio_fechas" onClick={resetDates}>
+                                        Reiniciar fechas
+                                    </div>
+                                </div>
 
-                <div className="buscador_boton" onClick={() => handleSearch()}>
-                    <i className="fa-solid fa-magnifying-glass"></i>
-                    Buscar
+                                <div className="encabezado_filtros">Géneros:</div>
+                                <div className="cuerpo_filtros">
+                                    {Object.entries(GENRES).map(([key, value]) => (
+                                        <div
+                                            key={key}
+                                            className={`genero ${activeGenres.includes(key) ? 'filtro_activado' : ''}`}
+                                            onClick={() => toggleGenre(key)}
+                                        >
+                                            {value}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="encabezado_filtros">Plataformas:</div>
+                                <div className="cuerpo_filtros">
+                                    {Object.entries(PLATFORMS).map(([key, value]) => (
+                                        <div
+                                            key={key}
+                                            className={`plataforma ${activePlatforms.includes(key) ? 'filtro_activado' : ''}`}
+                                            onClick={() => togglePlatform(key)}
+                                        >
+                                            {value}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="buscador_boton" onClick={() => handleSearch()}>
+                        <i className="fa-solid fa-magnifying-glass"></i>
+                        Buscar
+                    </div>
+
+                    <div className="paginacion_cabecera">
+                        {prevPage && (
+                            <div className="boton_pag_mini" onClick={() => handleSearch(currentPage - 1)} title="Página anterior">
+                                <i className="fa-solid fa-circle-arrow-left"></i>
+                            </div>
+                        )}
+                        {nextPage && (
+                            <div className="boton_pag_mini" onClick={() => handleSearch(currentPage + 1)} title="Página siguiente">
+                                <i className="fa-solid fa-circle-arrow-right"></i>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -240,25 +259,6 @@ export default function GameSearch() {
                 </div>
             )}
 
-            {/* Pagination */}
-            <div className="enlaces_paginas">
-                <div className="pag_anterior">
-                    {prevPage && (
-                        <div className="anterior_pagina" onClick={() => handleSearch(currentPage - 1)}>
-                            <i className="fa-solid fa-circle-arrow-left"></i>
-                            Página anterior
-                        </div>
-                    )}
-                </div>
-                <div className="pag_siguiente">
-                    {nextPage && (
-                        <div className="siguiente_pagina" onClick={() => handleSearch(currentPage + 1)}>
-                            Página siguiente
-                            <i className="fa-solid fa-circle-arrow-right"></i>
-                        </div>
-                    )}
-                </div>
-            </div>
 
             {/* Games Grid */}
             <div className="juegos">

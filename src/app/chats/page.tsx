@@ -1,6 +1,12 @@
 import { createServerClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import ChatForm from '@/components/ChatForm'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+    title: 'Chats de la Comunidad',
+    description: 'Únete a la conversación, crea hilos y comparte con otros gamers en HubGames.',
+}
 
 export default async function ChatsPage() {
     const supabase = await createServerClient()

@@ -4,6 +4,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.antialiased {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* Pagination Styles - Moved to top for reliability */
 .enlaces_paginas {
   display: flex !important;
@@ -225,15 +243,25 @@ body {
 .cuerpo_cabecera {
   width: 100%;
   display: flex;
-  flex-wrap: nowrap;
+  flex-direction: column;
   gap: .8em;
   margin-bottom: 1em;
 }
 
+.controles_cabecera {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 0.8em;
+  align-items: stretch;
+  width: 100%;
+}
+
 @media (max-width: 768px) {
-  .cuerpo_cabecera {
-    flex-direction: column;
-    gap: 1em;
+  .controles_cabecera {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5em;
   }
 
   .buscador_boton {
@@ -340,6 +368,50 @@ body {
   justify-content: center;
   gap: 1em;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.cerrar_filtros_mobile {
+  display: none;
+  position: absolute;
+  top: 1em;
+  right: 1.2em;
+  font-size: 1.8em;
+  color: #fff;
+  cursor: pointer;
+  z-index: 110;
+  padding: 0.2em;
+}
+
+/* Pagination Cabecera */
+.paginacion_cabecera {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.5em;
+  justify-content: center;
+}
+
+.boton_pag_mini {
+  background-color: #00171f !important;
+  color: #fff !important;
+  border-radius: 5px;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  width: 3.5em;
+  height: 100%;
+  min-height: 3.5em;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.boton_pag_mini:hover {
+  background-color: #042631 !important;
+}
+
+.boton_pag_mini i {
+  font-size: 1.5em !important;
 }
 
 .mostrar_filtros .encabezado_filtros {
@@ -916,9 +988,26 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 90vw;
-    max-height: 80vh;
+    width: 95vw;
+    max-height: 90vh;
     overflow-y: auto;
+    padding-top: 3em;
+  }
+
+  .cerrar_filtros_mobile {
+    display: block;
+  }
+
+  .paginacion_cabecera {
+    grid-column: 1 / -1;
+    display: flex !important;
+    width: 100% !important;
+    gap: 1em !important;
+  }
+
+  .boton_pag_mini {
+    flex: 1;
+    height: 3.5em;
   }
 }
 
