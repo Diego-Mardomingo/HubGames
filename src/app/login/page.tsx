@@ -17,6 +17,13 @@ export default function LoginPage() {
         setLoading(true)
         setError('')
 
+        // Client-side validation
+        if (!email || !password) {
+            setError('Por favor completa todos los campos')
+            setLoading(false)
+            return
+        }
+
         try {
             // First, try to find user in hubgames_usuarios
             const { data: userData, error: userError } = await supabase
@@ -38,7 +45,11 @@ export default function LoginPage() {
             })
 
             if (signInError) {
-                setError('Email o contraseña incorrectos')
+                if (signInError.message.includes('Invalid login credentials')) {
+                    setError('Email o contraseña incorrectos')
+                } else {
+                    setError('Error al iniciar sesión. Por favor intenta de nuevo.')
+                }
                 setLoading(false)
                 return
             }
@@ -53,8 +64,8 @@ export default function LoginPage() {
                 })
             }
 
+            // Redirect without forcing refresh
             router.push('/')
-            router.refresh()
         } catch (err) {
             setError('Error al iniciar sesión')
             console.error(err)

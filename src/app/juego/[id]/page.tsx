@@ -2,8 +2,6 @@ import { getGameDetails, getGameScreenshots } from '@/lib/rawg'
 import { createServerClient } from '@/lib/supabase/server'
 import Image from 'next/image'
 import Link from 'next/link'
-import ReviewForm from '@/components/ReviewForm'
-import ReviewList from '@/components/ReviewList'
 import type { Metadata } from 'next'
 
 interface PageProps {
@@ -16,7 +14,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     return {
         title: game.name,
-        description: `Detalles, reseñas y más sobre ${game.name}. Lanzado el ${new Date(game.released).toLocaleDateString()}.`,
+        description: `Detalles completos sobre ${game.name}. Lanzado el ${new Date(game.released).toLocaleDateString()}.`,
         openGraph: {
             title: `${game.name} - HubGames`,
             description: `Toda la información sobre ${game.name}`,
@@ -121,12 +119,6 @@ export default async function GameDetailsPage({ params }: PageProps) {
                 {gameData.tags?.slice(0, 15).map((t: any) => (
                     <div key={t.id} className="tag">{t.name}</div>
                 )) || <div className="tag">N/A</div>}
-            </div>
-
-            <div style={{ gridArea: '7 / 1 / 8 / -1', marginTop: '2em' }}>
-                <h2 style={{ color: '#00171F', marginBottom: '1em' }}>Reseñas</h2>
-                {user && <ReviewForm gameId={gameId} userId={user.id} />}
-                <ReviewList gameId={gameId} />
             </div>
         </div>
     )

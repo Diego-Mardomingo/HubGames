@@ -35,10 +35,19 @@ export async function searchGames(params: SearchParams) {
         page: String(params.page || 1),
     }
 
+    // Quality filters to exclude low-quality games
+    // Only apply when not searching for a specific game
+    if (!params.search) {
+        // Require at least some ratings to filter out obscure/low-quality games
+        // Using a low threshold (3) to not be too restrictive
+        queryParams.ratings_count = '3'
+    }
+
     if (params.ordering) queryParams.ordering = params.ordering
 
     if (params.search) {
         queryParams.search = params.search
+        queryParams.search_precise = 'true'
     }
     if (params.genres) queryParams.genres = params.genres
     if (params.platforms) queryParams.platforms = params.platforms
@@ -48,7 +57,15 @@ export async function searchGames(params: SearchParams) {
     const response = await fetch(`${RAWG_BASE_URL}/games?${urlParams}`)
     if (!response.ok) throw new Error('Failed to fetch games')
 
-    return response.json()
+    const data = await response.json()
+
+    // Filter out games without images on the client side
+    // This ensures all displayed games have proper visuals
+    if (data.results) {
+        data.results = data.results.filter((game: Game) => game.background_image)
+    }
+
+    return data
 }
 
 export async function getGameDetails(id: number) {

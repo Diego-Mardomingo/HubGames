@@ -19,6 +19,19 @@ export default function RegistroPage() {
         setLoading(true)
         setError('')
 
+        // Client-side validations
+        if (!username || !email || !password || !confirmPassword) {
+            setError('Por favor completa todos los campos')
+            setLoading(false)
+            return
+        }
+
+        if (username.length < 3) {
+            setError('El username debe tener al menos 3 caracteres')
+            setLoading(false)
+            return
+        }
+
         // Validate passwords match
         if (password !== confirmPassword) {
             setError('Las contraseñas no coinciden')
@@ -29,6 +42,14 @@ export default function RegistroPage() {
         // Validate password length
         if (password.length < 6) {
             setError('La contraseña debe tener al menos 6 caracteres')
+            setLoading(false)
+            return
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(email)) {
+            setError('Por favor ingresa un email válido')
             setLoading(false)
             return
         }
@@ -61,7 +82,11 @@ export default function RegistroPage() {
             })
 
             if (signUpError) {
-                setError(signUpError.message)
+                if (signUpError.message.includes('already registered')) {
+                    setError('Este email ya está registrado')
+                } else {
+                    setError('Error al crear la cuenta. Por favor intenta de nuevo.')
+                }
                 setLoading(false)
                 return
             }
@@ -89,9 +114,8 @@ export default function RegistroPage() {
                 // Continue anyway as auth user was created
             }
 
-            // Auto sign in after registration
+            // Auto sign in after registration - redirect without forced refresh
             router.push('/')
-            router.refresh()
         } catch (err: any) {
             setError(err.message || 'Error al crear la cuenta')
             console.error(err)

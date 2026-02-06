@@ -48,9 +48,6 @@ export default function Nav() {
                 <li className="nav_item">
                     <Link href="/judi">JUDI</Link>
                 </li>
-                <li className="nav_item">
-                    <Link href="/chats">Chats</Link>
-                </li>
                 {user ? (
                     <>
                         {user.user_metadata?.administrador && (
@@ -59,9 +56,9 @@ export default function Nav() {
                             </li>
                         )}
                         <li className="nav_item">
-                            <span style={{ color: '#00A8E8' }}>
-                                {user.user_metadata?.username || (user.email ? user.email.split('@')[0] : 'Usuario')}
-                            </span>
+                            <Link href="/perfil">
+                                <i className="fa-solid fa-user"></i> {user.user_metadata?.username || (user.email ? user.email.split('@')[0] : 'Usuario')}
+                            </Link>
                         </li>
                         <li className="nav_item">
                             <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>

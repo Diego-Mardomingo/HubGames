@@ -16,7 +16,7 @@ export const metadata: Metadata = {
         template: '%s | HubGames'
     },
     description: 'Encuentra, sigue y comparte tu pasión por los videojuegos. El mejor buscador integrado con la API de RAWG.',
-    keywords: ['hubgames', 'hub games', 'videojuegos', 'juegos', 'buscador', 'review', 'judi', 'juego del día'],
+    keywords: ['hubgames', 'hub games', 'videojuegos', 'juegos', 'buscador', 'judi', 'juego del día'],
     authors: [{ name: 'Diego López Mardomingo' }],
     creator: 'Diego López Mardomingo',
     manifest: '/manifest.json',
