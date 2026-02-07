@@ -362,10 +362,6 @@ HubGames/
 
 <div align="center">
 
-<a href="https://github.com/Diego-Mardomingo">
-  <img src="https://github.com/Diego-Mardomingo.png" width="120" style="border-radius:50%"/>
-</a>
-
 ### Diego López Mardomingo
 
 [![GitHub](https://img.shields.io/badge/GitHub-Diego--Mardomingo-181717?style=for-the-badge&logo=github)](https://github.com/Diego-Mardomingo)
