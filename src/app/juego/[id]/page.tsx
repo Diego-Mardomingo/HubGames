@@ -36,89 +36,130 @@ export default async function GameDetailsPage({ params }: PageProps) {
     const { data: { user } } = await supabase.auth.getUser()
 
     return (
-        <div className="juego_detalles_container">
-            <div className="juego_name">
-                <div style={{ marginBottom: '1em' }}>
-                    <Link href="/" style={{ color: '#00A8E8', fontWeight: 600, textDecoration: 'none' }}>
-                        ← Volver al inicio
+        <div className="juego_detalles_wrapper" style={{
+            backgroundImage: `linear-gradient(rgba(0, 10, 15, 0.85), rgba(0, 10, 15, 0.95)), url(${gameData.background_image_additional || gameData.background_image})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            minHeight: '100vh'
+        }}>
+            <div className="juego_detalles_content">
+                <div style={{ padding: '1em 0' }}>
+                    <Link href="/" className="btn-back">
+                        <i className="fa-solid fa-arrow-left"></i> Volver al catálogo
                     </Link>
                 </div>
-                <h1>{gameData.name}</h1>
-            </div>
 
-            <div className="juego_imagen">
-                {gameData.background_image && (
-                    <Image
-                        src={gameData.background_image}
-                        alt={gameData.name}
-                        width={600}
-                        height={400}
-                        priority
-                    />
-                )}
-            </div>
-
-            <div className="juego_description">
-                <h2>Descripción</h2>
-                <p>{gameData.description_raw}</p>
-            </div>
-
-            <div className="juego_plataformas">
-                <div className="titulo_plataformas">Plataformas</div>
-                {gameData.platforms?.map((p: any) => (
-                    <div key={p.platform.id} className="plataforma">{p.platform.name}</div>
-                )) || <div className="plataforma">N/A</div>}
-            </div>
-
-            <div className="juego_generos">
-                <div className="titulo_generos">Géneros</div>
-                {gameData.genres?.map((g: any) => (
-                    <div key={g.id} className="genero">{g.name}</div>
-                )) || <div className="genero">N/A</div>}
-            </div>
-
-            <div className={`juego_edades ${gameData.esrb_rating ? 'fondo_azul' : 'fondo_transparente'}`} style={{ border: 'none' }}>
-                {gameData.esrb_rating?.name || '?'}
-            </div>
-
-            <div className="juego_metacritic" style={{
-                backgroundColor: gameData.metacritic > 80 ? '#99ca3b' : gameData.metacritic > 50 ? '#f9a11c' : '#e1011a',
-                color: '#fff'
-            }}>
-                {gameData.metacritic || 'N/A'}
-            </div>
-
-            <div className="juego_playtime">
-                <div>Media de juego</div>
-                <div className="horas">{gameData.playtime || 0}h</div>
-            </div>
-
-            <div className="juego_fechas">
-                <div className="released">
-                    <div>Lanzamiento</div>
-                    <div>{new Date(gameData.released).toLocaleDateString('es-ES')}</div>
+                <div className="juego_header_section">
+                    <div className="juego_main_info">
+                        <h1 className="juego_titulo_premium">{gameData.name}</h1>
+                        <div className="juego_badges">
+                            {gameData.metacritic && (
+                                <div className="badge_metacritic" style={{
+                                    backgroundColor: gameData.metacritic > 80 ? '#99ca3b' : gameData.metacritic > 50 ? '#f9a11c' : '#e1011a'
+                                }}>
+                                    <span>Metascore</span>
+                                    <strong>{gameData.metacritic}</strong>
+                                </div>
+                            )}
+                            {gameData.esrb_rating && (
+                                <div className="badge_esrb">
+                                    {gameData.esrb_rating.name}
+                                </div>
+                            )}
+                            <div className="badge_playtime">
+                                <i className="fa-regular fa-clock"></i> {gameData.playtime || 0}h media
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div className="juego_developers">
-                <div className="titulo_developers">Desarrollador</div>
-                {gameData.developers?.map((d: any) => (
-                    <div key={d.id} className="developer">{d.name}</div>
-                )) || <div className="developer">N/A</div>}
-            </div>
+                <div className="juego_grid_principal">
+                    {/* Left Column: Image and Description */}
+                    <div className="columna_izq">
+                        <div className="hero_image_container">
+                            <Image
+                                src={gameData.background_image}
+                                alt={gameData.name}
+                                width={800}
+                                height={450}
+                                className="hero_image_main"
+                                priority
+                            />
+                        </div>
 
-            <div className="juego_publis">
-                <div className="titulo_publis">Editor</div>
-                {gameData.publishers?.map((p: any) => (
-                    <div key={p.id} className="publisher">{p.name}</div>
-                )) || <div className="publisher">N/A</div>}
-            </div>
+                        <div className="juego_card_dark description_card">
+                            <h2 className="titulo_seccion_cyan"><i className="fa-solid fa-align-left"></i> Sobre este juego</h2>
+                            <div className="description_text">
+                                {gameData.description_raw}
+                            </div>
+                        </div>
 
-            <div className="juego_tags">
-                <div className="titulo_tags">Etiquetas</div>
-                {gameData.tags?.slice(0, 15).map((t: any) => (
-                    <div key={t.id} className="tag">{t.name}</div>
-                )) || <div className="tag">N/A</div>}
+                        {screenshotsData.results && screenshotsData.results.length > 0 && (
+                            <div className="juego_card_dark screenshots_card">
+                                <h2 className="titulo_seccion_cyan"><i className="fa-solid fa-images"></i> Galería</h2>
+                                <div className="screenshots_grid">
+                                    {screenshotsData.results.slice(0, 4).map((s: any) => (
+                                        <div key={s.id} className="screenshot_item">
+                                            <Image
+                                                src={s.image}
+                                                alt="Screenshot"
+                                                width={400}
+                                                height={225}
+                                                className="img_rounded"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Right Column: Info Grid */}
+                    <div className="columna_der">
+                        <div className="juego_card_dark info_card_compact">
+                            <div className="info_row">
+                                <span className="label">Lanzamiento</span>
+                                <span className="value_highlight">{new Date(gameData.released).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                            </div>
+                        </div>
+
+                        <div className="juego_card_dark section_card">
+                            <h3 className="titulo_subseccion"><i className="fa-solid fa-gamepad"></i> Plataformas</h3>
+                            <div className="tag_list">
+                                {gameData.platforms?.map((p: any) => (
+                                    <span key={p.platform.id} className="tag_item_outline">{p.platform.name}</span>
+                                )) || 'No disponible'}
+                            </div>
+                        </div>
+
+                        <div className="juego_card_dark section_card">
+                            <h3 className="titulo_subseccion"><i className="fa-solid fa-tags"></i> Géneros</h3>
+                            <div className="tag_list">
+                                {gameData.genres?.map((g: any) => (
+                                    <span key={g.id} className="tag_item_cyan">{g.name}</span>
+                                )) || 'N/A'}
+                            </div>
+                        </div>
+
+                        <div className="juego_card_dark section_card">
+                            <h3 className="titulo_subseccion"><i className="fa-solid fa-code"></i> Desarrollo</h3>
+                            <div className="dev_info">
+                                <div><small>Desarrollado por:</small> {gameData.developers?.map((d: any) => d.name).join(', ') || 'N/A'}</div>
+                                <div style={{ marginTop: '0.5em' }}><small>Editado por:</small> {gameData.publishers?.map((p: any) => p.name).join(', ') || 'N/A'}</div>
+                            </div>
+                        </div>
+
+                        <div className="juego_card_dark section_card">
+                            <h3 className="titulo_subseccion"><i className="fa-solid fa-list-ul"></i> Etiquetas populares</h3>
+                            <div className="tag_list_mini">
+                                {gameData.tags?.slice(0, 12).map((t: any) => (
+                                    <span key={t.id} className="tag_mini">{t.name}</span>
+                                )) || 'N/A'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     )

@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/Diego-Mardomingo/HubGames#readme",
   "dependencies": {
+    "@playwright/test": "^1.58.2",
     "@supabase/supabase-js": "^2.94.0",
     "next": "^16.1.6",
     "next-pwa": "^5.6.0",

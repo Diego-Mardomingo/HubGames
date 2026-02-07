@@ -24,26 +24,30 @@ export default function GameCard({ game, priority }: GameCardProps) {
     }
 
     return (
-        <Link href={`/juego/${game.id}`} className="juego">
-            <div className="nombre">
-                {game.name}
-            </div>
-            <div className="imagen">
+        <Link href={`/juego/${game.id}`} className="juego_card_premium">
+            <div className="juego_card_image">
                 {game.background_image && (
                     <Image
                         src={game.background_image}
-                        alt={`Imagen ${game.name}`}
+                        alt={game.name}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        style={{ objectFit: 'cover' }}
+                        className="img_game"
                         priority={priority}
                     />
                 )}
+                {game.metacritic && (
+                    <div className={`juego_badge_score ${getScoreClass(game.metacritic)}`}>
+                        {game.metacritic}
+                    </div>
+                )}
             </div>
-            <div className="footer_juego">
-                <div className="released">{formatDate(game.released)}</div>
-                <div className={`nota ${getScoreClass(game.metacritic)}`}>
-                    {game.metacritic || ''}
+            <div className="juego_card_info">
+                <h3 className="juego_card_title">{game.name}</h3>
+                <div className="juego_card_meta">
+                    <span className="juego_card_date">
+                        <i className="fa-regular fa-calendar"></i> {formatDate(game.released)}
+                    </span>
                 </div>
             </div>
         </Link>

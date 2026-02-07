@@ -1,552 +1,426 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
-
 .judi-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  min-height: 100vh;
   width: 100%;
-  /* overflow: hidden; Removed to allow scrolling if needed */
-  background-image: url("/img/IslaUpScale.webp");
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: center;
-  background-size: cover;
-  justify-content: center;
   align-items: center;
-  font-family: 'Montserrat', sans-serif;
-  color: #00171F;
+  color: #fff;
+  padding: 4rem 2rem;
   box-sizing: border-box;
-  z-index: 10;
-  padding: 2rem 1rem;
-  /* Added padding */
 }
 
-/* Scoped elements */
-.judi-container .cuerpo {
-  width: 95vw;
-  /* Increased width */
-  max-width: 1200px;
-  /* Increased max-width */
-  /* max-height: 94vh; Removed to allow content to dictate height */
-  min-height: 80vh;
-  /* Ensure it takes up space */
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: clamp(1rem, 2vh, 2rem);
-  /* Increased gap */
-  background-color: rgba(240, 240, 240, .1);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  /* Increased border radius */
-  padding: clamp(1.5rem, 3vh, 3rem);
-  /* Increased padding */
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  /* overflow: hidden; Removed */
-  box-sizing: border-box;
-  position: relative;
-}
-
+/* JUDI Title Section */
 .judi-container .titulo {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.85);
-  padding: 0.5rem 2rem;
-  /* Increased padding */
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-bottom: clamp(0.5rem, 1vh, 1.5rem);
-  /* Increased margin */
-  flex-shrink: 0;
+  margin-bottom: 2em;
 }
 
 .judi-container .titulo h1 {
-  font-size: 2rem;
-  /* Increased font size */
-  font-weight: 800;
+  font-size: 3.5rem;
+  font-weight: 900;
   margin: 0;
-  color: #00171F;
+  color: #fff;
+  letter-spacing: 2px;
+  text-shadow: 0 0 20px rgba(0, 168, 232, 0.5);
 }
 
 .judi-container .titulo h3 {
-  font-size: 1rem;
-  /* Increased font size */
+  font-size: 1.2rem;
   font-weight: 500;
   margin: 0;
+  color: #00A8E8;
+  text-transform: uppercase;
+  letter-spacing: 3px;
   opacity: 0.8;
 }
 
 .judi-container .sesion-msg {
-  background-color: rgba(0, 23, 31, 0.85);
-  color: #fff;
-  padding: 0.5rem 1.2rem;
-  /* Increased padding */
-  border-radius: 8px;
-  font-size: 0.9rem;
-  /* Increased font size */
-  flex-shrink: 0;
-  margin-bottom: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.8rem 1.5rem;
+  border-radius: 50px;
+  font-size: 0.85em;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1.5rem;
 }
 
+/* Grid for JUDI List */
 .judi-container .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  /* Increased min card width */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1.5rem;
-  /* Increased gap */
   width: 100%;
   margin-top: 1rem;
-  padding: 1rem;
-  box-sizing: border-box;
-  /* Removed overflow restrictions to allow full height */
 }
 
 .judi-container .juego-card {
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 12px;
-  padding: 1rem;
-  /* Increased padding */
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  transition: transform 0.2s, box-shadow 0.2s;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  position: relative;
-  overflow: hidden;
-  max-width: 100%;
-  /* Reset max-width */
-  margin: 0;
-  width: 100%;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .judi-container .juego-card:hover {
-  transform: translateY(-4px);
-  /* More pronounced hover */
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: #00A8E8;
+  box-shadow: 0 10px 30px rgba(0, 168, 232, 0.1);
 }
 
 .judi-container .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
 }
 
 .judi-container .card-id {
-  font-weight: 800;
-  font-size: 0.9rem;
-  /* Increased size */
+  font-weight: 900;
   color: #00A8E8;
+  opacity: 0.6;
 }
 
 .judi-container .card-date {
   font-weight: 600;
-  font-size: 0.9rem;
-  /* Increased size */
-  color: #00171F;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .judi-container .card-status {
-  height: 2.5rem;
-  /* Increased height */
+  padding: 0.8rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  font-weight: 700;
-  text-transform: uppercase;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.85rem;
   letter-spacing: 1px;
-  font-size: 0.9rem;
-  /* Increased size */
-}
-
-.judi-container .btn-jugar {
-  background-color: #00171F;
-  color: #fff;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.judi-container .btn-jugar:hover {
-  background-color: #00A8E8;
 }
 
 .judi-container .status-won {
-  background-color: #70e770;
-  color: #00171F;
+  background-color: rgba(46, 213, 115, 0.1);
+  color: #2ed573;
+  border: 1px solid rgba(46, 213, 115, 0.2);
 }
 
 .judi-container .status-lost {
-  background-color: rgb(200, 70, 70);
-  color: #fff;
+  background-color: rgba(255, 71, 87, 0.1);
+  color: #ff4757;
+  border: 1px solid rgba(255, 71, 87, 0.2);
 }
 
-/* Game View Styles */
+/* Playing View Layout */
 .judi-container .cabecera {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  flex-shrink: 0;
-}
-
-.judi-container .game-nav-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.judi-container .nav-button {
-  background-color: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(0, 23, 31, 0.2);
-  color: #00171F;
-  padding: 0.5rem 1rem;
-  /* Increased padding */
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  /* Increased size */
-  transition: all 0.2s;
-}
-
-.judi-container .nav-button:hover:not(:disabled) {
-  background-color: #00171F;
-  color: #fff;
-}
-
-.judi-container .nav-button:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.judi-container .boton-volver {
-  background-color: #00171F;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  /* Increased padding */
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: opacity 0.2s;
-  font-size: 0.9rem;
-  /* Increased size */
-  border: none;
+  margin-bottom: 2em;
 }
 
 .judi-container .fecha-banner {
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.03);
+  padding: 0.6rem 1.5rem;
+  border-radius: 50px;
   font-weight: 800;
-  font-size: 1rem;
-  /* Increased size */
+  color: #00A8E8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.9rem;
+  letter-spacing: 1px;
 }
 
+/* Phase Selector */
 .judi-container .fases {
   display: flex;
-  gap: 1rem;
-  /* Increased gap */
-  margin-bottom: 1rem;
-  flex-shrink: 0;
+  justify-content: center;
+  gap: 1.2rem;
+  margin-bottom: 2.5em;
+  width: 100%;
 }
 
 .judi-container .fase {
-  width: 3rem;
-  /* Increased size */
-  height: 3rem;
-  /* Increased size */
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #00171F;
-  color: #fff;
-  border-radius: 50%;
-  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  font-weight: 800;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.2s;
-  font-size: 1.2rem;
-  /* Increased size */
+  transition: all 0.3s;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .judi-container .fase.active {
-  background-color: #00A8E8;
-  transform: scale(1.1);
+  background-color: rgba(0, 168, 232, 0.1);
+  color: #00A8E8;
+  transform: translateY(-4px);
+  box-shadow: 0 5px 20px rgba(0, 168, 232, 0.2);
+  border: 2px solid #00A8E8;
+}
+
+.judi-container .fase:not(.active):not(.locked):hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.judi-container .fase.locked {
+  opacity: 0.3;
+  cursor: not-allowed;
+  filter: grayscale(1);
 }
 
 .judi-container .game-data-box {
   width: 100%;
   max-width: 800px;
-  /* Significantly increased max-width */
-  height: 50vh;
-  /* Fixed readable height */
-  min-height: 400px;
-  border-radius: 12px;
+  height: 400px;
+  border-radius: 20px;
   overflow: hidden;
   position: relative;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  background-color: transparent;
-  /* Removed black background */
-  flex-shrink: 0;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 0 auto 2.5em auto;
+  background-color: rgba(255, 255, 255, 0.02);
 }
 
 .judi-container .game-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Enforced cover */
+  display: block;
 }
 
 .judi-container .pista-overlay {
   position: absolute;
-  top: 1rem;
-  left: 1rem;
-  right: 1rem;
-  background-color: rgba(0, 23, 31, 0.85);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 15, 20, 0.95));
   color: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+  padding: 4rem 2rem 2rem 2rem;
   font-weight: 600;
-  font-size: 1rem;
-  /* Increased size */
-  backdrop-filter: blur(4px);
+  font-size: 1.1rem;
   text-align: center;
+  backdrop-filter: blur(4px);
 }
 
-/* Game View Specifics - Flex Layout No Scroll */
-.judi-container:has(.game-data-box) {
-  flex: 1;
-  /* Fill remaining space between nav and footer */
-  height: auto;
-  min-height: 0;
-  overflow: hidden;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
+.judi-container .pista-overlay strong {
+  background: rgba(0, 168, 232, 0.2);
+  padding: 0.3em 0.8em;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 168, 232, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: inline-block;
+  margin: 0.2em;
+  color: #fff;
 }
 
-.judi-container:has(.game-data-box) .cuerpo {
-  width: 100%;
-  height: 100%;
-  max-width: 100%;
-  border-radius: 0;
-  justify-content: space-between;
-  padding: 0.5rem 1rem;
-  gap: 0.5rem;
-  background-color: rgba(240, 240, 240, .2);
-  overflow: hidden;
-}
-
-.judi-container:has(.game-data-box) .game-data-box {
-  flex: 0 1 auto;
-  height: 40vh;
-  min-height: 200px;
-  max-height: 400px;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-/* Feedback Toast */
-.feedback-toast {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 1rem 2rem;
-  border-radius: 50px;
-  color: white;
-  font-weight: 700;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    top: -50px;
-    opacity: 0;
-  }
-
-  to {
-    top: 20px;
-    opacity: 1;
-  }
-}
-
-.feedback-correct {
-  background-color: #2ed573;
-}
-
-.feedback-wrong {
-  background-color: #ff4757;
-}
-
-/* Locked Phases */
-.judi-container .fase.locked {
-  background-color: rgba(0, 23, 31, 0.3);
-  color: rgba(255, 255, 255, 0.3);
-  cursor: not-allowed;
-  transform: none;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Hearts */
+/* Feedback & Interactions */
 .judi-container .hearts-container {
   display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem 1.5rem;
-  background-color: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
+  gap: 0.8rem;
+  padding: 0.8rem 2rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
   border-radius: 50px;
-  margin: 0.5rem 0;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 2em;
 }
 
 .judi-container .heart-icon {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  filter: drop-shadow(0 0 5px rgba(255, 71, 87, 0.4));
 }
 
-/* Autocomplete Dropdown */
-.judi-container .input-group {
-  position: relative;
-  width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.judi-container .autocomplete-dropdown {
-  position: absolute;
-  bottom: 100%;
-  /* Open upwards */
-  left: 0;
-  right: 0;
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  margin-bottom: 0.5rem;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
-  z-index: 100;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.judi-container .autocomplete-item {
-  padding: 0.8rem 1.2rem;
-  cursor: pointer;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  transition: background-color 0.2s;
-  font-size: 0.9rem;
-  color: #00171F;
-  text-align: left;
-}
-
-.judi-container .autocomplete-item:hover {
-  background-color: #f0f0f0;
-  color: #00A8E8;
-}
-
-.judi-container .buscador-input {
-  width: 100%;
-  padding: 0.8rem 1.5rem;
-  border-radius: 50px;
-  border: 2px solid rgba(0, 23, 31, 0.1);
-  outline: none;
-  font-size: 1rem;
+.judi-container .heart-empty {
+  opacity: 0.3;
+  filter: grayscale(1);
 }
 
 .judi-container .guess-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
   width: 100%;
-  flex-shrink: 0;
-  margin-bottom: 1rem;
 }
 
-.judi-container .resultado-final {
-  padding: 0.8rem;
-  border-radius: 12px;
+.judi-container .input-group {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+}
+
+.judi-container .buscador-input {
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 2rem;
+  border-radius: 50px;
   color: #fff;
+  font-size: 1.1rem;
   text-align: center;
-  width: 100%;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.judi-container .buscador-input:focus {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: #00A8E8;
+  box-shadow: 0 0 20px rgba(0, 168, 232, 0.2);
+}
+
+.judi-container .autocomplete-dropdown {
+  position: absolute;
+  bottom: 120%;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 23, 31, 0.95);
+  backdrop-filter: blur(25px);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+/* Results View */
+.judi-container .resultado-final {
+  padding: 3em;
+  border-radius: 20px;
+  text-align: center;
   max-width: 600px;
-  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.judi-container .resultado-final h2 {
-  font-size: 1.5rem;
-  margin: 0.2rem 0;
+
+.judi-container .leaderboard-container {
+  max-width: 600px;
+  margin: 2em auto;
+  padding: 2em;
+  border-radius: 24px;
+  background: rgba(0, 168, 232, 0.05);
+  border: 1px solid rgba(0, 168, 232, 0.2);
+  backdrop-filter: blur(10px);
 }
 
-.judi-container .resultado-final p {
-  font-size: 1rem;
-  margin: 0.2rem 0;
+.judi-container .leaderboard-title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 1.5em;
+  color: #00A8E8;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
-.judi-container .victory {
-  background: linear-gradient(135deg, #2ed573, #70e770);
+.judi-container .leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
 }
 
-.judi-container .defeat {
-  background: linear-gradient(135deg, #ff4757, #ff6b81);
+.judi-container .leaderboard-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2em;
+  padding: 1rem;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.judi-container .leaderboard-item.top-1 {
+  background: rgba(255, 215, 0, 0.08);
+  border-color: rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+}
+
+.judi-container .leaderboard-rank {
+  font-size: 1.6rem;
+  font-weight: 900;
+  min-width: 45px;
+  text-align: center;
+}
+
+.judi-container .leaderboard-info {
+  flex: 1;
+}
+
+.judi-container .leaderboard-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+
+.judi-container .leaderboard-item.top-1 .leaderboard-name {
+  color: #FFD700;
+}
+
+.judi-container .leaderboard-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.judi-container .leaderboard-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: linear-gradient(90deg, #00A8E8, #0077B6);
+  box-shadow: 0 0 10px rgba(0, 168, 232, 0.3);
+}
+
+.judi-container .leaderboard-item.top-1 .leaderboard-bar-fill {
+  background: linear-gradient(90deg, #FFD700, #FFA500);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.judi-container .leaderboard-score {
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: #00A8E8;
+  min-width: 60px;
+  text-align: right;
+}
+
+.judi-container .leaderboard-score span {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin-left: 4px;
 }
 
 @media (max-width: 768px) {
-  .judi-container .cabecera {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .judi-container .grid-container {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 0.8rem;
+  .judi-container .titulo h1 {
+    font-size: 2.5rem;
   }
 
   .judi-container .game-data-box {
-    height: 30vh;
-    min-height: 200px;
+    height: 300px;
   }
 
-  .judi-container .cuerpo {
-    padding: 0.5rem;
+  .judi-container .fases {
     gap: 0.5rem;
-    width: 100%;
-    border-radius: 0;
   }
 
-  .judi-container .titulo h1 {
-    font-size: 1.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .judi-container .card-header {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 2px !important;
-  }
-
-  .judi-container .card-id,
-  .judi-container .card-date {
-    white-space: nowrap !important;
-  }
-
-  .judi-container .juego-card {
-    padding: 0.7rem !important;
+  .judi-container .fase {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
   }
 }

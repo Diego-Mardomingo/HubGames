@@ -21,7 +21,9 @@ export interface SearchParams {
     search?: string
     genres?: string
     platforms?: string
+    exclude_platforms?: string
     dates?: string
+    metacritic?: string
     page?: number
     page_size?: number
     ordering?: string
@@ -51,7 +53,9 @@ export async function searchGames(params: SearchParams) {
     }
     if (params.genres) queryParams.genres = params.genres
     if (params.platforms) queryParams.platforms = params.platforms
+    if (params.exclude_platforms) queryParams.exclude_platforms = params.exclude_platforms
     if (params.dates) queryParams.dates = params.dates
+    if (params.metacritic) queryParams.metacritic = params.metacritic
 
     const urlParams = new URLSearchParams(queryParams)
     const response = await fetch(`${RAWG_BASE_URL}/games?${urlParams}`)

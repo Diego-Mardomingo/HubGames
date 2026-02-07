@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import '@/styles/globals.css'
+import '@/styles/nav.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 

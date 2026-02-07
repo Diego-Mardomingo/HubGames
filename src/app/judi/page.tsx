@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import Link from 'next/link'
 import Loader from '@/components/Loader'
+import { searchGames } from '@/lib/rawg'
 import './judi.css'
 
 type GameRecord = {
@@ -36,6 +37,7 @@ export default function JUDIPage() {
     const [loading, setLoading] = useState(true)
     const [view, setView] = useState<'list' | 'game'>('list')
     const [selectedGame, setSelectedGame] = useState<GameData | null>(null)
+    const [leaderboard, setLeaderboard] = useState<any[]>([])
 
     // Game State
     const [highestUnlockedPhase, setHighestUnlockedPhase] = useState(1)
@@ -86,7 +88,46 @@ export default function JUDIPage() {
             })
             setGames(gamesWithProgress)
         }
+
+        // Load leaderboard
+        await loadLeaderboard()
+
         setLoading(false)
+    }
+
+    const loadLeaderboard = async () => {
+        const { data: leaderboardData } = await supabase
+            .from('hubgames_judi_fases_usuario')
+            .select('id_usuario, completado')
+            .eq('completado', true)
+
+        if (leaderboardData) {
+            // Count completions per user
+            const userCounts: { [key: string]: number } = {}
+            leaderboardData.forEach((record: any) => {
+                userCounts[record.id_usuario] = (userCounts[record.id_usuario] || 0) + 1
+            })
+
+            // Get user details - simplified for client-side (no admin access)
+            const userIds = Object.keys(userCounts)
+
+            const leaderboardWithNames = userIds.map((userId, index) => {
+                const gamingNames = ['Maestro', 'Experto', 'Leyenda', 'Pro', 'As', 'Crack', 'Genio', 'Mago']
+                const username = `${gamingNames[index % gamingNames.length]} #${userId.slice(0, 4)}`
+                return {
+                    userId,
+                    username,
+                    completions: userCounts[userId]
+                }
+            })
+
+            // Sort by completions and take top 5
+            const topUsers = leaderboardWithNames
+                .sort((a, b) => b.completions - a.completions)
+                .slice(0, 5)
+
+            setLeaderboard(topUsers)
+        }
     }
 
     const startJuego = async (game: GameRecord) => {
@@ -183,8 +224,10 @@ export default function JUDIPage() {
         if (query.length > 2) {
             searchTimeout.current = setTimeout(async () => {
                 try {
-                    const res = await fetch(`https://api.rawg.io/api/games?key=3b597a76023d49faa0deba195b7b78b7&search=${encodeURIComponent(query)}&page_size=10&exclude_additions=true`)
-                    const data = await res.json()
+                    const data = await searchGames({
+                        search: query,
+                        page_size: 10
+                    })
                     setSearchResults(data.results || [])
                     setShowResults(true)
                 } catch (err) {
@@ -306,68 +349,148 @@ export default function JUDIPage() {
         <div className="judi-container">
             {guessFeedback && (
                 <div className={`feedback-toast ${guessFeedback === 'correct' ? 'feedback-correct' : 'feedback-wrong'}`}>
-                    {guessFeedback === 'correct' ? '¡Correcto!' : '¡Incorrecto! Prueba de nuevo'}
+                    {guessFeedback === 'correct' ? (
+                        <><i className="fa-solid fa-circle-check"></i> ¡Increíble! Es correcto</>
+                    ) : (
+                        <><i className="fa-solid fa-circle-xmark"></i> Casi... ¡Prueba de nuevo!</>
+                    )}
                 </div>
             )}
 
-            <div className="cuerpo">
+            <div className="cuerpo" style={{
+                backgroundColor: 'transparent',
+                backdropFilter: 'none',
+                border: 'none',
+                boxShadow: 'none',
+                maxWidth: '1200px',
+                width: '100%',
+                margin: '0 auto',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center'
+            }}>
                 {view === 'list' ? (
-                    <>
+                    <div className="judi_list_view" style={{ width: '100%' }}>
                         <div className="titulo">
                             <h1>JUDI</h1>
                             <h3>(Juego del día)</h3>
                         </div>
+
                         {!user && (
-                            <div className="sesion-msg">
-                                Recomendamos <Link href="/login" style={{ color: '#00A8E8', fontWeight: 700 }}>iniciar sesión</Link> para guardar tu progreso
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                <div className="sesion-msg">
+                                    <i className="fa-solid fa-circle-info"></i> Recomendamos <Link href="/login" style={{ color: '#00A8E8', fontWeight: 700 }}>iniciar sesión</Link> para guardar tu progreso
+                                </div>
                             </div>
                         )}
+
+                        {/* Leaderboard */}
+                        {leaderboard.length > 0 && (
+                            <div className="leaderboard-container">
+                                <h2 className="leaderboard-title">
+                                    <i className="fa-solid fa-trophy" style={{ marginRight: '0.5em', color: '#FFD700' }}></i>
+                                    Top Jugadores
+                                </h2>
+                                <div className="leaderboard-list">
+                                    {leaderboard.map((player, index) => {
+                                        const maxCompletions = leaderboard[0].completions
+                                        const percentage = (player.completions / maxCompletions) * 100
+                                        const medals = ['🥇', '🥈', '🥉']
+
+                                        return (
+                                            <div key={player.userId} className={`leaderboard-item ${index === 0 ? 'top-1' : ''}`}>
+                                                <div className="leaderboard-rank">
+                                                    {medals[index] || `#${index + 1}`}
+                                                </div>
+                                                <div className="leaderboard-info">
+                                                    <div className="leaderboard-name">
+                                                        {player.username}
+                                                    </div>
+                                                    <div className="leaderboard-bar-bg">
+                                                        <div
+                                                            className="leaderboard-bar-fill"
+                                                            style={{ width: `${percentage}%` }}
+                                                        ></div>
+                                                    </div>
+                                                </div>
+                                                <div className="leaderboard-score">
+                                                    {player.completions}
+                                                    <span>pts</span>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
                         <div className="grid-container">
-                            {games.map((game, idx) => (
+                            {games.map((game) => (
                                 <div key={game.id} className="juego-card">
                                     <div className="card-header">
                                         <span className="card-id">#{game.id}</span>
                                         <span className="card-date">{game.fecha}</span>
                                     </div>
-                                    {game.completado ? (
-                                        <div className="card-status status-won">✓</div>
-                                    ) : game.fase6 ? (
-                                        <div className="card-status status-lost">✗</div>
-                                    ) : (
-                                        <div className="card-status btn-jugar" onClick={() => startJuego(game)}>
-                                            ¡Jugar!
-                                        </div>
-                                    )}
+                                    <div className="card-body">
+                                        {game.completado ? (
+                                            <div className="card-status status-won">
+                                                <i className="fa-solid fa-trophy" style={{ marginRight: '8px' }}></i> COMPLETADO
+                                            </div>
+                                        ) : game.fase6 ? (
+                                            <div className="card-status status-lost">
+                                                <i className="fa-solid fa-skull" style={{ marginRight: '8px' }}></i> FALLADO
+                                            </div>
+                                        ) : (
+                                            <div className="btn-primary"
+                                                style={{ width: '100%', textAlign: 'center', fontSize: '0.8rem', padding: '0.8rem' }}
+                                                onClick={() => startJuego(game)}>
+                                                ¡JUGAR!
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
-                    </>
+                    </div>
                 ) : (
                     selectedGame && (
-                        <>
-                            <div className="cabecera">
-                                <button className="boton-volver" onClick={() => { setView('list'); loadUserAndGames(); }}>
-                                    ← Volver
+                        <div className="judi_game_view" style={{ width: '100%', maxWidth: '1000px' }}>
+                            <div className="cabecera" style={{ marginBottom: '2em' }}>
+                                <button className="btn-secondary" style={{ padding: '0.8rem 1.5rem', fontSize: '0.95rem', fontWeight: 600 }} onClick={() => { setView('list'); loadUserAndGames(); }}>
+                                    ← Volver al listado
                                 </button>
-                                <div className="game-nav-controls">
-                                    <button
-                                        className="nav-button"
-                                        onClick={() => handleNavigate('prev')}
-                                        disabled={games.findIndex(g => g.id === selectedGame.juego.id) >= games.length - 1}
-                                    >
-                                        &lt; Anterior
-                                    </button>
-                                    <div className="fecha-banner">
-                                        {selectedGame.juego.fecha} (#{selectedGame.juego.id})
+
+                                {gameState !== 'playing' && (
+                                    <div className="game-nav-controls">
+                                        <button
+                                            className="boton_pag_mini"
+                                            style={{ backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '50%', width: '3em', height: '3em' }}
+                                            onClick={() => handleNavigate('prev')}
+                                            disabled={games.findIndex(g => g.id === selectedGame.juego.id) >= games.length - 1}
+                                        >
+                                            <i className="fa-solid fa-chevron-left"></i>
+                                        </button>
+
+                                        <div className="fecha-banner" style={{ fontSize: '1.1rem', fontWeight: 700, padding: '0.8em 1.5em' }}>
+                                            #{selectedGame.juego.id} — {selectedGame.juego.fecha}
+                                        </div>
+
+                                        <button
+                                            className="boton_pag_mini"
+                                            style={{ backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '50%', width: '3em', height: '3em' }}
+                                            onClick={() => handleNavigate('next')}
+                                            disabled={games.findIndex(g => g.id === selectedGame.juego.id) <= 0}
+                                        >
+                                            <i className="fa-solid fa-chevron-right"></i>
+                                        </button>
                                     </div>
-                                    <button
-                                        className="nav-button"
-                                        onClick={() => handleNavigate('next')}
-                                        disabled={games.findIndex(g => g.id === selectedGame.juego.id) <= 0}
-                                    >
-                                        Siguiente &gt;
-                                    </button>
-                                </div>
+                                )}
+
+                                {gameState === 'playing' && (
+                                    <div className="fecha-banner" style={{ fontSize: '1.2rem', fontWeight: 700, padding: '1em 2em', margin: '0 auto' }}>
+                                        #{selectedGame.juego.id} — {selectedGame.juego.fecha}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="fases">
@@ -377,74 +500,104 @@ export default function JUDIPage() {
                                         className={`fase ${f === activeViewedPhase ? 'active' : ''} ${f > highestUnlockedPhase && gameState === 'playing' ? 'locked' : ''}`}
                                         onClick={() => (f <= highestUnlockedPhase || gameState !== 'playing') && setActiveViewedPhase(f)}
                                     >
-                                        {f}
+                                        {f <= highestUnlockedPhase || gameState !== 'playing' ? f : <i className="fa-solid fa-lock" style={{ fontSize: '0.7em' }}></i>}
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="game-data-box">
+                            <div className="game-data-box glass-panel">
                                 {selectedGame.capturas.length > 0 && (
                                     <img
                                         src={selectedGame.capturas[activeViewedPhase === 1 ? 5 : activeViewedPhase - 2] || selectedGame.capturas[0]}
-                                        alt="Pista"
+                                        alt="Pista del juego"
                                         className="game-image"
+                                        style={{ objectFit: 'cover' }}
                                     />
                                 )}
                                 {activeViewedPhase > 1 && (
                                     <div className="pista-overlay">
-                                        {activeViewedPhase === 2 && `Popularidad: ${selectedGame.juego.desarrollador}/5`}
-                                        {activeViewedPhase === 3 && `Metacritic: ${selectedGame.juego.calificacion}/100`}
-                                        {activeViewedPhase === 4 && `Plataformas: ${selectedGame.plataformas.join(', ')}`}
-                                        {activeViewedPhase === 5 && `Géneros: ${selectedGame.generos.join(', ')}`}
-                                        {activeViewedPhase === 6 && `Lanzamiento: ${selectedGame.juego.released}`}
+                                        {activeViewedPhase === 2 && (
+                                            <><i className="fa-solid fa-fire-pulse" style={{ color: '#00A8E8', marginRight: '10px' }}></i> Popularidad: <strong>{selectedGame.juego.desarrollador} / 5</strong></>
+                                        )}
+                                        {activeViewedPhase === 3 && (
+                                            <><i className="fa-solid fa-star" style={{ color: '#00A8E8', marginRight: '10px' }}></i> Metacritic: <strong>{selectedGame.juego.calificacion} / 100</strong></>
+                                        )}
+                                        {activeViewedPhase === 4 && (
+                                            <><i className="fa-solid fa-display" style={{ color: '#00A8E8', marginRight: '10px' }}></i> {selectedGame.plataformas.join(', ')}</>
+                                        )}
+                                        {activeViewedPhase === 5 && (
+                                            <><i className="fa-solid fa-tags" style={{ color: '#00A8E8', marginRight: '10px' }}></i> {selectedGame.generos.join(', ')}</>
+                                        )}
+                                        {activeViewedPhase === 6 && (
+                                            <><i className="fa-solid fa-calendar-days" style={{ color: '#00A8E8', marginRight: '10px' }}></i> Lanzamiento: <strong>{selectedGame.juego.released}</strong></>
+                                        )}
                                     </div>
                                 )}
                             </div>
 
-                            {renderHearts()}
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5em' }}>
+                                <div className="hearts-container">
+                                    {[...Array(6)].map((_, i) => (
+                                        <i key={i} className={`fa-solid fa-heart heart-icon ${i < lives ? '' : 'heart-empty'}`}
+                                            style={{ color: i < lives ? '#ff4757' : 'rgba(255,255,255,0.2)' }}></i>
+                                    ))}
+                                </div>
 
-                            {gameState === 'playing' ? (
-                                <div className="guess-area">
-                                    <div className="input-group">
-                                        <input
-                                            className="buscador-input"
-                                            placeholder="¿Qué juego es?"
-                                            value={searchQuery}
-                                            onChange={handleSearchInput}
-                                            onFocus={() => setShowResults(true)}
-                                            onKeyDown={(e) => e.key === 'Enter' && handleAdivinar()}
-                                        />
-                                        {showResults && searchResults.length > 0 && (
-                                            <div className="autocomplete-dropdown">
-                                                {searchResults.map((res: any) => (
-                                                    <div
-                                                        key={res.id}
-                                                        className="autocomplete-item"
-                                                        onClick={() => {
-                                                            setSearchQuery(res.name)
-                                                            setShowResults(false)
-                                                        }}
-                                                    >
-                                                        {res.name}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
+                                {gameState === 'playing' ? (
+                                    <div className="guess-area">
+                                        <div className="input-group">
+                                            <input
+                                                className="buscador-input"
+                                                placeholder="¿Qué juego es?..."
+                                                value={searchQuery}
+                                                onChange={handleSearchInput}
+                                                onFocus={() => setShowResults(true)}
+                                                onKeyDown={(e) => e.key === 'Enter' && handleAdivinar()}
+                                            />
+                                            {showResults && searchResults.length > 0 && (
+                                                <div className="autocomplete-dropdown glass-panel">
+                                                    {searchResults.map((res: any) => (
+                                                        <div
+                                                            key={res.id}
+                                                            className="autocomplete-item"
+                                                            onClick={() => {
+                                                                setSearchQuery(res.name)
+                                                                setShowResults(false)
+                                                            }}
+                                                        >
+                                                            {res.name}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="btn-primary" style={{ width: '200px', borderRadius: '50px', display: 'flex', justifyContent: 'center' }} onClick={handleAdivinar}>
+                                            ADIVINAR
+                                        </div>
                                     </div>
-                                    <div className="card-status btn-jugar" style={{ width: '200px', cursor: 'pointer', borderRadius: '50px' }} onClick={handleAdivinar}>
-                                        ADIVINAR
+                                ) : (
+                                    <div className={`resultado-final glass-panel ${gameState === 'won' ? 'victory' : 'defeat'}`}
+                                        style={{
+                                            background: gameState === 'won' ? 'rgba(46, 213, 115, 0.1)' : 'rgba(255, 71, 87, 0.1)',
+                                            borderColor: gameState === 'won' ? '#2ed573' : '#ff4757',
+                                            maxWidth: '600px',
+                                            margin: '0 auto'
+                                        }}>
+                                        <h2 style={{ color: gameState === 'won' ? '#2ed573' : '#ff4757' }}>
+                                            {gameState === 'won' ? '¡VICTORIA!' : 'DERROTA'}
+                                        </h2>
+                                        <p style={{ fontSize: '1.2rem', marginBottom: '1.5em' }}>
+                                            {gameState === 'won' ? '¡Has identificado el juego correctamente!' : 'No has podido identificar el juego esta vez.'}
+                                            <br />
+                                            El juego era: <strong style={{ color: '#fff' }}>{selectedGame.juego.nombre}</strong>
+                                        </p>
+                                        <button className="btn-primary" onClick={() => { setView('list'); loadUserAndGames(); }}>
+                                            Volver al listado
+                                        </button>
                                     </div>
-                                </div>
-                            ) : (
-                                <div className={`resultado-final ${gameState === 'won' ? 'victory' : 'defeat'}`}>
-                                    <h2>{gameState === 'won' ? '¡Increíble!' : '¡Mala suerte!'}</h2>
-                                    <p>El juego era: <strong>{selectedGame.juego.nombre}</strong></p>
-                                    <button className="boton-volver" style={{ margin: '1rem auto' }} onClick={() => { setView('list'); loadUserAndGames(); }}>
-                                        Volver al listado
-                                    </button>
-                                </div>
-                            )}
-                        </>
+                                )}
+                            </div>
+                        </div>
                     )
                 )}
             </div>
