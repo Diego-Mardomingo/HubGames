@@ -2,6 +2,7 @@ import { getGameDetails, getGameScreenshots } from '@/lib/rawg'
 import { createServerClient } from '@/lib/supabase/server'
 import Image from 'next/image'
 import Link from 'next/link'
+import BackToCatalogButton from '@/components/BackToCatalogButton'
 import type { Metadata } from 'next'
 
 interface PageProps {
@@ -45,9 +46,7 @@ export default async function GameDetailsPage({ params }: PageProps) {
         }}>
             <div className="juego_detalles_content">
                 <div style={{ padding: '1em 0' }}>
-                    <Link href="/" className="btn-back">
-                        <i className="fa-solid fa-arrow-left"></i> Volver al catálogo
-                    </Link>
+                    <BackToCatalogButton />
                 </div>
 
                 <div className="juego_header_section">

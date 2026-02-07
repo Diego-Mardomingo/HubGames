@@ -22,86 +22,101 @@ export default function GameSearch() {
     const router = useRouter()
     const searchParams = useSearchParams()
 
-    const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '')
-    const [games, setGames] = useState<Game[]>([])
-    const [loading, setLoading] = useState(false)
-    const [showFilters, setShowFilters] = useState(false)
-    const [activePlatforms, setActivePlatforms] = useState<string[]>(searchParams.get('platforms')?.split(',').filter(Boolean) || [])
-    const [minMetacritic, setMinMetacritic] = useState(searchParams.get('metacritic_value') || '')
-    const [metacriticOperator, setMetacriticOperator] = useState(searchParams.get('metacritic_op') || '>=')
-    const [dateStart, setDateStart] = useState(searchParams.get('start') || '2000-01-01')
-    const [dateEnd, setDateEnd] = useState(searchParams.get('end') || (() => {
+    // 1. Derive values from URL (Source of Truth)
+    const q = searchParams.get('q') || ''
+    const platformsParam = searchParams.get('platforms') || ''
+    const metacriticValParam = searchParams.get('metacritic_value') || ''
+    const metacriticOpParam = searchParams.get('metacritic_op') || '>='
+    const startParam = searchParams.get('start') || '2000-01-01'
+    const endParam = searchParams.get('end') || (() => {
         const futureDate = new Date()
         futureDate.setMonth(futureDate.getMonth() + 6)
         return futureDate.toISOString().split('T')[0]
-    })())
+    })()
+    const pageParam = parseInt(searchParams.get('page') || '1')
+
+    // 2. Local state for draft filters (only what's in input fields)
+    const [searchTerm, setSearchTerm] = useState(q)
+    const [activePlatforms, setActivePlatforms] = useState<string[]>(platformsParam.split(',').filter(Boolean))
+    const [minMetacritic, setMinMetacritic] = useState(metacriticValParam)
+    const [metacriticOperator, setMetacriticOperator] = useState(metacriticOpParam)
+    const [dateStart, setDateStart] = useState(startParam)
+    const [dateEnd, setDateEnd] = useState(endParam)
+
+    // 3. Results state
+    const [games, setGames] = useState<Game[]>([])
+    const [loading, setLoading] = useState(true) // Start loading on mount
+    const [showFilters, setShowFilters] = useState(false)
     const [nextPage, setNextPage] = useState<string | null>(null)
     const [prevPage, setPrevPage] = useState<string | null>(null)
-    const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1'))
 
-    const handleSearch = useCallback(async (page = 1, updateUrl = true) => {
-        setLoading(true)
-        try {
-            // Calculate metacritic range based on operator
-            let metacriticParam = undefined
-            if (minMetacritic) {
-                const value = parseInt(minMetacritic)
-                if (metacriticOperator === '>=') {
-                    metacriticParam = `${value},100`
-                } else if (metacriticOperator === '<=') {
-                    metacriticParam = `0,${value}`
-                } else { // '='
-                    metacriticParam = `${value},${value}`
-                }
-            }
-
-            const params: any = {
-                search: searchTerm || undefined,
-                platforms: activePlatforms.length > 0 ? activePlatforms.join(',') : undefined,
-                exclude_platforms: '21,3', // Exclude Android and iOS
-                dates: dateEnd ? `${dateStart},${dateEnd}` : undefined,
-                metacritic: metacriticParam,
-                ordering: searchTerm ? undefined : '-added',
-                page,
-            }
-
-            // Sync with URL if requested
-            if (updateUrl) {
-                const newParams = new URLSearchParams()
-                if (searchTerm) newParams.set('q', searchTerm)
-                if (activePlatforms.length > 0) newParams.set('platforms', activePlatforms.join(','))
-                if (minMetacritic) {
-                    newParams.set('metacritic_value', minMetacritic)
-                    newParams.set('metacritic_op', metacriticOperator)
-                }
-                if (dateStart !== '2000-01-01') newParams.set('start', dateStart)
-                if (dateEnd) newParams.set('end', dateEnd)
-                if (page > 1) newParams.set('page', String(page))
-
-                const query = newParams.toString()
-                router.push(query ? `?${query}` : '/')
-            }
-
-            const response = await searchGames(params)
-            setGames(response.results)
-            setNextPage(response.next)
-            setPrevPage(response.previous)
-            setCurrentPage(page)
-
-            // Scroll to top when changing pages
-            window.scrollTo({ top: 0, behavior: 'smooth' })
-        } catch (error) {
-            console.error('Error searching games:', error)
-        } finally {
-            setLoading(false)
-        }
-    }, [searchTerm, activePlatforms, minMetacritic, metacriticOperator, dateStart, dateEnd, router])
-
+    // 4. Sync local state when URL changes (Back button support)
     useEffect(() => {
-        // Initial search load with all filters
-        handleSearch(currentPage, false)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentPage])
+        setSearchTerm(q)
+        setActivePlatforms(platformsParam.split(',').filter(Boolean))
+        setMinMetacritic(metacriticValParam)
+        setMetacriticOperator(metacriticOpParam)
+        setDateStart(startParam)
+        setDateEnd(endParam)
+    }, [q, platformsParam, metacriticValParam, metacriticOpParam, startParam, endParam])
+
+    // 5. Centralized update function (Updates URL)
+    const updateUrl = useCallback((updates: any) => {
+        const params = new URLSearchParams(searchParams.toString())
+
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value === undefined || value === '' || (Array.isArray(value) && value.length === 0)) {
+                params.delete(key)
+            } else {
+                params.set(key, String(value))
+            }
+        })
+
+        // Reset page on filter changes (if page not explicitly updated)
+        if (!updates.page) params.delete('page')
+
+        const query = params.toString()
+        router.push(query ? `?${query}` : '/')
+    }, [router, searchParams])
+
+    // 6. Effect to fetch data whenever URL params change
+    useEffect(() => {
+        const fetchResults = async () => {
+            setLoading(true)
+            try {
+                let metacriticParam = undefined
+                if (metacriticValParam) {
+                    const value = parseInt(metacriticValParam)
+                    if (metacriticOpParam === '>=') metacriticParam = `${value},100`
+                    else if (metacriticOpParam === '<=') metacriticParam = `0,${value}`
+                    else metacriticParam = `${value},${value}`
+                }
+
+                const response = await searchGames({
+                    search: q || undefined,
+                    platforms: platformsParam || undefined,
+                    exclude_platforms: '21,3',
+                    dates: endParam ? `${startParam},${endParam}` : undefined,
+                    metacritic: metacriticParam,
+                    ordering: q ? undefined : '-added',
+                    page: pageParam,
+                })
+
+                setGames(response.results)
+                setNextPage(response.next)
+                setPrevPage(response.previous)
+
+                // Scroll to top on page change
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+            } catch (error) {
+                console.error('Error searching games:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchResults()
+    }, [q, platformsParam, metacriticValParam, metacriticOpParam, startParam, endParam, pageParam])
 
     const togglePlatform = (platform: string) => {
         setActivePlatforms((prev) =>
@@ -109,20 +124,37 @@ export default function GameSearch() {
         )
     }
 
-    const removeFilter = (type: 'platform', value: string) => {
-        setActivePlatforms((prev) => prev.filter((p) => p !== value))
-    }
-
     const clearAllFilters = () => {
         setActivePlatforms([])
         setMinMetacritic('')
+        updateUrl({ platforms: [], metacritic_value: '' })
+    }
+
+    const applyFilters = () => {
+        updateUrl({
+            q: searchTerm,
+            platforms: activePlatforms.join(','),
+            metacritic_value: minMetacritic,
+            metacritic_op: metacriticOperator,
+            start: dateStart,
+            end: dateEnd,
+            page: 1
+        })
+        setShowFilters(false)
+    }
+
+    const removeFilter = (platform: string) => {
+        const newPlatforms = activePlatforms.filter((p) => p !== platform)
+        setActivePlatforms(newPlatforms)
+        updateUrl({ platforms: newPlatforms.join(',') })
     }
 
     const resetDates = () => {
-        setDateStart('2000-01-01')
         const futureDate = new Date()
         futureDate.setMonth(futureDate.getMonth() + 6)
-        setDateEnd(futureDate.toISOString().split('T')[0])
+        const defaultEnd = futureDate.toISOString().split('T')[0]
+        setDateStart('2000-01-01')
+        setDateEnd(defaultEnd)
     }
 
     return (
@@ -134,7 +166,7 @@ export default function GameSearch() {
                         <i
                             className="fa-solid fa-magnifying-glass"
                             style={{ cursor: 'pointer' }}
-                            onClick={() => handleSearch(1, true)}
+                            onClick={applyFilters}
                         ></i>
                         <input
                             type="text"
@@ -144,13 +176,13 @@ export default function GameSearch() {
                             placeholder="¿Qué buscamos?"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            onKeyUp={(e) => e.key === 'Enter' && handleSearch(1, true)}
+                            onKeyUp={(e) => e.key === 'Enter' && applyFilters()}
                         />
                         {searchTerm && (
                             <i
                                 className="fa-solid fa-circle-xmark"
                                 style={{ cursor: 'pointer', opacity: 0.6 }}
-                                onClick={() => { setSearchTerm(''); handleSearch(1, true); }}
+                                onClick={() => { setSearchTerm(''); updateUrl({ q: '' }); }}
                             ></i>
                         )}
                     </div>
@@ -253,7 +285,7 @@ export default function GameSearch() {
                                     <button
                                         className="btn-primary"
                                         style={{ flex: 1, borderRadius: '8px' }}
-                                        onClick={() => { handleSearch(1, true); setShowFilters(false); }}
+                                        onClick={applyFilters}
                                     >
                                         APLICAR FILTROS
                                     </button>
@@ -269,7 +301,7 @@ export default function GameSearch() {
                         )}
                     </div>
 
-                    <div className="buscador_boton" onClick={() => handleSearch()}>
+                    <div className="buscador_boton" onClick={applyFilters}>
                         <i className="fa-solid fa-magnifying-glass"></i>
                     </div>
                 </div>
@@ -280,7 +312,7 @@ export default function GameSearch() {
                 <div className="filtros_activos_container">
                     {activePlatforms.map((platform) => (
                         <div key={platform} className="filtro_activo">
-                            <i className="fa-solid fa-xmark" onClick={() => removeFilter('platform', platform)}></i>
+                            <i className="fa-solid fa-xmark" onClick={() => removeFilter(platform)}></i>
                             {PLATFORMS[platform]}
                         </div>
                     ))}
@@ -320,7 +352,7 @@ export default function GameSearch() {
                     {prevPage && (
                         <div
                             className="boton_pag_mini"
-                            onClick={() => handleSearch(currentPage - 1)}
+                            onClick={() => updateUrl({ page: pageParam - 1 })}
                             title="Página anterior"
                             style={{ cursor: 'pointer' }}
                         >
@@ -333,12 +365,12 @@ export default function GameSearch() {
                         fontWeight: '700',
                         padding: '0 1em'
                     }}>
-                        Página {currentPage}
+                        Página {pageParam}
                     </div>
                     {nextPage && (
                         <div
                             className="boton_pag_mini"
-                            onClick={() => handleSearch(currentPage + 1)}
+                            onClick={() => updateUrl({ page: pageParam + 1 })}
                             title="Página siguiente"
                             style={{ cursor: 'pointer' }}
                         >

@@ -29,6 +29,8 @@ export interface SearchParams {
     ordering?: string
 }
 
+const cache = new Map<string, any>()
+
 export async function searchGames(params: SearchParams) {
     const queryParams: any = {
         key: RAWG_API_KEY,
@@ -58,6 +60,13 @@ export async function searchGames(params: SearchParams) {
     if (params.metacritic) queryParams.metacritic = params.metacritic
 
     const urlParams = new URLSearchParams(queryParams)
+    urlParams.sort() // Sort for consistent cache keys
+    const cacheKey = urlParams.toString()
+
+    if (cache.has(cacheKey)) {
+        return cache.get(cacheKey)
+    }
+
     const response = await fetch(`${RAWG_BASE_URL}/games?${urlParams}`)
     if (!response.ok) throw new Error('Failed to fetch games')
 
@@ -69,6 +78,7 @@ export async function searchGames(params: SearchParams) {
         data.results = data.results.filter((game: Game) => game.background_image)
     }
 
+    cache.set(cacheKey, data)
     return data
 }
 
