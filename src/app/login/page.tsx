@@ -101,15 +101,12 @@ export default function LoginPage() {
                 background: 'transparent',
                 color: '#fff',
             }}>
-                <h1 style={{ margin: 0, color: '#00A8E8', fontSize: '3em', fontWeight: 800, letterSpacing: '-1px', textTransform: 'uppercase' }}>Bienvenido</h1>
+                <h1 style={{ margin: 0, color: '#00A8E8', fontSize: 'clamp(2rem, 5vw, 3em)', fontWeight: 800, letterSpacing: '-1px', textTransform: 'uppercase' }}>Bienvenido</h1>
                 <p style={{ color: 'rgba(255,255,255,0.6)', marginTop: '0.5rem', fontSize: '1.1rem' }}>Accede a tu cuenta de HubGames</p>
             </div>
 
             <div style={{ maxWidth: '480px', margin: '0 auto', width: '100%' }}>
-                <div className="glass-panel" style={{
-                    padding: '3.5em',
-                    borderRadius: '24px',
-                }}>
+                <div className="glass-panel auth-card">
                     <div className="boton_google" style={{ marginBottom: '2.5em' }}>
                         <button
                             onClick={handleGoogleLogin}

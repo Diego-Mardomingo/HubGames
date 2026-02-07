@@ -118,8 +118,11 @@ export default function JUDIPage() {
         }
 
         let progress: any = null
+        let savedWrongGuesses: string[] = []
         const { data: { user: authUser } } = await supabase.auth.getUser()
+
         if (authUser) {
+            // Load progress from Supabase
             const { data } = await supabase
                 .from('hubgames_judi_fases_usuario')
                 .select('*')
@@ -127,11 +130,28 @@ export default function JUDIPage() {
                 .eq('id_usuario', authUser.id)
                 .maybeSingle()
             progress = data
+
+            // Load wrong guesses from Supabase
+            const { data: intentos } = await supabase
+                .from('hubgames_judi_intentos')
+                .select('intento')
+                .eq('id_lista_judi', game.id)
+                .eq('id_usuario', authUser.id)
+            savedWrongGuesses = (intentos || []).map(i => i.intento)
         } else {
+            // Load progress from localStorage
             const localProgress = localStorage.getItem('judi_progress')
             const progressData = localProgress ? JSON.parse(localProgress) : {}
             progress = progressData[game.id]
+
+            // Load wrong guesses from localStorage
+            const localGuesses = localStorage.getItem('judi_intentos')
+            const guessesData = localGuesses ? JSON.parse(localGuesses) : {}
+            savedWrongGuesses = guessesData[game.id] || []
         }
+
+        // Set wrong guesses from saved data
+        setWrongGuesses(savedWrongGuesses)
 
         if (progress?.completado) {
             setGameState('won')
@@ -192,24 +212,33 @@ export default function JUDIPage() {
 
     const handleAdivinar = async () => {
         if (!selectedGame || gameState !== 'playing') return
-        const isCorrect = searchQuery.trim().toLowerCase() === selectedGame.juego.nombre.toLowerCase()
+        const guessText = searchQuery.trim()
+
+        const isCorrect = guessText && guessText.toLowerCase() === selectedGame.juego.nombre.toLowerCase()
         setSearchResults([])
         setShowResults(false)
         if (isCorrect) {
             setGuessFeedback('correct')
             setGameState('won')
             await updateProgress(selectedGame.juego.id, 'completado', true)
+            // Clear wrong guesses when game is won
+            await clearWrongGuesses(selectedGame.juego.id)
         } else {
             const nextPhase = highestUnlockedPhase + 1
+
+            // Only save and show the guess if there was actual text entered
+            if (guessText) {
+                await saveWrongGuess(selectedGame.juego.id, guessText)
+                setWrongGuesses(prev => [...prev, guessText])
+            }
+
             if (nextPhase > 6) {
-                setWrongGuesses(prev => [...prev, searchQuery.trim()])
                 setHighestUnlockedPhase(6)
                 setLives(0)
                 setGameState('lost')
                 await updateProgress(selectedGame.juego.id, 'fase6', true)
             } else {
                 setGuessFeedback('wrong')
-                setWrongGuesses(prev => [...prev, searchQuery.trim()])
                 const currentPhaseToMark = highestUnlockedPhase
                 setHighestUnlockedPhase(nextPhase)
                 setActiveViewedPhase(nextPhase)
@@ -218,6 +247,42 @@ export default function JUDIPage() {
             }
         }
         setSearchQuery('')
+    }
+
+    const saveWrongGuess = async (gameId: number, guess: string) => {
+        const { data: { user: authUser } } = await supabase.auth.getUser()
+        if (authUser) {
+            // Save to Supabase - ignore if already exists (UNIQUE constraint)
+            await supabase.from('hubgames_judi_intentos')
+                .insert({ id_lista_judi: gameId, id_usuario: authUser.id, intento: guess })
+                .select()
+        } else {
+            // Save to localStorage
+            const localGuesses = localStorage.getItem('judi_intentos')
+            const guessesData = localGuesses ? JSON.parse(localGuesses) : {}
+            if (!guessesData[gameId]) guessesData[gameId] = []
+            if (!guessesData[gameId].includes(guess)) {
+                guessesData[gameId].push(guess)
+            }
+            localStorage.setItem('judi_intentos', JSON.stringify(guessesData))
+        }
+    }
+
+    const clearWrongGuesses = async (gameId: number) => {
+        const { data: { user: authUser } } = await supabase.auth.getUser()
+        if (authUser) {
+            // Delete from Supabase
+            await supabase.from('hubgames_judi_intentos')
+                .delete()
+                .eq('id_lista_judi', gameId)
+                .eq('id_usuario', authUser.id)
+        } else {
+            // Remove from localStorage
+            const localGuesses = localStorage.getItem('judi_intentos')
+            const guessesData = localGuesses ? JSON.parse(localGuesses) : {}
+            delete guessesData[gameId]
+            localStorage.setItem('judi_intentos', JSON.stringify(guessesData))
+        }
     }
 
     const updateProgress = async (gameId: number, field: string, value: any) => {
@@ -362,12 +427,12 @@ export default function JUDIPage() {
                                         </div>
                                     )}
 
-                                    {/* Input y botón ABAJO */}
-                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', maxWidth: '700px', margin: '0.5rem auto 0 auto', width: '100%' }}>
-                                        <div style={{ position: 'relative', flex: 1, maxWidth: '500px' }}>
+                                    {/* Botón y Input - botón primero para que en móviles quede arriba */}
+                                    <div className="guess-form-container" style={{ maxWidth: '700px', margin: '0.5rem auto 0 auto', width: '100%' }}>
+                                        <button className="btn-primary btn-guess" onClick={handleAdivinar}><i className="fa-solid fa-gamepad"></i> ADIVINAR</button>
+                                        <div className="input-wrapper" style={{ position: 'relative', flex: 1, maxWidth: '500px' }}>
                                             <input
                                                 className="buscador-input"
-                                                style={{ width: '100%', padding: '0.6rem 1rem', borderRadius: '50px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.9rem' }}
                                                 placeholder="¿Qué juego es?..."
                                                 value={searchQuery}
                                                 onChange={handleSearchInput}
@@ -375,12 +440,15 @@ export default function JUDIPage() {
                                                 onKeyDown={(e) => e.key === 'Enter' && handleAdivinar()}
                                             />
                                             {showResults && searchResults.length > 0 && (
-                                                <div className="autocomplete-dropdown" style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: '#050a0f', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', marginTop: '5px', maxHeight: '120px', overflowY: 'auto' }}>
-                                                    {searchResults.map((res: any) => <div key={res.id} style={{ padding: '0.5rem 1rem', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.85rem' }} onMouseDown={() => { setSearchQuery(res.name); setShowResults(false); }}>{res.name}</div>)}
+                                                <div className="autocomplete-dropdown">
+                                                    {searchResults.map((res: any) => (
+                                                        <div key={res.id} className="autocomplete-item" onMouseDown={() => { setSearchQuery(res.name); setShowResults(false); }}>
+                                                            {res.name}
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             )}
                                         </div>
-                                        <button className="btn-primary" onClick={handleAdivinar} style={{ borderRadius: '50px', padding: '0.6rem 1.8rem', fontSize: '0.95rem', fontWeight: '800', whiteSpace: 'nowrap' }}>ADIVINAR</button>
                                     </div>
 
                                     {/* Lista de intentos fallidos */}

@@ -431,6 +431,28 @@
   width: 100%;
 }
 
+.judi-container .guess-form-container {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.judi-container .guess-form-container .input-wrapper {
+  flex: 1;
+}
+
+.judi-container .guess-form-container .btn-guess {
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
 .judi-container .input-group {
   position: relative;
   width: 100%;
@@ -470,6 +492,22 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   z-index: 100;
   margin-top: 5px;
+}
+
+.judi-container .autocomplete-item {
+  padding: 0.8rem 1.2rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s;
+  font-size: 0.9rem;
+}
+
+.judi-container .autocomplete-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.judi-container .autocomplete-item:last-child {
+  border-bottom: none;
 }
 
 /* Results View */
@@ -583,21 +621,73 @@
 }
 
 @media (max-width: 768px) {
+  .judi-container {
+    padding: 2rem 1rem;
+  }
+
   .judi-container .titulo h1 {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
   }
 
   .judi-container .game-data-box {
-    height: 300px;
+    height: 250px;
   }
 
   .judi-container .fases {
-    gap: 0.5rem;
+    gap: 0.4rem;
+    flex-wrap: wrap;
   }
 
   .judi-container .fase {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
+    width: 38px;
+    height: 38px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
+
+  .judi-container .hearts-container {
+    padding: 0.6rem 1.2rem;
+    gap: 0.5rem;
+  }
+
+  .judi-container .heart-icon {
+    font-size: 1.1rem;
+  }
+
+  .judi-container .pista-overlay {
+    font-size: 0.85rem;
+    padding: 1.5rem 1rem 0.8rem 1rem;
+  }
+
+  /* Guess form stacking for mobile - button on top */
+  .judi-container .guess-form-container {
+    flex-direction: column !important;
+    gap: 0.8rem;
+  }
+
+  .judi-container .guess-form-container .input-wrapper {
+    max-width: 100% !important;
+    width: 100%;
+  }
+
+  .judi-container .btn-guess {
+    width: 100%;
+    min-width: unset !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .judi-container .titulo h1 {
+    font-size: 1.8rem;
+  }
+
+  .judi-container .leaderboard-item {
+    gap: 0.8em;
+    padding: 0.8rem;
+  }
+
+  .judi-container .leaderboard-rank {
+    font-size: 1.2rem;
+    min-width: 30px;
   }
 }

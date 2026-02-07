@@ -214,7 +214,7 @@ export default function PerfilPage() {
                 <p style={{ color: 'rgba(255,255,255,0.4)', marginTop: '0.5rem', fontSize: '1.1rem' }}>Gestiona tu cuenta y revisa tus logros</p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2.5rem', alignItems: 'start' }}>
+            <div className="grid-responsive-profile" style={{ display: 'grid', gap: '2.5rem', alignItems: 'start' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
                     {/* User Info */}
                     <div className="glass-panel" style={{
@@ -387,9 +387,8 @@ export default function PerfilPage() {
                                 Estadísticas JUDI
                             </h2>
 
-                            <div style={{
+                            <div className="stats-grid" style={{
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(3, 1fr)',
                                 gap: '1.2rem',
                                 marginBottom: '2.5rem'
                             }}>
@@ -647,9 +646,25 @@ export default function PerfilPage() {
             </div>
 
             <style jsx>{`
+                .grid-responsive-profile {
+                    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                }
+                .stats-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                }
                 @keyframes fadeInUp {
                     from { opacity: 0; transform: translateY(20px); }
                     to { opacity: 1; transform: translateY(0); }
+                }
+                @media (max-width: 900px) {
+                    .grid-responsive-profile {
+                        grid-template-columns: 1fr;
+                    }
+                }
+                @media (max-width: 500px) {
+                    .stats-grid {
+                        grid-template-columns: 1fr;
+                    }
                 }
             `}</style>
         </div>
