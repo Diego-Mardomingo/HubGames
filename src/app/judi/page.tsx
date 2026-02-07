@@ -49,6 +49,8 @@ export default function JUDIPage() {
     const [showResults, setShowResults] = useState(false)
     const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing')
     const [guessFeedback, setGuessFeedback] = useState<'correct' | 'wrong' | null>(null)
+    const [isImageExpanded, setIsImageExpanded] = useState(false)
+    const [wrongGuesses, setWrongGuesses] = useState<string[]>([])
 
     const searchTimeout = useRef<NodeJS.Timeout | null>(null)
 
@@ -99,6 +101,8 @@ export default function JUDIPage() {
         setSearchResults([])
         setShowResults(false)
         setGuessFeedback(null)
+        setWrongGuesses([])
+        setIsImageExpanded(false)
 
         const [capturasRes, platformsRes, genresRes] = await Promise.all([
             supabase.from('hubgames_capturas').select('captura').eq('id_videojuego', game.id_videojuego),
@@ -198,12 +202,14 @@ export default function JUDIPage() {
         } else {
             const nextPhase = highestUnlockedPhase + 1
             if (nextPhase > 6) {
+                setWrongGuesses(prev => [...prev, searchQuery.trim()])
                 setHighestUnlockedPhase(6)
                 setLives(0)
                 setGameState('lost')
                 await updateProgress(selectedGame.juego.id, 'fase6', true)
             } else {
                 setGuessFeedback('wrong')
+                setWrongGuesses(prev => [...prev, searchQuery.trim()])
                 const currentPhaseToMark = highestUnlockedPhase
                 setHighestUnlockedPhase(nextPhase)
                 setActiveViewedPhase(nextPhase)
@@ -330,8 +336,11 @@ export default function JUDIPage() {
                             {gameState === 'playing' ? (
                                 <>
                                     {/* Imagen ARRIBA */}
-                                    <div className="game-data-box glass-panel">
+                                    <div className={`game-data-box glass-panel ${isImageExpanded ? 'expanded' : ''}`} onClick={() => setIsImageExpanded(!isImageExpanded)}>
                                         {selectedGame.capturas.length > 0 && <img src={selectedGame.capturas[activeViewedPhase === 1 ? 5 : activeViewedPhase - 2] || selectedGame.capturas[0]} alt="Pista" className="game-image" />}
+                                        <div className="expand-hint">
+                                            <i className="fa-solid fa-magnifying-glass-plus"></i> Clic para ampliar
+                                        </div>
                                         {activeViewedPhase > 1 && (
                                             <div className="pista-overlay">
                                                 {activeViewedPhase === 2 && <><i className="fa-solid fa-fire-pulse"></i> Popularidad: <strong>{selectedGame.juego.desarrollador} / 5</strong></>}
@@ -342,6 +351,16 @@ export default function JUDIPage() {
                                             </div>
                                         )}
                                     </div>
+
+                                    {/* Modal imagen expandida */}
+                                    {isImageExpanded && (
+                                        <div className="image-expanded-overlay" onClick={() => setIsImageExpanded(false)}>
+                                            <div className="expanded-image-container">
+                                                <img src={selectedGame.capturas[activeViewedPhase === 1 ? 5 : activeViewedPhase - 2] || selectedGame.capturas[0]} alt="Pista Ampliada" />
+                                                <div className="close-expanded"><i className="fa-solid fa-xmark"></i></div>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {/* Input y botón ABAJO */}
                                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', maxWidth: '700px', margin: '0.5rem auto 0 auto', width: '100%' }}>
@@ -363,6 +382,17 @@ export default function JUDIPage() {
                                         </div>
                                         <button className="btn-primary" onClick={handleAdivinar} style={{ borderRadius: '50px', padding: '0.6rem 1.8rem', fontSize: '0.95rem', fontWeight: '800', whiteSpace: 'nowrap' }}>ADIVINAR</button>
                                     </div>
+
+                                    {/* Lista de intentos fallidos */}
+                                    {wrongGuesses.length > 0 && (
+                                        <div className="wrong-guesses-list" style={{ marginTop: '0.8rem', width: '100%', maxWidth: '700px', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
+                                            {wrongGuesses.map((guess, idx) => (
+                                                <div key={idx} className="wrong-guess-tag" style={{ background: 'rgba(255, 71, 87, 0.1)', color: '#ff4757', padding: '0.3rem 0.8rem', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 600, border: '1px solid rgba(255, 71, 87, 0.2)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                    <i className="fa-solid fa-xmark" style={{ fontSize: '0.7rem' }}></i> {guess}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </>
                             ) : (
                                 <>
