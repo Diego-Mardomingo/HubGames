@@ -203,7 +203,7 @@ export default function PerfilPage() {
     }
 
     return (
-        <div className="cuerpo" style={{ padding: '2rem 1rem', maxWidth: '1200px', margin: '2em auto' }}>
+        <div className="cuerpo" style={{ padding: '2rem 1rem', maxWidth: '1200px', margin: '2em auto', overflowX: 'hidden', boxSizing: 'border-box' }}>
             <div className="encabezado" style={{
                 textAlign: 'center',
                 marginBottom: '3em',
@@ -218,13 +218,16 @@ export default function PerfilPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
                     {/* User Info */}
                     <div className="glass-panel" style={{
-                        padding: '2.5em',
+                        padding: 'clamp(1.5rem, 4vw, 2.5rem)',
                         borderRadius: '24px',
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem' }}>
                             <div style={{
                                 width: '70px',
                                 height: '70px',
+                                minWidth: '70px',
+                                minHeight: '70px',
+                                flexShrink: 0,
                                 borderRadius: '50%',
                                 background: 'linear-gradient(135deg, #00A8E8, #007EA7)',
                                 display: 'flex',
@@ -237,14 +240,14 @@ export default function PerfilPage() {
                             }}>
                                 {(user?.user_metadata?.username || user?.email || '?')[0].toUpperCase()}
                             </div>
-                            <div>
+                            <div style={{ overflow: 'hidden' }}>
                                 <h2 style={{ margin: 0, color: '#fff', fontSize: '1.5rem', fontWeight: 700 }}>{user?.user_metadata?.username || 'Usuario'}</h2>
-                                <p style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>{user?.email}</p>
+                                <p style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', wordBreak: 'break-all' }}>{user?.email}</p>
                             </div>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', color: 'rgba(255,255,255,0.7)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                                 <span style={{ fontWeight: 600 }}>Miembro desde</span>
                                 <span style={{ color: '#fff' }}>{new Date(user?.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}</span>
                             </div>
@@ -282,7 +285,7 @@ export default function PerfilPage() {
 
                     {/* Settings */}
                     <div className="glass-panel" style={{
-                        padding: '2.5em',
+                        padding: 'clamp(1.5rem, 4vw, 2.5rem)',
                         borderRadius: '24px',
                     }}>
                         <h2 style={{ marginTop: 0, marginBottom: '2rem', color: '#00A8E8', fontSize: '1.4rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Ajustes</h2>
@@ -367,7 +370,7 @@ export default function PerfilPage() {
                     {/* JUDI Stats */}
                     {judiStats && (
                         <div className="glass-panel" style={{
-                            padding: '2.5em',
+                            padding: 'clamp(1.5rem, 4vw, 2.5rem)',
                             borderRadius: '24px',
                             minHeight: '100%'
                         }}>
@@ -647,7 +650,7 @@ export default function PerfilPage() {
 
             <style jsx>{`
                 .grid-responsive-profile {
-                    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                    grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
                 }
                 .stats-grid {
                     grid-template-columns: repeat(3, 1fr);

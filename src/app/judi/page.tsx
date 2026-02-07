@@ -441,11 +441,27 @@ export default function JUDIPage() {
                                             />
                                             {showResults && searchResults.length > 0 && (
                                                 <div className="autocomplete-dropdown">
-                                                    {searchResults.map((res: any) => (
-                                                        <div key={res.id} className="autocomplete-item" onMouseDown={() => { setSearchQuery(res.name); setShowResults(false); }}>
-                                                            {res.name}
-                                                        </div>
-                                                    ))}
+                                                    {searchResults.map((res: any) => {
+                                                        const isAlreadyGuessed = wrongGuesses.some(
+                                                            guess => guess.toLowerCase() === res.name.toLowerCase()
+                                                        )
+                                                        return (
+                                                            <div
+                                                                key={res.id}
+                                                                className={`autocomplete-item ${isAlreadyGuessed ? 'already-guessed' : ''}`}
+                                                                onMouseDown={() => {
+                                                                    if (!isAlreadyGuessed) {
+                                                                        setSearchQuery(res.name)
+                                                                        setShowResults(false)
+                                                                    }
+                                                                }}
+                                                            >
+                                                                {isAlreadyGuessed && <i className="fa-solid fa-xmark" style={{ marginRight: '0.5rem', fontSize: '0.8rem' }}></i>}
+                                                                {res.name}
+                                                                {isAlreadyGuessed && <span style={{ marginLeft: 'auto', fontSize: '0.75rem', opacity: 0.7 }}>Ya intentado</span>}
+                                                            </div>
+                                                        )
+                                                    })}
                                                 </div>
                                             )}
                                         </div>
