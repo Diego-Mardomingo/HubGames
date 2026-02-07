@@ -290,38 +290,28 @@ JUDI es un reto diario para los amantes de los videojuegos. Cada día se selecci
 
 <div align="center">
 
-<!--
-INSTRUCCIONES PARA AÑADIR SCREENSHOTS:
-1. Crea una carpeta llamada "screenshots" en la raíz del proyecto
-2. Añade tus capturas con estos nombres:
-   - home.png (o .webp/.jpg) → Página principal con el buscador
-   - judi.png → Pantalla de JUDI jugando
-   - game.png → Ficha de detalle de un juego
-   - profile.png → Pantalla de perfil con estadísticas
-3. Descomenta las líneas de abajo y elimina el mensaje placeholder
--->
+### 🏠 Página Principal — Buscador Inteligente
+<img src="./screenshots/home.png" alt="Página Principal - Buscador con filtros" width="800"/>
 
-> 🖼️ **Próximamente:** Capturas de pantalla de la aplicación
+<br/><br/>
 
-<!--
-### 🏠 Página Principal
-<img src="./screenshots/home.png" alt="Página Principal - Buscador" width="800"/>
+### 🎯 JUDI — Selección de Retos
+<img src="./screenshots/judi.png" alt="JUDI - Lista de retos diarios" width="800"/>
 
-<br/>
+<br/><br/>
 
-### 🎯 JUDI - Minijuego
-<img src="./screenshots/judi.png" alt="JUDI - Juego del Día" width="800"/>
+### � JUDI — Jugando
+<img src="./screenshots/judi2.png" alt="JUDI - Pantalla de juego con pistas" width="800"/>
 
-<br/>
+<br/><br/>
 
 ### 📚 Ficha de Juego
-<img src="./screenshots/game.png" alt="Detalle de Juego" width="800"/>
+<img src="./screenshots/game.png" alt="Detalle completo de un juego" width="800"/>
 
-<br/>
+<br/><br/>
 
-### 👤 Perfil de Usuario
-<img src="./screenshots/profile.png" alt="Perfil con Estadísticas y Ranking" width="800"/>
--->
+### 👤 Perfil de Usuario — Estadísticas y Ranking
+<img src="./screenshots/profile.png" alt="Perfil con estadísticas JUDI y Ranking Global" width="800"/>
 
 </div>
 
