@@ -76,31 +76,36 @@ export default function PerfilPage() {
 
     const fetchLeaderboard = async (currentUserId: string) => {
         try {
-            const { data: records } = await supabase
+            const { data: records, error } = await supabase
                 .from('hubgames_judi_fases_usuario')
-                .select('id_usuario, completado')
+                .select(`
+                    id_usuario,
+                    hubgames_usuarios (
+                        username
+                    )
+                `)
                 .eq('completado', true)
 
+            if (error) throw error
+
             if (records) {
-                const userCounts: { [key: string]: number } = {}
-                records.forEach(r => {
-                    userCounts[r.id_usuario] = (userCounts[r.id_usuario] || 0) + 1
-                })
+                const userAggregates: { [key: string]: { username: string, completions: number } } = {}
 
-                const userIds = Object.keys(userCounts)
-                const { data: users } = await supabase
-                    .from('hubgames_usuarios')
-                    .select('id, username')
-                    .in('id', userIds)
+                records.forEach((r: any) => {
+                    const uid = r.id_usuario
+                    const username = r.hubgames_usuarios?.username || `Jugador #${uid.slice(0, 4)}`
 
-                const leaderboardData = userIds.map(uid => {
-                    const userObj = users?.find(u => u.id === uid)
-                    return {
-                        userId: uid,
-                        username: userObj?.username || `Jugador #${uid.slice(0, 4)}`,
-                        completions: userCounts[uid]
+                    if (!userAggregates[uid]) {
+                        userAggregates[uid] = { username, completions: 0 }
                     }
+                    userAggregates[uid].completions++
                 })
+
+                const leaderboardData = Object.keys(userAggregates).map(uid => ({
+                    userId: uid,
+                    username: userAggregates[uid].username,
+                    completions: userAggregates[uid].completions
+                }))
 
                 const sortedLeaderboard = leaderboardData.sort((a, b) => b.completions - a.completions)
 

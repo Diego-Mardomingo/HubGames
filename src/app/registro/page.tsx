@@ -55,15 +55,27 @@ export default function RegistroPage() {
         }
 
         try {
-            // Check if email already exists
-            const { data: existingUser } = await supabase
+            // Check if email or username already exists
+            const { data: existingUserEmail } = await supabase
                 .from('hubgames_usuarios')
                 .select('email')
                 .eq('email', email)
                 .maybeSingle()
 
-            if (existingUser) {
+            if (existingUserEmail) {
                 setError('Este email ya está registrado')
+                setLoading(false)
+                return
+            }
+
+            const { data: existingUserUsername } = await supabase
+                .from('hubgames_usuarios')
+                .select('username')
+                .eq('username', username)
+                .maybeSingle()
+
+            if (existingUserUsername) {
+                setError('Este username ya está en uso')
                 setLoading(false)
                 return
             }
@@ -84,8 +96,10 @@ export default function RegistroPage() {
             if (signUpError) {
                 if (signUpError.message.includes('already registered')) {
                     setError('Este email ya está registrado')
+                } else if (signUpError.message.includes('disabled')) {
+                    setError('El registro por email está desactivado en la configuración del servidor')
                 } else {
-                    setError('Error al crear la cuenta. Por favor intenta de nuevo.')
+                    setError(signUpError.message || 'Error al crear la cuenta. Por favor intenta de nuevo.')
                 }
                 setLoading(false)
                 return
@@ -102,7 +116,7 @@ export default function RegistroPage() {
                 id: authData.user.id,
                 username,
                 email,
-                password_hash: null, // Supabase Auth handles password
+                password_hash: 'auth_managed', // Satisfy DB constraint (managed by Supabase Auth)
                 email_verificado: true, // No email verification required
                 fecha_creacion: new Date().toISOString(),
                 cuenta_google: false,
@@ -110,8 +124,10 @@ export default function RegistroPage() {
             })
 
             if (insertError) {
-                console.error('Error inserting user:', insertError)
-                // Continue anyway as auth user was created
+                console.error('Error inserting user profile:', insertError)
+                setError('Error al crear el perfil de usuario: ' + insertError.message)
+                setLoading(false)
+                return
             }
 
             // Auto sign in after registration - redirect without forced refresh
