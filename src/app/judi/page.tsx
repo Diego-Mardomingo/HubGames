@@ -306,15 +306,15 @@ export default function JUDIPage() {
                     </div>
                 ) : (
                     selectedGame && (
-                        <div className="judi_game_view" style={{ width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                        <div className="judi_game_view" style={{ width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center' }}>
                             {/* Header compacto */}
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', width: '100%' }}>
                                 <button className="btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }} onClick={() => { setView('start'); router.push('/judi'); loadUserAndGames(); }}>← Volver</button>
                                 <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>#{selectedGame.juego.id} — {selectedGame.juego.fecha}</div>
                             </div>
 
                             {/* Fases compactas */}
-                            <div className="fases" style={{ gap: '0.4rem', marginBottom: '0.5rem' }}>
+                            <div className="fases" style={{ gap: '0.4rem', marginBottom: '0.5rem', width: '100%', justifyContent: 'center' }}>
                                 {[1, 2, 3, 4, 5, 6].map(f => (
                                     <div key={f} className={`fase ${f === activeViewedPhase ? 'active' : ''} ${f > highestUnlockedPhase && gameState === 'playing' ? 'locked' : ''}`} style={{ width: '35px', height: '35px', fontSize: '0.9rem' }} onClick={() => (f <= highestUnlockedPhase || gameState !== 'playing') && setActiveViewedPhase(f)}>
                                         {f <= highestUnlockedPhase || gameState !== 'playing' ? f : <i className="fa-solid fa-lock" style={{ fontSize: '0.6em' }}></i>}
