@@ -16,6 +16,8 @@ export default function PerfilPage() {
     const [success, setSuccess] = useState('')
     const [updating, setUpdating] = useState(false)
     const [judiStats, setJudiStats] = useState<any>(null)
+    const [leaderboard, setLeaderboard] = useState<any[]>([])
+    const [userRank, setUserRank] = useState<number | null>(null)
 
     useEffect(() => {
         checkUser()
@@ -36,6 +38,9 @@ export default function PerfilPage() {
             // Fetch JUDI stats
             await fetchJudiStats(session.user.id)
 
+            // Fetch leaderboard
+            await fetchLeaderboard(session.user.id)
+
             setLoading(false)
         } catch (err) {
             console.error('Error checking user:', err)
@@ -47,13 +52,13 @@ export default function PerfilPage() {
         try {
             const { data, error } = await supabase
                 .from('hubgames_judi_fases_usuario')
-                .select('completado')
+                .select('completado, fase6')
                 .eq('id_usuario', userId)
 
             if (error) throw error
 
             const aciertos = data?.filter(fase => fase.completado).length || 0
-            const fallos = data?.filter(fase => !fase.completado).length || 0
+            const fallos = data?.filter(fase => fase.fase6 && !fase.completado).length || 0
             const total = aciertos + fallos
             const porcentaje_acierto = total > 0 ? Math.round((aciertos / total) * 100) : 0
 
@@ -66,6 +71,48 @@ export default function PerfilPage() {
         } catch (err) {
             console.error('Error fetching JUDI stats:', err)
             setJudiStats({ aciertos: 0, fallos: 0, total: 0, porcentaje_acierto: 0 })
+        }
+    }
+
+    const fetchLeaderboard = async (currentUserId: string) => {
+        try {
+            const { data: records } = await supabase
+                .from('hubgames_judi_fases_usuario')
+                .select('id_usuario, completado')
+                .eq('completado', true)
+
+            if (records) {
+                const userCounts: { [key: string]: number } = {}
+                records.forEach(r => {
+                    userCounts[r.id_usuario] = (userCounts[r.id_usuario] || 0) + 1
+                })
+
+                const userIds = Object.keys(userCounts)
+                const { data: users } = await supabase
+                    .from('hubgames_usuarios')
+                    .select('id, username')
+                    .in('id', userIds)
+
+                const leaderboardData = userIds.map(uid => {
+                    const userObj = users?.find(u => u.id === uid)
+                    return {
+                        userId: uid,
+                        username: userObj?.username || `Jugador #${uid.slice(0, 4)}`,
+                        completions: userCounts[uid]
+                    }
+                })
+
+                const sortedLeaderboard = leaderboardData.sort((a, b) => b.completions - a.completions)
+
+                // Find user's rank
+                const userPosition = sortedLeaderboard.findIndex(entry => entry.userId === currentUserId)
+                setUserRank(userPosition !== -1 ? userPosition + 1 : null)
+
+                // Set top 5 for display
+                setLeaderboard(sortedLeaderboard.slice(0, 5))
+            }
+        } catch (err) {
+            console.error('Error fetching leaderboard:', err)
         }
     }
 
@@ -337,7 +384,7 @@ export default function PerfilPage() {
 
                             <div style={{
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(2, 1fr)',
+                                gridTemplateColumns: 'repeat(3, 1fr)',
                                 gap: '1.2rem',
                                 marginBottom: '2.5rem'
                             }}>
@@ -365,6 +412,19 @@ export default function PerfilPage() {
                                         {judiStats.aciertos}
                                     </div>
                                     <div style={{ fontSize: '0.8rem', marginTop: '0.6rem', color: 'rgba(46, 213, 115, 0.5)', fontWeight: 700, textTransform: 'uppercase' }}>Victorias</div>
+                                </div>
+
+                                <div style={{
+                                    backgroundColor: 'rgba(255, 71, 87, 0.05)',
+                                    padding: '1.5rem',
+                                    borderRadius: '16px',
+                                    textAlign: 'center',
+                                    border: '1px solid rgba(255, 71, 87, 0.1)'
+                                }}>
+                                    <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#ff4757', lineHeight: 1 }}>
+                                        {judiStats.fallos}
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', marginTop: '0.6rem', color: 'rgba(255, 71, 87, 0.5)', fontWeight: 700, textTransform: 'uppercase' }}>Derrotas</div>
                                 </div>
                             </div>
 
@@ -422,6 +482,124 @@ export default function PerfilPage() {
                                             'Sigue jugando para mejorar.'}
                                 </p>
                             </div>
+                        </div>
+                    )}
+
+                    {/* Leaderboard */}
+                    {leaderboard.length > 0 && (
+                        <div className="glass-panel" style={{
+                            padding: '2.5em',
+                            borderRadius: '24px',
+                            minHeight: '100%'
+                        }}>
+                            <h2 style={{
+                                marginTop: 0,
+                                marginBottom: '2rem',
+                                color: '#FFD700',
+                                fontSize: '1.4rem',
+                                fontWeight: 800,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.8rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1px'
+                            }}>
+                                <i className="fa-solid fa-ranking-star"></i>
+                                Ranking Global
+                            </h2>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                {leaderboard.map((player, index) => {
+                                    const maxComps = leaderboard[0]?.completions || 1
+                                    const percentage = (player.completions / maxComps) * 100
+                                    const medals = ['🥇', '🥈', '🥉']
+                                    const isCurrentUser = player.userId === user?.id
+
+                                    return (
+                                        <div key={player.userId} style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '1.2em',
+                                            padding: '1rem',
+                                            borderRadius: '16px',
+                                            background: isCurrentUser ? 'rgba(0, 168, 232, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                                            border: isCurrentUser ? '2px solid #00A8E8' : '1px solid rgba(255, 255, 255, 0.05)',
+                                            transition: 'all 0.3s ease'
+                                        }}>
+                                            <div style={{
+                                                fontSize: index < 3 ? '1.8rem' : '1.2rem',
+                                                fontWeight: 900,
+                                                minWidth: '45px',
+                                                textAlign: 'center'
+                                            }}>
+                                                {medals[index] || `#${index + 1}`}
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{
+                                                    fontWeight: 700,
+                                                    fontSize: '1.05rem',
+                                                    marginBottom: '0.5rem',
+                                                    color: isCurrentUser ? '#00A8E8' : index === 0 ? '#FFD700' : '#fff'
+                                                }}>
+                                                    {player.username} {isCurrentUser && '(Tú)'}
+                                                </div>
+                                                <div style={{
+                                                    width: '100%',
+                                                    height: '8px',
+                                                    background: 'rgba(255, 255, 255, 0.1)',
+                                                    borderRadius: '10px',
+                                                    overflow: 'hidden',
+                                                    position: 'relative'
+                                                }}>
+                                                    <div style={{
+                                                        height: '100%',
+                                                        borderRadius: '10px',
+                                                        transition: 'width 1s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                                                        background: index === 0 ? 'linear-gradient(90deg, #FFD700, #FFA500)' :
+                                                            index === 1 ? 'linear-gradient(90deg, #C0C0C0, #808080)' :
+                                                                index === 2 ? 'linear-gradient(90deg, #CD7F32, #8B4513)' :
+                                                                    isCurrentUser ? 'linear-gradient(90deg, #00A8E8, #0077B6)' : '#00A8E8',
+                                                        boxShadow: index === 0 ? '0 0 10px rgba(255, 215, 0, 0.5)' : '0 0 10px rgba(0, 168, 232, 0.3)',
+                                                        width: `${percentage}%`
+                                                    }}></div>
+                                                </div>
+                                            </div>
+                                            <div style={{
+                                                fontWeight: 800,
+                                                fontSize: '1.3rem',
+                                                color: isCurrentUser ? '#00A8E8' : index === 0 ? '#FFD700' : '#00A8E8',
+                                                minWidth: '60px',
+                                                textAlign: 'right'
+                                            }}>
+                                                {player.completions}
+                                                <span style={{ fontSize: '0.75rem', opacity: 0.6, marginLeft: '4px' }}>aciertos</span>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+
+                            {/* User rank indicator if not in top 5 */}
+                            {userRank && userRank > 5 && (
+                                <div style={{
+                                    marginTop: '2rem',
+                                    padding: '1.5rem',
+                                    borderRadius: '16px',
+                                    background: 'rgba(0, 168, 232, 0.1)',
+                                    border: '2px solid #00A8E8',
+                                    textAlign: 'center'
+                                }}>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#00A8E8', marginBottom: '0.5rem' }}>
+                                        Tu posición en el ranking
+                                    </div>
+                                    <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff' }}>
+                                        #{userRank}
+                                    </div>
+                                    <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.5rem' }}>
+                                        ¡Sigue jugando para escalar posiciones!
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

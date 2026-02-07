@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import Link from 'next/link'
 import Loader from '@/components/Loader'
@@ -35,9 +36,9 @@ export default function JUDIPage() {
     const [user, setUser] = useState<any>(null)
     const [games, setGames] = useState<GameRecord[]>([])
     const [loading, setLoading] = useState(true)
-    const [view, setView] = useState<'list' | 'game'>('list')
+    const router = useRouter()
+    const [view, setView] = useState<'start' | 'game'>('start')
     const [selectedGame, setSelectedGame] = useState<GameData | null>(null)
-    const [leaderboard, setLeaderboard] = useState<any[]>([])
 
     // Game State
     const [highestUnlockedPhase, setHighestUnlockedPhase] = useState(1)
@@ -89,51 +90,11 @@ export default function JUDIPage() {
             setGames(gamesWithProgress)
         }
 
-        // Load leaderboard
-        await loadLeaderboard()
-
         setLoading(false)
-    }
-
-    const loadLeaderboard = async () => {
-        const { data: leaderboardData } = await supabase
-            .from('hubgames_judi_fases_usuario')
-            .select('id_usuario, completado')
-            .eq('completado', true)
-
-        if (leaderboardData) {
-            // Count completions per user
-            const userCounts: { [key: string]: number } = {}
-            leaderboardData.forEach((record: any) => {
-                userCounts[record.id_usuario] = (userCounts[record.id_usuario] || 0) + 1
-            })
-
-            // Get user details - simplified for client-side (no admin access)
-            const userIds = Object.keys(userCounts)
-
-            const leaderboardWithNames = userIds.map((userId, index) => {
-                const gamingNames = ['Maestro', 'Experto', 'Leyenda', 'Pro', 'As', 'Crack', 'Genio', 'Mago']
-                const username = `${gamingNames[index % gamingNames.length]} #${userId.slice(0, 4)}`
-                return {
-                    userId,
-                    username,
-                    completions: userCounts[userId]
-                }
-            })
-
-            // Sort by completions and take top 5
-            const topUsers = leaderboardWithNames
-                .sort((a, b) => b.completions - a.completions)
-                .slice(0, 5)
-
-            setLeaderboard(topUsers)
-        }
     }
 
     const startJuego = async (game: GameRecord) => {
         setLoading(true)
-
-        // Reset search, feedback and results state
         setSearchQuery('')
         setSearchResults([])
         setShowResults(false)
@@ -153,14 +114,14 @@ export default function JUDIPage() {
         }
 
         let progress: any = null
-        const { data: { user: authUser } } = await supabase.auth.getUser() // Always refetch user
+        const { data: { user: authUser } } = await supabase.auth.getUser()
         if (authUser) {
             const { data } = await supabase
                 .from('hubgames_judi_fases_usuario')
                 .select('*')
                 .eq('id_lista_judi', game.id)
                 .eq('id_usuario', authUser.id)
-                .maybeSingle() // Fix 406 Error
+                .maybeSingle()
             progress = data
         } else {
             const localProgress = localStorage.getItem('judi_progress')
@@ -197,37 +158,14 @@ export default function JUDIPage() {
         setLoading(false)
     }
 
-    const handleNavigate = (direction: 'prev' | 'next') => {
-        if (!selectedGame || games.length === 0) return
-
-        const currentIndex = games.findIndex(g => g.id === selectedGame.juego.id)
-        if (currentIndex === -1) return
-
-        let newIndex = -1
-        if (direction === 'next' && currentIndex > 0) {
-            newIndex = currentIndex - 1 // Array is ordered descending (newest first), so 'next' (newer) is lower index
-        } else if (direction === 'prev' && currentIndex < games.length - 1) {
-            newIndex = currentIndex + 1 // 'prev' (older) is higher index
-        }
-
-        if (newIndex !== -1) {
-            startJuego(games[newIndex])
-        }
-    }
-
     const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         const query = e.target.value
         setSearchQuery(query)
-
         if (searchTimeout.current) clearTimeout(searchTimeout.current)
-
         if (query.length > 2) {
             searchTimeout.current = setTimeout(async () => {
                 try {
-                    const data = await searchGames({
-                        search: query,
-                        page_size: 10
-                    })
+                    const data = await searchGames({ search: query, page_size: 10 })
                     setSearchResults(data.results || [])
                     setShowResults(true)
                 } catch (err) {
@@ -241,25 +179,18 @@ export default function JUDIPage() {
         }
     }
 
-    // Clear feedback after delay
     useEffect(() => {
         if (guessFeedback) {
-            const timer = setTimeout(() => {
-                setGuessFeedback(null)
-            }, 3000)
+            const timer = setTimeout(() => setGuessFeedback(null), 3000)
             return () => clearTimeout(timer)
         }
     }, [guessFeedback])
 
     const handleAdivinar = async () => {
         if (!selectedGame || gameState !== 'playing') return
-
         const isCorrect = searchQuery.trim().toLowerCase() === selectedGame.juego.nombre.toLowerCase()
-
-        // Clear search results immediately
         setSearchResults([])
         setShowResults(false)
-
         if (isCorrect) {
             setGuessFeedback('correct')
             setGameState('won')
@@ -280,73 +211,42 @@ export default function JUDIPage() {
                 await updateProgress(selectedGame.juego.id, `fase${currentPhaseToMark}`, true)
             }
         }
-
         setSearchQuery('')
     }
 
     const updateProgress = async (gameId: number, field: string, value: any) => {
         const { data: { user: authUser } } = await supabase.auth.getUser()
-
         if (authUser) {
             const { data: existing } = await supabase
                 .from('hubgames_judi_fases_usuario')
                 .select('id_lista_judi')
                 .eq('id_lista_judi', gameId)
                 .eq('id_usuario', authUser.id)
-                .maybeSingle() // Fix 406 Error here too
-
+                .maybeSingle()
             if (existing) {
-                const { error } = await supabase
-                    .from('hubgames_judi_fases_usuario')
+                await supabase.from('hubgames_judi_fases_usuario')
                     .update({ [field]: value })
                     .eq('id_lista_judi', gameId)
                     .eq('id_usuario', authUser.id)
-
-                if (error) console.error("Supabase Update Error:", error)
             } else {
-                const { error } = await supabase
-                    .from('hubgames_judi_fases_usuario')
-                    .insert({
-                        id_lista_judi: gameId,
-                        id_usuario: authUser.id,
-                        [field]: value
-                    })
-
-                if (error) console.error("Supabase Insert Error:", error)
+                await supabase.from('hubgames_judi_fases_usuario')
+                    .insert({ id_lista_judi: gameId, id_usuario: authUser.id, [field]: value })
             }
         } else {
             const localProgress = localStorage.getItem('judi_progress')
             const progressData = localProgress ? JSON.parse(localProgress) : {}
-
-            if (!progressData[gameId]) {
-                progressData[gameId] = { id_lista_judi: gameId }
-            }
+            if (!progressData[gameId]) progressData[gameId] = { id_lista_judi: gameId }
             progressData[gameId][field] = value
-
             localStorage.setItem('judi_progress', JSON.stringify(progressData))
         }
     }
 
-    const renderHearts = () => {
-        return (
-            <div className="hearts-container">
-                {[...Array(6)].map((_, i) => (
-                    <span key={i} className={`heart-icon ${i < lives ? 'heart-full' : 'heart-empty'}`}>
-                        {i < lives ? '❤️' : '🤍'}
-                    </span>
-                ))}
-            </div>
-        )
-    }
-
     if (loading && !selectedGame) {
-        return (
-            <div className="judi-container"><div className="cuerpo"><Loader /></div></div>
-        )
+        return <div className="judi-container"><div className="cuerpo"><Loader /></div></div>
     }
 
     return (
-        <div className="judi-container">
+        <div className={`judi-container ${view === 'game' ? 'game-mode' : ''}`}>
             {guessFeedback && (
                 <div className={`feedback-toast ${guessFeedback === 'correct' ? 'feedback-correct' : 'feedback-wrong'}`}>
                     {guessFeedback === 'correct' ? (
@@ -369,7 +269,7 @@ export default function JUDIPage() {
                 flexDirection: 'column',
                 alignItems: 'center'
             }}>
-                {view === 'list' ? (
+                {view === 'start' ? (
                     <div className="judi_list_view" style={{ width: '100%' }}>
                         <div className="titulo">
                             <h1>JUDI</h1>
@@ -384,46 +284,6 @@ export default function JUDIPage() {
                             </div>
                         )}
 
-                        {/* Leaderboard */}
-                        {leaderboard.length > 0 && (
-                            <div className="leaderboard-container">
-                                <h2 className="leaderboard-title">
-                                    <i className="fa-solid fa-trophy" style={{ marginRight: '0.5em', color: '#FFD700' }}></i>
-                                    Top Jugadores
-                                </h2>
-                                <div className="leaderboard-list">
-                                    {leaderboard.map((player, index) => {
-                                        const maxCompletions = leaderboard[0].completions
-                                        const percentage = (player.completions / maxCompletions) * 100
-                                        const medals = ['🥇', '🥈', '🥉']
-
-                                        return (
-                                            <div key={player.userId} className={`leaderboard-item ${index === 0 ? 'top-1' : ''}`}>
-                                                <div className="leaderboard-rank">
-                                                    {medals[index] || `#${index + 1}`}
-                                                </div>
-                                                <div className="leaderboard-info">
-                                                    <div className="leaderboard-name">
-                                                        {player.username}
-                                                    </div>
-                                                    <div className="leaderboard-bar-bg">
-                                                        <div
-                                                            className="leaderboard-bar-fill"
-                                                            style={{ width: `${percentage}%` }}
-                                                        ></div>
-                                                    </div>
-                                                </div>
-                                                <div className="leaderboard-score">
-                                                    {player.completions}
-                                                    <span>pts</span>
-                                                </div>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-                        )}
-
                         <div className="grid-container">
                             {games.map((game) => (
                                 <div key={game.id} className="juego-card">
@@ -433,19 +293,11 @@ export default function JUDIPage() {
                                     </div>
                                     <div className="card-body">
                                         {game.completado ? (
-                                            <div className="card-status status-won">
-                                                <i className="fa-solid fa-trophy" style={{ marginRight: '8px' }}></i> COMPLETADO
-                                            </div>
+                                            <div className="card-status status-won"><i className="fa-solid fa-trophy" style={{ marginRight: '8px' }}></i> COMPLETADO</div>
                                         ) : game.fase6 ? (
-                                            <div className="card-status status-lost">
-                                                <i className="fa-solid fa-skull" style={{ marginRight: '8px' }}></i> FALLADO
-                                            </div>
+                                            <div className="card-status status-lost"><i className="fa-solid fa-skull" style={{ marginRight: '8px' }}></i> FALLADO</div>
                                         ) : (
-                                            <div className="btn-primary"
-                                                style={{ width: '100%', textAlign: 'center', fontSize: '0.8rem', padding: '0.8rem' }}
-                                                onClick={() => startJuego(game)}>
-                                                ¡JUGAR!
-                                            </div>
+                                            <div className="btn-primary" style={{ width: '100%', textAlign: 'center', fontSize: '0.8rem', padding: '0.8rem' }} onClick={() => startJuego(game)}>¡JUGAR!</div>
                                         )}
                                     </div>
                                 </div>
@@ -454,100 +306,49 @@ export default function JUDIPage() {
                     </div>
                 ) : (
                     selectedGame && (
-                        <div className="judi_game_view" style={{ width: '100%', maxWidth: '1000px' }}>
-                            <div className="cabecera" style={{ marginBottom: '2em' }}>
-                                <button className="btn-secondary" style={{ padding: '0.8rem 1.5rem', fontSize: '0.95rem', fontWeight: 600 }} onClick={() => { setView('list'); loadUserAndGames(); }}>
-                                    ← Volver al listado
-                                </button>
-
-                                {gameState !== 'playing' && (
-                                    <div className="game-nav-controls">
-                                        <button
-                                            className="boton_pag_mini"
-                                            style={{ backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '50%', width: '3em', height: '3em' }}
-                                            onClick={() => handleNavigate('prev')}
-                                            disabled={games.findIndex(g => g.id === selectedGame.juego.id) >= games.length - 1}
-                                        >
-                                            <i className="fa-solid fa-chevron-left"></i>
-                                        </button>
-
-                                        <div className="fecha-banner" style={{ fontSize: '1.1rem', fontWeight: 700, padding: '0.8em 1.5em' }}>
-                                            #{selectedGame.juego.id} — {selectedGame.juego.fecha}
-                                        </div>
-
-                                        <button
-                                            className="boton_pag_mini"
-                                            style={{ backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '50%', width: '3em', height: '3em' }}
-                                            onClick={() => handleNavigate('next')}
-                                            disabled={games.findIndex(g => g.id === selectedGame.juego.id) <= 0}
-                                        >
-                                            <i className="fa-solid fa-chevron-right"></i>
-                                        </button>
-                                    </div>
-                                )}
-
-                                {gameState === 'playing' && (
-                                    <div className="fecha-banner" style={{ fontSize: '1.2rem', fontWeight: 700, padding: '1em 2em', margin: '0 auto' }}>
-                                        #{selectedGame.juego.id} — {selectedGame.juego.fecha}
-                                    </div>
-                                )}
+                        <div className="judi_game_view" style={{ width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                            {/* Header compacto */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                <button className="btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }} onClick={() => { setView('start'); router.push('/judi'); loadUserAndGames(); }}>← Volver</button>
+                                <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>#{selectedGame.juego.id} — {selectedGame.juego.fecha}</div>
                             </div>
 
-                            <div className="fases">
+                            {/* Fases compactas */}
+                            <div className="fases" style={{ gap: '0.4rem', marginBottom: '0.5rem' }}>
                                 {[1, 2, 3, 4, 5, 6].map(f => (
-                                    <div
-                                        key={f}
-                                        className={`fase ${f === activeViewedPhase ? 'active' : ''} ${f > highestUnlockedPhase && gameState === 'playing' ? 'locked' : ''}`}
-                                        onClick={() => (f <= highestUnlockedPhase || gameState !== 'playing') && setActiveViewedPhase(f)}
-                                    >
-                                        {f <= highestUnlockedPhase || gameState !== 'playing' ? f : <i className="fa-solid fa-lock" style={{ fontSize: '0.7em' }}></i>}
+                                    <div key={f} className={`fase ${f === activeViewedPhase ? 'active' : ''} ${f > highestUnlockedPhase && gameState === 'playing' ? 'locked' : ''}`} style={{ width: '35px', height: '35px', fontSize: '0.9rem' }} onClick={() => (f <= highestUnlockedPhase || gameState !== 'playing') && setActiveViewedPhase(f)}>
+                                        {f <= highestUnlockedPhase || gameState !== 'playing' ? f : <i className="fa-solid fa-lock" style={{ fontSize: '0.6em' }}></i>}
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="game-data-box glass-panel">
-                                {selectedGame.capturas.length > 0 && (
-                                    <img
-                                        src={selectedGame.capturas[activeViewedPhase === 1 ? 5 : activeViewedPhase - 2] || selectedGame.capturas[0]}
-                                        alt="Pista del juego"
-                                        className="game-image"
-                                        style={{ objectFit: 'cover' }}
-                                    />
-                                )}
-                                {activeViewedPhase > 1 && (
-                                    <div className="pista-overlay">
-                                        {activeViewedPhase === 2 && (
-                                            <><i className="fa-solid fa-fire-pulse" style={{ color: '#00A8E8', marginRight: '10px' }}></i> Popularidad: <strong>{selectedGame.juego.desarrollador} / 5</strong></>
-                                        )}
-                                        {activeViewedPhase === 3 && (
-                                            <><i className="fa-solid fa-star" style={{ color: '#00A8E8', marginRight: '10px' }}></i> Metacritic: <strong>{selectedGame.juego.calificacion} / 100</strong></>
-                                        )}
-                                        {activeViewedPhase === 4 && (
-                                            <><i className="fa-solid fa-display" style={{ color: '#00A8E8', marginRight: '10px' }}></i> {selectedGame.plataformas.join(', ')}</>
-                                        )}
-                                        {activeViewedPhase === 5 && (
-                                            <><i className="fa-solid fa-tags" style={{ color: '#00A8E8', marginRight: '10px' }}></i> {selectedGame.generos.join(', ')}</>
-                                        )}
-                                        {activeViewedPhase === 6 && (
-                                            <><i className="fa-solid fa-calendar-days" style={{ color: '#00A8E8', marginRight: '10px' }}></i> Lanzamiento: <strong>{selectedGame.juego.released}</strong></>
-                                        )}
-                                    </div>
-                                )}
+                            {/* Corazones compactos */}
+                            <div className="hearts-container" style={{ padding: '0.3rem 1rem', marginBottom: '0.3rem', gap: '0.4rem', width: 'auto', margin: '0 auto 0.3rem auto' }}>
+                                {[...Array(6)].map((_, i) => <i key={i} className={`fa-solid fa-heart ${i < lives ? '' : 'heart-empty'}`} style={{ color: i < lives ? '#ff4757' : 'rgba(255,255,255,0.2)', fontSize: '1.1rem' }}></i>)}
                             </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5em' }}>
-                                <div className="hearts-container">
-                                    {[...Array(6)].map((_, i) => (
-                                        <i key={i} className={`fa-solid fa-heart heart-icon ${i < lives ? '' : 'heart-empty'}`}
-                                            style={{ color: i < lives ? '#ff4757' : 'rgba(255,255,255,0.2)' }}></i>
-                                    ))}
-                                </div>
+                            {gameState === 'playing' ? (
+                                <>
+                                    {/* Imagen ARRIBA */}
+                                    <div className="game-data-box glass-panel">
+                                        {selectedGame.capturas.length > 0 && <img src={selectedGame.capturas[activeViewedPhase === 1 ? 5 : activeViewedPhase - 2] || selectedGame.capturas[0]} alt="Pista" className="game-image" />}
+                                        {activeViewedPhase > 1 && (
+                                            <div className="pista-overlay">
+                                                {activeViewedPhase === 2 && <><i className="fa-solid fa-fire-pulse"></i> Popularidad: <strong>{selectedGame.juego.desarrollador} / 5</strong></>}
+                                                {activeViewedPhase === 3 && <><i className="fa-solid fa-star"></i> Metacritic: <strong>{selectedGame.juego.calificacion} / 100</strong></>}
+                                                {activeViewedPhase === 4 && <><i className="fa-solid fa-display"></i> {selectedGame.plataformas.join(', ')}</>}
+                                                {activeViewedPhase === 5 && <><i className="fa-solid fa-tags"></i> {selectedGame.generos.join(', ')}</>}
+                                                {activeViewedPhase === 6 && <><i className="fa-solid fa-calendar-days"></i> Lanzamiento: <strong>{selectedGame.juego.released}</strong></>}
+                                            </div>
+                                        )}
+                                    </div>
 
-                                {gameState === 'playing' ? (
-                                    <div className="guess-area">
-                                        <div className="input-group">
+                                    {/* Input y botón ABAJO */}
+                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', maxWidth: '700px', margin: '0.5rem auto 0 auto', width: '100%' }}>
+                                        <div style={{ position: 'relative', flex: 1, maxWidth: '500px' }}>
                                             <input
                                                 className="buscador-input"
+                                                style={{ width: '100%', padding: '0.6rem 1rem', borderRadius: '50px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.9rem' }}
                                                 placeholder="¿Qué juego es?..."
                                                 value={searchQuery}
                                                 onChange={handleSearchInput}
@@ -555,48 +356,38 @@ export default function JUDIPage() {
                                                 onKeyDown={(e) => e.key === 'Enter' && handleAdivinar()}
                                             />
                                             {showResults && searchResults.length > 0 && (
-                                                <div className="autocomplete-dropdown glass-panel">
-                                                    {searchResults.map((res: any) => (
-                                                        <div
-                                                            key={res.id}
-                                                            className="autocomplete-item"
-                                                            onClick={() => {
-                                                                setSearchQuery(res.name)
-                                                                setShowResults(false)
-                                                            }}
-                                                        >
-                                                            {res.name}
-                                                        </div>
-                                                    ))}
+                                                <div className="autocomplete-dropdown" style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: '#050a0f', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', marginTop: '5px', maxHeight: '120px', overflowY: 'auto' }}>
+                                                    {searchResults.map((res: any) => <div key={res.id} style={{ padding: '0.5rem 1rem', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.85rem' }} onMouseDown={() => { setSearchQuery(res.name); setShowResults(false); }}>{res.name}</div>)}
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="btn-primary" style={{ width: '200px', borderRadius: '50px', display: 'flex', justifyContent: 'center' }} onClick={handleAdivinar}>
-                                            ADIVINAR
-                                        </div>
+                                        <button className="btn-primary" onClick={handleAdivinar} style={{ borderRadius: '50px', padding: '0.6rem 1.8rem', fontSize: '0.95rem', fontWeight: '800', whiteSpace: 'nowrap' }}>ADIVINAR</button>
                                     </div>
-                                ) : (
-                                    <div className={`resultado-final glass-panel ${gameState === 'won' ? 'victory' : 'defeat'}`}
-                                        style={{
-                                            background: gameState === 'won' ? 'rgba(46, 213, 115, 0.1)' : 'rgba(255, 71, 87, 0.1)',
-                                            borderColor: gameState === 'won' ? '#2ed573' : '#ff4757',
-                                            maxWidth: '600px',
-                                            margin: '0 auto'
-                                        }}>
-                                        <h2 style={{ color: gameState === 'won' ? '#2ed573' : '#ff4757' }}>
-                                            {gameState === 'won' ? '¡VICTORIA!' : 'DERROTA'}
-                                        </h2>
-                                        <p style={{ fontSize: '1.2rem', marginBottom: '1.5em' }}>
-                                            {gameState === 'won' ? '¡Has identificado el juego correctamente!' : 'No has podido identificar el juego esta vez.'}
-                                            <br />
-                                            El juego era: <strong style={{ color: '#fff' }}>{selectedGame.juego.nombre}</strong>
-                                        </p>
-                                        <button className="btn-primary" onClick={() => { setView('list'); loadUserAndGames(); }}>
-                                            Volver al listado
-                                        </button>
+                                </>
+                            ) : (
+                                <>
+                                    {/* Imagen resultado */}
+                                    <div className="game-data-box glass-panel" style={{ marginBottom: '0.8rem' }}>
+                                        {selectedGame.capturas.length > 0 && <img src={selectedGame.capturas[activeViewedPhase === 1 ? 5 : activeViewedPhase - 2] || selectedGame.capturas[0]} alt="Pista" className="game-image" />}
+                                        {activeViewedPhase > 1 && (
+                                            <div className="pista-overlay">
+                                                {activeViewedPhase === 2 && <><i className="fa-solid fa-fire-pulse"></i> Popularidad: <strong>{selectedGame.juego.desarrollador} / 5</strong></>}
+                                                {activeViewedPhase === 3 && <><i className="fa-solid fa-star"></i> Metacritic: <strong>{selectedGame.juego.calificacion} / 100</strong></>}
+                                                {activeViewedPhase === 4 && <><i className="fa-solid fa-display"></i> {selectedGame.plataformas.join(', ')}</>}
+                                                {activeViewedPhase === 5 && <><i className="fa-solid fa-tags"></i> {selectedGame.generos.join(', ')}</>}
+                                                {activeViewedPhase === 6 && <><i className="fa-solid fa-calendar-days"></i> Lanzamiento: <strong>{selectedGame.juego.released}</strong></>}
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
+
+                                    {/* Resultado final compacto */}
+                                    <div className="resultado-final glass-panel" style={{ textAlign: 'center', padding: '1.5rem', borderRadius: '20px', border: `1px solid ${gameState === 'won' ? '#2ed573' : '#ff4757'}`, background: gameState === 'won' ? 'rgba(46, 213, 115, 0.05)' : 'rgba(255, 71, 87, 0.05)' }}>
+                                        <h2 style={{ color: gameState === 'won' ? '#2ed573' : '#ff4757', fontSize: '1.6rem', marginBottom: '0.8rem', margin: 0 }}>{gameState === 'won' ? '¡VICTORIA!' : 'DERROTA'}</h2>
+                                        <p style={{ marginBottom: '1rem', fontSize: '1rem', margin: '0.8rem 0' }}>El juego era: <strong>{selectedGame.juego.nombre}</strong></p>
+                                        <button className="btn-primary" style={{ padding: '0.7rem 2rem' }} onClick={() => { setView('start'); router.push('/judi'); loadUserAndGames(); }}>Jugar otro</button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     )
                 )}
@@ -604,3 +395,4 @@ export default function JUDIPage() {
         </div>
     )
 }
+

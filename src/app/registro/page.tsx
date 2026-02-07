@@ -60,7 +60,7 @@ export default function RegistroPage() {
                 .from('hubgames_usuarios')
                 .select('email')
                 .eq('email', email)
-                .single()
+                .maybeSingle()
 
             if (existingUser) {
                 setError('Este email ya está registrado')

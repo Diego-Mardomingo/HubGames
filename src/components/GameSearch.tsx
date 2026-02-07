@@ -100,7 +100,8 @@ export default function GameSearch() {
     useEffect(() => {
         // Initial search load with all filters
         handleSearch(currentPage, false)
-    }, [handleSearch, currentPage])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentPage])
 
     const togglePlatform = (platform: string) => {
         setActivePlatforms((prev) =>
@@ -130,7 +131,11 @@ export default function GameSearch() {
             <div className="cuerpo_cabecera">
                 <div style={{ display: 'flex', gap: '1em', width: '100%', flexWrap: 'wrap' }}>
                     <div className="buscador_container" style={{ flexGrow: 1 }}>
-                        <i className="fa-solid fa-magnifying-glass"></i>
+                        <i
+                            className="fa-solid fa-magnifying-glass"
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleSearch(1, true)}
+                        ></i>
                         <input
                             type="text"
                             id="buscador_videojuegos"
@@ -139,7 +144,7 @@ export default function GameSearch() {
                             placeholder="¿Qué buscamos?"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            onKeyUp={(e) => e.key === 'Enter' && handleSearch()}
+                            onKeyUp={(e) => e.key === 'Enter' && handleSearch(1, true)}
                         />
                         {searchTerm && (
                             <i
@@ -242,6 +247,23 @@ export default function GameSearch() {
                                             </div>
                                         ))}
                                     </div>
+                                </div>
+
+                                <div className="filter-actions" style={{ gridColumn: '1 / -1', marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+                                    <button
+                                        className="btn-primary"
+                                        style={{ flex: 1, borderRadius: '8px' }}
+                                        onClick={() => { handleSearch(1, true); setShowFilters(false); }}
+                                    >
+                                        APLICAR FILTROS
+                                    </button>
+                                    <button
+                                        className="btn-secondary"
+                                        style={{ flex: 0.5, borderRadius: '8px' }}
+                                        onClick={clearAllFilters}
+                                    >
+                                        Limpiar
+                                    </button>
                                 </div>
                             </div>
                         )}
