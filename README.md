@@ -1,70 +1,429 @@
+<div align="center">
+
+<!-- Hero Banner -->
+<img src="./public/img/HGLogo.webp" alt="HubGames Logo" width="180"/>
+
+# 🎮 HubGames
+
+### *Tu biblioteca gamer definitiva*
+
+**Explora. Descubre. Compite.**
+
+[![Live Demo](https://img.shields.io/badge/🌐_DEMO_EN_VIVO-hub--games.vercel.app-00A8E8?style=for-the-badge&logoColor=white)](https://hub-games.vercel.app/)
+
+<br/>
+
+[![Next.js](https://img.shields.io/badge/Next.js-16+-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3FCF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![PWA Ready](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=flat-square&logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=flat-square&logo=vercel&logoColor=white)](https://vercel.com/)
+[![Deploy Status](https://deploy-badge.vercel.app/vercel/hub-games?style=flat-square)](https://hub-games.vercel.app/)
+
+<br/>
+
 <p align="center">
-  <img src="./public/img/HGLogo.webp" alt="HubGames Logo" width="200">
+  <strong>
+    <a href="#-características">Características</a> •
+    <a href="#-judi---juego-del-día">JUDI</a> •
+    <a href="#-ranking-global">Ranking</a> •
+    <a href="#-stack-tecnológico">Stack</a> •
+    <a href="#-screenshots">Screenshots</a>
+  </strong>
 </p>
 
-# HubGames
+---
 
-**Explora, sigue y comparte tu pasión por los videojuegos**
+<br/>
 
-HubGames es una plataforma web personal diseñada para entusiastas de los videojuegos.
+</div>
 
-[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green)](https://supabase.com/)
-[![PWA](https://img.shields.io/badge/PWA-Ready-purple)](https://web.dev/progressive-web-apps/)
-[![Deploy Status](https://deploy-badge.vercel.app/vercel/hub-games)](https://hub-games.vercel.app/)
+## ✨ Características
+
+<table>
+  <tr>
+    <td width="50%">
+      <h3 align="center">🔍 Buscador Inteligente</h3>
+      <p align="center">
+        Integrado con la <strong>API de RAWG</strong>, accede a una base de datos masiva con más de <strong>500.000 videojuegos</strong>.
+      </p>
+      <ul>
+        <li>🎯 <strong>Filtros avanzados</strong> por género, plataforma y fecha de lanzamiento</li>
+        <li>📸 <strong>Screenshots y galerías</strong> de cada título</li>
+        <li>⭐ <strong>Puntuaciones Metacritic</strong> integradas</li>
+        <li>🏷️ <strong>Tags, géneros y categorías</strong> detalladas</li>
+        <li>📑 <strong>Paginación fluida</strong> para navegar resultados</li>
+      </ul>
+    </td>
+    <td width="50%">
+      <h3 align="center">📚 Fichas de Juego Completas</h3>
+      <p align="center">
+        Información detallada sobre cada juego, directamente desde RAWG.
+      </p>
+      <ul>
+        <li>🖼️ <strong>Imagen principal</strong> y galería de capturas</li>
+        <li>📝 <strong>Descripción completa</strong> del juego</li>
+        <li>🕹️ <strong>Plataformas disponibles</strong></li>
+        <li>🏢 <strong>Desarrolladores y editores</strong></li>
+        <li>⏱️ <strong>Tiempo medio de juego</strong> y clasificación ESRB</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3 align="center">👤 Sistema de Usuarios</h3>
+      <p align="center">
+        Gestiona tu cuenta y sincroniza tu progreso en la nube.
+      </p>
+      <ul>
+        <li>🔐 <strong>Autenticación segura</strong> (Email + Google OAuth)</li>
+        <li>📊 <strong>Estadísticas personales</strong> de JUDI</li>
+        <li>🏆 <strong>Tu posición</strong> en el Ranking Global</li>
+        <li>⚙️ <strong>Ajustes de cuenta</strong> (username, contraseña)</li>
+        <li>☁️ <strong>Sincronización cloud</strong> de progreso</li>
+      </ul>
+    </td>
+    <td width="50%">
+      <h3 align="center">📱 Experiencia Móvil (PWA)</h3>
+      <p align="center">
+        <strong>Progressive Web App</strong> para una experiencia nativa.
+      </p>
+      <ul>
+        <li>📲 <strong>Instalable</strong> en iOS y Android</li>
+        <li>🚀 <strong>Modo Standalone</strong> sin barra de navegador</li>
+        <li>📶 <strong>Soporte offline</strong> básico con Service Worker</li>
+        <li>🔔 <strong>Diseño 100% responsive</strong></li>
+        <li>✨ <strong>Interfaz premium</strong> con glassmorphism</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+<br/>
 
 ---
 
-## 🎮 Funcionalidades Principales
+<br/>
 
-### 🔍 Buscador Inteligente
-Integrado con la API de **RAWG**, HubGames ofrece acceso a una base de datos masiva de videojuegos.
-- **Filtros avanzados**: Encuentra juegos por género, plataforma o fecha de lanzamiento.
-- **Detalles completos**: Screenshots, descripciones, desarrolladores y valoraciones de Metacritic.
+<div align="center">
 
-### 👤 Comunidad y Reseñas
-Un espacio para compartir opiniones y debatir sobre juegos.
-- **Sistema de Reseñas**: Deja tu valoración (1-5 estrellas) y lee las opiniones de otros usuarios.
-- **Foros de Discusión**: Crea hilos de chat sobre cualquier temática y responde a otros miembros de la comunidad.
-- **Perfiles**: Gestión de identidad mediante autenticación segura (incluyendo Google OAuth).
+## 🎯 JUDI - Juego Del Día
 
-### 📊 Sistema JUDI (Juego Del Día)
-Inspirado por conceptos como **Wordle**, JUDI propone un reto diario para los entusiastas de los videojuegos.
-- Cada día se selecciona un título específico ("Juego Del Día") y los usuarios deben adivinar de qué juego se trata.
-- El sistema ofrece hasta **7 intentos**, donde cada intento fallido revela una **nueva imagen o pista visual** del juego.
-- El progreso de cada reto diario se sincroniza con la nube para usuarios registrados y se mantiene localmente para visitantes.
+<img src="https://img.shields.io/badge/🏆_MINIJUEGO_DIARIO-Inspirado_en_Wordle-FF6B6B?style=for-the-badge" alt="JUDI Badge"/>
 
-### 📱 Experiencia Móvil (PWA)
-HubGames está construido como una **Progressive Web App**, lo que permite una experiencia fluida e instalable:
-- Instalación directa en la pantalla de inicio de **iOS** y **Android**.
-- Modo "standalone" que elimina la interfaz del navegador para una sensación de app nativa.
-- Soporte para navegación offline.
+</div>
+
+<br/>
+
+<div align="center">
+
+### ¿Cuántas pistas necesitas para adivinar el juego?
+
+</div>
+
+<br/>
+
+JUDI es un reto diario para los amantes de los videojuegos. Cada día se selecciona un título y tú debes adivinarlo con el menor número de pistas posible. Cuantas menos pistas uses, ¡más mérito tendrás!
+
+<br/>
+
+<table align="center">
+  <tr>
+    <td align="center" width="140">
+      <h1>🖼️</h1>
+      <strong>Fase 1</strong><br/>
+      <sub>Screenshot</sub>
+    </td>
+    <td align="center" width="140">
+      <h1>🔥</h1>
+      <strong>Fase 2</strong><br/>
+      <sub>Popularidad</sub>
+    </td>
+    <td align="center" width="140">
+      <h1>⭐</h1>
+      <strong>Fase 3</strong><br/>
+      <sub>Metacritic</sub>
+    </td>
+    <td align="center" width="140">
+      <h1>🖥️</h1>
+      <strong>Fase 4</strong><br/>
+      <sub>Plataformas</sub>
+    </td>
+    <td align="center" width="140">
+      <h1>🏷️</h1>
+      <strong>Fase 5</strong><br/>
+      <sub>Géneros</sub>
+    </td>
+    <td align="center" width="140">
+      <h1>📅</h1>
+      <strong>Fase 6</strong><br/>
+      <sub>Lanzamiento</sub>
+    </td>
+  </tr>
+</table>
+
+<br/>
+
+<div align="center">
+
+| 💡 Característica | Descripción |
+|:---:|:---|
+| **❤️ 6 Vidas** | Cada intento fallido desbloquea una nueva pista visual |
+| **☁️ Sincronización** | Progreso guardado en la nube para usuarios registrados |
+| **📱 Local Storage** | Los visitantes también pueden jugar sin registrarse |
+| **🏆 Historial** | Accede a retos anteriores y revisa tus resultados |
+| **🔍 Autocompletado** | Busca entre miles de juegos mientras escribes |
+
+</div>
+
+<br/>
 
 ---
 
-## 🛠️ Arquitectura Técnica
+<br/>
 
-El proyecto ha sido recientemente migrado de una arquitectura tradicional (PHP/MySQL) a un stack moderno centrado en la velocidad y escalabilidad:
+<div align="center">
 
-- **Frontend**: Next.js 14 con App Router para una navegación instantánea y SEO optimizado.
-- **Backend**: Supabase, aprovechando PostgreSQL para los datos y Row Level Security (RLS) para la seguridad.
-- **Estilos**: Una combinación de Tailwind CSS y CSS personalizado para mantener la estética original del proyecto.
-- **Infraestructura**: Desplegado y optimizado para la plataforma Vercel.
+## 🏆 Ranking Global
+
+<img src="https://img.shields.io/badge/🥇_COMPITE_GLOBALMENTE-Top_Jugadores-FFD700?style=for-the-badge" alt="Ranking Badge"/>
+
+</div>
+
+<br/>
+
+¡Demuestra que eres el mejor conocedor de videojuegos! El **Ranking Global** clasifica a todos los usuarios según sus aciertos en JUDI.
+
+<br/>
+
+<div align="center">
+
+| Posición | Recompensa Visual |
+|:---:|:---|
+| 🥇 **#1** | Barra dorada con brillo especial |
+| 🥈 **#2** | Barra plateada |
+| 🥉 **#3** | Barra bronce |
+| **#4+** | Tu posición exacta si no estás en el Top 5 |
+
+</div>
+
+<br/>
+
+<div align="center">
+
+> 💡 **Tip:** Accede a tu perfil para ver el Top 5 y tu posición actual. ¡Cada acierto te acerca a la cima!
+
+</div>
+
+<br/>
 
 ---
 
-## 👨‍💻 Sobre el Proyecto
+<br/>
 
-HubGames nació como un proyecto personal de aprendizaje y ha evolucionado hacia una herramienta robusta de gestión de bibliotecas de juegos. 
+## 🛠️ Stack Tecnológico
 
-**Autor**: [Diego López Mardomingo](https://github.com/Diego-Mardomingo)
+<div align="center">
+
+<table>
+  <tr>
+    <th>Categoría</th>
+    <th>Tecnología</th>
+    <th>Descripción</th>
+  </tr>
+  <tr>
+    <td><strong>⚛️ Framework</strong></td>
+    <td>
+      <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-000?logo=nextdotjs&logoColor=fff" alt="Next.js"/></a>
+    </td>
+    <td>App Router, SSR y optimización automática</td>
+  </tr>
+  <tr>
+    <td><strong>📘 Lenguaje</strong></td>
+    <td>
+      <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=fff" alt="TypeScript"/></a>
+    </td>
+    <td>Tipado estático para mejor DX</td>
+  </tr>
+  <tr>
+    <td><strong>🗄️ Backend</strong></td>
+    <td>
+      <a href="https://supabase.com/"><img src="https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=fff" alt="Supabase"/></a>
+    </td>
+    <td>PostgreSQL + Auth + Row Level Security</td>
+  </tr>
+  <tr>
+    <td><strong>🎨 Estilos</strong></td>
+    <td>
+      <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=fff" alt="Tailwind"/></a>
+      <span>+</span>
+      <img src="https://img.shields.io/badge/Custom_CSS-1572B6?logo=css3&logoColor=fff" alt="CSS"/>
+    </td>
+    <td>Utilidades + estilos personalizados premium</td>
+  </tr>
+  <tr>
+    <td><strong>🎮 API</strong></td>
+    <td>
+      <a href="https://rawg.io/apidocs"><img src="https://img.shields.io/badge/RAWG_API-FF6B6B?logo=gamepad&logoColor=fff" alt="RAWG"/></a>
+    </td>
+    <td>Base de datos con 500k+ videojuegos</td>
+  </tr>
+  <tr>
+    <td><strong>☁️ Deploy</strong></td>
+    <td>
+      <a href="https://vercel.com/"><img src="https://img.shields.io/badge/Vercel-000?logo=vercel&logoColor=fff" alt="Vercel"/></a>
+    </td>
+    <td>Edge Network con CI/CD automático</td>
+  </tr>
+</table>
+
+</div>
+
+<br/>
 
 ---
 
-## 📚 Referencias Históricas
+<br/>
 
-Este repositorio conserva el **código legacy PHP** original en la carpeta [`legacy_php_code/`](./legacy_php_code/README.md). Dicho código servía como base previa a la migración total realizada en febrero de 2026.
+## 📸 Screenshots
+
+<div align="center">
+
+<!--
+INSTRUCCIONES PARA AÑADIR SCREENSHOTS:
+1. Crea una carpeta llamada "screenshots" en la raíz del proyecto
+2. Añade tus capturas con estos nombres:
+   - home.png (o .webp/.jpg) → Página principal con el buscador
+   - judi.png → Pantalla de JUDI jugando
+   - game.png → Ficha de detalle de un juego
+   - profile.png → Pantalla de perfil con estadísticas
+3. Descomenta las líneas de abajo y elimina el mensaje placeholder
+-->
+
+> 🖼️ **Próximamente:** Capturas de pantalla de la aplicación
+
+<!--
+### 🏠 Página Principal
+<img src="./screenshots/home.png" alt="Página Principal - Buscador" width="800"/>
+
+<br/>
+
+### 🎯 JUDI - Minijuego
+<img src="./screenshots/judi.png" alt="JUDI - Juego del Día" width="800"/>
+
+<br/>
+
+### 📚 Ficha de Juego
+<img src="./screenshots/game.png" alt="Detalle de Juego" width="800"/>
+
+<br/>
+
+### 👤 Perfil de Usuario
+<img src="./screenshots/profile.png" alt="Perfil con Estadísticas y Ranking" width="800"/>
+-->
+
+</div>
+
+<br/>
 
 ---
-*Nota: Este es un proyecto personal. Los datos de videojuegos son proporcionados por la API de RAWG.*
+
+<br/>
+
+## 📂 Estructura del Proyecto
+
+```
+HubGames/
+├── 📁 src/
+│   ├── 📁 app/                  # App Router (Next.js)
+│   │   ├── 📄 page.tsx          # Home - Buscador principal
+│   │   ├── 📁 judi/             # JUDI - Minijuego diario
+│   │   ├── 📁 juego/[id]/       # Página de detalles del juego
+│   │   ├── 📁 perfil/           # Perfil de usuario + Ranking
+│   │   ├── 📁 login/            # Autenticación
+│   │   └── 📁 registro/         # Registro de usuarios
+│   │
+│   ├── 📁 components/           # Componentes reutilizables
+│   │   ├── 📄 Nav.tsx           # Navegación principal
+│   │   ├── 📄 GameSearch.tsx    # Buscador con filtros
+│   │   └── 📄 GameCard.tsx      # Tarjetas de juegos
+│   │
+│   ├── 📁 lib/                  # Utilidades y APIs
+│   │   ├── 📄 rawg.ts           # Cliente API RAWG
+│   │   └── 📁 supabase/         # Cliente Supabase
+│   │
+│   └── 📁 styles/               # Estilos globales
+│
+├── 📁 public/                   # Assets estáticos
+│   ├── 📁 icons/                # Favicons y PWA icons
+│   └── 📄 manifest.json         # PWA Manifest
+│
+└── 📁 legacy_php_code/          # 📜 Código PHP original (histórico)
+```
+
+<br/>
+
+---
+
+<br/>
+
+## 👨‍💻 Autor
+
+<div align="center">
+
+<a href="https://github.com/Diego-Mardomingo">
+  <img src="https://github.com/Diego-Mardomingo.png" width="120" style="border-radius:50%"/>
+</a>
+
+### Diego López Mardomingo
+
+[![GitHub](https://img.shields.io/badge/GitHub-Diego--Mardomingo-181717?style=for-the-badge&logo=github)](https://github.com/Diego-Mardomingo)
+
+</div>
+
+<br/>
+
+---
+
+<br/>
+
+## 📚 Referencias
+
+<div align="center">
+
+| Recurso | Descripción |
+|:---:|:---|
+| 📁 [`legacy_php_code/`](./legacy_php_code/README.md) | Código PHP original pre-migración |
+| 🎮 [RAWG API](https://rawg.io/apidocs) | Base de datos de videojuegos |
+| 🗄️ [Supabase Docs](https://supabase.com/docs) | Backend as a Service |
+| ⚛️ [Next.js Docs](https://nextjs.org/docs) | Framework React |
+
+</div>
+
+<br/>
+
+---
+
+<br/>
+
+<div align="center">
+
+### ⭐ Si te gusta el proyecto, ¡dale una estrella!
+
+<br/>
+
+---
+
+<sub>
+  <strong>📝 Nota:</strong> Este es un proyecto personal. Los datos de videojuegos son proporcionados por la API de RAWG.
+</sub>
+
+<br/>
+<br/>
+
+**Hecho con ❤️ y ☕ por Diego**
+
+<br/>
+
+</div>
