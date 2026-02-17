@@ -364,46 +364,60 @@ export default function PerfilPage() {
                                     Notificaciones diarias de JUDI
                                 </div>
                                 <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>
-                                    Recibe un aviso cada día a las 18:00 cuando haya un nuevo juego disponible.
+                                    Para que las notificaciones funcionen correctamente en móvil, te recomendamos instalar la app de HubGames.
                                 </div>
                             </div>
-                            <button
-                                type="button"
-                                onClick={handleToggleNotifications}
-                                disabled={notificationsLoading || notificationsEnabled === null}
-                                style={{
-                                    minWidth: '140px',
-                                    padding: '0.6rem 1.2rem',
-                                    borderRadius: '999px',
-                                    border: '1px solid',
-                                    borderColor: notificationsEnabled ? '#00A8E8' : 'rgba(255,255,255,0.25)',
-                                    background: notificationsEnabled ? 'linear-gradient(90deg, #00A8E8, #00D9FF)' : 'rgba(10,20,30,0.7)',
-                                    color: notificationsEnabled ? '#001219' : '#fff',
-                                    fontWeight: 700,
-                                    fontSize: '0.9rem',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '0.5rem',
-                                    cursor: notificationsLoading ? 'wait' : 'pointer',
-                                    opacity: notificationsLoading ? 0.7 : 1,
-                                    transition: 'all 0.2s ease',
-                                }}
-                            >
-                                {notificationsLoading ? (
-                                    <span className="loader" style={{ width: '18px', height: '18px' }}></span>
-                                ) : notificationsEnabled ? (
-                                    <>
-                                        <i className="fa-solid fa-bell"></i>
-                                        Activadas
-                                    </>
-                                ) : (
-                                    <>
-                                        <i className="fa-regular fa-bell-slash"></i>
-                                        Desactivadas
-                                    </>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem' }}>
+                                <button
+                                    type="button"
+                                    onClick={handleToggleNotifications}
+                                    disabled={notificationsLoading || notificationsEnabled === null}
+                                    style={{
+                                        minWidth: '140px',
+                                        padding: '0.6rem 1.2rem',
+                                        borderRadius: '999px',
+                                        border: '1px solid',
+                                        borderColor: notificationsEnabled ? '#00A8E8' : 'rgba(255,255,255,0.25)',
+                                        background: notificationsEnabled ? 'linear-gradient(90deg, #00A8E8, #00D9FF)' : 'rgba(10,20,30,0.7)',
+                                        color: notificationsEnabled ? '#001219' : '#fff',
+                                        fontWeight: 700,
+                                        fontSize: '0.9rem',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '0.5rem',
+                                        cursor: notificationsLoading ? 'wait' : 'pointer',
+                                        opacity: notificationsLoading ? 0.7 : 1,
+                                        transition: 'all 0.2s ease',
+                                        boxShadow: notificationsEnabled ? '0 4px 14px rgba(0, 168, 232, 0.35)' : 'none',
+                                    }}
+                                >
+                                    {notificationsLoading ? (
+                                        <span className="loader" style={{ width: '18px', height: '18px' }}></span>
+                                    ) : notificationsEnabled ? (
+                                        <>
+                                            <i className="fa-solid fa-bell"></i>
+                                            Activadas
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="fa-regular fa-bell-slash"></i>
+                                            Desactivadas
+                                        </>
+                                    )}
+                                </button>
+                                {!notificationsLoading && notificationsEnabled !== null && (
+                                    <span style={{
+                                        fontSize: '0.75rem',
+                                        color: 'rgba(255,255,255,0.5)',
+                                        alignSelf: 'stretch',
+                                        textAlign: 'center',
+                                        minWidth: '140px',
+                                    }}>
+                                        {notificationsEnabled ? 'Haz clic para desactivar' : 'Haz clic para activar'}
+                                    </span>
                                 )}
-                            </button>
+                            </div>
                         </div>
 
                         <form onSubmit={handleUpdateUsername} style={{ marginBottom: '2.5rem' }}>
