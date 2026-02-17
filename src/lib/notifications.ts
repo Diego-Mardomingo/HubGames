@@ -42,65 +42,98 @@ export async function getNotificationPreference(): Promise<boolean> {
 }
 
 export async function subscribeToDailyNotifications(): Promise<boolean> {
-    if (typeof window === 'undefined') return false
-    if (!('serviceWorker' in navigator) || !('PushManager' in window) || typeof Notification === 'undefined') {
-        console.warn('Push notifications no soportadas en este navegador.')
-        return false
-    }
-
-    const permission = await Notification.requestPermission()
-    if (permission !== 'granted') {
-        console.warn('Permiso de notificaciones no concedido')
-        return false
-    }
-
-    // En desarrollo, next-pwa suele estar desactivado, así que ready puede no resolverse nunca.
-    // Usamos getRegistration() y, si no hay SW, devolvemos false limpiamente.
-    const registration = await navigator.serviceWorker.getRegistration()
-    if (!registration) {
-        console.warn('No se ha encontrado ningún Service Worker registrado para HubGames.')
-        return false
-    }
-
-    let subscription = await registration.pushManager.getSubscription()
-
-    if (!subscription) {
-        if (!VAPID_PUBLIC_KEY) {
-            console.error('Falta NEXT_PUBLIC_WEB_PUSH_VAPID_PUBLIC_KEY en el entorno')
+    try {
+        if (typeof window === 'undefined') {
+            console.error('[Notifications] Window no disponible')
+            return false
+        }
+        
+        if (!('serviceWorker' in navigator) || !('PushManager' in window) || typeof Notification === 'undefined') {
+            console.warn('[Notifications] Push notifications no soportadas en este navegador.')
             return false
         }
 
-        subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-        })
-    }
+        const permission = await Notification.requestPermission()
+        if (permission !== 'granted') {
+            console.warn('[Notifications] Permiso de notificaciones no concedido:', permission)
+            return false
+        }
 
-    const userId = await getCurrentUserId()
-    if (!userId) {
-        console.error('No se pudo obtener el usuario actual para guardar la suscripción')
+        // Intentamos obtener el service worker con un timeout para evitar bloqueos
+        let registration: ServiceWorkerRegistration | null = null
+        try {
+            // Primero intentamos con ready (más confiable en producción)
+            registration = await Promise.race([
+                navigator.serviceWorker.ready,
+                new Promise<ServiceWorkerRegistration | null>((resolve) => 
+                    setTimeout(() => resolve(null), 5000)
+                )
+            ]) as ServiceWorkerRegistration | null
+            
+            // Si ready no funcionó, intentamos con getRegistration
+            if (!registration) {
+                registration = await navigator.serviceWorker.getRegistration()
+            }
+        } catch (swError) {
+            console.error('[Notifications] Error obteniendo Service Worker:', swError)
+            registration = await navigator.serviceWorker.getRegistration()
+        }
+
+        if (!registration) {
+            console.error('[Notifications] No se ha encontrado ningún Service Worker registrado para HubGames.')
+            return false
+        }
+
+        let subscription = await registration.pushManager.getSubscription()
+
+        if (!subscription) {
+            if (!VAPID_PUBLIC_KEY) {
+                console.error('[Notifications] Falta NEXT_PUBLIC_WEB_PUSH_VAPID_PUBLIC_KEY en el entorno')
+                return false
+            }
+
+            try {
+                subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+                })
+            } catch (subError: any) {
+                console.error('[Notifications] Error suscribiéndose a Push:', subError)
+                return false
+            }
+        }
+
+        const userId = await getCurrentUserId()
+        if (!userId) {
+            console.error('[Notifications] No se pudo obtener el usuario actual para guardar la suscripción')
+            return false
+        }
+
+        const { error, data } = await supabase
+            .from('hubgames_push_subscriptions')
+            .upsert(
+                {
+                    user_id: userId,
+                    subscription: subscription.toJSON(),
+                    enabled: true,
+                },
+                {
+                    onConflict: 'user_id',
+                },
+            )
+            .select()
+
+        if (error) {
+            console.error('[Notifications] Error guardando suscripción push en Supabase:', error)
+            return false
+        }
+
+        console.log('[Notifications] Suscripción guardada correctamente:', data)
+        return true
+    } catch (err: any) {
+        console.error('[Notifications] Error inesperado en subscribeToDailyNotifications:', err)
         return false
     }
-
-    const { error } = await supabase
-        .from('hubgames_push_subscriptions')
-        .upsert(
-            {
-                user_id: userId,
-                subscription,
-                enabled: true,
-            },
-            {
-                onConflict: 'user_id',
-            },
-        )
-
-    if (error) {
-        console.error('Error guardando suscripción push', error)
-        return false
-    }
-
-    return true
 }
 
 export async function disableDailyNotifications(): Promise<boolean> {

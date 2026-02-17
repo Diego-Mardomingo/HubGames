@@ -221,7 +221,15 @@ export default function PerfilPage() {
             if (!notificationsEnabled) {
                 const ok = await subscribeToDailyNotifications()
                 if (!ok) {
-                    setError('No se han podido activar las notificaciones. Revisa los permisos del navegador.')
+                    // Verificamos qué puede haber fallado
+                    if (!('serviceWorker' in navigator)) {
+                        setError('Tu navegador no soporta notificaciones push.')
+                    } else if (!process.env.NEXT_PUBLIC_WEB_PUSH_VAPID_PUBLIC_KEY) {
+                        setError('Error de configuración: falta la clave VAPID pública.')
+                    } else {
+                        setError('No se han podido activar las notificaciones. Revisa la consola del navegador para más detalles.')
+                    }
+                    setNotificationsLoading(false)
                     return
                 }
                 setNotificationsEnabled(true)
@@ -230,6 +238,7 @@ export default function PerfilPage() {
                 const ok = await disableDailyNotifications()
                 if (!ok) {
                     setError('No se han podido desactivar las notificaciones.')
+                    setNotificationsLoading(false)
                     return
                 }
                 setNotificationsEnabled(false)
@@ -237,7 +246,7 @@ export default function PerfilPage() {
             }
         } catch (err: any) {
             console.error('Error toggling notifications', err)
-            setError('Ha ocurrido un error al actualizar las notificaciones.')
+            setError('Ha ocurrido un error al actualizar las notificaciones: ' + (err.message || 'Error desconocido'))
         } finally {
             setNotificationsLoading(false)
         }
