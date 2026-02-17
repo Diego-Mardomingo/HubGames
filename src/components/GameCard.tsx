@@ -7,9 +7,10 @@ import { type Game } from '@/lib/rawg'
 interface GameCardProps {
     game: Game
     priority?: boolean
+    layout?: 'grid' | 'rows'
 }
 
-export default function GameCard({ game, priority }: GameCardProps) {
+export default function GameCard({ game, priority, layout = 'grid' }: GameCardProps) {
     const getScoreClass = (score: number | null) => {
         if (!score) return 'fondo_transparente'
         if (score > 80) return 'fondo_verde'
@@ -24,7 +25,7 @@ export default function GameCard({ game, priority }: GameCardProps) {
     }
 
     return (
-        <Link href={`/juego/${game.id}`} className="juego_card_premium">
+        <Link href={`/juego/${game.id}`} className={`juego_card_premium ${layout === 'rows' ? 'juego_card_premium--row' : ''}`}>
             <div className="juego_card_image">
                 {game.background_image && (
                     <Image
@@ -36,11 +37,6 @@ export default function GameCard({ game, priority }: GameCardProps) {
                         priority={priority}
                     />
                 )}
-                {game.metacritic && (
-                    <div className={`juego_badge_score ${getScoreClass(game.metacritic)}`}>
-                        {game.metacritic}
-                    </div>
-                )}
             </div>
             <div className="juego_card_info">
                 <h3 className="juego_card_title">{game.name}</h3>
@@ -48,6 +44,11 @@ export default function GameCard({ game, priority }: GameCardProps) {
                     <span className="juego_card_date">
                         <i className="fa-regular fa-calendar"></i> {formatDate(game.released)}
                     </span>
+                    {game.metacritic && (
+                        <span className={`juego_badge_score ${getScoreClass(game.metacritic)}`}>
+                            {game.metacritic}
+                        </span>
+                    )}
                 </div>
             </div>
         </Link>

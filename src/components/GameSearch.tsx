@@ -55,6 +55,17 @@ export default function GameSearch() {
     const [showPlatforms, setShowPlatforms] = useState(false)
     const [nextPage, setNextPage] = useState<string | null>(null)
     const [prevPage, setPrevPage] = useState<string | null>(null)
+    const [viewMode, setViewMode] = useState<'grid' | 'rows'>('grid')
+
+    useEffect(() => {
+        const saved = localStorage.getItem('hubgames_view_mode') as 'grid' | 'rows' | null
+        if (saved === 'grid' || saved === 'rows') setViewMode(saved)
+    }, [])
+
+    const setViewModeAndSave = (mode: 'grid' | 'rows') => {
+        setViewMode(mode)
+        localStorage.setItem('hubgames_view_mode', mode)
+    }
 
     useEffect(() => {
         setMounted(true)
@@ -289,6 +300,55 @@ export default function GameSearch() {
                 </div>
             </div >
 
+            {/* View Mode Toggle */}
+            <div className="view-mode-toggle" style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.75rem 0',
+                marginBottom: '0.5rem',
+            }}>
+                <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', fontWeight: 600, marginRight: '0.25rem' }}>Vista:</span>
+                <button
+                    type="button"
+                    onClick={() => setViewModeAndSave('grid')}
+                    title="Tarjetas grandes"
+                    aria-pressed={viewMode === 'grid'}
+                    style={{
+                        padding: '0.5rem 0.9rem',
+                        borderRadius: '8px',
+                        border: `1px solid ${viewMode === 'grid' ? '#00A8E8' : 'rgba(255,255,255,0.2)'}`,
+                        background: viewMode === 'grid' ? 'rgba(0, 168, 232, 0.2)' : 'rgba(255,255,255,0.05)',
+                        color: viewMode === 'grid' ? '#00A8E8' : 'rgba(255,255,255,0.7)',
+                        cursor: 'pointer',
+                        fontSize: '1rem',
+                        transition: 'all 0.2s ease',
+                    }}
+                >
+                    <i className="fa-solid fa-th-large"></i>
+                    <span style={{ marginLeft: '0.4rem' }}>Tarjetas</span>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setViewModeAndSave('rows')}
+                    title="Filas horizontales"
+                    aria-pressed={viewMode === 'rows'}
+                    style={{
+                        padding: '0.5rem 0.9rem',
+                        borderRadius: '8px',
+                        border: `1px solid ${viewMode === 'rows' ? '#00A8E8' : 'rgba(255,255,255,0.2)'}`,
+                        background: viewMode === 'rows' ? 'rgba(0, 168, 232, 0.2)' : 'rgba(255,255,255,0.05)',
+                        color: viewMode === 'rows' ? '#00A8E8' : 'rgba(255,255,255,0.7)',
+                        cursor: 'pointer',
+                        fontSize: '1rem',
+                        transition: 'all 0.2s ease',
+                    }}
+                >
+                    <i className="fa-solid fa-list"></i>
+                    <span style={{ marginLeft: '0.4rem' }}>Filas</span>
+                </button>
+            </div>
+
             {/* Active Filters */}
             {
                 activePlatforms.length > 0 && (
@@ -310,7 +370,7 @@ export default function GameSearch() {
 
 
             {/* Games Grid */}
-            <div className="juegos">
+            <div className={`juegos ${viewMode === 'rows' ? 'juegos--rows' : ''}`}>
                 {loading ? (
                     <Loader />
                 ) : games.length === 0 ? (
@@ -318,7 +378,9 @@ export default function GameSearch() {
                         No se encontraron juegos
                     </div>
                 ) : (
-                    games.map((game, index) => <GameCard key={game.id} game={game} priority={index < 4} />)
+                    games.map((game, index) => (
+                        <GameCard key={game.id} game={game} priority={index < 4} layout={viewMode} />
+                    ))
                 )}
             </div>
 
