@@ -35,8 +35,8 @@ export async function getNotificationPreference(): Promise<boolean> {
         return false
     }
 
-    // Por defecto, consideramos activado si no hay registro todavía
-    if (!data) return true
+    // Si no hay registro todavía, asumimos que aún NO lo ha activado
+    if (!data) return false
 
     return data.enabled
 }
