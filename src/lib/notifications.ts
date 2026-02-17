@@ -1,6 +1,13 @@
 import { supabase } from '@/lib/supabase/client'
 
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_WEB_PUSH_VAPID_PUBLIC_KEY
+const VAPID_PUBLIC_KEY_RAW = process.env.NEXT_PUBLIC_WEB_PUSH_VAPID_PUBLIC_KEY
+
+function getVapidPublicKey(): string | null {
+    const raw = (VAPID_PUBLIC_KEY_RAW || '').trim()
+    if (!raw) return null
+    // Por si se ha pegado con comillas en Vercel: "xxxxx"
+    return raw.replace(/^"+|"+$/g, '')
+}
 
 function urlBase64ToUint8Array(base64String: string) {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
@@ -109,7 +116,8 @@ export async function subscribeToDailyNotifications(): Promise<boolean> {
         let subscription = await registration.pushManager.getSubscription()
 
         if (!subscription) {
-            if (!VAPID_PUBLIC_KEY) {
+            const vapidPublicKey = getVapidPublicKey()
+            if (!vapidPublicKey) {
                 console.error('[Notifications] Falta NEXT_PUBLIC_WEB_PUSH_VAPID_PUBLIC_KEY en el entorno')
                 return false
             }
@@ -117,7 +125,7 @@ export async function subscribeToDailyNotifications(): Promise<boolean> {
             try {
                 subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true,
-                    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+                    applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
                 })
             } catch (subError: any) {
                 console.error('[Notifications] Error suscribiéndose a Push:', subError)

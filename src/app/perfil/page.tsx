@@ -227,7 +227,13 @@ export default function PerfilPage() {
                     } else if (!process.env.NEXT_PUBLIC_WEB_PUSH_VAPID_PUBLIC_KEY) {
                         setError('Error de configuración: falta la clave VAPID pública.')
                     } else {
-                        setError('No se han podido activar las notificaciones. Revisa la consola del navegador para más detalles.')
+                        const ua = navigator.userAgent || ''
+                        const isIOS = /iPad|iPhone|iPod/i.test(ua)
+                        if (isIOS) {
+                            setError('En iPhone/iPad las notificaciones push solo funcionan desde la PWA instalada (Añadir a pantalla de inicio) y con iOS 16.4+. Si lo estás abriendo en Safari normal, no se suscribirá.')
+                        } else {
+                            setError('No se han podido activar las notificaciones (fallo al suscribirse al servicio push). Revisa la consola del navegador para más detalles.')
+                        }
                     }
                     setNotificationsLoading(false)
                     return
