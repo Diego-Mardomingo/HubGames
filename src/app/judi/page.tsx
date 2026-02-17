@@ -53,6 +53,8 @@ export default function JUDIPage() {
     const [wrongGuesses, setWrongGuesses] = useState<string[]>([])
 
     const searchTimeout = useRef<NodeJS.Timeout | null>(null)
+    const touchStartX = useRef<number | null>(null)
+    const SWIPE_THRESHOLD = 50
 
     useEffect(() => {
         loadUserAndGames()
@@ -285,6 +287,30 @@ export default function JUDIPage() {
         }
     }
 
+    // Gestos táctiles solo en móviles: deslizar para cambiar de fase
+    const handleTouchStart = useCallback((e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX
+    }, [])
+    const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+        if (touchStartX.current === null) return
+        const endX = e.changedTouches[0].clientX
+        const deltaX = endX - touchStartX.current
+        touchStartX.current = null
+        if (Math.abs(deltaX) < SWIPE_THRESHOLD) return
+        const canChangePhase = (f: number) => f <= highestUnlockedPhase || gameState !== 'playing'
+        if (deltaX > 0) {
+            setActiveViewedPhase(prev => {
+                const next = Math.max(1, prev - 1)
+                return canChangePhase(next) ? next : prev
+            })
+        } else {
+            setActiveViewedPhase(prev => {
+                const next = Math.min(6, prev + 1)
+                return canChangePhase(next) ? next : prev
+            })
+        }
+    }, [highestUnlockedPhase, gameState])
+
     const updateProgress = async (gameId: number, field: string, value: any) => {
         const { data: { user: authUser } } = await supabase.auth.getUser()
         if (authUser) {
@@ -377,7 +403,12 @@ export default function JUDIPage() {
                     </div>
                 ) : (
                     selectedGame && (
-                        <div className="judi_game_view" style={{ width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center' }}>
+                        <div
+                            className="judi_game_view"
+                            style={{ width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center' }}
+                            onTouchStart={handleTouchStart}
+                            onTouchEnd={handleTouchEnd}
+                        >
                             {/* Header compacto */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', width: '100%' }}>
                                 <button className="btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }} onClick={() => { setView('start'); router.push('/judi'); loadUserAndGames(); }}>← Volver</button>
