@@ -72,11 +72,13 @@ export async function subscribeToDailyNotifications(): Promise<boolean> {
             
             // Si ready no funcionó, intentamos con getRegistration
             if (!registration) {
-                registration = await navigator.serviceWorker.getRegistration()
+                const reg = await navigator.serviceWorker.getRegistration()
+                registration = reg || null
             }
         } catch (swError) {
             console.error('[Notifications] Error obteniendo Service Worker:', swError)
-            registration = await navigator.serviceWorker.getRegistration()
+            const reg = await navigator.serviceWorker.getRegistration()
+            registration = reg || null
         }
 
         if (!registration) {
