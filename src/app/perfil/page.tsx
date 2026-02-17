@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import Loader from '@/components/Loader'
+import { getNotificationPreference, subscribeToDailyNotifications, disableDailyNotifications } from '@/lib/notifications'
 
 export default function PerfilPage() {
     const router = useRouter()
@@ -18,9 +19,25 @@ export default function PerfilPage() {
     const [judiStats, setJudiStats] = useState<any>(null)
     const [leaderboard, setLeaderboard] = useState<any[]>([])
     const [userRank, setUserRank] = useState<number | null>(null)
+    const [notificationsEnabled, setNotificationsEnabled] = useState<boolean | null>(null)
+    const [notificationsLoading, setNotificationsLoading] = useState(false)
 
     useEffect(() => {
         checkUser()
+    }, [])
+
+    useEffect(() => {
+        const loadNotificationsPreference = async () => {
+            try {
+                const enabled = await getNotificationPreference()
+                setNotificationsEnabled(enabled)
+            } catch (err) {
+                console.error('Error loading notification preference', err)
+                setNotificationsEnabled(false)
+            }
+        }
+
+        loadNotificationsPreference()
     }, [])
 
     const checkUser = async () => {
@@ -194,6 +211,38 @@ export default function PerfilPage() {
         router.push('/')
     }
 
+    const handleToggleNotifications = async () => {
+        if (notificationsEnabled === null) return
+        setNotificationsLoading(true)
+        setError('')
+        setSuccess('')
+
+        try {
+            if (!notificationsEnabled) {
+                const ok = await subscribeToDailyNotifications()
+                if (!ok) {
+                    setError('No se han podido activar las notificaciones. Revisa los permisos del navegador.')
+                    return
+                }
+                setNotificationsEnabled(true)
+                setSuccess('Notificaciones diarias activadas')
+            } else {
+                const ok = await disableDailyNotifications()
+                if (!ok) {
+                    setError('No se han podido desactivar las notificaciones.')
+                    return
+                }
+                setNotificationsEnabled(false)
+                setSuccess('Notificaciones diarias desactivadas')
+            }
+        } catch (err: any) {
+            console.error('Error toggling notifications', err)
+            setError('Ha ocurrido un error al actualizar las notificaciones.')
+        } finally {
+            setNotificationsLoading(false)
+        }
+    }
+
     if (loading) {
         return (
             <div className="cuerpo">
@@ -289,6 +338,55 @@ export default function PerfilPage() {
                         borderRadius: '24px',
                     }}>
                         <h2 style={{ marginTop: 0, marginBottom: '2rem', color: '#00A8E8', fontSize: '1.4rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Ajustes</h2>
+
+                        {/* Ajuste de notificaciones diarias */}
+                        <div style={{ marginBottom: '2rem', padding: '1rem 1.2rem', borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                            <div style={{ flex: 1, minWidth: '200px' }}>
+                                <div style={{ fontWeight: 700, color: '#fff', marginBottom: '0.2rem', fontSize: '0.95rem' }}>
+                                    Notificaciones diarias de JUDI
+                                </div>
+                                <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>
+                                    Recibe un aviso cada día a las 18:00 cuando haya un nuevo juego disponible.
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleToggleNotifications}
+                                disabled={notificationsLoading || notificationsEnabled === null}
+                                style={{
+                                    minWidth: '140px',
+                                    padding: '0.6rem 1.2rem',
+                                    borderRadius: '999px',
+                                    border: '1px solid',
+                                    borderColor: notificationsEnabled ? '#00A8E8' : 'rgba(255,255,255,0.25)',
+                                    background: notificationsEnabled ? 'linear-gradient(90deg, #00A8E8, #00D9FF)' : 'rgba(10,20,30,0.7)',
+                                    color: notificationsEnabled ? '#001219' : '#fff',
+                                    fontWeight: 700,
+                                    fontSize: '0.9rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.5rem',
+                                    cursor: notificationsLoading ? 'wait' : 'pointer',
+                                    opacity: notificationsLoading ? 0.7 : 1,
+                                    transition: 'all 0.2s ease',
+                                }}
+                            >
+                                {notificationsLoading ? (
+                                    <span className="loader" style={{ width: '18px', height: '18px' }}></span>
+                                ) : notificationsEnabled ? (
+                                    <>
+                                        <i className="fa-solid fa-bell"></i>
+                                        Activadas
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fa-regular fa-bell-slash"></i>
+                                        Desactivadas
+                                    </>
+                                )}
+                            </button>
+                        </div>
 
                         <form onSubmit={handleUpdateUsername} style={{ marginBottom: '2.5rem' }}>
                             <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '0.6rem', fontWeight: 600, paddingLeft: '0.5rem' }}>NUEVO USERNAME</label>
