@@ -59,30 +59,50 @@ export async function subscribeToDailyNotifications(): Promise<boolean> {
             return false
         }
 
-        // Intentamos obtener el service worker con un timeout para evitar bloqueos
+        // Intentamos obtener el service worker con múltiples intentos
         let registration: ServiceWorkerRegistration | null = null
-        try {
-            // Primero intentamos con ready (más confiable en producción)
-            registration = await Promise.race([
-                navigator.serviceWorker.ready,
-                new Promise<ServiceWorkerRegistration | null>((resolve) => 
-                    setTimeout(() => resolve(null), 5000)
-                )
-            ]) as ServiceWorkerRegistration | null
-            
-            // Si ready no funcionó, intentamos con getRegistration
-            if (!registration) {
-                const reg = await navigator.serviceWorker.getRegistration()
-                registration = reg || null
+        
+        // Primero intentamos obtener el registro existente
+        registration = await navigator.serviceWorker.getRegistration() || null
+        
+        // Si no hay registro, intentamos esperar a que se registre (puede tardar unos segundos)
+        if (!registration) {
+            console.log('[Notifications] Service Worker no encontrado, esperando a que se registre...')
+            try {
+                // Esperamos hasta 10 segundos a que el SW se registre
+                registration = await Promise.race([
+                    navigator.serviceWorker.ready,
+                    new Promise<ServiceWorkerRegistration | null>((resolve) => {
+                        // Intentar registrar manualmente si no está registrado
+                        navigator.serviceWorker
+                            .register('/sw.js', { scope: '/' })
+                            .then((reg) => {
+                                console.log('[Notifications] Service Worker registrado manualmente')
+                                // Esperar a que esté activo
+                                setTimeout(() => resolve(reg), 1000)
+                            })
+                            .catch(() => resolve(null))
+                        
+                        // Timeout después de 10 segundos
+                        setTimeout(() => resolve(null), 10000)
+                    })
+                ]) as ServiceWorkerRegistration | null
+            } catch (swError) {
+                console.error('[Notifications] Error obteniendo Service Worker:', swError)
             }
-        } catch (swError) {
-            console.error('[Notifications] Error obteniendo Service Worker:', swError)
-            const reg = await navigator.serviceWorker.getRegistration()
-            registration = reg || null
+        } else {
+            // Si ya hay registro, esperamos a que esté listo
+            try {
+                await registration.update()
+                console.log('[Notifications] Service Worker encontrado y actualizado')
+            } catch (e) {
+                console.warn('[Notifications] No se pudo actualizar el Service Worker:', e)
+            }
         }
 
         if (!registration) {
-            console.error('[Notifications] No se ha encontrado ningún Service Worker registrado para HubGames.')
+            console.error('[Notifications] No se ha encontrado ningún Service Worker registrado para HubGames después de múltiples intentos.')
+            console.error('[Notifications] Verifica que el archivo /sw.js existe y está accesible.')
             return false
         }
 

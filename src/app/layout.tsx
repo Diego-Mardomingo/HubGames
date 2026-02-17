@@ -3,6 +3,7 @@ import '@/styles/globals.css'
 import '@/styles/nav.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
 
 export const viewport: Viewport = {
     themeColor: '#00171F',
@@ -70,6 +71,7 @@ export default function RootLayout({
                 <script src="https://kit.fontawesome.com/ed0e2390af.js" crossOrigin="anonymous" async></script>
             </head>
             <body className="antialiased">
+                <ServiceWorkerRegistration />
                 <Nav />
                 <main id="main-content">
                     {children}
