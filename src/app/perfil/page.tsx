@@ -40,6 +40,21 @@ export default function PerfilPage() {
         loadNotificationsPreference()
     }, [])
 
+    // Auto-ocultar mensajes después de 5 segundos
+    useEffect(() => {
+        if (error) {
+            const timer = setTimeout(() => setError(''), 8000)
+            return () => clearTimeout(timer)
+        }
+    }, [error])
+
+    useEffect(() => {
+        if (success) {
+            const timer = setTimeout(() => setSuccess(''), 5000)
+            return () => clearTimeout(timer)
+        }
+    }, [success])
+
     const checkUser = async () => {
         try {
             const { data: { session } } = await supabase.auth.getSession()
@@ -219,22 +234,10 @@ export default function PerfilPage() {
 
         try {
             if (!notificationsEnabled) {
-                const ok = await subscribeToDailyNotifications()
-                if (!ok) {
-                    // Verificamos qué puede haber fallado
-                    if (!('serviceWorker' in navigator)) {
-                        setError('Tu navegador no soporta notificaciones push.')
-                    } else if (!process.env.NEXT_PUBLIC_WEB_PUSH_VAPID_PUBLIC_KEY) {
-                        setError('Error de configuración: falta la clave VAPID pública.')
-                    } else {
-                        const ua = navigator.userAgent || ''
-                        const isIOS = /iPad|iPhone|iPod/i.test(ua)
-                        if (isIOS) {
-                            setError('En iPhone/iPad las notificaciones push solo funcionan desde la PWA instalada (Añadir a pantalla de inicio) y con iOS 16.4+. Si lo estás abriendo en Safari normal, no se suscribirá.')
-                        } else {
-                            setError('No se han podido activar las notificaciones (fallo al suscribirse al servicio push). Revisa la consola del navegador para más detalles.')
-                        }
-                    }
+                const result = await subscribeToDailyNotifications()
+                if (!result.success) {
+                    // Mostramos el error específico que viene de la función
+                    setError(result.error || 'No se han podido activar las notificaciones. Revisa la consola del navegador para más detalles.')
                     setNotificationsLoading(false)
                     return
                 }
@@ -726,35 +729,52 @@ export default function PerfilPage() {
             </div>
 
             {/* Notifications */}
-            <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem', zIndex: 1000 }}>
+            <div style={{ 
+                position: 'fixed', 
+                bottom: '1rem', 
+                left: '1rem', 
+                right: '1rem',
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '1rem', 
+                zIndex: 1000,
+                maxWidth: '500px',
+                margin: '0 auto'
+            }}>
                 {error && (
                     <div className="glass-panel" style={{
-                        padding: '1rem 2rem',
-                        background: 'rgba(255, 71, 87, 0.1)',
-                        border: '1px solid #ff4757',
+                        padding: '1rem 1.5rem',
+                        background: 'rgba(255, 71, 87, 0.15)',
+                        border: '2px solid #ff4757',
                         color: '#ff4757',
                         borderRadius: '12px',
                         display: 'flex',
-                        alignItems: 'center',
+                        alignItems: 'flex-start',
                         gap: '0.8rem',
                         fontWeight: 600,
-                        animation: 'fadeInUp 0.3s ease'
+                        animation: 'fadeInUp 0.3s ease',
+                        boxShadow: '0 4px 20px rgba(255, 71, 87, 0.3)',
+                        fontSize: '0.9rem',
+                        lineHeight: '1.4'
                     }}>
-                        <i className="fa-solid fa-circle-exclamation"></i> {error}
+                        <i className="fa-solid fa-circle-exclamation" style={{ marginTop: '2px', flexShrink: 0 }}></i>
+                        <span style={{ flex: 1 }}>{error}</span>
                     </div>
                 )}
                 {success && (
                     <div className="glass-panel" style={{
-                        padding: '1rem 2rem',
-                        background: 'rgba(46, 213, 115, 0.1)',
-                        border: '1px solid #2ed573',
+                        padding: '1rem 1.5rem',
+                        background: 'rgba(46, 213, 115, 0.15)',
+                        border: '2px solid #2ed573',
                         color: '#2ed573',
                         borderRadius: '12px',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.8rem',
                         fontWeight: 600,
-                        animation: 'fadeInUp 0.3s ease'
+                        animation: 'fadeInUp 0.3s ease',
+                        boxShadow: '0 4px 20px rgba(46, 213, 115, 0.3)',
+                        fontSize: '0.9rem'
                     }}>
                         <i className="fa-solid fa-circle-check"></i> {success}
                     </div>

@@ -48,22 +48,37 @@ export async function getNotificationPreference(): Promise<boolean> {
     return data.enabled
 }
 
-export async function subscribeToDailyNotifications(): Promise<boolean> {
+export async function subscribeToDailyNotifications(): Promise<{ success: boolean; error?: string }> {
     try {
         if (typeof window === 'undefined') {
-            console.error('[Notifications] Window no disponible')
-            return false
+            const error = 'Window no disponible'
+            console.error('[Notifications]', error)
+            return { success: false, error }
         }
         
-        if (!('serviceWorker' in navigator) || !('PushManager' in window) || typeof Notification === 'undefined') {
-            console.warn('[Notifications] Push notifications no soportadas en este navegador.')
-            return false
+        if (!('serviceWorker' in navigator)) {
+            const error = 'Tu navegador no soporta Service Workers'
+            console.warn('[Notifications]', error)
+            return { success: false, error }
+        }
+
+        if (!('PushManager' in window)) {
+            const error = 'Tu navegador no soporta Push Notifications'
+            console.warn('[Notifications]', error)
+            return { success: false, error }
+        }
+
+        if (typeof Notification === 'undefined') {
+            const error = 'Tu navegador no soporta la API de Notificaciones'
+            console.warn('[Notifications]', error)
+            return { success: false, error }
         }
 
         const permission = await Notification.requestPermission()
         if (permission !== 'granted') {
-            console.warn('[Notifications] Permiso de notificaciones no concedido:', permission)
-            return false
+            const error = `Permiso de notificaciones ${permission === 'denied' ? 'denegado' : 'no concedido'}`
+            console.warn('[Notifications]', error, ':', permission)
+            return { success: false, error }
         }
 
         // Intentamos obtener el service worker con múltiples intentos
@@ -108,9 +123,9 @@ export async function subscribeToDailyNotifications(): Promise<boolean> {
         }
 
         if (!registration) {
-            console.error('[Notifications] No se ha encontrado ningún Service Worker registrado para HubGames después de múltiples intentos.')
-            console.error('[Notifications] Verifica que el archivo /sw.js existe y está accesible.')
-            return false
+            const error = 'No se ha encontrado ningún Service Worker registrado. Verifica que la PWA esté instalada correctamente.'
+            console.error('[Notifications]', error)
+            return { success: false, error }
         }
 
         let subscription = await registration.pushManager.getSubscription()
@@ -118,8 +133,9 @@ export async function subscribeToDailyNotifications(): Promise<boolean> {
         if (!subscription) {
             const vapidPublicKey = getVapidPublicKey()
             if (!vapidPublicKey) {
-                console.error('[Notifications] Falta NEXT_PUBLIC_WEB_PUSH_VAPID_PUBLIC_KEY en el entorno')
-                return false
+                const error = 'Error de configuración: falta la clave VAPID pública en el servidor.'
+                console.error('[Notifications]', error)
+                return { success: false, error }
             }
 
             try {
@@ -127,18 +143,25 @@ export async function subscribeToDailyNotifications(): Promise<boolean> {
                     userVisibleOnly: true,
                     applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
                 })
+                console.log('[Notifications] Suscripción Push creada correctamente')
             } catch (subError: any) {
+                const errorMsg = subError?.message || 'Error desconocido al suscribirse'
+                const error = `Error al suscribirse al servicio push: ${errorMsg}. ${subError?.name === 'AbortError' ? 'En iOS, asegúrate de usar la PWA instalada (no Safari normal).' : ''}`
                 console.error('[Notifications] Error suscribiéndose a Push:', subError)
-                return false
+                return { success: false, error }
             }
+        } else {
+            console.log('[Notifications] Ya existía una suscripción Push, reutilizándola')
         }
 
         const userId = await getCurrentUserId()
         if (!userId) {
-            console.error('[Notifications] No se pudo obtener el usuario actual para guardar la suscripción')
-            return false
+            const error = 'No se pudo obtener el usuario actual. Por favor, inicia sesión de nuevo.'
+            console.error('[Notifications]', error)
+            return { success: false, error }
         }
 
+        console.log('[Notifications] Guardando suscripción en Supabase para usuario:', userId)
         const { error, data } = await supabase
             .from('hubgames_push_subscriptions')
             .upsert(
@@ -154,15 +177,17 @@ export async function subscribeToDailyNotifications(): Promise<boolean> {
             .select()
 
         if (error) {
-            console.error('[Notifications] Error guardando suscripción push en Supabase:', error)
-            return false
+            const errorMsg = `Error guardando en la base de datos: ${error.message || 'Error desconocido'}`
+            console.error('[Notifications]', errorMsg, error)
+            return { success: false, error: errorMsg }
         }
 
-        console.log('[Notifications] Suscripción guardada correctamente:', data)
-        return true
+        console.log('[Notifications] ✅ Suscripción guardada correctamente en Supabase:', data)
+        return { success: true }
     } catch (err: any) {
-        console.error('[Notifications] Error inesperado en subscribeToDailyNotifications:', err)
-        return false
+        const error = `Error inesperado: ${err?.message || 'Error desconocido'}`
+        console.error('[Notifications]', error, err)
+        return { success: false, error }
     }
 }
 
