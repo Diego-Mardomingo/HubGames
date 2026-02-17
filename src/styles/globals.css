@@ -766,6 +766,32 @@ body {
   max-width: 90vw;
 }
 
+.footer .content a {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  position: relative;
+}
+
+.footer .content a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 2px;
+  width: 100%;
+  border-radius: 5px;
+  background-color: #00A8E8;
+  transform-origin: right;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.footer .content a:hover::after {
+  transform-origin: left;
+  transform: scaleX(1);
+}
+
 /* Utility Classes */
 .btn-primary {
   background-color: #00A8E8;

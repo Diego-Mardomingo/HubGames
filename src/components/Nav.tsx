@@ -70,7 +70,13 @@ export default function Nav() {
                 <li className="nav_item" onClick={() => setShowMenu(false)}>
                     <Link href="/judi">
                         <i className="fa-solid fa-gamepad"></i>
-                        JUDI
+                        <span className="nav_judi-label">
+                            JUDI
+                            <span className="nav_judi-pill">
+                                <i className="fa-solid fa-star" aria-hidden="true"></i>
+                                <span className="sr-only">Destacado</span>
+                            </span>
+                        </span>
                     </Link>
                 </li>
                 {user ? (

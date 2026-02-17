@@ -67,6 +67,34 @@
     font-size: 1rem;
 }
 
+/* JUDI special label */
+.nav_judi-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.nav_judi-pill {
+    font-size: 0.55rem;
+    padding: 0.08rem 0.35rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #00A8E8, #7b61ff);
+    color: #00171F;
+    font-weight: 800;
+    box-shadow: 0 0 12px rgba(0, 168, 232, 0.6);
+    position: relative;
+}
+
+.nav_judi-pill i {
+    font-size: 0.55rem;
+    line-height: 1;
+}
+
+.nav_item a:hover .nav_judi-pill {
+    transform: translateY(-1px);
+    box-shadow: 0 0 18px rgba(0, 168, 232, 0.9);
+}
+
 /* Mobile Menu Button */
 .barras {
     display: none;
