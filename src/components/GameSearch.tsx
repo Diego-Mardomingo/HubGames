@@ -206,7 +206,7 @@ export default function GameSearch() {
                         <input type="date" value={dateEnd} onChange={(e) => setDateEnd(e.target.value)} min="1990-01-01" />
                     </div>
                     <button className="btn-secondary" onClick={resetDates} style={{ marginTop: '1rem', width: '100%', padding: '0.6em', fontSize: '0.9em', borderRadius: '8px' }}>
-                        <i className="fa-solid fa-rotate-left"></i> Reiniciar fechas
+                        <i className="fa-solid fa-rotate-left" suppressHydrationWarning></i> Reiniciar fechas
                     </button>
                 </div>
             </div>
@@ -223,7 +223,7 @@ export default function GameSearch() {
                 </div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.6em', marginTop: '0.8rem', cursor: 'pointer', fontSize: '0.9em', color: 'rgba(255,255,255,0.8)' }}>
                     <input type="checkbox" checked={sortByMetacritic} onChange={(e) => setSortByMetacritic(e.target.checked)} style={{ width: '18px', height: '18px', accentColor: '#00A8E8', cursor: 'pointer' }} />
-                    <i className="fa-solid fa-arrow-down-wide-short" style={{ color: '#00A8E8' }}></i>
+                    <i className="fa-solid fa-arrow-down-wide-short" style={{ color: '#00A8E8' }} suppressHydrationWarning></i>
                     Ordenar de mayor a menor por nota Metacritic
                 </label>
             </div>
@@ -261,6 +261,7 @@ export default function GameSearch() {
                             className="fa-solid fa-magnifying-glass"
                             style={{ cursor: 'pointer' }}
                             onClick={applyFilters}
+                            suppressHydrationWarning
                         ></i>
                         <input
                             type="text"
@@ -284,13 +285,13 @@ export default function GameSearch() {
                     <div style={{ position: 'relative', width: '100%' }}>
                         <div className="filtro_container">
                             <div className="boton_filtros" onClick={() => setShowFilters(!showFilters)}>
-                                <i className="fa-solid fa-filter"></i>
+                                <i className="fa-solid fa-filter" suppressHydrationWarning></i>
                                 Filtrar
-                                <i className={`fa-solid fa-chevron-${showFilters ? 'up' : 'down'}`} style={{ fontSize: '0.8em', opacity: 0.7 }}></i>
+                                <i className={`fa-solid fa-chevron-${showFilters ? 'up' : 'down'}`} style={{ fontSize: '0.8em', opacity: 0.7 }} suppressHydrationWarning></i>
                             </div>
 
                             <div className="buscador_boton" onClick={applyFilters}>
-                                <i className="fa-solid fa-magnifying-glass"></i>
+                                <i className="fa-solid fa-magnifying-glass" suppressHydrationWarning></i>
                                 <span className="btn-text">Buscar</span>
                             </div>
                         </div>
@@ -325,7 +326,7 @@ export default function GameSearch() {
                         transition: 'all 0.2s ease',
                     }}
                 >
-                    <i className="fa-solid fa-th-large"></i>
+                    <i className="fa-solid fa-th-large" suppressHydrationWarning></i>
                     <span style={{ marginLeft: '0.4rem' }}>Tarjetas</span>
                 </button>
                 <button
@@ -344,7 +345,7 @@ export default function GameSearch() {
                         transition: 'all 0.2s ease',
                     }}
                 >
-                    <i className="fa-solid fa-list"></i>
+                    <i className="fa-solid fa-list" suppressHydrationWarning></i>
                     <span style={{ marginLeft: '0.4rem' }}>Filas</span>
                 </button>
             </div>
@@ -355,7 +356,7 @@ export default function GameSearch() {
                     <div className="filtros_activos_container">
                         {activePlatforms.map((platform) => (
                             <div key={platform} className="filtro_activo">
-                                <i className="fa-solid fa-xmark" onClick={() => removeFilter(platform)}></i>
+                                <i className="fa-solid fa-xmark" onClick={() => removeFilter(platform)} suppressHydrationWarning></i>
                                 {PLATFORMS[platform]}
                             </div>
                         ))}
@@ -403,7 +404,7 @@ export default function GameSearch() {
                                 title="Página anterior"
                                 style={{ cursor: 'pointer' }}
                             >
-                                <i className="fa-solid fa-chevron-left"></i>
+                                <i className="fa-solid fa-chevron-left" suppressHydrationWarning></i>
                             </div>
                         )}
                         <div style={{
@@ -421,7 +422,7 @@ export default function GameSearch() {
                                 title="Página siguiente"
                                 style={{ cursor: 'pointer' }}
                             >
-                                <i className="fa-solid fa-chevron-right"></i>
+                                <i className="fa-solid fa-chevron-right" suppressHydrationWarning></i>
                             </div>
                         )}
                     </div>

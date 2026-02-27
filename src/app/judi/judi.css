@@ -636,6 +636,14 @@
 @media (max-width: 768px) {
   .judi-container {
     padding: 2rem 1rem;
+    min-height: calc(100vh - 70px);
+    padding-bottom: calc(2rem + 70px + env(safe-area-inset-bottom));
+  }
+
+  .judi-container.game-mode {
+    min-height: calc(100vh - 60px - 70px);
+    max-height: calc(100vh - 60px - 70px);
+    padding-bottom: 0.5rem;
   }
 
   .judi-container .titulo h1 {
@@ -686,6 +694,15 @@
   .judi-container .btn-guess {
     width: 100%;
     min-width: unset !important;
+  }
+
+  /* Autocomplete dropdown appears above input on mobile */
+  .judi-container .autocomplete-dropdown {
+    top: auto;
+    bottom: 100%;
+    margin-top: 0;
+    margin-bottom: 5px;
+    z-index: 1200;
   }
 }
 

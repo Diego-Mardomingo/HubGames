@@ -270,20 +270,21 @@ export default function PerfilPage() {
     }
 
     return (
-        <div className="cuerpo" style={{ padding: '2rem 1rem', maxWidth: '1200px', margin: '2em auto', overflowX: 'hidden', boxSizing: 'border-box' }}>
+        <div className="cuerpo" style={{ padding: '2rem 1rem', maxWidth: '1200px', margin: '0 auto', overflowX: 'hidden', boxSizing: 'border-box', width: '100%' }}>
             <div className="encabezado" style={{
                 textAlign: 'center',
                 marginBottom: '3em',
                 background: 'transparent',
                 color: '#fff',
             }}>
-                <h1 style={{ margin: 0, color: '#00A8E8', fontSize: '3em', fontWeight: 800, letterSpacing: '-1px', textTransform: 'uppercase' }}>Mi Perfil</h1>
+                <h1 style={{ margin: 0, color: '#00A8E8', fontSize: 'clamp(1.8rem, 8vw, 3rem)', fontWeight: 800, letterSpacing: '-1px', textTransform: 'uppercase' }}>Mi Perfil</h1>
                 <p style={{ color: 'rgba(255,255,255,0.4)', marginTop: '0.5rem', fontSize: '1.1rem' }}>Gestiona tu cuenta y revisa tus logros</p>
             </div>
 
             <div className="grid-responsive-profile" style={{ display: 'grid', gap: '2.5rem', alignItems: 'start' }}>
+                {/* User Info */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-                    {/* User Info */}
+                    {/* User Info Card */}
                     <div className="glass-panel" style={{
                         padding: 'clamp(1.5rem, 4vw, 2.5rem)',
                         borderRadius: '24px',
@@ -307,16 +308,16 @@ export default function PerfilPage() {
                             }}>
                                 {(user?.user_metadata?.username || user?.email || '?')[0].toUpperCase()}
                             </div>
-                            <div style={{ overflow: 'hidden' }}>
-                                <h2 style={{ margin: 0, color: '#fff', fontSize: '1.5rem', fontWeight: 700 }}>{user?.user_metadata?.username || 'Usuario'}</h2>
-                                <p style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', wordBreak: 'break-all' }}>{user?.email}</p>
+                            <div style={{ overflow: 'hidden', minWidth: 0, flex: 1 }}>
+                                <h2 style={{ margin: 0, color: '#fff', fontSize: '1.5rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.user_metadata?.username || 'Usuario'}</h2>
+                                <p style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>{user?.email}</p>
                             </div>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', color: 'rgba(255,255,255,0.7)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                <span style={{ fontWeight: 600 }}>Miembro desde</span>
-                                <span style={{ color: '#fff' }}>{new Date(user?.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.3rem 0.5rem', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                <span style={{ fontWeight: 600, flexShrink: 0 }}>Miembro desde</span>
+                                <span style={{ color: '#fff', wordBreak: 'break-word', textAlign: 'right' }}>{new Date(user?.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}</span>
                             </div>
                             {user?.user_metadata?.administrador && (
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -349,153 +350,131 @@ export default function PerfilPage() {
                             Cerrar Sesión
                         </button>
                     </div>
-
-                    {/* Settings */}
-                    <div className="glass-panel" style={{
-                        padding: 'clamp(1.5rem, 4vw, 2.5rem)',
-                        borderRadius: '24px',
-                    }}>
-                        <h2 style={{ marginTop: 0, marginBottom: '2rem', color: '#00A8E8', fontSize: '1.4rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Ajustes</h2>
-
-                        {/* Ajuste de notificaciones diarias */}
-                        <div style={{ marginBottom: '2rem', padding: '1rem 1.2rem', borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                            <div style={{ flex: 1, minWidth: '200px' }}>
-                                <div style={{ fontWeight: 700, color: '#fff', marginBottom: '0.2rem', fontSize: '0.95rem' }}>
-                                    Notificaciones diarias de JUDI
-                                </div>
-                                <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>
-                                    Para que las notificaciones funcionen correctamente en móvil, te recomendamos instalar la app de HubGames.
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem' }}>
-                                <button
-                                    type="button"
-                                    onClick={handleToggleNotifications}
-                                    disabled={notificationsLoading || notificationsEnabled === null}
-                                    style={{
-                                        minWidth: '140px',
-                                        padding: '0.6rem 1.2rem',
-                                        borderRadius: '999px',
-                                        border: '1px solid',
-                                        borderColor: notificationsEnabled ? '#00A8E8' : 'rgba(255,255,255,0.25)',
-                                        background: notificationsEnabled ? 'linear-gradient(90deg, #00A8E8, #00D9FF)' : 'rgba(10,20,30,0.7)',
-                                        color: notificationsEnabled ? '#001219' : '#fff',
-                                        fontWeight: 700,
-                                        fontSize: '0.9rem',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '0.5rem',
-                                        cursor: notificationsLoading ? 'wait' : 'pointer',
-                                        opacity: notificationsLoading ? 0.7 : 1,
-                                        transition: 'all 0.2s ease',
-                                        boxShadow: notificationsEnabled ? '0 4px 14px rgba(0, 168, 232, 0.35)' : 'none',
-                                    }}
-                                >
-                                    {notificationsLoading ? (
-                                        <span className="loader" style={{ width: '18px', height: '18px' }}></span>
-                                    ) : notificationsEnabled ? (
-                                        <>
-                                            <i className="fa-solid fa-bell"></i>
-                                            Activadas
-                                        </>
-                                    ) : (
-                                        <>
-                                            <i className="fa-regular fa-bell-slash"></i>
-                                            Desactivadas
-                                        </>
-                                    )}
-                                </button>
-                                {!notificationsLoading && notificationsEnabled !== null && (
-                                    <span style={{
-                                        fontSize: '0.75rem',
-                                        color: 'rgba(255,255,255,0.5)',
-                                        alignSelf: 'stretch',
-                                        textAlign: 'center',
-                                        minWidth: '140px',
-                                    }}>
-                                        {notificationsEnabled ? 'Haz clic para desactivar' : 'Haz clic para activar'}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-
-                        <form onSubmit={handleUpdateUsername} style={{ marginBottom: '2.5rem' }}>
-                            <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '0.6rem', fontWeight: 600, paddingLeft: '0.5rem' }}>NUEVO USERNAME</label>
-                            <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                                <input
-                                    type="text"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    required
-                                    style={{
-                                        width: '100%',
-                                        padding: '1em 1em 1em 3.2em',
-                                        borderRadius: '12px',
-                                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                                        fontSize: '1em',
-                                        backgroundColor: 'rgba(10, 20, 30, 0.4)',
-                                        color: '#fff',
-                                        outline: 'none'
-                                    }}
-                                    placeholder="Username"
-                                />
-                                <i className="fa-solid fa-user" style={{ position: 'absolute', left: '1.2em', top: '50%', transform: 'translateY(-50%)', color: '#00A8E8', opacity: 0.7 }}></i>
-                            </div>
-                            <button type="submit" className="btn-primary" disabled={updating} style={{ width: '100%', borderRadius: '12px', minHeight: '48px' }}>
-                                {updating ? <span className="loader" style={{ width: '20px', height: '20px' }}></span> : 'Guardar cambios'}
-                            </button>
-                        </form>
-
-                        <form onSubmit={handleUpdatePassword}>
-                            <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '0.6rem', fontWeight: 600, paddingLeft: '0.5rem' }}>CAMBIAR CONTRASEÑA</label>
-                            <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                                <input
-                                    type="password"
-                                    value={newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
-                                    required
-                                    style={{
-                                        width: '100%',
-                                        padding: '1em 1em 1em 3.2em',
-                                        borderRadius: '12px',
-                                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                                        fontSize: '1em',
-                                        backgroundColor: 'rgba(10, 20, 30, 0.4)',
-                                        color: '#fff',
-                                        outline: 'none'
-                                    }}
-                                    placeholder="Nueva contraseña"
-                                />
-                                <i className="fa-solid fa-key" style={{ position: 'absolute', left: '1.2em', top: '50%', transform: 'translateY(-50%)', color: '#00A8E8', opacity: 0.7 }}></i>
-                            </div>
-                            <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                                <input
-                                    type="password"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    required
-                                    style={{
-                                        width: '100%',
-                                        padding: '1em 1em 1em 3.2em',
-                                        borderRadius: '12px',
-                                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                                        fontSize: '1em',
-                                        backgroundColor: 'rgba(10, 20, 30, 0.4)',
-                                        color: '#fff',
-                                        outline: 'none'
-                                    }}
-                                    placeholder="Confirmar contraseña"
-                                />
-                                <i className="fa-solid fa-key" style={{ position: 'absolute', left: '1.2em', top: '50%', transform: 'translateY(-50%)', color: '#00A8E8', opacity: 0.7 }}></i>
-                            </div>
-                            <button type="submit" className="btn-primary" disabled={updating} style={{ width: '100%', borderRadius: '12px', minHeight: '48px' }}>
-                                {updating ? <span className="loader" style={{ width: '20px', height: '20px' }}></span> : 'Actualizar contraseña'}
-                            </button>
-                        </form>
-                    </div>
                 </div>
 
+                {/* Leaderboard */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+                    {leaderboard.length > 0 && (
+                        <div className="glass-panel" style={{
+                            padding: 'clamp(1rem, 4vw, 2.5rem)',
+                            borderRadius: '24px',
+                        }}>
+                            <h2 style={{
+                                marginTop: 0,
+                                marginBottom: '2rem',
+                                color: '#FFD700',
+                                fontSize: '1.4rem',
+                                fontWeight: 800,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.8rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1px'
+                            }}>
+                                <i className="fa-solid fa-ranking-star"></i>
+                                Ranking Global
+                            </h2>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                {leaderboard.map((player, index) => {
+                                    const maxComps = leaderboard[0]?.completions || 1
+                                    const percentage = (player.completions / maxComps) * 100
+                                    const medals = ['🥇', '🥈', '🥉']
+                                    const isCurrentUser = player.userId === user?.id
+
+                                    return (
+                                        <div key={player.userId} style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '1.2em',
+                                            padding: '1rem',
+                                            borderRadius: '16px',
+                                            background: isCurrentUser ? 'rgba(0, 168, 232, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                                            border: isCurrentUser ? '2px solid #00A8E8' : '1px solid rgba(255, 255, 255, 0.05)',
+                                            transition: 'all 0.3s ease'
+                                        }}>
+                                            <div style={{
+                                                fontSize: index < 3 ? 'clamp(1.2rem, 5vw, 1.8rem)' : 'clamp(1rem, 4vw, 1.2rem)',
+                                                fontWeight: 900,
+                                                minWidth: '30px',
+                                                textAlign: 'center',
+                                                flexShrink: 0
+                                            }}>
+                                                {medals[index] || `#${index + 1}`}
+                                            </div>
+                                            <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                                                <div style={{
+                                                    fontWeight: 700,
+                                                    fontSize: 'clamp(0.85rem, 3vw, 1.05rem)',
+                                                    marginBottom: '0.5rem',
+                                                    color: isCurrentUser ? '#00A8E8' : index === 0 ? '#FFD700' : '#fff',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap'
+                                                }}>
+                                                    {player.username} {isCurrentUser && '(Tú)'}
+                                                </div>
+                                                <div style={{
+                                                    width: '100%',
+                                                    height: '8px',
+                                                    background: 'rgba(255, 255, 255, 0.1)',
+                                                    borderRadius: '10px',
+                                                    overflow: 'hidden',
+                                                    position: 'relative'
+                                                }}>
+                                                    <div style={{
+                                                        height: '100%',
+                                                        borderRadius: '10px',
+                                                        transition: 'width 1s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                                                        background: index === 0 ? 'linear-gradient(90deg, #FFD700, #FFA500)' :
+                                                            index === 1 ? 'linear-gradient(90deg, #C0C0C0, #808080)' :
+                                                                index === 2 ? 'linear-gradient(90deg, #CD7F32, #8B4513)' :
+                                                                    isCurrentUser ? 'linear-gradient(90deg, #00A8E8, #0077B6)' : '#00A8E8',
+                                                        boxShadow: index === 0 ? '0 0 10px rgba(255, 215, 0, 0.5)' : '0 0 10px rgba(0, 168, 232, 0.3)',
+                                                        width: `${percentage}%`
+                                                    }}></div>
+                                                </div>
+                                            </div>
+                                            <div style={{
+                                                fontWeight: 800,
+                                                fontSize: 'clamp(1rem, 4vw, 1.3rem)',
+                                                color: isCurrentUser ? '#00A8E8' : index === 0 ? '#FFD700' : '#00A8E8',
+                                                textAlign: 'right',
+                                                flexShrink: 0
+                                            }}>
+                                                {player.completions}
+                                                <span style={{ fontSize: '0.65rem', opacity: 0.6, marginLeft: '2px' }}>pts</span>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+
+                            {userRank && userRank > 5 && (
+                                <div style={{
+                                    marginTop: '2rem',
+                                    padding: '1.5rem',
+                                    borderRadius: '16px',
+                                    background: 'rgba(0, 168, 232, 0.1)',
+                                    border: '2px solid #00A8E8',
+                                    textAlign: 'center'
+                                }}>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#00A8E8', marginBottom: '0.5rem' }}>
+                                        Tu posición en el ranking
+                                    </div>
+                                    <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff' }}>
+                                        #{userRank}
+                                    </div>
+                                    <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.5rem' }}>
+                                        ¡Sigue jugando para escalar posiciones!
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* JUDI Stats */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
                     {/* JUDI Stats */}
                     {judiStats && (
@@ -621,140 +600,159 @@ export default function PerfilPage() {
                             </div>
                         </div>
                     )}
+                </div>
 
-                    {/* Leaderboard */}
-                    {leaderboard.length > 0 && (
-                        <div className="glass-panel" style={{
-                            padding: '2.5em',
-                            borderRadius: '24px',
-                            minHeight: '100%'
-                        }}>
-                            <h2 style={{
-                                marginTop: 0,
-                                marginBottom: '2rem',
-                                color: '#FFD700',
-                                fontSize: '1.4rem',
-                                fontWeight: 800,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.8rem',
-                                textTransform: 'uppercase',
-                                letterSpacing: '1px'
-                            }}>
-                                <i className="fa-solid fa-ranking-star"></i>
-                                Ranking Global
-                            </h2>
+                {/* Settings */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+                    <div className="glass-panel" style={{
+                        padding: 'clamp(1.5rem, 4vw, 2.5rem)',
+                        borderRadius: '24px',
+                    }}>
+                        <h2 style={{ marginTop: 0, marginBottom: '2rem', color: '#00A8E8', fontSize: '1.4rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Ajustes</h2>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                {leaderboard.map((player, index) => {
-                                    const maxComps = leaderboard[0]?.completions || 1
-                                    const percentage = (player.completions / maxComps) * 100
-                                    const medals = ['🥇', '🥈', '🥉']
-                                    const isCurrentUser = player.userId === user?.id
-
-                                    return (
-                                        <div key={player.userId} style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '1.2em',
-                                            padding: '1rem',
-                                            borderRadius: '16px',
-                                            background: isCurrentUser ? 'rgba(0, 168, 232, 0.1)' : 'rgba(255, 255, 255, 0.03)',
-                                            border: isCurrentUser ? '2px solid #00A8E8' : '1px solid rgba(255, 255, 255, 0.05)',
-                                            transition: 'all 0.3s ease'
-                                        }}>
-                                            <div style={{
-                                                fontSize: index < 3 ? '1.8rem' : '1.2rem',
-                                                fontWeight: 900,
-                                                minWidth: '45px',
-                                                textAlign: 'center'
-                                            }}>
-                                                {medals[index] || `#${index + 1}`}
-                                            </div>
-                                            <div style={{ flex: 1 }}>
-                                                <div style={{
-                                                    fontWeight: 700,
-                                                    fontSize: '1.05rem',
-                                                    marginBottom: '0.5rem',
-                                                    color: isCurrentUser ? '#00A8E8' : index === 0 ? '#FFD700' : '#fff'
-                                                }}>
-                                                    {player.username} {isCurrentUser && '(Tú)'}
-                                                </div>
-                                                <div style={{
-                                                    width: '100%',
-                                                    height: '8px',
-                                                    background: 'rgba(255, 255, 255, 0.1)',
-                                                    borderRadius: '10px',
-                                                    overflow: 'hidden',
-                                                    position: 'relative'
-                                                }}>
-                                                    <div style={{
-                                                        height: '100%',
-                                                        borderRadius: '10px',
-                                                        transition: 'width 1s cubic-bezier(0.2, 0.8, 0.2, 1)',
-                                                        background: index === 0 ? 'linear-gradient(90deg, #FFD700, #FFA500)' :
-                                                            index === 1 ? 'linear-gradient(90deg, #C0C0C0, #808080)' :
-                                                                index === 2 ? 'linear-gradient(90deg, #CD7F32, #8B4513)' :
-                                                                    isCurrentUser ? 'linear-gradient(90deg, #00A8E8, #0077B6)' : '#00A8E8',
-                                                        boxShadow: index === 0 ? '0 0 10px rgba(255, 215, 0, 0.5)' : '0 0 10px rgba(0, 168, 232, 0.3)',
-                                                        width: `${percentage}%`
-                                                    }}></div>
-                                                </div>
-                                            </div>
-                                            <div style={{
-                                                fontWeight: 800,
-                                                fontSize: '1.3rem',
-                                                color: isCurrentUser ? '#00A8E8' : index === 0 ? '#FFD700' : '#00A8E8',
-                                                minWidth: '60px',
-                                                textAlign: 'right'
-                                            }}>
-                                                {player.completions}
-                                                <span style={{ fontSize: '0.75rem', opacity: 0.6, marginLeft: '4px' }}>aciertos</span>
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-
-                            {/* User rank indicator if not in top 5 */}
-                            {userRank && userRank > 5 && (
-                                <div style={{
-                                    marginTop: '2rem',
-                                    padding: '1.5rem',
-                                    borderRadius: '16px',
-                                    background: 'rgba(0, 168, 232, 0.1)',
-                                    border: '2px solid #00A8E8',
-                                    textAlign: 'center'
-                                }}>
-                                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#00A8E8', marginBottom: '0.5rem' }}>
-                                        Tu posición en el ranking
-                                    </div>
-                                    <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff' }}>
-                                        #{userRank}
-                                    </div>
-                                    <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.5rem' }}>
-                                        ¡Sigue jugando para escalar posiciones!
-                                    </div>
+                        {/* Ajuste de notificaciones diarias */}
+                        <div style={{ marginBottom: '2rem', padding: '1rem', borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div>
+                                <div style={{ fontWeight: 700, color: '#fff', marginBottom: '0.2rem', fontSize: '0.95rem' }}>
+                                    Notificaciones diarias de JUDI
                                 </div>
-                            )}
+                                <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>
+                                    Para que las notificaciones funcionen correctamente en móvil, te recomendamos instalar la app de HubGames.
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem' }}>
+                                <button
+                                    type="button"
+                                    onClick={handleToggleNotifications}
+                                    disabled={notificationsLoading || notificationsEnabled === null}
+                                    style={{
+                                        minWidth: 'auto',
+                                        padding: '0.6rem 1rem',
+                                        borderRadius: '999px',
+                                        border: '1px solid',
+                                        borderColor: notificationsEnabled ? '#00A8E8' : 'rgba(255,255,255,0.25)',
+                                        background: notificationsEnabled ? 'linear-gradient(90deg, #00A8E8, #00D9FF)' : 'rgba(10,20,30,0.7)',
+                                        color: notificationsEnabled ? '#001219' : '#fff',
+                                        fontWeight: 700,
+                                        fontSize: '0.9rem',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '0.5rem',
+                                        cursor: notificationsLoading ? 'wait' : 'pointer',
+                                        opacity: notificationsLoading ? 0.7 : 1,
+                                        transition: 'all 0.2s ease',
+                                        boxShadow: notificationsEnabled ? '0 4px 14px rgba(0, 168, 232, 0.35)' : 'none',
+                                    }}
+                                >
+                                    {notificationsLoading ? (
+                                        <span className="loader" style={{ width: '18px', height: '18px' }}></span>
+                                    ) : notificationsEnabled ? (
+                                        <>
+                                            <i className="fa-solid fa-bell"></i>
+                                            Activadas
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="fa-regular fa-bell-slash"></i>
+                                            Desactivadas
+                                        </>
+                                    )}
+                                </button>
+                                {!notificationsLoading && notificationsEnabled !== null && (
+                                    <span style={{
+                                        fontSize: '0.75rem',
+                                        color: 'rgba(255,255,255,0.5)',
+                                        textAlign: 'center',
+                                    }}>
+                                        {notificationsEnabled ? 'Clic para desactivar' : 'Clic para activar'}
+                                    </span>
+                                )}
+                            </div>
                         </div>
-                    )}
+
+                        <form onSubmit={handleUpdateUsername} style={{ marginBottom: '2.5rem' }}>
+                            <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '0.6rem', fontWeight: 600, paddingLeft: '0.5rem' }}>NUEVO USERNAME</label>
+                            <div style={{ position: 'relative', marginBottom: '1rem' }}>
+                                <input
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    required
+                                    style={{
+                                        width: '100%',
+                                        padding: '1em 1em 1em 3.2em',
+                                        borderRadius: '12px',
+                                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                                        fontSize: '1em',
+                                        backgroundColor: 'rgba(10, 20, 30, 0.4)',
+                                        color: '#fff',
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
+                                    }}
+                                    placeholder="Username"
+                                />
+                                <i className="fa-solid fa-user" style={{ position: 'absolute', left: '1.2em', top: '50%', transform: 'translateY(-50%)', color: '#00A8E8', opacity: 0.7 }}></i>
+                            </div>
+                            <button type="submit" className="btn-primary" disabled={updating} style={{ width: '100%', borderRadius: '12px', minHeight: '48px' }}>
+                                {updating ? <span className="loader" style={{ width: '20px', height: '20px' }}></span> : 'Guardar cambios'}
+                            </button>
+                        </form>
+
+                        <form onSubmit={handleUpdatePassword}>
+                            <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '0.6rem', fontWeight: 600, paddingLeft: '0.5rem' }}>CAMBIAR CONTRASEÑA</label>
+                            <div style={{ position: 'relative', marginBottom: '1rem' }}>
+                                <input
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    required
+                                    style={{
+                                        width: '100%',
+                                        padding: '1em 1em 1em 3.2em',
+                                        borderRadius: '12px',
+                                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                                        fontSize: '1em',
+                                        backgroundColor: 'rgba(10, 20, 30, 0.4)',
+                                        color: '#fff',
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
+                                    }}
+                                    placeholder="Nueva contraseña"
+                                />
+                                <i className="fa-solid fa-key" style={{ position: 'absolute', left: '1.2em', top: '50%', transform: 'translateY(-50%)', color: '#00A8E8', opacity: 0.7 }}></i>
+                            </div>
+                            <div style={{ position: 'relative', marginBottom: '1rem' }}>
+                                <input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    required
+                                    style={{
+                                        width: '100%',
+                                        padding: '1em 1em 1em 3.2em',
+                                        borderRadius: '12px',
+                                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                                        fontSize: '1em',
+                                        backgroundColor: 'rgba(10, 20, 30, 0.4)',
+                                        color: '#fff',
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
+                                    }}
+                                    placeholder="Confirmar contraseña"
+                                />
+                                <i className="fa-solid fa-key" style={{ position: 'absolute', left: '1.2em', top: '50%', transform: 'translateY(-50%)', color: '#00A8E8', opacity: 0.7 }}></i>
+                            </div>
+                            <button type="submit" className="btn-primary" disabled={updating} style={{ width: '100%', borderRadius: '12px', minHeight: '48px' }}>
+                                {updating ? <span className="loader" style={{ width: '20px', height: '20px' }}></span> : 'Actualizar contraseña'}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
             {/* Notifications */}
-            <div style={{ 
-                position: 'fixed', 
-                bottom: '1rem', 
-                left: '1rem', 
-                right: '1rem',
-                display: 'flex', 
-                flexDirection: 'column', 
-                gap: '1rem', 
-                zIndex: 1000,
-                maxWidth: '500px',
-                margin: '0 auto'
-            }}>
+            <div className="notifications-container">
                 {error && (
                     <div className="glass-panel" style={{
                         padding: '1rem 1.5rem',
@@ -802,6 +800,18 @@ export default function PerfilPage() {
                 .stats-grid {
                     grid-template-columns: repeat(3, 1fr);
                 }
+                .notifications-container {
+                    position: fixed;
+                    bottom: 1rem;
+                    left: 1rem;
+                    right: 1rem;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                    z-index: 1100;
+                    max-width: 500px;
+                    margin: 0 auto;
+                }
                 @keyframes fadeInUp {
                     from { opacity: 0; transform: translateY(20px); }
                     to { opacity: 1; transform: translateY(0); }
@@ -809,6 +819,11 @@ export default function PerfilPage() {
                 @media (max-width: 900px) {
                     .grid-responsive-profile {
                         grid-template-columns: 1fr;
+                    }
+                }
+                @media (max-width: 768px) {
+                    .notifications-container {
+                        bottom: calc(70px + env(safe-area-inset-bottom) + 1rem);
                     }
                 }
                 @media (max-width: 500px) {

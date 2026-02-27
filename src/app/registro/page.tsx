@@ -160,7 +160,7 @@ export default function RegistroPage() {
     }
 
     return (
-        <div className="cuerpo" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '3rem 1rem' }}>
+        <div className="cuerpo" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '3rem 1rem', paddingBottom: 'calc(3rem + 80px)' }}>
             <div className="encabezado" style={{
                 textAlign: 'center',
                 marginBottom: '2.5em',

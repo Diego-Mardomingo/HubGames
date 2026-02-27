@@ -94,7 +94,7 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="cuerpo" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '2rem 1rem' }}>
+        <div className="cuerpo" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '2rem 1rem', paddingBottom: 'calc(2rem + 80px)' }}>
             <div className="encabezado" style={{
                 textAlign: 'center',
                 marginBottom: '2em',
@@ -125,7 +125,7 @@ export default function LoginPage() {
                                 border: '1px solid rgba(255,255,255,0.1)'
                             }}
                         >
-                            <i className="fa-brands fa-google" style={{ fontSize: '1.2em' }}></i>
+                            <i className="fa-brands fa-google" style={{ fontSize: '1.2em' }} suppressHydrationWarning></i>
                             Continuar con Google
                         </button>
                     </div>
@@ -177,6 +177,7 @@ export default function LoginPage() {
                                     <i
                                         className="fa-solid fa-at"
                                         style={{ position: 'absolute', left: '1.2em', top: '50%', transform: 'translateY(-50%)', color: '#00A8E8', fontSize: '1.1em', opacity: 0.7 }}
+                                        suppressHydrationWarning
                                     ></i>
                                 </div>
                             </div>
@@ -209,6 +210,7 @@ export default function LoginPage() {
                                     <i
                                         className="fa-solid fa-key"
                                         style={{ position: 'absolute', left: '1.2em', top: '50%', transform: 'translateY(-50%)', color: '#00A8E8', fontSize: '1.1em', opacity: 0.7 }}
+                                        suppressHydrationWarning
                                     ></i>
                                 </div>
                             </div>
@@ -230,7 +232,7 @@ export default function LoginPage() {
                                 justifyContent: 'center',
                                 gap: '0.5rem'
                             }}>
-                                <i className="fa-solid fa-circle-exclamation"></i> {error}
+                                <i className="fa-solid fa-circle-exclamation" suppressHydrationWarning></i> {error}
                             </div>
                         )}
 
