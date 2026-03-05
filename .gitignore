@@ -57,3 +57,6 @@ yarn-error.log*
 
 # Legacy PHP code vendor directory
 /legacy_php_code/vendor/
+
+# Cursor files
+.cursor
