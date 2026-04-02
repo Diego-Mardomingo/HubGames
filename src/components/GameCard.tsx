@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { type Game } from '@/lib/rawg'
+import { type Game } from '@/lib/game-types'
 
 interface GameCardProps {
     game: Game

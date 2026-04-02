@@ -3,20 +3,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { searchGames, type Game } from '@/lib/rawg'
+import { type Game } from '@/lib/game-types'
 import GameCard from './GameCard'
 import Loader from './Loader'
 
 const PLATFORMS: { [key: string]: string } = {
     '4': 'PC',
-    '187': 'PlayStation 5',
-    '18': 'PlayStation 4',
-    '16': 'PlayStation 3',
-    '1': 'Xbox One',
-    '186': 'Xbox Series S/X',
-    '14': 'Xbox 360',
-    '7': 'Nintendo Switch',
-    '8': 'Nintendo 3DS',
+    '5': 'Mac',
+    '6': 'Linux',
 }
 
 export default function GameSearch() {
@@ -124,19 +118,25 @@ export default function GameSearch() {
                     orderingParam = '-metacritic'
                 }
 
-                const response = await searchGames({
-                    search: q || undefined,
-                    platforms: platformsParam || undefined,
-                    exclude_platforms: '21,3',
-                    dates: endParam ? `${startParam},${endParam}` : undefined,
-                    metacritic: metacriticParam,
-                    ordering: orderingParam,
-                    page: pageParam,
-                })
+                const requestParams = new URLSearchParams()
+                if (q) requestParams.set('search', q)
+                if (platformsParam) requestParams.set('platforms', platformsParam)
+                if (endParam) requestParams.set('dates', `${startParam},${endParam}`)
+                if (metacriticParam) requestParams.set('metacritic', metacriticParam)
+                if (orderingParam) requestParams.set('ordering', orderingParam)
+                requestParams.set('page', String(pageParam))
+                requestParams.set('page_size', '20')
 
-                setGames(response.results)
-                setNextPage(response.next)
-                setPrevPage(response.previous)
+                const response = await fetch(`/api/steam/search?${requestParams.toString()}`)
+                if (!response.ok) {
+                    throw new Error(`Steam search failed with status ${response.status}`)
+                }
+
+                const data = await response.json()
+
+                setGames(data.results || [])
+                setNextPage(data.next || null)
+                setPrevPage(data.previous || null)
 
                 // Scroll to top on page change
                 window.scrollTo({ top: 0, behavior: 'smooth' })

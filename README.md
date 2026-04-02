@@ -46,7 +46,7 @@
     <td width="50%">
       <h3 align="center">🔍 Buscador Inteligente</h3>
       <p align="center">
-        Integrado con la <strong>API de RAWG</strong>, accede a una base de datos masiva con más de <strong>500.000 videojuegos</strong>.
+        Integrado con <strong>Steam Web API + Store API + SteamSpy</strong>, accede a una base de datos masiva y metadatos enriquecidos.
       </p>
       <ul>
         <li>🎯 <strong>Filtros avanzados</strong> por género, plataforma y fecha de lanzamiento</li>
@@ -59,7 +59,7 @@
     <td width="50%">
       <h3 align="center">📚 Fichas de Juego Completas</h3>
       <p align="center">
-        Información detallada sobre cada juego, directamente desde RAWG.
+        Información detallada sobre cada juego, directamente desde Steam y fuentes complementarias.
       </p>
       <ul>
         <li>🖼️ <strong>Imagen principal</strong> y galería de capturas</li>
@@ -265,7 +265,7 @@ JUDI es un reto diario para los amantes de los videojuegos. Cada día se selecci
   <tr>
     <td><strong>🎮 API</strong></td>
     <td>
-      <a href="https://rawg.io/apidocs"><img src="https://img.shields.io/badge/RAWG_API-FF6B6B?logo=gamepad&logoColor=fff" alt="RAWG"/></a>
+      <a href="https://api.steampowered.com/"><img src="https://img.shields.io/badge/Steam_API-171A21?logo=steam&logoColor=fff" alt="Steam API"/></a>
     </td>
     <td>Base de datos con 500k+ videojuegos</td>
   </tr>
@@ -340,7 +340,7 @@ HubGames/
 │   │   └── 📄 GameCard.tsx      # Tarjetas de juegos
 │   │
 │   ├── 📁 lib/                  # Utilidades y APIs
-│   │   ├── 📄 rawg.ts           # Cliente API RAWG
+│   │   ├── 📄 steam.ts          # Cliente de datos Steam (Web + Store + SteamSpy)
 │   │   └── 📁 supabase/         # Cliente Supabase
 │   │
 │   └── 📁 styles/               # Estilos globales
@@ -381,7 +381,9 @@ HubGames/
 | Recurso | Descripción |
 |:---:|:---|
 | 📁 [`legacy_php_code/`](./legacy_php_code/README.md) | Código PHP original pre-migración |
-| 🎮 [RAWG API](https://rawg.io/apidocs) | Base de datos de videojuegos |
+| 🎮 [Steam Web API](https://api.steampowered.com/) | Datos de videojuegos y métricas en vivo |
+| 🕹️ [Steam Store API](https://store.steampowered.com/api/appdetails) | Fichas detalladas y assets de juegos |
+| 📊 [SteamSpy API](https://steamspy.com/api.php) | Popularidad, owners y telemetría de juegos |
 | 🗄️ [Supabase Docs](https://supabase.com/docs) | Backend as a Service |
 | ⚛️ [Next.js Docs](https://nextjs.org/docs) | Framework React |
 
@@ -402,7 +404,7 @@ HubGames/
 ---
 
 <sub>
-  <strong>📝 Nota:</strong> Este es un proyecto personal. Los datos de videojuegos son proporcionados por la API de RAWG.
+  <strong>📝 Nota:</strong> Este es un proyecto personal. Los datos de videojuegos son proporcionados por APIs de Steam y SteamSpy.
 </sub>
 
 <br/>

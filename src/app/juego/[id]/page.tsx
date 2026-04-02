@@ -1,4 +1,4 @@
-import { getGameDetails, getGameScreenshots } from '@/lib/rawg'
+import { getGameDetails, getGameScreenshots } from '@/lib/steam'
 import { createServerClient } from '@/lib/supabase/server'
 import Image from 'next/image'
 import Link from 'next/link'

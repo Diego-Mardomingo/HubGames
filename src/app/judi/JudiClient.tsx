@@ -1,11 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import Link from 'next/link'
 import Loader from '@/components/Loader'
-import { searchGames } from '@/lib/rawg'
 import './judi.css'
 
 type GameRecord = {
@@ -55,6 +54,14 @@ export default function JudiClient() {
     const searchTimeout = useRef<NodeJS.Timeout | null>(null)
     const touchStartX = useRef<number | null>(null)
     const SWIPE_THRESHOLD = 50
+
+    const normalizeGameName = (value: string) =>
+        value
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, ' ')
+            .trim()
 
     useEffect(() => {
         loadUserAndGames()
@@ -191,11 +198,25 @@ export default function JudiClient() {
         if (query.length > 2) {
             searchTimeout.current = setTimeout(async () => {
                 try {
-                    const data = await searchGames({ search: query, page_size: 10 })
-                    setSearchResults(data.results || [])
+                    const { data, error } = await supabase
+                        .from('hubgames_judi_pool')
+                        .select('steam_appid, game_name')
+                        .eq('is_eligible', true)
+                        .eq('discarded', false)
+                        .ilike('game_name', `%${query}%`)
+                        .order('relevance_score', { ascending: false })
+                        .limit(10)
+
+                    if (error) throw error
+                    setSearchResults(
+                        (data || []).map((item) => ({
+                            id: item.steam_appid,
+                            name: item.game_name,
+                        }))
+                    )
                     setShowResults(true)
                 } catch (err) {
-                    console.error("RAWG Search Error:", err)
+                    console.error('JUDI pool search error:', err)
                     setSearchResults([])
                 }
             }, 400)
@@ -216,7 +237,9 @@ export default function JudiClient() {
         if (!selectedGame || gameState !== 'playing') return
         const guessText = searchQuery.trim()
 
-        const isCorrect = guessText && guessText.toLowerCase() === selectedGame.juego.nombre.toLowerCase()
+        const isCorrect =
+            Boolean(guessText) &&
+            normalizeGameName(guessText) === normalizeGameName(selectedGame.juego.nombre)
         setSearchResults([])
         setShowResults(false)
         if (isCorrect) {

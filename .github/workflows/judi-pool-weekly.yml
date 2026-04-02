@@ -1,0 +1,31 @@
+name: JUDI Pool Weekly
+
+on:
+  schedule:
+    # Domingos a las 18:00 UTC
+    - cron: '0 18 * * 0'
+  workflow_dispatch:
+
+jobs:
+  build-judi-pool:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build weekly pool from Steam
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STEAM_WEB_API_KEY: ${{ secrets.STEAM_WEB_API_KEY }}
+        run: npx tsx scripts/build-judi-pool.ts

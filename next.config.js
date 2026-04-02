@@ -15,7 +15,23 @@ const nextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'media.rawg.io',
+                hostname: 'shared.cloudflare.steamstatic.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'cdn.cloudflare.steamstatic.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'shared.akamai.steamstatic.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'cdn.akamai.steamstatic.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'cdn.steamstatic.com',
             },
         ],
     },
