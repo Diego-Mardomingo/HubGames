@@ -1,10 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase/client'
-import Loader from '@/components/Loader'
+import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { getNotificationPreference, subscribeToDailyNotifications, disableDailyNotifications } from '@/lib/notifications'
+import { buildRanking, getPointsForRecord, type JudiProgressRecord } from '@/lib/judi-ranking'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+    Trophy, Medal, Bell, BellOff, Save, Shield, KeyRound,
+    LogOut, Target, XCircle, Percent, Gamepad2,
+    AlertTriangle, CheckCircle, ChevronRight, User,
+} from 'lucide-react'
+import Link from 'next/link'
 
 export default function PerfilPage() {
     const router = useRouter()
@@ -17,821 +25,356 @@ export default function PerfilPage() {
     const [success, setSuccess] = useState('')
     const [updating, setUpdating] = useState(false)
     const [judiStats, setJudiStats] = useState<any>(null)
-    const [leaderboard, setLeaderboard] = useState<any[]>([])
+    const [leaderboardPreview, setLeaderboardPreview] = useState<any[]>([])
     const [userRank, setUserRank] = useState<number | null>(null)
+    const [totalRankedUsers, setTotalRankedUsers] = useState(0)
     const [notificationsEnabled, setNotificationsEnabled] = useState<boolean | null>(null)
     const [notificationsLoading, setNotificationsLoading] = useState(false)
 
+    useEffect(() => { checkUser() }, [])
     useEffect(() => {
-        checkUser()
-    }, [])
-
+        const timer = error ? setTimeout(() => setError(''), 5000) : null
+        return () => { if (timer) clearTimeout(timer) }
+    }, [error])
     useEffect(() => {
-        const loadNotificationsPreference = async () => {
+        const timer = success ? setTimeout(() => setSuccess(''), 3500) : null
+        return () => { if (timer) clearTimeout(timer) }
+    }, [success])
+    useEffect(() => {
+        const loadPreference = async () => {
             try {
                 const enabled = await getNotificationPreference()
                 setNotificationsEnabled(enabled)
-            } catch (err) {
-                console.error('Error loading notification preference', err)
+            } catch {
                 setNotificationsEnabled(false)
             }
         }
-
-        loadNotificationsPreference()
+        loadPreference()
     }, [])
 
-    // Auto-ocultar mensajes después de 5 segundos
-    useEffect(() => {
-        if (error) {
-            const timer = setTimeout(() => setError(''), 8000)
-            return () => clearTimeout(timer)
-        }
-    }, [error])
-
-    useEffect(() => {
-        if (success) {
-            const timer = setTimeout(() => setSuccess(''), 5000)
-            return () => clearTimeout(timer)
-        }
-    }, [success])
-
     const checkUser = async () => {
-        try {
-            const { data: { session } } = await supabase.auth.getSession()
-
-            if (!session) {
-                router.push('/login')
-                return
-            }
-
-            setUser(session.user)
-            setUsername(session.user.user_metadata?.username || '')
-
-            // Fetch JUDI stats
-            await fetchJudiStats(session.user.id)
-
-            // Fetch leaderboard
-            await fetchLeaderboard(session.user.id)
-
-            setLoading(false)
-        } catch (err) {
-            console.error('Error checking user:', err)
-            router.push('/login')
-        }
+        const { data: { session } } = await safeGetSession()
+        if (!session) { router.push('/login'); return }
+        setUser(session.user)
+        setUsername(session.user.user_metadata?.username || '')
+        await Promise.all([
+            fetchJudiStats(session.user.id),
+            fetchLeaderboard(session.user.id),
+        ])
+        setLoading(false)
     }
 
     const fetchJudiStats = async (userId: string) => {
-        try {
-            const { data, error } = await supabase
-                .from('hubgames_judi_fases_usuario')
-                .select('completado, fase6')
-                .eq('id_usuario', userId)
-
-            if (error) throw error
-
-            const aciertos = data?.filter(fase => fase.completado).length || 0
-            const fallos = data?.filter(fase => fase.fase6 && !fase.completado).length || 0
-            const total = aciertos + fallos
-            const porcentaje_acierto = total > 0 ? Math.round((aciertos / total) * 100) : 0
-
-            setJudiStats({
-                aciertos,
-                fallos,
-                total,
-                porcentaje_acierto
-            })
-        } catch (err) {
-            console.error('Error fetching JUDI stats:', err)
-            setJudiStats({ aciertos: 0, fallos: 0, total: 0, porcentaje_acierto: 0 })
+        const { data, error: statsError } = await supabase
+            .from('hubgames_judi_fases_usuario')
+            .select('completado, fase1, fase2, fase3, fase4, fase5, fase6')
+            .eq('id_usuario', userId)
+        if (statsError) {
+            setJudiStats({ aciertos: 0, fallos: 0, total: 0, porcentaje_acierto: 0, puntos: 0 })
+            return
         }
+        const aciertos = data?.filter((f) => f.completado).length || 0
+        const fallos = data?.filter((f) => f.fase6 && !f.completado).length || 0
+        const total = aciertos + fallos
+        const porcentaje_acierto = total > 0 ? Math.round((aciertos / total) * 100) : 0
+        const puntos = (data || []).reduce(
+            (sum, f) => sum + (getPointsForRecord(f as JudiProgressRecord) || 0), 0,
+        )
+        setJudiStats({ aciertos, fallos, total, porcentaje_acierto, puntos })
     }
 
     const fetchLeaderboard = async (currentUserId: string) => {
-        try {
-            const { data: records, error } = await supabase
-                .from('hubgames_judi_fases_usuario')
-                .select(`
-                    id_usuario,
-                    hubgames_usuarios (
-                        username
-                    )
-                `)
-                .eq('completado', true)
-
-            if (error) throw error
-
-            if (records) {
-                const userAggregates: { [key: string]: { username: string, completions: number } } = {}
-
-                records.forEach((r: any) => {
-                    const uid = r.id_usuario
-                    const username = r.hubgames_usuarios?.username || `Jugador #${uid.slice(0, 4)}`
-
-                    if (!userAggregates[uid]) {
-                        userAggregates[uid] = { username, completions: 0 }
-                    }
-                    userAggregates[uid].completions++
-                })
-
-                const leaderboardData = Object.keys(userAggregates).map(uid => ({
-                    userId: uid,
-                    username: userAggregates[uid].username,
-                    completions: userAggregates[uid].completions
-                }))
-
-                const sortedLeaderboard = leaderboardData.sort((a, b) => b.completions - a.completions)
-
-                // Find user's rank
-                const userPosition = sortedLeaderboard.findIndex(entry => entry.userId === currentUserId)
-                setUserRank(userPosition !== -1 ? userPosition + 1 : null)
-
-                // Set top 5 for display
-                setLeaderboard(sortedLeaderboard.slice(0, 5))
-            }
-        } catch (err) {
-            console.error('Error fetching leaderboard:', err)
-        }
+        const { data: records, error: leaderboardError } = await supabase
+            .from('hubgames_judi_fases_usuario')
+            .select('id_usuario, completado, fase1, fase2, fase3, fase4, fase5, fase6, hubgames_usuarios(username)')
+        if (leaderboardError || !records) return
+        const sorted = buildRanking(records as JudiProgressRecord[])
+        setTotalRankedUsers(sorted.length)
+        setLeaderboardPreview(sorted.slice(0, 5))
+        const pos = sorted.findIndex((e) => e.userId === currentUserId)
+        setUserRank(pos !== -1 ? pos + 1 : null)
     }
 
-    const handleUpdateUsername = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setUpdating(true)
-        setError('')
-        setSuccess('')
-
+    const handleUpdateUsername = async (event: React.FormEvent) => {
+        event.preventDefault()
+        setUpdating(true); setError(''); setSuccess('')
         try {
-            // Update auth metadata
-            const { error: authError } = await supabase.auth.updateUser({
-                data: { username }
-            })
-
+            const { error: authError } = await supabase.auth.updateUser({ data: { username } })
             if (authError) throw authError
-
-            // Update hubgames_usuarios table
-            const { error: dbError } = await supabase
-                .from('hubgames_usuarios')
-                .update({ username })
-                .eq('id', user.id)
-
+            const { error: dbError } = await supabase.from('hubgames_usuarios').update({ username }).eq('id', user.id)
             if (dbError) throw dbError
-
-            setSuccess('¡Username actualizado correctamente!')
-
-            // Refresh user data
+            setSuccess('Username actualizado')
             await checkUser()
         } catch (err: any) {
             setError(err.message || 'Error al actualizar el username')
-        } finally {
-            setUpdating(false)
-        }
+        } finally { setUpdating(false) }
     }
 
-    const handleUpdatePassword = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setUpdating(true)
-        setError('')
-        setSuccess('')
-
-        if (newPassword !== confirmPassword) {
-            setError('Las contraseñas no coinciden')
-            setUpdating(false)
-            return
-        }
-
-        if (newPassword.length < 6) {
-            setError('La contraseña debe tener al menos 6 caracteres')
-            setUpdating(false)
-            return
-        }
-
+    const handleUpdatePassword = async (event: React.FormEvent) => {
+        event.preventDefault()
+        setUpdating(true); setError(''); setSuccess('')
+        if (newPassword !== confirmPassword) { setError('Las contraseñas no coinciden'); setUpdating(false); return }
+        if (newPassword.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); setUpdating(false); return }
         try {
-            const { error } = await supabase.auth.updateUser({
-                password: newPassword
-            })
-
-            if (error) throw error
-
-            setSuccess('¡Contraseña actualizada correctamente!')
-            setNewPassword('')
-            setConfirmPassword('')
+            const { error: passwordError } = await supabase.auth.updateUser({ password: newPassword })
+            if (passwordError) throw passwordError
+            setSuccess('Contraseña actualizada')
+            setNewPassword(''); setConfirmPassword('')
         } catch (err: any) {
-            setError(err.message || 'Error al actualizar la contraseña')
-        } finally {
-            setUpdating(false)
-        }
-    }
-
-    const handleLogout = async () => {
-        await supabase.auth.signOut()
-        router.push('/')
+            setError(err.message || 'Error al actualizar contraseña')
+        } finally { setUpdating(false) }
     }
 
     const handleToggleNotifications = async () => {
         if (notificationsEnabled === null) return
-        setNotificationsLoading(true)
-        setError('')
-        setSuccess('')
-
+        setNotificationsLoading(true); setError(''); setSuccess('')
         try {
-            if (!notificationsEnabled) {
-                const result = await subscribeToDailyNotifications()
-                if (!result.success) {
-                    // Mostramos el error específico que viene de la función
-                    setError(result.error || 'No se han podido activar las notificaciones. Revisa la consola del navegador para más detalles.')
-                    setNotificationsLoading(false)
-                    return
-                }
-                setNotificationsEnabled(true)
-                setSuccess('Notificaciones diarias activadas')
-            } else {
+            if (notificationsEnabled) {
                 const ok = await disableDailyNotifications()
-                if (!ok) {
-                    setError('No se han podido desactivar las notificaciones.')
-                    setNotificationsLoading(false)
-                    return
-                }
-                setNotificationsEnabled(false)
-                setSuccess('Notificaciones diarias desactivadas')
+                if (!ok) throw new Error('No se han podido desactivar las notificaciones')
+                setNotificationsEnabled(false); setSuccess('Notificaciones desactivadas')
+            } else {
+                const result = await subscribeToDailyNotifications()
+                if (!result.success) throw new Error(result.error || 'No se han podido activar las notificaciones')
+                setNotificationsEnabled(true); setSuccess('Notificaciones activadas')
             }
         } catch (err: any) {
-            console.error('Error toggling notifications', err)
-            setError('Ha ocurrido un error al actualizar las notificaciones: ' + (err.message || 'Error desconocido'))
-        } finally {
-            setNotificationsLoading(false)
-        }
+            setError(err.message || 'Error al actualizar notificaciones')
+        } finally { setNotificationsLoading(false) }
     }
 
-    if (loading) {
-        return (
-            <div className="cuerpo">
-                <Loader />
-            </div>
-        )
-    }
+    const handleLogout = async () => { await supabase.auth.signOut(); router.push('/') }
+
+    if (loading) return <div className="loader-container"><div className="loader" /></div>
+
+    const initial = (user?.user_metadata?.username || user?.email || 'U')[0].toUpperCase()
+    const displayName = (user?.user_metadata?.username || 'Usuario').toUpperCase()
+    const medalColors = ['#fbbf24', '#94a3b8', '#cd7f32']
+    const puntos = judiStats?.puntos ?? 0
+
+    const rankBeatPct =
+        userRank !== null && totalRankedUsers > 1
+            ? Math.round(((totalRankedUsers - userRank) / (totalRankedUsers - 1)) * 100)
+            : null
+
+    const gridStats = [
+        { icon: <Gamepad2 size={18} />, label: 'Partidas', value: judiStats?.total ?? 0, accent: 'cyan' as const },
+        { icon: <Target size={18} />, label: 'Aciertos', value: judiStats?.aciertos ?? 0, accent: 'cyan' as const },
+        { icon: <XCircle size={18} />, label: 'Fallos', value: judiStats?.fallos ?? 0, accent: 'red' as const },
+        { icon: <Percent size={18} />, label: 'Efectividad', value: `${judiStats?.porcentaje_acierto ?? 0}%`, accent: 'gold' as const },
+    ]
 
     return (
-        <div className="cuerpo" style={{ padding: '2rem 1rem', maxWidth: '1200px', margin: '0 auto', overflowX: 'hidden', boxSizing: 'border-box', width: '100%' }}>
-            <div className="encabezado" style={{
-                textAlign: 'center',
-                marginBottom: '3em',
-                background: 'transparent',
-                color: '#fff',
-            }}>
-                <h1 style={{ margin: 0, color: '#00A8E8', fontSize: 'clamp(1.8rem, 8vw, 3rem)', fontWeight: 800, letterSpacing: '-1px', textTransform: 'uppercase' }}>Mi Perfil</h1>
-                <p style={{ color: 'rgba(255,255,255,0.4)', marginTop: '0.5rem', fontSize: '1.1rem' }}>Gestiona tu cuenta y revisa tus logros</p>
+        <div className="perfil-boceto animate-fade-in-up">
+            {error && (
+                <div className="perfil-boceto-alert perfil-boceto-alert--err">
+                    <AlertTriangle size={14} /> {error}
+                </div>
+            )}
+            {success && (
+                <div className="perfil-boceto-alert perfil-boceto-alert--ok">
+                    <CheckCircle size={14} /> {success}
+                </div>
+            )}
+
+            <header className="perfil-boceto-topbar">
+                <div className="perfil-boceto-topbar__mini-avatar" aria-hidden>{initial}</div>
+                <h1 className="perfil-boceto-topbar__title">MI PERFIL</h1>
+                <button
+                    type="button"
+                    className="perfil-boceto-topbar__logout-ico"
+                    onClick={handleLogout}
+                    aria-label="Cerrar sesión"
+                >
+                    <LogOut size={18} strokeWidth={2.25} />
+                </button>
+            </header>
+
+            <section className="perfil-boceto-hero">
+                <div className="perfil-boceto-hero__avatar-box">
+                    <div className="perfil-boceto-hero__avatar">{initial}</div>
+                    <span className="perfil-boceto-hero__lvl">{puntos} pts</span>
+                </div>
+                <h2 className="perfil-boceto-hero__name">
+                    {displayName}
+                    {user?.user_metadata?.administrador && (
+                        <span className="perfil-boceto-hero__admin"><Shield size={10} /> Admin</span>
+                    )}
+                </h2>
+                <p className="perfil-boceto-hero__email">{user?.email}</p>
+            </section>
+
+            <section className="perfil-boceto-rank-card">
+                <div className="perfil-boceto-rank-card__stripe" aria-hidden />
+                <div className="perfil-boceto-rank-card__col perfil-boceto-rank-card__col--rank">
+                    <span className="perfil-boceto-rank-card__hash">#{userRank ?? '—'}</span>
+                    <span className="perfil-boceto-rank-card__rank-label">RANK</span>
+                </div>
+                <div className="perfil-boceto-rank-card__col perfil-boceto-rank-card__col--mid">
+                    <p className="perfil-boceto-rank-card__kicker">TU POSICIÓN ACTUAL</p>
+                    <p className="perfil-boceto-rank-card__sub">
+                        {rankBeatPct !== null
+                            ? `Superando al ${rankBeatPct}% de jugadores en JUDI`
+                            : totalRankedUsers === 0
+                                ? 'Aún no hay clasificación'
+                                : 'Juega partidas para aparecer en el ranking'}
+                    </p>
+                </div>
+                <div className="perfil-boceto-rank-card__col perfil-boceto-rank-card__col--pts">
+                    <span className="perfil-boceto-rank-card__pts-num">{puntos}</span>
+                    <span className="perfil-boceto-rank-card__pts-label">PUNTOS TOTALES</span>
+                </div>
+            </section>
+
+            <section className="perfil-boceto-points-card">
+                <div className="perfil-boceto-points-card__icon-wrap" aria-hidden>
+                    <Trophy size={22} strokeWidth={2} />
+                </div>
+                <div className="perfil-boceto-points-card__text">
+                    <p className="perfil-boceto-points-card__label">PUNTOS ACUMULADOS</p>
+                    <p className="perfil-boceto-points-card__value">{puntos}</p>
+                </div>
+            </section>
+
+            <div className="perfil-boceto-stat-grid">
+                {gridStats.map((s) => (
+                    <div key={s.label} className={`perfil-boceto-stat-tile perfil-boceto-stat-tile--${s.accent}`}>
+                        <div className="perfil-boceto-stat-tile__icon">{s.icon}</div>
+                        <span className="perfil-boceto-stat-tile__label">{s.label}</span>
+                        <span className="perfil-boceto-stat-tile__value">{s.value}</span>
+                    </div>
+                ))}
             </div>
 
-            <div className="grid-responsive-profile" style={{ display: 'grid', gap: '2.5rem', alignItems: 'start' }}>
-                {/* User Info */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-                    {/* User Info Card */}
-                    <div className="glass-panel" style={{
-                        padding: 'clamp(1.5rem, 4vw, 2.5rem)',
-                        borderRadius: '24px',
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem' }}>
-                            <div style={{
-                                width: '70px',
-                                height: '70px',
-                                minWidth: '70px',
-                                minHeight: '70px',
-                                flexShrink: 0,
-                                borderRadius: '50%',
-                                background: 'linear-gradient(135deg, #00A8E8, #007EA7)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '2rem',
-                                color: '#fff',
-                                fontWeight: 800,
-                                boxShadow: '0 0 20px rgba(0, 168, 232, 0.4)'
-                            }}>
-                                {(user?.user_metadata?.username || user?.email || '?')[0].toUpperCase()}
-                            </div>
-                            <div style={{ overflow: 'hidden', minWidth: 0, flex: 1 }}>
-                                <h2 style={{ margin: 0, color: '#fff', fontSize: '1.5rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.user_metadata?.username || 'Usuario'}</h2>
-                                <p style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>{user?.email}</p>
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', color: 'rgba(255,255,255,0.7)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.3rem 0.5rem', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                <span style={{ fontWeight: 600, flexShrink: 0 }}>Miembro desde</span>
-                                <span style={{ color: '#fff', wordBreak: 'break-word', textAlign: 'right' }}>{new Date(user?.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}</span>
-                            </div>
-                            {user?.user_metadata?.administrador && (
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span style={{ fontWeight: 600 }}>Rol</span>
-                                    <span style={{ color: '#00A8E8', fontWeight: 800 }}>ADMINISTRADOR</span>
-                                </div>
-                            )}
-                        </div>
-
-                        <button
-                            onClick={handleLogout}
-                            className="btn-secondary"
-                            style={{
-                                width: '100%',
-                                marginTop: '2.5rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '0.8rem',
-                                minHeight: '50px',
-                                background: 'rgba(255, 71, 87, 0.05)',
-                                color: '#ff4757',
-                                border: '1px solid rgba(255, 71, 87, 0.1)',
-                                borderRadius: '12px',
-                                fontWeight: 700,
-                                transition: 'all 0.3s ease'
-                            }}
-                        >
-                            <i className="fa-solid fa-right-from-bracket"></i>
-                            Cerrar Sesión
-                        </button>
-                    </div>
+            <section className="perfil-boceto-ranking-preview">
+                <div className="perfil-boceto-ranking-preview__head">
+                    <span className="perfil-boceto-ranking-preview__title">Top jugadores</span>
+                    <Link href="/ranking" className="perfil-boceto-ranking-preview__link">
+                        Ver ranking <ChevronRight size={14} />
+                    </Link>
                 </div>
-
-                {/* Leaderboard */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-                    {leaderboard.length > 0 && (
-                        <div className="glass-panel" style={{
-                            padding: 'clamp(1rem, 4vw, 2.5rem)',
-                            borderRadius: '24px',
-                        }}>
-                            <h2 style={{
-                                marginTop: 0,
-                                marginBottom: '2rem',
-                                color: '#FFD700',
-                                fontSize: '1.4rem',
-                                fontWeight: 800,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.8rem',
-                                textTransform: 'uppercase',
-                                letterSpacing: '1px'
-                            }}>
-                                <i className="fa-solid fa-ranking-star"></i>
-                                Ranking Global
-                            </h2>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                {leaderboard.map((player, index) => {
-                                    const maxComps = leaderboard[0]?.completions || 1
-                                    const percentage = (player.completions / maxComps) * 100
-                                    const medals = ['🥇', '🥈', '🥉']
-                                    const isCurrentUser = player.userId === user?.id
-
-                                    return (
-                                        <div key={player.userId} style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '1.2em',
-                                            padding: '1rem',
-                                            borderRadius: '16px',
-                                            background: isCurrentUser ? 'rgba(0, 168, 232, 0.1)' : 'rgba(255, 255, 255, 0.03)',
-                                            border: isCurrentUser ? '2px solid #00A8E8' : '1px solid rgba(255, 255, 255, 0.05)',
-                                            transition: 'all 0.3s ease'
-                                        }}>
-                                            <div style={{
-                                                fontSize: index < 3 ? 'clamp(1.2rem, 5vw, 1.8rem)' : 'clamp(1rem, 4vw, 1.2rem)',
-                                                fontWeight: 900,
-                                                minWidth: '30px',
-                                                textAlign: 'center',
-                                                flexShrink: 0
-                                            }}>
-                                                {medals[index] || `#${index + 1}`}
-                                            </div>
-                                            <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
-                                                <div style={{
-                                                    fontWeight: 700,
-                                                    fontSize: 'clamp(0.85rem, 3vw, 1.05rem)',
-                                                    marginBottom: '0.5rem',
-                                                    color: isCurrentUser ? '#00A8E8' : index === 0 ? '#FFD700' : '#fff',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap'
-                                                }}>
-                                                    {player.username} {isCurrentUser && '(Tú)'}
-                                                </div>
-                                                <div style={{
-                                                    width: '100%',
-                                                    height: '8px',
-                                                    background: 'rgba(255, 255, 255, 0.1)',
-                                                    borderRadius: '10px',
-                                                    overflow: 'hidden',
-                                                    position: 'relative'
-                                                }}>
-                                                    <div style={{
-                                                        height: '100%',
-                                                        borderRadius: '10px',
-                                                        transition: 'width 1s cubic-bezier(0.2, 0.8, 0.2, 1)',
-                                                        background: index === 0 ? 'linear-gradient(90deg, #FFD700, #FFA500)' :
-                                                            index === 1 ? 'linear-gradient(90deg, #C0C0C0, #808080)' :
-                                                                index === 2 ? 'linear-gradient(90deg, #CD7F32, #8B4513)' :
-                                                                    isCurrentUser ? 'linear-gradient(90deg, #00A8E8, #0077B6)' : '#00A8E8',
-                                                        boxShadow: index === 0 ? '0 0 10px rgba(255, 215, 0, 0.5)' : '0 0 10px rgba(0, 168, 232, 0.3)',
-                                                        width: `${percentage}%`
-                                                    }}></div>
-                                                </div>
-                                            </div>
-                                            <div style={{
-                                                fontWeight: 800,
-                                                fontSize: 'clamp(1rem, 4vw, 1.3rem)',
-                                                color: isCurrentUser ? '#00A8E8' : index === 0 ? '#FFD700' : '#00A8E8',
-                                                textAlign: 'right',
-                                                flexShrink: 0
-                                            }}>
-                                                {player.completions}
-                                                <span style={{ fontSize: '0.65rem', opacity: 0.6, marginLeft: '2px' }}>pts</span>
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-
-                            {userRank && userRank > 5 && (
-                                <div style={{
-                                    marginTop: '2rem',
-                                    padding: '1.5rem',
-                                    borderRadius: '16px',
-                                    background: 'rgba(0, 168, 232, 0.1)',
-                                    border: '2px solid #00A8E8',
-                                    textAlign: 'center'
-                                }}>
-                                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#00A8E8', marginBottom: '0.5rem' }}>
-                                        Tu posición en el ranking
-                                    </div>
-                                    <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff' }}>
-                                        #{userRank}
-                                    </div>
-                                    <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.5rem' }}>
-                                        ¡Sigue jugando para escalar posiciones!
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                <ul className="perfil-boceto-ranking-preview__list">
+                    {leaderboardPreview.map((player, index) => (
+                        <li key={player.userId} className="perfil-boceto-ranking-preview__row">
+                            <span
+                                className="perfil-boceto-ranking-preview__medal"
+                                style={{
+                                    background: index < 3 ? `${medalColors[index]}22` : 'var(--surface-3)',
+                                    color: index < 3 ? medalColors[index] : 'var(--muted)',
+                                }}
+                            >
+                                {index < 3 ? <Medal size={12} /> : index + 1}
+                            </span>
+                            <span className="perfil-boceto-ranking-preview__name">{player.username}</span>
+                            <span className="perfil-boceto-ranking-preview__pts">{player.points} pts</span>
+                        </li>
+                    ))}
+                    {leaderboardPreview.length === 0 && (
+                        <li className="perfil-boceto-ranking-preview__empty">Sin datos de ranking</li>
                     )}
-                </div>
+                </ul>
+            </section>
 
-                {/* JUDI Stats */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-                    {/* JUDI Stats */}
-                    {judiStats && (
-                        <div className="glass-panel" style={{
-                            padding: 'clamp(1.5rem, 4vw, 2.5rem)',
-                            borderRadius: '24px',
-                            minHeight: '100%'
-                        }}>
-                            <h2 style={{
-                                marginTop: 0,
-                                marginBottom: '2rem',
-                                color: '#00A8E8',
-                                fontSize: '1.4rem',
-                                fontWeight: 800,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.8rem',
-                                textTransform: 'uppercase',
-                                letterSpacing: '1px'
-                            }}>
-                                <i className="fa-solid fa-trophy" style={{ color: '#FFD700' }}></i>
-                                Estadísticas JUDI
-                            </h2>
-
-                            <div className="stats-grid" style={{
-                                display: 'grid',
-                                gap: '1.2rem',
-                                marginBottom: '2.5rem'
-                            }}>
-                                <div style={{
-                                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                                    padding: '1.5rem',
-                                    borderRadius: '16px',
-                                    textAlign: 'center',
-                                    border: '1px solid rgba(255, 255, 255, 0.05)'
-                                }}>
-                                    <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#00D9FF', lineHeight: 1 }}>
-                                        {judiStats.total}
+            <section className="perfil-boceto-settings" aria-label="Ajustes de cuenta">
+                <div className="perfil-boceto-settings__stack">
+                    {/* Preferencias */}
+                    <div className="perfil-boceto-settings__group">
+                        <h3 className="perfil-boceto-settings__cat">Preferencias</h3>
+                        <div className="perfil-boceto-settings__card">
+                            <div className="perfil-boceto-settings__row">
+                                <div className="perfil-boceto-settings__row-left">
+                                    <div className={`perfil-boceto-settings__ico ${notificationsEnabled ? '' : 'perfil-boceto-settings__ico--muted'}`} aria-hidden>
+                                        {notificationsEnabled ? <Bell size={18} /> : <BellOff size={18} />}
                                     </div>
-                                    <div style={{ fontSize: '0.8rem', marginTop: '0.6rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase' }}>Partidas</div>
-                                </div>
-
-                                <div style={{
-                                    backgroundColor: 'rgba(46, 213, 115, 0.05)',
-                                    padding: '1.5rem',
-                                    borderRadius: '16px',
-                                    textAlign: 'center',
-                                    border: '1px solid rgba(46, 213, 115, 0.1)'
-                                }}>
-                                    <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#2ed573', lineHeight: 1 }}>
-                                        {judiStats.aciertos}
+                                    <div>
+                                        <p className="perfil-boceto-settings__row-title">Notificaciones</p>
+                                        <p className="perfil-boceto-settings__row-desc">
+                                            {notificationsLoading ? 'Actualizando…' : 'Alertas del juego diario (JUDI)'}
+                                        </p>
                                     </div>
-                                    <div style={{ fontSize: '0.8rem', marginTop: '0.6rem', color: 'rgba(46, 213, 115, 0.5)', fontWeight: 700, textTransform: 'uppercase' }}>Victorias</div>
                                 </div>
-
-                                <div style={{
-                                    backgroundColor: 'rgba(255, 71, 87, 0.05)',
-                                    padding: '1.5rem',
-                                    borderRadius: '16px',
-                                    textAlign: 'center',
-                                    border: '1px solid rgba(255, 71, 87, 0.1)'
-                                }}>
-                                    <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#ff4757', lineHeight: 1 }}>
-                                        {judiStats.fallos}
-                                    </div>
-                                    <div style={{ fontSize: '0.8rem', marginTop: '0.6rem', color: 'rgba(255, 71, 87, 0.5)', fontWeight: 700, textTransform: 'uppercase' }}>Derrotas</div>
-                                </div>
-                            </div>
-
-                            <div style={{ marginBottom: '2rem' }}>
-                                <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'baseline',
-                                    marginBottom: '1rem'
-                                }}>
-                                    <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600, fontSize: '0.9rem' }}>Tasa de éxito</span>
-                                    <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#00A8E8' }}>
-                                        {judiStats.porcentaje_acierto}%
-                                    </span>
-                                </div>
-
-                                <div style={{
-                                    width: '100%',
-                                    height: '12px',
-                                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                    borderRadius: '10px',
-                                    overflow: 'hidden',
-                                    position: 'relative'
-                                }}>
-                                    <div style={{
-                                        width: `${judiStats.porcentaje_acierto}%`,
-                                        height: '100%',
-                                        background: 'linear-gradient(90deg, #00A8E8, #00D9FF)',
-                                        borderRadius: '10px',
-                                        boxShadow: '0 0 15px rgba(0, 168, 232, 0.5)',
-                                        transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)'
-                                    }}></div>
-                                </div>
-                            </div>
-
-                            <div style={{
-                                padding: '1.5rem',
-                                background: 'rgba(0, 168, 232, 0.05)',
-                                borderRadius: '16px',
-                                border: '1px solid rgba(0, 168, 232, 0.1)',
-                                textAlign: 'center'
-                            }}>
-                                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
-                                    {judiStats.porcentaje_acierto >= 70 ? '👑' :
-                                        judiStats.porcentaje_acierto >= 40 ? '🎮' : '💪'}
-                                </div>
-                                <p style={{ margin: 0, fontWeight: 700, color: '#fff' }}>
-                                    {judiStats.porcentaje_acierto >= 70 ? 'Nivel: Maestro de los Juegos' :
-                                        judiStats.porcentaje_acierto >= 40 ? 'Nivel: Jugador Habitual' :
-                                            judiStats.total === 0 ? '¡Empieza tu aventura JUDI!' : 'Nivel: Aspirante'}
-                                </p>
-                                <p style={{ margin: '0.4rem 0 0', fontSize: '0.85rem', color: 'rgba(0, 168, 232, 0.6)' }}>
-                                    {judiStats.porcentaje_acierto >= 70 ? 'Tu conocimiento es legendario.' :
-                                        judiStats.porcentaje_acierto >= 40 ? 'Dominas bien la industria.' :
-                                            'Sigue jugando para mejorar.'}
-                                </p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Settings */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-                    <div className="glass-panel" style={{
-                        padding: 'clamp(1.5rem, 4vw, 2.5rem)',
-                        borderRadius: '24px',
-                    }}>
-                        <h2 style={{ marginTop: 0, marginBottom: '2rem', color: '#00A8E8', fontSize: '1.4rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Ajustes</h2>
-
-                        {/* Ajuste de notificaciones diarias */}
-                        <div style={{ marginBottom: '2rem', padding: '1rem', borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <div>
-                                <div style={{ fontWeight: 700, color: '#fff', marginBottom: '0.2rem', fontSize: '0.95rem' }}>
-                                    Notificaciones diarias de JUDI
-                                </div>
-                                <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>
-                                    Para que las notificaciones funcionen correctamente en móvil, te recomendamos instalar la app de HubGames.
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem' }}>
                                 <button
                                     type="button"
-                                    onClick={handleToggleNotifications}
+                                    role="switch"
+                                    aria-checked={Boolean(notificationsEnabled)}
+                                    aria-label="Notificaciones"
                                     disabled={notificationsLoading || notificationsEnabled === null}
-                                    style={{
-                                        minWidth: 'auto',
-                                        padding: '0.6rem 1rem',
-                                        borderRadius: '999px',
-                                        border: '1px solid',
-                                        borderColor: notificationsEnabled ? '#00A8E8' : 'rgba(255,255,255,0.25)',
-                                        background: notificationsEnabled ? 'linear-gradient(90deg, #00A8E8, #00D9FF)' : 'rgba(10,20,30,0.7)',
-                                        color: notificationsEnabled ? '#001219' : '#fff',
-                                        fontWeight: 700,
-                                        fontSize: '0.9rem',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '0.5rem',
-                                        cursor: notificationsLoading ? 'wait' : 'pointer',
-                                        opacity: notificationsLoading ? 0.7 : 1,
-                                        transition: 'all 0.2s ease',
-                                        boxShadow: notificationsEnabled ? '0 4px 14px rgba(0, 168, 232, 0.35)' : 'none',
-                                    }}
+                                    className="perfil-notify-switch"
+                                    onClick={handleToggleNotifications}
                                 >
-                                    {notificationsLoading ? (
-                                        <span className="loader" style={{ width: '18px', height: '18px' }}></span>
-                                    ) : notificationsEnabled ? (
-                                        <>
-                                            <i className="fa-solid fa-bell"></i>
-                                            Activadas
-                                        </>
-                                    ) : (
-                                        <>
-                                            <i className="fa-regular fa-bell-slash"></i>
-                                            Desactivadas
-                                        </>
-                                    )}
+                                    <span className="perfil-notify-switch__thumb" aria-hidden />
                                 </button>
-                                {!notificationsLoading && notificationsEnabled !== null && (
-                                    <span style={{
-                                        fontSize: '0.75rem',
-                                        color: 'rgba(255,255,255,0.5)',
-                                        textAlign: 'center',
-                                    }}>
-                                        {notificationsEnabled ? 'Clic para desactivar' : 'Clic para activar'}
-                                    </span>
-                                )}
                             </div>
                         </div>
+                    </div>
 
-                        <form onSubmit={handleUpdateUsername} style={{ marginBottom: '2.5rem' }}>
-                            <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '0.6rem', fontWeight: 600, paddingLeft: '0.5rem' }}>NUEVO USERNAME</label>
-                            <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                                <input
-                                    type="text"
+                    {/* Identidad */}
+                    <div className="perfil-boceto-settings__group">
+                        <h3 className="perfil-boceto-settings__cat">Identidad</h3>
+                        <div className="perfil-boceto-settings__card perfil-boceto-settings__card--pad">
+                            <div className="perfil-boceto-settings__block-head">
+                                <User size={17} className="perfil-boceto-settings__head-ico" aria-hidden />
+                                <span className="perfil-boceto-settings__block-title">Nombre de usuario</span>
+                            </div>
+                            <form onSubmit={handleUpdateUsername} className="perfil-boceto-settings__form-col">
+                                <Input
+                                    id="perfil-username-input"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    required
-                                    style={{
-                                        width: '100%',
-                                        padding: '1em 1em 1em 3.2em',
-                                        borderRadius: '12px',
-                                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                                        fontSize: '1em',
-                                        backgroundColor: 'rgba(10, 20, 30, 0.4)',
-                                        color: '#fff',
-                                        outline: 'none',
-                                        boxSizing: 'border-box'
-                                    }}
-                                    placeholder="Username"
+                                    placeholder="Tu nombre"
+                                    autoComplete="username"
+                                    className="perfil-settings-input perfil-boceto-settings__input"
                                 />
-                                <i className="fa-solid fa-user" style={{ position: 'absolute', left: '1.2em', top: '50%', transform: 'translateY(-50%)', color: '#00A8E8', opacity: 0.7 }}></i>
-                            </div>
-                            <button type="submit" className="btn-primary" disabled={updating} style={{ width: '100%', borderRadius: '12px', minHeight: '48px' }}>
-                                {updating ? <span className="loader" style={{ width: '20px', height: '20px' }}></span> : 'Guardar cambios'}
-                            </button>
-                        </form>
+                                <Button type="submit" disabled={updating} className="perfil-boceto-settings__save-btn">
+                                    <Save size={14} data-icon="inline-start" aria-hidden /> Guardar
+                                </Button>
+                            </form>
+                        </div>
+                    </div>
 
-                        <form onSubmit={handleUpdatePassword}>
-                            <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '0.6rem', fontWeight: 600, paddingLeft: '0.5rem' }}>CAMBIAR CONTRASEÑA</label>
-                            <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                                <input
-                                    type="password"
-                                    value={newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
-                                    required
-                                    style={{
-                                        width: '100%',
-                                        padding: '1em 1em 1em 3.2em',
-                                        borderRadius: '12px',
-                                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                                        fontSize: '1em',
-                                        backgroundColor: 'rgba(10, 20, 30, 0.4)',
-                                        color: '#fff',
-                                        outline: 'none',
-                                        boxSizing: 'border-box'
-                                    }}
-                                    placeholder="Nueva contraseña"
-                                />
-                                <i className="fa-solid fa-key" style={{ position: 'absolute', left: '1.2em', top: '50%', transform: 'translateY(-50%)', color: '#00A8E8', opacity: 0.7 }}></i>
+                    {/* Seguridad */}
+                    <div className="perfil-boceto-settings__group">
+                        <h3 className="perfil-boceto-settings__cat">Seguridad</h3>
+                        <div className="perfil-boceto-settings__card perfil-boceto-settings__card--pad">
+                            <div className="perfil-boceto-settings__block-head">
+                                <KeyRound size={17} className="perfil-boceto-settings__head-ico" aria-hidden />
+                                <span className="perfil-boceto-settings__block-title">Contraseña</span>
                             </div>
-                            <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                                <input
-                                    type="password"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    required
-                                    style={{
-                                        width: '100%',
-                                        padding: '1em 1em 1em 3.2em',
-                                        borderRadius: '12px',
-                                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                                        fontSize: '1em',
-                                        backgroundColor: 'rgba(10, 20, 30, 0.4)',
-                                        color: '#fff',
-                                        outline: 'none',
-                                        boxSizing: 'border-box'
-                                    }}
-                                    placeholder="Confirmar contraseña"
-                                />
-                                <i className="fa-solid fa-key" style={{ position: 'absolute', left: '1.2em', top: '50%', transform: 'translateY(-50%)', color: '#00A8E8', opacity: 0.7 }}></i>
-                            </div>
-                            <button type="submit" className="btn-primary" disabled={updating} style={{ width: '100%', borderRadius: '12px', minHeight: '48px' }}>
-                                {updating ? <span className="loader" style={{ width: '20px', height: '20px' }}></span> : 'Actualizar contraseña'}
-                            </button>
-                        </form>
+                            <form onSubmit={handleUpdatePassword} className="perfil-boceto-settings__form-col">
+                                <div className="perfil-boceto-settings__field">
+                                    <label htmlFor="perfil-pass-new" className="perfil-boceto-settings__field-label">Nueva contraseña</label>
+                                    <Input
+                                        id="perfil-pass-new"
+                                        type="password"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        autoComplete="new-password"
+                                        className="perfil-settings-input perfil-boceto-settings__input"
+                                    />
+                                </div>
+                                <div className="perfil-boceto-settings__field">
+                                    <label htmlFor="perfil-pass-confirm" className="perfil-boceto-settings__field-label">Confirmar</label>
+                                    <Input
+                                        id="perfil-pass-confirm"
+                                        type="password"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        autoComplete="new-password"
+                                        className="perfil-settings-input perfil-boceto-settings__input"
+                                    />
+                                </div>
+                                <Button type="submit" disabled={updating} variant="outline" className="perfil-boceto-settings__update-btn">
+                                    <KeyRound size={14} data-icon="inline-start" aria-hidden /> Actualizar
+                                </Button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {/* Notifications */}
-            <div className="notifications-container">
-                {error && (
-                    <div className="glass-panel" style={{
-                        padding: '1rem 1.5rem',
-                        background: 'rgba(255, 71, 87, 0.15)',
-                        border: '2px solid #ff4757',
-                        color: '#ff4757',
-                        borderRadius: '12px',
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '0.8rem',
-                        fontWeight: 600,
-                        animation: 'fadeInUp 0.3s ease',
-                        boxShadow: '0 4px 20px rgba(255, 71, 87, 0.3)',
-                        fontSize: '0.9rem',
-                        lineHeight: '1.4'
-                    }}>
-                        <i className="fa-solid fa-circle-exclamation" style={{ marginTop: '2px', flexShrink: 0 }}></i>
-                        <span style={{ flex: 1 }}>{error}</span>
-                    </div>
-                )}
-                {success && (
-                    <div className="glass-panel" style={{
-                        padding: '1rem 1.5rem',
-                        background: 'rgba(46, 213, 115, 0.15)',
-                        border: '2px solid #2ed573',
-                        color: '#2ed573',
-                        borderRadius: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.8rem',
-                        fontWeight: 600,
-                        animation: 'fadeInUp 0.3s ease',
-                        boxShadow: '0 4px 20px rgba(46, 213, 115, 0.3)',
-                        fontSize: '0.9rem'
-                    }}>
-                        <i className="fa-solid fa-circle-check"></i> {success}
-                    </div>
-                )}
-            </div>
-
-            <style jsx>{`
-                .grid-responsive-profile {
-                    grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
-                }
-                .stats-grid {
-                    grid-template-columns: repeat(3, 1fr);
-                }
-                .notifications-container {
-                    position: fixed;
-                    bottom: 1rem;
-                    left: 1rem;
-                    right: 1rem;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1rem;
-                    z-index: 1100;
-                    max-width: 500px;
-                    margin: 0 auto;
-                }
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                @media (max-width: 900px) {
-                    .grid-responsive-profile {
-                        grid-template-columns: 1fr;
-                    }
-                }
-                @media (max-width: 768px) {
-                    .notifications-container {
-                        bottom: calc(70px + env(safe-area-inset-bottom) + 1rem);
-                    }
-                }
-                @media (max-width: 500px) {
-                    .stats-grid {
-                        grid-template-columns: 1fr;
-                    }
-                }
-            `}</style>
+            <button type="button" className="perfil-boceto-logout-bar" onClick={handleLogout}>
+                CERRAR SESIÓN
+            </button>
         </div>
     )
 }

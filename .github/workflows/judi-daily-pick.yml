@@ -1,0 +1,49 @@
+name: JUDI Daily Pick
+
+on:
+  schedule:
+    # 11:00 CET (UTC+1, noviembre–marzo) / 12:00 CEST (UTC+2, abril–octubre)
+    # GitHub Actions no soporta DST; usar 0 9 * * * para exacto en verano
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+
+jobs:
+  pick-judi-daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          echo "::group::npm ci"
+          npm ci
+          echo "::endgroup::"
+
+      - name: Pick daily game from Supabase pool
+        id: pick
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          echo "::group::Selección juego del día"
+          echo "Inicio: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          npx tsx scripts/pick-judi-daily.ts
+          echo "Fin: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          echo "::endgroup::"
+
+      - name: Resumen
+        if: always()
+        run: |
+          if [ "${{ steps.pick.outcome }}" = "success" ]; then
+            echo "::notice::Juego del día seleccionado correctamente."
+          else
+            echo "::error::Falló la selección del juego del día. Revisa los logs del step anterior."
+          fi

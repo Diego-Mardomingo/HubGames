@@ -1,0 +1,387 @@
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN PANEL  — coherente con perfil / ranking
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Loading screen ──────────────────────────────────────────── */
+.admin-loading {
+    display: grid;
+    place-items: center;
+    min-height: 200px;
+}
+
+/* ── Root wrapper ────────────────────────────────────────────── */
+.admin-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding-bottom: 2rem;
+}
+
+/* ── Topbar (igual que perfil) ───────────────────────────────── */
+.admin-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-topbar__left {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.admin-topbar__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius);
+    background: rgba(0, 168, 232, 0.1);
+    border: 1px solid rgba(0, 168, 232, 0.2);
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.admin-topbar__title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--foreground);
+}
+
+.admin-topbar__sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.125rem;
+}
+
+/* ── Tabs list — override para que encaje ────────────────────── */
+.admin-tabs-list {
+    height: auto !important;
+    gap: 2px;
+}
+
+.admin-tab-trigger {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8125rem !important;
+    padding: 0.4rem 0.75rem !important;
+}
+
+/* ── Panel (igual que perfil-boceto-points-card / rank-card) ─── */
+.admin-panel {
+    border-radius: 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+}
+
+/* ── Panel header ────────────────────────────────────────────── */
+.admin-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+}
+
+.admin-panel-head__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.admin-panel-head__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: var(--surface-3);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+.admin-refresh-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    cursor: pointer;
+}
+.admin-refresh-btn:hover:not(:disabled) {
+    color: var(--foreground);
+    border-color: var(--border-hover);
+    background: var(--surface-3);
+}
+.admin-refresh-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ── Filter pills (como el filtro de ranking) ────────────────── */
+.admin-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-filter-pill {
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1.4;
+}
+.admin-filter-pill:hover {
+    border-color: var(--border-hover);
+    color: var(--foreground);
+}
+.admin-filter-pill.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--primary-foreground);
+}
+
+/* ── Search row ──────────────────────────────────────────────── */
+.admin-search-area {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-search-wrap {
+    position: relative;
+    max-width: 320px;
+}
+
+.admin-search-icon {
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+}
+
+.admin-search-input {
+    padding-left: 30px !important;
+    height: 34px !important;
+    font-size: 0.8125rem !important;
+}
+
+/* ── Table ───────────────────────────────────────────────────── */
+.admin-table-wrap {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+}
+
+.admin-table th {
+    padding: 0.6rem 1rem;
+    text-align: left;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-table td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    color: var(--foreground);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table tbody tr {
+    transition: background 0.1s;
+}
+
+.admin-table tbody tr:hover {
+    background: var(--surface-2);
+}
+
+/* ── Row variants ────────────────────────────────────────────── */
+.admin-row-error td {
+    background: rgba(244, 63, 94, 0.03);
+}
+.admin-row-error:hover td {
+    background: rgba(244, 63, 94, 0.07) !important;
+}
+
+.admin-row-future td {
+    background: rgba(0, 168, 232, 0.03);
+}
+.admin-row-future:hover td {
+    background: rgba(0, 168, 232, 0.07) !important;
+}
+
+/* ── Cell helpers ────────────────────────────────────────────── */
+.admin-cell-name {
+    font-weight: 600;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-cell-mono {
+    font-family: ui-monospace, 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+}
+
+.admin-cell-muted {
+    color: var(--muted);
+}
+
+.admin-cell-error {
+    color: var(--danger);
+    font-size: 0.775rem;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Game cell (miniatura + nombre) ─────────────────────────── */
+.admin-game-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.admin-game-thumb {
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    flex-shrink: 0;
+    opacity: 0.9;
+}
+
+/* ── Status badges stack ─────────────────────────────────────── */
+.admin-status-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+/* ── Reason tags ─────────────────────────────────────────────── */
+.admin-reasons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    max-width: 200px;
+}
+
+.admin-reason-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.675rem;
+    white-space: nowrap;
+}
+
+.admin-reason-tag--discard {
+    background: rgba(244, 63, 94, 0.1);
+    border-color: rgba(244, 63, 94, 0.25);
+    color: #f87171;
+}
+
+/* ── Group label (Próximos / Publicados) ─────────────────────── */
+.admin-group {
+    margin-bottom: 1.5rem;
+}
+
+.admin-group-label {
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    padding: 0 0.25rem;
+}
+
+.admin-group-label--future {
+    color: var(--primary);
+}
+
+/* ── Empty / center ──────────────────────────────────────────── */
+.admin-center {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 1rem;
+}
+
+.admin-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 3rem 1rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    .admin-table th,
+    .admin-table td {
+        padding: 0.6rem 0.625rem;
+    }
+
+    .admin-cell-name {
+        max-width: 130px;
+    }
+
+    .admin-game-thumb {
+        display: none;
+    }
+
+    .admin-filters {
+        padding: 0.625rem 0.75rem;
+    }
+}
