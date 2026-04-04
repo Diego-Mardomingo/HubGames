@@ -4,11 +4,19 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ""
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ""
 
+function formatYmdMadrid(date: Date): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Madrid',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date)
+}
+
 function toLegacyDate(date: Date): string {
-  const dd = String(date.getUTCDate()).padStart(2, '0')
-  const mm = String(date.getUTCMonth() + 1).padStart(2, '0')
-  const yyyy = date.getUTCFullYear()
-  return `${dd}-${mm}-${yyyy}`
+  const ymd = formatYmdMadrid(date)
+  const [y, m, d] = ymd.split('-')
+  return `${d}-${m}-${y}`
 }
 
 function mapPlatforms(platforms: Record<string, boolean> | null | undefined): string[] {
@@ -37,7 +45,7 @@ serve(async () => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
   const now = new Date()
   const formattedDate = toLegacyDate(now)
-  const isoToday = now.toISOString().slice(0, 10)
+  const isoToday = formatYmdMadrid(now)
 
   try {
     const { data: existingDaily } = await supabase

@@ -2,7 +2,7 @@ name: JUDI Pool Weekly
 
 on:
   schedule:
-    # Domingos a las 18:00 UTC
+    # Domingos a las 18:00 UTC (20:00 CEST / 19:00 CET)
     - cron: '0 18 * * 0'
   workflow_dispatch:
 
@@ -21,11 +21,29 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          echo "::group::npm ci"
+          npm ci
+          echo "::endgroup::"
 
       - name: Build weekly pool from Steam
+        id: build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           STEAM_WEB_API_KEY: ${{ secrets.STEAM_WEB_API_KEY }}
-        run: npx tsx scripts/build-judi-pool.ts
+        run: |
+          echo "::group::Construcción pool semanal Steam"
+          echo "Inicio: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          npx tsx scripts/build-judi-pool.ts
+          echo "Fin: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          echo "::endgroup::"
+
+      - name: Resumen
+        if: always()
+        run: |
+          if [ "${{ steps.build.outcome }}" = "success" ]; then
+            echo "::notice::Pool semanal construida correctamente."
+          else
+            echo "::error::Falló la construcción del pool semanal. Revisa los logs del step anterior."
+          fi

@@ -1,273 +1,114 @@
-/* NAVIGATION - UNIFIED RESPONSIVE DESIGN */
+/* Barra superior solo en móvil (el brand del nav inferior está oculto ahí) */
+.nav-mobile-top {
+  display: none;
+}
 
-/* ===== DESKTOP HEADER (logo) ===== */
-.nav-header-desktop {
-    width: 100%;
-    padding: 1rem 2rem;
+.nav-shell {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 1.25rem;
+  height: 48px;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--foreground);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  transition: color 0.15s, background 0.15s;
+}
+
+.nav-link:hover {
+  color: var(--foreground);
+  background: var(--surface-2);
+}
+
+.nav-link.active {
+  color: var(--primary);
+  background: var(--primary-glow);
+}
+
+@media (max-width: 768px) {
+  .nav-mobile-top {
     display: flex;
-    justify-content: flex-start;
     align-items: center;
-    background-color: rgba(0, 23, 31, 0.95);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(0, 168, 232, 0.2);
+    justify-content: flex-start;
+    width: 100%;
+    min-height: calc(48px + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) 1rem 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
-    z-index: 1000;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
+    z-index: 51;
+  }
 
-.nav-header-desktop img {
-    width: 60px;
-    height: 60px;
-    transition: transform 0.3s ease;
-    cursor: pointer;
-}
-
-.nav-header-desktop img:hover {
-    transform: scale(1.05);
-}
-
-/* ===== NAVIGATION CONTAINER ===== */
-.nav-container {
-    display: contents;
-}
-
-/* ===== NAVIGATION LIST - DESKTOP ===== */
-.nav-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: transparent;
+  .nav-shell {
     position: fixed;
-    top: 0.5rem;
-    right: 2rem;
-    z-index: 1001;
-}
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    border-top: 1px solid var(--border);
+    border-bottom: 0;
+  }
 
-.nav-item {
-    padding: 0;
-}
-
-.nav-item a {
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 600;
-    font-size: 0.95rem;
-    text-decoration: none;
-    padding: 0.75rem 1.25rem;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s ease;
-    position: relative;
-    background-color: rgba(0, 23, 31, 0.8);
-    backdrop-filter: blur(10px);
-}
-
-.nav-item a:hover {
-    background-color: rgba(0, 168, 232, 0.2);
-    color: #00A8E8;
-    transform: translateY(-2px);
-}
-
-.nav-item a > i {
-    font-size: 1rem;
-}
-
-/* Labels */
-.nav-label-short {
-    display: none;
-}
-
-.nav-label-full {
-    display: inline;
-}
-
-/* JUDI Badge - Golden star (same style for all viewports) */
-.nav-item-judi a {
-    position: relative;
-}
-
-.nav-badge {
-    font-size: 0.5rem;
-    padding: 0.35rem;
-    border-radius: 50%;
-    min-width: 22px;
-    min-height: 22px;
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: #00171F;
-    font-weight: 800;
-    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.5);
-    margin-left: 0.4rem;
-    display: inline-flex;
-    align-items: center;
+  .nav-inner {
+    width: 100%;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    height: auto;
     justify-content: center;
-}
+  }
 
-.nav-badge i {
-    font-size: 0.65rem;
-    line-height: 1;
-    color: #00171F;
-}
+  /* Solo ocultar el brand duplicado del nav inferior, no el de .nav-mobile-top */
+  .nav-shell .nav-brand {
+    display: none;
+  }
 
-/* Active state - desktop */
-.nav-item-active a {
-    background-color: rgba(0, 168, 232, 0.25) !important;
-    color: #00A8E8 !important;
-}
+  .nav-menu {
+    width: 100%;
+    justify-content: space-around;
+    gap: 0;
+  }
 
-.nav-item-active a > i {
-    color: #00A8E8;
-}
-
-/* Keep badge star always golden */
-.nav-badge,
-.nav-item-active .nav-badge {
-    background: linear-gradient(135deg, #FFD700, #FFA500) !important;
-}
-
-.nav-badge i,
-.nav-item-active .nav-badge i {
-    color: #00171F !important;
-}
-
-/* ===== MOBILE STYLES ===== */
-@media (max-width: 768px) {
-    /* Hide desktop header */
-    .nav-header-desktop {
-        display: none;
-    }
-
-    /* Mobile bottom nav */
-    .nav-list {
-        position: fixed;
-        top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-around;
-        gap: 0;
-        background-color: rgba(0, 23, 31, 0.98);
-        backdrop-filter: blur(30px);
-        border-top: 1px solid rgba(0, 168, 232, 0.3);
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-        padding: 0.5rem 0.25rem;
-        padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
-        z-index: 1000;
-    }
-
-    .nav-item {
-        flex: 1;
-        max-width: 80px;
-    }
-
-    .nav-item a {
-        width: 100%;
-        padding: 0.5rem 0.2rem;
-        border-radius: 10px;
-        font-size: 0.6rem;
-        font-weight: 600;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 0.25rem;
-        text-align: center;
-        color: rgba(255, 255, 255, 0.7);
-        background-color: transparent;
-        backdrop-filter: none;
-    }
-
-    .nav-item a:hover,
-    .nav-item a:active {
-        background-color: rgba(0, 168, 232, 0.15);
-        color: #00A8E8;
-        transform: none;
-    }
-
-    .nav-item a > i {
-        font-size: 1.3rem;
-    }
-
-    /* Show short labels, hide full labels */
-    .nav-label-short {
-        display: inline;
-    }
-
-    .nav-label-full {
-        display: none;
-    }
-
-    /* Single label (without short/full variants) */
-    .nav-label:not(.nav-label-short):not(.nav-label-full) {
-        display: inline;
-    }
-
-    /* Mobile JUDI badge - overlay */
-    .nav-item-judi .nav-badge {
-        position: absolute !important;
-        top: -0.2rem !important;
-        right: -0.2rem !important;
-        margin-left: 0 !important;
-        min-width: 24px !important;
-        min-height: 24px !important;
-        padding: 6px !important;
-        box-shadow: 0 2px 6px rgba(255, 215, 0, 0.5) !important;
-    }
-
-    .nav-item-judi .nav-badge i {
-        font-size: 0.7rem !important;
-    }
-
-    /* Active state - mobile */
-    .nav-item-active a {
-        background-color: rgba(0, 168, 232, 0.2) !important;
-        color: #00A8E8 !important;
-    }
-
-    .nav-item-active a > i {
-        color: #00A8E8 !important;
-    }
-
-    /* Keep badge star golden even when active */
-    .nav-item-active .nav-badge i {
-        color: #00171F !important;
-    }
-
-    /* Body padding to avoid content being hidden */
-    body {
-        padding-bottom: calc(70px + env(safe-area-inset-bottom));
-    }
-}
-
-@media (max-width: 480px) {
-    .nav-item a {
-        font-size: 0.55rem;
-        padding: 0.4rem 0.15rem;
-    }
-
-    .nav-item a > i {
-        font-size: 1.2rem;
-    }
-
-    .nav-item {
-        max-width: 70px;
-    }
-
-    /* Badge slightly smaller on very small screens */
-    .nav-item-judi .nav-badge {
-        min-width: 22px !important;
-        min-height: 22px !important;
-        padding: 5px !important;
-    }
-
-    .nav-item-judi .nav-badge i {
-        font-size: 0.65rem !important;
-    }
+  .nav-link {
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    text-align: center;
+    font-size: 0.625rem;
+    padding: 6px 4px;
+  }
 }

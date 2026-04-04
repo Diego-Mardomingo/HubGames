@@ -1,7 +1,7 @@
 {
-    "name": "HubGames - Buscador de Videojuegos",
+    "name": "HubGames - JUDI",
     "short_name": "HubGames",
-    "description": "Encuentra los mejores videojuegos",
+    "description": "Adivina el juego del día y compite en el ranking",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#00171F",

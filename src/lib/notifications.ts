@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase/client'
+import { supabase, safeGetUser } from '@/lib/supabase/client'
 
 const VAPID_PUBLIC_KEY_RAW = process.env.NEXT_PUBLIC_WEB_PUSH_VAPID_PUBLIC_KEY
 
@@ -23,7 +23,7 @@ function urlBase64ToUint8Array(base64String: string) {
 }
 
 export async function getCurrentUserId(): Promise<string | null> {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await safeGetUser()
     return user?.id ?? null
 }
 

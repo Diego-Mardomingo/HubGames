@@ -92,6 +92,34 @@ export async function getTopAppIdsFromSteamSpy(): Promise<number[]> {
     return Array.from(all)
 }
 
+/**
+ * App IDs from the public Steam Store API (featured, offers, top sellers, new releases, etc.).
+ * No API key required. See https://wiki.teamfortress.com/wiki/User:WindBOT/Steam_Web_API#Storefront
+ */
+export async function getAppIdsFromSteamFeaturedCategories(): Promise<number[]> {
+    const data = await fetchJson<Record<string, unknown>>(
+        `${STEAM_STORE_BASE_URL}/featuredcategories?cc=ES&l=spanish`
+    )
+    const ids = new Set<number>()
+    for (const section of Object.values(data)) {
+        if (!section || typeof section !== 'object') continue
+        const items = (section as { items?: unknown }).items
+        if (!Array.isArray(items)) continue
+        for (const raw of items) {
+            const item = raw as { id?: number; type?: number; url?: string }
+            if (typeof item.id === 'number') {
+                if (item.type === 1) continue
+                ids.add(item.id)
+            }
+            if (item.url && typeof item.url === 'string') {
+                const m = item.url.match(/store\.steampowered\.com\/app\/(\d+)/)
+                if (m) ids.add(Number(m[1]))
+            }
+        }
+    }
+    return Array.from(ids)
+}
+
 export async function getSteamStoreDetails(appid: number): Promise<SteamStoreDetails | null> {
     const payload = await fetchJson<Record<string, { success: boolean; data?: SteamStoreDetails }>>(
         `${STEAM_STORE_BASE_URL}/appdetails?appids=${appid}&cc=ES&l=spanish`
@@ -145,10 +173,25 @@ export function dateToIso(value: Date): string {
     return value.toISOString().slice(0, 10)
 }
 
+/** YYYY-MM-DD según calendario en Europa/Madrid (p. ej. `selected_daily_date` alineado con `fecha` JUDI). */
+export function dateToIsoMadrid(value: Date): string {
+    return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Madrid',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    }).format(value)
+}
+
+/** DD-MM-YYYY según calendario en Europa/Madrid (misma regla que la UI del juego del día). */
 export function dateToLegacyJudi(date: Date): string {
-    const d = String(date.getUTCDate()).padStart(2, '0')
-    const m = String(date.getUTCMonth() + 1).padStart(2, '0')
-    const y = date.getUTCFullYear()
+    const ymd = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Madrid',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    }).format(date)
+    const [y, m, d] = ymd.split('-')
     return `${d}-${m}-${y}`
 }
 

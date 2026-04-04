@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next'
 import '@/styles/globals.css'
 import '@/styles/nav.css'
 import Nav from '@/components/Nav'
-import Footer from '@/components/Footer'
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
 
 export const viewport: Viewport = {
@@ -14,11 +13,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
     title: {
-        default: 'HubGames - Buscador de Videojuegos',
+        default: 'HubGames - JUDI',
         template: '%s | HubGames'
     },
-    description: 'Encuentra, sigue y comparte tu pasión por los videojuegos con datos enriquecidos de Steam.',
-    keywords: ['hubgames', 'hub games', 'videojuegos', 'juegos', 'buscador', 'judi', 'juego del día'],
+    description: 'Adivina el videojuego del día con JUDI y compite por puntos en el ranking global.',
+    keywords: ['hubgames', 'hub games', 'videojuegos', 'judi', 'juego del día', 'ranking', 'leaderboard'],
     authors: [{ name: 'Diego López Mardomingo' }],
     creator: 'Diego López Mardomingo',
     manifest: '/manifest.json',
@@ -37,8 +36,8 @@ export const metadata: Metadata = {
         locale: 'es_ES',
         url: 'https://hub-games.vercel.app/',
         siteName: 'HubGames',
-        title: 'HubGames - Tu Biblioteca Gamer',
-        description: 'La plataforma definitiva para gestionar tu colección y descubrir nuevos mundos.',
+        title: 'HubGames - JUDI',
+        description: 'Juego diario, pistas y ranking global por puntos.',
         images: [
             {
                 url: '/img/HGLogo.webp',
@@ -50,8 +49,8 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'HubGames - Tu Biblioteca Gamer',
-        description: 'Encuentra los mejores videojuegos en nuestro buscador.',
+        title: 'HubGames - JUDI',
+        description: 'Adivina el videojuego del día y sube en el ranking.',
         images: ['/img/HGLogo.webp'],
     },
     robots: {
@@ -67,16 +66,12 @@ export default function RootLayout({
 }) {
     return (
         <html lang="es">
-            <head>
-                <script src="https://kit.fontawesome.com/ed0e2390af.js" crossOrigin="anonymous" async></script>
-            </head>
             <body className="antialiased">
                 <ServiceWorkerRegistration />
                 <Nav />
                 <main id="main-content">
                     {children}
                 </main>
-                <Footer />
             </body>
         </html>
     )

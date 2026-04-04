@@ -1,8 +1,8 @@
 import {
     createServiceRoleClient,
     dateToIso,
-    fetchJson,
     getCurrentPlayers,
+    getAppIdsFromSteamFeaturedCategories,
     getSteamSpyDetails,
     getSteamStoreDetails,
     getTopAppIdsFromSteamSpy,
@@ -22,6 +22,16 @@ type PoolCandidate = {
     scorePass: boolean
     metadataPass: boolean
     reasons: string[]
+}
+
+function log(level: 'info' | 'ok' | 'warn' | 'error', msg: string, data?: unknown) {
+    const ts = new Date().toISOString()
+    const prefix = { info: '[STEP]', ok: '[OK]', warn: '[WARN]', error: '[ERROR]' }[level]
+    const line = data !== undefined ? `${prefix} ${msg} ${JSON.stringify(data)}` : `${prefix} ${msg}`
+    console.log(`${ts}  ${line}`)
+    if (level === 'error') {
+        console.error(`::error::${msg}`)
+    }
 }
 
 function computeEligibility(input: {
@@ -66,6 +76,9 @@ function computeEligibility(input: {
 }
 
 async function main() {
+    console.log('::group::build-judi-pool — inicio')
+    log('info', 'Script iniciado', { utc: new Date().toISOString() })
+
     const supabase = createServiceRoleClient()
     const now = new Date()
     const weekStart = startOfWeekSunday(now)
@@ -74,15 +87,34 @@ async function main() {
     const weekStartIso = dateToIso(weekStart)
     const weekEndIso = dateToIso(weekEnd)
 
-    const appIds = await getTopAppIdsFromSteamSpy()
-    const limitedIds = appIds.slice(0, 140)
+    log('info', 'Semana objetivo', { weekStartIso, weekEndIso })
+
+    console.log('::group::Obteniendo IDs de Steam')
+    const [steamStoreIds, steamSpyIds] = await Promise.all([
+        getAppIdsFromSteamFeaturedCategories(),
+        getTopAppIdsFromSteamSpy(),
+    ])
+    const mergedIds = [...new Set([...steamStoreIds, ...steamSpyIds])]
+    const limitedIds = mergedIds.slice(0, 160)
+    log('info', 'App IDs obtenidos', {
+        steamStoreFeatured: steamStoreIds.length,
+        steamSpyTops: steamSpyIds.length,
+        mergedUnique: mergedIds.length,
+        willProcess: limitedIds.length,
+    })
+    console.log('::endgroup::')
 
     let processed = 0
     let eligible = 0
+    let ineligible = 0
     let failed = 0
 
+    console.log('::group::Procesando candidatos')
     for (const appid of limitedIds) {
+        const idx = limitedIds.indexOf(appid) + 1
         try {
+            log('info', `[${idx}/${limitedIds.length}] Procesando appid`, { appid })
+
             const [store, steamSpy, currentPlayers] = await Promise.all([
                 getSteamStoreDetails(appid),
                 getSteamSpyDetails(appid),
@@ -94,6 +126,7 @@ async function main() {
 
             if (!store || !steamSpy || !store.name) {
                 failed++
+                log('warn', `[${idx}/${limitedIds.length}] Sin datos suficientes, omitiendo`, { appid })
                 continue
             }
 
@@ -122,6 +155,21 @@ async function main() {
                 ownersMid,
                 metacritic,
             })
+
+            log(
+                candidate.isEligible ? 'ok' : 'warn',
+                `[${idx}/${limitedIds.length}] ${store.name}`,
+                {
+                    appid,
+                    eligible: candidate.isEligible,
+                    relevanceScore: candidate.relevanceScore,
+                    reviewCount,
+                    positiveScore,
+                    screenshots,
+                    metacritic,
+                    reasons: candidate.reasons.length > 0 ? candidate.reasons : undefined,
+                }
+            )
 
             const releaseDate = parseSteamDate(store.release_date?.date || '')
 
@@ -181,6 +229,7 @@ async function main() {
 
             if (catalogError) {
                 failed++
+                log('error', `[${idx}/${limitedIds.length}] Error al insertar en catálogo`, { appid, error: catalogError.message })
                 continue
             }
 
@@ -200,36 +249,52 @@ async function main() {
                     filter_metadata_complete_pass: candidate.metadataPass,
                     discarded: false,
                     discarded_reason: null,
-                    source_tag: 'steamspy_top_weekly',
+                    source_tag: 'steam_store_and_steamspy',
                 }, {
                     onConflict: 'week_start_date,steam_appid',
                 })
 
             if (poolError) {
                 failed++
+                log('error', `[${idx}/${limitedIds.length}] Error al insertar en pool`, { appid, error: poolError.message })
                 continue
             }
 
             processed++
             if (candidate.isEligible) eligible++
+            else ineligible++
         } catch (error) {
             failed++
-            console.error('[build-judi-pool] candidate failed', { appid, error })
+            log('error', `[${idx}/${limitedIds.length}] Excepción procesando candidato`, { appid, error: String(error) })
         }
     }
+    console.log('::endgroup::')
+
+    console.log('::group::Resumen final')
+    log('ok', 'Pool semanal construida', {
+        weekStartIso,
+        weekEndIso,
+        total: limitedIds.length,
+        processed,
+        eligible,
+        ineligible,
+        failed,
+    })
+    console.log('::endgroup::')
 
     await supabase.from('hubgames_judi_generacion_logs').insert({
         exito: failed === 0,
-        error_mensaje: failed > 0 ? `${failed} candidates failed` : null,
-        nombre_juego: `Weekly pool built: eligible=${eligible}/${processed}`,
+        error_mensaje: failed > 0 ? `${failed} candidatos fallaron` : null,
+        nombre_juego: `Pool semanal: eligible=${eligible}/${processed} (${failed} fallos)`,
         fecha_judi: weekStartIso,
         fuente: 'steam_weekly_pool',
     })
 
-    console.log('[build-judi-pool] completed', { weekStartIso, weekEndIso, processed, eligible, failed })
+    console.log('::endgroup::')
 }
 
 main().catch((error) => {
     console.error('[build-judi-pool] fatal error', error)
+    console.log('::endgroup::')
     process.exit(1)
 })

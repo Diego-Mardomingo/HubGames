@@ -1,9 +1,19 @@
-import { createServiceRoleClient, dateToLegacyJudi, dateToIso } from './steam-utils'
+import { createServiceRoleClient, dateToLegacyJudi, dateToIsoMadrid } from './steam-utils'
 
 type PoolRow = {
     id: number
     steam_appid: number
     game_name: string
+}
+
+function log(level: 'info' | 'ok' | 'warn' | 'error', msg: string, data?: unknown) {
+    const ts = new Date().toISOString()
+    const prefix = { info: '[STEP]', ok: '[OK]', warn: '[WARN]', error: '[ERROR]' }[level]
+    const line = data !== undefined ? `${prefix} ${msg} ${JSON.stringify(data)}` : `${prefix} ${msg}`
+    console.log(`${ts}  ${line}`)
+    if (level === 'error') {
+        console.error(`::error::${msg}`)
+    }
 }
 
 function mapPlatforms(platforms: Record<string, boolean> | null | undefined): string[] {
@@ -21,9 +31,10 @@ function mapGenres(genres: Array<{ description?: string }> | null | undefined): 
         .filter((genre): genre is string => Boolean(genre))
 }
 
-async function insertDailyGameFromPool(poolRow: PoolRow) {
+async function insertDailyGameFromPool(poolRow: PoolRow, targetDate: Date) {
     const supabase = createServiceRoleClient()
 
+    log('info', 'Buscando entrada en catálogo Steam', { steam_appid: poolRow.steam_appid })
     const { data: steamGame, error: steamGameError } = await supabase
         .from('hubgames_juegos_steam')
         .select('*')
@@ -31,13 +42,14 @@ async function insertDailyGameFromPool(poolRow: PoolRow) {
         .maybeSingle()
 
     if (steamGameError || !steamGame) {
-        throw new Error(`Missing steam catalog entry for ${poolRow.steam_appid}`)
+        throw new Error(`Missing steam catalog entry for ${poolRow.steam_appid}: ${steamGameError?.message ?? 'not found'}`)
     }
 
-    const today = new Date()
-    const judiDate = dateToLegacyJudi(today)
-    const isoDate = dateToIso(today)
+    const judiDate = dateToLegacyJudi(targetDate)
+    const isoDate = dateToIsoMadrid(targetDate)
     const popularity = steamGame.steamspy_userscore ? (Number(steamGame.steamspy_userscore) / 20).toFixed(1) : '0'
+
+    log('info', 'Insertando juego en lista JUDI', { judiDate, isoDate, nombre: steamGame.name })
 
     const { data: insertedGame, error: insertError } = await supabase
         .from('hubgames_lista_videojuegos_judi')
@@ -58,6 +70,7 @@ async function insertDailyGameFromPool(poolRow: PoolRow) {
         throw new Error(insertError.message)
     }
 
+    log('info', 'Insertando plataformas')
     const platforms = mapPlatforms(steamGame.platforms)
     for (const platform of platforms) {
         await supabase.from('hubgames_plataformas').upsert({ plataforma: platform })
@@ -66,7 +79,9 @@ async function insertDailyGameFromPool(poolRow: PoolRow) {
             plataforma: platform,
         })
     }
+    log('ok', 'Plataformas insertadas', { platforms })
 
+    log('info', 'Insertando géneros')
     const genres = mapGenres(steamGame.genres)
     for (const genre of genres) {
         await supabase.from('hubgames_generos').upsert({ genero: genre })
@@ -75,7 +90,9 @@ async function insertDailyGameFromPool(poolRow: PoolRow) {
             genero: genre,
         })
     }
+    log('ok', 'Géneros insertados', { genres })
 
+    log('info', 'Insertando capturas')
     const screenshots = (steamGame.screenshots || [])
         .slice(0, 7)
         .map((shot: { path_full?: string }) => shot.path_full)
@@ -88,7 +105,9 @@ async function insertDailyGameFromPool(poolRow: PoolRow) {
     if (screenshots.length > 0) {
         await supabase.from('hubgames_capturas').upsert(screenshots)
     }
+    log('ok', 'Capturas insertadas', { count: screenshots.length })
 
+    log('info', 'Actualizando pool: marcando como seleccionado')
     await supabase
         .from('hubgames_judi_pool')
         .update({
@@ -98,6 +117,7 @@ async function insertDailyGameFromPool(poolRow: PoolRow) {
         })
         .eq('id', poolRow.id)
 
+    log('info', 'Registrando log de éxito en BD')
     await supabase.from('hubgames_judi_generacion_logs').insert({
         exito: true,
         id_juego_steam: poolRow.steam_appid,
@@ -110,10 +130,18 @@ async function insertDailyGameFromPool(poolRow: PoolRow) {
 }
 
 async function main() {
-    const supabase = createServiceRoleClient()
-    const today = new Date()
-    const judiDate = dateToLegacyJudi(today)
+    console.log('::group::pick-judi-daily — inicio')
+    log('info', 'Script iniciado', { utc: new Date().toISOString() })
 
+    const supabase = createServiceRoleClient()
+
+    // El juego se genera a las 11:00 hora española para el día SIGUIENTE (00:00 Madrid)
+    const tomorrow = new Date(Date.now() + 86400000)
+    const judiDate = dateToLegacyJudi(tomorrow)
+
+    log('info', 'Fecha objetivo (mañana Madrid)', { judiDate, tomorrow: tomorrow.toISOString() })
+
+    log('info', 'Verificando si ya existe juego para esa fecha')
     const { data: existingDaily } = await supabase
         .from('hubgames_lista_videojuegos_judi')
         .select('id, nombre')
@@ -121,9 +149,12 @@ async function main() {
         .maybeSingle()
 
     if (existingDaily) {
-        console.log('[pick-judi-daily] already exists', existingDaily)
+        log('ok', 'Ya existe juego para esta fecha, nada que hacer', existingDaily)
+        console.log('::endgroup::')
         return
     }
+
+    log('info', 'No existe juego para mañana — buscando candidatos elegibles en el pool')
 
     const { data: candidates, error } = await supabase
         .from('hubgames_judi_pool')
@@ -135,19 +166,41 @@ async function main() {
         .limit(25)
 
     if (error || !candidates || candidates.length === 0) {
-        throw new Error('No eligible games found in hubgames_judi_pool')
+        const msg = 'No eligible games found in hubgames_judi_pool'
+        log('error', msg, { error })
+        await supabase.from('hubgames_judi_generacion_logs').insert({
+            exito: false,
+            error_mensaje: msg,
+            nombre_juego: 'N/A',
+            fecha_judi: judiDate,
+            fuente: 'steam_pool_daily_pick',
+        })
+        console.log('::endgroup::')
+        throw new Error(msg)
     }
 
+    log('info', 'Candidatos encontrados', { count: candidates.length, top: candidates[0]?.game_name })
+
     for (const candidate of candidates as PoolRow[]) {
+        log('info', 'Intentando candidato', { steam_appid: candidate.steam_appid, game_name: candidate.game_name })
         try {
-            const insertedId = await insertDailyGameFromPool(candidate)
-            console.log('[pick-judi-daily] inserted', { candidate: candidate.steam_appid, insertedId })
+            const insertedId = await insertDailyGameFromPool(candidate, tomorrow)
+            log('ok', 'Juego del día insertado con éxito', {
+                steam_appid: candidate.steam_appid,
+                game_name: candidate.game_name,
+                insertedId,
+                fechaJudi: judiDate,
+            })
+            console.log('::endgroup::')
             return
         } catch (insertError: any) {
             const message = insertError?.message || 'unknown_insert_error'
 
-            // Si el appid ya fue usado antes en JUDI, se descarta del pool.
             if (message.includes('duplicate key value') || message.includes('unique')) {
+                log('warn', 'Candidato descartado: ya usado anteriormente en JUDI', {
+                    steam_appid: candidate.steam_appid,
+                    game_name: candidate.game_name,
+                })
                 await supabase
                     .from('hubgames_judi_pool')
                     .update({
@@ -158,14 +211,28 @@ async function main() {
                 continue
             }
 
+            log('error', `Candidato falló con error inesperado: ${message}`, {
+                steam_appid: candidate.steam_appid,
+            })
             throw insertError
         }
     }
 
-    throw new Error('Could not insert a new daily game from pool after checking candidates')
+    const exhaustedMsg = 'Could not insert a new daily game from pool after checking all candidates'
+    log('error', exhaustedMsg)
+    await supabase.from('hubgames_judi_generacion_logs').insert({
+        exito: false,
+        error_mensaje: exhaustedMsg,
+        nombre_juego: 'N/A',
+        fecha_judi: judiDate,
+        fuente: 'steam_pool_daily_pick',
+    })
+    console.log('::endgroup::')
+    throw new Error(exhaustedMsg)
 }
 
 main().catch((error) => {
     console.error('[pick-judi-daily] fatal error', error)
+    console.log('::endgroup::')
     process.exit(1)
 })
