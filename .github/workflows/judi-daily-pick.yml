@@ -21,6 +21,20 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Comprobar secretos de Supabase
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          missing=""
+          [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] && missing="${missing}NEXT_PUBLIC_SUPABASE_URL "
+          [ -z "$SUPABASE_SERVICE_ROLE_KEY" ] && missing="${missing}SUPABASE_SERVICE_ROLE_KEY "
+          if [ -n "$missing" ]; then
+            echo "::error::Faltan secretos de Actions (valores vacíos): $missing"
+            echo "Añádelos en el repo: Settings → Secrets and variables → Actions → Repository secrets."
+            exit 1
+          fi
+
       - name: Install dependencies
         run: |
           echo "::group::npm ci"
