@@ -46,14 +46,14 @@ function computeEligibility(input: {
     metacritic: number
 }): PoolCandidate {
     const reasons: string[] = []
-    const reviewsPass = input.reviewCount >= 500
+    const reviewsPass = input.reviewCount >= 300
     const screenshotsPass = input.screenshots >= 6
-    const scorePass = input.positiveScore >= 80
+    const scorePass = input.positiveScore >= 65
     const metadataPass = input.metadataComplete
 
-    if (!reviewsPass) reasons.push('reviews_below_500')
+    if (!reviewsPass) reasons.push('reviews_below_300')
     if (!screenshotsPass) reasons.push('screenshots_below_6')
-    if (!scorePass) reasons.push('positive_score_below_80')
+    if (!scorePass) reasons.push('positive_score_below_65')
     if (!metadataPass) reasons.push('metadata_incomplete')
 
     const relevanceScore =
