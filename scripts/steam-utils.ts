@@ -92,16 +92,39 @@ export async function getTopAppIdsFromSteamSpy(): Promise<number[]> {
     return Array.from(all)
 }
 
+export type SteamSpyTop100Request = 'top100in2weeks' | 'top100owned' | 'top100forever'
+
 /** Orden por ranking SteamSpy (claves numéricas ascendentes). */
-export async function getTop100In2WeeksAppIds(): Promise<number[]> {
+export async function getSteamSpyTop100Ranked(request: SteamSpyTop100Request): Promise<number[]> {
     const data = await fetchJson<Record<string, { appid?: number }>>(
-        `${STEAMSPY_BASE_URL}?request=top100in2weeks`
+        `${STEAMSPY_BASE_URL}?request=${request}`
     )
     const entries = Object.entries(data || {}).filter(
         ([k, v]) => /^\d+$/.test(k) && typeof v?.appid === 'number'
     )
     entries.sort((a, b) => Number(a[0]) - Number(b[0]))
     return entries.map(([, v]) => v.appid as number)
+}
+
+export async function getTop100In2WeeksAppIds(): Promise<number[]> {
+    return getSteamSpyTop100Ranked('top100in2weeks')
+}
+
+/**
+ * Listado global SteamSpy por página (~1000 appids). Sirve para seguir descubriendo juegos
+ * relevantes de cualquier época cuando los tops ya están en la pool.
+ */
+export async function getSteamSpyAllPage(page: number): Promise<number[]> {
+    try {
+        const data = await fetchJson<Record<string, { appid?: number }>>(
+            `${STEAMSPY_BASE_URL}?request=all&page=${page}`
+        )
+        return Object.values(data || {})
+            .map((row) => row?.appid)
+            .filter((id): id is number => typeof id === 'number' && id > 0)
+    } catch {
+        return []
+    }
 }
 
 function extractAppIdsFromFeaturedItemsList(items: unknown): number[] {
@@ -129,6 +152,28 @@ export async function getAppIdsFromSteamNewReleases(): Promise<number[]> {
         `${STEAM_STORE_BASE_URL}/featuredcategories?cc=ES&l=spanish`
     )
     const section = data.new_releases
+    if (!section || typeof section !== 'object') return []
+    const items = (section as { items?: unknown }).items
+    const raw = extractAppIdsFromFeaturedItemsList(items)
+    const seen = new Set<number>()
+    const out: number[] = []
+    for (const id of raw) {
+        if (!seen.has(id)) {
+            seen.add(id)
+            out.push(id)
+        }
+    }
+    return out
+}
+
+/**
+ * Solo la sección "Más vendidos" del storefront (misma API que featuredcategories).
+ */
+export async function getAppIdsFromSteamTopSellers(): Promise<number[]> {
+    const data = await fetchJson<Record<string, unknown>>(
+        `${STEAM_STORE_BASE_URL}/featuredcategories?cc=ES&l=spanish`
+    )
+    const section = data.top_sellers
     if (!section || typeof section !== 'object') return []
     const items = (section as { items?: unknown }).items
     const raw = extractAppIdsFromFeaturedItemsList(items)

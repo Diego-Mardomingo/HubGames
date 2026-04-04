@@ -2,10 +2,12 @@ import {
     createServiceRoleClient,
     dateToIso,
     getAppIdsFromSteamNewReleases,
+    getAppIdsFromSteamTopSellers,
     getCurrentPlayers,
+    getSteamSpyAllPage,
     getSteamSpyDetails,
+    getSteamSpyTop100Ranked,
     getSteamStoreDetails,
-    getTop100In2WeeksAppIds,
     ownersMidpoint,
     parseSteamDate,
     sleep,
@@ -14,6 +16,8 @@ import {
 
 const TARGET_NEW_POOL_ROWS = 40
 const POOL_PAGE_SIZE = 1000
+/** Páginas máximas de SteamSpy `request=all` si hace falta seguir ampliando la cola. */
+const MAX_STEAMSPY_ALL_PAGES = 40
 
 type PoolCandidate = {
     appid: number
@@ -98,20 +102,21 @@ async function loadExistingPoolAppIds(supabase: ReturnType<typeof createServiceR
     return ids
 }
 
-function buildDiscoveryCandidateIds(in2Weeks: number[], newReleases: number[], alreadyInPool: Set<number>): number[] {
+/**
+ * Une capas en orden de prioridad (tendencia → novedades → propietarios → histórico → tienda),
+ * sin duplicados y excluyendo appids ya presentes en la pool.
+ */
+function mergeTierQueues(alreadyInPool: Set<number>, tiers: number[][]): number[] {
     const seen = new Set<number>()
-    const ordered: number[] = []
-    for (const id of in2Weeks) {
-        if (seen.has(id)) continue
-        seen.add(id)
-        ordered.push(id)
+    const out: number[] = []
+    for (const tier of tiers) {
+        for (const id of tier) {
+            if (seen.has(id)) continue
+            seen.add(id)
+            if (!alreadyInPool.has(id)) out.push(id)
+        }
     }
-    for (const id of newReleases) {
-        if (seen.has(id)) continue
-        seen.add(id)
-        ordered.push(id)
-    }
-    return ordered.filter((id) => !alreadyInPool.has(id))
+    return out
 }
 
 async function main() {
@@ -129,21 +134,40 @@ async function main() {
     log('info', 'Semana objetivo', { weekStartIso, weekEndIso })
 
     console.log('::group::Cargando pool existente y fuentes de candidatos')
-    const [alreadyInPool, in2WeeksIds, newReleaseIds] = await Promise.all([
+    const [alreadyInPool, in2WeeksIds, newReleaseIds, ownedIds, foreverIds, topSellerIds] = await Promise.all([
         loadExistingPoolAppIds(supabase),
-        getTop100In2WeeksAppIds(),
+        getSteamSpyTop100Ranked('top100in2weeks'),
         getAppIdsFromSteamNewReleases(),
+        getSteamSpyTop100Ranked('top100owned'),
+        getSteamSpyTop100Ranked('top100forever'),
+        getAppIdsFromSteamTopSellers(),
     ])
 
-    const candidates = buildDiscoveryCandidateIds(in2WeeksIds, newReleaseIds, alreadyInPool)
+    let queue = mergeTierQueues(alreadyInPool, [
+        in2WeeksIds,
+        newReleaseIds,
+        ownedIds,
+        foreverIds,
+        topSellerIds,
+    ])
+    const initialTierQueueLength = queue.length
+    const queuedIds = new Set(queue)
+    let steamSpyAllPage = 0
+    const discoveryLabel = 'tiered_then_steamspy_all'
 
-    log('info', 'Candidatos (solo appids nuevos respecto al pool)', {
+    log('info', 'Cola inicial (relevancia: tendencia → novedades → owned → forever → top sellers)', {
         poolExistingCount: alreadyInPool.size,
-        steamSpyIn2Weeks: in2WeeksIds.length,
-        steamStoreNewReleases: newReleaseIds.length,
-        newCandidates: candidates.length,
+        in2Weeks: in2WeeksIds.length,
+        newReleases: newReleaseIds.length,
+        owned: ownedIds.length,
+        forever: foreverIds.length,
+        topSellers: topSellerIds.length,
+        queueNewNotInPool: queue.length,
         targetNewRows: TARGET_NEW_POOL_ROWS,
     })
+    if (queue.length === 0) {
+        log('warn', 'Ningún appid nuevo en las fuentes “prioritarias”; se ampliará con SteamSpy request=all.')
+    }
     console.log('::endgroup::')
 
     let insertedNew = 0
@@ -151,14 +175,59 @@ async function main() {
     let ineligible = 0
     let failed = 0
     let attempt = 0
+    let readIdx = 0
+
+    async function extendQueueFromSteamSpyAll(): Promise<void> {
+        while (
+            readIdx >= queue.length &&
+            steamSpyAllPage <= MAX_STEAMSPY_ALL_PAGES &&
+            insertedNew < TARGET_NEW_POOL_ROWS
+        ) {
+            const ids = await getSteamSpyAllPage(steamSpyAllPage)
+            steamSpyAllPage += 1
+            let appended = 0
+            for (const id of ids) {
+                if (queuedIds.has(id)) continue
+                if (alreadyInPool.has(id)) continue
+                queuedIds.add(id)
+                queue.push(id)
+                appended++
+            }
+            log('info', `SteamSpy all página ${steamSpyAllPage - 1}`, {
+                raw: ids.length,
+                appended,
+                queueTotal: queue.length,
+            })
+            await sleep(500)
+            if (ids.length === 0) break
+        }
+    }
 
     console.log('::group::Procesando candidatos nuevos')
-    for (let i = 0; i < candidates.length && insertedNew < TARGET_NEW_POOL_ROWS; i++) {
-        const appid = candidates[i]
+    while (insertedNew < TARGET_NEW_POOL_ROWS) {
+        await extendQueueFromSteamSpyAll()
+        if (readIdx >= queue.length) {
+            log('warn', 'Cola agotada: no hay más appids nuevos (tops + SteamSpy all hasta límite de páginas).', {
+                steamSpyAllPagesFetched: steamSpyAllPage,
+                insertedNew,
+            })
+            break
+        }
+
+        const appid = queue[readIdx]
+        const poolSourceTag = readIdx < initialTierQueueLength ? 'steam_weekly_discovery' : 'steam_weekly_discovery_catalog'
+        readIdx += 1
         attempt++
-        const label = `[${attempt}/${candidates.length}]`
+        const label = `[${attempt}]`
         try {
-            log('info', `${label} Procesando appid`, { appid, insertedNew, target: TARGET_NEW_POOL_ROWS })
+            log('info', `${label} Procesando appid`, {
+                appid,
+                insertedNew,
+                target: TARGET_NEW_POOL_ROWS,
+                queueIndex: readIdx,
+                queueLen: queue.length,
+                source: poolSourceTag,
+            })
 
             const [store, steamSpy, currentPlayers] = await Promise.all([
                 getSteamStoreDetails(appid),
@@ -293,7 +362,7 @@ async function main() {
                     filter_metadata_complete_pass: candidate.metadataPass,
                     discarded: false,
                     discarded_reason: null,
-                    source_tag: 'steam_weekly_discovery',
+                    source_tag: poolSourceTag,
                 },
                 { onConflict: 'week_start_date,steam_appid' }
             )
@@ -324,17 +393,37 @@ async function main() {
         ineligible,
         failed,
         attempts: attempt,
-        remainingCandidates: Math.max(0, candidates.length - attempt),
+        remainingInQueue: Math.max(0, queue.length - readIdx),
+        steamSpyAllPagesFetched: steamSpyAllPage,
+        initialTierQueueLength,
     })
     console.log('::endgroup::')
 
-    await supabase.from('hubgames_judi_generacion_logs').insert({
+    const logNombre =
+        insertedNew === 0 && attempt === 0
+            ? `Pool [${discoveryLabel}] sin candidatos (cola vacía tras fuentes prioritarias + SteamSpy all)`
+            : `Pool [${discoveryLabel}] +${insertedNew}/${TARGET_NEW_POOL_ROWS} nuevos, eligible=${eligible}, ineligible=${ineligible}, steamspy_all_páginas=${steamSpyAllPage}`
+
+    const { error: genLogError } = await supabase.from('hubgames_judi_generacion_logs').insert({
         exito: failed === 0,
         error_mensaje: failed > 0 ? `${failed} candidatos fallaron al procesar` : null,
-        nombre_juego: `Pool discovery: +${insertedNew} nuevos (objetivo ${TARGET_NEW_POOL_ROWS}), eligible=${eligible}, ineligible=${ineligible}`,
+        nombre_juego: logNombre,
         fecha_judi: weekStartIso,
         fuente: 'steam_weekly_pool',
     })
+
+    if (genLogError) {
+        log('error', 'No se pudo insertar en hubgames_judi_generacion_logs', { message: genLogError.message })
+        console.error(`::error::generacion_logs: ${genLogError.message}`)
+        process.exit(1)
+    }
+    log('ok', 'Registro escrito en hubgames_judi_generacion_logs', { nombre_juego: logNombre })
+
+    if (insertedNew === 0 && attempt > 0) {
+        console.log(
+            '::notice::Pool semanal: 0 filas nuevas a pesar de intentos (revisa fallos o datos Steam arriba).'
+        )
+    }
 
     console.log('::endgroup::')
 }
