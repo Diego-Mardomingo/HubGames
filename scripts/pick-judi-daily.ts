@@ -16,6 +16,13 @@ function log(level: 'info' | 'ok' | 'warn' | 'error', msg: string, data?: unknow
     }
 }
 
+function shuffleArrayInPlace<T>(items: T[]): void {
+    for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[items[i], items[j]] = [items[j], items[i]]
+    }
+}
+
 function mapPlatforms(platforms: Record<string, boolean> | null | undefined): string[] {
     if (!platforms) return []
     const output: string[] = []
@@ -179,9 +186,16 @@ async function main() {
         throw new Error(msg)
     }
 
-    log('info', 'Candidatos encontrados', { count: candidates.length, top: candidates[0]?.game_name })
+    const pool = [...candidates] as PoolRow[]
+    shuffleArrayInPlace(pool)
+    log('info', 'Candidatos encontrados', {
+        count: pool.length,
+        orden: 'aleatorio_entre_top_25',
+        primerIntento: pool[0]?.game_name,
+        primerSteamAppid: pool[0]?.steam_appid,
+    })
 
-    for (const candidate of candidates as PoolRow[]) {
+    for (const candidate of pool) {
         log('info', 'Intentando candidato', { steam_appid: candidate.steam_appid, game_name: candidate.game_name })
         try {
             const insertedId = await insertDailyGameFromPool(candidate, tomorrow)
