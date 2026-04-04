@@ -92,6 +92,57 @@ export async function getTopAppIdsFromSteamSpy(): Promise<number[]> {
     return Array.from(all)
 }
 
+/** Orden por ranking SteamSpy (claves numéricas ascendentes). */
+export async function getTop100In2WeeksAppIds(): Promise<number[]> {
+    const data = await fetchJson<Record<string, { appid?: number }>>(
+        `${STEAMSPY_BASE_URL}?request=top100in2weeks`
+    )
+    const entries = Object.entries(data || {}).filter(
+        ([k, v]) => /^\d+$/.test(k) && typeof v?.appid === 'number'
+    )
+    entries.sort((a, b) => Number(a[0]) - Number(b[0]))
+    return entries.map(([, v]) => v.appid as number)
+}
+
+function extractAppIdsFromFeaturedItemsList(items: unknown): number[] {
+    if (!Array.isArray(items)) return []
+    const ids: number[] = []
+    for (const raw of items) {
+        const item = raw as { id?: number; type?: number; url?: string }
+        if (typeof item.id === 'number') {
+            if (item.type === 1) continue
+            ids.push(item.id)
+        }
+        if (item.url && typeof item.url === 'string') {
+            const m = item.url.match(/store\.steampowered\.com\/app\/(\d+)/)
+            if (m) ids.push(Number(m[1]))
+        }
+    }
+    return ids
+}
+
+/**
+ * Solo la sección "Nuevos lanzamientos" del storefront (misma API que featuredcategories).
+ */
+export async function getAppIdsFromSteamNewReleases(): Promise<number[]> {
+    const data = await fetchJson<Record<string, unknown>>(
+        `${STEAM_STORE_BASE_URL}/featuredcategories?cc=ES&l=spanish`
+    )
+    const section = data.new_releases
+    if (!section || typeof section !== 'object') return []
+    const items = (section as { items?: unknown }).items
+    const raw = extractAppIdsFromFeaturedItemsList(items)
+    const seen = new Set<number>()
+    const out: number[] = []
+    for (const id of raw) {
+        if (!seen.has(id)) {
+            seen.add(id)
+            out.push(id)
+        }
+    }
+    return out
+}
+
 /**
  * App IDs from the public Steam Store API (featured, offers, top sellers, new releases, etc.).
  * No API key required. See https://wiki.teamfortress.com/wiki/User:WindBOT/Steam_Web_API#Storefront

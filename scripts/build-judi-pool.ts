@@ -1,16 +1,19 @@
 import {
     createServiceRoleClient,
     dateToIso,
+    getAppIdsFromSteamNewReleases,
     getCurrentPlayers,
-    getAppIdsFromSteamFeaturedCategories,
     getSteamSpyDetails,
     getSteamStoreDetails,
-    getTopAppIdsFromSteamSpy,
+    getTop100In2WeeksAppIds,
     ownersMidpoint,
     parseSteamDate,
     sleep,
     startOfWeekSunday,
 } from './steam-utils'
+
+const TARGET_NEW_POOL_ROWS = 40
+const POOL_PAGE_SIZE = 1000
 
 type PoolCandidate = {
     appid: number
@@ -75,9 +78,45 @@ function computeEligibility(input: {
     }
 }
 
+async function loadExistingPoolAppIds(supabase: ReturnType<typeof createServiceRoleClient>): Promise<Set<number>> {
+    const ids = new Set<number>()
+    let from = 0
+    for (;;) {
+        const { data, error } = await supabase
+            .from('hubgames_judi_pool')
+            .select('steam_appid')
+            .range(from, from + POOL_PAGE_SIZE - 1)
+
+        if (error) throw new Error(`No se pudo cargar hubgames_judi_pool: ${error.message}`)
+        if (!data?.length) break
+        for (const row of data) {
+            if (typeof row.steam_appid === 'number') ids.add(row.steam_appid)
+        }
+        if (data.length < POOL_PAGE_SIZE) break
+        from += POOL_PAGE_SIZE
+    }
+    return ids
+}
+
+function buildDiscoveryCandidateIds(in2Weeks: number[], newReleases: number[], alreadyInPool: Set<number>): number[] {
+    const seen = new Set<number>()
+    const ordered: number[] = []
+    for (const id of in2Weeks) {
+        if (seen.has(id)) continue
+        seen.add(id)
+        ordered.push(id)
+    }
+    for (const id of newReleases) {
+        if (seen.has(id)) continue
+        seen.add(id)
+        ordered.push(id)
+    }
+    return ordered.filter((id) => !alreadyInPool.has(id))
+}
+
 async function main() {
     console.log('::group::build-judi-pool — inicio')
-    log('info', 'Script iniciado', { utc: new Date().toISOString() })
+    log('info', 'Script iniciado (descubrimiento incremental)', { utc: new Date().toISOString() })
 
     const supabase = createServiceRoleClient()
     const now = new Date()
@@ -89,31 +128,37 @@ async function main() {
 
     log('info', 'Semana objetivo', { weekStartIso, weekEndIso })
 
-    console.log('::group::Obteniendo IDs de Steam')
-    const [steamStoreIds, steamSpyIds] = await Promise.all([
-        getAppIdsFromSteamFeaturedCategories(),
-        getTopAppIdsFromSteamSpy(),
+    console.log('::group::Cargando pool existente y fuentes de candidatos')
+    const [alreadyInPool, in2WeeksIds, newReleaseIds] = await Promise.all([
+        loadExistingPoolAppIds(supabase),
+        getTop100In2WeeksAppIds(),
+        getAppIdsFromSteamNewReleases(),
     ])
-    const mergedIds = [...new Set([...steamStoreIds, ...steamSpyIds])]
-    const limitedIds = mergedIds.slice(0, 160)
-    log('info', 'App IDs obtenidos', {
-        steamStoreFeatured: steamStoreIds.length,
-        steamSpyTops: steamSpyIds.length,
-        mergedUnique: mergedIds.length,
-        willProcess: limitedIds.length,
+
+    const candidates = buildDiscoveryCandidateIds(in2WeeksIds, newReleaseIds, alreadyInPool)
+
+    log('info', 'Candidatos (solo appids nuevos respecto al pool)', {
+        poolExistingCount: alreadyInPool.size,
+        steamSpyIn2Weeks: in2WeeksIds.length,
+        steamStoreNewReleases: newReleaseIds.length,
+        newCandidates: candidates.length,
+        targetNewRows: TARGET_NEW_POOL_ROWS,
     })
     console.log('::endgroup::')
 
-    let processed = 0
+    let insertedNew = 0
     let eligible = 0
     let ineligible = 0
     let failed = 0
+    let attempt = 0
 
-    console.log('::group::Procesando candidatos')
-    for (const appid of limitedIds) {
-        const idx = limitedIds.indexOf(appid) + 1
+    console.log('::group::Procesando candidatos nuevos')
+    for (let i = 0; i < candidates.length && insertedNew < TARGET_NEW_POOL_ROWS; i++) {
+        const appid = candidates[i]
+        attempt++
+        const label = `[${attempt}/${candidates.length}]`
         try {
-            log('info', `[${idx}/${limitedIds.length}] Procesando appid`, { appid })
+            log('info', `${label} Procesando appid`, { appid, insertedNew, target: TARGET_NEW_POOL_ROWS })
 
             const [store, steamSpy, currentPlayers] = await Promise.all([
                 getSteamStoreDetails(appid),
@@ -121,12 +166,11 @@ async function main() {
                 getCurrentPlayers(appid),
             ])
 
-            // SteamSpy recomienda no abusar: 1 req/seg para la mayoría de requests.
             await sleep(1100)
 
             if (!store || !steamSpy || !store.name) {
                 failed++
-                log('warn', `[${idx}/${limitedIds.length}] Sin datos suficientes, omitiendo`, { appid })
+                log('warn', `${label} Sin datos suficientes, omitiendo`, { appid })
                 continue
             }
 
@@ -158,7 +202,7 @@ async function main() {
 
             log(
                 candidate.isEligible ? 'ok' : 'warn',
-                `[${idx}/${limitedIds.length}] ${store.name}`,
+                `${label} ${store.name}`,
                 {
                     appid,
                     eligible: candidate.isEligible,
@@ -175,67 +219,67 @@ async function main() {
 
             const { error: catalogError } = await supabase
                 .from('hubgames_juegos_steam')
-                .upsert({
-                    steam_appid: appid,
-                    name: store.name,
-                    type: store.type || null,
-                    required_age: store.required_age ?? null,
-                    is_free: store.is_free ?? false,
-                    short_description: store.short_description || null,
-                    detailed_description: store.detailed_description || null,
-                    about_the_game: store.about_the_game || null,
-                    supported_languages: store.supported_languages || null,
-                    developers: store.developers || [],
-                    publishers: store.publishers || [],
-                    website: store.website || null,
-                    header_image: store.header_image || null,
-                    capsule_image: store.capsule_image || null,
-                    capsule_imagev5: store.capsule_imagev5 || null,
-                    background: store.background || null,
-                    background_raw: store.background_raw || null,
-                    release_date_text: store.release_date?.date || null,
-                    release_date: releaseDate,
-                    coming_soon: store.release_date?.coming_soon ?? null,
-                    metacritic_score: store.metacritic?.score ?? null,
-                    metacritic_url: store.metacritic?.url ?? null,
-                    categories: store.categories || [],
-                    genres: store.genres || [],
-                    screenshots: store.screenshots || [],
-                    movies: store.movies || [],
-                    price_overview: store.price_overview || null,
-                    packages: store.packages || null,
-                    platforms: store.platforms || {},
-                    recommendations_total: store.recommendations?.total ?? null,
-                    achievements_total: store.achievements?.total ?? null,
-                    steamspy_score_rank: steamSpy.score_rank ? Number(steamSpy.score_rank) || null : null,
-                    steamspy_positive: positive,
-                    steamspy_negative: negative,
-                    steamspy_userscore: positiveScore,
-                    steamspy_owners: steamSpy.owners || null,
-                    steamspy_average_forever: steamSpy.average_forever ?? null,
-                    steamspy_average_2weeks: steamSpy.average_2weeks ?? null,
-                    steamspy_median_forever: steamSpy.median_forever ?? null,
-                    steamspy_median_2weeks: steamSpy.median_2weeks ?? null,
-                    steamspy_ccu: currentPlayers ?? steamSpy.ccu ?? null,
-                    steamspy_tags: steamSpy.tags || {},
-                    steamspy_raw: steamSpy,
-                    steam_web_raw: currentPlayers ? { player_count: currentPlayers } : null,
-                    steam_store_raw: store,
-                    source_priority: candidate.isEligible ? 1 : 0,
-                    last_synced_at: new Date().toISOString(),
-                }, {
-                    onConflict: 'steam_appid',
-                })
+                .upsert(
+                    {
+                        steam_appid: appid,
+                        name: store.name,
+                        type: store.type || null,
+                        required_age: store.required_age ?? null,
+                        is_free: store.is_free ?? false,
+                        short_description: store.short_description || null,
+                        detailed_description: store.detailed_description || null,
+                        about_the_game: store.about_the_game || null,
+                        supported_languages: store.supported_languages || null,
+                        developers: store.developers || [],
+                        publishers: store.publishers || [],
+                        website: store.website || null,
+                        header_image: store.header_image || null,
+                        capsule_image: store.capsule_image || null,
+                        capsule_imagev5: store.capsule_imagev5 || null,
+                        background: store.background || null,
+                        background_raw: store.background_raw || null,
+                        release_date_text: store.release_date?.date || null,
+                        release_date: releaseDate,
+                        coming_soon: store.release_date?.coming_soon ?? null,
+                        metacritic_score: store.metacritic?.score ?? null,
+                        metacritic_url: store.metacritic?.url ?? null,
+                        categories: store.categories || [],
+                        genres: store.genres || [],
+                        screenshots: store.screenshots || [],
+                        movies: store.movies || [],
+                        price_overview: store.price_overview || null,
+                        packages: store.packages || null,
+                        platforms: store.platforms || {},
+                        recommendations_total: store.recommendations?.total ?? null,
+                        achievements_total: store.achievements?.total ?? null,
+                        steamspy_score_rank: steamSpy.score_rank ? Number(steamSpy.score_rank) || null : null,
+                        steamspy_positive: positive,
+                        steamspy_negative: negative,
+                        steamspy_userscore: positiveScore,
+                        steamspy_owners: steamSpy.owners || null,
+                        steamspy_average_forever: steamSpy.average_forever ?? null,
+                        steamspy_average_2weeks: steamSpy.average_2weeks ?? null,
+                        steamspy_median_forever: steamSpy.median_forever ?? null,
+                        steamspy_median_2weeks: steamSpy.median_2weeks ?? null,
+                        steamspy_ccu: currentPlayers ?? steamSpy.ccu ?? null,
+                        steamspy_tags: steamSpy.tags || {},
+                        steamspy_raw: steamSpy,
+                        steam_web_raw: currentPlayers ? { player_count: currentPlayers } : null,
+                        steam_store_raw: store,
+                        source_priority: candidate.isEligible ? 1 : 0,
+                        last_synced_at: new Date().toISOString(),
+                    },
+                    { onConflict: 'steam_appid' }
+                )
 
             if (catalogError) {
                 failed++
-                log('error', `[${idx}/${limitedIds.length}] Error al insertar en catálogo`, { appid, error: catalogError.message })
+                log('error', `${label} Error al insertar en catálogo`, { appid, error: catalogError.message })
                 continue
             }
 
-            const { error: poolError } = await supabase
-                .from('hubgames_judi_pool')
-                .upsert({
+            const { error: poolError } = await supabase.from('hubgames_judi_pool').upsert(
+                {
                     week_start_date: weekStartIso,
                     week_end_date: weekEndIso,
                     steam_appid: appid,
@@ -249,43 +293,45 @@ async function main() {
                     filter_metadata_complete_pass: candidate.metadataPass,
                     discarded: false,
                     discarded_reason: null,
-                    source_tag: 'steam_store_and_steamspy',
-                }, {
-                    onConflict: 'week_start_date,steam_appid',
-                })
+                    source_tag: 'steam_weekly_discovery',
+                },
+                { onConflict: 'week_start_date,steam_appid' }
+            )
 
             if (poolError) {
                 failed++
-                log('error', `[${idx}/${limitedIds.length}] Error al insertar en pool`, { appid, error: poolError.message })
+                log('error', `${label} Error al insertar en pool`, { appid, error: poolError.message })
                 continue
             }
 
-            processed++
+            insertedNew++
             if (candidate.isEligible) eligible++
             else ineligible++
         } catch (error) {
             failed++
-            log('error', `[${idx}/${limitedIds.length}] Excepción procesando candidato`, { appid, error: String(error) })
+            log('error', `${label} Excepción procesando candidato`, { appid, error: String(error) })
         }
     }
     console.log('::endgroup::')
 
     console.log('::group::Resumen final')
-    log('ok', 'Pool semanal construida', {
+    log('ok', 'Descubrimiento semanal finalizado', {
         weekStartIso,
         weekEndIso,
-        total: limitedIds.length,
-        processed,
+        targetNewRows: TARGET_NEW_POOL_ROWS,
+        insertedNew,
         eligible,
         ineligible,
         failed,
+        attempts: attempt,
+        remainingCandidates: Math.max(0, candidates.length - attempt),
     })
     console.log('::endgroup::')
 
     await supabase.from('hubgames_judi_generacion_logs').insert({
         exito: failed === 0,
-        error_mensaje: failed > 0 ? `${failed} candidatos fallaron` : null,
-        nombre_juego: `Pool semanal: eligible=${eligible}/${processed} (${failed} fallos)`,
+        error_mensaje: failed > 0 ? `${failed} candidatos fallaron al procesar` : null,
+        nombre_juego: `Pool discovery: +${insertedNew} nuevos (objetivo ${TARGET_NEW_POOL_ROWS}), eligible=${eligible}, ineligible=${ineligible}`,
         fecha_judi: weekStartIso,
         fuente: 'steam_weekly_pool',
     })
