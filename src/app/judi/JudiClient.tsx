@@ -1503,7 +1503,7 @@ export default function JudiClient() {
                                             placeholder={guessSubmitting ? 'Validando...' : 'Buscar juego...'}
                                             disabled={guessSubmitting}
                                             autoComplete="off"
-                                            style={{ width: '100%', height: 38, paddingLeft: 32, paddingRight: 12, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--foreground)', fontSize: '0.8125rem', outline: 'none' }}
+                                            style={{ width: '100%', height: 44, paddingLeft: 32, paddingRight: 12, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--foreground)', fontSize: '1rem', outline: 'none' }}
                                         />
                                         {showDropdown && searchResults.length > 0 && (
                                             <div style={{ position: 'absolute', bottom: '100%', left: 0, right: 0, marginBottom: 6, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', maxHeight: 220, overflowY: 'auto', zIndex: 50, boxShadow: '0 -8px 24px rgba(0,0,0,0.35)' }} className="soft-scrollbar">
