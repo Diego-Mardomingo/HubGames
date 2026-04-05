@@ -68,6 +68,42 @@ type YearGroup = {
 const JUDI_ACCORDION_SESSION_KEY = 'judi_list_accordion'
 const SCROLL_SESSION_KEY = 'judi_scroll_y'
 
+function readSavedHomeScrollY(): number {
+    if (typeof window === 'undefined') return 0
+    const raw = sessionStorage.getItem(SCROLL_SESSION_KEY)
+    if (!raw) return 0
+    const y = parseInt(raw, 10)
+    return Number.isFinite(y) && y > 0 ? y : 0
+}
+
+/** Scroll real en móviles (iOS/WebKit): no fiarse solo de window.scrollY. */
+function getWindowScrollY(): number {
+    if (typeof window === 'undefined') return 0
+    const se = document.scrollingElement
+    if (se) return se.scrollTop
+    return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0
+}
+
+function getMaxScrollY(): number {
+    if (typeof window === 'undefined') return 0
+    const se = document.scrollingElement ?? document.documentElement
+    const h = Math.max(se.scrollHeight, document.body.scrollHeight, document.documentElement.scrollHeight)
+    return Math.max(0, h - window.innerHeight)
+}
+
+/** Aplica Y en window + scrollingElement/body (necesario en varios navegadores móviles). */
+function applyWindowScrollTop(top: number, behavior: ScrollBehavior) {
+    const maxY = getMaxScrollY()
+    const y = Math.min(Math.max(0, top), maxY)
+    window.scrollTo({ top: y, left: 0, behavior })
+    if (behavior === 'auto') {
+        const se = document.scrollingElement
+        if (se) se.scrollTop = y
+        document.documentElement.scrollTop = y
+        document.body.scrollTop = y
+    }
+}
+
 type AccordionSession = {
     openYears: string[]
     openMonths: string[]
@@ -967,13 +1003,14 @@ export default function JudiClient() {
 
     useEffect(() => {
         if (view !== 'start') return
-        lastHomeScrollYRef.current = window.scrollY
+        const saved = readSavedHomeScrollY()
+        lastHomeScrollYRef.current = saved > 0 ? saved : getWindowScrollY()
         let ticking = false
         const onScroll = () => {
             if (ticking) return
             ticking = true
             requestAnimationFrame(() => {
-                const y = window.scrollY
+                const y = getWindowScrollY()
                 lastHomeScrollYRef.current = y
                 sessionStorage.setItem(SCROLL_SESSION_KEY, String(y))
                 ticking = false
@@ -990,30 +1027,29 @@ export default function JudiClient() {
     // si se dejara activo, abrir/cerrar el acordeón cambiaría el alto y volvería a forzar scroll.
     useEffect(() => {
         if (view !== 'start' || loading || games.length === 0) return
-        const saved = sessionStorage.getItem(SCROLL_SESSION_KEY)
-        if (!saved) return
-        const targetY = parseInt(saved, 10)
-        if (!Number.isFinite(targetY) || targetY <= 0) return
+        const targetY = readSavedHomeScrollY()
+        if (targetY <= 0) return
 
         let cancelled = false
         let debounceId: ReturnType<typeof setTimeout> | null = null
         let observing = true
         const DEBOUNCE_MS = 40
-        const FALLBACK_MS = 420
-        /** Ventana solo para el layout inicial (acordeón hidratado desde sesión); luego se corta el observer. */
-        const OBSERVE_MS = 2000
+        const coarsePointer =
+            typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
+        /** En táctil el layout y WebKit suelen tardar; más margen antes del fallback. */
+        const FALLBACK_MS = coarsePointer ? 650 : 420
+        /** Móvil: más tiempo por acordeón / barra de direcciones que cambia el alto. */
+        const OBSERVE_MS = coarsePointer ? 3200 : 2000
 
         const prefersReducedMotion = () =>
             typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+        const scrollBehavior: ScrollBehavior =
+            prefersReducedMotion() || coarsePointer ? 'auto' : 'smooth'
+
         const scrollToSaved = () => {
             if (cancelled) return
-            const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
-            const top = Math.min(targetY, maxY)
-            window.scrollTo({
-                top,
-                behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-            })
+            applyWindowScrollTop(targetY, scrollBehavior)
         }
 
         const scheduleSmooth = () => {
@@ -1033,6 +1069,15 @@ export default function JudiClient() {
             if (!cancelled) scrollToSaved()
         }, FALLBACK_MS)
 
+        const mobileRetryIds =
+            coarsePointer
+                ? [250, 700, 1400, 2200].map((ms) =>
+                      window.setTimeout(() => {
+                          if (!cancelled) scrollToSaved()
+                      }, ms)
+                  )
+                : []
+
         const endObserveId = window.setTimeout(() => {
             observing = false
             if (debounceId) {
@@ -1049,6 +1094,7 @@ export default function JudiClient() {
             if (debounceId) clearTimeout(debounceId)
             window.clearTimeout(fallbackId)
             window.clearTimeout(endObserveId)
+            mobileRetryIds.forEach((id) => window.clearTimeout(id))
             ro.disconnect()
         }
     }, [view, loading, games.length])
