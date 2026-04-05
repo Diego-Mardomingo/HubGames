@@ -13,7 +13,7 @@ export default function JudiMaintenance() {
                 </p>
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
                     <Button asChild>
-                        <Link href="/"><Home size={15} data-icon="inline-start" aria-hidden />Inicio</Link>
+                        <Link href="/" scroll={false}><Home size={15} data-icon="inline-start" aria-hidden />Inicio</Link>
                     </Button>
                     <Button variant="secondary" asChild>
                         <Link href="/login"><LogIn size={15} data-icon="inline-start" aria-hidden />Iniciar sesión</Link>

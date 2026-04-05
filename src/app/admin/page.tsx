@@ -203,14 +203,18 @@ function LogsTab() {
                                             {fuente2Label(log.fuente)}
                                         </Badge>
                                     </td>
-                                    <td className="admin-cell-name">{log.nombre_juego || '—'}</td>
+                                    <td className="admin-cell-name" title={log.nombre_juego || undefined}>
+                                        {log.nombre_juego || '—'}
+                                    </td>
                                     <td className="admin-cell-mono admin-cell-muted">{log.fecha_judi || '—'}</td>
                                     <td className="admin-cell-mono admin-cell-muted">
                                         {log.created_at
                                             ? new Date(log.created_at).toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })
                                             : '—'}
                                     </td>
-                                    <td className="admin-cell-error">{log.error_mensaje || '—'}</td>
+                                    <td className="admin-cell-error" title={log.error_mensaje || undefined}>
+                                        {log.error_mensaje || '—'}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

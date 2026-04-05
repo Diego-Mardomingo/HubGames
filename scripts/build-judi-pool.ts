@@ -399,10 +399,11 @@ async function main() {
     })
     console.log('::endgroup::')
 
+    const remaining = Math.max(0, queue.length - readIdx)
     const logNombre =
         insertedNew === 0 && attempt === 0
-            ? `Pool [${discoveryLabel}] sin candidatos (cola vacía tras fuentes prioritarias + SteamSpy all)`
-            : `Pool [${discoveryLabel}] +${insertedNew}/${TARGET_NEW_POOL_ROWS} nuevos, eligible=${eligible}, ineligible=${ineligible}, steamspy_all_páginas=${steamSpyAllPage}`
+            ? `Pool semanal ${weekStartIso} → ${weekEndIso}: sin candidatos nuevos (cola vacía tras fuentes prioritarias y SteamSpy hasta ${steamSpyAllPage} págs.) [${discoveryLabel}]`
+            : `Pool semanal ${weekStartIso} → ${weekEndIso} | +${insertedNew}/${TARGET_NEW_POOL_ROWS} filas nuevas | elegibles ${eligible} | no elegibles ${ineligible} | fallos ${failed} | intentos ${attempt} | cola restante ${remaining} | SteamSpy págs. ${steamSpyAllPage} [${discoveryLabel}]`
 
     const { error: genLogError } = await supabase.from('hubgames_judi_generacion_logs').insert({
         exito: failed === 0,

@@ -38,6 +38,29 @@ function mapGenres(genres: Array<{ description?: string }> | null | undefined): 
         .filter((genre): genre is string => Boolean(genre))
 }
 
+async function recordGeneracionLog(
+    supabase: ReturnType<typeof createServiceRoleClient>,
+    row: {
+        exito: boolean
+        nombre_juego: string
+        fecha_judi: string
+        id_juego_steam?: number | null
+        error_mensaje?: string | null
+    }
+) {
+    const { error } = await supabase.from('hubgames_judi_generacion_logs').insert({
+        exito: row.exito,
+        nombre_juego: row.nombre_juego,
+        fecha_judi: row.fecha_judi,
+        fuente: 'steam_pool_daily_pick',
+        id_juego_steam: row.id_juego_steam ?? null,
+        error_mensaje: row.error_mensaje ?? null,
+    })
+    if (error) {
+        log('warn', 'No se pudo escribir hubgames_judi_generacion_logs', { message: error.message })
+    }
+}
+
 async function insertDailyGameFromPool(poolRow: PoolRow, targetDate: Date) {
     const supabase = createServiceRoleClient()
 
@@ -125,12 +148,11 @@ async function insertDailyGameFromPool(poolRow: PoolRow, targetDate: Date) {
         .eq('id', poolRow.id)
 
     log('info', 'Registrando log de éxito en BD')
-    await supabase.from('hubgames_judi_generacion_logs').insert({
+    await recordGeneracionLog(supabase, {
         exito: true,
         id_juego_steam: poolRow.steam_appid,
-        nombre_juego: poolRow.game_name,
+        nombre_juego: `Juego del día asignado: ${poolRow.game_name} (Steam ${poolRow.steam_appid})`,
         fecha_judi: judiDate,
-        fuente: 'steam_pool_daily_pick',
     })
 
     return insertedGame.id
@@ -151,12 +173,19 @@ async function main() {
     log('info', 'Verificando si ya existe juego para esa fecha')
     const { data: existingDaily } = await supabase
         .from('hubgames_lista_videojuegos_judi')
-        .select('id, nombre')
+        .select('id, nombre, steam_appid')
         .eq('fecha', judiDate)
         .maybeSingle()
 
     if (existingDaily) {
         log('ok', 'Ya existe juego para esta fecha, nada que hacer', existingDaily)
+        await recordGeneracionLog(supabase, {
+            exito: true,
+            nombre_juego: `Sin cambios: ya había juego para ${judiDate} — ${existingDaily.nombre}`,
+            fecha_judi: judiDate,
+            id_juego_steam:
+                typeof existingDaily.steam_appid === 'number' ? existingDaily.steam_appid : null,
+        })
         console.log('::endgroup::')
         return
     }
@@ -175,12 +204,11 @@ async function main() {
     if (error || !candidates || candidates.length === 0) {
         const msg = 'No eligible games found in hubgames_judi_pool'
         log('error', msg, { error })
-        await supabase.from('hubgames_judi_generacion_logs').insert({
+        await recordGeneracionLog(supabase, {
             exito: false,
-            error_mensaje: msg,
-            nombre_juego: 'N/A',
+            nombre_juego: 'Sin candidatos elegibles en el pool',
             fecha_judi: judiDate,
-            fuente: 'steam_pool_daily_pick',
+            error_mensaje: msg,
         })
         console.log('::endgroup::')
         throw new Error(msg)
@@ -228,18 +256,24 @@ async function main() {
             log('error', `Candidato falló con error inesperado: ${message}`, {
                 steam_appid: candidate.steam_appid,
             })
+            await recordGeneracionLog(supabase, {
+                exito: false,
+                nombre_juego: `Fallo con candidato: ${candidate.game_name}`,
+                fecha_judi: judiDate,
+                id_juego_steam: candidate.steam_appid,
+                error_mensaje: message,
+            })
             throw insertError
         }
     }
 
     const exhaustedMsg = 'Could not insert a new daily game from pool after checking all candidates'
     log('error', exhaustedMsg)
-    await supabase.from('hubgames_judi_generacion_logs').insert({
+    await recordGeneracionLog(supabase, {
         exito: false,
-        error_mensaje: exhaustedMsg,
-        nombre_juego: 'N/A',
+        nombre_juego: 'Agotados todos los candidatos del pool sin insertar',
         fecha_judi: judiDate,
-        fuente: 'steam_pool_daily_pick',
+        error_mensaje: exhaustedMsg,
     })
     console.log('::endgroup::')
     throw new Error(exhaustedMsg)

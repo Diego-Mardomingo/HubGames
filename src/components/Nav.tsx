@@ -58,14 +58,14 @@ export default function Nav() {
     return (
         <>
             <div className="nav-mobile-top" suppressHydrationWarning>
-                <Link href="/" className="nav-brand">
+                <Link href="/" scroll={false} className="nav-brand">
                     <Image src="/img/HGLogo.webp" alt="HubGames Logo" width={32} height={32} priority />
                     <span>HubGames</span>
                 </Link>
             </div>
             <nav className="nav-shell" suppressHydrationWarning>
                 <div className="nav-inner">
-                    <Link href="/" className="nav-brand">
+                    <Link href="/" scroll={false} className="nav-brand">
                         <Image src="/img/HGLogo.webp" alt="HubGames Logo" width={32} height={32} priority />
                         <span>HubGames</span>
                     </Link>
@@ -76,6 +76,7 @@ export default function Nav() {
                                 <Link
                                     key={link.href}
                                     href={link.href}
+                                    scroll={link.href !== '/'}
                                     className={`nav-link ${isActive(link.href) ? 'active' : ''}`}
                                 >
                                     <Icon size={18} />

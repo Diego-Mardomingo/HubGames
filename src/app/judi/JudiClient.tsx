@@ -66,6 +66,7 @@ type YearGroup = {
 }
 
 const JUDI_ACCORDION_SESSION_KEY = 'judi_list_accordion'
+const SCROLL_SESSION_KEY = 'judi_scroll_y'
 
 type AccordionSession = {
     openYears: string[]
@@ -462,6 +463,8 @@ export default function JudiClient() {
     const touchStartRef = useRef<{ x: number; y: number } | null>(null)
     const winConfettiFiredRef = useRef(false)
     const loadUserAndGamesRef = useRef<() => Promise<void>>(async () => {})
+    /** Último scroll del listado; el cleanup no puede usar window.scrollY al desmontar (el router ya lo ha puesto en 0). */
+    const lastHomeScrollYRef = useRef(0)
     const [accordion, setAccordion] = useState<{ openYears: string[]; openMonths: string[] }>({
         openYears: [],
         openMonths: [],
@@ -962,6 +965,94 @@ export default function JudiClient() {
         return () => window.removeEventListener('keydown', onKey)
     }, [view, selectedGame, goAdjacentPhase])
 
+    useEffect(() => {
+        if (view !== 'start') return
+        lastHomeScrollYRef.current = window.scrollY
+        let ticking = false
+        const onScroll = () => {
+            if (ticking) return
+            ticking = true
+            requestAnimationFrame(() => {
+                const y = window.scrollY
+                lastHomeScrollYRef.current = y
+                sessionStorage.setItem(SCROLL_SESSION_KEY, String(y))
+                ticking = false
+            })
+        }
+        window.addEventListener('scroll', onScroll, { passive: true })
+        return () => {
+            window.removeEventListener('scroll', onScroll)
+            sessionStorage.setItem(SCROLL_SESSION_KEY, String(lastHomeScrollYRef.current))
+        }
+    }, [view])
+
+    // Restaurar scroll al volver / cargar listado. El ResizeObserver solo vive unos segundos:
+    // si se dejara activo, abrir/cerrar el acordeón cambiaría el alto y volvería a forzar scroll.
+    useEffect(() => {
+        if (view !== 'start' || loading || games.length === 0) return
+        const saved = sessionStorage.getItem(SCROLL_SESSION_KEY)
+        if (!saved) return
+        const targetY = parseInt(saved, 10)
+        if (!Number.isFinite(targetY) || targetY <= 0) return
+
+        let cancelled = false
+        let debounceId: ReturnType<typeof setTimeout> | null = null
+        let observing = true
+        const DEBOUNCE_MS = 40
+        const FALLBACK_MS = 420
+        /** Ventana solo para el layout inicial (acordeón hidratado desde sesión); luego se corta el observer. */
+        const OBSERVE_MS = 2000
+
+        const prefersReducedMotion = () =>
+            typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+        const scrollToSaved = () => {
+            if (cancelled) return
+            const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
+            const top = Math.min(targetY, maxY)
+            window.scrollTo({
+                top,
+                behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+            })
+        }
+
+        const scheduleSmooth = () => {
+            if (!observing || cancelled) return
+            if (debounceId) clearTimeout(debounceId)
+            debounceId = setTimeout(scrollToSaved, DEBOUNCE_MS)
+        }
+
+        const ro = new ResizeObserver(() => scheduleSmooth())
+        ro.observe(document.documentElement)
+
+        const startId = requestAnimationFrame(() => {
+            if (!cancelled) scrollToSaved()
+        })
+
+        const fallbackId = window.setTimeout(() => {
+            if (!cancelled) scrollToSaved()
+        }, FALLBACK_MS)
+
+        const endObserveId = window.setTimeout(() => {
+            observing = false
+            if (debounceId) {
+                clearTimeout(debounceId)
+                debounceId = null
+            }
+            ro.disconnect()
+        }, OBSERVE_MS)
+
+        return () => {
+            cancelled = true
+            observing = false
+            cancelAnimationFrame(startId)
+            if (debounceId) clearTimeout(debounceId)
+            window.clearTimeout(fallbackId)
+            window.clearTimeout(endObserveId)
+            ro.disconnect()
+        }
+    }, [view, loading, games.length])
+
     if (loading && !selectedGame) {
         return <Loader />
     }
@@ -1020,7 +1111,7 @@ export default function JudiClient() {
         setSearchQuery('')
         setSearchResults([])
         setShowDropdown(false)
-        router.push('/')
+        router.push('/', { scroll: false })
         void loadUserAndGames()
     }
 
