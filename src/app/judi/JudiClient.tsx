@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useEffect, useRef, useCallback } from 'react'
+import { useMemo, useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -501,6 +501,8 @@ export default function JudiClient() {
     const loadUserAndGamesRef = useRef<() => Promise<void>>(async () => {})
     /** Último scroll del listado; el cleanup no puede usar window.scrollY al desmontar (el router ya lo ha puesto en 0). */
     const lastHomeScrollYRef = useRef(0)
+    /** Evita repetir restore al cambiar acordeón/imágenes; se resetea al salir del listado o al recargar datos. */
+    const homeScrollRestoreDoneRef = useRef(false)
     const [accordion, setAccordion] = useState<{ openYears: string[]; openMonths: string[] }>({
         openYears: [],
         openMonths: [],
@@ -523,7 +525,8 @@ export default function JudiClient() {
         return () => clearTimeout(timer)
     }, [])
 
-    useEffect(() => {
+    /** useLayoutEffect: el listado depende de meses/años abiertos; si esto corre después del paint, restore scroll usa altura errónea. */
+    useLayoutEffect(() => {
         if (games.length === 0) return
         const { singleYear: oneYear, yearGroups: groups } = buildYearGroups(games)
         const validMonthKeys = new Set(groups.flatMap((y) => y.months.map((m) => m.key)))
@@ -1023,81 +1026,35 @@ export default function JudiClient() {
         }
     }, [view])
 
-    // Restaurar scroll al volver / cargar listado. El ResizeObserver solo vive unos segundos:
-    // si se dejara activo, abrir/cerrar el acordeón cambiaría el alto y volvería a forzar scroll.
     useEffect(() => {
+        if (view === 'game') homeScrollRestoreDoneRef.current = false
+    }, [view])
+
+    useEffect(() => {
+        if (view === 'start' && loading) homeScrollRestoreDoneRef.current = false
+    }, [view, loading])
+
+    // Restaurar scroll una sola vez cuando el listado ya tiene layout (datos + acordeón).
+    // Sin timers ni ResizeObserver: si no, cualquier resize/imagen devolvía el scroll al valor guardado.
+    const accordionLayoutKey = `${singleYear ? '1' : '0'}|${accordion.openYears.join('\u0001')}|${accordion.openMonths.join('\u0001')}`
+    useLayoutEffect(() => {
         if (view !== 'start' || loading || games.length === 0) return
+        if (homeScrollRestoreDoneRef.current) return
+
         const targetY = readSavedHomeScrollY()
-        if (targetY <= 0) return
-
-        let cancelled = false
-        let debounceId: ReturnType<typeof setTimeout> | null = null
-        let observing = true
-        const DEBOUNCE_MS = 40
-        const coarsePointer =
-            typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
-        /** En táctil el layout y WebKit suelen tardar; más margen antes del fallback. */
-        const FALLBACK_MS = coarsePointer ? 650 : 420
-        /** Móvil: más tiempo por acordeón / barra de direcciones que cambia el alto. */
-        const OBSERVE_MS = coarsePointer ? 3200 : 2000
-
-        const prefersReducedMotion = () =>
-            typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-        const scrollBehavior: ScrollBehavior =
-            prefersReducedMotion() || coarsePointer ? 'auto' : 'smooth'
-
-        const scrollToSaved = () => {
-            if (cancelled) return
-            applyWindowScrollTop(targetY, scrollBehavior)
+        if (targetY <= 0) {
+            homeScrollRestoreDoneRef.current = true
+            return
         }
 
-        const scheduleSmooth = () => {
-            if (!observing || cancelled) return
-            if (debounceId) clearTimeout(debounceId)
-            debounceId = setTimeout(scrollToSaved, DEBOUNCE_MS)
+        const maxY = getMaxScrollY()
+        if (maxY < 1 && accordion.openMonths.length === 0) {
+            return
         }
 
-        const ro = new ResizeObserver(() => scheduleSmooth())
-        ro.observe(document.documentElement)
-
-        const startId = requestAnimationFrame(() => {
-            if (!cancelled) scrollToSaved()
-        })
-
-        const fallbackId = window.setTimeout(() => {
-            if (!cancelled) scrollToSaved()
-        }, FALLBACK_MS)
-
-        const mobileRetryIds =
-            coarsePointer
-                ? [250, 700, 1400, 2200].map((ms) =>
-                      window.setTimeout(() => {
-                          if (!cancelled) scrollToSaved()
-                      }, ms)
-                  )
-                : []
-
-        const endObserveId = window.setTimeout(() => {
-            observing = false
-            if (debounceId) {
-                clearTimeout(debounceId)
-                debounceId = null
-            }
-            ro.disconnect()
-        }, OBSERVE_MS)
-
-        return () => {
-            cancelled = true
-            observing = false
-            cancelAnimationFrame(startId)
-            if (debounceId) clearTimeout(debounceId)
-            window.clearTimeout(fallbackId)
-            window.clearTimeout(endObserveId)
-            mobileRetryIds.forEach((id) => window.clearTimeout(id))
-            ro.disconnect()
-        }
-    }, [view, loading, games.length])
+        applyWindowScrollTop(targetY, 'auto')
+        homeScrollRestoreDoneRef.current = true
+    }, [view, loading, games.length, accordionLayoutKey])
 
     if (loading && !selectedGame) {
         return <Loader />
