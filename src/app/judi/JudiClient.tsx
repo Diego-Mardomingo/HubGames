@@ -1044,7 +1044,8 @@ export default function JudiClient() {
         const prefersReducedMotion = () =>
             typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-        const scrollBehavior: ScrollBehavior = prefersReducedMotion() ? 'auto' : 'smooth'
+        const scrollBehavior: ScrollBehavior =
+            prefersReducedMotion() || coarsePointer ? 'auto' : 'smooth'
 
         const scrollToSaved = () => {
             if (cancelled) return
