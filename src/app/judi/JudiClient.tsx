@@ -7,6 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { supabase, safeGetUser } from '@/lib/supabase/client'
 import Loader from '@/components/Loader'
 import { getFailedAttempts, getPointsForRecord, type JudiProgressRecord } from '@/lib/judi-ranking'
+import {
+    JUDI_HOME_SCROLL_Y_KEY,
+    getWindowScrollY,
+    persistJudiHomeScrollYFromWindow,
+    readSavedHomeScrollY,
+} from '@/lib/judi-home-scroll'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import confetti from 'canvas-confetti'
 import { ArrowLeft, ChevronDown, ChevronRight, Search, SkipForward } from 'lucide-react'
@@ -66,23 +72,6 @@ type YearGroup = {
 }
 
 const JUDI_ACCORDION_SESSION_KEY = 'judi_list_accordion'
-const SCROLL_SESSION_KEY = 'judi_scroll_y'
-
-function readSavedHomeScrollY(): number {
-    if (typeof window === 'undefined') return 0
-    const raw = sessionStorage.getItem(SCROLL_SESSION_KEY)
-    if (!raw) return 0
-    const y = parseInt(raw, 10)
-    return Number.isFinite(y) && y > 0 ? y : 0
-}
-
-/** Scroll real en móviles (iOS/WebKit): no fiarse solo de window.scrollY. */
-function getWindowScrollY(): number {
-    if (typeof window === 'undefined') return 0
-    const se = document.scrollingElement
-    if (se) return se.scrollTop
-    return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0
-}
 
 function getMaxScrollY(): number {
     if (typeof window === 'undefined') return 0
@@ -503,6 +492,9 @@ export default function JudiClient() {
     const lastHomeScrollYRef = useRef(0)
     /** Evita repetir restore al cambiar acordeón/imágenes; se resetea al salir del listado o al recargar datos. */
     const homeScrollRestoreDoneRef = useRef(false)
+    /** El listener de scroll solo depende de [view]; estos refs evitan pisar la Y al mostrar el Loader de startJuego. */
+    const loadingRef = useRef(loading)
+    const selectedGameRef = useRef(selectedGame)
     const [accordion, setAccordion] = useState<{ openYears: string[]; openMonths: string[] }>({
         openYears: [],
         openMonths: [],
@@ -515,6 +507,11 @@ export default function JudiClient() {
     useEffect(() => {
         void loadUserAndGames()
     }, [])
+
+    useEffect(() => {
+        loadingRef.current = loading
+        selectedGameRef.current = selectedGame
+    }, [loading, selectedGame])
 
     // Auto-refresh al cambiar de día en Madrid (00:00): muestra el nuevo juego sin recargar la página
     useEffect(() => {
@@ -687,6 +684,12 @@ export default function JudiClient() {
     }
 
     const startJuego = async (game: GameRecord) => {
+        const scrollBeforeLoader = getWindowScrollY()
+        if (scrollBeforeLoader > 0) {
+            lastHomeScrollYRef.current = scrollBeforeLoader
+            sessionStorage.setItem(JUDI_HOME_SCROLL_Y_KEY, String(scrollBeforeLoader))
+        }
+        loadingRef.current = true
         setLoading(true)
         setCaptureZoomOpen(false)
         setSearchQuery('')
@@ -1013,16 +1016,20 @@ export default function JudiClient() {
             if (ticking) return
             ticking = true
             requestAnimationFrame(() => {
+                if (loadingRef.current && !selectedGameRef.current) {
+                    ticking = false
+                    return
+                }
                 const y = getWindowScrollY()
                 lastHomeScrollYRef.current = y
-                sessionStorage.setItem(SCROLL_SESSION_KEY, String(y))
+                sessionStorage.setItem(JUDI_HOME_SCROLL_Y_KEY, String(y))
                 ticking = false
             })
         }
         window.addEventListener('scroll', onScroll, { passive: true })
         return () => {
             window.removeEventListener('scroll', onScroll)
-            sessionStorage.setItem(SCROLL_SESSION_KEY, String(lastHomeScrollYRef.current))
+            sessionStorage.setItem(JUDI_HOME_SCROLL_Y_KEY, String(lastHomeScrollYRef.current))
         }
     }, [view])
 
@@ -1035,9 +1042,9 @@ export default function JudiClient() {
     }, [view, loading])
 
     // Restaurar scroll una sola vez cuando el listado ya tiene layout (datos + acordeón).
-    // Sin timers ni ResizeObserver: si no, cualquier resize/imagen devolvía el scroll al valor guardado.
+    // useEffect + rAF: al volver de otra ruta Next puede resetear scroll tras el layout; además esperamos a que maxY > 0.
     const accordionLayoutKey = `${singleYear ? '1' : '0'}|${accordion.openYears.join('\u0001')}|${accordion.openMonths.join('\u0001')}`
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (view !== 'start' || loading || games.length === 0) return
         if (homeScrollRestoreDoneRef.current) return
 
@@ -1047,13 +1054,40 @@ export default function JudiClient() {
             return
         }
 
-        const maxY = getMaxScrollY()
-        if (maxY < 1 && accordion.openMonths.length === 0) {
+        const maxYInitial = getMaxScrollY()
+        if (maxYInitial < 1 && accordion.openMonths.length === 0) {
             return
         }
 
-        applyWindowScrollTop(targetY, 'auto')
-        homeScrollRestoreDoneRef.current = true
+        let cancelled = false
+        let frames = 0
+        const maxFrames = 48
+
+        const runScroll = () => {
+            if (cancelled) return
+            applyWindowScrollTop(targetY, 'smooth')
+            homeScrollRestoreDoneRef.current = true
+        }
+
+        const tick = () => {
+            if (cancelled) return
+            frames++
+            const my = getMaxScrollY()
+            if (targetY > 0 && my < 1 && frames < maxFrames) {
+                requestAnimationFrame(tick)
+                return
+            }
+            runScroll()
+        }
+
+        const outer = requestAnimationFrame(() => {
+            requestAnimationFrame(tick)
+        })
+
+        return () => {
+            cancelled = true
+            cancelAnimationFrame(outer)
+        }
     }, [view, loading, games.length, accordionLayoutKey])
 
     if (loading && !selectedGame) {
@@ -1137,7 +1171,14 @@ export default function JudiClient() {
                             transition={{ duration: 0.25, ease: 'easeOut' }}
                             style={{ fontSize: '0.8125rem', color: 'var(--muted)', padding: '10px 14px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', marginBottom: 12 }}
                         >
-                            <Link href="/login" style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>Inicia sesión</Link>{' '}
+                            <Link
+                                href="/login"
+                                onPointerDownCapture={() => persistJudiHomeScrollYFromWindow()}
+                                onClick={() => persistJudiHomeScrollYFromWindow()}
+                                style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}
+                            >
+                                Inicia sesión
+                            </Link>{' '}
                             para guardar tu progreso y competir en el ranking.
                         </motion.div>
                     )}

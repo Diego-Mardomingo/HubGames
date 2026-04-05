@@ -2,9 +2,10 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type MouseEvent } from 'react'
 import { usePathname } from 'next/navigation'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
+import { persistJudiHomeScrollYFromWindow } from '@/lib/judi-home-scroll'
 import { Home, Trophy, User, Shield } from 'lucide-react'
 
 const ADMIN_EMAIL = 'diego.lopez.mardomingo@gmail.com'
@@ -17,6 +18,23 @@ export default function Nav() {
     const isActive = (href: string) => {
         if (href === '/') return pathname === '/'
         return pathname.startsWith(href)
+    }
+
+    /** Segundo tap en Inicio/logo estando ya en home: subir la lista con scroll suave. */
+    const handleHomeLinkClick = (e: MouseEvent<HTMLAnchorElement>) => {
+        if (pathname !== '/') return
+        e.preventDefault()
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+    }
+
+    /** Antes de ir a ranking/perfil/etc. desde `/`, guardar Y (la transición puede poner scroll en 0 y corromper sessionStorage). */
+    const handleLeaveHomeNavClick = () => {
+        if (pathname === '/') persistJudiHomeScrollYFromWindow()
+    }
+
+    /** pointerdown va antes que el click de Next; así capturamos la Y real antes de cualquier reset del router. */
+    const handleLeaveHomePointerDownCapture = () => {
+        handleLeaveHomeNavClick()
     }
 
     useEffect(() => {
@@ -58,14 +76,14 @@ export default function Nav() {
     return (
         <>
             <div className="nav-mobile-top" suppressHydrationWarning>
-                <Link href="/" scroll={false} className="nav-brand">
+                <Link href="/" scroll={false} className="nav-brand" onClick={handleHomeLinkClick}>
                     <Image src="/img/HGLogo.webp" alt="HubGames Logo" width={32} height={32} priority />
                     <span>HubGames</span>
                 </Link>
             </div>
             <nav className="nav-shell" suppressHydrationWarning>
                 <div className="nav-inner">
-                    <Link href="/" scroll={false} className="nav-brand">
+                    <Link href="/" scroll={false} className="nav-brand" onClick={handleHomeLinkClick}>
                         <Image src="/img/HGLogo.webp" alt="HubGames Logo" width={32} height={32} priority />
                         <span>HubGames</span>
                     </Link>
@@ -77,6 +95,14 @@ export default function Nav() {
                                     key={link.href}
                                     href={link.href}
                                     scroll={link.href !== '/'}
+                                    onPointerDownCapture={
+                                        link.href === '/' ? undefined : handleLeaveHomePointerDownCapture
+                                    }
+                                    onClick={
+                                        link.href === '/'
+                                            ? handleHomeLinkClick
+                                            : handleLeaveHomeNavClick
+                                    }
                                     className={`nav-link ${isActive(link.href) ? 'active' : ''}`}
                                 >
                                     <Icon size={18} />
