@@ -57,7 +57,8 @@ async function recordGeneracionLog(
         error_mensaje: row.error_mensaje ?? null,
     })
     if (error) {
-        log('warn', 'No se pudo escribir hubgames_judi_generacion_logs', { message: error.message })
+        log('error', 'No se pudo escribir hubgames_judi_generacion_logs', { message: error.message })
+        throw new Error(`hubgames_judi_generacion_logs: ${error.message}`)
     }
 }
 
@@ -237,6 +238,10 @@ async function main() {
             return
         } catch (insertError: any) {
             const message = insertError?.message || 'unknown_insert_error'
+
+            if (String(message).startsWith('hubgames_judi_generacion_logs:')) {
+                throw insertError
+            }
 
             if (message.includes('duplicate key value') || message.includes('unique')) {
                 log('warn', 'Candidato descartado: ya usado anteriormente en JUDI', {

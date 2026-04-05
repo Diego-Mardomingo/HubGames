@@ -4,6 +4,7 @@ import './admin.css'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { cn } from '@/lib/utils'
 import { supabase, safeGetUser } from '@/lib/supabase/client'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
@@ -12,20 +13,27 @@ import {
     Loader2, CheckCircle2, XCircle, Search,
     Shield, Database, CalendarDays, FileText, RefreshCw,
 } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 const ADMIN_EMAIL = 'diego.lopez.mardomingo@gmail.com'
+
+/** PostgREST limita filas por petición; pedimos en páginas hasta traer todo el pool. */
+const ADMIN_POOL_PAGE_SIZE = 1000
+const ADMIN_STEAM_APPID_CHUNK = 200
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type LogRow = {
     id: number
-    created_at: string
+    fecha_ejecucion: string | null
     exito: boolean
-    fuente: string
-    nombre_juego: string
-    fecha_judi: string
+    fuente: string | null
+    nombre_juego: string | null
+    fecha_judi: string | null
     error_mensaje: string | null
+    error_stack: string | null
     id_juego_steam: number | null
+    id_juego_rawg: number | null
 }
 
 type PoolRow = {
@@ -78,17 +86,103 @@ function getMadridTodayLegacy(): string {
     return `${d}-${m}-${y}`
 }
 
-function fuente2Label(fuente: string): string {
+function fuente2Label(fuente: string | null): string {
+    if (!fuente) return '—'
     if (fuente === 'steam_pool_daily_pick') return 'Juego del día'
     if (fuente === 'steam_weekly_pool') return 'Ingesta pool'
     if (fuente === 'steam_pool_edge_function') return 'Edge function'
     return fuente
 }
 
+function formatLogMadrid(iso: string | null): string {
+    if (!iso) return '—'
+    return new Date(iso).toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })
+}
+
 // ─── Shared sub-components ────────────────────────────────────────────────────
 
 function Spinner({ size = 20 }: { size?: number }) {
     return <Loader2 size={size} className="animate-spin" style={{ color: 'var(--muted)' }} />
+}
+
+function LogDetailDialog({
+    log,
+    open,
+    onOpenChange,
+}: {
+    log: LogRow | null
+    open: boolean
+    onOpenChange: (open: boolean) => void
+}) {
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent
+                className={cn(
+                    'gap-0 overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:p-6 sm:pb-6',
+                    'max-h-[min(88vh,88dvh)] sm:max-h-[85vh]',
+                    'w-[min(100vw-1.25rem,42rem)] max-w-[min(100vw-1.25rem,42rem)] sm:max-w-2xl',
+                )}
+            >
+                {log ? (
+                    <>
+                        <DialogHeader className="pr-8">
+                            <DialogTitle className="text-base font-semibold">
+                                Log #{log.id}
+                            </DialogTitle>
+                            <p className="text-sm font-normal text-[var(--muted)]">
+                                {fuente2Label(log.fuente)}
+                                {' · '}
+                                {log.exito ? (
+                                    <span style={{ color: 'var(--success)' }}>Correcto</span>
+                                ) : (
+                                    <span style={{ color: 'var(--danger)' }}>Fallido</span>
+                                )}
+                            </p>
+                        </DialogHeader>
+
+                        <dl className="admin-log-detail">
+                            <div className="admin-log-detail__row">
+                                <dt>Fecha ejecución (Madrid)</dt>
+                                <dd className="admin-cell-mono">{formatLogMadrid(log.fecha_ejecucion)}</dd>
+                            </div>
+                            <div className="admin-log-detail__row">
+                                <dt>Fuente (raw)</dt>
+                                <dd className="admin-cell-mono">{log.fuente || '—'}</dd>
+                            </div>
+                            <div className="admin-log-detail__row">
+                                <dt>Fecha JUDI</dt>
+                                <dd className="admin-cell-mono">{log.fecha_judi || '—'}</dd>
+                            </div>
+                            <div className="admin-log-detail__row">
+                                <dt>Descripción / juego</dt>
+                                <dd>{log.nombre_juego || '—'}</dd>
+                            </div>
+                            <div className="admin-log-detail__row">
+                                <dt>Steam app ID</dt>
+                                <dd className="admin-cell-mono">{log.id_juego_steam ?? '—'}</dd>
+                            </div>
+                            <div className="admin-log-detail__row">
+                                <dt>RAWG id</dt>
+                                <dd className="admin-cell-mono">{log.id_juego_rawg ?? '—'}</dd>
+                            </div>
+                            <div className="admin-log-detail__row admin-log-detail__row--block">
+                                <dt>Mensaje de error</dt>
+                                <dd className="admin-log-detail__pre-wrap">{log.error_mensaje || '—'}</dd>
+                            </div>
+                            {log.error_stack ? (
+                                <div className="admin-log-detail__row admin-log-detail__row--block">
+                                    <dt>Stack / detalle</dt>
+                                    <dd>
+                                        <pre className="admin-log-detail__stack">{log.error_stack}</pre>
+                                    </dd>
+                                </div>
+                            ) : null}
+                        </dl>
+                    </>
+                ) : null}
+            </DialogContent>
+        </Dialog>
+    )
 }
 
 function PanelHead({
@@ -126,16 +220,24 @@ function PanelHead({
 function LogsTab() {
     const [logs, setLogs] = useState<LogRow[]>([])
     const [loading, setLoading] = useState(true)
+    const [fetchError, setFetchError] = useState<string | null>(null)
     const [filter, setFilter] = useState<'all' | 'daily' | 'pool'>('all')
+    const [detailLog, setDetailLog] = useState<LogRow | null>(null)
 
     const fetchLogs = useCallback(async () => {
         setLoading(true)
-        const { data } = await supabase
+        setFetchError(null)
+        const { data, error } = await supabase
             .from('hubgames_judi_generacion_logs')
             .select('*')
-            .order('created_at', { ascending: false })
+            .order('fecha_ejecucion', { ascending: false })
             .limit(100)
-        setLogs(data ?? [])
+        if (error) {
+            setFetchError(error.message || 'No se pudieron cargar los logs')
+            setLogs([])
+        } else {
+            setLogs(data ?? [])
+        }
         setLoading(false)
     }, [])
 
@@ -173,13 +275,19 @@ function LogsTab() {
                 ))}
             </div>
 
+            {fetchError && (
+                <div className="admin-empty" style={{ color: 'var(--danger)', marginBottom: 12 }}>
+                    Error al cargar logs: {fetchError}
+                </div>
+            )}
+
             {loading ? (
                 <div className="admin-center"><Spinner /></div>
-            ) : filtered.length === 0 ? (
+            ) : !fetchError && filtered.length === 0 ? (
                 <div className="admin-empty">Sin registros para este filtro</div>
-            ) : (
-                <div className="admin-table-wrap">
-                    <table className="admin-table">
+            ) : fetchError ? null : (
+                <div className="admin-table-wrap admin-table-wrap--logs">
+                    <table className="admin-table admin-table--logs">
                         <thead>
                             <tr>
                                 <th>Estado</th>
@@ -192,27 +300,38 @@ function LogsTab() {
                         </thead>
                         <tbody>
                             {filtered.map((log) => (
-                                <tr key={log.id} className={log.exito ? '' : 'admin-row-error'}>
-                                    <td>
+                                <tr
+                                    key={log.id}
+                                    className={`${log.exito ? '' : 'admin-row-error'} admin-log-row--clickable`}
+                                    role="button"
+                                    tabIndex={0}
+                                    title="Ver detalles del log"
+                                    onClick={() => setDetailLog(log)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault()
+                                            setDetailLog(log)
+                                        }
+                                    }}
+                                >
+                                    <td data-label="Estado">
                                         {log.exito
                                             ? <CheckCircle2 size={15} style={{ color: 'var(--success)' }} />
                                             : <XCircle size={15} style={{ color: 'var(--danger)' }} />}
                                     </td>
-                                    <td>
+                                    <td data-label="Tipo">
                                         <Badge variant={log.fuente === 'steam_weekly_pool' ? 'muted' : 'default'}>
                                             {fuente2Label(log.fuente)}
                                         </Badge>
                                     </td>
-                                    <td className="admin-cell-name" title={log.nombre_juego || undefined}>
+                                    <td className="admin-cell-name" data-label="Juego / Descripción" title={log.nombre_juego || undefined}>
                                         {log.nombre_juego || '—'}
                                     </td>
-                                    <td className="admin-cell-mono admin-cell-muted">{log.fecha_judi || '—'}</td>
-                                    <td className="admin-cell-mono admin-cell-muted">
-                                        {log.created_at
-                                            ? new Date(log.created_at).toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })
-                                            : '—'}
+                                    <td className="admin-cell-mono admin-cell-muted" data-label="Fecha JUDI">{log.fecha_judi || '—'}</td>
+                                    <td className="admin-cell-mono admin-cell-muted" data-label="Registrado (Madrid)">
+                                        {formatLogMadrid(log.fecha_ejecucion)}
                                     </td>
-                                    <td className="admin-cell-error" title={log.error_mensaje || undefined}>
+                                    <td className="admin-cell-error" data-label="Error" title={log.error_mensaje || undefined}>
                                         {log.error_mensaje || '—'}
                                     </td>
                                 </tr>
@@ -221,6 +340,14 @@ function LogsTab() {
                     </table>
                 </div>
             )}
+
+            <LogDetailDialog
+                log={detailLog}
+                open={detailLog !== null}
+                onOpenChange={(o) => {
+                    if (!o) setDetailLog(null)
+                }}
+            />
         </div>
     )
 }
@@ -236,33 +363,53 @@ function PoolTab() {
 
     const fetchPool = useCallback(async (q: string) => {
         setLoading(true)
-        let query = supabase
-            .from('hubgames_judi_pool')
-            .select('id, steam_appid, game_name, relevance_score, is_eligible, selected_for_daily, discarded, discarded_reason, eligibility_reasons, week_start_date')
-            .order('relevance_score', { ascending: false })
-            .limit(200)
+        const search = q.trim()
+        const poolRows: Omit<PoolRow, 'header_image'>[] = []
+        let from = 0
+        for (;;) {
+            let query = supabase
+                .from('hubgames_judi_pool')
+                .select('id, steam_appid, game_name, relevance_score, is_eligible, selected_for_daily, discarded, discarded_reason, eligibility_reasons, week_start_date')
+                .order('relevance_score', { ascending: false })
+                .range(from, from + ADMIN_POOL_PAGE_SIZE - 1)
 
-        if (q.trim().length >= 2) {
-            query = query.ilike('game_name', `%${q.trim()}%`)
+            if (search.length >= 2) {
+                query = query.ilike('game_name', `%${search}%`)
+            }
+
+            const { data: page, error } = await query
+            if (error) {
+                console.error('[admin pool]', error.message)
+                setItems([])
+                setLoading(false)
+                return
+            }
+            if (!page?.length) break
+            poolRows.push(...(page as Omit<PoolRow, 'header_image'>[]))
+            if (page.length < ADMIN_POOL_PAGE_SIZE) break
+            from += ADMIN_POOL_PAGE_SIZE
         }
 
-        const { data: poolData } = await query
-
-        if (!poolData || poolData.length === 0) {
+        if (poolRows.length === 0) {
             setItems([])
             setLoading(false)
             return
         }
 
-        const appIds = poolData.map((r) => r.steam_appid).filter(Boolean)
-        const { data: steamData } = await supabase
-            .from('hubgames_juegos_steam')
-            .select('steam_appid, header_image')
-            .in('steam_appid', appIds)
+        const appIds = poolRows.map((r) => r.steam_appid).filter(Boolean)
+        const imageMap = new Map<number, string | null>()
+        for (let i = 0; i < appIds.length; i += ADMIN_STEAM_APPID_CHUNK) {
+            const chunk = appIds.slice(i, i + ADMIN_STEAM_APPID_CHUNK)
+            const { data: steamData } = await supabase
+                .from('hubgames_juegos_steam')
+                .select('steam_appid, header_image')
+                .in('steam_appid', chunk)
+            for (const s of steamData ?? []) {
+                imageMap.set(s.steam_appid, s.header_image)
+            }
+        }
 
-        const imageMap = new Map((steamData ?? []).map((s) => [s.steam_appid, s.header_image]))
-
-        setItems(poolData.map((r) => ({
+        setItems(poolRows.map((r) => ({
             ...r,
             header_image: imageMap.get(r.steam_appid) ?? null,
         })))
@@ -567,7 +714,7 @@ export default function AdminPage() {
     return (
         <div className="admin-page animate-fade-in-up">
             {/* Topbar — igual que perfil */}
-            <header className="admin-topbar">
+            <header className="admin-topbar admin-topbar--responsive">
                 <div className="admin-topbar__left">
                     <div className="admin-topbar__icon">
                         <Shield size={16} />
@@ -581,6 +728,7 @@ export default function AdminPage() {
 
             {/* Tabs */}
             <Tabs defaultValue="logs">
+                <div className="admin-tabs-scroll">
                 <TabsList className="admin-tabs-list">
                     <TabsTrigger value="logs" className="admin-tab-trigger">
                         <FileText size={13} />
@@ -595,6 +743,7 @@ export default function AdminPage() {
                         Calendario
                     </TabsTrigger>
                 </TabsList>
+                </div>
 
                 <TabsContent value="logs">
                     <LogsTab />

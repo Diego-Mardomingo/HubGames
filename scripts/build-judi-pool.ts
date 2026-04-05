@@ -131,6 +131,7 @@ async function main() {
     const weekStartIso = dateToIso(weekStart)
     const weekEndIso = dateToIso(weekEnd)
 
+    try {
     log('info', 'Semana objetivo', { weekStartIso, weekEndIso })
 
     console.log('::group::Cargando pool existente y fuentes de candidatos')
@@ -427,6 +428,21 @@ async function main() {
     }
 
     console.log('::endgroup::')
+    } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : String(error)
+        const trimmed = msg.length > 8000 ? `${msg.slice(0, 7997)}...` : msg
+        const { error: logErr } = await supabase.from('hubgames_judi_generacion_logs').insert({
+            exito: false,
+            nombre_juego: `Pool semanal: error durante ejecución (${weekStartIso})`,
+            fecha_judi: weekStartIso,
+            fuente: 'steam_weekly_pool',
+            error_mensaje: trimmed,
+        })
+        if (logErr) {
+            console.error(`::error::generacion_logs (ruta de fallo): ${logErr.message}`)
+        }
+        throw error
+    }
 }
 
 main().catch((error) => {
