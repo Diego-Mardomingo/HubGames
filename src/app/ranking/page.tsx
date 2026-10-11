@@ -2,14 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Trophy } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Crown, Trophy } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { buildRanking, type JudiProgressRecord } from '@/lib/judi-ranking'
+import Loader from '@/components/Loader'
+import { CountUp, Reveal } from '@/components/motion'
+import './ranking.css'
 
 type RankingRow = ReturnType<typeof buildRanking>[number]
 
-const RANK_BG = '#0B0E14'
-const CARD_BG = '#1C1F26'
+const EASE_OUT = [0.22, 1, 0.36, 1] as const
 
 function hashHue(userId: string) {
     let h = 0
@@ -20,16 +23,14 @@ function hashHue(userId: string) {
 function UserAvatar({ userId, username, size }: { userId: string; username: string; size: number }) {
     const initial = username[0]?.toUpperCase() || '?'
     const hue = hashHue(userId)
-    const r = '50%'
     return (
         <div
-            className="flex shrink-0 items-center justify-center font-bold text-white/95 shadow-inner"
+            className="avatar"
             style={{
                 width: size,
                 height: size,
-                borderRadius: r,
-                fontSize: size * 0.42,
-                background: `linear-gradient(135deg, hsl(${hue} 42% 38%) 0%, hsl(${(hue + 40) % 360} 38% 28%) 100%)`,
+                fontSize: size * 0.4,
+                background: `linear-gradient(135deg, hsl(${hue} 70% 62%) 0%, hsl(${(hue + 50) % 360} 65% 40%) 100%)`,
             }}
             aria-hidden
         >
@@ -85,230 +86,148 @@ export default function RankingPage() {
     }, [router])
 
     if (loading) {
-        return <div className="loader-container"><div className="loader" /></div>
+        return <Loader label="Cargando ranking" />
     }
 
+    const podium = leaderboard.slice(0, 3)
+    const rest = leaderboard.slice(3)
+    const selfIndex = leaderboard.findIndex((e) => e.userId === currentUserId)
+    const self = selfIndex >= 0 ? leaderboard[selfIndex] : null
+    const topPoints = leaderboard[0]?.points ?? 0
+    // Orden visual del podio: 2º · 1º · 3º
+    const podiumSlots = [
+        { entry: podium[1], rank: 2 },
+        { entry: podium[0], rank: 1 },
+        { entry: podium[2], rank: 3 },
+    ].filter((slot): slot is { entry: RankingRow; rank: number } => Boolean(slot.entry))
+
     return (
-        <div className="ranking-redesign animate-fade-in-up">
-            <header className="ranking-redesign__intro">
-                <h1 className="ranking-redesign__title">Ranking global</h1>
-                <p className="ranking-redesign__subtitle">
-                    Clasificación por puntos. Cuanto antes aciertes, más puntos sumas.
-                </p>
+        <div className="ranking">
+            <header className="page-head">
+                <div>
+                    <Reveal>
+                        <span className="eyebrow">
+                            <Trophy size={13} aria-hidden /> Clasificación global
+                        </span>
+                    </Reveal>
+                    <Reveal delay={0.05}>
+                        <h1 className="page-title">Ranking</h1>
+                    </Reveal>
+                    <Reveal delay={0.1}>
+                        <p className="page-subtitle">
+                            Cuanto antes aciertes el juego del día, más puntos sumas: 6 al primer intento, 1 al último.
+                        </p>
+                    </Reveal>
+                </div>
+                {self && (
+                    <Reveal delay={0.15} className="ranking-self glass">
+                        <span className="ranking-self__pos">#{selfIndex + 1}</span>
+                        <span className="ranking-self__text">
+                            <span className="ranking-self__label">Tu posición</span>
+                            <span className="ranking-self__pts">
+                                <CountUp value={self.points} /> pts · {winsLabel(self.wins)}
+                            </span>
+                        </span>
+                    </Reveal>
+                )}
             </header>
 
             {leaderboard.length === 0 && (
-                <div className="ranking-redesign__empty">
-                    <Trophy size={32} className="opacity-30" strokeWidth={1.25} />
+                <div className="ranking-empty">
+                    <Trophy size={32} strokeWidth={1.25} />
                     <p>Aún no hay partidas finalizadas</p>
                 </div>
             )}
 
-            {leaderboard.length > 0 && (
-                <div className="ranking-redesign__panel">
-                    <div className="ranking-redesign__column-head" role="row">
-                        <span>POSICIÓN</span>
-                        <span>JUGADOR</span>
-                        <span>PUNTOS</span>
-                    </div>
-
-                    <ul className="ranking-redesign__list" role="list">
-                        {leaderboard.map((entry, index) => {
-                            const rank = index + 1
-                            const isSelf = entry.userId === currentUserId
-                            return (
-                                <li
-                                    key={entry.userId}
-                                    className={`ranking-redesign__row${isSelf ? ' ranking-redesign__row--self' : ''}`}
-                                    role="listitem"
-                                >
-                                    <span className="ranking-redesign__rank-num tabular-nums" aria-label={`Puesto ${rank}`}>
-                                        {formatRankDisplay(rank)}
-                                    </span>
-                                    <div className="ranking-redesign__player">
-                                        <UserAvatar userId={entry.userId} username={entry.username} size={36} />
-                                        <div className="ranking-redesign__player-text min-w-0">
-                                            <span className="ranking-redesign__name truncate" title={entry.username}>
-                                                {entry.username}
-                                            </span>
-                                            <span className="ranking-redesign__wins-sub truncate" title={winsLabel(entry.wins)}>
-                                                {winsLabel(entry.wins)}
-                                            </span>
-                                        </div>
+            {podiumSlots.length > 0 && (
+                <section className="podium" aria-label="Podio">
+                    {podiumSlots.map(({ entry, rank }) => {
+                        const isSelf = entry.userId === currentUserId
+                        return (
+                            <motion.div
+                                key={entry.userId}
+                                className={`podium__col podium__col--${rank}${isSelf ? ' is-self' : ''}`}
+                                initial={{ opacity: 0, y: 40 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ type: 'spring', stiffness: 160, damping: 20, delay: rank === 1 ? 0.35 : rank === 2 ? 0.2 : 0.1 }}
+                            >
+                                <div className="podium__player">
+                                    {rank === 1 && (
+                                        <motion.span
+                                            className="podium__crown"
+                                            initial={{ y: -16, opacity: 0, rotate: -20 }}
+                                            animate={{ y: 0, opacity: 1, rotate: 0 }}
+                                            transition={{ type: 'spring', stiffness: 300, damping: 12, delay: 0.8 }}
+                                        >
+                                            <Crown size={22} />
+                                        </motion.span>
+                                    )}
+                                    <div className="podium__avatar">
+                                        <UserAvatar userId={entry.userId} username={entry.username} size={rank === 1 ? 76 : 60} />
                                     </div>
-                                    <span className="ranking-redesign__points tabular-nums">
-                                        {entry.points.toLocaleString('es-ES')}
+                                    <span className="podium__name" title={entry.username}>
+                                        {entry.username}
                                     </span>
-                                </li>
-                            )
-                        })}
-                    </ul>
-                </div>
+                                    <span className="podium__pts">
+                                        <CountUp value={entry.points} /> pts
+                                    </span>
+                                </div>
+                                <motion.div
+                                    className="podium__block"
+                                    initial={{ scaleY: 0 }}
+                                    animate={{ scaleY: 1 }}
+                                    transition={{ duration: 0.8, ease: EASE_OUT, delay: 0.1 + (3 - rank) * 0.08 }}
+                                >
+                                    <span className="podium__rank">{rank}</span>
+                                </motion.div>
+                            </motion.div>
+                        )
+                    })}
+                </section>
             )}
 
-            <style jsx>{`
-                .ranking-redesign {
-                    --rank-bg: ${RANK_BG};
-                    --rank-card: ${CARD_BG};
-                    --rank-muted: #8b95a8;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1rem;
-                    margin: 0 -0.25rem;
-                    padding-bottom: 1.5rem;
-                }
-
-                .ranking-redesign__intro {
-                    padding: 0 0.25rem;
-                }
-
-                .ranking-redesign__title {
-                    margin: 0;
-                    font-size: 1.25rem;
-                    font-weight: 700;
-                    letter-spacing: -0.02em;
-                    color: var(--foreground);
-                }
-
-                .ranking-redesign__subtitle {
-                    margin: 0.35rem 0 0;
-                    font-size: 0.8125rem;
-                    line-height: 1.5;
-                    color: var(--muted);
-                    max-width: 42ch;
-                }
-
-                .ranking-redesign__empty {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 0.75rem;
-                    padding: 3rem 1rem;
-                    color: var(--muted);
-                    font-size: 0.875rem;
-                }
-
-                .ranking-redesign__panel {
-                    display: flex;
-                    flex-direction: column;
-                    background: var(--rank-bg);
-                    border-radius: 12px;
-                    border: 1px solid rgba(79, 209, 197, 0.08);
-                    overflow: hidden;
-                }
-
-                .ranking-redesign__column-head {
-                    display: grid;
-                    grid-template-columns: 52px minmax(0, 1fr) 76px;
-                    gap: 0.35rem 0.5rem;
-                    align-items: center;
-                    padding: 10px 14px 8px;
-                    font-size: 0.625rem;
-                    font-weight: 600;
-                    letter-spacing: 0.08em;
-                    color: var(--rank-muted);
-                    text-transform: uppercase;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-                }
-
-                .ranking-redesign__column-head span:nth-child(2) {
-                    text-align: center;
-                }
-
-                .ranking-redesign__column-head span:nth-child(3) {
-                    text-align: right;
-                }
-
-                .ranking-redesign__list {
-                    list-style: none;
-                    margin: 0;
-                    padding: 10px 10px 14px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                }
-
-                .ranking-redesign__row {
-                    display: grid;
-                    grid-template-columns: 52px minmax(0, 1fr) 76px;
-                    gap: 0.35rem 0.5rem;
-                    align-items: center;
-                    padding: 10px 12px;
-                    background: var(--rank-card);
-                    border-radius: 10px;
-                    border: 1px solid rgba(255, 255, 255, 0.04);
-                }
-
-                .ranking-redesign__row--self {
-                    border-color: rgba(79, 209, 197, 0.45);
-                    box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.12);
-                }
-
-                .ranking-redesign__rank-num {
-                    font-size: 1.125rem;
-                    font-weight: 700;
-                    color: #6b7288;
-                    line-height: 1;
-                }
-
-                .ranking-redesign__player {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    gap: 10px;
-                    width: 100%;
-                    min-width: 0;
-                }
-
-                .ranking-redesign__player-text {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 2px;
-                    min-width: 0;
-                    max-width: calc(100% - 46px);
-                    text-align: center;
-                }
-
-                .ranking-redesign__name {
-                    font-size: 0.8125rem;
-                    font-weight: 700;
-                    color: var(--foreground);
-                }
-
-                .ranking-redesign__wins-sub {
-                    font-size: 0.6875rem;
-                    font-weight: 500;
-                    color: var(--rank-muted);
-                    line-height: 1.25;
-                }
-
-                .ranking-redesign__points {
-                    font-size: 0.9375rem;
-                    font-weight: 800;
-                    color: var(--foreground);
-                    text-align: right;
-                }
-
-                @media (max-width: 520px) {
-                    .ranking-redesign__column-head,
-                    .ranking-redesign__row {
-                        grid-template-columns: 44px minmax(0, 1fr) 68px;
-                        gap: 0.25rem 0.35rem;
-                        padding-left: 8px;
-                        padding-right: 8px;
-                    }
-
-                    .ranking-redesign__column-head {
-                        font-size: 0.5625rem;
-                        letter-spacing: 0.05em;
-                    }
-
-                    .ranking-redesign__wins-sub {
-                        font-size: 0.625rem;
-                    }
-                }
-            `}</style>
+            {rest.length > 0 && (
+                <ol className="ranking-list">
+                    {rest.map((entry, index) => {
+                        const rank = index + 4
+                        const isSelf = entry.userId === currentUserId
+                        const pct = topPoints ? (entry.points / topPoints) * 100 : 0
+                        return (
+                            <motion.li
+                                key={entry.userId}
+                                className={`ranking-row${isSelf ? ' is-self' : ''}`}
+                                initial={{ opacity: 0, x: -12 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true, margin: '-20px' }}
+                                transition={{ duration: 0.4, ease: EASE_OUT, delay: Math.min(index, 10) * 0.03 }}
+                            >
+                                <span className="ranking-row__rank" aria-label={`Puesto ${rank}`}>
+                                    {formatRankDisplay(rank)}
+                                </span>
+                                <UserAvatar userId={entry.userId} username={entry.username} size={38} />
+                                <span className="ranking-row__player">
+                                    <span className="ranking-row__name" title={entry.username}>
+                                        {entry.username}
+                                        {isSelf && <span className="ranking-row__you">Tú</span>}
+                                    </span>
+                                    <span className="ranking-row__sub">
+                                        {winsLabel(entry.wins)} · {entry.accuracy}% precisión
+                                    </span>
+                                </span>
+                                <span className="ranking-row__bar" aria-hidden>
+                                    <motion.span
+                                        initial={{ width: 0 }}
+                                        whileInView={{ width: `${pct}%` }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.15 }}
+                                    />
+                                </span>
+                                <span className="ranking-row__pts">{entry.points.toLocaleString('es-ES')}</span>
+                            </motion.li>
+                        )
+                    })}
+                </ol>
+            )}
         </div>
     )
 }

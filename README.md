@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- Hero Banner -->
-<img src="./public/img/HGLogo.webp" alt="HubGames Logo" width="180"/>
+<img src="./public/icons/favicon.svg" alt="HubGames Logo" width="140"/>
 
 # 🎮 HubGames
 

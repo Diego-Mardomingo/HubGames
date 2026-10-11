@@ -1,0 +1,314 @@
+/* ── Ranking: podio + lista ── */
+
+.ranking {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.ranking .eyebrow svg {
+  color: var(--gold);
+}
+
+.ranking-self {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.75rem 1.1rem 0.75rem 0.75rem;
+  border-radius: 999px;
+}
+
+.ranking-self__pos {
+  display: grid;
+  place-items: center;
+  min-width: 48px;
+  height: 48px;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+  background: var(--grad);
+  box-shadow: 0 8px 24px -10px rgba(111, 139, 255, 0.9);
+}
+
+.ranking-self__text {
+  display: grid;
+}
+
+.ranking-self__label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ranking-self__pts {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.ranking-empty {
+  display: grid;
+  place-items: center;
+  gap: 0.75rem;
+  padding: 4rem 1rem;
+  color: var(--muted);
+  border: 1px dashed var(--border-hover);
+  border-radius: var(--radius-lg);
+}
+
+.ranking-empty p {
+  margin: 0;
+}
+
+/* Podio */
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 0.875rem;
+  padding-top: 1.5rem;
+}
+
+.podium__col {
+  --medal: #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.podium__col--1 { --medal: #fcd34d; }
+.podium__col--2 { --medal: #cbd5e1; }
+.podium__col--3 { --medal: #f0a868; }
+
+.podium__player {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+  width: 100%;
+}
+
+.podium__crown {
+  position: absolute;
+  top: -28px;
+  color: var(--gold);
+  filter: drop-shadow(0 0 12px rgba(252, 211, 77, 0.8));
+}
+
+.podium__avatar {
+  padding: 3px;
+  border-radius: 50%;
+  background: conic-gradient(from var(--angle, 0deg), var(--medal), transparent 40%, var(--medal) 70%, transparent);
+  animation: spin-angle 5s linear infinite;
+  box-shadow: 0 0 30px -6px var(--medal);
+}
+
+.podium__avatar .avatar {
+  border: 3px solid var(--background);
+}
+
+.podium__name {
+  max-width: 100%;
+  margin-top: 0.25rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.podium__pts {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--medal);
+}
+
+.podium__block {
+  position: relative;
+  width: 100%;
+  display: grid;
+  place-items: start center;
+  padding-top: 0.9rem;
+  border-radius: 18px 18px 6px 6px;
+  border: 1px solid color-mix(in srgb, var(--medal) 35%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--medal) 22%, transparent), transparent 85%),
+    var(--glass);
+  backdrop-filter: blur(12px);
+  transform-origin: bottom;
+  overflow: hidden;
+}
+
+.podium__block::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.12) 50%, transparent 60%);
+  transform: translateX(-100%);
+  animation: podium-shine 4s ease-in-out 1.2s infinite;
+}
+
+@keyframes podium-shine {
+  0% { transform: translateX(-100%); }
+  40%, 100% { transform: translateX(100%); }
+}
+
+.podium__col--1 .podium__block { height: 150px; }
+.podium__col--2 .podium__block { height: 110px; }
+.podium__col--3 .podium__block { height: 84px; }
+
+.podium__rank {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.75rem;
+  line-height: 1;
+  color: var(--medal);
+  text-shadow: 0 0 30px color-mix(in srgb, var(--medal) 60%, transparent);
+}
+
+.podium__col.is-self .podium__name::after {
+  content: ' · Tú';
+  color: var(--primary);
+}
+
+/* Lista */
+.ranking-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.ranking-row {
+  display: grid;
+  grid-template-columns: 40px 38px minmax(0, 1fr) minmax(80px, 160px) 64px;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 1rem;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 0.25s, background 0.25s, transform 0.35s var(--ease-spring);
+}
+
+.ranking-row:hover {
+  border-color: var(--border-hover);
+  background: rgba(30, 28, 50, 0.7);
+  transform: translateX(4px);
+}
+
+.ranking-row.is-self {
+  border-color: rgba(154, 134, 255, 0.55);
+  background: linear-gradient(90deg, rgba(154, 134, 255, 0.14), rgba(42, 212, 240, 0.05));
+  box-shadow: 0 0 0 3px rgba(154, 134, 255, 0.1);
+}
+
+.ranking-row__rank {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.ranking-row__player {
+  display: grid;
+  min-width: 0;
+}
+
+.ranking-row__name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranking-row__you {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--grad);
+}
+
+.ranking-row__sub {
+  font-size: 0.75rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranking-row__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.ranking-row__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--grad);
+}
+
+.ranking-row__pts {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .podium {
+    gap: 0.5rem;
+  }
+
+  .podium__name {
+    font-size: 0.8125rem;
+  }
+
+  .podium__col--1 .podium__block { height: 120px; }
+  .podium__col--2 .podium__block { height: 88px; }
+  .podium__col--3 .podium__block { height: 66px; }
+
+  .podium__rank {
+    font-size: 2rem;
+  }
+
+  .ranking-row {
+    grid-template-columns: 28px 38px minmax(0, 1fr) 52px;
+    gap: 0.65rem;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .ranking-row__bar {
+    display: none;
+  }
+
+  .ranking-self {
+    width: 100%;
+    border-radius: 18px;
+  }
+}

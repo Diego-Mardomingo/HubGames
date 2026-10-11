@@ -94,6 +94,10 @@
 .admin-tabs-list {
     height: auto !important;
     gap: 2px;
+    padding: 4px !important;
+    border-radius: 999px !important;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.04) !important;
 }
 
 .admin-tab-trigger {
@@ -101,14 +105,31 @@
     align-items: center;
     gap: 5px;
     font-size: 0.8125rem !important;
-    padding: 0.4rem 0.75rem !important;
+    padding: 0.45rem 0.95rem !important;
+    border: 0;
+    border-radius: 999px !important;
+    background: transparent;
+    color: var(--muted);
+    transition: color 0.2s, background 0.25s, box-shadow 0.25s;
+}
+
+.admin-tab-trigger:hover {
+    color: var(--foreground);
+}
+
+.admin-tab-trigger[data-state='active'] {
+    color: #fff;
+    background: linear-gradient(120deg, rgba(138, 112, 255, 0.95), rgba(31, 184, 216, 0.9)) !important;
+    box-shadow: 0 6px 18px -6px rgba(111, 139, 255, 0.8);
 }
 
 /* ── Panel (igual que perfil-boceto-points-card / rank-card) ─── */
 .admin-panel {
-    border-radius: 0.75rem;
-    border: 1px solid var(--border);
-    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--glass-border);
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     overflow: hidden;
 }
 

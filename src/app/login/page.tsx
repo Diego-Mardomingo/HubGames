@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { LogIn, Mail, Lock, AlertTriangle } from 'lucide-react'
+import { ArrowRight, Mail, Lock } from 'lucide-react'
+import AuthShell, { FormError } from '@/components/AuthShell'
 
 function GoogleIcon() {
     return (
@@ -79,56 +80,44 @@ export default function LoginPage() {
     }
 
     return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100dvh - 160px)' }}>
-            <div className="animate-fade-in-up" style={{ width: '100%', maxWidth: 400, padding: 24, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }}>
-                <div style={{ marginBottom: 20 }}>
-                    <h1 style={{ margin: '0 0 4px', fontSize: '1.125rem', fontWeight: 700 }}>Inicia sesión</h1>
-                    <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.8125rem' }}>Accede a tu cuenta de HubGames</p>
+        <AuthShell title="Bienvenido de nuevo" subtitle="Inicia sesión para guardar tu progreso y entrar en el ranking.">
+            <Button variant="secondary" onClick={handleGoogleLogin} className="btn-block">
+                <GoogleIcon />
+                Continuar con Google
+            </Button>
+
+            <div className="divider-text">o con tu email</div>
+
+            <form onSubmit={handleLogin} style={{ display: 'grid', gap: '0.9rem' }}>
+                <div className="field">
+                    <label className="field__label" htmlFor="login-email">Email</label>
+                    <div className="field__control">
+                        <Mail size={16} className="field__icon" />
+                        <Input id="login-email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="tu@email.com" />
+                    </div>
                 </div>
-
-                <Button variant="secondary" onClick={handleGoogleLogin} style={{ width: '100%', height: 40, fontSize: '0.8125rem' }}>
-                    <GoogleIcon />
-                    Continuar con Google
-                </Button>
-
-                <div className="divider-text" style={{ margin: '16px 0' }}>o</div>
-
-                <form onSubmit={handleLogin} style={{ display: 'grid', gap: 12 }}>
-                    <div style={{ display: 'grid', gap: 4 }}>
-                        <label style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Email</label>
-                        <div style={{ position: 'relative' }}>
-                            <Mail size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
-                            <Input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="tu@email.com" style={{ paddingLeft: 32, height: 38 }} />
-                        </div>
+                <div className="field">
+                    <label className="field__label" htmlFor="login-password">Contraseña</label>
+                    <div className="field__control">
+                        <Lock size={16} className="field__icon" />
+                        <Input id="login-password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="••••••••" />
                     </div>
-                    <div style={{ display: 'grid', gap: 4 }}>
-                        <label style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Contraseña</label>
-                        <div style={{ position: 'relative' }}>
-                            <Lock size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
-                            <Input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="••••••••" style={{ paddingLeft: 32, height: 38 }} />
-                        </div>
-                    </div>
-                    {error && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--danger)', fontSize: '0.75rem', padding: '8px 10px', borderRadius: 'var(--radius)', background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.12)' }}>
-                            <AlertTriangle size={13} />
-                            {error}
-                        </div>
+                </div>
+                <FormError message={error} />
+                <Button type="submit" disabled={loading} className="btn-block">
+                    {loading ? 'Entrando...' : (
+                        <>
+                            Entrar
+                            <ArrowRight size={16} data-icon="inline-end" aria-hidden />
+                        </>
                     )}
-                    <Button type="submit" disabled={loading} style={{ height: 40, fontSize: '0.8125rem' }}>
-                        {loading ? 'Entrando...' : (
-                            <>
-                                <LogIn size={15} data-icon="inline-start" aria-hidden />
-                                Entrar
-                            </>
-                        )}
-                    </Button>
-                </form>
+                </Button>
+            </form>
 
-                <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--muted)', marginTop: 16, marginBottom: 0 }}>
-                    ¿No tienes cuenta?{' '}
-                    <Link href="/registro" style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>Regístrate aquí</Link>
-                </p>
-            </div>
-        </div>
+            <p className="auth__switch">
+                ¿No tienes cuenta?{' '}
+                <Link href="/registro" className="link">Regístrate gratis</Link>
+            </p>
+        </AuthShell>
     )
 }
