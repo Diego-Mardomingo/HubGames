@@ -4,14 +4,16 @@ import { Button } from '@/components/ui/button'
 
 export default function JudiMaintenance() {
     return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100dvh - 160px)' }}>
-            <div className="animate-fade-in-up" style={{ maxWidth: 440, width: '100%', padding: 24, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', textAlign: 'center' }}>
-                <Wrench size={24} style={{ color: 'var(--warning)', marginBottom: 12 }} />
-                <h1 style={{ margin: '0 0 4px', fontSize: '1.125rem', fontWeight: 700 }}>JUDI &middot; En mantenimiento</h1>
-                <p style={{ color: 'var(--muted)', fontSize: '0.8125rem', lineHeight: 1.6, margin: '0 0 20px' }}>
+        <div className="maint">
+            <div className="maint__card glass animate-fade-in-up">
+                <span className="maint__icon">
+                    <Wrench size={24} />
+                </span>
+                <h1 className="page-title" style={{ fontSize: '1.6rem' }}>JUDI en mantenimiento</h1>
+                <p className="page-subtitle" style={{ margin: '0.5rem auto 1.5rem' }}>
                     Estamos mejorando el Juego del día. Volveremos en breve con nuevas mejoras.
                 </p>
-                <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
                     <Button asChild>
                         <Link href="/" scroll={false}><Home size={15} data-icon="inline-start" aria-hidden />Inicio</Link>
                     </Button>

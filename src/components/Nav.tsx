@@ -1,18 +1,20 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useState, useEffect, type MouseEvent } from 'react'
 import { usePathname } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { persistJudiHomeScrollYFromWindow } from '@/lib/judi-home-scroll'
-import { Home, Trophy, User, Shield } from 'lucide-react'
+import { LogoMark, Wordmark } from '@/components/brand/Logo'
+import { Gamepad2, Trophy, User, Shield, LogIn } from 'lucide-react'
 
 const ADMIN_EMAIL = 'diego.lopez.mardomingo@gmail.com'
 
 export default function Nav() {
     const [user, setUser] = useState<any>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [scrolled, setScrolled] = useState(false)
     const pathname = usePathname()
 
     const isActive = (href: string) => {
@@ -57,61 +59,122 @@ export default function Nav() {
         return () => subscription.unsubscribe()
     }, [])
 
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 8)
+        onScroll()
+        window.addEventListener('scroll', onScroll, { passive: true })
+        return () => window.removeEventListener('scroll', onScroll)
+    }, [])
+
     const isAdmin = !isLoading && user?.email === ADMIN_EMAIL
+    const username: string | null = !isLoading && user ? user.user_metadata?.username || null : null
+    const initial = (username || user?.email || '?')[0]?.toUpperCase()
 
     const navLinks = [
-        { href: '/', label: 'Inicio', icon: Home },
+        { href: '/', label: 'Jugar', icon: Gamepad2 },
         { href: '/ranking', label: 'Ranking', icon: Trophy },
+        ...(isAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield }] : []),
     ]
 
-    const perfilLabel = !isLoading && user
-        ? user.user_metadata?.username || 'Perfil'
-        : 'Perfil'
-    const profileLink = { href: '/perfil', label: perfilLabel, icon: User }
+    const mobileLinks = [
+        ...navLinks,
+        user
+            ? { href: '/perfil', label: 'Perfil', icon: User }
+            : { href: '/login', label: 'Entrar', icon: LogIn },
+    ]
 
-    const allLinks = isAdmin
-        ? [...navLinks, { href: '/admin', label: 'Admin', icon: Shield }, profileLink]
-        : [...navLinks, profileLink]
+    const linkHandlers = (href: string) => ({
+        scroll: href !== '/',
+        onPointerDownCapture: href === '/' ? undefined : handleLeaveHomePointerDownCapture,
+        onClick: href === '/' ? handleHomeLinkClick : handleLeaveHomeNavClick,
+    })
+
+    const brand = (
+        <Link href="/" scroll={false} className="nav-brand" onClick={handleHomeLinkClick} aria-label="HubGames, inicio">
+            <LogoMark size={30} animated />
+            <Wordmark />
+        </Link>
+    )
+
+    const accountChip = isLoading ? (
+        <span className="nav-account nav-account--ghost" aria-hidden />
+    ) : user ? (
+        <Link
+            href="/perfil"
+            {...linkHandlers('/perfil')}
+            className={`nav-account ${isActive('/perfil') ? 'active' : ''}`}
+            aria-label="Mi perfil"
+        >
+            <span className="nav-account__avatar">{initial}</span>
+            <span className="nav-account__name">{username || 'Perfil'}</span>
+        </Link>
+    ) : (
+        <Link href="/login" {...linkHandlers('/login')} className="nav-cta btn-shine">
+            <LogIn size={15} aria-hidden />
+            Entrar
+        </Link>
+    )
 
     return (
         <>
-            <div className="nav-mobile-top" suppressHydrationWarning>
-                <Link href="/" scroll={false} className="nav-brand" onClick={handleHomeLinkClick}>
-                    <Image src="/img/HGLogo.webp" alt="HubGames Logo" width={32} height={32} priority />
-                    <span>HubGames</span>
-                </Link>
-            </div>
-            <nav className="nav-shell" suppressHydrationWarning>
-                <div className="nav-inner">
-                    <Link href="/" scroll={false} className="nav-brand" onClick={handleHomeLinkClick}>
-                        <Image src="/img/HGLogo.webp" alt="HubGames Logo" width={32} height={32} priority />
-                        <span>HubGames</span>
+            {/* Móvil: barra superior con marca + cuenta */}
+            <header className={`nav-mobile-top ${scrolled ? 'is-scrolled' : ''}`} suppressHydrationWarning>
+                {brand}
+                {user && !isLoading ? (
+                    <Link href="/perfil" {...linkHandlers('/perfil')} className="nav-account nav-account--compact" aria-label="Mi perfil">
+                        <span className="nav-account__avatar">{initial}</span>
                     </Link>
-                    <div className="nav-menu">
-                        {allLinks.map((link) => {
+                ) : null}
+            </header>
+
+            {/* Escritorio: barra flotante de cristal */}
+            <header className={`nav-shell ${scrolled ? 'is-scrolled' : ''}`} suppressHydrationWarning>
+                <div className="nav-inner">
+                    {brand}
+                    <nav className="nav-menu" aria-label="Principal">
+                        {navLinks.map((link) => {
                             const Icon = link.icon
+                            const active = isActive(link.href)
                             return (
-                                <Link
-                                    key={link.href}
-                                    href={link.href}
-                                    scroll={link.href !== '/'}
-                                    onPointerDownCapture={
-                                        link.href === '/' ? undefined : handleLeaveHomePointerDownCapture
-                                    }
-                                    onClick={
-                                        link.href === '/'
-                                            ? handleHomeLinkClick
-                                            : handleLeaveHomeNavClick
-                                    }
-                                    className={`nav-link ${isActive(link.href) ? 'active' : ''}`}
-                                >
-                                    <Icon size={18} />
+                                <Link key={link.href} href={link.href} {...linkHandlers(link.href)} className={`nav-link ${active ? 'active' : ''}`}>
+                                    {active && (
+                                        <motion.span
+                                            layoutId="nav-pill"
+                                            className="nav-link__pill"
+                                            transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                                        />
+                                    )}
+                                    <Icon size={16} className="nav-link__icon" />
                                     <span>{link.label}</span>
                                 </Link>
                             )
                         })}
-                    </div>
+                    </nav>
+                    <div className="nav-right">{accountChip}</div>
                 </div>
+            </header>
+
+            {/* Móvil: tab bar inferior */}
+            <nav className="nav-tabbar" aria-label="Principal móvil" suppressHydrationWarning>
+                {mobileLinks.map((link) => {
+                    const Icon = link.icon
+                    const active = isActive(link.href)
+                    return (
+                        <Link key={link.href} href={link.href} {...linkHandlers(link.href)} className={`nav-tab ${active ? 'active' : ''}`}>
+                            {active && (
+                                <motion.span
+                                    layoutId="tab-pill"
+                                    className="nav-tab__pill"
+                                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                                />
+                            )}
+                            <motion.span className="nav-tab__icon" whileTap={{ scale: 0.82 }}>
+                                <Icon size={20} strokeWidth={active ? 2.4 : 2} />
+                            </motion.span>
+                            <span className="nav-tab__label">{link.label}</span>
+                        </Link>
+                    )
+                })}
             </nav>
         </>
     )

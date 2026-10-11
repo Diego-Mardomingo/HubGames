@@ -9,10 +9,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
     Trophy, Medal, Bell, BellOff, Save, Shield, KeyRound,
-    LogOut, Target, XCircle, Percent, Gamepad2,
+    LogOut, Target, XCircle, Gamepad2,
     AlertTriangle, CheckCircle, ChevronRight, User,
 } from 'lucide-react'
 import Link from 'next/link'
+import { AnimatePresence, motion } from 'framer-motion'
+import Loader from '@/components/Loader'
+import { CountUp, ProgressRing } from '@/components/motion'
+import './perfil.css'
 
 export default function PerfilPage() {
     const router = useRouter()
@@ -145,11 +149,11 @@ export default function PerfilPage() {
 
     const handleLogout = async () => { await supabase.auth.signOut(); router.push('/') }
 
-    if (loading) return <div className="loader-container"><div className="loader" /></div>
+    if (loading) return <Loader label="Cargando perfil" />
 
     const initial = (user?.user_metadata?.username || user?.email || 'U')[0].toUpperCase()
-    const displayName = (user?.user_metadata?.username || 'Usuario').toUpperCase()
-    const medalColors = ['#fbbf24', '#94a3b8', '#cd7f32']
+    const displayName = user?.user_metadata?.username || 'Usuario'
+    const medalColors = ['#fcd34d', '#cbd5e1', '#f0a868']
     const puntos = judiStats?.puntos ?? 0
 
     const rankBeatPct =
@@ -158,223 +162,274 @@ export default function PerfilPage() {
             : null
 
     const gridStats = [
-        { icon: <Gamepad2 size={18} />, label: 'Partidas', value: judiStats?.total ?? 0, accent: 'cyan' as const },
-        { icon: <Target size={18} />, label: 'Aciertos', value: judiStats?.aciertos ?? 0, accent: 'cyan' as const },
-        { icon: <XCircle size={18} />, label: 'Fallos', value: judiStats?.fallos ?? 0, accent: 'red' as const },
-        { icon: <Percent size={18} />, label: 'Efectividad', value: `${judiStats?.porcentaje_acierto ?? 0}%`, accent: 'gold' as const },
+        { icon: <Gamepad2 size={17} />, label: 'Partidas', value: judiStats?.total ?? 0, tone: 'violet' },
+        { icon: <Target size={17} />, label: 'Aciertos', value: judiStats?.aciertos ?? 0, tone: 'green' },
+        { icon: <XCircle size={17} />, label: 'Fallos', value: judiStats?.fallos ?? 0, tone: 'red' },
     ]
 
+    const ease = [0.22, 1, 0.36, 1] as const
+
     return (
-        <div className="perfil-boceto animate-fade-in-up">
-            {error && (
-                <div className="perfil-boceto-alert perfil-boceto-alert--err">
-                    <AlertTriangle size={14} /> {error}
-                </div>
-            )}
-            {success && (
-                <div className="perfil-boceto-alert perfil-boceto-alert--ok">
-                    <CheckCircle size={14} /> {success}
-                </div>
-            )}
-
-            <header className="perfil-boceto-topbar">
-                <div className="perfil-boceto-topbar__mini-avatar" aria-hidden>{initial}</div>
-                <h1 className="perfil-boceto-topbar__title">MI PERFIL</h1>
-                <button
-                    type="button"
-                    className="perfil-boceto-topbar__logout-ico"
-                    onClick={handleLogout}
-                    aria-label="Cerrar sesión"
-                >
-                    <LogOut size={18} strokeWidth={2.25} />
-                </button>
-            </header>
-
-            <section className="perfil-boceto-hero">
-                <div className="perfil-boceto-hero__avatar-box">
-                    <div className="perfil-boceto-hero__avatar">{initial}</div>
-                    <span className="perfil-boceto-hero__lvl">{puntos} pts</span>
-                </div>
-                <h2 className="perfil-boceto-hero__name">
-                    {displayName}
-                    {user?.user_metadata?.administrador && (
-                        <span className="perfil-boceto-hero__admin"><Shield size={10} /> Admin</span>
+        <div className="perfil">
+            <div className="toasts" aria-live="polite">
+                <AnimatePresence>
+                    {error && (
+                        <motion.div
+                            key={`e-${error}`}
+                            className="alert alert--error toast"
+                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        >
+                            <AlertTriangle size={15} /> {error}
+                        </motion.div>
                     )}
-                </h2>
-                <p className="perfil-boceto-hero__email">{user?.email}</p>
-            </section>
-
-            <section className="perfil-boceto-rank-card">
-                <div className="perfil-boceto-rank-card__stripe" aria-hidden />
-                <div className="perfil-boceto-rank-card__col perfil-boceto-rank-card__col--rank">
-                    <span className="perfil-boceto-rank-card__hash">#{userRank ?? '—'}</span>
-                    <span className="perfil-boceto-rank-card__rank-label">RANK</span>
-                </div>
-                <div className="perfil-boceto-rank-card__col perfil-boceto-rank-card__col--mid">
-                    <p className="perfil-boceto-rank-card__kicker">TU POSICIÓN ACTUAL</p>
-                    <p className="perfil-boceto-rank-card__sub">
-                        {rankBeatPct !== null
-                            ? `Superando al ${rankBeatPct}% de jugadores en JUDI`
-                            : totalRankedUsers === 0
-                                ? 'Aún no hay clasificación'
-                                : 'Juega partidas para aparecer en el ranking'}
-                    </p>
-                </div>
-                <div className="perfil-boceto-rank-card__col perfil-boceto-rank-card__col--pts">
-                    <span className="perfil-boceto-rank-card__pts-num">{puntos}</span>
-                    <span className="perfil-boceto-rank-card__pts-label">PUNTOS TOTALES</span>
-                </div>
-            </section>
-
-            <section className="perfil-boceto-points-card">
-                <div className="perfil-boceto-points-card__icon-wrap" aria-hidden>
-                    <Trophy size={22} strokeWidth={2} />
-                </div>
-                <div className="perfil-boceto-points-card__text">
-                    <p className="perfil-boceto-points-card__label">PUNTOS ACUMULADOS</p>
-                    <p className="perfil-boceto-points-card__value">{puntos}</p>
-                </div>
-            </section>
-
-            <div className="perfil-boceto-stat-grid">
-                {gridStats.map((s) => (
-                    <div key={s.label} className={`perfil-boceto-stat-tile perfil-boceto-stat-tile--${s.accent}`}>
-                        <div className="perfil-boceto-stat-tile__icon">{s.icon}</div>
-                        <span className="perfil-boceto-stat-tile__label">{s.label}</span>
-                        <span className="perfil-boceto-stat-tile__value">{s.value}</span>
-                    </div>
-                ))}
+                    {success && (
+                        <motion.div
+                            key={`s-${success}`}
+                            className="alert alert--ok toast"
+                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        >
+                            <CheckCircle size={15} /> {success}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
-            <section className="perfil-boceto-ranking-preview">
-                <div className="perfil-boceto-ranking-preview__head">
-                    <span className="perfil-boceto-ranking-preview__title">Top jugadores</span>
-                    <Link href="/ranking" className="perfil-boceto-ranking-preview__link">
-                        Ver ranking <ChevronRight size={14} />
-                    </Link>
-                </div>
-                <ul className="perfil-boceto-ranking-preview__list">
-                    {leaderboardPreview.map((player, index) => (
-                        <li key={player.userId} className="perfil-boceto-ranking-preview__row">
-                            <span
-                                className="perfil-boceto-ranking-preview__medal"
-                                style={{
-                                    background: index < 3 ? `${medalColors[index]}22` : 'var(--surface-3)',
-                                    color: index < 3 ? medalColors[index] : 'var(--muted)',
-                                }}
-                            >
-                                {index < 3 ? <Medal size={12} /> : index + 1}
+            <div className="perfil-grid">
+                {/* Tarjeta de jugador */}
+                <motion.section
+                    className="player-card glass"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease }}
+                >
+                    <div className="player-card__banner" aria-hidden />
+                    <motion.div
+                        className="player-card__avatar"
+                        initial={{ scale: 0.6, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.15 }}
+                    >
+                        <span>{initial}</span>
+                    </motion.div>
+                    <h1 className="player-card__name">
+                        {displayName}
+                        {user?.user_metadata?.administrador && (
+                            <span className="player-card__admin">
+                                <Shield size={10} /> Admin
                             </span>
-                            <span className="perfil-boceto-ranking-preview__name">{player.username}</span>
-                            <span className="perfil-boceto-ranking-preview__pts">{player.points} pts</span>
-                        </li>
-                    ))}
-                    {leaderboardPreview.length === 0 && (
-                        <li className="perfil-boceto-ranking-preview__empty">Sin datos de ranking</li>
-                    )}
-                </ul>
-            </section>
+                        )}
+                    </h1>
+                    <p className="player-card__email">{user?.email}</p>
 
-            <section className="perfil-boceto-settings" aria-label="Ajustes de cuenta">
-                <div className="perfil-boceto-settings__stack">
-                    {/* Preferencias */}
-                    <div className="perfil-boceto-settings__group">
-                        <h3 className="perfil-boceto-settings__cat">Preferencias</h3>
-                        <div className="perfil-boceto-settings__card">
-                            <div className="perfil-boceto-settings__row">
-                                <div className="perfil-boceto-settings__row-left">
-                                    <div className={`perfil-boceto-settings__ico ${notificationsEnabled ? '' : 'perfil-boceto-settings__ico--muted'}`} aria-hidden>
-                                        {notificationsEnabled ? <Bell size={18} /> : <BellOff size={18} />}
-                                    </div>
-                                    <div>
-                                        <p className="perfil-boceto-settings__row-title">Notificaciones</p>
-                                        <p className="perfil-boceto-settings__row-desc">
-                                            {notificationsLoading ? 'Actualizando…' : 'Alertas del juego diario (JUDI)'}
-                                        </p>
-                                    </div>
-                                </div>
-                                <button
-                                    type="button"
-                                    role="switch"
-                                    aria-checked={Boolean(notificationsEnabled)}
-                                    aria-label="Notificaciones"
-                                    disabled={notificationsLoading || notificationsEnabled === null}
-                                    className="perfil-notify-switch"
-                                    onClick={handleToggleNotifications}
+                    <div className="player-card__rank">
+                        <div>
+                            <span className="player-card__k">Posición</span>
+                            <span className="player-card__v player-card__v--gold">#{userRank ?? '—'}</span>
+                        </div>
+                        <span className="player-card__sep" aria-hidden />
+                        <div>
+                            <span className="player-card__k">Puntos</span>
+                            <CountUp value={puntos} className="player-card__v text-gradient" />
+                        </div>
+                    </div>
+                    <p className="player-card__beat">
+                        {rankBeatPct !== null
+                            ? `Superas al ${rankBeatPct}% de jugadores de JUDI`
+                            : totalRankedUsers === 0
+                                ? 'Aún no hay clasificación'
+                                : 'Termina partidas para aparecer en el ranking'}
+                    </p>
+
+                    <Button variant="secondary" className="player-card__logout" onClick={handleLogout}>
+                        <LogOut size={15} data-icon="inline-start" aria-hidden /> Cerrar sesión
+                    </Button>
+                </motion.section>
+
+                <div className="perfil-main">
+                    {/* Rendimiento */}
+                    <motion.section
+                        className="perf glass"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, ease, delay: 0.08 }}
+                    >
+                        <ProgressRing value={judiStats?.porcentaje_acierto ?? 0} size={132} stroke={11}>
+                            <div className="perf__ring-center">
+                                <CountUp value={judiStats?.porcentaje_acierto ?? 0} suffix="%" className="perf__ring-value" />
+                                <span className="perf__ring-label">Precisión</span>
+                            </div>
+                        </ProgressRing>
+                        <div className="perf__stats">
+                            {gridStats.map((s, i) => (
+                                <motion.div
+                                    key={s.label}
+                                    className={`perf__stat perf__stat--${s.tone}`}
+                                    initial={{ opacity: 0, x: 12 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.45, ease, delay: 0.2 + i * 0.07 }}
                                 >
-                                    <span className="perfil-notify-switch__thumb" aria-hidden />
-                                </button>
-                            </div>
+                                    <span className="perf__stat-icon">{s.icon}</span>
+                                    <span className="perf__stat-label">{s.label}</span>
+                                    <CountUp value={s.value} className="perf__stat-value" />
+                                </motion.div>
+                            ))}
                         </div>
-                    </div>
+                    </motion.section>
 
-                    {/* Identidad */}
-                    <div className="perfil-boceto-settings__group">
-                        <h3 className="perfil-boceto-settings__cat">Identidad</h3>
-                        <div className="perfil-boceto-settings__card perfil-boceto-settings__card--pad">
-                            <div className="perfil-boceto-settings__block-head">
-                                <User size={17} className="perfil-boceto-settings__head-ico" aria-hidden />
-                                <span className="perfil-boceto-settings__block-title">Nombre de usuario</span>
-                            </div>
-                            <form onSubmit={handleUpdateUsername} className="perfil-boceto-settings__form-col">
-                                <Input
-                                    id="perfil-username-input"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    placeholder="Tu nombre"
-                                    autoComplete="username"
-                                    className="perfil-settings-input perfil-boceto-settings__input"
-                                />
-                                <Button type="submit" disabled={updating} className="perfil-boceto-settings__save-btn">
-                                    <Save size={14} data-icon="inline-start" aria-hidden /> Guardar
-                                </Button>
-                            </form>
+                    {/* Top jugadores */}
+                    <motion.section
+                        className="top glass"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, ease, delay: 0.16 }}
+                    >
+                        <div className="section-head">
+                            <h2 className="section-head__title">
+                                <Trophy size={15} aria-hidden /> Top jugadores
+                            </h2>
+                            <Link href="/ranking" className="section-head__link">
+                                Ver ranking <ChevronRight size={14} />
+                            </Link>
                         </div>
-                    </div>
+                        <ul className="top__list">
+                            {leaderboardPreview.map((player, index) => (
+                                <motion.li
+                                    key={player.userId}
+                                    className={`top__row${player.userId === user?.id ? ' is-self' : ''}`}
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.35, delay: 0.25 + index * 0.05 }}
+                                >
+                                    <span
+                                        className="top__medal"
+                                        style={{
+                                            background: index < 3 ? `${medalColors[index]}22` : 'rgba(255,255,255,0.05)',
+                                            color: index < 3 ? medalColors[index] : 'var(--muted)',
+                                        }}
+                                    >
+                                        {index < 3 ? <Medal size={13} /> : index + 1}
+                                    </span>
+                                    <span className="top__name">{player.username}</span>
+                                    <span className="top__pts">{player.points} pts</span>
+                                </motion.li>
+                            ))}
+                            {leaderboardPreview.length === 0 && <li className="top__empty">Sin datos de ranking</li>}
+                        </ul>
+                    </motion.section>
+                </div>
+            </div>
 
-                    {/* Seguridad */}
-                    <div className="perfil-boceto-settings__group">
-                        <h3 className="perfil-boceto-settings__cat">Seguridad</h3>
-                        <div className="perfil-boceto-settings__card perfil-boceto-settings__card--pad">
-                            <div className="perfil-boceto-settings__block-head">
-                                <KeyRound size={17} className="perfil-boceto-settings__head-ico" aria-hidden />
-                                <span className="perfil-boceto-settings__block-title">Contraseña</span>
+            {/* Ajustes */}
+            <section className="settings" aria-label="Ajustes de cuenta">
+                <h2 className="settings__title">Ajustes</h2>
+                <div className="settings__grid">
+                    <motion.div
+                        className="setting glass"
+                        initial={{ opacity: 0, y: 16 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, ease }}
+                    >
+                        <div className="setting__head">
+                            <span className={`setting__icon ${notificationsEnabled ? '' : 'is-muted'}`} aria-hidden>
+                                {notificationsEnabled ? <Bell size={17} /> : <BellOff size={17} />}
+                            </span>
+                            <div className="setting__text">
+                                <p className="setting__title">Notificaciones</p>
+                                <p className="setting__desc">
+                                    {notificationsLoading ? 'Actualizando…' : 'Aviso diario cuando sale un nuevo JUDI'}
+                                </p>
                             </div>
-                            <form onSubmit={handleUpdatePassword} className="perfil-boceto-settings__form-col">
-                                <div className="perfil-boceto-settings__field">
-                                    <label htmlFor="perfil-pass-new" className="perfil-boceto-settings__field-label">Nueva contraseña</label>
-                                    <Input
-                                        id="perfil-pass-new"
-                                        type="password"
-                                        value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)}
-                                        autoComplete="new-password"
-                                        className="perfil-settings-input perfil-boceto-settings__input"
-                                    />
-                                </div>
-                                <div className="perfil-boceto-settings__field">
-                                    <label htmlFor="perfil-pass-confirm" className="perfil-boceto-settings__field-label">Confirmar</label>
-                                    <Input
-                                        id="perfil-pass-confirm"
-                                        type="password"
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        autoComplete="new-password"
-                                        className="perfil-settings-input perfil-boceto-settings__input"
-                                    />
-                                </div>
-                                <Button type="submit" disabled={updating} variant="outline" className="perfil-boceto-settings__update-btn">
-                                    <KeyRound size={14} data-icon="inline-start" aria-hidden /> Actualizar
-                                </Button>
-                            </form>
+                            <button
+                                type="button"
+                                role="switch"
+                                aria-checked={Boolean(notificationsEnabled)}
+                                aria-label="Notificaciones"
+                                disabled={notificationsLoading || notificationsEnabled === null}
+                                className="switch"
+                                onClick={handleToggleNotifications}
+                            >
+                                <span className="switch__thumb" aria-hidden />
+                            </button>
                         </div>
-                    </div>
+                    </motion.div>
+
+                    <motion.div
+                        className="setting glass"
+                        initial={{ opacity: 0, y: 16 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, ease, delay: 0.06 }}
+                    >
+                        <div className="setting__head">
+                            <span className="setting__icon" aria-hidden>
+                                <User size={17} />
+                            </span>
+                            <div className="setting__text">
+                                <p className="setting__title">Nombre de usuario</p>
+                                <p className="setting__desc">Es el nombre que aparece en el ranking</p>
+                            </div>
+                        </div>
+                        <form onSubmit={handleUpdateUsername} className="setting__form">
+                            <Input
+                                id="perfil-username-input"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder="Tu nombre"
+                                autoComplete="username"
+                            />
+                            <Button type="submit" disabled={updating}>
+                                <Save size={14} data-icon="inline-start" aria-hidden /> Guardar
+                            </Button>
+                        </form>
+                    </motion.div>
+
+                    <motion.div
+                        className="setting glass"
+                        initial={{ opacity: 0, y: 16 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, ease, delay: 0.12 }}
+                    >
+                        <div className="setting__head">
+                            <span className="setting__icon" aria-hidden>
+                                <KeyRound size={17} />
+                            </span>
+                            <div className="setting__text">
+                                <p className="setting__title">Contraseña</p>
+                                <p className="setting__desc">Mínimo 6 caracteres</p>
+                            </div>
+                        </div>
+                        <form onSubmit={handleUpdatePassword} className="setting__form setting__form--stack">
+                            <label htmlFor="perfil-pass-new" className="sr-only">Nueva contraseña</label>
+                            <Input
+                                id="perfil-pass-new"
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                placeholder="Nueva contraseña"
+                                autoComplete="new-password"
+                            />
+                            <label htmlFor="perfil-pass-confirm" className="sr-only">Confirmar contraseña</label>
+                            <Input
+                                id="perfil-pass-confirm"
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                placeholder="Confirmar contraseña"
+                                autoComplete="new-password"
+                            />
+                            <Button type="submit" variant="secondary" disabled={updating}>
+                                <KeyRound size={14} data-icon="inline-start" aria-hidden /> Actualizar
+                            </Button>
+                        </form>
+                    </motion.div>
                 </div>
             </section>
-
-            <button type="button" className="perfil-boceto-logout-bar" onClick={handleLogout}>
-                CERRAR SESIÓN
-            </button>
         </div>
     )
 }

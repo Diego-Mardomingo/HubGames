@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useAnimate } from 'framer-motion'
 import { supabase, safeGetUser } from '@/lib/supabase/client'
 import Loader from '@/components/Loader'
 import { getFailedAttempts, getPointsForRecord, type JudiProgressRecord } from '@/lib/judi-ranking'
@@ -15,8 +15,33 @@ import {
 } from '@/lib/judi-home-scroll'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import confetti from 'canvas-confetti'
-import { ArrowLeft, ChevronDown, ChevronRight, Search, SkipForward } from 'lucide-react'
+import {
+    ArrowLeft,
+    ArrowRight,
+    Building2,
+    CalendarDays,
+    Check,
+    ChevronDown,
+    Clock,
+    Flame,
+    Gamepad2,
+    Lock,
+    Maximize2,
+    Percent,
+    Search,
+    SkipForward,
+    Sparkles,
+    Tags,
+    Target,
+    ThumbsUp,
+    Trophy,
+    Users,
+    X,
+} from 'lucide-react'
 import { Dialog } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { CountUp, Reveal, RollingText, useTilt } from '@/components/motion'
+import './judi.css'
 
 type GameRecord = {
     id: number
@@ -371,99 +396,211 @@ function sanitizeIlikeToken(token: string) {
 }
 
 const JUDI_ATTEMPT_SLOTS = 6
-const LIST_DOT_PX = 6
 
-const dotNeutral = 'rgba(148, 163, 184, 0.38)'
+const EASE_OUT = [0.22, 1, 0.36, 1] as const
 
-const listDotStyle = (fill: string) =>
-    ({
-        width: LIST_DOT_PX,
-        height: LIST_DOT_PX,
-        minWidth: LIST_DOT_PX,
-        minHeight: LIST_DOT_PX,
-        borderRadius: '50%',
-        flex: `0 0 ${LIST_DOT_PX}px`,
-        display: 'block',
-        boxSizing: 'border-box',
-        background: fill,
-    }) as const
+type PipState = 'empty' | 'miss' | 'hit'
 
-function ListAttemptDots({ failed }: { failed: number }) {
+function listPipStates(failed: number): PipState[] {
     const f = Math.min(Math.max(0, failed), JUDI_ATTEMPT_SLOTS)
+    return Array.from({ length: JUDI_ATTEMPT_SLOTS }, (_, i) => (i < f ? 'miss' : 'empty'))
+}
+
+function gamePipStates(gameState: 'playing' | 'won' | 'lost', lives: number): PipState[] {
+    const failed = Math.min(JUDI_ATTEMPT_SLOTS, Math.max(0, JUDI_ATTEMPT_SLOTS - lives))
+    return Array.from({ length: JUDI_ATTEMPT_SLOTS }, (_, i) => {
+        if (gameState === 'lost') return 'miss'
+        if (gameState === 'won') {
+            // Sin fallos: todo en verde (celebración); si no, fallos en rojo + acierto en verde.
+            if (failed === 0) return 'hit'
+            return i < failed ? 'miss' : i === failed ? 'hit' : 'empty'
+        }
+        return i < failed ? 'miss' : 'empty'
+    })
+}
+
+function AttemptPips({ states, size = 'md' }: { states: PipState[]; size?: 'sm' | 'md' }) {
+    const misses = states.filter((s) => s === 'miss').length
     return (
-        <div className="judi-dots-row" role="presentation">
-            {Array.from({ length: JUDI_ATTEMPT_SLOTS }, (_, i) => (
-                <span
+        <div className={`pips pips--${size}`} role="img" aria-label={`${misses} de ${JUDI_ATTEMPT_SLOTS} intentos fallados`}>
+            {states.map((state, i) => (
+                <motion.span
                     key={i}
-                    className="judi-list-dot"
-                    style={listDotStyle(i < f ? '#f43f5e' : dotNeutral)}
+                    className={`pip pip--${state}`}
+                    initial={false}
+                    animate={state === 'empty' ? { scale: 1 } : { scale: [1, 1.6, 1] }}
+                    transition={{ duration: 0.45, ease: 'easeOut', delay: state === 'hit' ? i * 0.04 : 0 }}
                 />
             ))}
         </div>
     )
 }
 
-const HEADER_DOT_PX = 7
+type TileStatus = 'won' | 'lost' | 'progress' | 'new'
 
-const headerDotStyle = (fill: string) => ({
-    width: HEADER_DOT_PX,
-    height: HEADER_DOT_PX,
-    minWidth: HEADER_DOT_PX,
-    minHeight: HEADER_DOT_PX,
-    borderRadius: '50%',
-    flex: `0 0 ${HEADER_DOT_PX}px`,
-    display: 'block' as const,
-    boxSizing: 'border-box' as const,
-    background: fill,
-    transition: 'background 0.2s',
-})
+function getTileStatus(game: GameRecord): TileStatus {
+    if (game.completado) return 'won'
+    if (game.fase6) return 'lost'
+    return getFailedAttempts(game as JudiProgressRecord) > 0 ? 'progress' : 'new'
+}
 
-function GameHeaderAttemptDots({
-    gameState,
-    lives,
-}: {
-    gameState: 'playing' | 'won' | 'lost'
-    lives: number
-}) {
-    const failed = Math.min(JUDI_ATTEMPT_SLOTS, Math.max(0, JUDI_ATTEMPT_SLOTS - lives))
-
-    if (gameState === 'won') {
-        // Sin fallos (o partida ya completada con lives=6): misma celebración que antes.
-        if (failed === 0) {
-            return (
-                <div className="judi-header-dots" style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                    {Array.from({ length: JUDI_ATTEMPT_SLOTS }, (_, i) => (
-                        <span key={i} className="judi-header-dot" style={headerDotStyle('var(--success)')} />
-                    ))}
-                </div>
-            )
-        }
-        return (
-            <div className="judi-header-dots" style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                {Array.from({ length: JUDI_ATTEMPT_SLOTS }, (_, i) => {
-                    const fill =
-                        i < failed ? '#f43f5e' : i === failed ? 'var(--success)' : dotNeutral
-                    return <span key={i} className="judi-header-dot" style={headerDotStyle(fill)} />
-                })}
-            </div>
-        )
-    }
-    if (gameState === 'lost') {
-        return (
-            <div className="judi-header-dots" style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                {Array.from({ length: JUDI_ATTEMPT_SLOTS }, (_, i) => (
-                    <span key={i} className="judi-header-dot" style={headerDotStyle('#f43f5e')} />
-                ))}
-            </div>
-        )
-    }
+/** Arte de "juego misterioso" para partidas sin resolver (no revela la portada). */
+function MysteryArt({ seed, big = false }: { seed: number; big?: boolean }) {
+    // Tonos dentro de la paleta de marca (cian → violeta → magenta).
+    const hue = 190 + ((seed * 47) % 150)
     return (
-        <div className="judi-header-dots" style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-            {Array.from({ length: JUDI_ATTEMPT_SLOTS }, (_, i) => (
-                <span key={i} className="judi-header-dot" style={headerDotStyle(i < failed ? '#f43f5e' : dotNeutral)} />
-            ))}
+        <div className={`mystery ${big ? 'mystery--big' : ''}`} style={{ ['--h' as string]: hue }} aria-hidden>
+            <span className="mystery__q">?</span>
+            <span className="mystery__scan" />
         </div>
     )
+}
+
+function GameTile({ game, index, onPlay }: { game: GameRecord; index: number; onPlay: (game: GameRecord) => void }) {
+    const tilt = useTilt<HTMLButtonElement>(9)
+    const status = getTileStatus(game)
+    const finished = status === 'won' || status === 'lost'
+    const failed = getFailedAttempts(game as JudiProgressRecord)
+    const isToday = isJudiGameForCurrentDailyDate(game)
+
+    return (
+        <motion.button
+            type="button"
+            data-game-row
+            className={`tile tile--${status}${isToday ? ' tile--today glow-border' : ''}`}
+            onClick={() => onPlay(game)}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: EASE_OUT, delay: Math.min(index, 14) * 0.03 }}
+            {...tilt}
+        >
+            <div className="tile__art">
+                {finished && game.header_image ? (
+                    <img src={game.header_image} alt="" loading="lazy" draggable={false} />
+                ) : (
+                    <MysteryArt seed={game.id} />
+                )}
+                <span className="tile__num">#{game.id}</span>
+                {isToday && <span className="tile__today">Hoy</span>}
+                {finished && (
+                    <span className={`tile__badge tile__badge--${status}`} aria-hidden>
+                        {status === 'won' ? <Check size={13} strokeWidth={3} /> : <X size={13} strokeWidth={3} />}
+                    </span>
+                )}
+            </div>
+            <div className="tile__body">
+                <span className="tile__date">{formatShortDate(game.fecha)}</span>
+                <span className="tile__title">
+                    {finished ? game.nombre : status === 'progress' ? 'En curso' : 'Sin jugar'}
+                </span>
+                <div className="tile__foot">
+                    {finished ? (
+                        <span className={`tile__pts ${(game.puntos ?? 0) > 0 ? 'is-pos' : 'is-zero'}`}>
+                            {status === 'won' ? `+${game.puntos ?? 0}` : '0'} pts
+                        </span>
+                    ) : status === 'progress' ? (
+                        <AttemptPips states={listPipStates(failed)} size="sm" />
+                    ) : (
+                        <span className="tile__play">
+                            Jugar <ArrowRight size={13} />
+                        </span>
+                    )}
+                </div>
+            </div>
+            <span className="tile__glare" aria-hidden />
+        </motion.button>
+    )
+}
+
+function HeroCard({ game, onPlay }: { game: GameRecord | null; onPlay: (game: GameRecord) => void }) {
+    const tilt = useTilt<HTMLButtonElement>(7)
+    if (!game) return null
+    const status = getTileStatus(game)
+    const finished = status === 'won' || status === 'lost'
+    const failed = getFailedAttempts(game as JudiProgressRecord)
+    const parsed = parseLegacyDate(game.fecha)
+    const longDate = parsed
+        ? parsed.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })
+        : game.fecha
+
+    return (
+        <motion.div
+            className="hero-card-wrap"
+            initial={{ opacity: 0, y: 24, rotateX: 8 }}
+            animate={{ opacity: 1, y: 0, rotateX: 0 }}
+            transition={{ duration: 0.8, ease: EASE_OUT, delay: 0.15 }}
+        >
+            <span className="hero-card-ghost hero-card-ghost--1" aria-hidden />
+            <span className="hero-card-ghost hero-card-ghost--2" aria-hidden />
+            <button type="button" className={`hero-card hero-card--${status} glow-border`} onClick={() => onPlay(game)} {...tilt}>
+                <div className="hero-card__art">
+                    {finished && game.header_image ? (
+                        <img src={game.header_image} alt="" draggable={false} />
+                    ) : (
+                        <MysteryArt seed={game.id} big />
+                    )}
+                </div>
+                <div className="hero-card__overlay">
+                    <div className="hero-card__row">
+                        <span className="hero-card__num">JUDI #{game.id}</span>
+                        <span className={`hero-card__state hero-card__state--${status}`}>
+                            {status === 'won' ? 'Acertado' : status === 'lost' ? 'Fallado' : status === 'progress' ? 'En curso' : 'Sin jugar'}
+                        </span>
+                    </div>
+                    <span className="hero-card__date">{longDate}</span>
+                    <div className="hero-card__row hero-card__row--bottom">
+                        <span className="hero-card__name">{finished ? game.nombre : '¿Lo reconoces?'}</span>
+                        <AttemptPips
+                            states={
+                                status === 'won'
+                                    ? gamePipStates('won', JUDI_ATTEMPT_SLOTS - failed)
+                                    : status === 'lost'
+                                        ? gamePipStates('lost', 0)
+                                        : listPipStates(failed)
+                            }
+                        />
+                    </div>
+                </div>
+                <span className="tile__glare" aria-hidden />
+            </button>
+        </motion.div>
+    )
+}
+
+type ListFilter = 'all' | 'pending' | 'won' | 'lost'
+
+const LIST_FILTERS: { id: ListFilter; label: string }[] = [
+    { id: 'all', label: 'Todos' },
+    { id: 'pending', label: 'Pendientes' },
+    { id: 'won', label: 'Acertados' },
+    { id: 'lost', label: 'Fallados' },
+]
+
+const JUDI_FILTER_SESSION_KEY = 'judi_list_filter'
+
+function readFilterSession(): ListFilter {
+    if (typeof window === 'undefined') return 'all'
+    const raw = sessionStorage.getItem(JUDI_FILTER_SESSION_KEY)
+    return raw === 'pending' || raw === 'won' || raw === 'lost' ? raw : 'all'
+}
+
+function matchesFilter(game: GameRecord, filter: ListFilter) {
+    if (filter === 'all') return true
+    if (filter === 'won') return Boolean(game.completado)
+    if (filter === 'lost') return Boolean(game.fase6 && !game.completado)
+    return !game.completado && !game.fase6
+}
+
+function formatLongDate(date: string) {
+    const parsed = parseLegacyDate(date)
+    if (!parsed) return date
+    return parsed.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+const phaseImageVariants = {
+    enter: (dir: number) => ({ opacity: 0, x: dir * 60, scale: 1.04, filter: 'blur(6px)' }),
+    center: { opacity: 1, x: 0, scale: 1, filter: 'blur(0px)' },
+    exit: (dir: number) => ({ opacity: 0, x: dir * -60, scale: 0.98, filter: 'blur(6px)' }),
 }
 
 export default function JudiClient() {
@@ -499,10 +636,44 @@ export default function JudiClient() {
         openYears: [],
         openMonths: [],
     })
+    const [listFilter, setListFilter] = useState<ListFilter>(() => readFilterSession())
+    /** Contador para el destello rojo de la captura al fallar. */
+    const [flashKey, setFlashKey] = useState(0)
+    const [guessScope, animateGuess] = useAnimate<HTMLDivElement>()
+    /** Dirección de la transición entre capturas (1 = siguiente, -1 = anterior). */
+    const phaseDirRef = useRef(1)
+    const lastPhaseRef = useRef(activeViewedPhase)
 
     const dailyCountdownMs = useNextDailyCountdown()
 
-    const { singleYear, yearGroups } = useMemo(() => buildYearGroups(games), [games])
+    const visibleGames = useMemo(() => games.filter((g) => matchesFilter(g, listFilter)), [games, listFilter])
+    const { singleYear, yearGroups } = useMemo(() => buildYearGroups(visibleGames), [visibleGames])
+
+    const stats = useMemo(() => {
+        let points = 0
+        let wins = 0
+        let losses = 0
+        for (const g of games) {
+            if (g.completado) {
+                wins++
+                points += g.puntos ?? 0
+            } else if (g.fase6) {
+                losses++
+            }
+        }
+        // Racha: días consecutivos acertados hacia atrás (el de hoy sin jugar no la rompe).
+        const byDateDesc = [...games].sort(
+            (a, b) => (parseLegacyDate(b.fecha)?.getTime() ?? 0) - (parseLegacyDate(a.fecha)?.getTime() ?? 0)
+        )
+        let streak = 0
+        for (const g of byDateDesc) {
+            if (isJudiGameForCurrentDailyDate(g) && !g.completado && !g.fase6) continue
+            if (!g.completado) break
+            streak++
+        }
+        const played = wins + losses
+        return { points, wins, losses, streak, accuracy: played > 0 ? Math.round((wins / played) * 100) : 0 }
+    }, [games])
 
     useEffect(() => {
         void loadUserAndGames()
@@ -685,7 +856,7 @@ export default function JudiClient() {
 
     const startJuego = async (game: GameRecord) => {
         const scrollBeforeLoader = getWindowScrollY()
-        if (scrollBeforeLoader > 0) {
+        if (view === 'start' && scrollBeforeLoader > 0) {
             lastHomeScrollYRef.current = scrollBeforeLoader
             sessionStorage.setItem(JUDI_HOME_SCROLL_Y_KEY, String(scrollBeforeLoader))
         }
@@ -838,6 +1009,14 @@ export default function JudiClient() {
         }
     }
 
+    /** Feedback de fallo: sacudida del buscador + destello en la captura. */
+    const signalMiss = () => {
+        setFlashKey((k) => k + 1)
+        if (guessScope.current) {
+            void animateGuess(guessScope.current, { x: [0, -12, 10, -7, 5, -2, 0] }, { duration: 0.5, ease: 'easeOut' })
+        }
+    }
+
     const submitGuess = async (rawGuess: string) => {
         if (!selectedGame || gameState !== 'playing' || guessSubmitting) return
         const guessText = rawGuess.trim()
@@ -862,6 +1041,7 @@ export default function JudiClient() {
             }
 
             const nextPhase = highestUnlockedPhase + 1
+            signalMiss()
             await saveWrongGuess(selectedGame.juego, guessText)
             setWrongGuesses((prev) => [...prev, guessText])
 
@@ -889,6 +1069,7 @@ export default function JudiClient() {
     const skipAttempt = async () => {
         if (!selectedGame || gameState !== 'playing' || guessSubmitting) return
         setGuessSubmitting(true)
+        signalMiss()
         try {
             const nextPhase = highestUnlockedPhase + 1
             if (nextPhase > 6) {
@@ -961,7 +1142,7 @@ export default function JudiClient() {
         if (winConfettiFiredRef.current) return
         winConfettiFiredRef.current = true
         const id = window.setTimeout(() => {
-            const colors = ['#00a8e8', '#22c55e', '#e0f2fe', '#fbbf24', '#f472b6', '#a78bfa']
+            const colors = ['#b69cff', '#6f8bff', '#2ad4f0', '#34d399', '#fcd34d', '#f472b6']
             void confetti({
                 particleCount: 130,
                 spread: 78,
@@ -1096,21 +1277,33 @@ export default function JudiClient() {
 
     const playingDailyGame = Boolean(selectedGame && isJudiGameForCurrentDailyDate(selectedGame.juego))
 
-    const hintText = selectedGame
-        ? {
-            2: `Géneros: ${selectedGame.generos.join(', ') || 'N/D'}`,
-            3:
-                selectedGame.steamCcu != null
-                    ? `Pico de jugadores concurrentes (Steam): ${selectedGame.steamCcu.toLocaleString('es-ES')}`
-                    : 'Pico de jugadores concurrentes (Steam): N/D',
-            4:
-                selectedGame.steamPositivePct != null
-                    ? `Reseñas positivas (Steam): ${selectedGame.steamPositivePct} %`
-                    : 'Reseñas positivas (Steam): N/D',
-            5: `Año de lanzamiento: ${selectedGame.releaseYear ?? 'N/D'}`,
-            6: `Estudio: ${selectedGame.developersLabel ?? 'N/D'}`,
-        }[activeViewedPhase as 2 | 3 | 4 | 5 | 6]
-        : ''
+    if (lastPhaseRef.current !== activeViewedPhase) {
+        phaseDirRef.current = activeViewedPhase > lastPhaseRef.current ? 1 : -1
+        lastPhaseRef.current = activeViewedPhase
+    }
+
+    const hints = selectedGame
+        ? [
+            { phase: 2, label: 'Géneros', value: selectedGame.generos.join(', ') || 'N/D', icon: Tags },
+            {
+                phase: 3,
+                label: 'Pico de jugadores (Steam)',
+                value: selectedGame.steamCcu != null ? selectedGame.steamCcu.toLocaleString('es-ES') : 'N/D',
+                icon: Users,
+            },
+            {
+                phase: 4,
+                label: 'Reseñas positivas (Steam)',
+                value: selectedGame.steamPositivePct != null ? `${selectedGame.steamPositivePct} %` : 'N/D',
+                icon: ThumbsUp,
+            },
+            { phase: 5, label: 'Año de lanzamiento', value: selectedGame.releaseYear ?? 'N/D', icon: CalendarDays },
+            { phase: 6, label: 'Estudio', value: selectedGame.developersLabel ?? 'N/D', icon: Building2 },
+        ]
+        : []
+    const activeHint = hints.find((h) => h.phase === activeViewedPhase)
+
+    const heroGame = games.find((g) => isJudiGameForCurrentDailyDate(g)) ?? games[0] ?? null
 
     const toggleYear = (year: string) => {
         setAccordion((prev) => {
@@ -1152,67 +1345,212 @@ export default function JudiClient() {
         void loadUserAndGames()
     }
 
-    return (
-        <div style={{ display: 'grid', gap: 16 }}>
-            <div className="page-header page-header--judi-title">
-                <h1 className="page-header__title">JUDI &middot; Juego del día</h1>
-                <p className="judi-daily-countdown" aria-live="polite">
-                    Nuevo juego en <span className="judi-daily-countdown__time">{formatHmsCountdown(dailyCountdownMs)}</span>
-                </p>
-                <hr className="section-divider" />
-            </div>
+    const pipStates = gamePipStates(gameState, lives)
+    const failedNow = Math.min(JUDI_ATTEMPT_SLOTS, Math.max(0, JUDI_ATTEMPT_SLOTS - lives))
+    const earnedPoints = gameState === 'won' ? Math.max(JUDI_ATTEMPT_SLOTS - failedNow, 1) : 0
+    const nextPendingGame = selectedGame
+        ? games.find((g) => !g.completado && !g.fase6 && g.id !== selectedGame.juego.id) ?? null
+        : null
+    const currentCapture = selectedGame
+        ? getCaptureUrlForPhase(activeViewedPhase, selectedGame.capturas) || selectedGame.capturas[0]
+        : undefined
 
+    const filterCounts: Record<ListFilter, number> = {
+        all: games.length,
+        pending: games.filter((g) => matchesFilter(g, 'pending')).length,
+        won: stats.wins,
+        lost: stats.losses,
+    }
+
+    const changeFilter = (next: ListFilter) => {
+        setListFilter(next)
+        sessionStorage.setItem(JUDI_FILTER_SESSION_KEY, next)
+    }
+
+    const playNext = (game: GameRecord) => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+        void startJuego(game)
+    }
+
+    const statTiles = [
+        { label: 'Puntos', value: stats.points, suffix: '', icon: Sparkles, tone: 'violet' },
+        { label: 'Acertados', value: stats.wins, suffix: '', icon: Target, tone: 'green' },
+        { label: 'Racha', value: stats.streak, suffix: '', icon: Flame, tone: 'orange' },
+        { label: 'Precisión', value: stats.accuracy, suffix: '%', icon: Percent, tone: 'cyan' },
+    ] as const
+
+    return (
+        <div className="judi">
             {view === 'start' ? (
                 <>
-                    {!user && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.25, ease: 'easeOut' }}
-                            style={{ fontSize: '0.8125rem', color: 'var(--muted)', padding: '10px 14px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', marginBottom: 12 }}
-                        >
-                            <Link
-                                href="/login"
-                                onPointerDownCapture={() => persistJudiHomeScrollYFromWindow()}
-                                onClick={() => persistJudiHomeScrollYFromWindow()}
-                                style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}
+                    <section className="hero">
+                        <div className="hero__copy">
+                            <motion.span
+                                className="eyebrow"
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, ease: EASE_OUT }}
                             >
-                                Inicia sesión
-                            </Link>{' '}
-                            para guardar tu progreso y competir en el ranking.
-                        </motion.div>
+                                <span className="eyebrow__dot" />
+                                JUDI · Juego del día
+                            </motion.span>
+                            <h1 className="hero__title">
+                                {['¿Qué', 'juego'].map((word, i) => (
+                                    <motion.span
+                                        key={word}
+                                        className="hero__word"
+                                        initial={{ opacity: 0, y: '0.6em', filter: 'blur(8px)' }}
+                                        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                                        transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.08 + i * 0.08 }}
+                                    >
+                                        {word}
+                                    </motion.span>
+                                ))}
+                                <br />
+                                <motion.span
+                                    className="hero__word"
+                                    initial={{ opacity: 0, y: '0.6em', filter: 'blur(8px)' }}
+                                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                                    transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.24 }}
+                                >
+                                    es <span className="text-gradient hero__shine">hoy</span>?
+                                </motion.span>
+                            </h1>
+                            <Reveal delay={0.35}>
+                                <p className="hero__lead">
+                                    6 capturas, 5 pistas y un único videojuego. Cuanto antes lo adivines, más puntos sumas en el ranking.
+                                </p>
+                            </Reveal>
+                            <Reveal delay={0.45} className="hero__actions">
+                                {heroGame && (
+                                    <Button size="lg" onClick={() => void startJuego(heroGame)} data-play>
+                                        {getTileStatus(heroGame) === 'won' || getTileStatus(heroGame) === 'lost'
+                                            ? 'Ver resultado'
+                                            : getTileStatus(heroGame) === 'progress'
+                                                ? 'Continuar partida'
+                                                : 'Jugar ahora'}
+                                        <ArrowRight size={18} data-icon="inline-end" aria-hidden />
+                                    </Button>
+                                )}
+                                <div className="countdown" aria-live="polite">
+                                    <Clock size={15} aria-hidden />
+                                    <span className="countdown__label">Nuevo juego en</span>
+                                    <RollingText text={formatHmsCountdown(dailyCountdownMs)} className="countdown__time" />
+                                </div>
+                            </Reveal>
+                        </div>
+                        <HeroCard game={heroGame} onPlay={(g) => void startJuego(g)} />
+                    </section>
+
+                    <section className="stats" aria-label="Tus estadísticas">
+                        {statTiles.map((tile, i) => {
+                            const Icon = tile.icon
+                            return (
+                                <motion.div
+                                    key={tile.label}
+                                    className={`stat stat--${tile.tone}`}
+                                    initial={{ opacity: 0, y: 16 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, ease: EASE_OUT, delay: 0.3 + i * 0.07 }}
+                                    whileHover={{ y: -3 }}
+                                >
+                                    <span className="stat__icon">
+                                        <Icon size={18} aria-hidden />
+                                    </span>
+                                    <span className="stat__label">{tile.label}</span>
+                                    <CountUp value={tile.value} suffix={tile.suffix} className="stat__value" />
+                                </motion.div>
+                            )
+                        })}
+                    </section>
+
+                    {!user && (
+                        <Reveal delay={0.4} className="nudge glass">
+                            <span className="nudge__icon">
+                                <Trophy size={18} aria-hidden />
+                            </span>
+                            <p className="nudge__text">
+                                <strong>Guarda tu progreso y compite.</strong> Tus partidas se guardan solo en este dispositivo hasta que inicies sesión.
+                            </p>
+                            <Button asChild size="sm" variant="secondary">
+                                <Link
+                                    href="/login"
+                                    onPointerDownCapture={() => persistJudiHomeScrollYFromWindow()}
+                                    onClick={() => persistJudiHomeScrollYFromWindow()}
+                                >
+                                    Iniciar sesión
+                                </Link>
+                            </Button>
+                        </Reveal>
                     )}
-                    <motion.div
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, ease: 'easeOut' }}
-                        style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}
-                    >
+
+                    <section className="history" aria-label="Historial de juegos">
+                        <div className="history__head">
+                            <div>
+                                <h2 className="history__title">Historial</h2>
+                                <p className="history__sub">{games.length} juegos desde el inicio. Puedes jugar cualquier día pasado.</p>
+                            </div>
+                            <div className="segmented" role="tablist" aria-label="Filtrar juegos">
+                                {LIST_FILTERS.map((f) => (
+                                    <button
+                                        key={f.id}
+                                        type="button"
+                                        role="tab"
+                                        aria-selected={listFilter === f.id}
+                                        className={`segmented__btn ${listFilter === f.id ? 'active' : ''}`}
+                                        onClick={() => changeFilter(f.id)}
+                                    >
+                                        {listFilter === f.id && (
+                                            <motion.span
+                                                layoutId="filter-pill"
+                                                className="segmented__pill"
+                                                transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                                            />
+                                        )}
+                                        <span className="segmented__label">{f.label}</span>
+                                        <span className="segmented__count">{filterCounts[f.id]}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {yearGroups.length === 0 && (
+                            <motion.div className="history__empty" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}>
+                                <Gamepad2 size={28} aria-hidden />
+                                <p>Nada por aquí con este filtro.</p>
+                            </motion.div>
+                        )}
+
                         {yearGroups.map((yg, yearIndex) => {
                             const yearOpen = singleYear || accordion.openYears.includes(yg.year)
-                            const yearGameCount = yg.months.reduce((acc, m) => acc + m.games.length, 0)
+                            const yearGames = yg.months.flatMap((m) => m.games)
+                            const yearWon = yearGames.filter((g) => g.completado).length
                             return (
                                 <motion.div
                                     key={yg.year}
+                                    className="year"
                                     initial={{ opacity: 0, y: 8 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.22, ease: 'easeOut', delay: yearIndex * 0.05 }}
+                                    transition={{ duration: 0.3, ease: 'easeOut', delay: yearIndex * 0.05 }}
                                 >
                                     {!singleYear && (
                                         <button
                                             type="button"
+                                            className={`year-head ${yearOpen ? 'is-open' : ''}`}
                                             onClick={() => toggleYear(yg.year)}
-                                            style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '10px 14px', background: 'var(--surface-3)', border: 'none', borderBottom: '1px solid var(--border)', color: 'var(--foreground)', fontSize: '0.875rem', fontWeight: 700, cursor: 'pointer', textAlign: 'left' }}
+                                            aria-expanded={yearOpen}
                                         >
+                                            <span className="year-head__label">{yg.label}</span>
+                                            <span className="year-head__meta">
+                                                {yearWon}/{yearGames.length} acertados
+                                            </span>
                                             <motion.span
+                                                className="year-head__chev"
                                                 animate={{ rotate: yearOpen ? 0 : -90 }}
-                                                transition={{ duration: 0.2, ease: 'easeInOut' }}
-                                                style={{ display: 'flex', alignItems: 'center', color: 'var(--muted)', flexShrink: 0 }}
+                                                transition={{ type: 'spring', stiffness: 380, damping: 26 }}
                                             >
-                                                <ChevronDown size={14} />
+                                                <ChevronDown size={18} />
                                             </motion.span>
-                                            <span style={{ flex: 1 }}>{yg.label}</span>
-                                            <span style={{ color: 'var(--muted)', fontWeight: 500, fontSize: '0.75rem' }}>{yearGameCount}</span>
                                         </button>
                                     )}
                                     <AnimatePresence initial={false}>
@@ -1221,44 +1559,47 @@ export default function JudiClient() {
                                                 const monthBlocks = yg.months.map((group, monthIndex) => {
                                                     const isOpen = accordion.openMonths.includes(group.key)
                                                     const animIndex = yearIndex * 8 + monthIndex
+                                                    const won = group.games.filter((g) => g.completado).length
+                                                    const lost = group.games.filter((g) => g.fase6 && !g.completado).length
+                                                    const total = group.games.length
                                                     return (
                                                         <motion.div
                                                             key={group.key}
+                                                            className="month"
                                                             initial={{ opacity: 0, y: 6 }}
                                                             animate={{ opacity: 1, y: 0 }}
-                                                            transition={{ duration: 0.2, ease: 'easeOut', delay: singleYear ? animIndex * 0.05 : 0 }}
+                                                            transition={{ duration: 0.25, ease: 'easeOut', delay: singleYear ? animIndex * 0.05 : 0 }}
                                                         >
                                                             <button
                                                                 type="button"
+                                                                className={`month-head ${isOpen ? 'is-open' : ''}`}
                                                                 onClick={() => toggleMonth(group.key)}
-                                                                style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '10px 14px', paddingLeft: singleYear ? 14 : 22, background: 'var(--surface-2)', border: 'none', borderBottom: '1px solid var(--border)', color: 'var(--foreground)', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', textAlign: 'left' }}
+                                                                aria-expanded={isOpen}
                                                             >
                                                                 <motion.span
+                                                                    className="month-head__chev"
                                                                     animate={{ rotate: isOpen ? 0 : -90 }}
-                                                                    transition={{ duration: 0.2, ease: 'easeInOut' }}
-                                                                    style={{ display: 'flex', alignItems: 'center', color: 'var(--muted)', flexShrink: 0 }}
+                                                                    transition={{ type: 'spring', stiffness: 380, damping: 26 }}
                                                                 >
-                                                                    <ChevronDown size={14} />
+                                                                    <ChevronDown size={16} />
                                                                 </motion.span>
-                                                                <span style={{ textTransform: 'capitalize', flex: 1 }}>{group.label}</span>
-                                                                <span
-                                                                    style={{
-                                                                        display: 'inline-flex',
-                                                                        alignItems: 'center',
-                                                                        justifyContent: 'center',
-                                                                        minWidth: 26,
-                                                                        minHeight: 22,
-                                                                        padding: '2px 7px',
-                                                                        fontSize: '0.75rem',
-                                                                        fontWeight: 600,
-                                                                        fontVariantNumeric: 'tabular-nums',
-                                                                        color: 'var(--foreground)',
-                                                                        background: 'var(--surface-3)',
-                                                                        border: '1px solid var(--border)',
-                                                                        borderRadius: 6,
-                                                                    }}
-                                                                >
-                                                                    {group.games.length}
+                                                                <span className="month-head__label">{group.label}</span>
+                                                                <span className="month-head__bar" aria-hidden>
+                                                                    <motion.span
+                                                                        className="month-head__bar-won"
+                                                                        initial={{ width: 0 }}
+                                                                        animate={{ width: `${total ? (won / total) * 100 : 0}%` }}
+                                                                        transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.2 }}
+                                                                    />
+                                                                    <motion.span
+                                                                        className="month-head__bar-lost"
+                                                                        initial={{ width: 0 }}
+                                                                        animate={{ width: `${total ? (lost / total) * 100 : 0}%` }}
+                                                                        transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.3 }}
+                                                                    />
+                                                                </span>
+                                                                <span className="month-head__count">
+                                                                    {won}/{total}
                                                                 </span>
                                                             </button>
                                                             <AnimatePresence initial={false}>
@@ -1268,156 +1609,14 @@ export default function JudiClient() {
                                                                         initial={{ height: 0, opacity: 0 }}
                                                                         animate={{ height: 'auto', opacity: 1 }}
                                                                         exit={{ height: 0, opacity: 0 }}
-                                                                        transition={{ height: { duration: 0.25, ease: 'easeInOut' }, opacity: { duration: 0.18 } }}
+                                                                        transition={{ height: { duration: 0.35, ease: EASE_OUT }, opacity: { duration: 0.2 } }}
                                                                         style={{ overflow: 'hidden' }}
                                                                     >
-                                                                        {group.games.map((game, gameIndex) => {
-                                                                            const finished = Boolean(game.completado || game.fase6)
-                                                                            const failedAttempts = getFailedAttempts(game as JudiProgressRecord)
-                                                                            const isDailyToday = isJudiGameForCurrentDailyDate(game)
-                                                                            return (
-                                                                                <motion.div
-                                                                                    key={game.id}
-                                                                                    initial={{ opacity: 0, x: -6 }}
-                                                                                    animate={{ opacity: 1, x: 0 }}
-                                                                                    transition={{ duration: 0.18, ease: 'easeOut', delay: gameIndex * 0.03 }}
-                                                                                    onClick={() => startJuego(game)}
-                                                                                    role="button"
-                                                                                    tabIndex={0}
-                                                                                    onKeyDown={(e) => { if (e.key === 'Enter') startJuego(game) }}
-                                                                                    className={isDailyToday ? 'judi-row judi-row--today' : 'judi-row'}
-                                                                                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 14px', paddingLeft: singleYear ? 14 : 22, borderBottom: gameIndex < group.games.length - 1 ? '1px solid var(--border)' : 'none', cursor: 'pointer' }}
-                                                                                >
-                                                                                    <div style={{ width: 52, height: 30, borderRadius: 'var(--radius)', overflow: 'hidden', flexShrink: 0, background: 'var(--surface-3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                                                        {finished && game.header_image ? (
-                                                                                            <img src={game.header_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
-                                                                                        ) : (
-                                                                                            <span style={{ color: 'var(--muted)', fontSize: '0.6875rem', fontWeight: 600 }}>?</span>
-                                                                                        )}
-                                                                                    </div>
-                                                                                    <div
-                                                                                        className="judi-col-meta"
-                                                                                        style={{
-                                                                                            flexShrink: 0,
-                                                                                            display: 'flex',
-                                                                                            flexDirection: 'column',
-                                                                                            alignItems: 'flex-start',
-                                                                                            justifyContent: 'center',
-                                                                                            gap: 3,
-                                                                                        }}
-                                                                                    >
-                                                                                        <span style={{ color: 'var(--muted)', fontSize: '0.75rem', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', lineHeight: 1.2 }}>
-                                                                                            #{game.id} &middot; {formatShortDate(game.fecha)}
-                                                                                        </span>
-                                                                                        {finished && (
-                                                                                            <span
-                                                                                                className="judi-result-label"
-                                                                                                style={{
-                                                                                                    fontSize: '0.6875rem',
-                                                                                                    fontWeight: 700,
-                                                                                                    letterSpacing: '0.02em',
-                                                                                                    color: game.completado ? 'var(--success)' : '#f43f5e',
-                                                                                                    lineHeight: 1.2,
-                                                                                                }}
-                                                                                            >
-                                                                                                {game.completado ? 'Acertado!' : 'Fallado!'}
-                                                                                            </span>
-                                                                                        )}
-                                                                                    </div>
-                                                                                    <div
-                                                                                        className="judi-col-main"
-                                                                                        style={{
-                                                                                            flex: 1,
-                                                                                            minWidth: 0,
-                                                                                            display: 'flex',
-                                                                                            flexDirection: 'row',
-                                                                                            alignItems: 'center',
-                                                                                            justifyContent: 'flex-start',
-                                                                                        }}
-                                                                                    >
-                                                                                        {finished ? (
-                                                                                            <span
-                                                                                                className="judi-main-line"
-                                                                                                style={{
-                                                                                                    fontSize: '0.8125rem',
-                                                                                                    fontWeight: 600,
-                                                                                                    color: 'var(--foreground)',
-                                                                                                    overflow: 'hidden',
-                                                                                                    textOverflow: 'ellipsis',
-                                                                                                    whiteSpace: 'nowrap',
-                                                                                                    lineHeight: 1.35,
-                                                                                                    width: '100%',
-                                                                                                }}
-                                                                                            >
-                                                                                                {game.nombre}
-                                                                                            </span>
-                                                                                        ) : failedAttempts === 0 ? (
-                                                                                            <span
-                                                                                                className="judi-main-line"
-                                                                                                style={{
-                                                                                                    fontSize: '0.8125rem',
-                                                                                                    fontWeight: 500,
-                                                                                                    color: 'var(--muted)',
-                                                                                                    lineHeight: 1.35,
-                                                                                                }}
-                                                                                            >
-                                                                                                Sin intentar
-                                                                                            </span>
-                                                                                        ) : (
-                                                                                            <ListAttemptDots failed={failedAttempts} />
-                                                                                        )}
-                                                                                    </div>
-                                                                                    {!finished ? (
-                                                                                        <div className="judi-col-pts" style={{ width: 44, textAlign: 'right', flexShrink: 0 }}>
-                                                                                            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}>—</span>
-                                                                                        </div>
-                                                                                    ) : null}
-                                                                                    <div
-                                                                                        style={{
-                                                                                            width: 44,
-                                                                                            flexShrink: 0,
-                                                                                            display: 'flex',
-                                                                                            flexDirection: 'column',
-                                                                                            alignItems: 'center',
-                                                                                            justifyContent: 'center',
-                                                                                            gap: 4,
-                                                                                        }}
-                                                                                        aria-hidden
-                                                                                    >
-                                                                                        {finished ? (
-                                                                                            <>
-                                                                                                <span
-                                                                                                    style={{
-                                                                                                        width: 8,
-                                                                                                        height: 8,
-                                                                                                        borderRadius: '50%',
-                                                                                                        background: game.completado ? 'var(--success)' : '#f43f5e',
-                                                                                                        boxShadow: game.completado ? '0 0 0 1px rgba(34,197,94,0.25)' : '0 0 0 1px rgba(244,63,94,0.2)',
-                                                                                                        flexShrink: 0,
-                                                                                                    }}
-                                                                                                />
-                                                                                                <span
-                                                                                                    className="judi-points-line"
-                                                                                                    style={{
-                                                                                                        fontSize: '0.6875rem',
-                                                                                                        fontWeight: 700,
-                                                                                                        fontVariantNumeric: 'tabular-nums',
-                                                                                                        color: (game.puntos ?? 0) > 0 ? 'var(--success)' : '#f43f5e',
-                                                                                                        lineHeight: 1.15,
-                                                                                                        textAlign: 'center',
-                                                                                                        whiteSpace: 'nowrap',
-                                                                                                    }}
-                                                                                                >
-                                                                                                    {game.puntos ?? 0} pts
-                                                                                                </span>
-                                                                                            </>
-                                                                                        ) : (
-                                                                                            <ChevronRight size={18} color="var(--primary)" strokeWidth={2} />
-                                                                                        )}
-                                                                                    </div>
-                                                                                </motion.div>
-                                                                            )
-                                                                        })}
+                                                                        <div className="tile-grid">
+                                                                            {group.games.map((game, gameIndex) => (
+                                                                                <GameTile key={game.id} game={game} index={gameIndex} onPlay={(g) => void startJuego(g)} />
+                                                                            ))}
+                                                                        </div>
                                                                     </motion.div>
                                                                 )}
                                                             </AnimatePresence>
@@ -1432,7 +1631,7 @@ export default function JudiClient() {
                                                         initial={{ height: 0, opacity: 0 }}
                                                         animate={{ height: 'auto', opacity: 1 }}
                                                         exit={{ height: 0, opacity: 0 }}
-                                                        transition={{ height: { duration: 0.25, ease: 'easeInOut' }, opacity: { duration: 0.18 } }}
+                                                        transition={{ height: { duration: 0.35, ease: EASE_OUT }, opacity: { duration: 0.2 } }}
                                                         style={{ overflow: 'hidden' }}
                                                     >
                                                         {monthBlocks}
@@ -1443,349 +1642,375 @@ export default function JudiClient() {
                                 </motion.div>
                             )
                         })}
-                    </motion.div>
+                    </section>
                 </>
             ) : (
                 selectedGame && (
                     <>
-                    <motion.div
-                        initial={{ opacity: 0, y: 28, scale: 0.97 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-                        style={{
-                            border: playingDailyGame
-                                ? '1px solid rgba(34, 211, 238, 0.42)'
-                                : '1px solid var(--border)',
-                            boxShadow: playingDailyGame
-                                ? '0 0 0 1px rgba(34, 211, 238, 0.12), 0 8px 32px rgba(34, 211, 238, 0.06)'
-                                : undefined,
-                            borderRadius: 'var(--radius-lg)',
-                            overflow: 'visible',
-                            position: 'relative',
-                            zIndex: 1,
-                        }}
-                    >
-                        <div
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: '1fr auto 1fr',
-                                alignItems: 'center',
-                                gap: 8,
-                                padding: '10px 14px',
-                                background: 'var(--surface-2)',
-                                borderBottom: '1px solid var(--border)',
-                                borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
-                            }}
+                        <motion.section
+                            className={`game ${playingDailyGame ? 'game--today' : ''}`}
+                            initial={{ opacity: 0, y: 24 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, ease: EASE_OUT }}
                         >
-                            <div style={{ justifySelf: 'start' }}>
-                                <button type="button" onClick={goBack} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: 'var(--muted)', fontSize: '0.8125rem', cursor: 'pointer', padding: 0 }}>
-                                    <ArrowLeft size={14} />
-                                    Volver
-                                </button>
-                            </div>
-                            <span style={{ fontSize: '0.8125rem', fontWeight: 600, textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 'min(52vw, 220px)' }}>
-                                JUDI #{selectedGame.juego.id} &middot; {formatShortDate(selectedGame.juego.fecha)}
-                            </span>
-                            <div style={{ justifySelf: 'end', minHeight: 32, display: 'flex', alignItems: 'center' }}>
-                                {gameState === 'playing' ? (
-                                    <button
-                                        type="button"
-                                        onClick={() => void skipAttempt()}
-                                        disabled={guessSubmitting}
-                                        title="Saltar intento: pierdes una vida sin elegir título (no se guarda en tus fallos)"
-                                        style={{
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: 5,
-                                            padding: '6px 10px',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 600,
-                                            borderRadius: 'var(--radius)',
-                                            border: '1px solid rgba(148, 163, 184, 0.32)',
-                                            background: 'transparent',
-                                            color: 'var(--foreground)',
-                                            cursor: guessSubmitting ? 'not-allowed' : 'pointer',
-                                            opacity: guessSubmitting ? 0.6 : 1,
-                                            whiteSpace: 'nowrap',
-                                        }}
-                                    >
-                                        <SkipForward size={14} strokeWidth={2.25} aria-hidden />
-                                        Saltar
-                                    </button>
-                                ) : null}
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)' }}>
-                            {[1, 2, 3, 4, 5, 6].map((phase) => {
-                                const isActive = phase === activeViewedPhase
-                                const isLocked = phase > highestUnlockedPhase && gameState === 'playing'
-                                return (
-                                    <button
-                                        key={phase}
-                                        disabled={isLocked}
-                                        onClick={() => setActiveViewedPhase(phase)}
-                                        style={{
-                                            flex: 1, padding: '8px 0', border: 'none',
-                                            background: isActive ? 'var(--primary-glow)' : 'transparent',
-                                            color: isActive ? 'var(--primary)' : isLocked ? 'var(--surface-3)' : 'var(--muted)',
-                                            fontWeight: isActive ? 600 : 500, fontSize: '0.75rem',
-                                            cursor: isLocked ? 'not-allowed' : 'pointer',
-                                            borderBottom: isActive ? '2px solid var(--primary)' : '2px solid transparent',
-                                            transition: 'color 0.15s, background 0.15s',
-                                        }}
-                                    >
-                                        {phase}
-                                    </button>
-                                )
-                            })}
-                        </div>
-
-                        <div
-                            role="region"
-                            aria-label="Captura del juego. Desliza horizontalmente para cambiar de fase."
-                            onTouchStart={onCaptureTouchStart}
-                            onTouchEnd={onCaptureTouchEnd}
-                            style={{
-                                position: 'relative',
-                                aspectRatio: '16/9',
-                                background: 'var(--surface-3)',
-                                overflow: 'hidden',
-                                touchAction: 'manipulation',
-                            }}
-                        >
-                            {selectedGame.capturas.length > 0 && (
-                                <>
-                                    <img
-                                        src={getCaptureUrlForPhase(activeViewedPhase, selectedGame.capturas) || selectedGame.capturas[0]}
-                                        alt=""
-                                        draggable={false}
-                                        style={{
-                                            width: '100%',
-                                            height: '100%',
-                                            objectFit: 'cover',
-                                            display: 'block',
-                                            pointerEvents: 'none',
-                                            userSelect: 'none',
-                                        }}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={onCaptureImageClick}
-                                        aria-label="Ampliar captura"
-                                        style={{
-                                            position: 'absolute',
-                                            inset: 0,
-                                            zIndex: 1,
-                                            margin: 0,
-                                            padding: 0,
-                                            border: 'none',
-                                            background: 'transparent',
-                                            cursor: 'zoom-in',
-                                        }}
-                                    />
-                                </>
-                            )}
-                            {activeViewedPhase > 1 && hintText && (
-                                <div
-                                    style={{
-                                        position: 'absolute',
-                                        bottom: 0,
-                                        left: 0,
-                                        right: 0,
-                                        zIndex: 2,
-                                        padding: '28px 14px 10px',
-                                        background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
-                                        fontSize: '0.8125rem',
-                                        color: '#fff',
-                                        pointerEvents: 'none',
-                                    }}
+                            <div className="game-top">
+                                <motion.button
+                                    type="button"
+                                    className="icon-btn"
+                                    onClick={goBack}
+                                    aria-label="Volver al historial"
+                                    whileHover={{ x: -2 }}
+                                    whileTap={{ scale: 0.9 }}
                                 >
-                                    {hintText}
+                                    <ArrowLeft size={18} />
+                                </motion.button>
+                                <div className="game-top__title">
+                                    <span className="eyebrow">
+                                        {playingDailyGame ? (
+                                            <>
+                                                <span className="eyebrow__dot" />
+                                                Juego de hoy
+                                            </>
+                                        ) : (
+                                            'Archivo'
+                                        )}
+                                    </span>
+                                    <h1 className="game-top__heading">
+                                        JUDI #{selectedGame.juego.id}
+                                        <span className="game-top__date">{formatLongDate(selectedGame.juego.fecha)}</span>
+                                    </h1>
                                 </div>
-                            )}
-                        </div>
-
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                padding: '10px 14px',
-                                borderBottom: '1px solid var(--border)',
-                            }}
-                        >
-                            <GameHeaderAttemptDots gameState={gameState} lives={lives} />
-                        </div>
-
-                        <div style={{ padding: 14 }}>
-                            {gameState === 'playing' ? (
-                                <div style={{ display: 'grid', gap: 10 }}>
-                                    <div style={{ position: 'relative', zIndex: 40 }}>
-                                        <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)', zIndex: 1 }} />
-                                        <input
-                                            type="text"
-                                            value={searchQuery}
-                                            onChange={(e) => { setSearchQuery(e.target.value); setShowDropdown(true) }}
-                                            onFocus={() => { if (searchResults.length > 0) setShowDropdown(true) }}
-                                            onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' && searchQuery.trim().length >= 2 && !guessSubmitting) {
-                                                    e.preventDefault()
-                                                    void submitGuess(searchQuery.trim())
-                                                }
-                                            }}
-                                            placeholder={guessSubmitting ? 'Validando...' : 'Buscar juego...'}
+                                <div className="game-top__right">
+                                    <div className="lives">
+                                        <span className="lives__label">Intentos</span>
+                                        <AttemptPips states={pipStates} />
+                                    </div>
+                                    {gameState === 'playing' ? (
+                                        <motion.button
+                                            type="button"
+                                            className="chip-btn"
+                                            onClick={() => void skipAttempt()}
                                             disabled={guessSubmitting}
-                                            autoComplete="off"
-                                            style={{ width: '100%', height: 44, paddingLeft: 32, paddingRight: 12, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--foreground)', fontSize: '1rem', outline: 'none' }}
-                                        />
-                                        {showDropdown && searchResults.length > 0 && (
-                                            <div style={{ position: 'absolute', bottom: '100%', left: 0, right: 0, marginBottom: 6, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', maxHeight: 220, overflowY: 'auto', zIndex: 50, boxShadow: '0 -8px 24px rgba(0,0,0,0.35)' }} className="soft-scrollbar">
-                                                {searchResults.map((option) => {
-                                                    const alreadyGuessed = wrongGuesses.some((g) => normalizeGameName(g) === normalizeGameName(option.name))
-                                                    return (
-                                                        <button
-                                                            key={option.id}
-                                                            disabled={alreadyGuessed}
-                                                            onMouseDown={(e) => e.preventDefault()}
-                                                            onClick={() => { if (!alreadyGuessed) { void submitGuess(option.name); setShowDropdown(false) } }}
-                                                            className="judi-row"
-                                                            style={{
-                                                                display: 'block',
-                                                                width: '100%',
-                                                                padding: '8px 12px',
-                                                                border: 'none',
-                                                                background: alreadyGuessed ? 'rgba(244, 63, 94, 0.16)' : 'transparent',
-                                                                color: alreadyGuessed ? 'var(--muted)' : 'var(--foreground)',
-                                                                fontSize: '0.8125rem',
-                                                                textAlign: 'left',
-                                                                cursor: alreadyGuessed ? 'not-allowed' : 'pointer',
-                                                                opacity: alreadyGuessed ? 0.85 : 1,
-                                                                textDecoration: alreadyGuessed ? 'line-through' : 'none',
-                                                                borderBottom: '1px solid var(--border)',
-                                                            }}
-                                                        >
-                                                            {option.name}
-                                                        </button>
-                                                    )
-                                                })}
-                                            </div>
-                                        )}
-                                        {showDropdown && searchQuery.length >= 2 && searchResults.length === 0 && !searchLoading && (
-                                            <div style={{ position: 'absolute', bottom: '100%', left: 0, right: 0, marginBottom: 6, padding: '10px 12px', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--muted)', fontSize: '0.8125rem', zIndex: 50, boxShadow: '0 -8px 24px rgba(0,0,0,0.35)' }}>
-                                                Sin resultados
-                                            </div>
-                                        )}
-                                    </div>
-                                    {wrongGuesses.length > 0 && (
-                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                                            {wrongGuesses.map((guess, index) => (
-                                                <span key={`${guess}-${index}`} style={{ padding: '3px 8px', borderRadius: 'var(--radius)', background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.12)', color: 'var(--danger)', fontSize: '0.75rem', fontWeight: 500 }}>
-                                                    {guess}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
+                                            title="Saltar intento: pierdes una vida sin elegir título (no se guarda en tus fallos)"
+                                            whileTap={{ scale: 0.92 }}
+                                        >
+                                            <SkipForward size={14} strokeWidth={2.25} aria-hidden />
+                                            Saltar
+                                        </motion.button>
+                                    ) : null}
                                 </div>
-                            ) : (
-                                <div style={{ textAlign: 'center', padding: '14px 8px 18px' }}>
-                                    <div
-                                        style={{
-                                            fontSize: '1.5rem',
-                                            fontWeight: 800,
-                                            letterSpacing: '-0.02em',
-                                            marginBottom: 14,
-                                            color: gameState === 'won' ? 'var(--success)' : 'var(--danger)',
-                                        }}
-                                    >
-                                        {gameState === 'won' ? 'Acertado!' : 'Fallado!'}
-                                    </div>
-                                    <p style={{ color: 'var(--muted)', fontSize: '0.9375rem', margin: '0 0 10px', lineHeight: 1.45 }}>
-                                        El juego era
-                                    </p>
-                                    <p
-                                        style={{
-                                            margin: '0 0 18px',
-                                            fontSize: '1.25rem',
-                                            fontWeight: 700,
-                                            lineHeight: 1.3,
-                                            color: 'var(--foreground)',
-                                        }}
-                                    >
-                                        {selectedGame.juego.nombre}
-                                    </p>
-                                    <button type="button" onClick={goBack} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.8125rem', cursor: 'pointer', fontWeight: 500, padding: 0 }}>
-                                        <ArrowLeft size={14} />
-                                        Volver al listado
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </motion.div>
+                            </div>
 
-                    <Dialog open={captureZoomOpen} onOpenChange={setCaptureZoomOpen}>
-                        <DialogPrimitive.Portal>
-                            <DialogPrimitive.Overlay style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.88)' }} />
-                            <DialogPrimitive.Content
-                                style={{
-                                    position: 'fixed',
-                                    inset: 0,
-                                    zIndex: 101,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    padding: 16,
-                                    margin: 0,
-                                    outline: 'none',
-                                    border: 'none',
-                                    background: 'transparent',
-                                    boxShadow: 'none',
-                                }}
-                                onTouchStart={onCaptureTouchStart}
-                                onTouchEnd={onCaptureTouchEnd}
-                                onClick={() => setCaptureZoomOpen(false)}
-                            >
-                                <DialogPrimitive.Title className="sr-only">
-                                    Captura ampliada, fase {activeViewedPhase} de 6
-                                </DialogPrimitive.Title>
-                                {selectedGame.capturas.length > 0 && (
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            setCaptureZoomOpen(false)
-                                        }}
-                                        style={{
-                                            position: 'relative',
-                                            zIndex: 2,
-                                            maxHeight: 'min(90vh, 920px)',
-                                            maxWidth: 'min(96vw, 1200px)',
-                                            border: 'none',
-                                            padding: 0,
-                                            margin: 0,
-                                            background: 'transparent',
-                                            cursor: 'zoom-out',
-                                            lineHeight: 0,
-                                        }}
+                            <div className="game-grid">
+                                <div className="game-stage-col">
+                                    <div
+                                        className="stage"
+                                        role="region"
+                                        aria-label="Captura del juego. Desliza horizontalmente para cambiar de fase."
+                                        onTouchStart={onCaptureTouchStart}
+                                        onTouchEnd={onCaptureTouchEnd}
                                     >
-                                        <img
-                                            src={getCaptureUrlForPhase(activeViewedPhase, selectedGame.capturas) || selectedGame.capturas[0]}
-                                            alt=""
-                                            draggable={false}
-                                            style={{
-                                                display: 'block',
-                                                maxHeight: 'min(90vh, 920px)',
-                                                width: 'auto',
-                                                maxWidth: 'min(96vw, 1200px)',
-                                                objectFit: 'contain',
+                                        <AnimatePresence initial={false} custom={phaseDirRef.current}>
+                                            {currentCapture && (
+                                                <motion.img
+                                                    key={`${activeViewedPhase}-${currentCapture}`}
+                                                    src={currentCapture}
+                                                    alt=""
+                                                    draggable={false}
+                                                    className="stage__img"
+                                                    custom={phaseDirRef.current}
+                                                    variants={phaseImageVariants}
+                                                    initial="enter"
+                                                    animate="center"
+                                                    exit="exit"
+                                                    transition={{ duration: 0.45, ease: EASE_OUT }}
+                                                />
+                                            )}
+                                        </AnimatePresence>
+                                        {selectedGame.capturas.length === 0 && (
+                                            <div className="stage__empty">
+                                                <MysteryArt seed={selectedGame.juego.id} big />
+                                            </div>
+                                        )}
+                                        {selectedGame.capturas.length > 0 && (
+                                            <button type="button" className="stage__zoom" onClick={onCaptureImageClick} aria-label="Ampliar captura">
+                                                <span className="stage__zoom-icon">
+                                                    <Maximize2 size={16} />
+                                                </span>
+                                            </button>
+                                        )}
+                                        <span className="stage__badge">
+                                            Captura <strong>{activeViewedPhase}</strong>/6
+                                        </span>
+                                        <AnimatePresence>
+                                            {flashKey > 0 && (
+                                                <motion.span
+                                                    key={flashKey}
+                                                    className="stage__flash"
+                                                    initial={{ opacity: 0.85 }}
+                                                    animate={{ opacity: 0 }}
+                                                    exit={{ opacity: 0 }}
+                                                    transition={{ duration: 0.7, ease: 'easeOut' }}
+                                                />
+                                            )}
+                                        </AnimatePresence>
+                                        <AnimatePresence mode="wait">
+                                            {activeHint && (
+                                                <motion.div
+                                                    key={activeHint.phase}
+                                                    className="stage__hint"
+                                                    initial={{ opacity: 0, y: 14 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: 8 }}
+                                                    transition={{ duration: 0.3, ease: EASE_OUT }}
+                                                >
+                                                    <activeHint.icon size={15} aria-hidden />
+                                                    <span className="stage__hint-label">{activeHint.label}</span>
+                                                    <span className="stage__hint-value">{activeHint.value}</span>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+
+                                    <div className="phase-tabs" role="tablist" aria-label="Fases">
+                                        {[1, 2, 3, 4, 5, 6].map((phase) => {
+                                            const isActive = phase === activeViewedPhase
+                                            const isLocked = phase > highestUnlockedPhase && gameState === 'playing'
+                                            return (
+                                                <button
+                                                    key={phase}
+                                                    type="button"
+                                                    role="tab"
+                                                    aria-selected={isActive}
+                                                    aria-label={isLocked ? `Fase ${phase} (bloqueada)` : `Fase ${phase}`}
+                                                    disabled={isLocked}
+                                                    onClick={() => setActiveViewedPhase(phase)}
+                                                    className={`phase-tab ${isActive ? 'active' : ''} ${isLocked ? 'locked' : ''}`}
+                                                >
+                                                    {isActive && (
+                                                        <motion.span
+                                                            layoutId="phase-pill"
+                                                            className="phase-tab__pill"
+                                                            transition={{ type: 'spring', stiffness: 460, damping: 34 }}
+                                                        />
+                                                    )}
+                                                    <span className="phase-tab__label">
+                                                        {isLocked ? <Lock size={12} aria-hidden /> : phase}
+                                                    </span>
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+
+                                <aside className="game-panel glass">
+                                    {gameState === 'playing' ? (
+                                        <div className="guess-block">
+                                            <label className="panel-title" htmlFor="judi-guess">
+                                                ¿Qué juego es?
+                                            </label>
+                                            <div ref={guessScope} className="guess">
+                                                <Search size={17} className="guess__icon" aria-hidden />
+                                                <input
+                                                    id="judi-guess"
+                                                    type="text"
+                                                    className="guess__input"
+                                                    value={searchQuery}
+                                                    onChange={(e) => { setSearchQuery(e.target.value); setShowDropdown(true) }}
+                                                    onFocus={() => { if (searchResults.length > 0) setShowDropdown(true) }}
+                                                    onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' && searchQuery.trim().length >= 2 && !guessSubmitting) {
+                                                            e.preventDefault()
+                                                            void submitGuess(searchQuery.trim())
+                                                        }
+                                                    }}
+                                                    placeholder={guessSubmitting ? 'Validando...' : 'Escribe el nombre del juego...'}
+                                                    disabled={guessSubmitting}
+                                                    autoComplete="off"
+                                                />
+                                                {searchLoading && <span className="guess__spinner" aria-hidden />}
+                                                <AnimatePresence>
+                                                    {showDropdown && searchResults.length > 0 && (
+                                                        <motion.div
+                                                            className="guess__dropdown soft-scrollbar"
+                                                            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                                                            transition={{ duration: 0.18, ease: 'easeOut' }}
+                                                        >
+                                                            {searchResults.map((option, i) => {
+                                                                const alreadyGuessed = wrongGuesses.some((g) => normalizeGameName(g) === normalizeGameName(option.name))
+                                                                return (
+                                                                    <motion.button
+                                                                        key={option.id}
+                                                                        type="button"
+                                                                        disabled={alreadyGuessed}
+                                                                        className={`guess__option ${alreadyGuessed ? 'is-guessed' : ''}`}
+                                                                        onMouseDown={(e) => e.preventDefault()}
+                                                                        onClick={() => { if (!alreadyGuessed) { void submitGuess(option.name); setShowDropdown(false) } }}
+                                                                        initial={{ opacity: 0, x: -6 }}
+                                                                        animate={{ opacity: 1, x: 0 }}
+                                                                        transition={{ duration: 0.18, delay: Math.min(i, 8) * 0.02 }}
+                                                                    >
+                                                                        <span>{option.name}</span>
+                                                                        {alreadyGuessed ? <X size={14} aria-hidden /> : <ArrowRight size={14} className="guess__option-arrow" aria-hidden />}
+                                                                    </motion.button>
+                                                                )
+                                                            })}
+                                                        </motion.div>
+                                                    )}
+                                                    {showDropdown && searchQuery.length >= 2 && searchResults.length === 0 && !searchLoading && (
+                                                        <motion.div
+                                                            className="guess__dropdown guess__dropdown--empty"
+                                                            initial={{ opacity: 0, y: -6 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, y: -6 }}
+                                                        >
+                                                            Sin resultados
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+                                            <p className="guess__help">
+                                                Cada fallo desbloquea una captura y una pista nuevas.{' '}
+                                                <span className="guess__help-keys">Usa ← → para moverte entre fases.</span>
+                                            </p>
+                                            {wrongGuesses.length > 0 && (
+                                                <div className="wrong-list">
+                                                    <AnimatePresence initial={false}>
+                                                        {wrongGuesses.map((guess, index) => (
+                                                            <motion.span
+                                                                key={`${guess}-${index}`}
+                                                                className="wrong-chip"
+                                                                initial={{ opacity: 0, scale: 0.6, y: 6 }}
+                                                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                                transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                                                            >
+                                                                <X size={12} strokeWidth={3} aria-hidden />
+                                                                {guess}
+                                                            </motion.span>
+                                                        ))}
+                                                    </AnimatePresence>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <motion.div
+                                            className={`result result--${gameState}`}
+                                            initial={{ opacity: 0, scale: 0.94, y: 12 }}
+                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                            transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+                                        >
+                                            {selectedGame.juego.header_image && (
+                                                <div className="result__art">
+                                                    <img src={selectedGame.juego.header_image} alt="" />
+                                                </div>
+                                            )}
+                                            <motion.span
+                                                className="result__icon"
+                                                initial={{ scale: 0, rotate: -30 }}
+                                                animate={{ scale: 1, rotate: 0 }}
+                                                transition={{ type: 'spring', stiffness: 420, damping: 14, delay: 0.15 }}
+                                            >
+                                                {gameState === 'won' ? <Trophy size={22} /> : <X size={22} strokeWidth={3} />}
+                                            </motion.span>
+                                            <p className="result__status">{gameState === 'won' ? '¡Acertado!' : 'Fallado'}</p>
+                                            <p className="result__label">El juego era</p>
+                                            <p className="result__name">{selectedGame.juego.nombre}</p>
+                                            {gameState === 'won' && (
+                                                <p className="result__pts">
+                                                    +<CountUp value={earnedPoints} /> pts
+                                                </p>
+                                            )}
+                                            <div className="result__actions">
+                                                <Button variant="secondary" onClick={goBack}>
+                                                    <ArrowLeft size={15} data-icon="inline-start" aria-hidden />
+                                                    Historial
+                                                </Button>
+                                                {nextPendingGame && (
+                                                    <Button onClick={() => playNext(nextPendingGame)}>
+                                                        Siguiente reto
+                                                        <ArrowRight size={15} data-icon="inline-end" aria-hidden />
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </motion.div>
+                                    )}
+
+                                    <div className="hints">
+                                        <span className="panel-title">Pistas</span>
+                                        <ul className="hints__list">
+                                            {hints.map((hint) => {
+                                                const unlocked = hint.phase <= highestUnlockedPhase
+                                                const Icon = hint.icon
+                                                return (
+                                                    <li key={hint.phase}>
+                                                        <button
+                                                            type="button"
+                                                            className={`hint ${unlocked ? 'is-unlocked' : 'is-locked'} ${activeViewedPhase === hint.phase ? 'is-active' : ''}`}
+                                                            disabled={!unlocked}
+                                                            onClick={() => setActiveViewedPhase(hint.phase)}
+                                                        >
+                                                            <span className="hint__icon">{unlocked ? <Icon size={15} aria-hidden /> : <Lock size={13} aria-hidden />}</span>
+                                                            <span className="hint__text">
+                                                                <span className="hint__label">{hint.label}</span>
+                                                                <AnimatePresence mode="wait" initial={false}>
+                                                                    {unlocked ? (
+                                                                        <motion.span
+                                                                            key="v"
+                                                                            className="hint__value"
+                                                                            initial={{ opacity: 0, filter: 'blur(6px)' }}
+                                                                            animate={{ opacity: 1, filter: 'blur(0px)' }}
+                                                                            transition={{ duration: 0.5 }}
+                                                                        >
+                                                                            {hint.value}
+                                                                        </motion.span>
+                                                                    ) : (
+                                                                        <span key="l" className="hint__value hint__value--locked">
+                                                                            Se desbloquea en la fase {hint.phase}
+                                                                        </span>
+                                                                    )}
+                                                                </AnimatePresence>
+                                                            </span>
+                                                            <span className="hint__phase">F{hint.phase}</span>
+                                                        </button>
+                                                    </li>
+                                                )
+                                            })}
+                                        </ul>
+                                    </div>
+                                </aside>
+                            </div>
+                        </motion.section>
+
+                        <Dialog open={captureZoomOpen} onOpenChange={setCaptureZoomOpen}>
+                            <DialogPrimitive.Portal>
+                                <DialogPrimitive.Overlay className="zoom-overlay" />
+                                <DialogPrimitive.Content
+                                    className="zoom-content"
+                                    onTouchStart={onCaptureTouchStart}
+                                    onTouchEnd={onCaptureTouchEnd}
+                                    onClick={() => setCaptureZoomOpen(false)}
+                                >
+                                    <DialogPrimitive.Title className="sr-only">
+                                        Captura ampliada, fase {activeViewedPhase} de 6
+                                    </DialogPrimitive.Title>
+                                    {currentCapture && (
+                                        <button
+                                            type="button"
+                                            className="zoom-content__btn"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                setCaptureZoomOpen(false)
                                             }}
-                                        />
-                                    </button>
-                                )}
-                            </DialogPrimitive.Content>
-                        </DialogPrimitive.Portal>
-                    </Dialog>
+                                        >
+                                            <img src={currentCapture} alt="" draggable={false} />
+                                        </button>
+                                    )}
+                                </DialogPrimitive.Content>
+                            </DialogPrimitive.Portal>
+                        </Dialog>
                     </>
                 )
             )}

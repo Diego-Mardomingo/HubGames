@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { AlertTriangle, Lock, Mail, UserRound, UserRoundPlus } from 'lucide-react'
+import { Lock, Mail, UserRound, UserRoundPlus } from 'lucide-react'
+import AuthShell, { FormError } from '@/components/AuthShell'
 
 function GoogleIcon() {
     return (
@@ -130,72 +131,60 @@ export default function RegistroPage() {
     }
 
     return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100dvh - 160px)' }}>
-            <div className="animate-fade-in-up" style={{ width: '100%', maxWidth: 420, padding: 24, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }}>
-                <div style={{ marginBottom: 20 }}>
-                    <h1 style={{ margin: '0 0 4px', fontSize: '1.125rem', fontWeight: 700 }}>Crea tu cuenta</h1>
-                    <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.8125rem' }}>Únete a HubGames y compite en el ranking</p>
+        <AuthShell title="Crea tu cuenta" subtitle="Únete a HubGames y compite cada día en el ranking.">
+            <Button variant="secondary" onClick={handleGoogleRegister} className="btn-block">
+                <GoogleIcon />
+                Registrarse con Google
+            </Button>
+
+            <div className="divider-text">o con tu email</div>
+
+            <form onSubmit={handleRegister} style={{ display: 'grid', gap: '0.9rem' }}>
+                <div className="field">
+                    <label className="field__label" htmlFor="reg-username">Nombre de usuario</label>
+                    <div className="field__control">
+                        <UserRound size={16} className="field__icon" />
+                        <Input id="reg-username" value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Tu alias" autoComplete="username" />
+                    </div>
                 </div>
-
-                <Button variant="secondary" onClick={handleGoogleRegister} style={{ width: '100%', height: 40, fontSize: '0.8125rem' }}>
-                    <GoogleIcon />
-                    Registrarse con Google
-                </Button>
-
-                <div className="divider-text" style={{ margin: '16px 0' }}>o</div>
-
-                <form onSubmit={handleRegister} style={{ display: 'grid', gap: 12 }}>
-                    <div style={{ display: 'grid', gap: 4 }}>
-                        <label style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Username</label>
-                        <div style={{ position: 'relative' }}>
-                            <UserRound size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
-                            <Input value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Tu alias" style={{ paddingLeft: 32, height: 38 }} />
+                <div className="field">
+                    <label className="field__label" htmlFor="reg-email">Email</label>
+                    <div className="field__control">
+                        <Mail size={16} className="field__icon" />
+                        <Input id="reg-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="tu@email.com" autoComplete="email" />
+                    </div>
+                </div>
+                <div className="auth__row">
+                    <div className="field">
+                        <label className="field__label" htmlFor="reg-password">Contraseña</label>
+                        <div className="field__control">
+                            <Lock size={16} className="field__icon" />
+                            <Input id="reg-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="••••••••" autoComplete="new-password" />
                         </div>
                     </div>
-                    <div style={{ display: 'grid', gap: 4 }}>
-                        <label style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Email</label>
-                        <div style={{ position: 'relative' }}>
-                            <Mail size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
-                            <Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="tu@email.com" style={{ paddingLeft: 32, height: 38 }} />
+                    <div className="field">
+                        <label className="field__label" htmlFor="reg-confirm">Confirmar</label>
+                        <div className="field__control">
+                            <Lock size={16} className="field__icon" />
+                            <Input id="reg-confirm" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="••••••••" autoComplete="new-password" />
                         </div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                        <div style={{ display: 'grid', gap: 4 }}>
-                            <label style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Contraseña</label>
-                            <div style={{ position: 'relative' }}>
-                                <Lock size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
-                                <Input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="••••••••" style={{ paddingLeft: 32, height: 38 }} />
-                            </div>
-                        </div>
-                        <div style={{ display: 'grid', gap: 4 }}>
-                            <label style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Confirmar</label>
-                            <div style={{ position: 'relative' }}>
-                                <Lock size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
-                                <Input type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="••••••••" style={{ paddingLeft: 32, height: 38 }} />
-                            </div>
-                        </div>
-                    </div>
-                    {error && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--danger)', fontSize: '0.75rem', padding: '8px 10px', borderRadius: 'var(--radius)', background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.12)' }}>
-                            <AlertTriangle size={13} />
-                            {error}
-                        </div>
+                </div>
+                <FormError message={error} />
+                <Button type="submit" disabled={loading} className="btn-block">
+                    {loading ? 'Creando cuenta...' : (
+                        <>
+                            <UserRoundPlus size={16} data-icon="inline-start" aria-hidden />
+                            Crear cuenta
+                        </>
                     )}
-                    <Button type="submit" disabled={loading} style={{ height: 40, fontSize: '0.8125rem' }}>
-                        {loading ? 'Creando cuenta...' : (
-                            <>
-                                <UserRoundPlus size={15} data-icon="inline-start" aria-hidden />
-                                Crear cuenta
-                            </>
-                        )}
-                    </Button>
-                </form>
+                </Button>
+            </form>
 
-                <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--muted)', marginTop: 16, marginBottom: 0 }}>
-                    ¿Ya tienes cuenta?{' '}
-                    <Link href="/login" style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>Inicia sesión</Link>
-                </p>
-            </div>
-        </div>
+            <p className="auth__switch">
+                ¿Ya tienes cuenta?{' '}
+                <Link href="/login" className="link">Inicia sesión</Link>
+            </p>
+        </AuthShell>
     )
 }
