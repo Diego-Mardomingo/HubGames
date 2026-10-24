@@ -546,3 +546,9 @@
 .tray-row__name a:hover {
   color: var(--primary);
 }
+
+.lib-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

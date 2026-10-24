@@ -20,7 +20,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { AlertTriangle, Clock, GripVertical, Inbox, LayoutGrid, Library, List, Minus, Plus, Star, Trophy, X } from 'lucide-react'
+import { AlertTriangle, Clock, GripVertical, Inbox, LayoutGrid, Library, List, Minus, Plus, Search, Star, Trophy, X } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import {
     DEFAULT_PLAYING_LIMIT,
@@ -56,6 +56,7 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import Loader from '@/components/Loader'
 import GameCover from '@/components/tracker/GameCover'
+import { openGameSearch } from '@/components/tracker/GameSearch'
 import { Reveal } from '@/components/motion'
 import './biblioteca.css'
 
@@ -230,13 +231,18 @@ function Biblioteca() {
                         </p>
                     </Reveal>
                 </div>
-                {counts.tray > 0 && (
-                    <Button variant="secondary" asChild>
-                        <Link href="/biblioteca/bandeja">
-                            <Inbox aria-hidden /> Bandeja <span className="lib-count">{counts.tray}</span>
-                        </Link>
+                <div className="lib-head-actions">
+                    <Button variant="secondary" onClick={openGameSearch}>
+                        <Search aria-hidden /> Buscar juego
                     </Button>
-                )}
+                    {counts.tray > 0 && (
+                        <Button variant="secondary" asChild>
+                            <Link href="/biblioteca/bandeja">
+                                <Inbox aria-hidden /> Bandeja <span className="lib-count">{counts.tray}</span>
+                            </Link>
+                        </Button>
+                    )}
+                </div>
             </header>
 
             {error && (

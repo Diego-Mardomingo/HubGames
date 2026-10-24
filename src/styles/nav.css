@@ -304,3 +304,42 @@
     place-items: center;
   }
 }
+
+/* Buscador de juegos (#20) */
+.nav-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 36px;
+  margin-right: 0.5rem;
+  padding: 0 0.6rem 0 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted-light);
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.nav-search:hover,
+.nav-search:focus-visible {
+  color: var(--foreground);
+  border-color: var(--border-hover);
+}
+
+.nav-search__kbd {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+}
+
+.nav-mobile-top .nav-search {
+  width: 36px;
+  justify-content: center;
+  padding: 0;
+}
+
+.nav-mobile-top .nav-search__kbd {
+  display: none;
+}
