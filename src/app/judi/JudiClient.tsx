@@ -1341,7 +1341,7 @@ export default function JudiClient() {
         setSearchQuery('')
         setSearchResults([])
         setShowDropdown(false)
-        router.push('/', { scroll: false })
+        router.push('/judi', { scroll: false })
         void loadUserAndGames()
     }
 

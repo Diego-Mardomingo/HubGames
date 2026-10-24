@@ -40,6 +40,7 @@ function createFetchWithAuthRecovery(getClient: () => SupabaseClient | undefined
     }
 }
 
+// eslint-disable-next-line prefer-const -- se asigna tras crear el cliente (referencia circular con el fetch)
 let supabaseRef: SupabaseClient | undefined
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
