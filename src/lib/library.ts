@@ -1,5 +1,6 @@
 // Biblioteca (#21): filtros y ordenaciones de /biblioteca. Sin acceso a la base de datos, con tests en library.test.ts.
 import type { GameStatus, LibraryGame } from './tracker'
+import { parseGenres } from './steam-text'
 
 export type LibraryTab = 'todos' | Exclude<GameStatus, 'bandeja'>
 
@@ -76,10 +77,7 @@ export function hasFilters(f: LibraryFilters): boolean {
 
 /** Nombres de género de la ficha de Steam (`[{ id, description }]`). */
 export function genreNames(game: Pick<LibraryGame, 'genres'>): string[] {
-    if (!Array.isArray(game.genres)) return []
-    return game.genres.flatMap((g) =>
-        g && typeof g === 'object' && !Array.isArray(g) && typeof g.description === 'string' ? [g.description] : [],
-    )
+    return parseGenres(game.genres)
 }
 
 /** % de logros desbloqueados, o null si el juego no tiene logros. */

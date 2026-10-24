@@ -1,0 +1,267 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { AlertTriangle, CalendarCheck, Clock, Flag, Gamepad2, Hourglass, LogIn, Play, Star, Trophy } from 'lucide-react'
+import { supabase, safeGetSession } from '@/lib/supabase/client'
+import {
+    GAME_STATUSES,
+    STATUS_LABELS,
+    formatHours,
+    playingLoad,
+    setGamesStatus,
+    type GameStatus,
+    type LibraryGame,
+} from '@/lib/tracker'
+import { achievementPercent } from '@/lib/library'
+import { isPerfect } from '@/lib/tracker-rules'
+import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import CompleteDialog from '@/components/tracker/CompleteDialog'
+
+interface Props {
+    appid: number
+    name: string
+    /** Duración de referencia en minutos: mediana de SteamSpy hasta que llegue HowLongToBeat (#23). */
+    medianMinutes: number | null
+    storeUrl: string
+}
+
+type State =
+    | { kind: 'cargando' }
+    | { kind: 'sin_sesion' }
+    | { kind: 'no_lo_tienes' }
+    | { kind: 'ok'; userId: string; game: LibraryGame }
+
+const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+
+function formatDate(iso: string | null): string | null {
+    return iso ? DATE.format(new Date(iso)) : null
+}
+
+/** Tus datos del juego y las acciones (#22). Se cargan en el cliente: la ficha de Steam ya viene del servidor. */
+export default function GamePanel({ appid, name, medianMinutes, storeUrl }: Props) {
+    const [state, setState] = useState<State>({ kind: 'cargando' })
+    const [completing, setCompleting] = useState(false)
+    const [busy, setBusy] = useState(false)
+    const [error, setError] = useState('')
+    const [warning, setWarning] = useState('')
+
+    useEffect(() => {
+        let cancelled = false
+        safeGetSession().then(async ({ data: { session } }) => {
+            if (!session) {
+                if (!cancelled) setState({ kind: 'sin_sesion' })
+                return
+            }
+            const { data, error: loadError } = await supabase.from('hubgames_library').select('*').eq('appid', appid).maybeSingle()
+            if (cancelled) return
+            if (loadError) setError(loadError.message)
+            setState(data ? { kind: 'ok', userId: session.user.id, game: data as LibraryGame } : { kind: 'no_lo_tienes' })
+        })
+        return () => {
+            cancelled = true
+        }
+    }, [appid])
+
+    if (state.kind === 'cargando') {
+        return (
+            <section className="juego-panel glass" aria-busy>
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-16 w-full" />
+            </section>
+        )
+    }
+
+    if (state.kind === 'sin_sesion') {
+        return (
+            <section className="juego-panel glass juego-panel--empty">
+                <p>Inicia sesión para ver tus horas, tus logros y el estado del juego.</p>
+                <Button variant="secondary" asChild>
+                    <Link href="/login">
+                        <LogIn aria-hidden /> Entrar
+                    </Link>
+                </Button>
+            </section>
+        )
+    }
+
+    if (state.kind === 'no_lo_tienes') {
+        return (
+            <section className="juego-panel glass juego-panel--empty">
+                <p>No está en tu biblioteca de Steam.</p>
+                <div className="juego-panel__actions">
+                    <Button variant="secondary" asChild>
+                        <a href={storeUrl} target="_blank" rel="noreferrer">
+                            Ver en la tienda
+                        </a>
+                    </Button>
+                    <Button variant="secondary" disabled title="Llegará con la wishlist (#35)">
+                        Añadir a la wishlist
+                    </Button>
+                </div>
+                {medianMinutes !== null && <p className="juego-panel__note">Duración orientativa: {formatHours(medianMinutes)} (mediana en Steam).</p>}
+            </section>
+        )
+    }
+
+    const { game, userId } = state
+    const pct = achievementPercent(game)
+    const remaining = medianMinutes !== null ? medianMinutes - game.playtime_forever : null
+
+    function update(patch: Partial<LibraryGame>) {
+        setState((s) => (s.kind === 'ok' ? { ...s, game: { ...s.game, ...patch } } : s))
+    }
+
+    async function changeStatus(status: GameStatus) {
+        if (status === game.status) return
+        if (status === 'completado') {
+            setCompleting(true)
+            return
+        }
+        setBusy(true)
+        setError('')
+        setWarning('')
+        try {
+            await setGamesStatus([appid], status)
+            update({
+                status,
+                status_source: 'manual',
+                suggestion: null,
+                ...(status === 'jugando' && !game.started_at && { started_at: new Date().toISOString() }),
+            })
+            if (status === 'jugando') {
+                const { count, limit } = await playingLoad(userId)
+                if (count > limit) setWarning(`Ahora tienes ${count} juegos en Jugando y tu límite es ${limit}.`)
+            }
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'No se pudo guardar')
+        } finally {
+            setBusy(false)
+        }
+    }
+
+    return (
+        <section className="juego-panel glass" aria-label="Tus datos">
+            <div className="juego-panel__top">
+                <label className="juego-panel__status">
+                    <span>Estado</span>
+                    <Select value={game.status} onValueChange={(v) => changeStatus(v as GameStatus)} disabled={busy}>
+                        <SelectTrigger className={`juego-panel__select lib-status--${game.status}`} aria-label="Estado">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {GAME_STATUSES.map((s) => (
+                                <SelectItem key={s} value={s}>
+                                    {STATUS_LABELS[s]}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </label>
+                <div className="juego-panel__actions">
+                    <Button asChild>
+                        <a href={`steam://run/${appid}`}>
+                            <Play aria-hidden /> Jugar
+                        </a>
+                    </Button>
+                    <Button variant="secondary" onClick={() => setCompleting(true)}>
+                        <Flag aria-hidden /> {game.status === 'completado' ? 'Editar nota' : 'Completar'}
+                    </Button>
+                </div>
+            </div>
+
+            {error && (
+                <p className="alert alert--error" role="alert">
+                    {error}
+                </p>
+            )}
+            {warning && (
+                <p className="juego-panel__warning" role="status">
+                    <AlertTriangle size={14} aria-hidden /> {warning}{' '}
+                    <Link href="/biblioteca?estado=jugando">Ver los que juegas</Link>
+                </p>
+            )}
+
+            <dl className="juego-stats">
+                <div>
+                    <dt>
+                        <Clock size={13} aria-hidden /> Horas
+                    </dt>
+                    <dd>{formatHours(game.playtime_forever)}</dd>
+                    {game.playtime_2weeks > 0 && <span>{formatHours(game.playtime_2weeks)} en 2 semanas</span>}
+                </div>
+                <div>
+                    <dt>
+                        <Gamepad2 size={13} aria-hidden /> Última partida
+                    </dt>
+                    <dd>{formatDate(game.rtime_last_played) ?? 'Nunca'}</dd>
+                </div>
+                <div>
+                    <dt>
+                        <Star size={13} aria-hidden /> Tu nota
+                    </dt>
+                    <dd>{game.rating !== null ? String(game.rating).replace('.', ',') : '—'}</dd>
+                    {game.completed_at && <span>Completado el {formatDate(game.completed_at)}</span>}
+                </div>
+                <div>
+                    <dt>
+                        <Trophy size={13} aria-hidden /> Logros
+                    </dt>
+                    {pct === null ? (
+                        <dd>Sin logros</dd>
+                    ) : (
+                        <>
+                            <dd>
+                                {game.achievements_unlocked ?? 0}/{game.achievements_total}{' '}
+                                {isPerfect(game) ? (
+                                    <span className="badge-100" title="Todos los logros desbloqueados">
+                                        <Trophy size={11} aria-hidden /> 100%
+                                    </span>
+                                ) : (
+                                    <small>{pct}%</small>
+                                )}
+                            </dd>
+                            <span className="lib-progress" aria-hidden>
+                                <span style={{ width: `${pct}%` }} />
+                            </span>
+                            {game.last_unlock_at && <span>Último el {formatDate(game.last_unlock_at)}</span>}
+                        </>
+                    )}
+                </div>
+            </dl>
+
+            {medianMinutes !== null && remaining !== null && (
+                <p className="juego-panel__note">
+                    <Hourglass size={13} aria-hidden />{' '}
+                    {remaining > 30
+                        ? `Te faltan unas ${formatHours(remaining)} para la duración habitual (${formatHours(medianMinutes)}).`
+                        : `Ya has pasado la duración habitual (${formatHours(medianMinutes)}).`}{' '}
+                    <span className="juego-panel__source">Mediana de SteamSpy, hasta que llegue HowLongToBeat.</span>
+                </p>
+            )}
+            {game.started_at && game.status === 'jugando' && (
+                <p className="juego-panel__note">
+                    <CalendarCheck size={13} aria-hidden /> Jugando desde el {formatDate(game.started_at)}.
+                </p>
+            )}
+
+            <CompleteDialog
+                game={completing ? { ...game, name } : null}
+                onOpenChange={(open) => !open && setCompleting(false)}
+                onSaved={(_, completion) => {
+                    setCompleting(false)
+                    update({
+                        status: 'completado',
+                        status_source: 'manual',
+                        suggestion: null,
+                        rating: completion.rating,
+                        completed_at: completion.completedAt,
+                        review: completion.review,
+                    })
+                }}
+            />
+        </section>
+    )
+}

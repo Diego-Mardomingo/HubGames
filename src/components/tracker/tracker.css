@@ -228,3 +228,37 @@ span.suggestion__cover {
   font-weight: 600;
   text-align: center;
 }
+
+/* ── Barra de progreso de logros y etiqueta de estado (biblioteca y ficha) ── */
+
+.lib-progress {
+  display: block;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.lib-progress span {
+  display: block;
+  height: 100%;
+  background: var(--grad);
+}
+
+.lib-status {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(14, 13, 24, 0.85);
+  border: 1px solid var(--border-hover);
+  color: var(--muted-light);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lib-status--jugando { color: var(--accent); border-color: rgba(42, 212, 240, 0.4); }
+.lib-status--completado { color: var(--success); border-color: rgba(52, 211, 153, 0.4); }
+.lib-status--pendiente { color: var(--primary); border-color: rgba(154, 134, 255, 0.4); }
+.lib-status--abandonado,
+.lib-status--descartado { color: var(--danger); border-color: rgba(251, 113, 133, 0.35); }
