@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { persistJudiHomeScrollYFromWindow } from '@/lib/judi-home-scroll'
 import { LogoMark, Wordmark } from '@/components/brand/Logo'
-import { Gamepad2, Trophy, User, Shield, LogIn } from 'lucide-react'
+import { Home, Gamepad2, Trophy, User, Shield, LogIn } from 'lucide-react'
 
 const ADMIN_EMAIL = 'diego.lopez.mardomingo@gmail.com'
 
@@ -24,14 +24,13 @@ export default function Nav() {
 
     /** Segundo tap en Inicio/logo estando ya en home: subir la lista con scroll suave. */
     const handleHomeLinkClick = (e: MouseEvent<HTMLAnchorElement>) => {
-        if (pathname !== '/') return
         e.preventDefault()
         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
     }
 
-    /** Antes de ir a ranking/perfil/etc. desde `/`, guardar Y (la transición puede poner scroll en 0 y corromper sessionStorage). */
+    /** Antes de ir a ranking/perfil/etc. desde `/judi`, guardar Y (la transición puede poner scroll en 0 y corromper sessionStorage). */
     const handleLeaveHomeNavClick = () => {
-        if (pathname === '/') persistJudiHomeScrollYFromWindow()
+        if (pathname === '/judi') persistJudiHomeScrollYFromWindow()
     }
 
     /** pointerdown va antes que el click de Next; así capturamos la Y real antes de cualquier reset del router. */
@@ -71,7 +70,8 @@ export default function Nav() {
     const initial = (username || user?.email || '?')[0]?.toUpperCase()
 
     const navLinks = [
-        { href: '/', label: 'Jugar', icon: Gamepad2 },
+        { href: '/', label: 'Inicio', icon: Home },
+        { href: '/judi', label: 'JUDI', icon: Gamepad2 },
         { href: '/ranking', label: 'Ranking', icon: Trophy },
         ...(isAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield }] : []),
     ]
@@ -83,14 +83,17 @@ export default function Nav() {
             : { href: '/login', label: 'Entrar', icon: LogIn },
     ]
 
-    const linkHandlers = (href: string) => ({
-        scroll: href !== '/',
-        onPointerDownCapture: href === '/' ? undefined : handleLeaveHomePointerDownCapture,
-        onClick: href === '/' ? handleHomeLinkClick : handleLeaveHomeNavClick,
-    })
+    const linkHandlers = (href: string) => {
+        const isListLink = href === '/' || href === '/judi'
+        return {
+            scroll: !isListLink,
+            onPointerDownCapture: isListLink ? undefined : handleLeaveHomePointerDownCapture,
+            onClick: isListLink ? (href === pathname ? handleHomeLinkClick : undefined) : handleLeaveHomeNavClick,
+        }
+    }
 
     const brand = (
-        <Link href="/" scroll={false} className="nav-brand" onClick={handleHomeLinkClick} aria-label="HubGames, inicio">
+        <Link href="/" scroll={false} className="nav-brand" onClick={pathname === '/' ? handleHomeLinkClick : undefined} aria-label="HubGames, inicio">
             <LogoMark size={30} animated />
             <Wordmark />
         </Link>

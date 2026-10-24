@@ -144,7 +144,7 @@ async function main() {
         getAppIdsFromSteamTopSellers(),
     ])
 
-    let queue = mergeTierQueues(alreadyInPool, [
+    const queue = mergeTierQueues(alreadyInPool, [
         in2WeeksIds,
         newReleaseIds,
         ownedIds,
