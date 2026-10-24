@@ -9,11 +9,10 @@ import { persistJudiHomeScrollYFromWindow } from '@/lib/judi-home-scroll'
 import { LogoMark, Wordmark } from '@/components/brand/Logo'
 import { Home, Gamepad2, Trophy, User, Shield, LogIn } from 'lucide-react'
 
-const ADMIN_EMAIL = 'diego.lopez.mardomingo@gmail.com'
-
 export default function Nav() {
     const [user, setUser] = useState<any>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [isAdminUser, setIsAdminUser] = useState(false)
     const [scrolled, setScrolled] = useState(false)
     const pathname = usePathname()
 
@@ -59,13 +58,25 @@ export default function Nav() {
     }, [])
 
     useEffect(() => {
+        if (!user) {
+            setIsAdminUser(false)
+            return
+        }
+        let cancelled = false
+        supabase.rpc('is_admin').then(({ data }) => {
+            if (!cancelled) setIsAdminUser(data === true)
+        })
+        return () => { cancelled = true }
+    }, [user])
+
+    useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 8)
         onScroll()
         window.addEventListener('scroll', onScroll, { passive: true })
         return () => window.removeEventListener('scroll', onScroll)
     }, [])
 
-    const isAdmin = !isLoading && user?.email === ADMIN_EMAIL
+    const isAdmin = !isLoading && isAdminUser
     const username: string | null = !isLoading && user ? user.user_metadata?.username || null : null
     const initial = (username || user?.email || '?')[0]?.toUpperCase()
 

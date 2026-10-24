@@ -15,7 +15,6 @@ import {
 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
-const ADMIN_EMAIL = 'diego.lopez.mardomingo@gmail.com'
 
 /** PostgREST limita filas por petición; pedimos en páginas hasta traer todo el pool. */
 const ADMIN_POOL_PAGE_SIZE = 1000
@@ -615,7 +614,7 @@ function CalendarTab() {
             return
         }
 
-        const appIds = dailyData.map((r) => r.steam_appid).filter(Boolean)
+        const appIds = dailyData.map((r) => r.steam_appid).filter((id): id is number => id != null)
         const { data: steamData } = await supabase
             .from('hubgames_juegos_steam')
             .select('steam_appid, header_image')
@@ -629,7 +628,7 @@ function CalendarTab() {
         setItems(dailyData.map((r) => {
             const gameDate = parseLegacyDate(r.fecha)
             const isFuture = gameDate && todayDate ? gameDate > todayDate : false
-            return { ...r, header_image: imageMap.get(r.steam_appid) ?? null, isFuture }
+            return { ...r, header_image: (r.steam_appid != null ? imageMap.get(r.steam_appid) : null) ?? null, isFuture }
         }))
         setLoading(false)
     }, [])
@@ -684,11 +683,14 @@ export default function AdminPage() {
     const router = useRouter()
     const [authChecked, setAuthChecked] = useState(false)
     const [isAdmin, setIsAdmin] = useState(false)
+    const [adminEmail, setAdminEmail] = useState('')
 
+    // El proxy ya protege /admin en el servidor; esto es solo una segunda comprobación en cliente.
     useEffect(() => {
-        safeGetUser()
-            .then(({ data: { user } }) => {
-                if (user?.email === ADMIN_EMAIL) {
+        Promise.all([safeGetUser(), supabase.rpc('is_admin')])
+            .then(([{ data: { user } }, { data: admin }]) => {
+                if (user && admin === true) {
+                    setAdminEmail(user.email ?? '')
                     setIsAdmin(true)
                 } else {
                     router.replace('/')
@@ -721,7 +723,7 @@ export default function AdminPage() {
                     </div>
                     <div>
                         <h1 className="admin-topbar__title">Panel de Administración</h1>
-                        <p className="admin-topbar__sub">{ADMIN_EMAIL}</p>
+                        <p className="admin-topbar__sub">{adminEmail}</p>
                     </div>
                 </div>
             </header>

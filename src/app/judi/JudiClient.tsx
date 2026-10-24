@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence, useAnimate } from 'framer-motion'
 import { supabase, safeGetUser } from '@/lib/supabase/client'
+import type { TablesInsert, TablesUpdate } from '@/lib/supabase/database.types'
 import Loader from '@/components/Loader'
 import { getFailedAttempts, getPointsForRecord, type JudiProgressRecord } from '@/lib/judi-ranking'
 import {
@@ -390,11 +391,6 @@ function getCaptureUrlForPhase(phase: number, capturas: string[]): string | unde
 const SWIPE_MIN_PX = 56
 const SWIPE_BLOCK_CLICK_MS = 420
 
-/** Evita que % y _ de Postgres interpreten comodines en ilike */
-function sanitizeIlikeToken(token: string) {
-    return token.replace(/\\/g, '').replace(/%/g, '').replace(/_/g, '').trim()
-}
-
 const JUDI_ATTEMPT_SLOTS = 6
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const
@@ -751,26 +747,8 @@ export default function JudiClient() {
         }
         const timer = setTimeout(async () => {
             setSearchLoading(true)
-            const tokens = searchQuery
-                .toLowerCase()
-                .split(/\s+/)
-                .map(sanitizeIlikeToken)
-                .filter((t) => t.length >= 1)
-            if (tokens.length === 0) {
-                setSearchResults([])
-                setSearchLoading(false)
-                return
-            }
-            let query = supabase
-                .from('hubgames_judi_pool')
-                .select('steam_appid, game_name')
-                .eq('is_eligible', true)
-                .eq('discarded', false)
-            for (const token of tokens) {
-                query = query.ilike('game_name', `%${token}%`)
-            }
-            const { data } = await query.order('relevance_score', { ascending: false }).limit(14)
-            setSearchResults((data || []).map((item) => ({ id: item.steam_appid, name: item.game_name })))
+            const { data } = await supabase.rpc('hubgames_judi_search_pool', { p_query: searchQuery })
+            setSearchResults((data || []).map((item: { steam_appid: number; game_name: string }) => ({ id: item.steam_appid, name: item.game_name })))
             setSearchLoading(false)
         }, 300)
         return () => clearTimeout(timer)
@@ -884,7 +862,7 @@ export default function JudiClient() {
         const steam = steamRes.data
         const steamCcuRaw = steam?.steamspy_ccu
         const steamCcu =
-            steamCcuRaw != null && steamCcuRaw !== '' ? Number(steamCcuRaw) : null
+            steamCcuRaw != null ? Number(steamCcuRaw) : null
         const steamPositivePct = steam
             ? steamPositivePercent(steam.steamspy_userscore, steam.steamspy_positive, steam.steamspy_negative)
             : null
@@ -995,9 +973,9 @@ export default function JudiClient() {
                 .eq('id_usuario', authUser.id)
                 .maybeSingle()
             if (existing) {
-                await supabase.from('hubgames_judi_fases_usuario').update({ [field]: value }).eq('id_lista_judi', gameRef.id).eq('id_usuario', authUser.id)
+                await supabase.from('hubgames_judi_fases_usuario').update({ [field]: value } as TablesUpdate<'hubgames_judi_fases_usuario'>).eq('id_lista_judi', gameRef.id).eq('id_usuario', authUser.id)
             } else {
-                await supabase.from('hubgames_judi_fases_usuario').insert({ id_lista_judi: gameRef.id, id_usuario: authUser.id, [field]: value })
+                await supabase.from('hubgames_judi_fases_usuario').insert({ id_lista_judi: gameRef.id, id_usuario: authUser.id, [field]: value } as TablesInsert<'hubgames_judi_fases_usuario'>)
             }
         } else {
             const progressData = getLocalProgressRaw()

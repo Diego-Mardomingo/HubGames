@@ -321,6 +321,33 @@ JUDI es un reto diario para los amantes de los videojuegos. Cada día se selecci
 
 <br/>
 
+## 🗄️ Base de datos y migraciones
+
+La base de datos de Supabase es **compartida con ECOS** (tablas y funciones `ecos_*`). En este repo solo se versionan los objetos de HubGames (`hubgames_*`, sus políticas RLS, triggers, funciones propias y el cron de JUDI). **Nunca tocar `ecos_*`.**
+
+- `supabase/migrations/20261024000000_hubgames_baseline.sql`: estado base del esquema de HubGames. La base de producción ya lo tiene aplicado; sirve para reproducirlo y revisarlo.
+- Los cambios nuevos van en migraciones con nombre `AAAAMMDDHHMMSS_descripcion.sql` posteriores a la base. Deben ser idempotentes o tocar solo objetos `hubgames_*`.
+
+**Crear y aplicar una migración**
+
+1. Escribe el SQL en `supabase/migrations/` con la marca de tiempo actual.
+2. Aplícalo en Supabase (SQL Editor, o `npx supabase db push` tras `npx supabase login` y `npx supabase link --project-ref <ref>`; hacen falta `SUPABASE_ACCESS_TOKEN` y la contraseña de la base de datos).
+3. Si cambia el esquema, regenera los tipos y revisa el diff.
+
+**Tipos TypeScript**
+
+```bash
+npm run db:types
+```
+
+Genera `src/lib/supabase/database.types.ts` solo con los objetos de HubGames a partir del OpenAPI de PostgREST (usa `NEXT_PUBLIC_SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` de `.env.local`). Los clientes de Supabase (`src/lib/supabase/client.ts`, `server.ts` y `src/proxy.ts`) están tipados con `Database`.
+
+**Seguridad**
+
+- La clave anon no puede leer `hubgames_usuarios`; cada usuario ve solo su fila y solo puede cambiar su `username`.
+- El alta del perfil la hace el trigger `on_hubgames_auth_user_created` sobre `auth.users`.
+- `/admin` se protege en el servidor con `src/proxy.ts` y la función `is_admin()`.
+
 ## 📂 Estructura del Proyecto
 
 ```

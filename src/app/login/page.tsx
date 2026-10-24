@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
@@ -26,6 +26,12 @@ export default function LoginPage() {
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
+
+    useEffect(() => {
+        if (new URLSearchParams(window.location.search).get('error') === 'oauth') {
+            setError('No se pudo completar el inicio de sesión con Google. Inténtalo de nuevo.')
+        }
+    }, [])
 
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault()
