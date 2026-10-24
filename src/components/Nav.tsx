@@ -7,13 +7,15 @@ import { motion } from 'framer-motion'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { persistJudiHomeScrollYFromWindow } from '@/lib/judi-home-scroll'
 import { LogoMark, Wordmark } from '@/components/brand/Logo'
-import { Home, Gamepad2, Trophy, User, Shield, LogIn } from 'lucide-react'
+import { Home, Gamepad2, Trophy, User, Shield, LogIn, Library } from 'lucide-react'
+import { countTray, TRACKER_CHANGED_EVENT } from '@/lib/tracker'
 
 export default function Nav() {
     const [user, setUser] = useState<any>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isAdminUser, setIsAdminUser] = useState(false)
     const [scrolled, setScrolled] = useState(false)
+    const [trayCount, setTrayCount] = useState(0)
     const pathname = usePathname()
 
     const isActive = (href: string) => {
@@ -69,6 +71,19 @@ export default function Nav() {
         return () => { cancelled = true }
     }, [user])
 
+    // Contador de la bandeja: al iniciar sesión, al navegar y cuando se clasifica un juego.
+    useEffect(() => {
+        if (!user) return
+        let cancelled = false
+        const refresh = () => countTray().then((n) => { if (!cancelled) setTrayCount(n) })
+        refresh()
+        window.addEventListener(TRACKER_CHANGED_EVENT, refresh)
+        return () => {
+            cancelled = true
+            window.removeEventListener(TRACKER_CHANGED_EVENT, refresh)
+        }
+    }, [user, pathname])
+
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 8)
         onScroll()
@@ -82,6 +97,7 @@ export default function Nav() {
 
     const navLinks = [
         { href: '/', label: 'Inicio', icon: Home },
+        ...(user ? [{ href: '/biblioteca/bandeja', label: 'Biblioteca', icon: Library, badge: trayCount }] : []),
         { href: '/judi', label: 'JUDI', icon: Gamepad2 },
         { href: '/ranking', label: 'Ranking', icon: Trophy },
         ...(isAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield }] : []),
@@ -160,6 +176,11 @@ export default function Nav() {
                                     )}
                                     <Icon size={16} className="nav-link__icon" />
                                     <span>{link.label}</span>
+                                    {link.badge ? (
+                                        <span className="nav-badge" aria-label={`${link.badge} en la bandeja`}>
+                                            {link.badge > 99 ? '99+' : link.badge}
+                                        </span>
+                                    ) : null}
                                 </Link>
                             )
                         })}
@@ -184,6 +205,11 @@ export default function Nav() {
                             )}
                             <motion.span className="nav-tab__icon" whileTap={{ scale: 0.82 }}>
                                 <Icon size={20} strokeWidth={active ? 2.4 : 2} />
+                                {link.badge ? (
+                                    <span className="nav-badge nav-badge--tab" aria-label={`${link.badge} en la bandeja`}>
+                                        {link.badge > 99 ? '99+' : link.badge}
+                                    </span>
+                                ) : null}
                             </motion.span>
                             <span className="nav-tab__label">{link.label}</span>
                         </Link>
