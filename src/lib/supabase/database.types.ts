@@ -393,6 +393,9 @@ export type Database = {
           status_changed_at: string | null
           suggestion: string | null
           suggestion_dismissed_at: string | null
+          genres: Json | null
+          release_date: string | null
+          steamspy_median_forever: number | null
         }
         Insert: {
           user_id?: string | null
@@ -419,6 +422,9 @@ export type Database = {
           status_changed_at?: string | null
           suggestion?: string | null
           suggestion_dismissed_at?: string | null
+          genres?: Json | null
+          release_date?: string | null
+          steamspy_median_forever?: number | null
         }
         Update: {
           user_id?: string | null
@@ -445,6 +451,9 @@ export type Database = {
           status_changed_at?: string | null
           suggestion?: string | null
           suggestion_dismissed_at?: string | null
+          genres?: Json | null
+          release_date?: string | null
+          steamspy_median_forever?: number | null
         }
         Relationships: []
       }
@@ -815,6 +824,7 @@ export type Database = {
           fecha_creacion: string
           cuenta_google: boolean
           administrador: boolean
+          playing_limit: number
         }
         Insert: {
           id?: string
@@ -825,6 +835,7 @@ export type Database = {
           fecha_creacion?: string
           cuenta_google?: boolean
           administrador?: boolean
+          playing_limit?: number
         }
         Update: {
           id?: string
@@ -835,6 +846,7 @@ export type Database = {
           fecha_creacion?: string
           cuenta_google?: boolean
           administrador?: boolean
+          playing_limit?: number
         }
         Relationships: []
       }
@@ -898,6 +910,10 @@ export type Database = {
       hubgames_judi_pick_daily: {
         Args: { p_fecha: string }
         Returns: Json
+      }
+      hubgames_reorder_backlog: {
+        Args: { p_appids: number[] }
+        Returns: undefined
       }
       hubgames_take_playtime_snapshot: {
         Args: { p_user_id: string }

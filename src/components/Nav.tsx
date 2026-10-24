@@ -7,8 +7,9 @@ import { motion } from 'framer-motion'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { persistJudiHomeScrollYFromWindow } from '@/lib/judi-home-scroll'
 import { LogoMark, Wordmark } from '@/components/brand/Logo'
-import { Home, Gamepad2, Trophy, User, Shield, LogIn, Library } from 'lucide-react'
+import { Home, Gamepad2, Trophy, User, Shield, LogIn, Library, Search } from 'lucide-react'
 import { countTray, TRACKER_CHANGED_EVENT } from '@/lib/tracker'
+import GameSearch, { openGameSearch } from '@/components/tracker/GameSearch'
 
 export default function Nav() {
     const [user, setUser] = useState<any>(null)
@@ -97,7 +98,7 @@ export default function Nav() {
 
     const navLinks = [
         { href: '/', label: 'Inicio', icon: Home },
-        ...(user ? [{ href: '/biblioteca/bandeja', label: 'Biblioteca', icon: Library, badge: trayCount }] : []),
+        ...(user ? [{ href: '/biblioteca', label: 'Biblioteca', icon: Library, badge: trayCount }] : []),
         { href: '/judi', label: 'JUDI', icon: Gamepad2 },
         { href: '/ranking', label: 'Ranking', icon: Trophy },
         ...(isAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield }] : []),
@@ -145,15 +146,27 @@ export default function Nav() {
         </Link>
     )
 
+    const searchButton = user && !isLoading ? (
+        <button type="button" className="nav-search" onClick={openGameSearch} aria-label="Buscar un juego (Ctrl+K)" title="Buscar un juego (Ctrl+K)">
+            <Search size={16} aria-hidden />
+            <kbd className="nav-search__kbd">Ctrl K</kbd>
+        </button>
+    ) : null
+
     return (
         <>
+            {user && !isLoading ? <GameSearch /> : null}
+
             {/* Móvil: barra superior con marca + cuenta */}
             <header className={`nav-mobile-top ${scrolled ? 'is-scrolled' : ''}`} suppressHydrationWarning>
                 {brand}
                 {user && !isLoading ? (
-                    <Link href="/perfil" {...linkHandlers('/perfil')} className="nav-account nav-account--compact" aria-label="Mi perfil">
-                        <span className="nav-account__avatar">{initial}</span>
-                    </Link>
+                    <div className="nav-right">
+                        {searchButton}
+                        <Link href="/perfil" {...linkHandlers('/perfil')} className="nav-account nav-account--compact" aria-label="Mi perfil">
+                            <span className="nav-account__avatar">{initial}</span>
+                        </Link>
+                    </div>
                 ) : null}
             </header>
 
@@ -185,7 +198,10 @@ export default function Nav() {
                             )
                         })}
                     </nav>
-                    <div className="nav-right">{accountChip}</div>
+                    <div className="nav-right">
+                        {searchButton}
+                        {accountChip}
+                    </div>
                 </div>
             </header>
 

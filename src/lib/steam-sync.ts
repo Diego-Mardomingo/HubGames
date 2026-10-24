@@ -95,16 +95,33 @@ async function missingFromCatalog(supabase: Client, appids: number[]): Promise<n
     return appids.filter((id) => !known.has(id))
 }
 
-/** Ficha completa (Store + SteamSpy). Si el Store no la tiene (juego retirado), guarda una ficha mínima para no reintentar. */
-async function fetchCatalogRow(game: OwnedGame): Promise<Database['public']['Tables']['hubgames_juegos_steam']['Insert']> {
-    const store = await withRetry(() => getSteamStoreDetails(game.appid))
-    if (!store) return { steam_appid: game.appid, name: game.name || `App ${game.appid}`, last_synced_at: new Date().toISOString() }
+type CatalogRow = Database['public']['Tables']['hubgames_juegos_steam']['Insert']
 
-    const spy = await withRetry(() => getSteamSpyDetails(game.appid)).catch(() => null)
+/** Ficha completa (Store + SteamSpy). Si el Store no la tiene (juego retirado), guarda una ficha mínima para no reintentar. */
+async function fetchCatalogRow(game: OwnedGame): Promise<CatalogRow> {
+    return (
+        (await fetchStoreCatalogRow(game.appid)) ?? {
+            steam_appid: game.appid,
+            name: game.name || `App ${game.appid}`,
+            last_synced_at: new Date().toISOString(),
+        }
+    )
+}
+
+/**
+ * Ficha completa (Store + SteamSpy), o null si el Store no tiene ese appid. También la usa la ficha /juego (#22),
+ * con `retry = false`: una página no puede quedarse esperando un minuto por el límite de velocidad.
+ */
+export async function fetchStoreCatalogRow(appid: number, retry = true): Promise<CatalogRow | null> {
+    const call = retry ? withRetry : <T,>(fn: () => Promise<T>) => fn()
+    const store = await call(() => getSteamStoreDetails(appid))
+    if (!store) return null
+
+    const spy = await call(() => getSteamSpyDetails(appid)).catch(() => null)
     const positive = spy?.positive ?? 0
     const negative = spy?.negative ?? 0
     return {
-        steam_appid: game.appid,
+        steam_appid: appid,
         name: store.name,
         type: store.type || null,
         required_age: store.required_age ?? null,

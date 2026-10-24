@@ -201,3 +201,234 @@
 span.suggestion__cover {
   background: rgba(255, 255, 255, 0.05);
 }
+
+/* ── Portada de Steam con respaldo (#21) ── */
+
+.game-cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.game-cover img {
+  object-fit: cover;
+}
+
+.game-cover--empty {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ── Barra de progreso de logros y etiqueta de estado (biblioteca y ficha) ── */
+
+.lib-progress {
+  display: block;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.lib-progress span {
+  display: block;
+  height: 100%;
+  background: var(--grad);
+}
+
+.lib-status {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(14, 13, 24, 0.85);
+  border: 1px solid var(--border-hover);
+  color: var(--muted-light);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lib-status--jugando { color: var(--accent); border-color: rgba(42, 212, 240, 0.4); }
+.lib-status--completado { color: var(--success); border-color: rgba(52, 211, 153, 0.4); }
+.lib-status--pendiente { color: var(--primary); border-color: rgba(154, 134, 255, 0.4); }
+.lib-status--abandonado,
+.lib-status--descartado { color: var(--danger); border-color: rgba(251, 113, 133, 0.35); }
+
+/* ── Buscador de juegos de Steam (#20) ── */
+
+.game-search {
+  top: 12vh;
+  translate: -50% 0;
+  max-width: 620px;
+  max-height: 76vh;
+  grid-template-rows: auto auto 1fr;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--glass-strong);
+  backdrop-filter: blur(18px);
+}
+
+/* Botón de cerrar del Dialog compartido: sin el fondo gris del navegador y alineado con el campo. */
+.game-search > button:last-child {
+  top: 1.45rem;
+  right: 1rem;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--muted-light);
+}
+
+.game-search__field {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: 46px;
+  margin-right: 2rem;
+  padding: 0 0.75rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-hover);
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.game-search__field input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--foreground);
+  font-size: 1rem;
+}
+
+.game-search kbd {
+  padding: 1px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted-light);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+}
+
+.game-search__spin {
+  animation: game-search-spin 0.9s linear infinite;
+}
+
+@keyframes game-search-spin {
+  to { rotate: 360deg; }
+}
+
+.game-search__hint {
+  margin: 0;
+  padding: 0.25rem 0.25rem 0.5rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.game-search__results {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.game-search__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.35rem;
+  border-radius: var(--radius);
+}
+
+.game-search__item.is-active {
+  background: rgba(154, 134, 255, 0.12);
+}
+
+.game-search__open {
+  display: flex;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.game-search__open img,
+.game-search__noimg {
+  flex-shrink: 0;
+  width: 92px;
+  aspect-ratio: 231 / 87;
+  border-radius: 6px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.game-search__text {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.game-search__name {
+  overflow: hidden;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-search__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.6rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.game-search__discount {
+  padding: 0 5px;
+  border-radius: 4px;
+  background: rgba(52, 211, 153, 0.18);
+  color: var(--success);
+  font-weight: 700;
+}
+
+.game-search__done {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--success);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .game-search {
+    top: 1rem;
+    max-height: calc(100dvh - 2rem);
+    width: calc(100vw - 1rem);
+  }
+
+  .game-search__open img,
+  .game-search__noimg {
+    width: 64px;
+  }
+}
