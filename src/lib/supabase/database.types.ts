@@ -378,6 +378,7 @@ export type Database = {
           released: string
           steam_appid: number | null
           data_source: string
+          fecha_date: string | null
         }
         Insert: {
           id?: number
@@ -389,6 +390,7 @@ export type Database = {
           released: string
           steam_appid?: number | null
           data_source?: string
+          fecha_date?: string | null
         }
         Update: {
           id?: number
@@ -400,6 +402,7 @@ export type Database = {
           released?: string
           steam_appid?: number | null
           data_source?: string
+          fecha_date?: string | null
         }
         Relationships: []
       }
@@ -531,6 +534,10 @@ export type Database = {
       hubgames_judi_search_pool: {
         Args: { p_query: string }
         Returns: { game_name: string; steam_appid: number }[]
+      }
+      hubgames_judi_pick_daily: {
+        Args: { p_fecha: string }
+        Returns: Json
       }
       is_admin: {
         Args: never
