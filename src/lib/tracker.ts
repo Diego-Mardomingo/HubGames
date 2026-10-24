@@ -117,6 +117,16 @@ export async function saveCompletion(appid: number, completion: Completion): Pro
     notifyChanged()
 }
 
+/** "Todavía no" a una sugerencia (#18): no se repite por el mismo motivo (ver tracker-rules.ts). */
+export async function dismissSuggestion(appid: number): Promise<void> {
+    const { error } = await supabase
+        .from('hubgames_user_games')
+        .update({ suggestion: null, suggestion_dismissed_at: new Date().toISOString() })
+        .eq('appid', appid)
+    if (error) throw new Error(error.message)
+    notifyChanged()
+}
+
 /** Juegos en la bandeja del usuario con sesión. */
 export async function countTray(): Promise<number> {
     const { count } = await supabase

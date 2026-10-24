@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Ban, Check, CheckCheck, Clock, Flag, Inbox, ListPlus, Play, Trophy, X } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { completeGames, formatHours, setGamesStatus, type GameStatus, type LibraryGame } from '@/lib/tracker'
+import { isPerfect } from '@/lib/tracker-rules'
 import { Button } from '@/components/ui/button'
 import Loader from '@/components/Loader'
 import CompleteDialog from '@/components/tracker/CompleteDialog'
@@ -235,6 +236,11 @@ export default function BandejaPage() {
                                                     {game.achievements_total}
                                                 </span>
                                             ) : null}
+                                            {isPerfect(game) && (
+                                                <span className="badge-100" title="Todos los logros desbloqueados">
+                                                    <Trophy size={11} aria-hidden /> 100%
+                                                </span>
+                                            )}
                                             {game.steamspy_userscore !== null && (
                                                 <span title="Valoraciones positivas en Steam">
                                                     {game.steamspy_userscore}% positivas
