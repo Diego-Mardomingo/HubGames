@@ -8,7 +8,6 @@ export type SteamVisibility = 'publico' | 'privado' | 'detalles_privados' | 'des
 
 /** `origin` es el de la propia petición (producción, preview o local): no depende de NEXT_PUBLIC_SITE_URL. */
 export function buildSteamLoginUrl(nonce: string, origin: string): string {
-
     const params = new URLSearchParams({
         'openid.ns': 'http://specs.openid.net/auth/2.0',
         'openid.mode': 'checkid_setup',
