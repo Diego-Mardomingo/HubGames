@@ -33,11 +33,18 @@ function notifyChanged() {
     window.dispatchEvent(new Event(TRACKER_CHANGED_EVENT))
 }
 
+export interface SuggestedDate {
+    date: string
+    source: 'logro' | 'partida'
+}
+
 /** Fecha sugerida para "Completado": el último logro desbloqueado o la última partida, lo que sea más reciente. */
-export function suggestedCompletionDate(game: Pick<LibraryGame, 'last_unlock_at' | 'rtime_last_played'>): string | null {
-    const dates = [game.last_unlock_at, game.rtime_last_played].filter((d): d is string => Boolean(d))
-    if (dates.length === 0) return null
-    return dates.reduce((a, b) => (Date.parse(a) >= Date.parse(b) ? a : b))
+export function suggestedCompletionDate(game: Pick<LibraryGame, 'last_unlock_at' | 'rtime_last_played'>): SuggestedDate | null {
+    const unlock = game.last_unlock_at
+    const played = game.rtime_last_played
+    if (unlock && (!played || Date.parse(unlock) >= Date.parse(played))) return { date: unlock, source: 'logro' }
+    if (played) return { date: played, source: 'partida' }
+    return null
 }
 
 export function formatHours(minutes: number): string {
@@ -76,13 +83,37 @@ export async function completeGames(games: Pick<LibraryGame, 'appid' | 'last_unl
                 .update({
                     status: 'completado',
                     status_source: 'manual',
-                    completed_at: suggestedCompletionDate(g) ?? new Date().toISOString(),
+                    completed_at: suggestedCompletionDate(g)?.date ?? new Date().toISOString(),
                 })
                 .eq('appid', g.appid),
         ),
     )
     const failed = results.find((r) => r.error)
     if (failed?.error) throw new Error(failed.error.message)
+    notifyChanged()
+}
+
+export interface Completion {
+    /** 0 a 10 en pasos de 0,5; null = sin nota. */
+    rating: number | null
+    /** ISO. */
+    completedAt: string
+    review: string | null
+}
+
+/** Guarda el diálogo de completar (#19). También sirve para editar la nota, la fecha o la reseña después. */
+export async function saveCompletion(appid: number, completion: Completion): Promise<void> {
+    const { error } = await supabase
+        .from('hubgames_user_games')
+        .update({
+            status: 'completado',
+            status_source: 'manual',
+            rating: completion.rating,
+            completed_at: completion.completedAt,
+            review: completion.review,
+        })
+        .eq('appid', appid)
+    if (error) throw new Error(error.message)
     notifyChanged()
 }
 

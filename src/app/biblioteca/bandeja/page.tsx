@@ -9,6 +9,7 @@ import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { completeGames, formatHours, setGamesStatus, type GameStatus, type LibraryGame } from '@/lib/tracker'
 import { Button } from '@/components/ui/button'
 import Loader from '@/components/Loader'
+import CompleteDialog from '@/components/tracker/CompleteDialog'
 import { Reveal } from '@/components/motion'
 import '../biblioteca.css'
 
@@ -70,6 +71,7 @@ export default function BandejaPage() {
     const [visible, setVisible] = useState(PAGE)
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState('')
+    const [completing, setCompleting] = useState<LibraryGame | null>(null)
 
     useEffect(() => {
         safeGetSession().then(({ data: { session } }) => {
@@ -249,7 +251,7 @@ export default function BandejaPage() {
                                                 variant="secondary"
                                                 className={`tray-action tray-action--${a.status}`}
                                                 title={a.label}
-                                                onClick={() => classify([game], a.status)}
+                                                onClick={() => (a.status === 'completado' ? setCompleting(game) : classify([game], a.status))}
                                             >
                                                 <a.icon aria-hidden />
                                                 <span className="tray-action__label">{a.label}</span>
@@ -304,6 +306,16 @@ export default function BandejaPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <CompleteDialog
+                game={completing}
+                onOpenChange={(open) => !open && setCompleting(null)}
+                onSaved={(appid) => {
+                    setCompleting(null)
+                    setGames((list) => list && list.filter((g) => g.appid !== appid))
+                    setSelected((s) => new Set([...s].filter((id) => id !== appid)))
+                }}
+            />
         </div>
     )
 }

@@ -1,0 +1,95 @@
+/* ── Tracker: diálogo de completar (#19) ── */
+
+.complete-dialog {
+  max-width: 440px;
+  width: calc(100% - 24px);
+}
+
+.complete-form {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.complete-form__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.complete-form__title svg {
+  color: var(--success);
+}
+
+.complete-form__game {
+  margin: 0;
+  color: var(--muted-light);
+  font-size: 0.875rem;
+}
+
+.complete-form__field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.complete-form__label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.complete-form__hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.complete-form__link {
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.complete-form__review {
+  height: auto;
+  padding: 0.7rem 1rem;
+  resize: vertical;
+}
+
+.complete-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.complete-rating {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.complete-rating__value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 4.5rem;
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.complete-rating__value.is-empty {
+  color: var(--muted);
+}
+
+.complete-rating__slider {
+  flex: 1;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.complete-rating__slider.is-empty {
+  opacity: 0.45;
+}
