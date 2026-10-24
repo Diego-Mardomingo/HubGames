@@ -1,4 +1,5 @@
 import { supabase, safeGetUser } from '@/lib/supabase/client'
+import type { Json } from '@/lib/supabase/database.types'
 
 const VAPID_PUBLIC_KEY_RAW = process.env.NEXT_PUBLIC_WEB_PUSH_VAPID_PUBLIC_KEY
 
@@ -167,7 +168,7 @@ export async function subscribeToDailyNotifications(): Promise<{ success: boolea
             .upsert(
                 {
                     user_id: userId,
-                    subscription: subscription.toJSON(),
+                    subscription: subscription.toJSON() as unknown as Json,
                     enabled: true,
                 },
                 {

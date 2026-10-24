@@ -13,7 +13,8 @@
     "judi:pick-daily": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/pick-judi-daily.ts",
     "judi:clean": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/clean-judi-data.ts",
     "judi:backfill-dates": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/backfill-judi-dates.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:types": "node --env-file=.env.local scripts/gen-db-types.mjs"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.94.0",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",

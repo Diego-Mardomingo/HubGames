@@ -1,4 +1,6 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from './database.types'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -19,7 +21,7 @@ function isRefreshTokenAuthJson(body: unknown): boolean {
  * El refresco automático del SDK llama a /auth/v1/token sin pasar por safeGetSession.
  * Si el refresh token caducó o borróse en servidor, la API devuelve 400: limpiamos sesión local.
  */
-function createFetchWithAuthRecovery(getClient: () => SupabaseClient | undefined): typeof fetch {
+function createFetchWithAuthRecovery(getClient: () => SupabaseClient<Database> | undefined): typeof fetch {
     return async (input, init) => {
         const res = await fetch(input, init)
         const url =
@@ -41,13 +43,10 @@ function createFetchWithAuthRecovery(getClient: () => SupabaseClient | undefined
 }
 
 // eslint-disable-next-line prefer-const -- se asigna tras crear el cliente (referencia circular con el fetch)
-let supabaseRef: SupabaseClient | undefined
+let supabaseRef: SupabaseClient<Database> | undefined
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-        // Evita reutilizar tokens viejos de otras versiones del cliente.
-        storageKey: 'hubgames-auth-v2',
-    },
+/** Cliente de navegador: la sesión vive en cookies, así el servidor (proxy y callback) la ve. */
+export const supabase = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
     global: {
         fetch: createFetchWithAuthRecovery(() => supabaseRef),
     },

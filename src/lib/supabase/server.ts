@@ -1,15 +1,24 @@
-import { createClient } from '@supabase/supabase-js'
+import { createServerClient as createSsrClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import type { Database } from './database.types'
 
 export async function createServerClient() {
     const cookieStore = await cookies()
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-    return createClient(supabaseUrl, supabaseAnonKey, {
-        auth: {
-            persistSession: false,
+    return createSsrClient<Database>(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                getAll: () => cookieStore.getAll(),
+                setAll: (cookiesToSet) => {
+                    try {
+                        cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
+                    } catch {
+                        // Llamado desde un Server Component: el proxy ya refresca la sesión.
+                    }
+                },
+            },
         },
-    })
+    )
 }
