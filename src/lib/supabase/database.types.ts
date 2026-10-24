@@ -445,6 +445,36 @@ export type Database = {
         }
         Relationships: []
       }
+      hubgames_user_steam: {
+        Row: {
+          user_id: string
+          steamid: string
+          persona_name: string | null
+          avatar: string | null
+          visibility: string
+          linked_at: string
+          last_sync_at: string | null
+        }
+        Insert: {
+          user_id: string
+          steamid: string
+          persona_name?: string | null
+          avatar?: string | null
+          visibility?: string
+          linked_at?: string
+          last_sync_at?: string | null
+        }
+        Update: {
+          user_id?: string
+          steamid?: string
+          persona_name?: string | null
+          avatar?: string | null
+          visibility?: string
+          linked_at?: string
+          last_sync_at?: string | null
+        }
+        Relationships: []
+      }
       hubgames_usuarios: {
         Row: {
           id: string

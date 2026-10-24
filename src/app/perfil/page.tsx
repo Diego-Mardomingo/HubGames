@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
+import SteamSetting from './SteamSetting'
 import { useRouter } from 'next/navigation'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { getNotificationPreference, subscribeToDailyNotifications, disableDailyNotifications } from '@/lib/notifications'
@@ -426,6 +427,10 @@ export default function PerfilPage() {
                             </Button>
                         </form>
                     </motion.div>
+
+                    <Suspense fallback={null}>
+                        <SteamSetting />
+                    </Suspense>
                 </div>
             </section>
         </div>
