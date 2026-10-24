@@ -445,6 +445,51 @@ export type Database = {
         }
         Relationships: []
       }
+      hubgames_user_games: {
+        Row: {
+          user_id: string
+          appid: number
+          status: string
+          status_source: string
+          rating: number | null
+          started_at: string | null
+          completed_at: string | null
+          review: string | null
+          backlog_position: number | null
+          goal: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          appid: number
+          status?: string
+          status_source?: string
+          rating?: number | null
+          started_at?: string | null
+          completed_at?: string | null
+          review?: string | null
+          backlog_position?: number | null
+          goal?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          appid?: number
+          status?: string
+          status_source?: string
+          rating?: number | null
+          started_at?: string | null
+          completed_at?: string | null
+          review?: string | null
+          backlog_position?: number | null
+          goal?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hubgames_user_steam: {
         Row: {
           user_id: string
@@ -472,6 +517,36 @@ export type Database = {
           visibility?: string
           linked_at?: string
           last_sync_at?: string | null
+        }
+        Relationships: []
+      }
+      hubgames_user_steam_games: {
+        Row: {
+          user_id: string
+          appid: number
+          playtime_forever: number
+          playtime_2weeks: number
+          rtime_last_played: string | null
+          first_seen_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          appid: number
+          playtime_forever?: number
+          playtime_2weeks?: number
+          rtime_last_played?: string | null
+          first_seen_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          appid?: number
+          playtime_forever?: number
+          playtime_2weeks?: number
+          rtime_last_played?: string | null
+          first_seen_at?: string
+          updated_at?: string
         }
         Relationships: []
       }

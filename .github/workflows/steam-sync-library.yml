@@ -1,0 +1,57 @@
+name: Steam Library Sync
+
+# Primera sincronización completa de la biblioteca (#12). Se lanza a mano: tarda por el límite de velocidad
+# del Store y no cabe en una función de Vercel Hobby. La automática diaria llega con #14.
+on:
+  workflow_dispatch:
+    inputs:
+      user_id:
+        description: 'UUID de un usuario concreto (vacío = todos los vinculados)'
+        required: false
+        default: ''
+
+jobs:
+  sync-library:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Comprobar secretos
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STEAM_WEB_API_KEY: ${{ secrets.STEAM_WEB_API_KEY }}
+        run: |
+          missing=""
+          [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] && missing="${missing}NEXT_PUBLIC_SUPABASE_URL "
+          [ -z "$SUPABASE_SERVICE_ROLE_KEY" ] && missing="${missing}SUPABASE_SERVICE_ROLE_KEY "
+          [ -z "$STEAM_WEB_API_KEY" ] && missing="${missing}STEAM_WEB_API_KEY "
+          if [ -n "$missing" ]; then
+            echo "::error::Faltan secretos de Actions (valores vacíos): $missing"
+            echo "Añádelos en el repo: Settings → Secrets and variables → Actions → Repository secrets."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sincronizar biblioteca de Steam
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STEAM_WEB_API_KEY: ${{ secrets.STEAM_WEB_API_KEY }}
+          USER_ID: ${{ inputs.user_id }}
+        run: |
+          if [ -n "$USER_ID" ]; then
+            npx tsx scripts/sync-steam-library.ts --user "$USER_ID"
+          else
+            npx tsx scripts/sync-steam-library.ts
+          fi
