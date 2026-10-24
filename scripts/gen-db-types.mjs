@@ -22,6 +22,7 @@ const FUNCTIONS = {
           username: string | null
         }[]`,
     hubgames_judi_search_pool: '{ game_name: string; steam_appid: number }[]',
+    hubgames_judi_pick_daily: 'Json',
     is_admin: 'boolean',
 }
 
