@@ -60,17 +60,12 @@ export default function RankingPage() {
             if (!session) { router.push('/login'); return }
             setCurrentUserId(session.user.id)
 
-            const selectCols =
-                'id_usuario, completado, fase1, fase2, fase3, fase4, fase5, fase6, hubgames_usuarios(username)'
             const pageSize = 1000
             const allRows: JudiProgressRecord[] = []
             let from = 0
             for (;;) {
                 const { data, error } = await supabase
-                    .from('hubgames_judi_fases_usuario')
-                    .select(selectCols)
-                    .order('id_lista_judi', { ascending: true })
-                    .order('id_usuario', { ascending: true })
+                    .rpc('hubgames_judi_ranking_rows')
                     .range(from, from + pageSize - 1)
                 if (error) break
                 if (!data?.length) break

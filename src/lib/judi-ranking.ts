@@ -7,15 +7,16 @@ export type JudiProgressRecord = {
     fase4?: boolean | null
     fase5?: boolean | null
     fase6?: boolean | null
+    username?: string | null
     hubgames_usuarios?: { username?: string | null } | Array<{ username?: string | null }>
 }
 
 const phaseFields: Array<keyof JudiProgressRecord> = ['fase1', 'fase2', 'fase3', 'fase4', 'fase5', 'fase6']
 
 function getUsername(record: JudiProgressRecord, fallbackUserId: string) {
-    const raw = Array.isArray(record.hubgames_usuarios)
+    const raw = record.username ?? (Array.isArray(record.hubgames_usuarios)
         ? record.hubgames_usuarios[0]?.username
-        : record.hubgames_usuarios?.username
+        : record.hubgames_usuarios?.username)
     return raw?.trim() || `Jugador #${fallbackUserId.slice(0, 4)}`
 }
 

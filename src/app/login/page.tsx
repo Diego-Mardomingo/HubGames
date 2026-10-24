@@ -38,13 +38,6 @@ export default function LoginPage() {
         }
 
         try {
-            const { data: userData } = await supabase.from('hubgames_usuarios').select('*').eq('email', email).single()
-            if (!userData) {
-                setError('Email o contraseña incorrectos')
-                setLoading(false)
-                return
-            }
-
             const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
             if (signInError) {
                 setError(signInError.message.includes('Invalid login credentials')
@@ -55,12 +48,14 @@ export default function LoginPage() {
             }
 
             if (data.user) {
-                await supabase.auth.updateUser({
-                    data: {
-                        username: userData.username,
-                        administrador: userData.administrador,
-                    },
-                })
+                const { data: profile } = await supabase
+                    .from('hubgames_usuarios')
+                    .select('username')
+                    .eq('id', data.user.id)
+                    .maybeSingle()
+                if (profile?.username && profile.username !== data.user.user_metadata?.username) {
+                    await supabase.auth.updateUser({ data: { username: profile.username } })
+                }
             }
             router.push('/')
         } catch (err) {

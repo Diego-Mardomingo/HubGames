@@ -62,23 +62,16 @@ export default function RegistroPage() {
         }
 
         try {
-            const { data: existingUserEmail } = await supabase
-                .from('hubgames_usuarios')
-                .select('email')
-                .eq('email', email)
-                .maybeSingle()
-            if (existingUserEmail) {
+            const { data: availability } = await supabase.rpc('hubgames_check_available', {
+                p_email: email,
+                p_username: username,
+            })
+            if (availability?.email_taken) {
                 setError('Este email ya está registrado')
                 setLoading(false)
                 return
             }
-
-            const { data: existingUserUsername } = await supabase
-                .from('hubgames_usuarios')
-                .select('username')
-                .eq('username', username)
-                .maybeSingle()
-            if (existingUserUsername) {
+            if (availability?.username_taken) {
                 setError('Este username ya está en uso')
                 setLoading(false)
                 return
@@ -89,7 +82,7 @@ export default function RegistroPage() {
                 password,
                 options: {
                     emailRedirectTo: undefined,
-                    data: { username, administrador: false },
+                    data: { username },
                 },
             })
             if (signUpError || !authData.user) {
@@ -98,21 +91,6 @@ export default function RegistroPage() {
                 return
             }
 
-            const { error: insertError } = await supabase.from('hubgames_usuarios').insert({
-                id: authData.user.id,
-                username,
-                email,
-                password_hash: 'auth_managed',
-                email_verificado: true,
-                fecha_creacion: new Date().toISOString(),
-                cuenta_google: false,
-                administrador: false,
-            })
-            if (insertError) {
-                setError(`Error al crear el perfil: ${insertError.message}`)
-                setLoading(false)
-                return
-            }
             router.push('/')
         } catch (err: any) {
             console.error(err)

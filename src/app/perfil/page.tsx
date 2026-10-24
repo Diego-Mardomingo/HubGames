@@ -88,9 +88,7 @@ export default function PerfilPage() {
     }
 
     const fetchLeaderboard = async (currentUserId: string) => {
-        const { data: records, error: leaderboardError } = await supabase
-            .from('hubgames_judi_fases_usuario')
-            .select('id_usuario, completado, fase1, fase2, fase3, fase4, fase5, fase6, hubgames_usuarios(username)')
+        const { data: records, error: leaderboardError } = await supabase.rpc('hubgames_judi_ranking_rows')
         if (leaderboardError || !records) return
         const sorted = buildRanking(records as JudiProgressRecord[])
         setTotalRankedUsers(sorted.length)
