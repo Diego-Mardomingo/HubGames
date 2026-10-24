@@ -6,17 +6,14 @@ export const STEAM_NONCE_COOKIE = 'hubgames_steam_nonce'
 
 export type SteamVisibility = 'publico' | 'privado' | 'detalles_privados' | 'desconocida'
 
-export function siteUrl(): string {
-    return (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '')
-}
+/** `origin` es el de la propia petición (producción, preview o local): no depende de NEXT_PUBLIC_SITE_URL. */
+export function buildSteamLoginUrl(nonce: string, origin: string): string {
 
-export function buildSteamLoginUrl(nonce: string): string {
-    const base = siteUrl()
     const params = new URLSearchParams({
         'openid.ns': 'http://specs.openid.net/auth/2.0',
         'openid.mode': 'checkid_setup',
-        'openid.return_to': `${base}/api/steam/callback?nonce=${nonce}`,
-        'openid.realm': base,
+        'openid.return_to': `${origin}/api/steam/callback?nonce=${nonce}`,
+        'openid.realm': origin,
         'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
         'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
     })
@@ -24,10 +21,10 @@ export function buildSteamLoginUrl(nonce: string): string {
 }
 
 /** Valida la respuesta de Steam en el servidor y devuelve el SteamID64, o null si no es auténtica. */
-export async function verifySteamOpenId(query: URLSearchParams, expectedNonce: string): Promise<string | null> {
+export async function verifySteamOpenId(query: URLSearchParams, expectedNonce: string, origin: string): Promise<string | null> {
     if (query.get('openid.mode') !== 'id_res') return null
     if (query.get('openid.op_endpoint') !== STEAM_OPENID_URL) return null
-    if (query.get('openid.return_to') !== `${siteUrl()}/api/steam/callback?nonce=${expectedNonce}`) return null
+    if (query.get('openid.return_to') !== `${origin}/api/steam/callback?nonce=${expectedNonce}`) return null
 
     const steamid = CLAIMED_ID_RE.exec(query.get('openid.claimed_id') ?? '')?.[1]
     if (!steamid) return null
