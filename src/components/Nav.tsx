@@ -97,7 +97,7 @@ export default function Nav() {
 
     const navLinks = [
         { href: '/', label: 'Inicio', icon: Home },
-        ...(user ? [{ href: '/biblioteca/bandeja', label: 'Biblioteca', icon: Library, badge: trayCount }] : []),
+        ...(user ? [{ href: '/biblioteca', label: 'Biblioteca', icon: Library, badge: trayCount }] : []),
         { href: '/judi', label: 'JUDI', icon: Gamepad2 },
         { href: '/ranking', label: 'Ranking', icon: Trophy },
         ...(isAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield }] : []),

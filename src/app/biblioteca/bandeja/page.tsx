@@ -132,9 +132,9 @@ export default function BandejaPage() {
             <header className="page-head">
                 <div>
                     <Reveal>
-                        <span className="eyebrow">
+                        <Link href="/biblioteca" className="eyebrow">
                             <Inbox size={13} aria-hidden /> Biblioteca
-                        </span>
+                        </Link>
                     </Reveal>
                     <Reveal delay={0.05}>
                         <h1 className="page-title">Bandeja</h1>
@@ -225,7 +225,9 @@ export default function BandejaPage() {
                                         {game.header_image && <img src={game.header_image} alt="" loading="lazy" />}
                                     </div>
                                     <div className="tray-row__info">
-                                        <p className="tray-row__name">{game.name ?? `App ${game.appid}`}</p>
+                                        <p className="tray-row__name">
+                                            <Link href={`/juego/${game.appid}`}>{game.name ?? `App ${game.appid}`}</Link>
+                                        </p>
                                         <p className="tray-row__meta">
                                             <span>
                                                 <Clock size={12} aria-hidden /> {formatHours(game.playtime_forever)}

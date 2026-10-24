@@ -201,3 +201,30 @@
 span.suggestion__cover {
   background: rgba(255, 255, 255, 0.05);
 }
+
+/* ── Portada de Steam con respaldo (#21) ── */
+
+.game-cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.game-cover img {
+  object-fit: cover;
+}
+
+.game-cover--empty {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}

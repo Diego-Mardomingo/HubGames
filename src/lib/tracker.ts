@@ -135,3 +135,31 @@ export async function countTray(): Promise<number> {
         .eq('status', 'bandeja')
     return count ?? 0
 }
+
+/** Guarda el orden de los pendientes (#21) tras arrastrar: `appids` es la lista completa en el nuevo orden. */
+export async function reorderBacklog(appids: number[]): Promise<void> {
+    const { error } = await supabase.rpc('hubgames_reorder_backlog', { p_appids: appids })
+    if (error) throw new Error(error.message)
+}
+
+export const DEFAULT_PLAYING_LIMIT = 3
+
+/** Límite de juegos en "Jugando" (#21): solo sirve para avisar, nunca bloquea. */
+export async function getPlayingLimit(userId: string): Promise<number> {
+    const { data } = await supabase.from('hubgames_usuarios').select('playing_limit').eq('id', userId).maybeSingle()
+    return data?.playing_limit ?? DEFAULT_PLAYING_LIMIT
+}
+
+export async function setPlayingLimit(userId: string, limit: number): Promise<void> {
+    const { error } = await supabase.from('hubgames_usuarios').update({ playing_limit: limit }).eq('id', userId)
+    if (error) throw new Error(error.message)
+}
+
+/** Juegos en "Jugando" y el límite del usuario, para avisar al pasar uno más a "Jugando". */
+export async function playingLoad(userId: string): Promise<{ count: number; limit: number }> {
+    const [{ count }, limit] = await Promise.all([
+        supabase.from('hubgames_user_games').select('appid', { count: 'exact', head: true }).eq('status', 'jugando'),
+        getPlayingLimit(userId),
+    ])
+    return { count: count ?? 0, limit }
+}
