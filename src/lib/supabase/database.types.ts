@@ -418,6 +418,48 @@ export type Database = {
         }
         Relationships: []
       }
+      hubgames_playtime_daily: {
+        Row: {
+          user_id: string | null
+          appid: number | null
+          date: string | null
+          minutes: number | null
+        }
+        Insert: {
+          user_id?: string | null
+          appid?: number | null
+          date?: string | null
+          minutes?: number | null
+        }
+        Update: {
+          user_id?: string | null
+          appid?: number | null
+          date?: string | null
+          minutes?: number | null
+        }
+        Relationships: []
+      }
+      hubgames_playtime_snapshots: {
+        Row: {
+          user_id: string
+          appid: number
+          date: string
+          playtime_forever: number
+        }
+        Insert: {
+          user_id: string
+          appid: number
+          date: string
+          playtime_forever: number
+        }
+        Update: {
+          user_id?: string
+          appid?: number
+          date?: string
+          playtime_forever?: number
+        }
+        Relationships: []
+      }
       hubgames_push_subscriptions: {
         Row: {
           id: string
@@ -499,6 +541,39 @@ export type Database = {
           hidden?: boolean
           global_percent?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      hubgames_sync_logs: {
+        Row: {
+          id: number
+          user_id: string
+          source: string
+          status: string
+          started_at: string
+          finished_at: string | null
+          stats: Json | null
+          error: string | null
+        }
+        Insert: {
+          id?: number
+          user_id: string
+          source: string
+          status?: string
+          started_at?: string
+          finished_at?: string | null
+          stats?: Json | null
+          error?: string | null
+        }
+        Update: {
+          id?: number
+          user_id?: string
+          source?: string
+          status?: string
+          started_at?: string
+          finished_at?: string | null
+          stats?: Json | null
+          error?: string | null
         }
         Relationships: []
       }
@@ -733,6 +808,10 @@ export type Database = {
       hubgames_judi_pick_daily: {
         Args: { p_fecha: string }
         Returns: Json
+      }
+      hubgames_take_playtime_snapshot: {
+        Args: { p_user_id: string }
+        Returns: number
       }
       is_admin: {
         Args: never

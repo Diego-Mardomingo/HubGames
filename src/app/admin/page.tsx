@@ -14,6 +14,7 @@ import {
     Shield, Database, CalendarDays, FileText, RefreshCw,
 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import type { Json } from '@/lib/supabase/database.types'
 
 
 /** PostgREST limita filas por petición; pedimos en páginas hasta traer todo el pool. */
@@ -347,6 +348,150 @@ function LogsTab() {
                     if (!o) setDetailLog(null)
                 }}
             />
+        </div>
+    )
+}
+
+// ─── Steam Sync Tab ───────────────────────────────────────────────────────────
+
+type SyncLogRow = {
+    id: number
+    user_id: string
+    source: string
+    status: string
+    started_at: string
+    finished_at: string | null
+    stats: Json | null
+    error: string | null
+}
+
+const SYNC_STATUS: Record<string, { label: string; variant: 'default' | 'muted' }> = {
+    ok: { label: 'OK', variant: 'default' },
+    parcial: { label: 'Parcial', variant: 'muted' },
+    error: { label: 'Error', variant: 'muted' },
+    en_curso: { label: 'En curso', variant: 'muted' },
+}
+
+function syncSummary(stats: Json | null): string {
+    if (!stats || typeof stats !== 'object' || Array.isArray(stats)) return '—'
+    const s = stats as {
+        library?: { ownedGames?: number; newToTray?: number; catalogFetched?: number }
+        snapshotRows?: number
+        achievements?: { gamesSynced?: number; apiCalls?: number }
+    }
+    return [
+        `${s.library?.ownedGames ?? 0} juegos`,
+        `${s.library?.newToTray ?? 0} nuevos`,
+        `${s.library?.catalogFetched ?? 0} fichas`,
+        `${s.snapshotRows ?? 0} fotos de horas`,
+        `${s.achievements?.gamesSynced ?? 0} con logros revisados`,
+        `${s.achievements?.apiCalls ?? 0} llamadas`,
+    ].join(' · ')
+}
+
+function durationLabel(start: string, end: string | null): string {
+    if (!end) return '—'
+    const seconds = Math.round((Date.parse(end) - Date.parse(start)) / 1000)
+    return seconds < 60 ? `${seconds} s` : `${Math.floor(seconds / 60)} min ${seconds % 60} s`
+}
+
+function SyncLogsTab() {
+    const [logs, setLogs] = useState<SyncLogRow[]>([])
+    const [loading, setLoading] = useState(true)
+    const [fetchError, setFetchError] = useState<string | null>(null)
+
+    const fetchLogs = useCallback(async () => {
+        setLoading(true)
+        setFetchError(null)
+        const { data, error } = await supabase
+            .from('hubgames_sync_logs')
+            .select('*')
+            .order('started_at', { ascending: false })
+            .limit(100)
+        if (error) {
+            setFetchError(error.message || 'No se pudieron cargar los logs')
+            setLogs([])
+        } else {
+            setLogs(data ?? [])
+        }
+        setLoading(false)
+    }, [])
+
+    useEffect(() => { void fetchLogs() }, [fetchLogs])
+
+    return (
+        <div className="admin-panel">
+            <PanelHead
+                icon={<RefreshCw size={14} />}
+                title="Sincronizaciones con Steam"
+                count={logs.length}
+                onRefresh={fetchLogs}
+                loading={loading}
+            />
+
+            {fetchError && (
+                <div className="admin-empty" style={{ color: 'var(--danger)', marginBottom: 12 }}>
+                    Error al cargar logs: {fetchError}
+                </div>
+            )}
+
+            {loading ? (
+                <div className="admin-center"><Spinner /></div>
+            ) : !fetchError && logs.length === 0 ? (
+                <div className="admin-empty">Todavía no hay sincronizaciones</div>
+            ) : fetchError ? null : (
+                <div className="admin-table-wrap admin-table-wrap--logs">
+                    <table className="admin-table admin-table--logs">
+                        <thead>
+                            <tr>
+                                <th>Estado</th>
+                                <th>Origen</th>
+                                <th>Usuario</th>
+                                <th>Inicio (Madrid)</th>
+                                <th>Duración</th>
+                                <th>Resumen / Error</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {logs.map((log) => {
+                                const status = SYNC_STATUS[log.status] ?? { label: log.status, variant: 'muted' as const }
+                                return (
+                                    <tr key={log.id} className={log.status === 'error' ? 'admin-row-error' : ''}>
+                                        <td data-label="Estado">
+                                            {log.status === 'ok'
+                                                ? <CheckCircle2 size={15} style={{ color: 'var(--success)' }} />
+                                                : log.status === 'error'
+                                                    ? <XCircle size={15} style={{ color: 'var(--danger)' }} />
+                                                    : <Badge variant={status.variant}>{status.label}</Badge>}
+                                        </td>
+                                        <td data-label="Origen">
+                                            <Badge variant={log.source === 'cron' ? 'muted' : 'default'}>
+                                                {log.source === 'cron' ? 'Diaria' : 'Manual'}
+                                            </Badge>
+                                        </td>
+                                        <td className="admin-cell-mono admin-cell-muted" data-label="Usuario" title={log.user_id}>
+                                            {log.user_id.slice(0, 8)}
+                                        </td>
+                                        <td className="admin-cell-mono admin-cell-muted" data-label="Inicio (Madrid)">
+                                            {formatLogMadrid(log.started_at)}
+                                        </td>
+                                        <td className="admin-cell-mono admin-cell-muted" data-label="Duración">
+                                            {durationLabel(log.started_at, log.finished_at)}
+                                        </td>
+                                        {log.error ? (
+                                            <td className="admin-cell-error" data-label="Error" title={log.error}>{log.error}</td>
+                                        ) : (
+                                            <td className="admin-cell-name" data-label="Resumen" title={syncSummary(log.stats)}>
+                                                {syncSummary(log.stats)}
+                                            </td>
+                                        )}
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     )
 }
@@ -736,6 +881,10 @@ export default function AdminPage() {
                         <FileText size={13} />
                         Logs
                     </TabsTrigger>
+                    <TabsTrigger value="steam" className="admin-tab-trigger">
+                        <RefreshCw size={13} />
+                        Steam
+                    </TabsTrigger>
                     <TabsTrigger value="pool" className="admin-tab-trigger">
                         <Database size={13} />
                         Pool
@@ -749,6 +898,9 @@ export default function AdminPage() {
 
                 <TabsContent value="logs">
                     <LogsTab />
+                </TabsContent>
+                <TabsContent value="steam">
+                    <SyncLogsTab />
                 </TabsContent>
                 <TabsContent value="pool">
                     <PoolTab />
