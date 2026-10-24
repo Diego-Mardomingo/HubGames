@@ -23,6 +23,7 @@ const FUNCTIONS = {
         }[]`,
     hubgames_judi_search_pool: '{ game_name: string; steam_appid: number }[]',
     hubgames_judi_pick_daily: 'Json',
+    hubgames_take_playtime_snapshot: 'number',
     is_admin: 'boolean',
 }
 

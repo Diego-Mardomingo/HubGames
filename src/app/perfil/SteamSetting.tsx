@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Gamepad2 } from 'lucide-react'
+import { Gamepad2, RefreshCw } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import type { Database } from '@/lib/supabase/database.types'
@@ -18,12 +18,26 @@ const STATUS_MESSAGES: Record<string, { ok: boolean; text: string }> = {
     error: { ok: false, text: 'No se pudo vincular Steam. Inténtalo de nuevo.' },
 }
 
+const RELATIVE = new Intl.RelativeTimeFormat('es-ES', { numeric: 'auto' })
+
+/** "hace 5 minutos", "ayer"… */
+function timeAgo(iso: string): string {
+    const seconds = Math.round((Date.parse(iso) - Date.now()) / 1000)
+    const units: [Intl.RelativeTimeFormatUnit, number][] = [['day', 86400], ['hour', 3600], ['minute', 60]]
+    for (const [unit, size] of units) {
+        if (Math.abs(seconds) >= size) return RELATIVE.format(Math.round(seconds / size), unit)
+    }
+    return 'hace un momento'
+}
+
 export default function SteamSetting() {
     const router = useRouter()
     const params = useSearchParams()
     const [link, setLink] = useState<SteamLink | null>(null)
     const [loaded, setLoaded] = useState(false)
     const [busy, setBusy] = useState(false)
+    const [syncing, setSyncing] = useState(false)
+    const [syncMessage, setSyncMessage] = useState<{ ok: boolean; text: string } | null>(null)
     const message = STATUS_MESSAGES[params.get('steam') ?? '']
 
     useEffect(() => {
@@ -45,6 +59,28 @@ export default function SteamSetting() {
         if (res.ok) {
             setLink(null)
             router.replace('/perfil')
+        }
+    }
+
+    async function syncNow() {
+        setSyncing(true)
+        setSyncMessage(null)
+        const res = await fetch('/api/steam/sync', { method: 'POST' })
+        const body = await res.json().catch(() => ({}))
+        setSyncing(false)
+        if (res.ok) {
+            setSyncMessage(
+                body.status === 'parcial'
+                    ? { ok: true, text: 'Sincronizado. Queda algo pendiente: se completará en la próxima sincronización.' }
+                    : { ok: true, text: 'Sincronizado.' },
+            )
+            const { data } = await supabase.from('hubgames_user_steam').select('*').maybeSingle()
+            setLink(data)
+        } else if (res.status === 429) {
+            const minutes = Math.max(1, Math.ceil((body.retryAfter ?? 60) / 60))
+            setSyncMessage({ ok: false, text: `Ya se sincronizó hace poco. Vuelve a intentarlo en ${minutes} min.` })
+        } else {
+            setSyncMessage({ ok: false, text: body.error ?? 'No se pudo sincronizar. Inténtalo de nuevo.' })
         }
     }
 
@@ -70,7 +106,13 @@ export default function SteamSetting() {
             {link && (
                 <p className="setting__desc">
                     Última sincronización:{' '}
-                    {link.last_sync_at ? new Date(link.last_sync_at).toLocaleString('es-ES') : 'todavía no'}
+                    {link.last_sync_at ? (
+                        <time dateTime={link.last_sync_at} title={new Date(link.last_sync_at).toLocaleString('es-ES')}>
+                            {timeAgo(link.last_sync_at)}
+                        </time>
+                    ) : (
+                        'todavía no'
+                    )}
                 </p>
             )}
             {needsFix && (
@@ -85,9 +127,20 @@ export default function SteamSetting() {
                     {message.text}
                 </p>
             )}
+            {syncMessage && (
+                <p className="setting__desc" role="status" style={{ color: syncMessage.ok ? undefined : 'var(--destructive, #f87171)' }}>
+                    {syncMessage.text}
+                </p>
+            )}
             {loaded &&
                 (link ? (
                     <div className="setting__form">
+                        {!needsFix && (
+                            <Button type="button" disabled={syncing} onClick={syncNow}>
+                                <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} />
+                                {syncing ? 'Sincronizando…' : 'Sincronizar ahora'}
+                            </Button>
+                        )}
                         {needsFix && (
                             <Button asChild variant="secondary">
                                 <a href="/api/steam/link">Volver a comprobar</a>

@@ -1,5 +1,5 @@
-// Sincronización con Steam: biblioteca (#12) y logros (#13). Módulo compartido: lo usan el script de GitHub Actions
-// (scripts/sync-steam-library.ts) y, más adelante, un route handler. Recibe el cliente con service_role.
+// Sincronización con Steam: biblioteca (#12), logros (#13), foto diaria de horas (#15) y registro (#14). Módulo compartido: lo usan el script de GitHub Actions
+// (scripts/steam-sync.ts) y el route handler de "Sincronizar ahora" (src/app/api/steam/sync). Recibe el cliente con service_role.
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database, Json } from './supabase/database.types'
 import { getSteamSpyDetails, getSteamStoreDetails, parseSteamDate, sleep } from '../../scripts/steam-utils'
@@ -429,4 +429,58 @@ export async function syncSteamAchievements(
     }
 
     return { gamesDue: due.length, gamesSynced: synced, gamesFailed: failed, percentsRefreshed, apiCalls }
+}
+
+// ─── Sincronización completa y registro (#14, #15) ──────────────────────────
+
+export type SyncSource = 'cron' | 'manual'
+
+export interface FullSyncResult {
+    status: 'ok' | 'parcial'
+    library: SteamSyncResult
+    snapshotRows: number
+    achievements: AchievementSyncResult
+}
+
+/** Biblioteca, foto diaria de horas y logros, registrado en hubgames_sync_logs. Lanza el error tras registrarlo. */
+export async function runSteamSync(
+    supabase: Client,
+    userId: string,
+    source: SyncSource,
+    options: SteamSyncOptions = {},
+): Promise<FullSyncResult> {
+    const { data: logRow, error: logError } = await supabase
+        .from('hubgames_sync_logs')
+        .insert({ user_id: userId, source })
+        .select('id')
+        .single()
+    if (logError) throw new SteamSyncError(`No se pudo crear el log: ${logError.message}`)
+
+    try {
+        const library = await syncSteamLibrary(supabase, userId, options)
+        const { data: snapshotRows, error: snapshotError } = await supabase.rpc('hubgames_take_playtime_snapshot', { p_user_id: userId })
+        if (snapshotError) throw new SteamSyncError(`No se pudo guardar la foto de horas: ${snapshotError.message}`)
+        const achievements = await syncSteamAchievements(supabase, userId, options)
+
+        const complete =
+            library.catalogPending === 0 &&
+            achievements.gamesFailed === 0 &&
+            achievements.gamesSynced === achievements.gamesDue
+        const result: FullSyncResult = { status: complete ? 'ok' : 'parcial', library, snapshotRows: snapshotRows ?? 0, achievements }
+        await supabase
+            .from('hubgames_sync_logs')
+            .update({
+                status: result.status,
+                finished_at: new Date().toISOString(),
+                stats: { library, snapshotRows: result.snapshotRows, achievements } as unknown as Json,
+            })
+            .eq('id', logRow.id)
+        return result
+    } catch (e) {
+        await supabase
+            .from('hubgames_sync_logs')
+            .update({ status: 'error', finished_at: new Date().toISOString(), error: e instanceof Error ? e.message : String(e) })
+            .eq('id', logRow.id)
+        throw e
+    }
 }

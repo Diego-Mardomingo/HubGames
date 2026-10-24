@@ -1,8 +1,11 @@
-name: Steam Library Sync
+name: Steam Sync
 
-# Primera sincronización completa de la biblioteca (#12). Se lanza a mano: tarda por el límite de velocidad
-# del Store y no cabe en una función de Vercel Hobby. La automática diaria llega con #14.
+# Sincronización diaria con Steam (#14): biblioteca, foto de horas (#15) y logros (#13) de todos los usuarios vinculados.
+# También sirve para la primera sincronización completa, que no cabe en una función de Vercel Hobby.
 on:
+  schedule:
+    # 03:00 en Madrid en verano (UTC+2) y 02:00 en invierno (UTC+1). La foto de horas se apunta al día anterior.
+    - cron: '0 1 * * *'
   workflow_dispatch:
     inputs:
       user_id:
@@ -11,7 +14,7 @@ on:
         default: ''
 
 jobs:
-  sync-library:
+  steam-sync:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -43,7 +46,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Sincronizar biblioteca de Steam
+      - name: Sincronizar con Steam
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -51,7 +54,7 @@ jobs:
           USER_ID: ${{ inputs.user_id }}
         run: |
           if [ -n "$USER_ID" ]; then
-            npx tsx scripts/sync-steam-library.ts --user "$USER_ID"
+            npx tsx scripts/steam-sync.ts --user "$USER_ID"
           else
-            npx tsx scripts/sync-steam-library.ts
+            npx tsx scripts/steam-sync.ts
           fi
