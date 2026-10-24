@@ -378,6 +378,7 @@ function syncSummary(stats: Json | null): string {
         library?: { ownedGames?: number; newToTray?: number; catalogFetched?: number }
         snapshotRows?: number
         achievements?: { gamesSynced?: number; apiCalls?: number }
+        tracker?: { toPlaying?: number }
     }
     return [
         `${s.library?.ownedGames ?? 0} juegos`,
@@ -386,6 +387,7 @@ function syncSummary(stats: Json | null): string {
         `${s.snapshotRows ?? 0} fotos de horas`,
         `${s.achievements?.gamesSynced ?? 0} con logros revisados`,
         `${s.achievements?.apiCalls ?? 0} llamadas`,
+        `${s.tracker?.toPlaying ?? 0} a Jugando`,
     ].join(' · ')
 }
 

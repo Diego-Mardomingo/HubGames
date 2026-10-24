@@ -3,6 +3,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database, Json } from './supabase/database.types'
 import { getSteamSpyDetails, getSteamStoreDetails, parseSteamDate, sleep } from '../../scripts/steam-utils'
+import { evaluateGame } from './tracker-rules'
+import type { GameStatus } from './tracker'
 
 type Client = SupabaseClient<Database>
 
@@ -431,6 +433,54 @@ export async function syncSteamAchievements(
     return { gamesDue: due.length, gamesSynced: synced, gamesFailed: failed, percentsRefreshed, apiCalls }
 }
 
+// ─── Estados automáticos (#18) ───────────────────────────────────────────────
+
+export interface TrackerRulesResult {
+    toPlaying: number
+    suggestions: number
+}
+
+/** Aplica las reglas de tracker-rules.ts con los datos recién sincronizados. Solo escribe lo que cambia. */
+export async function applyTrackerRules(supabase: Client, userId: string, now: number = Date.now()): Promise<TrackerRulesResult> {
+    const games = await selectAll<Database['public']['Tables']['hubgames_library']['Row']>((from, to) =>
+        supabase.from('hubgames_library').select('*').eq('user_id', userId).order('appid').range(from, to),
+    )
+
+    let toPlaying = 0
+    let suggestions = 0
+    for (const game of games) {
+        if (game.appid === null || !game.status || !game.status_source || !game.status_changed_at) continue
+        const out = evaluateGame(
+            {
+                status: game.status as GameStatus,
+                status_source: game.status_source,
+                status_changed_at: game.status_changed_at,
+                rtime_last_played: game.rtime_last_played,
+                playtime_forever: game.playtime_forever ?? 0,
+                playtime_2weeks: game.playtime_2weeks ?? 0,
+                achievements_total: game.achievements_total,
+                achievements_unlocked: game.achievements_unlocked,
+                last_unlock_at: game.last_unlock_at,
+                suggestion_dismissed_at: game.suggestion_dismissed_at,
+            },
+            now,
+        )
+        if (out.suggestion) suggestions++
+        if (!out.statusChanged && out.suggestion === game.suggestion) continue
+
+        const update: Database['public']['Tables']['hubgames_user_games']['Update'] = { suggestion: out.suggestion }
+        if (out.statusChanged) {
+            update.status = out.status
+            update.status_source = 'auto'
+            if (!game.started_at) update.started_at = new Date(now).toISOString()
+            toPlaying++
+        }
+        const { error } = await supabase.from('hubgames_user_games').update(update).eq('user_id', userId).eq('appid', game.appid)
+        if (error) throw new SteamSyncError(`No se pudo actualizar el estado de ${game.appid}: ${error.message}`)
+    }
+    return { toPlaying, suggestions }
+}
+
 // ─── Sincronización completa y registro (#14, #15) ──────────────────────────
 
 export type SyncSource = 'cron' | 'manual'
@@ -440,9 +490,10 @@ export interface FullSyncResult {
     library: SteamSyncResult
     snapshotRows: number
     achievements: AchievementSyncResult
+    tracker: TrackerRulesResult
 }
 
-/** Biblioteca, foto diaria de horas y logros, registrado en hubgames_sync_logs. Lanza el error tras registrarlo. */
+/** Biblioteca, foto diaria de horas, logros y estados automáticos, registrado en hubgames_sync_logs. Lanza el error tras registrarlo. */
 export async function runSteamSync(
     supabase: Client,
     userId: string,
@@ -461,18 +512,19 @@ export async function runSteamSync(
         const { data: snapshotRows, error: snapshotError } = await supabase.rpc('hubgames_take_playtime_snapshot', { p_user_id: userId })
         if (snapshotError) throw new SteamSyncError(`No se pudo guardar la foto de horas: ${snapshotError.message}`)
         const achievements = await syncSteamAchievements(supabase, userId, options)
+        const tracker = await applyTrackerRules(supabase, userId)
 
         const complete =
             library.catalogPending === 0 &&
             achievements.gamesFailed === 0 &&
             achievements.gamesSynced === achievements.gamesDue
-        const result: FullSyncResult = { status: complete ? 'ok' : 'parcial', library, snapshotRows: snapshotRows ?? 0, achievements }
+        const result: FullSyncResult = { status: complete ? 'ok' : 'parcial', library, snapshotRows: snapshotRows ?? 0, achievements, tracker }
         await supabase
             .from('hubgames_sync_logs')
             .update({
                 status: result.status,
                 finished_at: new Date().toISOString(),
-                stats: { library, snapshotRows: result.snapshotRows, achievements } as unknown as Json,
+                stats: { library, snapshotRows: result.snapshotRows, achievements, tracker } as unknown as Json,
             })
             .eq('id', logRow.id)
         return result

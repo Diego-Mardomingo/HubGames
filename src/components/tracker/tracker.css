@@ -1,0 +1,203 @@
+/* ── Tracker: diálogo de completar (#19) ── */
+
+.complete-dialog {
+  max-width: 440px;
+  width: calc(100% - 24px);
+}
+
+.complete-form {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.complete-form__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.complete-form__title svg {
+  color: var(--success);
+}
+
+.complete-form__game {
+  margin: 0;
+  color: var(--muted-light);
+  font-size: 0.875rem;
+}
+
+.complete-form__field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.complete-form__label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.complete-form__hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.complete-form__link {
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.complete-form__review {
+  height: auto;
+  padding: 0.7rem 1rem;
+  resize: vertical;
+}
+
+.complete-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.complete-rating {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.complete-rating__value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 4.5rem;
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.complete-rating__value.is-empty {
+  color: var(--muted);
+}
+
+.complete-rating__slider {
+  flex: 1;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.complete-rating__slider.is-empty {
+  opacity: 0.45;
+}
+
+/* ── Sugerencias (#18) e insignia 100% ── */
+
+.suggestions {
+  width: 100%;
+  max-width: 640px;
+  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+}
+
+.suggestions__title {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.suggestions__list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.suggestion {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.suggestion__cover {
+  width: 96px;
+  aspect-ratio: 460 / 215;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.suggestion__text {
+  min-width: 0;
+}
+
+.suggestion__text p {
+  margin: 0;
+}
+
+.suggestion__question {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.suggestion__game {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggestion__meta {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.suggestion__actions {
+  display: flex;
+  gap: 4px;
+}
+
+.badge-100 {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(252, 211, 77, 0.14);
+  border: 1px solid rgba(252, 211, 77, 0.35);
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .suggestion {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .suggestion__cover {
+    width: 72px;
+  }
+
+  .suggestion__actions {
+    grid-column: 1 / -1;
+  }
+
+  .suggestion__actions > * {
+    flex: 1;
+  }
+}
+
+span.suggestion__cover {
+  background: rgba(255, 255, 255, 0.05);
+}

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Gamepad2, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import SuggestionsPanel from '@/components/tracker/SuggestionsPanel'
 
 export const metadata: Metadata = {
     title: 'HubGames — Tu centro de control gamer',
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 /** Placeholder del dashboard hasta #29. */
 export default function HomePage() {
     return (
-        <div className="maint">
+        <div className="maint" style={{ gap: '1.25rem', alignContent: 'center' }}>
             <div className="maint__card glass animate-fade-in-up">
                 <span className="maint__icon">
                     <Gamepad2 size={24} />
@@ -29,6 +30,7 @@ export default function HomePage() {
                     </Button>
                 </div>
             </div>
+            <SuggestionsPanel />
         </div>
     )
 }

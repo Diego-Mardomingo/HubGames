@@ -367,6 +367,87 @@ export type Database = {
         }
         Relationships: []
       }
+      hubgames_library: {
+        Row: {
+          user_id: string | null
+          appid: number | null
+          status: string | null
+          status_source: string | null
+          rating: number | null
+          started_at: string | null
+          completed_at: string | null
+          review: string | null
+          backlog_position: number | null
+          goal: string | null
+          created_at: string | null
+          updated_at: string | null
+          playtime_forever: number | null
+          playtime_2weeks: number | null
+          rtime_last_played: string | null
+          achievements_total: number | null
+          achievements_unlocked: number | null
+          last_unlock_at: string | null
+          name: string | null
+          header_image: string | null
+          steamspy_userscore: number | null
+          status_changed_at: string | null
+          suggestion: string | null
+          suggestion_dismissed_at: string | null
+        }
+        Insert: {
+          user_id?: string | null
+          appid?: number | null
+          status?: string | null
+          status_source?: string | null
+          rating?: number | null
+          started_at?: string | null
+          completed_at?: string | null
+          review?: string | null
+          backlog_position?: number | null
+          goal?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+          playtime_forever?: number | null
+          playtime_2weeks?: number | null
+          rtime_last_played?: string | null
+          achievements_total?: number | null
+          achievements_unlocked?: number | null
+          last_unlock_at?: string | null
+          name?: string | null
+          header_image?: string | null
+          steamspy_userscore?: number | null
+          status_changed_at?: string | null
+          suggestion?: string | null
+          suggestion_dismissed_at?: string | null
+        }
+        Update: {
+          user_id?: string | null
+          appid?: number | null
+          status?: string | null
+          status_source?: string | null
+          rating?: number | null
+          started_at?: string | null
+          completed_at?: string | null
+          review?: string | null
+          backlog_position?: number | null
+          goal?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+          playtime_forever?: number | null
+          playtime_2weeks?: number | null
+          rtime_last_played?: string | null
+          achievements_total?: number | null
+          achievements_unlocked?: number | null
+          last_unlock_at?: string | null
+          name?: string | null
+          header_image?: string | null
+          steamspy_userscore?: number | null
+          status_changed_at?: string | null
+          suggestion?: string | null
+          suggestion_dismissed_at?: string | null
+        }
+        Relationships: []
+      }
       hubgames_lista_videojuegos_judi: {
         Row: {
           id: number
@@ -615,6 +696,9 @@ export type Database = {
           goal: string
           created_at: string
           updated_at: string
+          status_changed_at: string
+          suggestion: string | null
+          suggestion_dismissed_at: string | null
         }
         Insert: {
           user_id: string
@@ -629,6 +713,9 @@ export type Database = {
           goal?: string
           created_at?: string
           updated_at?: string
+          status_changed_at?: string
+          suggestion?: string | null
+          suggestion_dismissed_at?: string | null
         }
         Update: {
           user_id?: string
@@ -643,6 +730,9 @@ export type Database = {
           goal?: string
           created_at?: string
           updated_at?: string
+          status_changed_at?: string
+          suggestion?: string | null
+          suggestion_dismissed_at?: string | null
         }
         Relationships: []
       }
