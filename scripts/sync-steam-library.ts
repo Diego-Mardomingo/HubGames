@@ -1,8 +1,8 @@
-// Sincroniza la biblioteca de Steam de los usuarios vinculados (#12).
+// Sincroniza la biblioteca (#12) y los logros (#13) de Steam de los usuarios vinculados.
 // Uso: npm run steam:sync-library [-- --user <uuid>]
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '../src/lib/supabase/database.types'
-import { syncSteamLibrary } from '../src/lib/steam-sync'
+import { syncSteamAchievements, syncSteamLibrary } from '../src/lib/steam-sync'
 
 async function main() {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -29,6 +29,9 @@ async function main() {
             const result = await syncSteamLibrary(supabase, user_id, { log: (m) => console.log(m) })
             console.log('Resultado', JSON.stringify(result))
             if (result.catalogPending > 0) console.log(`::warning::Quedan ${result.catalogPending} fichas por traer`)
+            const achievements = await syncSteamAchievements(supabase, user_id, { log: (m) => console.log(m) })
+            console.log('Logros', JSON.stringify(achievements))
+            if (achievements.gamesFailed > 0) console.log(`::warning::${achievements.gamesFailed} juegos con logros sin sincronizar`)
         } catch (e) {
             failed++
             console.error(`::error::Usuario ${user_id}: ${e instanceof Error ? e.message : e}`)

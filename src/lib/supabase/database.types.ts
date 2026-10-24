@@ -445,6 +445,87 @@ export type Database = {
         }
         Relationships: []
       }
+      hubgames_steam_achievement_apps: {
+        Row: {
+          appid: number
+          total: number
+          schema_synced_at: string
+          percents_synced_at: string | null
+        }
+        Insert: {
+          appid?: number
+          total?: number
+          schema_synced_at?: string
+          percents_synced_at?: string | null
+        }
+        Update: {
+          appid?: number
+          total?: number
+          schema_synced_at?: string
+          percents_synced_at?: string | null
+        }
+        Relationships: []
+      }
+      hubgames_steam_achievement_schema: {
+        Row: {
+          appid: number
+          apiname: string
+          display_name: string | null
+          description: string | null
+          icon: string | null
+          icongray: string | null
+          hidden: boolean
+          global_percent: number | null
+          updated_at: string
+        }
+        Insert: {
+          appid: number
+          apiname: string
+          display_name?: string | null
+          description?: string | null
+          icon?: string | null
+          icongray?: string | null
+          hidden?: boolean
+          global_percent?: number | null
+          updated_at?: string
+        }
+        Update: {
+          appid?: number
+          apiname?: string
+          display_name?: string | null
+          description?: string | null
+          icon?: string | null
+          icongray?: string | null
+          hidden?: boolean
+          global_percent?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hubgames_user_achievements: {
+        Row: {
+          user_id: string
+          appid: number
+          apiname: string
+          achieved: boolean
+          unlocktime: string | null
+        }
+        Insert: {
+          user_id: string
+          appid: number
+          apiname: string
+          achieved?: boolean
+          unlocktime?: string | null
+        }
+        Update: {
+          user_id?: string
+          appid?: number
+          apiname?: string
+          achieved?: boolean
+          unlocktime?: string | null
+        }
+        Relationships: []
+      }
       hubgames_user_games: {
         Row: {
           user_id: string
@@ -529,6 +610,9 @@ export type Database = {
           rtime_last_played: string | null
           first_seen_at: string
           updated_at: string
+          achievements_total: number | null
+          achievements_unlocked: number | null
+          achievements_synced_at: string | null
         }
         Insert: {
           user_id: string
@@ -538,6 +622,9 @@ export type Database = {
           rtime_last_played?: string | null
           first_seen_at?: string
           updated_at?: string
+          achievements_total?: number | null
+          achievements_unlocked?: number | null
+          achievements_synced_at?: string | null
         }
         Update: {
           user_id?: string
@@ -547,6 +634,9 @@ export type Database = {
           rtime_last_played?: string | null
           first_seen_at?: string
           updated_at?: string
+          achievements_total?: number | null
+          achievements_unlocked?: number | null
+          achievements_synced_at?: string | null
         }
         Relationships: []
       }

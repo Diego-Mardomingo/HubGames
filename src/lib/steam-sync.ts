@@ -1,4 +1,4 @@
-// Sincronización de la biblioteca de Steam (#12). Módulo compartido: lo usan el script de GitHub Actions
+// Sincronización con Steam: biblioteca (#12) y logros (#13). Módulo compartido: lo usan el script de GitHub Actions
 // (scripts/sync-steam-library.ts) y, más adelante, un route handler. Recibe el cliente con service_role.
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database, Json } from './supabase/database.types'
@@ -72,6 +72,17 @@ async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
     }
 }
 
+async function getSteamId(supabase: Client, userId: string): Promise<string> {
+    const { data: link, error } = await supabase
+        .from('hubgames_user_steam')
+        .select('steamid')
+        .eq('user_id', userId)
+        .maybeSingle()
+    if (error) throw new SteamSyncError(`No se pudo leer la vinculación: ${error.message}`)
+    if (!link) throw new SteamSyncError('El usuario no tiene Steam vinculado')
+    return link.steamid
+}
+
 async function missingFromCatalog(supabase: Client, appids: number[]): Promise<number[]> {
     const known = new Set<number>()
     for (const part of chunks(appids, IN_CHUNK)) {
@@ -143,15 +154,7 @@ async function fetchCatalogRow(game: OwnedGame): Promise<Database['public']['Tab
 export async function syncSteamLibrary(supabase: Client, userId: string, options: SteamSyncOptions = {}): Promise<SteamSyncResult> {
     const log = options.log ?? (() => {})
 
-    const { data: link, error: linkError } = await supabase
-        .from('hubgames_user_steam')
-        .select('steamid')
-        .eq('user_id', userId)
-        .maybeSingle()
-    if (linkError) throw new SteamSyncError(`No se pudo leer la vinculación: ${linkError.message}`)
-    if (!link) throw new SteamSyncError('El usuario no tiene Steam vinculado')
-
-    const owned = await fetchOwnedGames(link.steamid)
+    const owned = await fetchOwnedGames(await getSteamId(supabase, userId))
     log(`Biblioteca: ${owned.length} juegos`)
 
     // Horas y última partida. first_seen_at no se envía: lo fija el default al insertar y se conserva al actualizar.
@@ -207,4 +210,223 @@ export async function syncSteamLibrary(supabase: Client, userId: string, options
     if (touchError) throw new SteamSyncError(`No se pudo marcar la sincronización: ${touchError.message}`)
 
     return { ownedGames: owned.length, newToTray: fresh.length, catalogFetched: fetched, catalogPending: missing.length - fetched }
+}
+
+// ─── Logros (#13) ────────────────────────────────────────────────────────────
+
+/** Pausa entre llamadas a la Web API (límite ~100.000 al día; basta con no ir a ráfagas). */
+const WEB_API_DELAY_MS = 300
+/** Rareza global: se refresca como mucho una vez por semana y en tandas, para no concentrar llamadas un mismo día. */
+const PERCENTS_MAX_AGE_MS = 7 * 24 * 3600_000
+const PERCENTS_PER_RUN = 30
+/** Esquema (nombres, iconos): se vuelve a pedir si tiene más de 30 días y el juego se ha jugado. */
+const SCHEMA_MAX_AGE_MS = 30 * 24 * 3600_000
+
+interface SchemaAchievement {
+    name: string
+    displayName?: string
+    description?: string
+    icon?: string
+    icongray?: string
+    hidden?: number
+}
+
+interface PlayerAchievement {
+    apiname: string
+    achieved: number
+    unlocktime: number
+}
+
+export interface AchievementSyncResult {
+    gamesDue: number
+    gamesSynced: number
+    gamesFailed: number
+    percentsRefreshed: number
+    apiCalls: number
+}
+
+type AppRow = Database['public']['Tables']['hubgames_steam_achievement_apps']['Row']
+
+async function selectAll<T>(
+    page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>,
+): Promise<T[]> {
+    const out: T[] = []
+    for (let from = 0; ; from += 1000) {
+        const { data, error } = await page(from, from + 999)
+        if (error) throw new SteamSyncError(error.message)
+        out.push(...(data ?? []))
+        if (!data || data.length < 1000) return out
+    }
+}
+
+/** Sincroniza los logros de los juegos jugados desde la última vez (o que aún no tienen datos). */
+export async function syncSteamAchievements(
+    supabase: Client,
+    userId: string,
+    options: SteamSyncOptions = {},
+): Promise<AchievementSyncResult> {
+    const log = options.log ?? (() => {})
+    const key = process.env.STEAM_WEB_API_KEY
+    if (!key) throw new SteamSyncError('Falta STEAM_WEB_API_KEY')
+    const steamid = await getSteamId(supabase, userId)
+
+    let apiCalls = 0
+    async function steamGet<T>(path: string): Promise<{ status: number; body: T | null }> {
+        if (apiCalls > 0) await sleep(WEB_API_DELAY_MS)
+        apiCalls++
+        const res = await fetch(`${STEAM_API}${path}&key=${key}`, { cache: 'no-store' })
+        const body = res.ok || res.status === 400 ? ((await res.json().catch(() => null)) as T | null) : null
+        return { status: res.status, body }
+    }
+
+    async function refreshPercents(appid: number): Promise<void> {
+        const { status, body } = await steamGet<{
+            achievementpercentages?: { achievements?: { name: string; percent: string | number }[] }
+        }>(`/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v2/?gameid=${appid}`)
+        if (status !== 200) throw new SteamSyncError(`GetGlobalAchievementPercentagesForApp ${appid}: ${status}`)
+        // Solo se actualizan logros que ya están en el esquema, para no crear filas sin nombre.
+        const known = new Set(
+            (
+                await selectAll<{ apiname: string }>((from, to) =>
+                    supabase.from('hubgames_steam_achievement_schema').select('apiname').eq('appid', appid).range(from, to),
+                )
+            ).map((r) => r.apiname),
+        )
+        const rows = (body?.achievementpercentages?.achievements ?? [])
+            .filter((a) => known.has(a.name))
+            .map((a) => ({ appid, apiname: a.name, global_percent: Number(a.percent) }))
+        for (const part of chunks(rows, UPSERT_CHUNK)) {
+            const { error } = await supabase.from('hubgames_steam_achievement_schema').upsert(part, { onConflict: 'appid,apiname' })
+            if (error) throw new SteamSyncError(`No se pudo guardar la rareza de ${appid}: ${error.message}`)
+        }
+        const { error } = await supabase
+            .from('hubgames_steam_achievement_apps')
+            .update({ percents_synced_at: new Date().toISOString() })
+            .eq('appid', appid)
+        if (error) throw new SteamSyncError(error.message)
+    }
+
+    async function refreshSchema(appid: number): Promise<AppRow> {
+        const { status, body } = await steamGet<{ game?: { availableGameStats?: { achievements?: SchemaAchievement[] } } }>(
+            `/ISteamUserStats/GetSchemaForGame/v2/?appid=${appid}&l=spanish`,
+        )
+        if (status !== 200 && status !== 400) throw new SteamSyncError(`GetSchemaForGame ${appid}: ${status}`)
+        // global_percent no se envía: se conserva la que hubiera y la pone refreshPercents.
+        const rows = (body?.game?.availableGameStats?.achievements ?? []).map((a) => ({
+            appid,
+            apiname: a.name,
+            display_name: a.displayName ?? null,
+            description: a.description ?? null,
+            icon: a.icon ?? null,
+            icongray: a.icongray ?? null,
+            hidden: a.hidden === 1,
+        }))
+        for (const part of chunks(rows, UPSERT_CHUNK)) {
+            const { error } = await supabase.from('hubgames_steam_achievement_schema').upsert(part, { onConflict: 'appid,apiname' })
+            if (error) throw new SteamSyncError(`No se pudo guardar el esquema de ${appid}: ${error.message}`)
+        }
+        const { data, error } = await supabase
+            .from('hubgames_steam_achievement_apps')
+            .upsert({ appid, total: rows.length, schema_synced_at: new Date().toISOString() }, { onConflict: 'appid' })
+            .select()
+            .single()
+        if (error) throw new SteamSyncError(error.message)
+        if (rows.length > 0 && !data.percents_synced_at) {
+            await refreshPercents(appid)
+            data.percents_synced_at = new Date().toISOString()
+        }
+        return data
+    }
+
+    const games = await selectAll<{ appid: number; rtime_last_played: string | null; achievements_synced_at: string | null }>(
+        (from, to) =>
+            supabase
+                .from('hubgames_user_steam_games')
+                .select('appid, rtime_last_played, achievements_synced_at')
+                .eq('user_id', userId)
+                .order('appid')
+                .range(from, to),
+    )
+    const due = games.filter(
+        (g) =>
+            !g.achievements_synced_at ||
+            (g.rtime_last_played !== null && Date.parse(g.rtime_last_played) > Date.parse(g.achievements_synced_at)),
+    )
+    log(`Logros: ${due.length} juegos por revisar de ${games.length}`)
+
+    const apps = new Map<number, AppRow>()
+    for (const part of chunks(games.map((g) => g.appid), IN_CHUNK)) {
+        const { data, error } = await supabase.from('hubgames_steam_achievement_apps').select('*').in('appid', part)
+        if (error) throw new SteamSyncError(error.message)
+        for (const row of data) apps.set(row.appid, row)
+    }
+
+    let synced = 0
+    let failed = 0
+    for (const game of due) {
+        if (options.deadline && Date.now() >= options.deadline) break
+        try {
+            let app = apps.get(game.appid)
+            if (!app || Date.now() - Date.parse(app.schema_synced_at) > SCHEMA_MAX_AGE_MS) {
+                app = await refreshSchema(game.appid)
+                apps.set(game.appid, app)
+            }
+
+            let total = 0
+            let unlocked = 0
+            if (app.total > 0) {
+                const { status, body } = await steamGet<{ playerstats?: { achievements?: PlayerAchievement[] } }>(
+                    `/ISteamUserStats/GetPlayerAchievements/v1/?steamid=${steamid}&appid=${game.appid}&l=spanish`,
+                )
+                // 400 = sin estadísticas para este juego. 403 u otros: se reintenta en la próxima sincronización.
+                if (status !== 200 && status !== 400) throw new SteamSyncError(`GetPlayerAchievements ${game.appid}: ${status}`)
+                const list = body?.playerstats?.achievements ?? []
+                total = list.length
+                unlocked = list.filter((a) => a.achieved === 1).length
+                const rows = list.map((a) => ({
+                    user_id: userId,
+                    appid: game.appid,
+                    apiname: a.apiname,
+                    achieved: a.achieved === 1,
+                    unlocktime: a.unlocktime ? new Date(a.unlocktime * 1000).toISOString() : null,
+                }))
+                for (const part of chunks(rows, UPSERT_CHUNK)) {
+                    const { error } = await supabase
+                        .from('hubgames_user_achievements')
+                        .upsert(part, { onConflict: 'user_id,appid,apiname' })
+                    if (error) throw new SteamSyncError(`No se pudieron guardar los logros de ${game.appid}: ${error.message}`)
+                }
+            }
+
+            const { error } = await supabase
+                .from('hubgames_user_steam_games')
+                .update({ achievements_total: total, achievements_unlocked: unlocked, achievements_synced_at: new Date().toISOString() })
+                .eq('user_id', userId)
+                .eq('appid', game.appid)
+            if (error) throw new SteamSyncError(error.message)
+            synced++
+            if (synced % 25 === 0) log(`Logros: ${synced}/${due.length}`)
+        } catch (e) {
+            failed++
+            log(`Logros de ${game.appid} fallaron: ${e instanceof Error ? e.message : e}`)
+        }
+    }
+
+    // Rareza caducada de los juegos de la biblioteca, las más antiguas primero y en tandas pequeñas.
+    const stale = [...apps.values()]
+        .filter((a) => a.total > 0 && (!a.percents_synced_at || Date.now() - Date.parse(a.percents_synced_at) > PERCENTS_MAX_AGE_MS))
+        .sort((a, b) => (a.percents_synced_at ?? '').localeCompare(b.percents_synced_at ?? ''))
+        .slice(0, PERCENTS_PER_RUN)
+    let percentsRefreshed = 0
+    for (const app of stale) {
+        if (options.deadline && Date.now() >= options.deadline) break
+        try {
+            await refreshPercents(app.appid)
+            percentsRefreshed++
+        } catch (e) {
+            log(`Rareza de ${app.appid} falló: ${e instanceof Error ? e.message : e}`)
+        }
+    }
+
+    return { gamesDue: due.length, gamesSynced: synced, gamesFailed: failed, percentsRefreshed, apiCalls }
 }
