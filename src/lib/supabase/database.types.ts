@@ -1206,9 +1206,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      hubgames_check_available: {
-        Args: { p_email: string; p_username: string }
-        Returns: { email_taken: boolean; username_taken: boolean }
+      hubgames_username_available: {
+        Args: { p_username: string }
+        Returns: boolean
       }
       hubgames_judi_ranking_rows: {
         Args: never

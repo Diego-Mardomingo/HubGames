@@ -9,7 +9,7 @@ if (!url || !key) throw new Error('Faltan NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SE
 
 /** Funciones de HubGames (is_admin lo usa solo HubGames). Los tipos de retorno no salen del OpenAPI. */
 const FUNCTIONS = {
-    hubgames_check_available: '{ email_taken: boolean; username_taken: boolean }',
+    hubgames_username_available: 'boolean',
     hubgames_judi_ranking_rows: `{
           completado: boolean
           fase1: boolean

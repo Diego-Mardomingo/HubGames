@@ -16,7 +16,7 @@ const eslintConfig = [
         rules: { '@typescript-eslint/no-require-imports': 'off' },
     },
     {
-        ignores: ['.next/**', 'node_modules/**', 'public/**', 'legacy_php_code/**', 'next-env.d.ts'],
+        ignores: ['.next/**', 'node_modules/**', 'public/**', 'legacy_php_code/**', 'supabase/functions/**', 'next-env.d.ts'],
     },
 ]
 
