@@ -24,6 +24,8 @@ import Loader from '@/components/Loader'
 import GameCover from '@/components/tracker/GameCover'
 import { openGameSearch } from '@/components/tracker/GameSearch'
 import { PriceLows, PriceNow } from '@/components/wishlist/PriceInfo'
+import PriceAlertControl from '@/components/wishlist/PriceAlertControl'
+import { alertLabel, type AlertMode, type PriceAlert } from '@/lib/price-alerts'
 import { Reveal } from '@/components/motion'
 import '../biblioteca/biblioteca.css'
 
@@ -41,6 +43,13 @@ async function loadWishlist(): Promise<WishlistGame[]> {
     }
 }
 
+/** Criterio de aviso de precio (#37) de cada juego que lo tiene; el resto avisa en el mínimo histórico. */
+async function loadAlerts(): Promise<Map<number, PriceAlert>> {
+    const { data, error } = await supabase.from('hubgames_price_alerts').select('appid, mode, target_price, target_discount, last_notified_price')
+    if (error) throw new Error(error.message)
+    return new Map(data.map((a) => [a.appid, { ...a, mode: a.mode as AlertMode }]))
+}
+
 /** Wishlist (#35): juegos que aún no tienes, con precio de Steam, descuento y mínimo histórico (#36). */
 export default function WishlistPage() {
     const router = useRouter()
@@ -50,6 +59,8 @@ export default function WishlistPage() {
     const [visible, setVisible] = useState(PAGE)
     const [error, setError] = useState('')
     const [busy, setBusy] = useState<number | null>(null)
+    const [userId, setUserId] = useState<string | null>(null)
+    const [alerts, setAlerts] = useState<Map<number, PriceAlert>>(new Map())
 
     useEffect(() => {
         safeGetSession().then(({ data: { session } }) => {
@@ -57,6 +68,10 @@ export default function WishlistPage() {
                 router.push('/login')
                 return
             }
+            setUserId(session.user.id)
+            loadAlerts()
+                .then(setAlerts)
+                .catch(() => setAlerts(new Map()))
             loadWishlist()
                 .then(setGames)
                 .catch((e: Error) => {
@@ -181,7 +196,16 @@ export default function WishlistPage() {
             ) : (
                 <ul className="lib-list">
                     {list.slice(0, visible).map((game, i) => (
-                        <WishlistItem key={game.appid} game={game} priority={i < 6} busy={busy === game.appid} onRemove={() => remove(game.appid)} />
+                        <WishlistItem
+                            key={game.appid}
+                            game={game}
+                            priority={i < 6}
+                            busy={busy === game.appid}
+                            onRemove={() => remove(game.appid)}
+                            userId={userId}
+                            alert={alerts.get(game.appid) ?? null}
+                            onAlertSaved={(a) => setAlerts((m) => new Map(m).set(game.appid, a))}
+                        />
                     ))}
                 </ul>
             )}
@@ -205,7 +229,23 @@ export default function WishlistPage() {
     )
 }
 
-function WishlistItem({ game, priority, busy, onRemove }: { game: WishlistGame; priority: boolean; busy: boolean; onRemove: () => void }) {
+function WishlistItem({
+    game,
+    priority,
+    busy,
+    onRemove,
+    userId,
+    alert,
+    onAlertSaved,
+}: {
+    game: WishlistGame
+    priority: boolean
+    busy: boolean
+    onRemove: () => void
+    userId: string | null
+    alert: PriceAlert | null
+    onAlertSaved: (alert: PriceAlert) => void
+}) {
     const name = game.name ?? `App ${game.appid}`
     return (
         <li className={`wish-row glass ${isAtHistoricalLow(game) ? 'is-low' : ''}`}>
@@ -221,12 +261,14 @@ function WishlistItem({ game, priority, busy, onRemove }: { game: WishlistGame; 
                         {game.source === 'steam' ? 'Wishlist de Steam' : 'Añadido en HubGames'} · {DATE.format(new Date(game.date_added))}
                     </span>
                     {game.coming_soon && game.release_date_text && <span>Sale: {game.release_date_text}</span>}
+                    {alert && alert.mode !== 'minimo' && <span className="wish-row__alert">{alertLabel(alert)}</span>}
                 </p>
                 <PriceLows game={game} />
             </div>
             <div className="wish-row__side">
                 <PriceNow game={game} />
                 <div className="wish-row__actions">
+                    {userId && <PriceAlertControl appid={game.appid} userId={userId} name={name} alert={alert} onSaved={onAlertSaved} />}
                     <Button size="icon" variant="ghost" asChild>
                         <a href={`https://store.steampowered.com/app/${game.appid}/`} target="_blank" rel="noreferrer" aria-label={`${name} en la tienda de Steam`} title="Ver en la tienda de Steam">
                             <ExternalLink aria-hidden />

@@ -197,3 +197,113 @@
 .juego-price .price-now__amounts {
   justify-items: start;
 }
+
+/* Aviso de precio (#37) */
+
+/* Sin esto se ve el fondo por defecto de <button> del navegador. */
+.price-alert__trigger:not(:hover) {
+  background-color: transparent;
+}
+
+.price-alert__trigger.is-off {
+  color: var(--muted);
+}
+
+.price-alert {
+  display: grid;
+  gap: 0.6rem;
+  width: 290px;
+  padding: 0.75rem;
+}
+
+.price-alert__title {
+  overflow: hidden;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.price-alert__modes {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.price-alert__mode {
+  display: grid;
+  gap: 1px;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.price-alert__mode:hover {
+  border-color: var(--border-hover);
+}
+
+.price-alert__mode.is-active {
+  border-color: var(--primary);
+  background: rgba(154, 134, 255, 0.12);
+}
+
+.price-alert__mode-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.price-alert__mode-hint {
+  color: var(--muted);
+  font-size: 0.6875rem;
+}
+
+.price-alert__field {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--muted-light);
+  font-size: 0.75rem;
+}
+
+.price-alert__input {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+}
+
+.price-alert__input input {
+  flex: 1;
+  min-width: 0;
+  height: 2rem;
+  padding: 0 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.price-alert__input input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.price-alert__error {
+  color: var(--danger);
+  font-size: 0.75rem;
+}
+
+.price-alert__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.wish-row__alert {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
