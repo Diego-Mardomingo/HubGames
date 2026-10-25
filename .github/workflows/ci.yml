@@ -5,6 +5,10 @@ on:
   push:
     branches: [master]
 
+permissions:
+  contents: read
+  issues: write
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -27,3 +31,10 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+
+      # Solo en master: un PR en rojo ya se ve en el propio PR.
+      - name: Avisar del resultado
+        if: ${{ !cancelled() && github.event_name == 'push' }}
+        uses: ./.github/actions/report-workflow
+        with:
+          status: ${{ job.status }}

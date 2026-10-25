@@ -1,0 +1,47 @@
+name: Avisar del resultado del workflow
+description: >
+  Si el job ha fallado, abre (o comenta) un issue "🚨 Fallo en workflow <nombre>" con el enlace al run.
+  Si ha ido bien y había un issue abierto, lo cierra. Necesita `permissions: issues: write` (#10).
+
+inputs:
+  status:
+    description: Resultado del job (`job.status`).
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        STATUS: ${{ inputs.status }}
+        WORKFLOW: ${{ github.workflow }}
+        RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      run: |
+        title="🚨 Fallo en workflow ${WORKFLOW}"
+        # --search no distingue el título exacto, así que se filtra después con jq.
+        number=$(gh issue list --state open --label infra --search "in:title \"${title}\"" --json number,title \
+          --jq "map(select(.title == \"${title}\")) | .[0].number // empty")
+        now=$(TZ=Europe/Madrid date '+%d/%m/%Y %H:%M')
+
+        if [ "$STATUS" = "success" ]; then
+          if [ -n "$number" ]; then
+            gh issue close "$number" --comment "✅ Vuelve a funcionar (${now}): ${RUN_URL}"
+          fi
+          exit 0
+        fi
+
+        if [ -n "$number" ]; then
+          gh issue comment "$number" --body "Ha vuelto a fallar (${now}): ${RUN_URL}"
+        else
+          gh issue create --title "$title" --label bug --label infra --body "$(cat <<BODY
+        El workflow **${WORKFLOW}** ha fallado (${now}).
+
+        - Run: ${RUN_URL}
+        - Evento: \`${{ github.event_name }}\` · Rama: \`${{ github.ref_name }}\` · Commit: \`${{ github.sha }}\`
+
+        Este issue se cierra solo cuando el workflow vuelva a terminar bien. Si falla otra vez, se añade un comentario (#10).
+        BODY
+        )"
+        fi

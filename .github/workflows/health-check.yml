@@ -1,0 +1,57 @@
+name: Health Check
+
+# Comprobación diaria de que los procesos automáticos siguen vivos (#10). Si algo falla, abre un issue.
+on:
+  schedule:
+    # Bastante después del pick de JUDI (10:00 UTC): GitHub retrasa los cron hasta 4-5 h.
+    # A las 19:00 UTC todavía queda margen para arreglarlo antes de las 00:00 en Madrid.
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+    inputs:
+      simular_fallo:
+        description: 'Forzar un fallo para probar que se abre el issue'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: health-check
+  cancel-in-progress: false
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Comprobar JUDI y sincronización
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SIMULAR_FALLO: ${{ inputs.simular_fallo }}
+        run: |
+          if [ "$SIMULAR_FALLO" = "true" ]; then
+            npx tsx scripts/health-check.ts --simular-fallo
+          else
+            npx tsx scripts/health-check.ts
+          fi
+
+      - name: Avisar del resultado
+        if: ${{ !cancelled() }}
+        uses: ./.github/actions/report-workflow
+        with:
+          status: ${{ job.status }}

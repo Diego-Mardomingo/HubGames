@@ -67,6 +67,36 @@ export type Database = {
         }
         Relationships: []
       }
+      hubgames_game_duration: {
+        Row: {
+          appid: number | null
+          main: number | null
+          main_extra: number | null
+          completionist: number | null
+          source: string | null
+          hltb_id: number | null
+          match_confidence: number | null
+        }
+        Insert: {
+          appid?: number | null
+          main?: number | null
+          main_extra?: number | null
+          completionist?: number | null
+          source?: string | null
+          hltb_id?: number | null
+          match_confidence?: number | null
+        }
+        Update: {
+          appid?: number | null
+          main?: number | null
+          main_extra?: number | null
+          completionist?: number | null
+          source?: string | null
+          hltb_id?: number | null
+          match_confidence?: number | null
+        }
+        Relationships: []
+      }
       hubgames_game_prices: {
         Row: {
           appid: number
@@ -127,6 +157,39 @@ export type Database = {
         }
         Update: {
           genero?: string
+        }
+        Relationships: []
+      }
+      hubgames_hltb: {
+        Row: {
+          appid: number
+          hltb_id: number | null
+          hltb_name: string | null
+          main: number | null
+          main_extra: number | null
+          completionist: number | null
+          match_confidence: number | null
+          fetched_at: string
+        }
+        Insert: {
+          appid?: number
+          hltb_id?: number | null
+          hltb_name?: string | null
+          main?: number | null
+          main_extra?: number | null
+          completionist?: number | null
+          match_confidence?: number | null
+          fetched_at?: string
+        }
+        Update: {
+          appid?: number
+          hltb_id?: number | null
+          hltb_name?: string | null
+          main?: number | null
+          main_extra?: number | null
+          completionist?: number | null
+          match_confidence?: number | null
+          fetched_at?: string
         }
         Relationships: []
       }
@@ -489,6 +552,9 @@ export type Database = {
           genres: Json | null
           release_date: string | null
           steamspy_median_forever: number | null
+          hltb_main: number | null
+          hltb_main_extra: number | null
+          hltb_completionist: number | null
         }
         Insert: {
           user_id?: string | null
@@ -518,6 +584,9 @@ export type Database = {
           genres?: Json | null
           release_date?: string | null
           steamspy_median_forever?: number | null
+          hltb_main?: number | null
+          hltb_main_extra?: number | null
+          hltb_completionist?: number | null
         }
         Update: {
           user_id?: string | null
@@ -547,6 +616,9 @@ export type Database = {
           genres?: Json | null
           release_date?: string | null
           steamspy_median_forever?: number | null
+          hltb_main?: number | null
+          hltb_main_extra?: number | null
+          hltb_completionist?: number | null
         }
         Relationships: []
       }

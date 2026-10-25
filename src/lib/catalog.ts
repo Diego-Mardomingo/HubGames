@@ -73,3 +73,14 @@ export const getCatalogGame = cache(async (appid: number): Promise<CatalogGame |
     }
     return saved as unknown as CatalogGame
 })
+
+/** Duraciones de HowLongToBeat del juego (#23), o null si el scraper aún no lo tiene. */
+export const getHltb = cache(async (appid: number) => {
+    const supabase = await createServerClient()
+    const { data } = await supabase
+        .from('hubgames_hltb')
+        .select('main, main_extra, completionist')
+        .eq('appid', appid)
+        .maybeSingle()
+    return data
+})

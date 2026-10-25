@@ -369,7 +369,7 @@ function Biblioteca() {
                         value={filters.duration}
                         onValueChange={(v) => setFilters((f) => ({ ...f, duration: v as DurationFilter }))}
                     >
-                        <SelectTrigger className="lib-select" aria-label="Duración" title="Mediana de SteamSpy hasta que llegue HowLongToBeat">
+                        <SelectTrigger className="lib-select" aria-label="Duración" title="Duración de la historia según HowLongToBeat (o la mediana de SteamSpy si no hay dato)">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>

@@ -7,6 +7,14 @@ on:
     - cron: '0 10 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: judi-daily-pick
+  cancel-in-progress: false
+
 jobs:
   pick-judi-daily:
     runs-on: ubuntu-latest
@@ -61,3 +69,9 @@ jobs:
           else
             echo "::error::Falló la selección del juego del día. Revisa los logs del step anterior."
           fi
+
+      - name: Avisar del resultado
+        if: ${{ !cancelled() }}
+        uses: ./.github/actions/report-workflow
+        with:
+          status: ${{ job.status }}
