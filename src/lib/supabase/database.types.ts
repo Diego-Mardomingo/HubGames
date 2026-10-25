@@ -67,6 +67,57 @@ export type Database = {
         }
         Relationships: []
       }
+      hubgames_game_prices: {
+        Row: {
+          appid: number
+          currency: string | null
+          price_initial: number | null
+          price_final: number | null
+          discount_percent: number | null
+          price_synced_at: string | null
+          itad_id: string | null
+          itad_checked_at: string | null
+          steam_low: number | null
+          steam_low_at: string | null
+          all_low: number | null
+          all_low_shop: string | null
+          all_low_at: string | null
+          lows_synced_at: string | null
+        }
+        Insert: {
+          appid?: number
+          currency?: string | null
+          price_initial?: number | null
+          price_final?: number | null
+          discount_percent?: number | null
+          price_synced_at?: string | null
+          itad_id?: string | null
+          itad_checked_at?: string | null
+          steam_low?: number | null
+          steam_low_at?: string | null
+          all_low?: number | null
+          all_low_shop?: string | null
+          all_low_at?: string | null
+          lows_synced_at?: string | null
+        }
+        Update: {
+          appid?: number
+          currency?: string | null
+          price_initial?: number | null
+          price_final?: number | null
+          discount_percent?: number | null
+          price_synced_at?: string | null
+          itad_id?: string | null
+          itad_checked_at?: string | null
+          steam_low?: number | null
+          steam_low_at?: string | null
+          all_low?: number | null
+          all_low_shop?: string | null
+          all_low_at?: string | null
+          lows_synced_at?: string | null
+        }
+        Relationships: []
+      }
       hubgames_generos: {
         Row: {
           genero: string
@@ -592,6 +643,30 @@ export type Database = {
         }
         Relationships: []
       }
+      hubgames_price_snapshots: {
+        Row: {
+          appid: number
+          date: string
+          price_initial: number
+          price_final: number
+          discount_percent: number
+        }
+        Insert: {
+          appid: number
+          date: string
+          price_initial: number
+          price_final: number
+          discount_percent: number
+        }
+        Update: {
+          appid?: number
+          date?: string
+          price_initial?: number
+          price_final?: number
+          discount_percent?: number
+        }
+        Relationships: []
+      }
       hubgames_push_subscriptions: {
         Row: {
           id: string
@@ -856,6 +931,30 @@ export type Database = {
         }
         Relationships: []
       }
+      hubgames_user_wishlist: {
+        Row: {
+          user_id: string
+          appid: number
+          source: string
+          priority: number
+          date_added: string
+        }
+        Insert: {
+          user_id: string
+          appid: number
+          source?: string
+          priority?: number
+          date_added?: string
+        }
+        Update: {
+          user_id?: string
+          appid?: number
+          source?: string
+          priority?: number
+          date_added?: string
+        }
+        Relationships: []
+      }
       hubgames_usuarios: {
         Row: {
           id: string
@@ -919,6 +1018,87 @@ export type Database = {
         Update: {
           id_videojuego?: number
           plataforma?: string
+        }
+        Relationships: []
+      }
+      hubgames_wishlist: {
+        Row: {
+          user_id: string | null
+          appid: number | null
+          source: string | null
+          priority: number | null
+          date_added: string | null
+          name: string | null
+          header_image: string | null
+          release_date: string | null
+          release_date_text: string | null
+          coming_soon: boolean | null
+          is_free: boolean | null
+          genres: Json | null
+          steamspy_userscore: number | null
+          currency: string | null
+          price_initial: number | null
+          price_final: number | null
+          discount_percent: number | null
+          price_synced_at: string | null
+          itad_id: string | null
+          steam_low: number | null
+          steam_low_at: string | null
+          all_low: number | null
+          all_low_shop: string | null
+          all_low_at: string | null
+        }
+        Insert: {
+          user_id?: string | null
+          appid?: number | null
+          source?: string | null
+          priority?: number | null
+          date_added?: string | null
+          name?: string | null
+          header_image?: string | null
+          release_date?: string | null
+          release_date_text?: string | null
+          coming_soon?: boolean | null
+          is_free?: boolean | null
+          genres?: Json | null
+          steamspy_userscore?: number | null
+          currency?: string | null
+          price_initial?: number | null
+          price_final?: number | null
+          discount_percent?: number | null
+          price_synced_at?: string | null
+          itad_id?: string | null
+          steam_low?: number | null
+          steam_low_at?: string | null
+          all_low?: number | null
+          all_low_shop?: string | null
+          all_low_at?: string | null
+        }
+        Update: {
+          user_id?: string | null
+          appid?: number | null
+          source?: string | null
+          priority?: number | null
+          date_added?: string | null
+          name?: string | null
+          header_image?: string | null
+          release_date?: string | null
+          release_date_text?: string | null
+          coming_soon?: boolean | null
+          is_free?: boolean | null
+          genres?: Json | null
+          steamspy_userscore?: number | null
+          currency?: string | null
+          price_initial?: number | null
+          price_final?: number | null
+          discount_percent?: number | null
+          price_synced_at?: string | null
+          itad_id?: string | null
+          steam_low?: number | null
+          steam_low_at?: string | null
+          all_low?: number | null
+          all_low_shop?: string | null
+          all_low_at?: string | null
         }
         Relationships: []
       }

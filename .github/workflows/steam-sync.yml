@@ -1,6 +1,7 @@
 name: Steam Sync
 
-# Sincronización diaria con Steam (#14): biblioteca, foto de horas (#15) y logros (#13) de todos los usuarios vinculados.
+# Sincronización diaria con Steam (#14): biblioteca, foto de horas (#15), wishlist y precios (#35, #36) y logros (#13)
+# de todos los usuarios vinculados.
 # También sirve para la primera sincronización completa, que no cabe en una función de Vercel Hobby.
 on:
   schedule:
@@ -51,6 +52,8 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           STEAM_WEB_API_KEY: ${{ secrets.STEAM_WEB_API_KEY }}
+          # Opcional: sin ella no hay mínimos históricos, pero el resto se sincroniza.
+          ITAD_API_KEY: ${{ secrets.ITAD_API_KEY }}
           USER_ID: ${{ inputs.user_id }}
         run: |
           if [ -n "$USER_ID" ]; then

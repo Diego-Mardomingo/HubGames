@@ -20,7 +20,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { AlertTriangle, Clock, GripVertical, Inbox, LayoutGrid, Library, List, Minus, Plus, Search, Star, Trophy, X } from 'lucide-react'
+import { AlertTriangle, Clock, GripVertical, Heart, Inbox, LayoutGrid, Library, List, Minus, Plus, Search, Star, Trophy, X } from 'lucide-react'
 import { safeGetSession } from '@/lib/supabase/client'
 import {
     DEFAULT_PLAYING_LIMIT,
@@ -221,6 +221,11 @@ function Biblioteca() {
                 <div className="lib-head-actions">
                     <Button variant="secondary" onClick={openGameSearch}>
                         <Search aria-hidden /> Buscar juego
+                    </Button>
+                    <Button variant="secondary" asChild>
+                        <Link href="/wishlist">
+                            <Heart aria-hidden /> Wishlist
+                        </Link>
                     </Button>
                     {counts.tray > 0 && (
                         <Button variant="secondary" asChild>

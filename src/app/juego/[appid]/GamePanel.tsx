@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, CalendarCheck, Clock, Flag, Gamepad2, Hourglass, LogIn, Play, Star, Trophy } from 'lucide-react'
+import { AlertTriangle, CalendarCheck, Clock, Flag, Gamepad2, Heart, HeartOff, Hourglass, LogIn, Play, Star, Trophy } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import {
     GAME_STATUSES,
@@ -15,10 +15,12 @@ import {
 } from '@/lib/tracker'
 import { achievementPercent } from '@/lib/library'
 import { isPerfect } from '@/lib/tracker-rules'
+import { addToWishlist, removeFromWishlist, type WishlistGame } from '@/lib/wishlist'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import CompleteDialog from '@/components/tracker/CompleteDialog'
+import { PriceLows, PriceNow } from '@/components/wishlist/PriceInfo'
 
 interface Props {
     appid: number
@@ -31,13 +33,19 @@ interface Props {
 type State =
     | { kind: 'cargando' }
     | { kind: 'sin_sesion' }
-    | { kind: 'no_lo_tienes' }
+    | { kind: 'no_lo_tienes'; wish: WishlistGame | null }
     | { kind: 'ok'; userId: string; game: LibraryGame }
 
 const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 
 function formatDate(iso: string | null): string | null {
     return iso ? DATE.format(new Date(iso)) : null
+}
+
+/** Fila de la wishlist con precio y mínimos (#35, #36), o null si no está en ella. */
+async function loadWish(appid: number): Promise<WishlistGame | null> {
+    const { data } = await supabase.from('hubgames_wishlist').select('*').eq('appid', appid).maybeSingle()
+    return (data as WishlistGame | null) ?? null
 }
 
 /** Tus datos del juego y las acciones (#22). Se cargan en el cliente: la ficha de Steam ya viene del servidor. */
@@ -56,9 +64,10 @@ export default function GamePanel({ appid, name, medianMinutes, storeUrl }: Prop
                 return
             }
             const { data, error: loadError } = await supabase.from('hubgames_library').select('*').eq('appid', appid).maybeSingle()
+            const wish = data ? null : await loadWish(appid)
             if (cancelled) return
             if (loadError) setError(loadError.message)
-            setState(data ? { kind: 'ok', userId: session.user.id, game: data as LibraryGame } : { kind: 'no_lo_tienes' })
+            setState(data ? { kind: 'ok', userId: session.user.id, game: data as LibraryGame } : { kind: 'no_lo_tienes', wish })
         })
         return () => {
             cancelled = true
@@ -88,18 +97,51 @@ export default function GamePanel({ appid, name, medianMinutes, storeUrl }: Prop
     }
 
     if (state.kind === 'no_lo_tienes') {
+        const { wish } = state
+        const toggleWish = async () => {
+            setBusy(true)
+            setError('')
+            try {
+                if (wish) await removeFromWishlist(appid)
+                else await addToWishlist(appid)
+                setState({ kind: 'no_lo_tienes', wish: wish ? null : await loadWish(appid) })
+            } catch (e) {
+                setError(e instanceof Error ? e.message : 'No se pudo guardar')
+            } finally {
+                setBusy(false)
+            }
+        }
         return (
             <section className="juego-panel glass juego-panel--empty">
-                <p>No está en tu biblioteca de Steam.</p>
+                <p>{wish ? 'Está en tu wishlist.' : 'No está en tu biblioteca de Steam.'}</p>
+                {wish && (
+                    <div className="juego-price">
+                        <PriceNow game={wish} />
+                        <PriceLows game={wish} />
+                    </div>
+                )}
+                {error && (
+                    <p className="alert alert--error" role="alert">
+                        {error}
+                    </p>
+                )}
                 <div className="juego-panel__actions">
                     <Button variant="secondary" asChild>
                         <a href={storeUrl} target="_blank" rel="noreferrer">
                             Ver en la tienda
                         </a>
                     </Button>
-                    <Button variant="secondary" disabled title="Llegará con la wishlist (#35)">
-                        Añadir a la wishlist
-                    </Button>
+                    {wish?.source === 'steam' ? (
+                        <Button variant="secondary" asChild>
+                            <Link href="/wishlist">
+                                <Heart aria-hidden /> Ver la wishlist
+                            </Link>
+                        </Button>
+                    ) : (
+                        <Button variant="secondary" onClick={toggleWish} disabled={busy}>
+                            {wish ? <HeartOff aria-hidden /> : <Heart aria-hidden />} {wish ? 'Quitar de la wishlist' : 'Añadir a la wishlist'}
+                        </Button>
+                    )}
                 </div>
                 {medianMinutes !== null && <p className="juego-panel__note">Duración orientativa: {formatHours(medianMinutes)} (mediana en Steam).</p>}
             </section>

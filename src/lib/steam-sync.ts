@@ -1,9 +1,10 @@
-// Sincronización con Steam: biblioteca (#12), logros (#13), foto diaria de horas (#15) y registro (#14). Módulo compartido: lo usan el script de GitHub Actions
+// Sincronización con Steam: biblioteca (#12), logros (#13), foto diaria de horas (#15), wishlist (#35) y registro (#14). Módulo compartido: lo usan el script de GitHub Actions
 // (scripts/steam-sync.ts) y el route handler de "Sincronizar ahora" (src/app/api/steam/sync). Recibe el cliente con service_role.
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database, Json } from './supabase/database.types'
 import { getSteamSpyDetails, getSteamStoreDetails, parseSteamDate, sleep } from '../../scripts/steam-utils'
 import { evaluateGame } from './tracker-rules'
+import { refreshPrices, type PriceSyncResult } from './prices'
 import type { GameStatus } from './tracker'
 
 type Client = SupabaseClient<Database>
@@ -169,6 +170,29 @@ export async function fetchStoreCatalogRow(appid: number, retry = true): Promise
     }
 }
 
+/** Trae las fichas que aún no están en el catálogo, con límite de velocidad y hasta el `deadline`. */
+async function fillCatalog(
+    supabase: Client,
+    games: OwnedGame[],
+    options: SteamSyncOptions,
+): Promise<{ fetched: number; pending: number }> {
+    const log = options.log ?? (() => {})
+    const byId = new Map(games.map((g) => [g.appid, g]))
+    const missing = await missingFromCatalog(supabase, [...byId.keys()])
+    log(`Fichas por traer: ${missing.length}`)
+    let fetched = 0
+    for (const appid of missing) {
+        if (options.deadline && Date.now() >= options.deadline) break
+        if (fetched > 0) await sleep(STORE_DELAY_MS)
+        const row = await fetchCatalogRow(byId.get(appid)!)
+        const { error } = await supabase.from('hubgames_juegos_steam').upsert(row, { onConflict: 'steam_appid' })
+        if (error) throw new SteamSyncError(`No se pudo guardar la ficha ${appid}: ${error.message}`)
+        fetched++
+        if (fetched % 25 === 0) log(`Fichas: ${fetched}/${missing.length}`)
+    }
+    return { fetched, pending: missing.length - fetched }
+}
+
 /** Importa la biblioteca de un usuario. Idempotente: repetirla no duplica ni pisa el estado que ya tengan los juegos. */
 export async function syncSteamLibrary(supabase: Client, userId: string, options: SteamSyncOptions = {}): Promise<SteamSyncResult> {
     const log = options.log ?? (() => {})
@@ -207,20 +231,7 @@ export async function syncSteamLibrary(supabase: Client, userId: string, options
     }
     log(`Nuevos en la bandeja: ${fresh.length}`)
 
-    // Fichas que aún no están en el catálogo, con límite de velocidad.
-    const byId = new Map(owned.map((g) => [g.appid, g]))
-    const missing = await missingFromCatalog(supabase, [...byId.keys()])
-    log(`Fichas por traer: ${missing.length}`)
-    let fetched = 0
-    for (const appid of missing) {
-        if (options.deadline && Date.now() >= options.deadline) break
-        if (fetched > 0) await sleep(STORE_DELAY_MS)
-        const row = await fetchCatalogRow(byId.get(appid)!)
-        const { error } = await supabase.from('hubgames_juegos_steam').upsert(row, { onConflict: 'steam_appid' })
-        if (error) throw new SteamSyncError(`No se pudo guardar la ficha ${appid}: ${error.message}`)
-        fetched++
-        if (fetched % 25 === 0) log(`Fichas: ${fetched}/${missing.length}`)
-    }
+    const { fetched, pending } = await fillCatalog(supabase, owned, options)
 
     const { error: touchError } = await supabase
         .from('hubgames_user_steam')
@@ -228,7 +239,102 @@ export async function syncSteamLibrary(supabase: Client, userId: string, options
         .eq('user_id', userId)
     if (touchError) throw new SteamSyncError(`No se pudo marcar la sincronización: ${touchError.message}`)
 
-    return { ownedGames: owned.length, newToTray: fresh.length, catalogFetched: fetched, catalogPending: missing.length - fetched }
+    return { ownedGames: owned.length, newToTray: fresh.length, catalogFetched: fetched, catalogPending: pending }
+}
+
+// ─── Wishlist y precios (#35, #36) ───────────────────────────────────────────
+
+interface WishlistItem {
+    appid: number
+    priority?: number
+    date_added?: number
+}
+
+export interface WishlistSyncResult {
+    /** null: Steam no devolvió la lista (vacía o privada) y no se ha tocado la guardada. */
+    steamItems: number | null
+    purchased: number
+    catalogFetched: number
+    catalogPending: number
+    prices: PriceSyncResult | null
+    pricesError: string | null
+}
+
+/** Juegos de la wishlist de Steam, o null si no viene la lista (no se distingue entre vacía y privada). */
+async function fetchWishlist(steamid: string): Promise<WishlistItem[] | null> {
+    const key = process.env.STEAM_WEB_API_KEY
+    const res = await fetch(`${STEAM_API}/IWishlistService/GetWishlist/v1/?steamid=${steamid}${key ? `&key=${key}` : ''}`, {
+        cache: 'no-store',
+    })
+    if (!res.ok) throw new SteamSyncError(`GetWishlist: ${res.status}`)
+    const items = (await res.json())?.response?.items
+    return Array.isArray(items) ? items : null
+}
+
+/**
+ * Wishlist de Steam (reemplaza la anterior que vino de Steam; la manual se respeta), quita los juegos ya comprados
+ * (la sincronización de la biblioteca los mete en la Bandeja), trae sus fichas y actualiza precios y mínimos.
+ */
+export async function syncWishlist(supabase: Client, userId: string, options: SteamSyncOptions = {}): Promise<WishlistSyncResult> {
+    const log = options.log ?? (() => {})
+    const items = await fetchWishlist(await getSteamId(supabase, userId))
+    log(items ? `Wishlist de Steam: ${items.length} juegos` : 'Wishlist de Steam: sin datos (vacía o privada), se deja como estaba')
+
+    if (items) {
+        const rows = items.map((i) => ({
+            user_id: userId,
+            appid: i.appid,
+            source: 'steam',
+            priority: i.priority ?? 0,
+            date_added: i.date_added ? new Date(i.date_added * 1000).toISOString() : new Date().toISOString(),
+        }))
+        for (const part of chunks(rows, UPSERT_CHUNK)) {
+            const { error } = await supabase.from('hubgames_user_wishlist').upsert(part, { onConflict: 'user_id,appid' })
+            if (error) throw new SteamSyncError(`No se pudo guardar la wishlist: ${error.message}`)
+        }
+        const keep = new Set(items.map((i) => i.appid))
+        const stored = await selectAll<{ appid: number }>((from, to) =>
+            supabase.from('hubgames_user_wishlist').select('appid').eq('user_id', userId).eq('source', 'steam').order('appid').range(from, to),
+        )
+        const gone = stored.map((r) => r.appid).filter((id) => !keep.has(id))
+        for (const part of chunks(gone, IN_CHUNK)) {
+            const { error } = await supabase.from('hubgames_user_wishlist').delete().eq('user_id', userId).in('appid', part)
+            if (error) throw new SteamSyncError(`No se pudo limpiar la wishlist: ${error.message}`)
+        }
+    }
+
+    // Comprados: salen de la wishlist (los manuales también). Ya están en la biblioteca y, si son nuevos, en la Bandeja.
+    const wished = await selectAll<{ appid: number }>((from, to) =>
+        supabase.from('hubgames_user_wishlist').select('appid').eq('user_id', userId).order('appid').range(from, to),
+    )
+    const owned = new Set<number>()
+    for (const part of chunks(wished.map((w) => w.appid), IN_CHUNK)) {
+        const { data, error } = await supabase.from('hubgames_user_steam_games').select('appid').eq('user_id', userId).in('appid', part)
+        if (error) throw new SteamSyncError(error.message)
+        for (const row of data) owned.add(row.appid)
+    }
+    for (const part of chunks([...owned], IN_CHUNK)) {
+        const { error } = await supabase.from('hubgames_user_wishlist').delete().eq('user_id', userId).in('appid', part)
+        if (error) throw new SteamSyncError(`No se pudieron quitar los comprados de la wishlist: ${error.message}`)
+    }
+    if (owned.size) log(`Comprados (salen de la wishlist): ${owned.size}`)
+
+    const appids = wished.map((w) => w.appid).filter((id) => !owned.has(id))
+    const { fetched, pending } = await fillCatalog(supabase, appids.map((appid) => ({ appid })), options)
+
+    // Precios: un fallo (Steam o IsThereAnyDeal) deja la sincronización como parcial, pero no tumba el resto.
+    let prices: PriceSyncResult | null = null
+    let pricesError: string | null = null
+    try {
+        prices = await refreshPrices(supabase, appids)
+        log(`Precios: ${prices.pricesUpdated}, fotos nuevas: ${prices.snapshots}, mínimos: ${prices.lowsUpdated}`)
+        if (prices.itadSkipped) log(`IsThereAnyDeal: ${prices.itadSkipped}`)
+    } catch (e) {
+        pricesError = e instanceof Error ? e.message : String(e)
+        log(`Precios fallaron: ${pricesError}`)
+    }
+
+    return { steamItems: items?.length ?? null, purchased: owned.size, catalogFetched: fetched, catalogPending: pending, prices, pricesError }
 }
 
 // ─── Logros (#13) ────────────────────────────────────────────────────────────
@@ -498,7 +604,7 @@ export async function applyTrackerRules(supabase: Client, userId: string, now: n
     return { toPlaying, suggestions }
 }
 
-// ─── Sincronización completa y registro (#14, #15) ──────────────────────────
+// ─── Sincronización completa y registro (#14, #15, #35) ─────────────────────
 
 export type SyncSource = 'cron' | 'manual'
 
@@ -506,11 +612,14 @@ export interface FullSyncResult {
     status: 'ok' | 'parcial'
     library: SteamSyncResult
     snapshotRows: number
+    /** null si la wishlist falló: el error queda en wishlistError y la sincronización, como parcial. */
+    wishlist: WishlistSyncResult | null
+    wishlistError: string | null
     achievements: AchievementSyncResult
     tracker: TrackerRulesResult
 }
 
-/** Biblioteca, foto diaria de horas, logros y estados automáticos, registrado en hubgames_sync_logs. Lanza el error tras registrarlo. */
+/** Biblioteca, foto diaria de horas, wishlist y precios, logros y estados automáticos, registrado en hubgames_sync_logs. Lanza el error tras registrarlo. */
 export async function runSteamSync(
     supabase: Client,
     userId: string,
@@ -528,20 +637,39 @@ export async function runSteamSync(
         const library = await syncSteamLibrary(supabase, userId, options)
         const { data: snapshotRows, error: snapshotError } = await supabase.rpc('hubgames_take_playtime_snapshot', { p_user_id: userId })
         if (snapshotError) throw new SteamSyncError(`No se pudo guardar la foto de horas: ${snapshotError.message}`)
+        let wishlist: WishlistSyncResult | null = null
+        let wishlistError: string | null = null
+        try {
+            wishlist = await syncWishlist(supabase, userId, options)
+        } catch (e) {
+            wishlistError = e instanceof Error ? e.message : String(e)
+            options.log?.(`Wishlist falló: ${wishlistError}`)
+        }
         const achievements = await syncSteamAchievements(supabase, userId, options)
         const tracker = await applyTrackerRules(supabase, userId)
 
         const complete =
             library.catalogPending === 0 &&
+            wishlist !== null &&
+            wishlist.catalogPending === 0 &&
+            wishlist.pricesError === null &&
             achievements.gamesFailed === 0 &&
             achievements.gamesSynced === achievements.gamesDue
-        const result: FullSyncResult = { status: complete ? 'ok' : 'parcial', library, snapshotRows: snapshotRows ?? 0, achievements, tracker }
+        const result: FullSyncResult = {
+            status: complete ? 'ok' : 'parcial',
+            library,
+            snapshotRows: snapshotRows ?? 0,
+            wishlist,
+            wishlistError,
+            achievements,
+            tracker,
+        }
         await supabase
             .from('hubgames_sync_logs')
             .update({
                 status: result.status,
                 finished_at: new Date().toISOString(),
-                stats: { library, snapshotRows: result.snapshotRows, achievements, tracker } as unknown as Json,
+                stats: { library, snapshotRows: result.snapshotRows, wishlist, wishlistError, achievements, tracker } as unknown as Json,
             })
             .eq('id', logRow.id)
         return result
