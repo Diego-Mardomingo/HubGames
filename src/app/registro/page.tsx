@@ -62,16 +62,11 @@ export default function RegistroPage() {
         }
 
         try {
-            const { data: availability } = await supabase.rpc('hubgames_check_available', {
-                p_email: email,
+            // El email repetido no se comprueba antes (#63): lo detecta signUp.
+            const { data: usernameAvailable } = await supabase.rpc('hubgames_username_available', {
                 p_username: username,
             })
-            if (availability?.email_taken) {
-                setError('Este email ya está registrado')
-                setLoading(false)
-                return
-            }
-            if (availability?.username_taken) {
+            if (usernameAvailable === false) {
                 setError('Este username ya está en uso')
                 setLoading(false)
                 return
@@ -85,6 +80,12 @@ export default function RegistroPage() {
                     data: { username },
                 },
             })
+            // Con confirmación por email, Supabase devuelve un usuario sin identidades en vez del error.
+            if (signUpError?.code === 'user_already_exists' || authData.user?.identities?.length === 0) {
+                setError('Este email ya está registrado')
+                setLoading(false)
+                return
+            }
             if (signUpError || !authData.user) {
                 setError(signUpError?.message || 'Error al crear la cuenta')
                 setLoading(false)

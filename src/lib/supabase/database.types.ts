@@ -1206,9 +1206,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      hubgames_check_available: {
-        Args: { p_email: string; p_username: string }
-        Returns: { email_taken: boolean; username_taken: boolean }
+      hubgames_username_available: {
+        Args: { p_username: string }
+        Returns: boolean
       }
       hubgames_judi_ranking_rows: {
         Args: never
@@ -1223,6 +1223,38 @@ export type Database = {
           id_usuario: string
           username: string | null
         }[]
+      }
+      hubgames_judi_list: {
+        Args: never
+        Returns: {
+          completado: boolean
+          fase1: boolean
+          fase2: boolean
+          fase3: boolean
+          fase4: boolean
+          fase5: boolean
+          fase6: boolean
+          fecha: string
+          header_image: string | null
+          id: number
+          nombre: string | null
+        }[]
+      }
+      hubgames_judi_get_day: {
+        Args: { p_id: number; p_phase?: number }
+        Returns: Json
+      }
+      hubgames_judi_guess: {
+        Args: { p_guess: string; p_id: number }
+        Returns: Json
+      }
+      hubgames_judi_guess_anon: {
+        Args: { p_guess: string; p_id: number; p_phase: number }
+        Returns: Json
+      }
+      hubgames_judi_capture_url: {
+        Args: { p_id: number; p_phase: number }
+        Returns: string | null
       }
       hubgames_judi_search_pool: {
         Args: { p_query: string }
