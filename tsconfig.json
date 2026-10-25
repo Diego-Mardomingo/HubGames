@@ -38,6 +38,7 @@
   "exclude": [
     "node_modules",
     "supabase",
-    "legacy_php_code"
+    "legacy_php_code",
+    "promo"
   ]
 }

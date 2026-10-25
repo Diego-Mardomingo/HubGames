@@ -1,125 +1,85 @@
 <div align="center">
-
-<img src="./public/icons/favicon.svg" alt="HubGames" width="120"/>
-
-# 🎮 HubGames
-
-### *Tu centro de control gamer*
-
-**Steam, tu biblioteca, la caza de logros y a qué jugar hoy, en un solo sitio.**
-
-[![Demo](https://img.shields.io/badge/🌐_DEMO-hub--games.vercel.app-00A8E8?style=for-the-badge)](https://hub-games.vercel.app/)
-
-[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3FCF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com/)
-[![Steam](https://img.shields.io/badge/Steam-Web_API-171A21?style=flat-square&logo=steam&logoColor=white)](https://steamcommunity.com/dev)
-[![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=flat-square&logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
-[![CI](https://github.com/Diego-Mardomingo/HubGames/actions/workflows/ci.yml/badge.svg)](https://github.com/Diego-Mardomingo/HubGames/actions/workflows/ci.yml)
-
-<a href="#-qué-es">Qué es</a> •
-<a href="#-características">Características</a> •
-<a href="#-capturas">Capturas</a> •
-<a href="#-puesta-en-marcha">Puesta en marcha</a> •
-<a href="#-automatizaciones">Automatizaciones</a> •
-<a href="#️-base-de-datos-y-migraciones">Base de datos</a>
-
+  <a href="https://hub-games.vercel.app"><img src="docs/readme/hero.png" alt="HubGames: tu centro de control gamer" width="100%"></a>
+  <p>
+    <a href="https://hub-games.vercel.app"><strong>Abrir HubGames →</strong></a>
+    &nbsp;·&nbsp;
+    <a href="docs/readme/hubgames-promo.mp4"><strong>▶ Ver el vídeo</strong></a>
+  </p>
+  <p>
+    <img alt="Steam" src="https://img.shields.io/badge/Steam-sincronizado-171A21?style=flat-square&logo=steam&logoColor=white">
+    <img alt="PWA" src="https://img.shields.io/badge/PWA-instalable-5A0FC8?style=flat-square">
+    <img alt="Avisos push" src="https://img.shields.io/badge/avisos-push-9a86ff?style=flat-square">
+    <img alt="Gratis" src="https://img.shields.io/badge/gratis-100%25-2ad4f0?style=flat-square">
+    <a href="https://github.com/Diego-Mardomingo/HubGames/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Diego-Mardomingo/HubGames/actions/workflows/ci.yml/badge.svg"></a>
+  </p>
 </div>
 
 ---
 
-## 🧭 Qué es
+## Por qué HubGames
 
-HubGames es un **tracker personal de juegos centrado en Steam y en la caza de logros**. Vinculas tu cuenta de Steam y todo lo que se puede obtener solo se obtiene solo: biblioteca, horas, logros, duraciones de HowLongToBeat y precios de tu wishlist. Tú solo pones la nota, confirmas cuándo has terminado un juego y, si quieres, ordenas tus pendientes.
+Tienes cientos de juegos en Steam, una lista de pendientes que solo crece y logros a medias repartidos por todas partes. HubGames lo junta todo: **vinculas tu cuenta de Steam y todo lo que se puede saber, lo sabe solo.** Biblioteca, horas, logros, cuánto dura cada juego y cuánto cuesta lo que tienes en la wishlist.
 
-Al entrar ves qué tienes en curso, qué tienes en la cola, qué logros te faltan y qué te conviene jugar hoy. **JUDI**, el minijuego diario de adivinar el videojuego, sigue como sección secundaria con su ranking.
-
-Funciona con planes gratuitos: Vercel Hobby, Supabase Free y GitHub Actions.
-
-## ✨ Características
-
-| | Qué hace |
-|:---:|:---|
-| 🔗 **Steam** | Vinculas tu cuenta desde `/perfil` (OpenID). Cada noche se sincronizan tu biblioteca, horas, logros y wishlist; también hay un botón **Sincronizar ahora**. |
-| ⏱️ **Historial de horas** | Steam solo da las horas totales, así que cada día se guarda una foto y se calculan las horas por día y por juego. |
-| 📚 **Biblioteca** | Estados (bandeja, pendiente, jugando, pausado, completado, abandonado, descartado), con cambios automáticos y sugerencias ("¿Lo has terminado?"). Vista en cuadrícula o lista, filtros, orden de pendientes arrastrando y límite de juegos en curso. |
-| 🃏 **Ficha del juego** | `/juego/[appid]`: datos de Steam, tráiler y capturas, duración de HowLongToBeat, tus horas y logros, nota y reseña, y un **objetivo** (historia, extras o 100 %) con su progreso. Buscador de Steam con `Ctrl+K`. |
-| 🏆 **Logros** | Página de logros por juego con rareza y dificultad estimada. Vistas de cazador: cerca del 100 %, logros fáciles que te faltan, juegos olvidados y tus logros más raros. Puntuación ponderada por rareza, hitos, línea temporal, heatmap anual y rachas. |
-| 🏠 **Dashboard** | Jugando ahora, siguientes en la cola, cerca del 100 %, actividad reciente, JUDI de hoy, **¿Qué juego hoy?** (según el tiempo que tienes y lo que te apetece) y **metas mensuales** que se miden solas. |
-| 📊 **Estadísticas** | `/estadisticas?year=AAAA`: completados, horas, notas, géneros, logros por mes, juegos al 100 % y comparación con el año anterior. **Resumen anual** estilo Wrapped con imagen para compartir. Exportación de tus datos a CSV o JSON. |
-| 💸 **Wishlist** | Tu wishlist de Steam con el precio actual, el mínimo histórico en Steam y en cualquier tienda (IsThereAnyDeal). **Avisos push** cuando un juego llega a su mínimo o a tu precio o descuento objetivo. |
-| 🎯 **JUDI** | Un videojuego cada día: 6 capturas y 5 pistas. Cuanto antes lo adivinas, más puntos. Los intentos se comprueban en el servidor y el nombre no llega al navegador hasta terminar. Se puede jugar sin cuenta; con cuenta, tu partida cuenta para el ranking. |
-| 📱 **PWA** | Instalable en móvil, con barra de pestañas inferior y notificaciones push. |
-
-## 📸 Capturas
+Tú solo decides a qué jugar. Y si no lo tienes claro, también te ayuda con eso.
 
 <div align="center">
-
-**Dashboard**<br/>
-<img src="./screenshots/dashboard.png" alt="Dashboard: centro de control" width="800"/>
-
-**Biblioteca**<br/>
-<img src="./screenshots/biblioteca.png" alt="Biblioteca en cuadrícula con estados" width="800"/>
-
-**Ficha del juego**<br/>
-<img src="./screenshots/ficha.png" alt="Ficha de un juego con tus datos y objetivo" width="800"/>
-
-**Logros**<br/>
-<img src="./screenshots/logros.png" alt="Caza de logros: puntuación, hitos y vistas de cazador" width="800"/>
-
-**Wishlist**<br/>
-<img src="./screenshots/wishlist.png" alt="Wishlist con precios y mínimos históricos" width="800"/>
-
-**Estadísticas**<br/>
-<img src="./screenshots/estadisticas.png" alt="Estadísticas por año" width="800"/>
-
-**JUDI**<br/>
-<img src="./screenshots/judi.png" alt="JUDI, el juego del día" width="800"/>
-
+  <a href="docs/readme/hubgames-promo.mp4"><img src="docs/readme/video.png" alt="Ver el vídeo de HubGames" width="80%"></a>
+  <br>
+  <sub>50 segundos de recorrido. Clic para reproducirlo.</sub>
 </div>
 
-## 🗺️ Rutas
+## Qué puedes hacer
 
-| Ruta | Qué es |
+<img src="docs/readme/screens.png" alt="Inicio, biblioteca, logros, wishlist, estadísticas y JUDI" width="100%">
+
+### 🔗 Vincular Steam y olvidarte
+Un clic y listo. Cada noche se sincronizan tu biblioteca, tus horas, tus logros y tu wishlist. ¿Acabas de jugar? Tienes un botón de **Sincronizar ahora**. Como Steam solo da las horas totales, HubGames guarda una foto diaria y te dice cuánto jugaste cada día y a qué.
+
+### 🏠 Saber a qué jugar hoy
+Al entrar ves lo que tienes en curso, lo siguiente en la cola y los juegos a punto del 100 %. **¿Qué juego hoy?** te propone algo según el tiempo que tienes y lo que te apetece. Y las **metas del mes** se miden solas.
+
+### 📚 Una biblioteca que se ordena sola
+Bandeja, pendiente, jugando, pausado, completado, abandonado… Los estados cambian solos cuando empiezas un juego, y si parece que lo has terminado, HubGames te pregunta **«¿Lo has terminado?»**. Ordena tus pendientes arrastrando y pon un límite de juegos a la vez para no abrir veinte frentes.
+
+### 🃏 Todo sobre cada juego
+Ficha con tráiler y capturas, cuánto dura según **HowLongToBeat**, tus horas, tus logros, tu nota y tu reseña. Ponle un **objetivo** (historia, extras o 100 %) y mira cuánto te falta. Busca cualquier juego de Steam con <kbd>Ctrl</kbd> + <kbd>K</kbd>.
+
+### 🏆 Cazar logros con cabeza
+Cada logro puntúa según su rareza, así que un 1 % vale mucho más que un 50 %. Encuentra los **logros fáciles que te faltan**, los juegos **casi al 100 %** y los que tienes olvidados. Y presume de hitos, línea temporal, heatmap anual y rachas.
+
+### 💸 Comprar en el mejor momento
+Tu wishlist con el precio actual, el **mínimo histórico en Steam y en cualquier tienda** (IsThereAnyDeal). Ponle un precio o un descuento objetivo y recibe un **aviso push** cuando llegue.
+
+### 📊 Ver tu año en números
+Completados, horas, notas, géneros y logros por mes, comparados con el año anterior. A final de año, un **resumen anual** estilo Wrapped con imagen para compartir. Y tus datos son tuyos: expórtalos a CSV o JSON cuando quieras.
+
+### 🎯 Y cada día, un reto: JUDI
+Un videojuego al día, 6 capturas y 5 pistas. Cuanto antes lo adivinas, más puntos sumas en el **ranking**. Se puede jugar sin cuenta, y el nombre del juego no llega a tu navegador hasta que terminas: nada de trampas.
+
+## Llévala en el móvil
+
+HubGames es una PWA: ábrela en el navegador y elige **«Instalar»** (escritorio y Android) o **«Añadir a pantalla de inicio»** (iOS). Tiene barra de pestañas abajo, se abre como una app y te manda avisos push de precios y del JUDI del día. En iPhone, los avisos solo funcionan con la app instalada.
+
+## De dónde salen los datos
+
+| Fuente | Qué aporta |
 |:---|:---|
-| `/` | Dashboard con sesión; portada sin ella |
-| `/biblioteca`, `/biblioteca/bandeja` | Biblioteca y bandeja de juegos sin clasificar |
-| `/juego/[appid]`, `/juego/[appid]/logros` | Ficha del juego y sus logros |
-| `/logros`, `/logros/historial` | Caza de logros e historial (línea temporal, heatmap y rachas) |
-| `/wishlist` | Wishlist con precios y avisos |
-| `/estadisticas`, `/estadisticas/resumen` | Estadísticas por año y resumen anual |
-| `/judi`, `/ranking` | JUDI y su ranking |
-| `/perfil` | Cuenta, Steam, notificaciones y exportar datos |
-| `/admin` | Panel de JUDI (solo administradores, protegido en el servidor) |
-| `/api/steam/*` | Vincular, desvincular, sincronizar y buscar en Steam |
-| `/api/wishlist`, `/api/export` | Añadir o quitar de la wishlist; descarga de tus datos |
-| `/api/judi/captura/[id]/[fase]` | Capturas de JUDI sin exponer la URL de Steam |
-| `/api/estadisticas/resumen/imagen` | Imagen del resumen anual (`next/og`) |
+| [Steam Web API](https://steamcommunity.com/dev) | Biblioteca, horas, logros, rareza global y wishlist |
+| [Steam Store](https://store.steampowered.com/) | Fichas, precios, capturas y tráileres |
+| [SteamSpy](https://steamspy.com/) | Popularidad, reseñas y duración de respaldo |
+| [HowLongToBeat](https://howlongtobeat.com/) | Duración de historia, extras y 100 % |
+| [IsThereAnyDeal](https://isthereanydeal.com/) | Mínimos históricos en Steam y en cualquier tienda |
 
-## 📂 Estructura
+## Hecho con
 
-```
-HubGames/
-├── src/
-│   ├── app/                 # App Router: páginas y route handlers (ver Rutas)
-│   ├── components/          # Nav, dashboard, tracker, achievements, wishlist, ui (shadcn) y motion
-│   ├── lib/                 # Lógica pura con tests (*.test.ts) y acceso a datos (*-db.ts)
-│   │   ├── supabase/        # Clientes (navegador, servidor y admin) y tipos generados
-│   │   ├── steam.ts         # Steam Web API, Store API y SteamSpy
-│   │   ├── steam-sync.ts    # Sincronización completa de un usuario
-│   │   └── …                # tracker, library, achievements, dashboard, stats, judi, prices…
-│   ├── styles/              # Estilos globales y navegación
-│   └── proxy.ts             # Sesión y protección de /admin
-├── scripts/                 # Tareas de los workflows (sync, JUDI, health check, avisos de precio, HLTB en Python)
-├── supabase/
-│   ├── migrations/          # Migraciones de HubGames
-│   └── functions/           # Edge Function del aviso diario de JUDI
-├── worker/                  # Código extra del Service Worker (notificaciones push)
-├── .github/workflows/       # CI y tareas programadas
-└── legacy_php_code/         # Versión PHP original (histórico)
-```
+Next.js · React · TypeScript · Tailwind CSS · Framer Motion · Supabase · Vercel · GitHub Actions
 
-## 🚀 Puesta en marcha
+Todo funciona con planes gratuitos: Vercel Hobby, Supabase Free y GitHub Actions.
+
+<details>
+<summary><strong>🛠️ Para desarrolladores</strong></summary>
+
+### Puesta en marcha
 
 Requisitos: **Node 22** y un proyecto de Supabase con las migraciones aplicadas.
 
@@ -128,8 +88,6 @@ npm ci
 # crea .env.local (ver abajo)
 npm run dev          # http://localhost:3000
 ```
-
-**Variables de `.env.local`**
 
 | Variable | Para qué |
 |:---|:---|
@@ -142,7 +100,7 @@ npm run dev          # http://localhost:3000
 | `WEB_PUSH_VAPID_PUBLIC_KEY`, `WEB_PUSH_VAPID_PRIVATE_KEY` | Envío de avisos push (mismo par de claves) |
 | `NEXT_PUBLIC_JUDI_MAINTENANCE` | Opcional: `true` pone JUDI en mantenimiento |
 
-**Comandos**
+### Comandos
 
 | Comando | Qué hace |
 |:---|:---|
@@ -152,58 +110,60 @@ npm run dev          # http://localhost:3000
 | `npm run steam:sync` | Sincronización con Steam de todos los usuarios vinculados |
 | `npm run judi:pick-daily` / `npm run judi:build-pool` | Elegir el JUDI de mañana / rehacer el pool semanal |
 
-## ⚙️ Automatizaciones
+### Estructura
 
-**GitHub Actions**
+```
+HubGames/
+├── src/
+│   ├── app/                 # App Router: páginas y route handlers
+│   ├── components/          # Nav, dashboard, tracker, achievements, wishlist, ui (shadcn) y motion
+│   ├── lib/                 # Lógica pura con tests (*.test.ts) y acceso a datos (*-db.ts)
+│   ├── styles/              # Estilos globales y navegación
+│   └── proxy.ts             # Sesión y protección de /admin
+├── scripts/                 # Tareas de los workflows (sync, JUDI, health check, avisos de precio, HLTB)
+├── supabase/                # Migraciones de HubGames y Edge Function del aviso de JUDI
+├── worker/                  # Service Worker (notificaciones push)
+├── promo/                   # Vídeo e imágenes del README (Remotion)
+└── .github/workflows/       # CI y tareas programadas
+```
+
+### Automatizaciones
 
 | Workflow | Cuándo (UTC) | Qué hace |
 |:---|:---|:---|
 | `CI` | En cada PR y push a `master` | `lint`, `typecheck`, `test` y `build` |
-| `Steam Sync` | Cada día, 01:00 | Biblioteca, foto de horas, wishlist, precios y logros; después, los avisos push de precio |
+| `Steam Sync` | Cada día, 01:00 | Biblioteca, foto de horas, wishlist, precios y logros; después, los avisos de precio |
 | `JUDI Daily Pick` | Cada día, 10:00 | Elige el JUDI del día siguiente |
 | `JUDI Pool Weekly` | Domingos, 18:00 | Rehace el pool de juegos candidatos |
 | `HLTB Weekly` | Lunes, 04:00 | Duraciones de HowLongToBeat (Python, `howlongtobeatpy`) |
 | `Health Check` | Cada día, 19:00 | Comprueba que existe el JUDI de mañana y que la sincronización va al día |
 
-Si un workflow programado falla, se abre (o se comenta) un issue automáticamente, que se cierra solo cuando vuelve a ir bien.
+Si un workflow programado falla, se abre (o se comenta) un issue que se cierra solo cuando vuelve a ir bien. En Supabase, un job de `pg_cron` llama a las 16:00 UTC a la Edge Function `send_daily_judi_notifications` (protegida con `x-cron-secret` guardado en Vault). `master` está protegida: solo se cambia con PR y el CI en verde.
 
-**Supabase**: un job de `pg_cron` llama a las 16:00 UTC a la Edge Function `send_daily_judi_notifications`, que envía el aviso de "nuevo JUDI". La función exige una cabecera `x-cron-secret`; el secreto está en Vault y el job lo lee de ahí.
+### Base de datos
 
-**Rama `master`**: protegida. Solo se cambia con PR y con el check `check` del CI en verde.
+La base de datos de Supabase está **compartida con ECOS** (tablas y funciones `ecos_*`). Aquí solo se versionan los objetos `hubgames_*`; **nunca tocar `ecos_*`**.
 
-## 🧩 Fuentes de datos
+- `supabase/migrations/20261024000000_hubgames_baseline.sql` es el estado base. Los cambios van en migraciones `AAAAMMDDHHMMSS_descripcion.sql` posteriores.
+- Para aplicarlas: SQL Editor de Supabase, o `npx supabase db push` tras `npx supabase link --project-ref <ref>`.
+- Si cambia el esquema, `npm run db:types` y revisa el diff.
+- Todas las tablas `hubgames_*` tienen RLS. JUDI solo se lee con funciones `security definer` (`hubgames_judi_*`) y `/admin` se protege en el servidor con `src/proxy.ts` e `is_admin()`.
 
-| Fuente | Qué aporta |
-|:---|:---|
-| [Steam Web API](https://steamcommunity.com/dev) | Biblioteca, horas, logros, porcentajes globales y wishlist |
-| [Steam Store API](https://store.steampowered.com/api/appdetails) | Fichas, precios, capturas y tráileres |
-| [SteamSpy](https://steamspy.com/api.php) | Popularidad, reseñas y duración mediana (respaldo de HowLongToBeat) |
-| [HowLongToBeat](https://howlongtobeat.com/) | Duración de historia, extras y 100 % (scraping semanal con `howlongtobeatpy`) |
-| [IsThereAnyDeal](https://isthereanydeal.com/) | Mínimo histórico en Steam y en cualquier tienda |
+### Vídeo e imágenes del README
 
-## 🗄️ Base de datos y migraciones
+Están hechos con [Remotion](https://www.remotion.dev/) en `promo/`, con datos inventados y carátulas públicas de Steam. La música se sintetiza con `promo/scripts/music.mjs` y los efectos de sonido son de [Kenney](https://kenney.nl/) (CC0).
 
-La base de datos de Supabase está **compartida con ECOS**, otra app (tablas y funciones `ecos_*`). En este repo solo se versionan los objetos de HubGames (`hubgames_*`, sus políticas RLS, triggers, funciones propias y el cron de JUDI). **Nunca tocar `ecos_*`.**
+```bash
+cd promo && npm ci
+npm run studio    # vista previa editable
+npm run render    # docs/readme/hubgames-promo.mp4
+npm run stills    # hero.png, screens.png y video.png
+```
 
-- `supabase/migrations/20261024000000_hubgames_baseline.sql` es el estado base del esquema. Los cambios van en migraciones `AAAAMMDDHHMMSS_descripcion.sql` posteriores, que solo tocan objetos `hubgames_*`.
-- Para aplicarlas: SQL Editor de Supabase, o `npx supabase db push` tras `npx supabase login` y `npx supabase link --project-ref <ref>`.
-- Si cambia el esquema, regenera los tipos con `npm run db:types` y revisa el diff. Las funciones RPC que se tipan se declaran en `scripts/gen-db-types.mjs`.
+</details>
 
-**Seguridad**
-
-- Todas las tablas `hubgames_*` tienen RLS: cada usuario ve y cambia solo lo suyo.
-- El perfil lo crea el trigger `on_hubgames_auth_user_created` sobre `auth.users`. La clave anon no puede leer `hubgames_usuarios`.
-- JUDI: la lista, las capturas y las respuestas solo se leen con funciones `security definer` (`hubgames_judi_*`), y el progreso solo lo escriben ellas.
-- `/admin` se protege en el servidor con `src/proxy.ts` y `is_admin()`.
-
-## 👨‍💻 Autor
+---
 
 <div align="center">
-
-**Diego López Mardomingo**
-
-[![GitHub](https://img.shields.io/badge/GitHub-Diego--Mardomingo-181717?style=for-the-badge&logo=github)](https://github.com/Diego-Mardomingo)
-
-<sub>Proyecto personal. Los datos de videojuegos vienen de Steam, SteamSpy, HowLongToBeat e IsThereAnyDeal.</sub>
-
+  <sub>Hecho por <a href="https://github.com/Diego-Mardomingo">Diego Mardomingo</a>. Los nombres e imágenes de los juegos pertenecen a sus dueños; los datos de las capturas son de ejemplo.</sub>
 </div>

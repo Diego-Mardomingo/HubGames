@@ -1,0 +1,29 @@
+{
+  "name": "hubgames-promo",
+  "private": true,
+  "description": "Vídeo promocional e imágenes del README de HubGames (Remotion)",
+  "scripts": {
+    "studio": "remotion studio",
+    "music": "node scripts/music.mjs 49",
+    "render": "node scripts/music.mjs 49 && remotion render Promo ../docs/readme/hubgames-promo.mp4 --crf=22",
+    "stills": "remotion still Hero ../docs/readme/hero.png --scale=2 && remotion still Screens ../docs/readme/screens.png --scale=2 && remotion still Poster ../docs/readme/video.png --scale=1.25",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.538",
+    "@remotion/google-fonts": "^4.0.538",
+    "@remotion/media": "4.0.538",
+    "@remotion/transitions": "^4.0.538",
+    "lucide-react": "^1.61.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.538"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^7.0.2"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
+  }
+}

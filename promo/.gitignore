@@ -1,0 +1,8 @@
+node_modules
+build
+out
+public/music.wav
+# Skills de Remotion para agentes: se instalan con `npx remotion skills add`
+.agents
+.claude
+skills-lock.json
