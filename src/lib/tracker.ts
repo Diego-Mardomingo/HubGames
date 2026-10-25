@@ -47,12 +47,7 @@ export function suggestedCompletionDate(game: Pick<LibraryGame, 'last_unlock_at'
     return null
 }
 
-export function formatHours(minutes: number): string {
-    if (minutes === 0) return '0 h'
-    if (minutes < 60) return `${minutes} min`
-    const hours = minutes / 60
-    return `${hours < 10 ? hours.toFixed(1).replace('.', ',') : Math.round(hours)} h`
-}
+export { formatHours } from './format'
 
 /** Cambia el estado de uno o varios juegos como decisión manual. "Jugando" fija started_at si aún no lo tenía. */
 export async function setGamesStatus(appids: number[], status: GameStatus): Promise<void> {

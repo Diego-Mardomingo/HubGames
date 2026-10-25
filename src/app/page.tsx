@@ -1,36 +1,59 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Gamepad2, Trophy } from 'lucide-react'
+import { Gamepad2, LogIn, Trophy } from 'lucide-react'
+import { createServerClient } from '@/lib/supabase/server'
+import { loadDashboard } from '@/lib/dashboard-db'
 import { Button } from '@/components/ui/button'
-import SuggestionsPanel from '@/components/tracker/SuggestionsPanel'
+import Dashboard from '@/components/dashboard/Dashboard'
+import '@/components/dashboard/dashboard.css'
 
 export const metadata: Metadata = {
     title: 'HubGames — Tu centro de control gamer',
     description: 'Tu biblioteca, tus logros y el juego del día en un solo sitio.',
 }
 
-/** Placeholder del dashboard hasta #29. */
-export default function HomePage() {
+// Depende de la sesión: nunca se genera estática.
+export const dynamic = 'force-dynamic'
+
+function Landing() {
     return (
-        <div className="maint" style={{ gap: '1.25rem', alignContent: 'center' }}>
-            <div className="maint__card glass animate-fade-in-up">
-                <span className="maint__icon">
-                    <Gamepad2 size={24} />
-                </span>
-                <h1 className="page-title" style={{ fontSize: '1.6rem' }}>HubGames</h1>
-                <p className="page-subtitle" style={{ margin: '0.5rem auto 1.5rem' }}>
-                    Tu centro de control gamer. Muy pronto verás aquí tu biblioteca y tus logros.
-                </p>
-                <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-                    <Button asChild>
-                        <Link href="/judi"><Gamepad2 size={15} data-icon="inline-start" aria-hidden />Jugar a JUDI</Link>
-                    </Button>
-                    <Button variant="secondary" asChild>
-                        <Link href="/ranking"><Trophy size={15} data-icon="inline-start" aria-hidden />Ranking</Link>
-                    </Button>
-                </div>
+        <div className="dash-landing animate-fade-in-up">
+            <span className="eyebrow" style={{ justifySelf: 'center' }}>
+                <span className="eyebrow__dot" /> Centro de control gamer
+            </span>
+            <h1 className="page-title">Tu biblioteca de Steam, tus logros y a qué jugar hoy</h1>
+            <p className="page-subtitle">
+                Conecta Steam y HubGames ordena solo lo que tienes en curso, lo que tienes pendiente y los logros que te faltan.
+            </p>
+            <div className="dash-landing__actions">
+                <Button asChild>
+                    <Link href="/login">
+                        <LogIn aria-hidden /> Entrar
+                    </Link>
+                </Button>
+                <Button variant="secondary" asChild>
+                    <Link href="/judi">
+                        <Gamepad2 aria-hidden /> Jugar a JUDI
+                    </Link>
+                </Button>
+                <Button variant="secondary" asChild>
+                    <Link href="/ranking">
+                        <Trophy aria-hidden /> Ranking
+                    </Link>
+                </Button>
             </div>
-            <SuggestionsPanel />
         </div>
     )
+}
+
+/** Inicio: el dashboard (#29) con sesión; sin ella, la portada. Se pinta en el servidor. */
+export default async function HomePage() {
+    const supabase = await createServerClient()
+    const {
+        data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return <Landing />
+
+    const data = await loadDashboard(supabase, user.id)
+    return <Dashboard data={data} />
 }
