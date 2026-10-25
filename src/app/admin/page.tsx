@@ -4,14 +4,13 @@ import './admin.css'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { cn } from '@/lib/utils'
 import { supabase, safeGetUser } from '@/lib/supabase/client'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import {
     Loader2, CheckCircle2, XCircle, Search,
-    Shield, Database, CalendarDays, FileText, RefreshCw,
+    Database, CalendarDays, FileText, RefreshCw,
 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import type { Json } from '@/lib/supabase/database.types'
@@ -102,7 +101,7 @@ function formatLogMadrid(iso: string | null): string {
 // ─── Shared sub-components ────────────────────────────────────────────────────
 
 function Spinner({ size = 20 }: { size?: number }) {
-    return <Loader2 size={size} className="animate-spin" style={{ color: 'var(--muted)' }} />
+    return <Loader2 size={size} className="hg-spin" style={{ color: 'var(--muted)' }} aria-label="Cargando" />
 }
 
 function LogDetailDialog({
@@ -116,26 +115,20 @@ function LogDetailDialog({
 }) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent
-                className={cn(
-                    'gap-0 overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:p-6 sm:pb-6',
-                    'max-h-[min(88vh,88dvh)] sm:max-h-[85vh]',
-                    'w-[min(100vw-1.25rem,42rem)] max-w-[min(100vw-1.25rem,42rem)] sm:max-w-2xl',
-                )}
-            >
+            <DialogContent className="admin-log-dialog">
                 {log ? (
                     <>
-                        <DialogHeader className="pr-8">
-                            <DialogTitle className="text-base font-semibold">
+                        <DialogHeader>
+                            <DialogTitle>
                                 Log #{log.id}
                             </DialogTitle>
-                            <p className="text-sm font-normal text-[var(--muted)]">
+                            <p className="admin-log-dialog__sub">
                                 {fuente2Label(log.fuente)}
                                 {' · '}
                                 {log.exito ? (
-                                    <span style={{ color: 'var(--success)' }}>Correcto</span>
+                                    <span className="admin-ok">Correcto</span>
                                 ) : (
-                                    <span style={{ color: 'var(--danger)' }}>Fallido</span>
+                                    <span className="admin-ko">Fallido</span>
                                 )}
                             </p>
                         </DialogHeader>
@@ -143,15 +136,15 @@ function LogDetailDialog({
                         <dl className="admin-log-detail">
                             <div className="admin-log-detail__row">
                                 <dt>Fecha ejecución (Madrid)</dt>
-                                <dd className="admin-cell-mono">{formatLogMadrid(log.fecha_ejecucion)}</dd>
+                                <dd className="admin-cell-num">{formatLogMadrid(log.fecha_ejecucion)}</dd>
                             </div>
                             <div className="admin-log-detail__row">
                                 <dt>Fuente (raw)</dt>
-                                <dd className="admin-cell-mono">{log.fuente || '—'}</dd>
+                                <dd className="admin-cell-num">{log.fuente || '—'}</dd>
                             </div>
                             <div className="admin-log-detail__row">
                                 <dt>Fecha JUDI</dt>
-                                <dd className="admin-cell-mono">{log.fecha_judi || '—'}</dd>
+                                <dd className="admin-cell-num">{log.fecha_judi || '—'}</dd>
                             </div>
                             <div className="admin-log-detail__row">
                                 <dt>Descripción / juego</dt>
@@ -159,11 +152,11 @@ function LogDetailDialog({
                             </div>
                             <div className="admin-log-detail__row">
                                 <dt>Steam app ID</dt>
-                                <dd className="admin-cell-mono">{log.id_juego_steam ?? '—'}</dd>
+                                <dd className="admin-cell-num">{log.id_juego_steam ?? '—'}</dd>
                             </div>
                             <div className="admin-log-detail__row">
                                 <dt>RAWG id</dt>
-                                <dd className="admin-cell-mono">{log.id_juego_rawg ?? '—'}</dd>
+                                <dd className="admin-cell-num">{log.id_juego_rawg ?? '—'}</dd>
                             </div>
                             <div className="admin-log-detail__row admin-log-detail__row--block">
                                 <dt>Mensaje de error</dt>
@@ -204,12 +197,14 @@ function PanelHead({
                 )}
             </div>
             <button
+                type="button"
                 onClick={onRefresh}
                 disabled={loading}
-                className="admin-refresh-btn"
+                className="hg-icon-btn admin-refresh-btn"
                 title="Actualizar"
+                aria-label="Actualizar"
             >
-                <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+                <RefreshCw size={15} className={loading ? 'hg-spin' : ''} aria-hidden />
             </button>
         </div>
     )
@@ -252,7 +247,7 @@ function LogsTab() {
     return (
         <div className="admin-panel">
             <PanelHead
-                icon={<FileText size={14} />}
+                icon={<FileText size={15} aria-hidden />}
                 title="Logs de generación"
                 count={filtered.length}
                 onRefresh={fetchLogs}
@@ -260,6 +255,7 @@ function LogsTab() {
             />
 
             <div className="admin-filters">
+                <div className="hg-seg hg-seg--scroll" role="group" aria-label="Filtrar logs">
                 {([
                     { key: 'all', label: 'Todos' },
                     { key: 'daily', label: 'Juego del día' },
@@ -267,16 +263,19 @@ function LogsTab() {
                 ] as const).map(({ key, label }) => (
                     <button
                         key={key}
+                        type="button"
                         onClick={() => setFilter(key)}
-                        className={`admin-filter-pill ${filter === key ? 'active' : ''}`}
+                        className="hg-seg__opt"
+                        aria-pressed={filter === key}
                     >
                         {label}
                     </button>
                 ))}
+                </div>
             </div>
 
             {fetchError && (
-                <div className="admin-empty" style={{ color: 'var(--danger)', marginBottom: 12 }}>
+                <div className="alert alert--error admin-error">
                     Error al cargar logs: {fetchError}
                 </div>
             )}
@@ -286,7 +285,7 @@ function LogsTab() {
             ) : !fetchError && filtered.length === 0 ? (
                 <div className="admin-empty">Sin registros para este filtro</div>
             ) : fetchError ? null : (
-                <div className="admin-table-wrap admin-table-wrap--logs">
+                <div className="admin-table-wrap">
                     <table className="admin-table admin-table--logs">
                         <thead>
                             <tr>
@@ -316,8 +315,8 @@ function LogsTab() {
                                 >
                                     <td data-label="Estado">
                                         {log.exito
-                                            ? <CheckCircle2 size={15} style={{ color: 'var(--success)' }} />
-                                            : <XCircle size={15} style={{ color: 'var(--danger)' }} />}
+                                            ? <CheckCircle2 size={16} className="admin-ok" aria-label="Correcto" />
+                                            : <XCircle size={16} className="admin-ko" aria-label="Fallido" />}
                                     </td>
                                     <td data-label="Tipo">
                                         <Badge variant={log.fuente === 'steam_weekly_pool' ? 'muted' : 'default'}>
@@ -327,11 +326,11 @@ function LogsTab() {
                                     <td className="admin-cell-name" data-label="Juego / Descripción" title={log.nombre_juego || undefined}>
                                         {log.nombre_juego || '—'}
                                     </td>
-                                    <td className="admin-cell-mono admin-cell-muted" data-label="Fecha JUDI">{log.fecha_judi || '—'}</td>
-                                    <td className="admin-cell-mono admin-cell-muted" data-label="Registrado (Madrid)">
+                                    <td className="admin-cell-num admin-cell-muted" data-label="Fecha JUDI">{log.fecha_judi || '—'}</td>
+                                    <td className="admin-cell-num admin-cell-muted" data-label="Registrado (Madrid)">
                                         {formatLogMadrid(log.fecha_ejecucion)}
                                     </td>
-                                    <td className="admin-cell-error" data-label="Error" title={log.error_mensaje || undefined}>
+                                    <td className={log.error_mensaje ? 'admin-cell-error' : 'admin-cell-muted'} data-label="Error" title={log.error_mensaje || undefined}>
                                         {log.error_mensaje || '—'}
                                     </td>
                                 </tr>
@@ -424,7 +423,7 @@ function SyncLogsTab() {
     return (
         <div className="admin-panel">
             <PanelHead
-                icon={<RefreshCw size={14} />}
+                icon={<RefreshCw size={15} aria-hidden />}
                 title="Sincronizaciones con Steam"
                 count={logs.length}
                 onRefresh={fetchLogs}
@@ -432,7 +431,7 @@ function SyncLogsTab() {
             />
 
             {fetchError && (
-                <div className="admin-empty" style={{ color: 'var(--danger)', marginBottom: 12 }}>
+                <div className="alert alert--error admin-error">
                     Error al cargar logs: {fetchError}
                 </div>
             )}
@@ -442,7 +441,7 @@ function SyncLogsTab() {
             ) : !fetchError && logs.length === 0 ? (
                 <div className="admin-empty">Todavía no hay sincronizaciones</div>
             ) : fetchError ? null : (
-                <div className="admin-table-wrap admin-table-wrap--logs">
+                <div className="admin-table-wrap">
                     <table className="admin-table admin-table--logs">
                         <thead>
                             <tr>
@@ -461,9 +460,9 @@ function SyncLogsTab() {
                                     <tr key={log.id} className={log.status === 'error' ? 'admin-row-error' : ''}>
                                         <td data-label="Estado">
                                             {log.status === 'ok'
-                                                ? <CheckCircle2 size={15} style={{ color: 'var(--success)' }} />
+                                                ? <CheckCircle2 size={16} className="admin-ok" aria-label="Correcto" />
                                                 : log.status === 'error'
-                                                    ? <XCircle size={15} style={{ color: 'var(--danger)' }} />
+                                                    ? <XCircle size={16} className="admin-ko" aria-label="Fallido" />
                                                     : <Badge variant={status.variant}>{status.label}</Badge>}
                                         </td>
                                         <td data-label="Origen">
@@ -471,13 +470,13 @@ function SyncLogsTab() {
                                                 {log.source === 'cron' ? 'Diaria' : 'Manual'}
                                             </Badge>
                                         </td>
-                                        <td className="admin-cell-mono admin-cell-muted" data-label="Usuario" title={log.user_id}>
+                                        <td className="admin-cell-num admin-cell-muted" data-label="Usuario" title={log.user_id}>
                                             {log.user_id.slice(0, 8)}
                                         </td>
-                                        <td className="admin-cell-mono admin-cell-muted" data-label="Inicio (Madrid)">
+                                        <td className="admin-cell-num admin-cell-muted" data-label="Inicio (Madrid)">
                                             {formatLogMadrid(log.started_at)}
                                         </td>
-                                        <td className="admin-cell-mono admin-cell-muted" data-label="Duración">
+                                        <td className="admin-cell-num admin-cell-muted" data-label="Duración">
                                             {durationLabel(log.started_at, log.finished_at)}
                                         </td>
                                         {log.error ? (
@@ -578,7 +577,7 @@ function PoolTab() {
     return (
         <div className="admin-panel">
             <PanelHead
-                icon={<Database size={14} />}
+                icon={<Database size={15} aria-hidden />}
                 title="Pool de juegos"
                 count={filtered.length}
                 onRefresh={() => fetchPool(search)}
@@ -587,9 +586,10 @@ function PoolTab() {
 
             <div className="admin-search-area">
                 <div className="admin-search-wrap">
-                    <Search size={13} className="admin-search-icon" />
+                    <Search size={15} className="admin-search-icon" aria-hidden />
                     <Input
-                        placeholder="Buscar juego en el pool..."
+                        aria-label="Buscar juego en el pool"
+                        placeholder="Buscar juego en el pool…"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="admin-search-input"
@@ -598,6 +598,7 @@ function PoolTab() {
             </div>
 
             <div className="admin-filters">
+                <div className="hg-seg hg-seg--scroll" role="group" aria-label="Filtrar el pool">
                 {([
                     { key: 'all', label: 'Todos' },
                     { key: 'eligible', label: 'Elegibles' },
@@ -606,12 +607,15 @@ function PoolTab() {
                 ] as const).map(({ key, label }) => (
                     <button
                         key={key}
+                        type="button"
                         onClick={() => setFilterElig(key)}
-                        className={`admin-filter-pill ${filterElig === key ? 'active' : ''}`}
+                        className="hg-seg__opt"
+                        aria-pressed={filterElig === key}
                     >
                         {label}
                     </button>
                 ))}
+                </div>
             </div>
 
             {loading ? (
@@ -647,7 +651,7 @@ function PoolTab() {
                                             )}
                                             <div>
                                                 <div className="admin-cell-name">{item.game_name}</div>
-                                                <div className="admin-cell-muted admin-cell-mono" style={{ fontSize: 11 }}>
+                                                <div className="admin-cell-sub">
                                                     {item.steam_appid}
                                                 </div>
                                             </div>
@@ -665,7 +669,7 @@ function PoolTab() {
                                             )}
                                         </div>
                                     </td>
-                                    <td className="admin-cell-mono admin-cell-muted">
+                                    <td className="admin-cell-num admin-cell-muted">
                                         {item.relevance_score?.toFixed(1) ?? '—'}
                                     </td>
                                     <td>
@@ -679,11 +683,11 @@ function PoolTab() {
                                                 <span key={r} className="admin-reason-tag">{r}</span>
                                             ))}
                                             {!item.discarded_reason && (item.eligibility_reasons ?? []).length === 0 && (
-                                                <span className="admin-cell-muted" style={{ fontSize: 12 }}>—</span>
+                                                <span className="admin-cell-muted">—</span>
                                             )}
                                         </div>
                                     </td>
-                                    <td className="admin-cell-mono admin-cell-muted">{item.week_start_date}</td>
+                                    <td className="admin-cell-num admin-cell-muted">{item.week_start_date}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -713,8 +717,8 @@ function DailyTable({ rows }: { rows: DailyRow[] }) {
                     {rows.map((row) => (
                         <tr key={row.id} className={row.isFuture ? 'admin-row-future' : ''}>
                             <td>
-                                <div className="admin-cell-mono">{row.fecha}</div>
-                                <div className="admin-cell-muted" style={{ fontSize: 11 }}>
+                                <div className="admin-cell-num">{row.fecha}</div>
+                                <div className="admin-cell-sub">
                                     {formatLegacyDateNice(row.fecha)}
                                 </div>
                             </td>
@@ -733,8 +737,8 @@ function DailyTable({ rows }: { rows: DailyRow[] }) {
                                     <span className="admin-cell-name">{row.nombre}</span>
                                 </div>
                             </td>
-                            <td className="admin-cell-mono admin-cell-muted">{row.calificacion || '—'}</td>
-                            <td className="admin-cell-mono admin-cell-muted">{row.id}</td>
+                            <td className="admin-cell-num admin-cell-muted">{row.calificacion || '—'}</td>
+                            <td className="admin-cell-num admin-cell-muted">{row.id}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -788,7 +792,7 @@ function CalendarTab() {
     return (
         <div className="admin-panel">
             <PanelHead
-                icon={<CalendarDays size={14} />}
+                icon={<CalendarDays size={15} aria-hidden />}
                 title="Juegos programados"
                 count={items.length}
                 onRefresh={fetchDaily}
@@ -798,23 +802,23 @@ function CalendarTab() {
             {loading ? (
                 <div className="admin-center"><Spinner /></div>
             ) : (
-                <div style={{ padding: future.length > 0 ? '1rem' : 0 }}>
+                <div className={future.length > 0 ? 'admin-groups' : undefined}>
                     {future.length > 0 && (
                         <div className="admin-group">
                             <div className="admin-group-label admin-group-label--future">
-                                Próximos — no visibles al público ({future.length})
+                                Próximos, todavía no visibles ({future.length})
                             </div>
-                            <div className="admin-panel" style={{ marginBottom: 0 }}>
+                            <div className="admin-panel">
                                 <DailyTable rows={future} />
                             </div>
                         </div>
                     )}
 
-                    <div className="admin-group" style={{ marginBottom: 0 }}>
+                    <div className="admin-group">
                         <div className="admin-group-label">
                             Publicados ({past.length})
                         </div>
-                        <div className={future.length > 0 ? 'admin-panel' : ''} style={{ marginBottom: 0 }}>
+                        <div className={future.length > 0 ? 'admin-panel' : undefined}>
                             <DailyTable rows={past} />
                         </div>
                     </div>
@@ -861,42 +865,34 @@ export default function AdminPage() {
     if (!isAdmin) return null
 
     return (
-        <div className="admin-page animate-fade-in-up">
-            {/* Topbar — igual que perfil */}
-            <header className="admin-topbar admin-topbar--responsive">
-                <div className="admin-topbar__left">
-                    <div className="admin-topbar__icon">
-                        <Shield size={16} />
-                    </div>
-                    <div>
-                        <h1 className="admin-topbar__title">Panel de Administración</h1>
-                        <p className="admin-topbar__sub">{adminEmail}</p>
-                    </div>
+        <div className="admin-page">
+            <header className="page-head admin-head">
+                <div>
+                    <h1 className="page-title">Administración</h1>
+                    <p className="page-subtitle">{adminEmail}</p>
                 </div>
             </header>
 
             {/* Tabs */}
             <Tabs defaultValue="logs">
-                <div className="admin-tabs-scroll">
-                <TabsList className="admin-tabs-list">
-                    <TabsTrigger value="logs" className="admin-tab-trigger">
-                        <FileText size={13} />
+                <TabsList className="hg-seg--scroll admin-tabs-list">
+                    <TabsTrigger value="logs">
+                        <FileText aria-hidden />
                         Logs
                     </TabsTrigger>
-                    <TabsTrigger value="steam" className="admin-tab-trigger">
-                        <RefreshCw size={13} />
+                    <TabsTrigger value="steam">
+                        <RefreshCw aria-hidden />
                         Steam
                     </TabsTrigger>
-                    <TabsTrigger value="pool" className="admin-tab-trigger">
-                        <Database size={13} />
+                    <TabsTrigger value="pool">
+                        <Database aria-hidden />
                         Pool
                     </TabsTrigger>
-                    <TabsTrigger value="calendar" className="admin-tab-trigger">
-                        <CalendarDays size={13} />
+                    <TabsTrigger value="calendar">
+                        <CalendarDays aria-hidden />
                         Calendario
                     </TabsTrigger>
                 </TabsList>
-                </div>
 
                 <TabsContent value="logs">
                     <LogsTab />

@@ -4,10 +4,10 @@ import { useSyncExternalStore } from 'react'
 import { Monitor, Moon, Sun } from 'lucide-react'
 import { getThemePref, setThemePref, THEME_CHANGED_EVENT, type ThemePref } from '@/lib/theme'
 
-const OPTIONS: { value: ThemePref; label: string; icon: typeof Sun }[] = [
-    { value: 'light', label: 'Tema claro', icon: Sun },
-    { value: 'dark', label: 'Tema oscuro', icon: Moon },
-    { value: 'system', label: 'Tema del sistema', icon: Monitor },
+const OPTIONS: { value: ThemePref; label: string; short: string; icon: typeof Sun }[] = [
+    { value: 'light', label: 'Tema claro', short: 'Claro', icon: Sun },
+    { value: 'dark', label: 'Tema oscuro', short: 'Oscuro', icon: Moon },
+    { value: 'system', label: 'Tema del sistema', short: 'Sistema', icon: Monitor },
 ]
 
 function subscribe(onChange: () => void) {
@@ -21,9 +21,18 @@ function subscribe(onChange: () => void) {
 
 /**
  * `compact`: un solo botón que rota claro → oscuro → sistema (barra móvil y barra lateral plegada).
- * Por defecto: control segmentado con las tres opciones.
+ * `labeled`: control segmentado con icono y texto (fila "Tema" del perfil).
+ * Por defecto: control segmentado con las tres opciones, solo iconos.
  */
-export default function ThemeToggle({ compact = false, className }: { compact?: boolean; className?: string }) {
+export default function ThemeToggle({
+    compact = false,
+    labeled = false,
+    className,
+}: {
+    compact?: boolean
+    labeled?: boolean
+    className?: string
+}) {
     // null en el servidor: no conoce la preferencia guardada.
     const pref = useSyncExternalStore<ThemePref | null>(subscribe, getThemePref, () => null)
     const choose = setThemePref
@@ -42,6 +51,19 @@ export default function ThemeToggle({ compact = false, className }: { compact?: 
             >
                 <Icon size={18} aria-hidden />
             </button>
+        )
+    }
+
+    if (labeled) {
+        return (
+            <div className={['hg-seg', className].filter(Boolean).join(' ')} role="radiogroup" aria-label="Tema">
+                {OPTIONS.map(({ value, short, icon: Icon }) => (
+                    <button key={value} type="button" role="radio" aria-checked={pref === value} className="hg-seg__opt" onClick={() => choose(value)}>
+                        <Icon aria-hidden />
+                        {short}
+                    </button>
+                ))}
+            </div>
         )
     }
 

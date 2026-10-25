@@ -281,3 +281,106 @@
     animation: none;
   }
 }
+
+/* ── Icono girando mientras algo carga (sincronizar, refrescar) ── */
+.hg-spin {
+  animation: spin 0.8s linear infinite;
+}
+
+/* ── Badge: etiqueta de estado plana ── */
+.hg-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted-light);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.hg-badge--default {
+  background: var(--primary-glow);
+  color: var(--primary);
+}
+
+.hg-badge--success {
+  background: var(--success-glow);
+  color: var(--success);
+}
+
+.hg-badge--danger {
+  background: var(--danger-glow);
+  color: var(--danger);
+}
+
+/* ── Calendario (react-day-picker 9) y selector de rango ── */
+.hg-popover--auto {
+  width: auto;
+}
+
+.hg-cal {
+  --rdp-accent-color: var(--primary);
+  --rdp-accent-background-color: var(--primary-glow);
+  --rdp-day-height: 38px;
+  --rdp-day-width: 38px;
+  --rdp-day_button-height: 36px;
+  --rdp-day_button-width: 36px;
+  --rdp-day_button-border-radius: var(--radius-sm);
+  --rdp-selected-border: 2px solid var(--primary);
+  --rdp-today-color: var(--primary);
+  --rdp-range_start-color: var(--primary-foreground);
+  --rdp-range_end-color: var(--primary-foreground);
+  --rdp-nav-height: 2.5rem;
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.hg-cal .rdp-caption_label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.hg-cal .rdp-weekday {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 1;
+}
+
+.hg-cal .rdp-day_button:hover {
+  background: var(--surface-2);
+}
+
+.hg-cal .rdp-day_button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.hg-cal .rdp-chevron {
+  fill: var(--muted);
+}
+
+.hg-cal .rdp-button_previous:hover .rdp-chevron,
+.hg-cal .rdp-button_next:hover .rdp-chevron {
+  fill: var(--foreground);
+}
+
+.hg-daterange {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.hg-daterange__trigger {
+  justify-content: flex-start;
+  width: 100%;
+  font-weight: 500;
+}
+
+.hg-daterange__trigger.is-empty {
+  color: var(--muted);
+}

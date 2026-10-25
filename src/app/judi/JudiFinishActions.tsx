@@ -82,11 +82,11 @@ export default function JudiFinishActions({
     }
 
     return (
-        <div className="result__extra">
-            <div className="result__extra-row">
+        <div className="jd-result__extra">
+            <div className="jd-result__extra-row">
                 {ownership && appid &&
                     (ownership.status === 'pendiente' ? (
-                        <span className="result__done">
+                        <span className="jd-result__done">
                             <Check size={14} aria-hidden /> En pendientes
                         </span>
                     ) : ownership.status ? (
@@ -99,7 +99,7 @@ export default function JudiFinishActions({
                             <ListPlus aria-hidden /> Añadir a pendientes
                         </Button>
                     ) : ownership.wished ? (
-                        <span className="result__done">
+                        <span className="jd-result__done">
                             <Heart size={14} aria-hidden /> En tu wishlist
                         </span>
                     ) : (
@@ -112,7 +112,7 @@ export default function JudiFinishActions({
                 </Button>
             </div>
             {message && (
-                <p className="result__msg" role="status">
+                <p className="jd-result__msg" role="status">
                     {message}
                 </p>
             )}

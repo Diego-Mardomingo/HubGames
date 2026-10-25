@@ -24,25 +24,17 @@ import {
     CalendarDays,
     Check,
     ChevronDown,
-    Clock,
-    Flame,
-    Gamepad2,
     Lock,
     Maximize2,
-    Percent,
     Search,
     SkipForward,
-    Sparkles,
     Tags,
-    Target,
     ThumbsUp,
-    Trophy,
     Users,
     X,
 } from 'lucide-react'
 import { Dialog } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { CountUp, Reveal, RollingText, useTilt } from '@/components/motion'
 import './judi.css'
 
 /** Un día de JUDI. El nombre y la portada solo llegan cuando lo has terminado (#39). */
@@ -372,14 +364,14 @@ function gamePipStates(gameState: 'playing' | 'won' | 'lost', lives: number): Pi
 function AttemptPips({ states, size = 'md' }: { states: PipState[]; size?: 'sm' | 'md' }) {
     const misses = states.filter((s) => s === 'miss').length
     return (
-        <div className={`pips pips--${size}`} role="img" aria-label={`${misses} de ${JUDI_ATTEMPT_SLOTS} intentos fallados`}>
+        <div className={`jd-pips jd-pips--${size}`} role="img" aria-label={`${misses} de ${JUDI_ATTEMPT_SLOTS} intentos fallados`}>
             {states.map((state, i) => (
                 <motion.span
                     key={i}
-                    className={`pip pip--${state}`}
+                    className={`jd-pip jd-pip--${state}`}
                     initial={false}
-                    animate={state === 'empty' ? { scale: 1 } : { scale: [1, 1.6, 1] }}
-                    transition={{ duration: 0.45, ease: 'easeOut', delay: state === 'hit' ? i * 0.04 : 0 }}
+                    animate={state === 'empty' ? { scale: 1 } : { scale: [1, 1.35, 1] }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
                 />
             ))}
         </div>
@@ -394,76 +386,84 @@ function getTileStatus(game: GameRecord): TileStatus {
     return getFailedAttempts(game as JudiProgressRecord) > 0 ? 'progress' : 'new'
 }
 
-/** Arte de "juego misterioso" para partidas sin resolver (no revela la portada). */
-function MysteryArt({ seed, big = false }: { seed: number; big?: boolean }) {
-    // Tonos dentro de la paleta de marca (cian → violeta → magenta).
-    const hue = 190 + ((seed * 47) % 150)
+const STATUS_LABEL: Record<TileStatus, string> = {
+    won: 'Acertado',
+    lost: 'Fallado',
+    progress: 'En curso',
+    new: 'Sin jugar',
+}
+
+/** Hueco de "juego misterioso" para partidas sin resolver (no revela la portada). */
+function MysteryArt({ big = false }: { big?: boolean }) {
     return (
-        <div className={`mystery ${big ? 'mystery--big' : ''}`} style={{ ['--h' as string]: hue }} aria-hidden>
-            <span className="mystery__q">?</span>
-            <span className="mystery__scan" />
+        <div className={`jd-mystery${big ? ' jd-mystery--big' : ''}`} aria-hidden>
+            <span>?</span>
         </div>
     )
 }
 
-function GameTile({ game, index, onPlay }: { game: GameRecord; index: number; onPlay: (game: GameRecord) => void }) {
-    const tilt = useTilt<HTMLButtonElement>(9)
+function GameTile({ game, onPlay }: { game: GameRecord; onPlay: (game: GameRecord) => void }) {
     const status = getTileStatus(game)
     const finished = status === 'won' || status === 'lost'
     const failed = getFailedAttempts(game as JudiProgressRecord)
     const isToday = isJudiGameForCurrentDailyDate(game)
+    const title = finished ? game.nombre ?? STATUS_LABEL[status] : STATUS_LABEL[status]
 
     return (
-        <motion.button
-            type="button"
-            data-game-row
-            className={`tile tile--${status}${isToday ? ' tile--today glow-border' : ''}`}
-            onClick={() => onPlay(game)}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: EASE_OUT, delay: Math.min(index, 14) * 0.03 }}
-            {...tilt}
-        >
-            <div className="tile__art">
-                {finished && game.header_image ? (
-                    <img src={game.header_image} alt="" loading="lazy" draggable={false} />
-                ) : (
-                    <MysteryArt seed={game.id} />
-                )}
-                <span className="tile__num">#{game.id}</span>
-                {isToday && <span className="tile__today">Hoy</span>}
-                {finished && (
-                    <span className={`tile__badge tile__badge--${status}`} aria-hidden>
-                        {status === 'won' ? <Check size={13} strokeWidth={3} /> : <X size={13} strokeWidth={3} />}
-                    </span>
-                )}
-            </div>
-            <div className="tile__body">
-                <span className="tile__date">{formatShortDate(game.fecha)}</span>
-                <span className="tile__title">
-                    {finished ? game.nombre ?? (status === 'won' ? 'Acertado' : 'Fallado') : status === 'progress' ? 'En curso' : 'Sin jugar'}
-                </span>
-                <div className="tile__foot">
-                    {finished ? (
-                        <span className={`tile__pts ${(game.puntos ?? 0) > 0 ? 'is-pos' : 'is-zero'}`}>
-                            {status === 'won' ? `+${game.puntos ?? 0}` : '0'} pts
-                        </span>
-                    ) : status === 'progress' ? (
-                        <AttemptPips states={listPipStates(failed)} size="sm" />
+        <li>
+            <button
+                type="button"
+                data-game-row
+                className={`jd-tile jd-tile--${status}${isToday ? ' is-today' : ''}`}
+                onClick={() => onPlay(game)}
+                aria-label={`JUDI #${game.id}, ${formatShortDate(game.fecha)}: ${title}${finished && game.nombre ? ` (${STATUS_LABEL[status].toLowerCase()})` : ''}`}
+            >
+                <span className="jd-tile__art">
+                    {finished && game.header_image ? (
+                        <img src={game.header_image} alt="" loading="lazy" draggable={false} />
                     ) : (
-                        <span className="tile__play">
-                            Jugar <ArrowRight size={13} />
-                        </span>
+                        <MysteryArt />
                     )}
-                </div>
-            </div>
-            <span className="tile__glare" aria-hidden />
-        </motion.button>
+                </span>
+                <span className="jd-tile__body">
+                    <span className="jd-tile__meta">
+                        {isToday ? <b>Hoy</b> : formatShortDate(game.fecha)} · #{game.id}
+                    </span>
+                    <span className="jd-tile__title">{title}</span>
+                    <span className="jd-tile__foot">
+                        {finished ? (
+                            <span className={`jd-tile__state jd-tile__state--${status}`}>
+                                {status === 'won' ? <Check size={13} strokeWidth={2.75} aria-hidden /> : <X size={13} strokeWidth={2.75} aria-hidden />}
+                                {status === 'won' ? `+${game.puntos ?? 0} pts` : '0 pts'}
+                            </span>
+                        ) : status === 'progress' ? (
+                            <AttemptPips states={listPipStates(failed)} size="sm" />
+                        ) : (
+                            <span className="jd-tile__play">Jugar</span>
+                        )}
+                    </span>
+                </span>
+            </button>
+        </li>
     )
 }
 
-function HeroCard({ game, onPlay }: { game: GameRecord | null; onPlay: (game: GameRecord) => void }) {
-    const tilt = useTilt<HTMLButtonElement>(7)
+/** Portada del juego del día: la primera captura (la que ves al empezar) o, si ya lo has terminado, la cápsula. */
+function TodayArt({ src }: { src: string }) {
+    const [failed, setFailed] = useState(false)
+    if (failed) return <MysteryArt big />
+    return <img src={src} alt="" draggable={false} onError={() => setFailed(true)} />
+}
+
+function TodayCard({
+    game,
+    countdown,
+    onPlay,
+}: {
+    game: GameRecord | null
+    countdown: string
+    onPlay: (game: GameRecord) => void
+}) {
     if (!game) return null
     const status = getTileStatus(game)
     const finished = status === 'won' || status === 'lost'
@@ -472,48 +472,60 @@ function HeroCard({ game, onPlay }: { game: GameRecord | null; onPlay: (game: Ga
     const longDate = parsed
         ? parsed.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })
         : game.fecha
+    const cta = finished ? 'Ver resultado' : status === 'progress' ? 'Continuar partida' : 'Jugar ahora'
 
     return (
-        <motion.div
-            className="hero-card-wrap"
-            initial={{ opacity: 0, y: 24, rotateX: 8 }}
-            animate={{ opacity: 1, y: 0, rotateX: 0 }}
-            transition={{ duration: 0.8, ease: EASE_OUT, delay: 0.15 }}
-        >
-            <span className="hero-card-ghost hero-card-ghost--1" aria-hidden />
-            <span className="hero-card-ghost hero-card-ghost--2" aria-hidden />
-            <button type="button" className={`hero-card hero-card--${status} glow-border`} onClick={() => onPlay(game)} {...tilt}>
-                <div className="hero-card__art">
-                    {finished && game.header_image ? (
-                        <img src={game.header_image} alt="" draggable={false} />
-                    ) : (
-                        <MysteryArt seed={game.id} big />
-                    )}
+        <section className={`jd-today jd-today--${status}`} aria-label="Juego del día">
+            <button type="button" className="jd-today__art" onClick={() => onPlay(game)} aria-label={`${cta}: JUDI #${game.id}`} tabIndex={-1}>
+                <TodayArt src={finished && game.header_image ? game.header_image : judiCaptureUrl(game.id, 1)} />
+                {!finished && <span className="jd-today__badge">Captura 1 de 6</span>}
+            </button>
+            <div className="jd-today__body">
+                <div className="jd-today__meta">
+                    <span>
+                        JUDI #{game.id} · <span className="jd-today__date">{longDate}</span>
+                    </span>
+                    <span
+                        className={`hg-chip${status === 'won' ? ' hg-chip--done' : status === 'lost' ? ' jd-chip--lost' : status === 'progress' ? ' hg-chip--playing' : ''}`}
+                    >
+                        {STATUS_LABEL[status]}
+                    </span>
                 </div>
-                <div className="hero-card__overlay">
-                    <div className="hero-card__row">
-                        <span className="hero-card__num">JUDI #{game.id}</span>
-                        <span className={`hero-card__state hero-card__state--${status}`}>
-                            {status === 'won' ? 'Acertado' : status === 'lost' ? 'Fallado' : status === 'progress' ? 'En curso' : 'Sin jugar'}
+                <p className="jd-today__name">{finished ? game.nombre ?? STATUS_LABEL[status] : '¿Lo reconoces?'}</p>
+                <div className="jd-today__pips">
+                    <AttemptPips
+                        states={
+                            status === 'won'
+                                ? gamePipStates('won', JUDI_ATTEMPT_SLOTS - failed)
+                                : status === 'lost'
+                                    ? gamePipStates('lost', 0)
+                                    : listPipStates(failed)
+                        }
+                    />
+                    <span className="jd-today__pips-label">
+                        {status === 'won'
+                            ? `+${game.puntos ?? 0} puntos`
+                            : status === 'lost'
+                                ? 'Sin puntos'
+                                : `${JUDI_ATTEMPT_SLOTS - failed} intentos restantes`}
+                    </span>
+                </div>
+                <div className="jd-today__foot">
+                    <Button size="lg" onClick={() => onPlay(game)} data-play>
+                        {cta}
+                        <ArrowRight size={18} data-icon="inline-end" aria-hidden />
+                    </Button>
+                    <div className="jd-countdown" role="timer" aria-label={`Nuevo juego en ${countdown}`}>
+                        <span className="jd-countdown__time" aria-hidden>
+                            {countdown}
+                        </span>
+                        <span className="jd-countdown__label" aria-hidden>
+                            para el siguiente juego
                         </span>
                     </div>
-                    <span className="hero-card__date">{longDate}</span>
-                    <div className="hero-card__row hero-card__row--bottom">
-                        <span className="hero-card__name">{finished ? game.nombre ?? (status === 'won' ? 'Acertado' : 'Fallado') : '¿Lo reconoces?'}</span>
-                        <AttemptPips
-                            states={
-                                status === 'won'
-                                    ? gamePipStates('won', JUDI_ATTEMPT_SLOTS - failed)
-                                    : status === 'lost'
-                                        ? gamePipStates('lost', 0)
-                                        : listPipStates(failed)
-                            }
-                        />
-                    </div>
                 </div>
-                <span className="tile__glare" aria-hidden />
-            </button>
-        </motion.div>
+            </div>
+        </section>
     )
 }
 
@@ -548,9 +560,16 @@ function formatLongDate(date: string) {
 }
 
 const phaseImageVariants = {
-    enter: (dir: number) => ({ opacity: 0, x: dir * 60, scale: 1.04, filter: 'blur(6px)' }),
-    center: { opacity: 1, x: 0, scale: 1, filter: 'blur(0px)' },
-    exit: (dir: number) => ({ opacity: 0, x: dir * -60, scale: 0.98, filter: 'blur(6px)' }),
+    enter: (dir: number) => ({ opacity: 0, x: dir * 24 }),
+    center: { opacity: 1, x: 0 },
+    exit: (dir: number) => ({ opacity: 0, x: dir * -24 }),
+}
+
+/** Confeti con la paleta del sistema (acento cobalto, dorado de "legendaria" y neutros), leída del tema activo. */
+function systemConfettiColors(): string[] {
+    const css = getComputedStyle(document.documentElement)
+    const read = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback
+    return [read('--primary', '#2f5bff'), read('--rar-leg', '#c98a0b'), read('--foreground', '#1b1f27'), read('--surface-3', '#d6dae1')]
 }
 
 export default function JudiClient() {
@@ -969,29 +988,16 @@ export default function JudiClient() {
         if (winConfettiFiredRef.current) return
         winConfettiFiredRef.current = true
         const id = window.setTimeout(() => {
-            const colors = ['#b69cff', '#6f8bff', '#2ad4f0', '#34d399', '#fcd34d', '#f472b6']
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+            const colors = systemConfettiColors()
             void confetti({
-                particleCount: 130,
-                spread: 78,
-                origin: { y: 0.62 },
+                particleCount: 90,
+                spread: 70,
+                origin: { y: 0.6 },
                 colors,
-                ticks: 220,
-            })
-            void confetti({
-                particleCount: 55,
-                spread: 110,
-                origin: { y: 0.58, x: 0.25 },
-                colors,
-                scalar: 0.85,
-                startVelocity: 38,
-            })
-            void confetti({
-                particleCount: 55,
-                spread: 110,
-                origin: { y: 0.58, x: 0.75 },
-                colors,
-                scalar: 0.85,
-                startVelocity: 38,
+                ticks: 180,
+                scalar: 0.9,
+                disableForReducedMotion: true,
             })
         }, 120)
         return () => window.clearTimeout(id)
@@ -1200,103 +1206,39 @@ export default function JudiClient() {
     }
 
     const statTiles = [
-        { label: 'Puntos', value: stats.points, suffix: '', icon: Sparkles, tone: 'violet' },
-        { label: 'Acertados', value: stats.wins, suffix: '', icon: Target, tone: 'green' },
-        { label: 'Racha', value: stats.streak, suffix: '', icon: Flame, tone: 'orange' },
-        { label: 'Precisión', value: stats.accuracy, suffix: '%', icon: Percent, tone: 'cyan' },
-    ] as const
+        { label: 'puntos', value: stats.points.toLocaleString('es-ES') },
+        { label: 'acertados', value: stats.wins.toLocaleString('es-ES') },
+        { label: stats.streak === 1 ? 'día de racha' : 'días de racha', value: stats.streak.toLocaleString('es-ES') },
+        { label: 'de precisión', value: `${stats.accuracy} %` },
+    ]
 
     return (
-        <div className="judi">
+        <div className="jd">
             {view === 'start' ? (
                 <>
-                    <section className="hero">
-                        <div className="hero__copy">
-                            <motion.span
-                                className="eyebrow"
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, ease: EASE_OUT }}
-                            >
-                                <span className="eyebrow__dot" />
-                                JUDI · Juego del día
-                            </motion.span>
-                            <h1 className="hero__title">
-                                {['¿Qué', 'juego'].map((word, i) => (
-                                    <motion.span
-                                        key={word}
-                                        className="hero__word"
-                                        initial={{ opacity: 0, y: '0.6em', filter: 'blur(8px)' }}
-                                        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                                        transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.08 + i * 0.08 }}
-                                    >
-                                        {word}
-                                    </motion.span>
-                                ))}
-                                <br />
-                                <motion.span
-                                    className="hero__word"
-                                    initial={{ opacity: 0, y: '0.6em', filter: 'blur(8px)' }}
-                                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                                    transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.24 }}
-                                >
-                                    es <span className="text-gradient hero__shine">hoy</span>?
-                                </motion.span>
-                            </h1>
-                            <Reveal delay={0.35}>
-                                <p className="hero__lead">
-                                    6 capturas, 5 pistas y un único videojuego. Cuanto antes lo adivines, más puntos sumas en el ranking.
-                                </p>
-                            </Reveal>
-                            <Reveal delay={0.45} className="hero__actions">
-                                {heroGame && (
-                                    <Button size="lg" onClick={() => void startJuego(heroGame)} data-play>
-                                        {getTileStatus(heroGame) === 'won' || getTileStatus(heroGame) === 'lost'
-                                            ? 'Ver resultado'
-                                            : getTileStatus(heroGame) === 'progress'
-                                                ? 'Continuar partida'
-                                                : 'Jugar ahora'}
-                                        <ArrowRight size={18} data-icon="inline-end" aria-hidden />
-                                    </Button>
-                                )}
-                                <div className="countdown" aria-live="polite">
-                                    <Clock size={15} aria-hidden />
-                                    <span className="countdown__label">Nuevo juego en</span>
-                                    <RollingText text={formatHmsCountdown(dailyCountdownMs)} className="countdown__time" />
-                                </div>
-                            </Reveal>
+                    <header className="page-head jd-head">
+                        <div>
+                            <h1 className="page-title">JUDI</h1>
+                            <p className="page-subtitle">
+                                Adivina el videojuego del día con 6 capturas y 5 pistas. Cuanto antes aciertes, más puntos sumas en el ranking.
+                            </p>
                         </div>
-                        <HeroCard game={heroGame} onPlay={(g) => void startJuego(g)} />
-                    </section>
+                    </header>
 
-                    <section className="stats" aria-label="Tus estadísticas">
-                        {statTiles.map((tile, i) => {
-                            const Icon = tile.icon
-                            return (
-                                <motion.div
-                                    key={tile.label}
-                                    className={`stat stat--${tile.tone}`}
-                                    initial={{ opacity: 0, y: 16 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5, ease: EASE_OUT, delay: 0.3 + i * 0.07 }}
-                                    whileHover={{ y: -3 }}
-                                >
-                                    <span className="stat__icon">
-                                        <Icon size={18} aria-hidden />
-                                    </span>
-                                    <span className="stat__label">{tile.label}</span>
-                                    <CountUp value={tile.value} suffix={tile.suffix} className="stat__value" />
-                                </motion.div>
-                            )
-                        })}
-                    </section>
+                    <TodayCard game={heroGame} countdown={formatHmsCountdown(dailyCountdownMs)} onPlay={(g) => void startJuego(g)} />
+
+                    <dl className="jd-kpis" aria-label="Tus estadísticas">
+                        {statTiles.map((tile) => (
+                            <div key={tile.label} className="jd-kpi">
+                                <dt>{tile.label}</dt>
+                                <dd>{tile.value}</dd>
+                            </div>
+                        ))}
+                    </dl>
 
                     {!user && (
-                        <Reveal delay={0.4} className="nudge glass">
-                            <span className="nudge__icon">
-                                <Trophy size={18} aria-hidden />
-                            </span>
-                            <p className="nudge__text">
+                        <div className="jd-nudge">
+                            <p>
                                 <strong>Guarda tu progreso y compite.</strong> Tus partidas se guardan solo en este dispositivo hasta que inicies sesión.
                             </p>
                             <Button asChild size="sm" variant="secondary">
@@ -1308,165 +1250,123 @@ export default function JudiClient() {
                                     Iniciar sesión
                                 </Link>
                             </Button>
-                        </Reveal>
+                        </div>
                     )}
 
-                    <section className="history" aria-label="Historial de juegos">
-                        <div className="history__head">
-                            <div>
-                                <h2 className="history__title">Historial</h2>
-                                <p className="history__sub">{games.length} juegos desde el inicio. Puedes jugar cualquier día pasado.</p>
+                    <section className="hg-section jd-history" aria-labelledby="jd-history-title">
+                        <div className="jd-history__head">
+                            <div className="hg-section__head">
+                                <h2 id="jd-history-title" className="hg-section__title">
+                                    Historial <span className="hg-section__count">{games.length} juegos</span>
+                                </h2>
+                                <p className="hg-section__hint">Puedes jugar cualquier día pasado.</p>
                             </div>
-                            <div className="segmented" role="tablist" aria-label="Filtrar juegos">
+                            <div className="hg-seg hg-seg--scroll" role="group" aria-label="Filtrar juegos">
                                 {LIST_FILTERS.map((f) => (
                                     <button
                                         key={f.id}
                                         type="button"
-                                        role="tab"
-                                        aria-selected={listFilter === f.id}
-                                        className={`segmented__btn ${listFilter === f.id ? 'active' : ''}`}
+                                        aria-pressed={listFilter === f.id}
+                                        className="hg-seg__opt"
                                         onClick={() => changeFilter(f.id)}
                                     >
-                                        {listFilter === f.id && (
-                                            <motion.span
-                                                layoutId="filter-pill"
-                                                className="segmented__pill"
-                                                transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-                                            />
-                                        )}
-                                        <span className="segmented__label">{f.label}</span>
-                                        <span className="segmented__count">{filterCounts[f.id]}</span>
+                                        {f.label}
+                                        <span className="hg-seg__count">{filterCounts[f.id]}</span>
                                     </button>
                                 ))}
                             </div>
                         </div>
 
                         {yearGroups.length === 0 && (
-                            <motion.div className="history__empty" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}>
-                                <Gamepad2 size={28} aria-hidden />
+                            <div className="hg-empty">
                                 <p>Nada por aquí con este filtro.</p>
-                            </motion.div>
+                            </div>
                         )}
 
-                        {yearGroups.map((yg, yearIndex) => {
+                        {yearGroups.map((yg) => {
                             const yearOpen = singleYear || accordion.openYears.includes(yg.year)
                             const yearGames = yg.months.flatMap((m) => m.games)
                             const yearWon = yearGames.filter((g) => g.completado).length
+                            const monthBlocks = yg.months.map((group) => {
+                                const isOpen = accordion.openMonths.includes(group.key)
+                                const won = group.games.filter((g) => g.completado).length
+                                const lost = group.games.filter((g) => g.fase6 && !g.completado).length
+                                const total = group.games.length
+                                return (
+                                    <div key={group.key} className="jd-month">
+                                        <button
+                                            type="button"
+                                            className={`jd-month__head${isOpen ? ' is-open' : ''}`}
+                                            onClick={() => toggleMonth(group.key)}
+                                            aria-expanded={isOpen}
+                                        >
+                                            <ChevronDown size={16} className="jd-chev" aria-hidden />
+                                            <span className="jd-month__label">{group.label}</span>
+                                            <span className="jd-month__bar" aria-hidden>
+                                                <span className="jd-month__bar-won" style={{ width: `${total ? (won / total) * 100 : 0}%` }} />
+                                                <span className="jd-month__bar-lost" style={{ width: `${total ? (lost / total) * 100 : 0}%` }} />
+                                            </span>
+                                            <span className="jd-month__count">
+                                                <b>{won}</b> de {total} acertados
+                                            </span>
+                                        </button>
+                                        <AnimatePresence initial={false}>
+                                            {isOpen && (
+                                                <motion.div
+                                                    key="content"
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ height: { duration: 0.25, ease: EASE_OUT }, opacity: { duration: 0.15 } }}
+                                                    style={{ overflow: 'hidden' }}
+                                                >
+                                                    <ul className="jd-tiles">
+                                                        {group.games.map((game) => (
+                                                            <GameTile key={game.id} game={game} onPlay={(g) => void startJuego(g)} />
+                                                        ))}
+                                                    </ul>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                )
+                            })
                             return (
-                                <motion.div
-                                    key={yg.year}
-                                    className="year"
-                                    initial={{ opacity: 0, y: 8 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3, ease: 'easeOut', delay: yearIndex * 0.05 }}
-                                >
+                                <div key={yg.year} className="jd-year">
                                     {!singleYear && (
                                         <button
                                             type="button"
-                                            className={`year-head ${yearOpen ? 'is-open' : ''}`}
+                                            className={`jd-year__head${yearOpen ? ' is-open' : ''}`}
                                             onClick={() => toggleYear(yg.year)}
                                             aria-expanded={yearOpen}
                                         >
-                                            <span className="year-head__label">{yg.label}</span>
-                                            <span className="year-head__meta">
-                                                {yearWon}/{yearGames.length} acertados
+                                            <ChevronDown size={18} className="jd-chev" aria-hidden />
+                                            <span className="jd-year__label">{yg.label}</span>
+                                            <span className="jd-year__meta">
+                                                {yearWon} de {yearGames.length} acertados
                                             </span>
-                                            <motion.span
-                                                className="year-head__chev"
-                                                animate={{ rotate: yearOpen ? 0 : -90 }}
-                                                transition={{ type: 'spring', stiffness: 380, damping: 26 }}
-                                            >
-                                                <ChevronDown size={18} />
-                                            </motion.span>
                                         </button>
                                     )}
-                                    <AnimatePresence initial={false}>
-                                        {yearOpen &&
-                                            (() => {
-                                                const monthBlocks = yg.months.map((group, monthIndex) => {
-                                                    const isOpen = accordion.openMonths.includes(group.key)
-                                                    const animIndex = yearIndex * 8 + monthIndex
-                                                    const won = group.games.filter((g) => g.completado).length
-                                                    const lost = group.games.filter((g) => g.fase6 && !g.completado).length
-                                                    const total = group.games.length
-                                                    return (
-                                                        <motion.div
-                                                            key={group.key}
-                                                            className="month"
-                                                            initial={{ opacity: 0, y: 6 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            transition={{ duration: 0.25, ease: 'easeOut', delay: singleYear ? animIndex * 0.05 : 0 }}
-                                                        >
-                                                            <button
-                                                                type="button"
-                                                                className={`month-head ${isOpen ? 'is-open' : ''}`}
-                                                                onClick={() => toggleMonth(group.key)}
-                                                                aria-expanded={isOpen}
-                                                            >
-                                                                <motion.span
-                                                                    className="month-head__chev"
-                                                                    animate={{ rotate: isOpen ? 0 : -90 }}
-                                                                    transition={{ type: 'spring', stiffness: 380, damping: 26 }}
-                                                                >
-                                                                    <ChevronDown size={16} />
-                                                                </motion.span>
-                                                                <span className="month-head__label">{group.label}</span>
-                                                                <span className="month-head__bar" aria-hidden>
-                                                                    <motion.span
-                                                                        className="month-head__bar-won"
-                                                                        initial={{ width: 0 }}
-                                                                        animate={{ width: `${total ? (won / total) * 100 : 0}%` }}
-                                                                        transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.2 }}
-                                                                    />
-                                                                    <motion.span
-                                                                        className="month-head__bar-lost"
-                                                                        initial={{ width: 0 }}
-                                                                        animate={{ width: `${total ? (lost / total) * 100 : 0}%` }}
-                                                                        transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.3 }}
-                                                                    />
-                                                                </span>
-                                                                <span className="month-head__count">
-                                                                    {won}/{total}
-                                                                </span>
-                                                            </button>
-                                                            <AnimatePresence initial={false}>
-                                                                {isOpen && (
-                                                                    <motion.div
-                                                                        key="content"
-                                                                        initial={{ height: 0, opacity: 0 }}
-                                                                        animate={{ height: 'auto', opacity: 1 }}
-                                                                        exit={{ height: 0, opacity: 0 }}
-                                                                        transition={{ height: { duration: 0.35, ease: EASE_OUT }, opacity: { duration: 0.2 } }}
-                                                                        style={{ overflow: 'hidden' }}
-                                                                    >
-                                                                        <div className="tile-grid">
-                                                                            {group.games.map((game, gameIndex) => (
-                                                                                <GameTile key={game.id} game={game} index={gameIndex} onPlay={(g) => void startJuego(g)} />
-                                                                            ))}
-                                                                        </div>
-                                                                    </motion.div>
-                                                                )}
-                                                            </AnimatePresence>
-                                                        </motion.div>
-                                                    )
-                                                })
-                                                return singleYear ? (
-                                                    <div key={`y-${yg.year}`}>{monthBlocks}</div>
-                                                ) : (
-                                                    <motion.div
-                                                        key={`y-${yg.year}`}
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: 'auto', opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        transition={{ height: { duration: 0.35, ease: EASE_OUT }, opacity: { duration: 0.2 } }}
-                                                        style={{ overflow: 'hidden' }}
-                                                    >
-                                                        {monthBlocks}
-                                                    </motion.div>
-                                                )
-                                            })()}
-                                    </AnimatePresence>
-                                </motion.div>
+                                    {singleYear ? (
+                                        <div className="jd-months">{monthBlocks}</div>
+                                    ) : (
+                                        <AnimatePresence initial={false}>
+                                            {yearOpen && (
+                                                <motion.div
+                                                    key={`y-${yg.year}`}
+                                                    className="jd-months"
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ height: { duration: 0.25, ease: EASE_OUT }, opacity: { duration: 0.15 } }}
+                                                    style={{ overflow: 'hidden' }}
+                                                >
+                                                    {monthBlocks}
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    )}
+                                </div>
                             )
                         })}
                     </section>
@@ -1474,64 +1374,44 @@ export default function JudiClient() {
             ) : (
                 selectedGame && (
                     <>
-                        <motion.section
-                            className={`game ${playingDailyGame ? 'game--today' : ''}`}
-                            initial={{ opacity: 0, y: 24 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, ease: EASE_OUT }}
-                        >
-                            <div className="game-top">
-                                <motion.button
-                                    type="button"
-                                    className="icon-btn"
-                                    onClick={goBack}
-                                    aria-label="Volver al historial"
-                                    whileHover={{ x: -2 }}
-                                    whileTap={{ scale: 0.9 }}
-                                >
-                                    <ArrowLeft size={18} />
-                                </motion.button>
-                                <div className="game-top__title">
-                                    <span className="eyebrow">
-                                        {playingDailyGame ? (
-                                            <>
-                                                <span className="eyebrow__dot" />
-                                                Juego de hoy
-                                            </>
-                                        ) : (
-                                            'Archivo'
-                                        )}
-                                    </span>
-                                    <h1 className="game-top__heading">
+                        <section className={`jd-game${playingDailyGame ? ' jd-game--today' : ''}`}>
+                            <div className="jd-game__top">
+                                <button type="button" className="hg-icon-btn jd-back" onClick={goBack} aria-label="Volver al historial">
+                                    <ArrowLeft size={18} aria-hidden />
+                                </button>
+                                <div className="jd-game__title">
+                                    <h1 className="jd-game__heading">
                                         JUDI #{selectedGame.juego.id}
-                                        <span className="game-top__date">{formatLongDate(selectedGame.juego.fecha)}</span>
+                                        <span className={`hg-chip${playingDailyGame ? ' hg-chip--playing' : ''}`}>
+                                            {playingDailyGame ? 'Juego de hoy' : 'Archivo'}
+                                        </span>
                                     </h1>
+                                    <p className="jd-game__date">{formatLongDate(selectedGame.juego.fecha)}</p>
                                 </div>
-                                <div className="game-top__right">
-                                    <div className="lives">
-                                        <span className="lives__label">Intentos</span>
+                                <div className="jd-game__right">
+                                    <div className="jd-lives">
+                                        <span className="jd-lives__label">Intentos</span>
                                         <AttemptPips states={pipStates} />
                                     </div>
                                     {gameState === 'playing' ? (
-                                        <motion.button
-                                            type="button"
-                                            className="chip-btn"
+                                        <Button
+                                            size="sm"
+                                            variant="secondary"
                                             onClick={() => void skipAttempt()}
                                             disabled={guessSubmitting}
                                             title="Saltar intento: pierdes una vida sin elegir título (no se guarda en tus fallos)"
-                                            whileTap={{ scale: 0.92 }}
                                         >
-                                            <SkipForward size={14} strokeWidth={2.25} aria-hidden />
+                                            <SkipForward aria-hidden />
                                             Saltar
-                                        </motion.button>
+                                        </Button>
                                     ) : null}
                                 </div>
                             </div>
 
-                            <div className="game-grid">
-                                <div className="game-stage-col">
+                            <div className="jd-game__grid">
+                                <div className="jd-stage-col">
                                     <div
-                                        className="stage"
+                                        className="jd-stage"
                                         role="region"
                                         aria-label="Captura del juego. Desliza horizontalmente para cambiar de fase."
                                         onTouchStart={onCaptureTouchStart}
@@ -1544,62 +1424,52 @@ export default function JudiClient() {
                                                     src={currentCapture}
                                                     alt=""
                                                     draggable={false}
-                                                    className="stage__img"
+                                                    className="jd-stage__img"
                                                     custom={phaseDirRef.current}
                                                     variants={phaseImageVariants}
                                                     initial="enter"
                                                     animate="center"
                                                     exit="exit"
-                                                    transition={{ duration: 0.45, ease: EASE_OUT }}
+                                                    transition={{ duration: 0.25, ease: EASE_OUT }}
                                                 />
                                             )}
                                         </AnimatePresence>
                                         {selectedGame.captureCount === 0 && (
-                                            <div className="stage__empty">
-                                                <MysteryArt seed={selectedGame.juego.id} big />
+                                            <div className="jd-stage__empty">
+                                                <MysteryArt big />
                                             </div>
                                         )}
                                         {selectedGame.captureCount > 0 && (
-                                            <button type="button" className="stage__zoom" onClick={onCaptureImageClick} aria-label="Ampliar captura">
-                                                <span className="stage__zoom-icon">
-                                                    <Maximize2 size={16} />
+                                            <button type="button" className="jd-stage__zoom" onClick={onCaptureImageClick} aria-label="Ampliar captura">
+                                                <span className="jd-stage__zoom-icon">
+                                                    <Maximize2 size={16} aria-hidden />
                                                 </span>
                                             </button>
                                         )}
-                                        <span className="stage__badge">
-                                            Captura <strong>{activeViewedPhase}</strong>/6
+                                        <span className="jd-stage__badge">
+                                            Captura <strong>{activeViewedPhase}</strong> de 6
                                         </span>
                                         <AnimatePresence>
                                             {flashKey > 0 && (
                                                 <motion.span
                                                     key={flashKey}
-                                                    className="stage__flash"
-                                                    initial={{ opacity: 0.85 }}
+                                                    className="jd-stage__flash"
+                                                    initial={{ opacity: 1 }}
                                                     animate={{ opacity: 0 }}
                                                     exit={{ opacity: 0 }}
                                                     transition={{ duration: 0.7, ease: 'easeOut' }}
                                                 />
                                             )}
                                         </AnimatePresence>
-                                        <AnimatePresence mode="wait">
-                                            {activeHint && (
-                                                <motion.div
-                                                    key={activeHint.phase}
-                                                    className="stage__hint"
-                                                    initial={{ opacity: 0, y: 14 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    exit={{ opacity: 0, y: 8 }}
-                                                    transition={{ duration: 0.3, ease: EASE_OUT }}
-                                                >
-                                                    <activeHint.icon size={15} aria-hidden />
-                                                    <span className="stage__hint-label">{activeHint.label}</span>
-                                                    <span className="stage__hint-value">{activeHint.value}</span>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
+                                        {activeHint && (
+                                            <div key={activeHint.phase} className="jd-stage__hint">
+                                                <span className="jd-stage__hint-label">{activeHint.label}</span>
+                                                <span className="jd-stage__hint-value">{activeHint.value}</span>
+                                            </div>
+                                        )}
                                     </div>
 
-                                    <div className="phase-tabs" role="tablist" aria-label="Fases">
+                                    <div className="jd-phases" role="tablist" aria-label="Fases">
                                         {[1, 2, 3, 4, 5, 6].map((phase) => {
                                             const isActive = phase === activeViewedPhase
                                             const isLocked = phase > highestUnlockedPhase && gameState === 'playing'
@@ -1612,36 +1482,30 @@ export default function JudiClient() {
                                                     aria-label={isLocked ? `Fase ${phase} (bloqueada)` : `Fase ${phase}`}
                                                     disabled={isLocked}
                                                     onClick={() => setActiveViewedPhase(phase)}
-                                                    className={`phase-tab ${isActive ? 'active' : ''} ${isLocked ? 'locked' : ''}`}
+                                                    className="jd-phase"
                                                 >
-                                                    {isActive && (
-                                                        <motion.span
-                                                            layoutId="phase-pill"
-                                                            className="phase-tab__pill"
-                                                            transition={{ type: 'spring', stiffness: 460, damping: 34 }}
-                                                        />
-                                                    )}
-                                                    <span className="phase-tab__label">
-                                                        {isLocked ? <Lock size={12} aria-hidden /> : phase}
-                                                    </span>
+                                                    {isLocked ? <Lock size={13} aria-hidden /> : phase}
                                                 </button>
                                             )
                                         })}
                                     </div>
+                                    <p className="jd-keyhint">
+                                        <kbd className="hg-kbd">←</kbd> <kbd className="hg-kbd">→</kbd> para cambiar de captura
+                                    </p>
                                 </div>
 
-                                <aside className="game-panel glass">
+                                <aside className="jd-panel">
                                     {gameState === 'playing' ? (
-                                        <div className="guess-block">
-                                            <label className="panel-title" htmlFor="judi-guess">
+                                        <div className="jd-guess-block">
+                                            <label className="jd-panel__title" htmlFor="judi-guess">
                                                 ¿Qué juego es?
                                             </label>
-                                            <div ref={guessScope} className="guess">
-                                                <Search size={17} className="guess__icon" aria-hidden />
+                                            <div ref={guessScope} className="jd-guess">
+                                                <Search size={16} className="jd-guess__icon" aria-hidden />
                                                 <input
                                                     id="judi-guess"
                                                     type="text"
-                                                    className="guess__input"
+                                                    className="hg-input jd-guess__input"
                                                     value={searchQuery}
                                                     onChange={(e) => { setSearchQuery(e.target.value); setShowDropdown(true) }}
                                                     onFocus={() => { if (searchResults.length > 0) setShowDropdown(true) }}
@@ -1652,110 +1516,86 @@ export default function JudiClient() {
                                                             void submitGuess(searchQuery.trim())
                                                         }
                                                     }}
-                                                    placeholder={guessSubmitting ? 'Validando...' : 'Escribe el nombre del juego...'}
+                                                    placeholder={guessSubmitting ? 'Comprobando…' : 'Escribe el nombre del juego'}
                                                     disabled={guessSubmitting}
                                                     autoComplete="off"
                                                 />
-                                                {searchLoading && <span className="guess__spinner" aria-hidden />}
-                                                <AnimatePresence>
-                                                    {showDropdown && searchResults.length > 0 && (
-                                                        <motion.div
-                                                            className="guess__dropdown soft-scrollbar"
-                                                            initial={{ opacity: 0, y: -6, scale: 0.98 }}
-                                                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                            exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                                                            transition={{ duration: 0.18, ease: 'easeOut' }}
-                                                        >
-                                                            {searchResults.map((option, i) => {
-                                                                const alreadyGuessed = wrongGuesses.some((g) => normalizeGameName(g) === normalizeGameName(option.name))
-                                                                return (
-                                                                    <motion.button
-                                                                        key={option.id}
-                                                                        type="button"
-                                                                        disabled={alreadyGuessed}
-                                                                        className={`guess__option ${alreadyGuessed ? 'is-guessed' : ''}`}
-                                                                        onMouseDown={(e) => e.preventDefault()}
-                                                                        onClick={() => { if (!alreadyGuessed) { void submitGuess(option.name); setShowDropdown(false) } }}
-                                                                        initial={{ opacity: 0, x: -6 }}
-                                                                        animate={{ opacity: 1, x: 0 }}
-                                                                        transition={{ duration: 0.18, delay: Math.min(i, 8) * 0.02 }}
-                                                                    >
-                                                                        <span>{option.name}</span>
-                                                                        {alreadyGuessed ? <X size={14} aria-hidden /> : <ArrowRight size={14} className="guess__option-arrow" aria-hidden />}
-                                                                    </motion.button>
-                                                                )
-                                                            })}
-                                                        </motion.div>
-                                                    )}
-                                                    {showDropdown && searchQuery.length >= 2 && searchResults.length === 0 && !searchLoading && (
-                                                        <motion.div
-                                                            className="guess__dropdown guess__dropdown--empty"
-                                                            initial={{ opacity: 0, y: -6 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            exit={{ opacity: 0, y: -6 }}
-                                                        >
-                                                            Sin resultados
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
+                                                {searchLoading && <span className="jd-guess__spinner" aria-hidden />}
+                                                {showDropdown && searchResults.length > 0 && (
+                                                    <div className="jd-guess__dropdown soft-scrollbar">
+                                                        {searchResults.map((option) => {
+                                                            const alreadyGuessed = wrongGuesses.some((g) => normalizeGameName(g) === normalizeGameName(option.name))
+                                                            return (
+                                                                <button
+                                                                    key={option.id}
+                                                                    type="button"
+                                                                    disabled={alreadyGuessed}
+                                                                    className="jd-guess__option"
+                                                                    onMouseDown={(e) => e.preventDefault()}
+                                                                    onClick={() => { if (!alreadyGuessed) { void submitGuess(option.name); setShowDropdown(false) } }}
+                                                                >
+                                                                    <span>{option.name}</span>
+                                                                    {alreadyGuessed && <X size={14} aria-label="Ya probado" />}
+                                                                </button>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                )}
+                                                {showDropdown && searchQuery.length >= 2 && searchResults.length === 0 && !searchLoading && (
+                                                    <div className="jd-guess__dropdown jd-guess__dropdown--empty">Sin resultados</div>
+                                                )}
                                             </div>
                                             {guessError && (
-                                                <p className="guess__error" role="alert">
+                                                <p className="alert alert--error jd-guess__error" role="alert">
                                                     {guessError}
                                                 </p>
                                             )}
-                                            <p className="guess__help">
-                                                Cada fallo desbloquea una captura y una pista nuevas.{' '}
-                                                <span className="guess__help-keys">Usa ← → para moverte entre fases.</span>
-                                            </p>
+                                            <p className="jd-guess__help">Cada fallo desbloquea una captura y una pista nuevas.</p>
                                             {wrongGuesses.length > 0 && (
-                                                <div className="wrong-list">
-                                                    <AnimatePresence initial={false}>
-                                                        {wrongGuesses.map((guess, index) => (
-                                                            <motion.span
-                                                                key={`${guess}-${index}`}
-                                                                className="wrong-chip"
-                                                                initial={{ opacity: 0, scale: 0.6, y: 6 }}
-                                                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                                transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-                                                            >
-                                                                <X size={12} strokeWidth={3} aria-hidden />
-                                                                {guess}
-                                                            </motion.span>
-                                                        ))}
-                                                    </AnimatePresence>
-                                                </div>
+                                                <ul className="jd-wrong" aria-label="Intentos fallados">
+                                                    {wrongGuesses.map((guess, index) => (
+                                                        <li key={`${guess}-${index}`} className="jd-wrong__chip">
+                                                            <X size={12} strokeWidth={2.75} aria-hidden />
+                                                            {guess}
+                                                        </li>
+                                                    ))}
+                                                </ul>
                                             )}
                                         </div>
                                     ) : (
                                         <motion.div
-                                            className={`result result--${gameState}`}
-                                            initial={{ opacity: 0, scale: 0.94, y: 12 }}
-                                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                                            transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+                                            className={`jd-result jd-result--${gameState}`}
+                                            initial={{ opacity: 0, y: 8 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.25, ease: EASE_OUT }}
+                                            role="status"
                                         >
-                                            {selectedGame.juego.header_image && (
-                                                <div className="result__art">
-                                                    <img src={selectedGame.juego.header_image} alt="" />
-                                                </div>
-                                            )}
-                                            <motion.span
-                                                className="result__icon"
-                                                initial={{ scale: 0, rotate: -30 }}
-                                                animate={{ scale: 1, rotate: 0 }}
-                                                transition={{ type: 'spring', stiffness: 420, damping: 14, delay: 0.15 }}
-                                            >
-                                                {gameState === 'won' ? <Trophy size={22} /> : <X size={22} strokeWidth={3} />}
-                                            </motion.span>
-                                            <p className="result__status">{gameState === 'won' ? '¡Acertado!' : 'Fallado'}</p>
-                                            <p className="result__label">El juego era</p>
-                                            <p className="result__name">{selectedGame.juego.nombre}</p>
-                                            {gameState === 'won' && (
-                                                <p className="result__pts">
-                                                    +<CountUp value={earnedPoints} /> pts
+                                            <div className="jd-result__head">
+                                                <span className="jd-result__icon" aria-hidden>
+                                                    {gameState === 'won' ? <Check size={18} strokeWidth={3} /> : <X size={18} strokeWidth={3} />}
+                                                </span>
+                                                <p className="jd-result__status">
+                                                    {gameState === 'won'
+                                                        ? failedNow === 0
+                                                            ? 'Acertado a la primera'
+                                                            : `Acertado en el intento ${failedNow + 1}`
+                                                        : 'Fallado'}
                                                 </p>
-                                            )}
-                                            <div className="result__actions">
+                                                <p className="jd-result__pts">
+                                                    {gameState === 'won' ? `+${earnedPoints}` : '0'}
+                                                    <small>puntos</small>
+                                                </p>
+                                            </div>
+                                            <div className="jd-result__game">
+                                                {selectedGame.juego.header_image && <img src={selectedGame.juego.header_image} alt="" />}
+                                                <div>
+                                                    <span className="jd-result__label">El juego era</span>
+                                                    <p className="jd-result__name">
+                                                        {selectedGame.juego.nombre}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="jd-result__actions">
                                                 <Button variant="secondary" onClick={goBack}>
                                                     <ArrowLeft size={15} data-icon="inline-start" aria-hidden />
                                                     Historial
@@ -1777,9 +1617,9 @@ export default function JudiClient() {
                                         </motion.div>
                                     )}
 
-                                    <div className="hints">
-                                        <span className="panel-title">Pistas</span>
-                                        <ul className="hints__list">
+                                    <div className="jd-hints">
+                                        <h2 className="jd-panel__title">Pistas</h2>
+                                        <ul className="jd-hints__list">
                                             {hints.map((hint) => {
                                                 const unlocked = hint.phase <= highestUnlockedPhase
                                                 const Icon = hint.icon
@@ -1787,32 +1627,19 @@ export default function JudiClient() {
                                                     <li key={hint.phase}>
                                                         <button
                                                             type="button"
-                                                            className={`hint ${unlocked ? 'is-unlocked' : 'is-locked'} ${activeViewedPhase === hint.phase ? 'is-active' : ''}`}
+                                                            className={`jd-hint${unlocked ? '' : ' is-locked'}${activeViewedPhase === hint.phase ? ' is-active' : ''}`}
                                                             disabled={!unlocked}
+                                                            aria-pressed={unlocked ? activeViewedPhase === hint.phase : undefined}
                                                             onClick={() => setActiveViewedPhase(hint.phase)}
                                                         >
-                                                            <span className="hint__icon">{unlocked ? <Icon size={15} aria-hidden /> : <Lock size={13} aria-hidden />}</span>
-                                                            <span className="hint__text">
-                                                                <span className="hint__label">{hint.label}</span>
-                                                                <AnimatePresence mode="wait" initial={false}>
-                                                                    {unlocked ? (
-                                                                        <motion.span
-                                                                            key="v"
-                                                                            className="hint__value"
-                                                                            initial={{ opacity: 0, filter: 'blur(6px)' }}
-                                                                            animate={{ opacity: 1, filter: 'blur(0px)' }}
-                                                                            transition={{ duration: 0.5 }}
-                                                                        >
-                                                                            {hint.value}
-                                                                        </motion.span>
-                                                                    ) : (
-                                                                        <span key="l" className="hint__value hint__value--locked">
-                                                                            Se desbloquea en la fase {hint.phase}
-                                                                        </span>
-                                                                    )}
-                                                                </AnimatePresence>
+                                                            <span className="jd-hint__icon">{unlocked ? <Icon size={15} aria-hidden /> : <Lock size={13} aria-hidden />}</span>
+                                                            <span className="jd-hint__text">
+                                                                <span className="jd-hint__label">{hint.label}</span>
+                                                                <span className="jd-hint__value">
+                                                                    {unlocked ? hint.value : 'Bloqueada'}
+                                                                </span>
                                                             </span>
-                                                            <span className="hint__phase">F{hint.phase}</span>
+                                                            <span className="jd-hint__phase">Fase {hint.phase}</span>
                                                         </button>
                                                     </li>
                                                 )
@@ -1821,13 +1648,13 @@ export default function JudiClient() {
                                     </div>
                                 </aside>
                             </div>
-                        </motion.section>
+                        </section>
 
                         <Dialog open={captureZoomOpen} onOpenChange={setCaptureZoomOpen}>
                             <DialogPrimitive.Portal>
-                                <DialogPrimitive.Overlay className="zoom-overlay" />
+                                <DialogPrimitive.Overlay className="jd-zoom-overlay" />
                                 <DialogPrimitive.Content
-                                    className="zoom-content"
+                                    className="jd-zoom"
                                     onTouchStart={onCaptureTouchStart}
                                     onTouchEnd={onCaptureTouchEnd}
                                     onClick={() => setCaptureZoomOpen(false)}
@@ -1838,7 +1665,8 @@ export default function JudiClient() {
                                     {currentCapture && (
                                         <button
                                             type="button"
-                                            className="zoom-content__btn"
+                                            className="jd-zoom__btn"
+                                            aria-label="Cerrar captura ampliada"
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 setCaptureZoomOpen(false)

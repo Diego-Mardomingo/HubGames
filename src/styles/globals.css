@@ -642,27 +642,53 @@ a {
 }
 
 .auth__brand {
-  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 2rem;
-  padding: 2.5rem;
-  overflow: hidden;
-  background: var(--surface-2);
+  min-width: 0;
+  padding: 2.25rem;
+  background: var(--background);
+  border-right: 1px solid var(--border);
   color: var(--foreground);
 }
 
-.auth__orbit {
-  display: none;
+.auth__pitch {
+  display: grid;
+  gap: 0.625rem;
 }
 
-.auth__mark {
-  display: flex;
+/* Vista previa estática del producto (filas de biblioteca y un logro) */
+.auth__preview {
+  display: grid;
+  gap: 8px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.auth__preview .hg-row {
+  grid-template-columns: 112px minmax(0, 1fr) auto;
+}
+
+.auth__preview .hg-row__cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.auth__sample-name {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth__preview .hg-row__prog {
+  margin-top: 4px;
 }
 
 .auth__tagline {
-  position: relative;
   margin: 0;
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 2.4vw, 2rem);
@@ -672,8 +698,7 @@ a {
 }
 
 .auth__tagline-sub {
-  position: relative;
-  margin: 0.625rem 0 0;
+  margin: 0;
   color: var(--muted);
   font-size: 0.9375rem;
   max-width: 36ch;
@@ -689,6 +714,11 @@ a {
 .auth__form {
   width: 100%;
   max-width: 380px;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.auth__fields {
   display: grid;
   gap: 1rem;
 }
@@ -749,9 +779,12 @@ a {
   .auth__brand {
     padding: 1.5rem;
     gap: 1rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
   }
-  .auth__mark .hg-mark { width: 48px; height: 48px; }
-  .auth__brand-top { display: none; }
+  .auth__tagline { font-size: 1.375rem; }
+  .auth__tagline-sub { display: none; }
+  .auth__preview { display: none; }
   .auth__form-wrap { padding: 1.75rem 1.25rem 2rem; }
 }
 
@@ -771,12 +804,33 @@ a {
 .maint__icon {
   display: grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   margin: 0 auto 1rem;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius);
+  background: var(--surface-2);
   color: var(--warning);
-  background: color-mix(in srgb, var(--warning) 14%, transparent);
+}
+
+.maint__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.maint__text {
+  margin: 0.5rem auto 1.5rem;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  max-width: 40ch;
+}
+
+.maint__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 /* ══════════════════════════════════════════════════════════════════

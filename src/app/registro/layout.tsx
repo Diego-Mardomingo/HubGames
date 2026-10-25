@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
     title: 'Crear cuenta',
-    description: 'Regístrate en HubGames para unirte a la mejor comunidad de videojuegos.',
+    description: 'Crea tu cuenta de HubGames y sigue tu biblioteca de Steam, tus logros y el juego del día.',
 }
 
 export default function RegistroLayout({

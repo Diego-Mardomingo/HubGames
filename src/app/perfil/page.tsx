@@ -9,15 +9,11 @@ import { getNotificationPreference, subscribeToDailyNotifications, disableDailyN
 import { buildRanking, getPointsForRecord, type JudiProgressRecord } from '@/lib/judi-ranking'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-    Trophy, Medal, Bell, BellOff, Save, Shield, KeyRound,
-    LogOut, Target, XCircle, Gamepad2,
-    AlertTriangle, CheckCircle, ChevronRight, User,
-} from 'lucide-react'
+import { LogOut, AlertTriangle, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import Loader from '@/components/Loader'
-import { CountUp, ProgressRing } from '@/components/motion'
+import ThemeToggle from '@/components/ThemeToggle'
 import './perfil.css'
 
 export default function PerfilPage() {
@@ -153,7 +149,6 @@ export default function PerfilPage() {
 
     const initial = (user?.user_metadata?.username || user?.email || 'U')[0].toUpperCase()
     const displayName = user?.user_metadata?.username || 'Usuario'
-    const medalColors = ['#fcd34d', '#cbd5e1', '#f0a868']
     const puntos = judiStats?.puntos ?? 0
 
     const rankBeatPct =
@@ -161,281 +156,230 @@ export default function PerfilPage() {
             ? Math.round(((totalRankedUsers - userRank) / (totalRankedUsers - 1)) * 100)
             : null
 
-    const gridStats = [
-        { icon: <Gamepad2 size={17} />, label: 'Partidas', value: judiStats?.total ?? 0, tone: 'violet' },
-        { icon: <Target size={17} />, label: 'Aciertos', value: judiStats?.aciertos ?? 0, tone: 'green' },
-        { icon: <XCircle size={17} />, label: 'Fallos', value: judiStats?.fallos ?? 0, tone: 'red' },
+    const judiKpis = [
+        { label: 'puntos', value: puntos.toLocaleString('es-ES') },
+        { label: 'en el ranking', value: userRank !== null ? `${userRank}º` : '—' },
+        { label: 'partidas', value: (judiStats?.total ?? 0).toLocaleString('es-ES') },
+        { label: 'aciertos', value: (judiStats?.aciertos ?? 0).toLocaleString('es-ES') },
+        { label: 'fallos', value: (judiStats?.fallos ?? 0).toLocaleString('es-ES') },
+        { label: 'de precisión', value: `${judiStats?.porcentaje_acierto ?? 0} %` },
     ]
 
-    const ease = [0.22, 1, 0.36, 1] as const
-
     return (
-        <div className="perfil">
-            <div className="toasts" aria-live="polite">
+        <div className="pf">
+            <div className="pf-toasts" aria-live="polite">
                 <AnimatePresence>
                     {error && (
                         <motion.div
                             key={`e-${error}`}
-                            className="alert alert--error toast"
-                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className="alert alert--error pf-toast"
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 8 }}
+                            transition={{ duration: 0.15 }}
                         >
-                            <AlertTriangle size={15} /> {error}
+                            <AlertTriangle size={15} aria-hidden /> {error}
                         </motion.div>
                     )}
                     {success && (
                         <motion.div
                             key={`s-${success}`}
-                            className="alert alert--ok toast"
-                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className="alert alert--ok pf-toast"
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 8 }}
+                            transition={{ duration: 0.15 }}
                         >
-                            <CheckCircle size={15} /> {success}
+                            <CheckCircle size={15} aria-hidden /> {success}
                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
 
-            <div className="perfil-grid">
-                {/* Tarjeta de jugador */}
-                <motion.section
-                    className="player-card glass"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease }}
-                >
-                    <div className="player-card__banner" aria-hidden />
-                    <motion.div
-                        className="player-card__avatar"
-                        initial={{ scale: 0.6, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.15 }}
-                    >
-                        <span>{initial}</span>
-                    </motion.div>
-                    <h1 className="player-card__name">
-                        {displayName}
-                        {user?.user_metadata?.administrador && (
-                            <span className="player-card__admin">
-                                <Shield size={10} /> Admin
-                            </span>
-                        )}
-                    </h1>
-                    <p className="player-card__email">{user?.email}</p>
-
-                    <div className="player-card__rank">
-                        <div>
-                            <span className="player-card__k">Posición</span>
-                            <span className="player-card__v player-card__v--gold">#{userRank ?? '—'}</span>
-                        </div>
-                        <span className="player-card__sep" aria-hidden />
-                        <div>
-                            <span className="player-card__k">Puntos</span>
-                            <CountUp value={puntos} className="player-card__v text-gradient" />
-                        </div>
+            <header className="page-head pf-head">
+                <div className="pf-who">
+                    <span className="pf-avatar" aria-hidden>
+                        {initial}
+                    </span>
+                    <div>
+                        <h1 className="page-title pf-who__name">
+                            {displayName}
+                            {user?.user_metadata?.administrador && <span className="hg-chip">Admin</span>}
+                        </h1>
+                        <p className="pf-who__email">{user?.email}</p>
                     </div>
-                    <p className="player-card__beat">
-                        {rankBeatPct !== null
-                            ? `Superas al ${rankBeatPct}% de jugadores de JUDI`
-                            : totalRankedUsers === 0
-                                ? 'Aún no hay clasificación'
-                                : 'Termina partidas para aparecer en el ranking'}
-                    </p>
-
-                    <Button variant="secondary" className="player-card__logout" onClick={handleLogout}>
-                        <LogOut size={15} data-icon="inline-start" aria-hidden /> Cerrar sesión
-                    </Button>
-                </motion.section>
-
-                <div className="perfil-main">
-                    {/* Rendimiento */}
-                    <motion.section
-                        className="perf glass"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease, delay: 0.08 }}
-                    >
-                        <ProgressRing value={judiStats?.porcentaje_acierto ?? 0} size={132} stroke={11}>
-                            <div className="perf__ring-center">
-                                <CountUp value={judiStats?.porcentaje_acierto ?? 0} suffix="%" className="perf__ring-value" />
-                                <span className="perf__ring-label">Precisión</span>
-                            </div>
-                        </ProgressRing>
-                        <div className="perf__stats">
-                            {gridStats.map((s, i) => (
-                                <motion.div
-                                    key={s.label}
-                                    className={`perf__stat perf__stat--${s.tone}`}
-                                    initial={{ opacity: 0, x: 12 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ duration: 0.45, ease, delay: 0.2 + i * 0.07 }}
-                                >
-                                    <span className="perf__stat-icon">{s.icon}</span>
-                                    <span className="perf__stat-label">{s.label}</span>
-                                    <CountUp value={s.value} className="perf__stat-value" />
-                                </motion.div>
-                            ))}
-                        </div>
-                    </motion.section>
-
-                    {/* Top jugadores */}
-                    <motion.section
-                        className="top glass"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease, delay: 0.16 }}
-                    >
-                        <div className="section-head">
-                            <h2 className="section-head__title">
-                                <Trophy size={15} aria-hidden /> Top jugadores
-                            </h2>
-                            <Link href="/ranking" className="section-head__link">
-                                Ver ranking <ChevronRight size={14} />
-                            </Link>
-                        </div>
-                        <ul className="top__list">
-                            {leaderboardPreview.map((player, index) => (
-                                <motion.li
-                                    key={player.userId}
-                                    className={`top__row${player.userId === user?.id ? ' is-self' : ''}`}
-                                    initial={{ opacity: 0, y: 8 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.35, delay: 0.25 + index * 0.05 }}
-                                >
-                                    <span
-                                        className="top__medal"
-                                        style={{
-                                            background: index < 3 ? `${medalColors[index]}22` : 'rgba(255,255,255,0.05)',
-                                            color: index < 3 ? medalColors[index] : 'var(--muted)',
-                                        }}
-                                    >
-                                        {index < 3 ? <Medal size={13} /> : index + 1}
-                                    </span>
-                                    <span className="top__name">{player.username}</span>
-                                    <span className="top__pts">{player.points} pts</span>
-                                </motion.li>
-                            ))}
-                            {leaderboardPreview.length === 0 && <li className="top__empty">Sin datos de ranking</li>}
-                        </ul>
-                    </motion.section>
                 </div>
-            </div>
+            </header>
 
-            {/* Ajustes */}
-            <section className="settings" aria-label="Ajustes de cuenta">
-                <h2 className="settings__title">Ajustes</h2>
-                <div className="settings__grid">
-                    <motion.div
-                        className="setting glass"
-                        initial={{ opacity: 0, y: 16 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, ease }}
-                    >
-                        <div className="setting__head">
-                            <span className={`setting__icon ${notificationsEnabled ? '' : 'is-muted'}`} aria-hidden>
-                                {notificationsEnabled ? <Bell size={17} /> : <BellOff size={17} />}
-                            </span>
-                            <div className="setting__text">
-                                <p className="setting__title">Notificaciones</p>
-                                <p className="setting__desc">
-                                    {notificationsLoading ? 'Actualizando…' : 'Nuevo JUDI cada día y bajadas de precio de tu wishlist'}
-                                </p>
-                            </div>
-                            <button
-                                type="button"
-                                role="switch"
-                                aria-checked={Boolean(notificationsEnabled)}
-                                aria-label="Notificaciones"
-                                disabled={notificationsLoading || notificationsEnabled === null}
-                                className="switch"
-                                onClick={handleToggleNotifications}
-                            >
-                                <span className="switch__thumb" aria-hidden />
-                            </button>
-                        </div>
-                    </motion.div>
+            <div className="pf-grid">
+                <div className="pf-main">
+                    <section className="pf-section" aria-labelledby="pf-account">
+                        <h2 id="pf-account" className="pf-section__title">
+                            Cuenta
+                        </h2>
+                        <div className="pf-rows">
+                            <form onSubmit={handleUpdateUsername} className="pf-row">
+                                <div className="pf-row__text">
+                                    <label className="pf-row__label" htmlFor="perfil-username-input">
+                                        Nombre de usuario
+                                    </label>
+                                    <p className="pf-row__desc">Es el nombre que aparece en el ranking.</p>
+                                </div>
+                                <div className="pf-row__control pf-row__control--form">
+                                    <Input
+                                        id="perfil-username-input"
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        placeholder="Tu nombre"
+                                        autoComplete="username"
+                                    />
+                                    <Button type="submit" variant="secondary" disabled={updating}>
+                                        Guardar
+                                    </Button>
+                                </div>
+                            </form>
 
-                    <motion.div
-                        className="setting glass"
-                        initial={{ opacity: 0, y: 16 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, ease, delay: 0.06 }}
-                    >
-                        <div className="setting__head">
-                            <span className="setting__icon" aria-hidden>
-                                <User size={17} />
-                            </span>
-                            <div className="setting__text">
-                                <p className="setting__title">Nombre de usuario</p>
-                                <p className="setting__desc">Es el nombre que aparece en el ranking</p>
-                            </div>
-                        </div>
-                        <form onSubmit={handleUpdateUsername} className="setting__form">
-                            <Input
-                                id="perfil-username-input"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                placeholder="Tu nombre"
-                                autoComplete="username"
-                            />
-                            <Button type="submit" disabled={updating}>
-                                <Save size={14} data-icon="inline-start" aria-hidden /> Guardar
-                            </Button>
-                        </form>
-                    </motion.div>
+                            <form onSubmit={handleUpdatePassword} className="pf-row">
+                                <div className="pf-row__text">
+                                    <span className="pf-row__label" id="pf-pass-label">
+                                        Contraseña
+                                    </span>
+                                    <p className="pf-row__desc">Mínimo 6 caracteres.</p>
+                                </div>
+                                <div className="pf-row__control pf-row__control--stack" role="group" aria-labelledby="pf-pass-label">
+                                    <label htmlFor="perfil-pass-new" className="sr-only">Nueva contraseña</label>
+                                    <Input
+                                        id="perfil-pass-new"
+                                        type="password"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        placeholder="Nueva contraseña"
+                                        autoComplete="new-password"
+                                    />
+                                    <label htmlFor="perfil-pass-confirm" className="sr-only">Confirmar contraseña</label>
+                                    <Input
+                                        id="perfil-pass-confirm"
+                                        type="password"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        placeholder="Confirmar contraseña"
+                                        autoComplete="new-password"
+                                    />
+                                    <Button type="submit" variant="secondary" disabled={updating}>
+                                        Cambiar contraseña
+                                    </Button>
+                                </div>
+                            </form>
 
-                    <motion.div
-                        className="setting glass"
-                        initial={{ opacity: 0, y: 16 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, ease, delay: 0.12 }}
-                    >
-                        <div className="setting__head">
-                            <span className="setting__icon" aria-hidden>
-                                <KeyRound size={17} />
-                            </span>
-                            <div className="setting__text">
-                                <p className="setting__title">Contraseña</p>
-                                <p className="setting__desc">Mínimo 6 caracteres</p>
+                            <div className="pf-row pf-row--inline">
+                                <div className="pf-row__text">
+                                    <span className="pf-row__label">Sesión</span>
+                                    <p className="pf-row__desc">Cierra la sesión en este dispositivo.</p>
+                                </div>
+                                <div className="pf-row__control">
+                                    <Button variant="secondary" onClick={handleLogout}>
+                                        <LogOut size={15} data-icon="inline-start" aria-hidden /> Cerrar sesión
+                                    </Button>
+                                </div>
                             </div>
                         </div>
-                        <form onSubmit={handleUpdatePassword} className="setting__form setting__form--stack">
-                            <label htmlFor="perfil-pass-new" className="sr-only">Nueva contraseña</label>
-                            <Input
-                                id="perfil-pass-new"
-                                type="password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                placeholder="Nueva contraseña"
-                                autoComplete="new-password"
-                            />
-                            <label htmlFor="perfil-pass-confirm" className="sr-only">Confirmar contraseña</label>
-                            <Input
-                                id="perfil-pass-confirm"
-                                type="password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                placeholder="Confirmar contraseña"
-                                autoComplete="new-password"
-                            />
-                            <Button type="submit" variant="secondary" disabled={updating}>
-                                <KeyRound size={14} data-icon="inline-start" aria-hidden /> Actualizar
-                            </Button>
-                        </form>
-                    </motion.div>
+                    </section>
 
                     <Suspense fallback={null}>
                         <SteamSetting />
                     </Suspense>
 
+                    <section className="pf-section" aria-labelledby="pf-prefs">
+                        <h2 id="pf-prefs" className="pf-section__title">
+                            Preferencias
+                        </h2>
+                        <div className="pf-rows">
+                            <div className="pf-row pf-row--inline">
+                                <div className="pf-row__text">
+                                    <span className="pf-row__label">Tema</span>
+                                    <p className="pf-row__desc">Claro, oscuro o el que use tu sistema.</p>
+                                </div>
+                                <div className="pf-row__control">
+                                    <ThemeToggle labeled />
+                                </div>
+                            </div>
+                            <div className="pf-row pf-row--inline">
+                                <div className="pf-row__text">
+                                    <span className="pf-row__label" id="pf-notif-label">
+                                        Notificaciones
+                                    </span>
+                                    <p className="pf-row__desc">
+                                        {notificationsLoading ? 'Actualizando…' : 'Nuevo JUDI cada día y bajadas de precio de tu wishlist.'}
+                                    </p>
+                                </div>
+                                <div className="pf-row__control">
+                                    <button
+                                        type="button"
+                                        role="switch"
+                                        aria-checked={Boolean(notificationsEnabled)}
+                                        aria-labelledby="pf-notif-label"
+                                        disabled={notificationsLoading || notificationsEnabled === null}
+                                        className="switch"
+                                        onClick={handleToggleNotifications}
+                                    >
+                                        <span className="switch__thumb" aria-hidden />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
                     <ExportSetting />
                 </div>
-            </section>
+
+                <aside className="pf-aside">
+                    <section className="pf-section" aria-labelledby="pf-judi">
+                        <div className="pf-section__head">
+                            <h2 id="pf-judi" className="pf-section__title">
+                                Tu JUDI
+                            </h2>
+                            <Link href="/ranking" className="pf-section__link">
+                                Ver el ranking
+                            </Link>
+                        </div>
+                        <div className="pf-judi">
+                            <dl className="pf-kpis">
+                                {judiKpis.map((k) => (
+                                    <div key={k.label} className="pf-kpi">
+                                        <dt>{k.label}</dt>
+                                        <dd>{k.value}</dd>
+                                    </div>
+                                ))}
+                            </dl>
+                            <p className="pf-judi__beat">
+                                {rankBeatPct !== null
+                                    ? `Superas al ${rankBeatPct} % de los jugadores de JUDI.`
+                                    : totalRankedUsers === 0
+                                        ? 'Aún no hay clasificación.'
+                                        : 'Termina partidas para aparecer en el ranking.'}
+                            </p>
+                        </div>
+                    </section>
+
+                    <section className="pf-section" aria-labelledby="pf-top">
+                        <h2 id="pf-top" className="pf-section__title">
+                            Mejores jugadores
+                        </h2>
+                        <ol className="pf-top">
+                            {leaderboardPreview.map((player, index) => (
+                                <li key={player.userId} className={`pf-top__row${player.userId === user?.id ? ' is-self' : ''}`}>
+                                    <span className={`pf-top__rank${index < 3 ? ` pf-top__rank--${index + 1}` : ''}`}>{index + 1}</span>
+                                    <span className="pf-top__name">{player.username}</span>
+                                    <span className="pf-top__pts">
+                                        {player.points.toLocaleString('es-ES')} <small>pts</small>
+                                    </span>
+                                </li>
+                            ))}
+                            {leaderboardPreview.length === 0 && <li className="pf-top__empty">Sin datos de ranking.</li>}
+                        </ol>
+                    </section>
+                </aside>
+            </div>
         </div>
     )
 }

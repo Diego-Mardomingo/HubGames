@@ -24,11 +24,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
     title: {
-        default: 'HubGames - JUDI',
+        default: 'HubGames — Tu biblioteca de Steam y tus logros',
         template: '%s | HubGames'
     },
-    description: 'Adivina el videojuego del día con JUDI y compite por puntos en el ranking global.',
-    keywords: ['hubgames', 'hub games', 'videojuegos', 'judi', 'juego del día', 'ranking', 'leaderboard'],
+    description: 'Sigue tu biblioteca de Steam, tus logros por rareza y a qué jugar hoy. Y cada día, JUDI: adivina el videojuego del día.',
+    keywords: ['hubgames', 'hub games', 'steam', 'biblioteca de steam', 'logros', 'tracker de juegos', 'videojuegos', 'judi', 'juego del día'],
     authors: [{ name: 'Diego López Mardomingo' }],
     creator: 'Diego López Mardomingo',
     manifest: '/manifest.json',
@@ -47,21 +47,21 @@ export const metadata: Metadata = {
         locale: 'es_ES',
         url: 'https://hub-games.vercel.app/',
         siteName: 'HubGames',
-        title: 'HubGames - JUDI',
-        description: 'Juego diario, pistas y ranking global por puntos.',
+        title: 'HubGames — Tu biblioteca de Steam y tus logros',
+        description: 'Lo que juegas, lo que te falta y a qué jugar hoy. Y cada día, JUDI: adivina el juego.',
         images: [
             {
                 url: '/img/og-hubgames.png',
                 width: 1200,
                 height: 630,
-                alt: 'HubGames Logo',
+                alt: 'HubGames: tu biblioteca de Steam y tus logros, en orden',
             },
         ],
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'HubGames - JUDI',
-        description: 'Adivina el videojuego del día y sube en el ranking.',
+        title: 'HubGames — Tu biblioteca de Steam y tus logros',
+        description: 'Lo que juegas, lo que te falta y a qué jugar hoy. Y cada día, JUDI: adivina el juego.',
         images: ['/img/og-hubgames.png'],
     },
     robots: {
