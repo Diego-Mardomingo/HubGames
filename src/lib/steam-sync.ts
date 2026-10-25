@@ -4,6 +4,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database, Json } from './supabase/database.types'
 import { getSteamSpyDetails, getSteamStoreDetails, parseSteamDate, sleep } from '../../scripts/steam-utils'
 import { evaluateGame } from './tracker-rules'
+import { goalMinutes } from './game-goal'
 import { refreshPrices, type PriceSyncResult } from './prices'
 import type { GameStatus } from './tracker'
 
@@ -586,6 +587,18 @@ export async function applyTrackerRules(supabase: Client, userId: string, now: n
                 last_unlock_at: game.last_unlock_at,
                 suggestion_dismissed_at: game.suggestion_dismissed_at,
                 hltb_main_minutes: game.hltb_main,
+                goal: game.goal,
+                goal_minutes: goalMinutes({
+                    goal: game.goal,
+                    playtime_forever: game.playtime_forever ?? 0,
+                    achievements_total: game.achievements_total,
+                    achievements_unlocked: game.achievements_unlocked,
+                    hltb_main: game.hltb_main,
+                    hltb_main_extra: game.hltb_main_extra,
+                    hltb_completionist: game.hltb_completionist,
+                    // Como antes: la sugerencia solo con HowLongToBeat, no con la mediana de SteamSpy.
+                    steamspy_median_forever: null,
+                }),
             },
             now,
         )

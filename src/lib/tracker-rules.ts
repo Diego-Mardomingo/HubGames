@@ -27,6 +27,9 @@ export interface RuleInput {
     suggestion_dismissed_at: string | null
     /** Duración de la historia según HowLongToBeat, en minutos (#23). null si no hay dato. */
     hltb_main_minutes?: number | null
+    /** Objetivo del juego (#24) y minutos de su meta según HowLongToBeat. Sin ellos, se usa la historia. */
+    goal?: string | null
+    goal_minutes?: number | null
 }
 
 export interface RuleOutput {
@@ -72,8 +75,11 @@ export function evaluateGame(game: RuleInput, now: number = Date.now()): RuleOut
     if (isPerfect(game) && !dismissedAfter(ms(game.last_unlock_at))) {
         return { status, statusChanged, suggestion: 'completado' }
     }
-    // Regla 3: más horas que la historia según HowLongToBeat → ¿Lo has terminado? Tras descartarla, solo si cambia el estado.
-    const beatHltb = Boolean(game.hltb_main_minutes && game.playtime_forever >= game.hltb_main_minutes)
+    // Regla 3: más horas que la meta de tu objetivo (#24) según HowLongToBeat → ¿Lo has terminado? Con objetivo 100 % y
+    // logros manda la regla 2. Tras descartarla, solo si cambia el estado.
+    const byAchievements = game.goal === 'completo' && (game.achievements_total ?? 0) > 0
+    const target = game.goal ? game.goal_minutes : game.hltb_main_minutes
+    const beatHltb = !byAchievements && Boolean(target && game.playtime_forever >= target)
     if (beatHltb && !dismissedAfter(changedAt)) return { status, statusChanged, suggestion: 'completado' }
 
     // Regla 4: en Jugando y más de 30 días sin jugar (ni cambios de estado) → ¿Lo dejas en pausa?

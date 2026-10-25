@@ -147,6 +147,16 @@ describe('Sugerencia de Completado e insignia 100%', () => {
         assert.equal(evaluateGame(game({ ...base, hltb_main_minutes: null }), NOW).suggestion, null)
     })
 
+    it('según el objetivo (#24): extras mira su duración; 100 % con logros no se sugiere por horas', () => {
+        const base = { status: 'jugando' as const, rtime_last_played: daysAgo(1), playtime_forever: 900, hltb_main_minutes: 600 }
+        assert.equal(evaluateGame(game({ ...base, goal: 'extras', goal_minutes: 1200 }), NOW).suggestion, null)
+        assert.equal(evaluateGame(game({ ...base, goal: 'extras', goal_minutes: 800 }), NOW).suggestion, 'completado')
+        const logros = { achievements_total: 40, achievements_unlocked: 10, last_unlock_at: daysAgo(5) }
+        assert.equal(evaluateGame(game({ ...base, ...logros, goal: 'completo', goal_minutes: 800 }), NOW).suggestion, null)
+        // Sin logros, el 100 % se mide por horas.
+        assert.equal(evaluateGame(game({ ...base, goal: 'completo', goal_minutes: 800 }), NOW).suggestion, 'completado')
+    })
+
     it('la de HowLongToBeat descartada no vuelve hasta que cambie el estado', () => {
         const base = { status: 'jugando' as const, rtime_last_played: daysAgo(1), playtime_forever: 900, hltb_main_minutes: 600 }
         assert.equal(evaluateGame(game({ ...base, status_changed_at: daysAgo(30), suggestion_dismissed_at: daysAgo(3) }), NOW).suggestion, null)

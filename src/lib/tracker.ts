@@ -1,4 +1,5 @@
 // Tracker (#17): tipos de la vista hubgames_library y cambios de estado desde el navegador (RLS: cada usuario los suyos).
+import type { GameGoal } from './game-goal'
 import { supabase } from './supabase/client'
 import type { Database } from './supabase/database.types'
 
@@ -108,6 +109,13 @@ export async function saveCompletion(appid: number, completion: Completion): Pro
             review: completion.review,
         })
         .eq('appid', appid)
+    if (error) throw new Error(error.message)
+    notifyChanged()
+}
+
+/** Objetivo del juego (#24): historia, historia + extras o 100 %. */
+export async function setGameGoal(appid: number, goal: GameGoal): Promise<void> {
+    const { error } = await supabase.from('hubgames_user_games').update({ goal }).eq('appid', appid)
     if (error) throw new Error(error.message)
     notifyChanged()
 }

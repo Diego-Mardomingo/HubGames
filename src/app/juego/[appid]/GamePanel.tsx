@@ -2,19 +2,21 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, CalendarCheck, Clock, Flag, Gamepad2, Heart, HeartOff, Hourglass, LogIn, Play, Star, Trophy } from 'lucide-react'
+import { AlertTriangle, CalendarCheck, Clock, Flag, Gamepad2, Heart, HeartOff, Hourglass, LogIn, Play, Star, Target, Trophy } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import {
     GAME_STATUSES,
     STATUS_LABELS,
     formatHours,
     playingLoad,
+    setGameGoal,
     setGamesStatus,
     type GameStatus,
     type LibraryGame,
 } from '@/lib/tracker'
 import { DURATION_SOURCE_LABEL, achievementPercent, type GameDuration } from '@/lib/library'
 import { isPerfect } from '@/lib/tracker-rules'
+import { GAME_GOALS, GOAL_LABELS, goalProgress, parseGoal, type GameGoal } from '@/lib/game-goal'
 import { addToWishlist, removeFromWishlist, type WishlistGame } from '@/lib/wishlist'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -35,6 +37,19 @@ type State =
     | { kind: 'sin_sesion' }
     | { kind: 'no_lo_tienes'; wish: WishlistGame | null }
     | { kind: 'ok'; userId: string; game: LibraryGame }
+
+/** "Te faltan unas 11 h para terminar la historia" según el objetivo (#24). */
+const GOAL_TARGET_TEXT: Record<GameGoal, string> = {
+    historia: 'para terminar la historia',
+    extras: 'para la historia y los extras',
+    completo: 'para el 100 %',
+}
+
+const GOAL_DURATION_TEXT: Record<GameGoal, string> = {
+    historia: 'de la historia',
+    extras: 'de la historia y los extras',
+    completo: 'del 100 %',
+}
 
 const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 
@@ -166,12 +181,28 @@ export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
 
     const { game, userId } = state
     const pct = achievementPercent(game)
-    const main = duration.main
-    const remaining = main !== null ? main - game.playtime_forever : null
 
     function update(patch: Partial<LibraryGame>) {
         setState((s) => (s.kind === 'ok' ? { ...s, game: { ...s.game, ...patch } } : s))
     }
+
+    async function changeGoal(goal: GameGoal) {
+        if (goal === parseGoal(game.goal)) return
+        setBusy(true)
+        setError('')
+        try {
+            await setGameGoal(appid, goal)
+            update({ goal })
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'No se pudo guardar')
+        } finally {
+            setBusy(false)
+        }
+    }
+
+    const progress = goalProgress(game)
+    // Con objetivo 100 %, al llegar al 100 % de logros se propone marcarlo como completado.
+    const suggestComplete = progress.goal === 'completo' && progress.done && game.status !== 'completado'
 
     async function changeStatus(status: GameStatus) {
         if (status === game.status) return
@@ -204,21 +235,38 @@ export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
     return (
         <section className="juego-panel glass" aria-label="Tus datos">
             <div className="juego-panel__top">
-                <label className="juego-panel__status">
-                    <span>Estado</span>
-                    <Select value={game.status} onValueChange={(v) => changeStatus(v as GameStatus)} disabled={busy}>
-                        <SelectTrigger className={`juego-panel__select lib-status--${game.status}`} aria-label="Estado">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {GAME_STATUSES.map((s) => (
-                                <SelectItem key={s} value={s}>
-                                    {STATUS_LABELS[s]}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </label>
+                <div className="juego-panel__selects">
+                    <label className="juego-panel__status">
+                        <span>Estado</span>
+                        <Select value={game.status} onValueChange={(v) => changeStatus(v as GameStatus)} disabled={busy}>
+                            <SelectTrigger className={`juego-panel__select lib-status--${game.status}`} aria-label="Estado">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {GAME_STATUSES.map((s) => (
+                                    <SelectItem key={s} value={s}>
+                                        {STATUS_LABELS[s]}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </label>
+                    <label className="juego-panel__status">
+                        <span>Objetivo</span>
+                        <Select value={parseGoal(game.goal)} onValueChange={(v) => changeGoal(v as GameGoal)} disabled={busy}>
+                            <SelectTrigger className="juego-panel__select juego-panel__select--goal" aria-label="Objetivo">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {GAME_GOALS.map((g) => (
+                                    <SelectItem key={g} value={g}>
+                                        {GOAL_LABELS[g]}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </label>
+                </div>
                 <div className="juego-panel__actions">
                     <Button asChild>
                         <a href={`steam://run/${appid}`}>
@@ -242,6 +290,34 @@ export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
                     <Link href="/biblioteca?estado=jugando">Ver los que juegas</Link>
                 </p>
             )}
+
+            <div className="juego-goal">
+                <div className="juego-goal__row">
+                    <span className="juego-goal__label">
+                        <Target size={13} aria-hidden /> Objetivo: {GOAL_LABELS[progress.goal]}
+                    </span>
+                    <span className="juego-goal__value">
+                        {progress.percent === null
+                            ? 'Sin duración para medirlo'
+                            : progress.basis === 'logros'
+                              ? `${progress.percent} % de logros`
+                              : `${progress.percent} % · ${formatHours(game.playtime_forever)} de ${formatHours(progress.targetMinutes!)}`}
+                    </span>
+                </div>
+                {progress.percent !== null && (
+                    <span className={`lib-progress${progress.done ? ' is-done' : ''}`} aria-hidden>
+                        <span style={{ width: `${progress.percent}%` }} />
+                    </span>
+                )}
+                {suggestComplete && (
+                    <p className="juego-goal__done" role="status">
+                        <Trophy size={14} aria-hidden /> ¡Objetivo cumplido: tienes todos los logros!{' '}
+                        <Button size="sm" onClick={() => setCompleting(true)}>
+                            <Flag aria-hidden /> Marcar como completado
+                        </Button>
+                    </p>
+                )}
+            </div>
 
             <dl className="juego-stats">
                 <div>
@@ -294,12 +370,12 @@ export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
                 </div>
             </dl>
 
-            {main !== null && remaining !== null && duration.source && (
+            {progress.basis === 'horas' && progress.targetMinutes !== null && duration.source && (
                 <p className="juego-panel__note">
                     <Hourglass size={13} aria-hidden />{' '}
-                    {remaining > 30
-                        ? `Te faltan unas ${formatHours(remaining)} para terminar la historia (${formatHours(main)}).`
-                        : `Ya has pasado la duración de la historia (${formatHours(main)}).`}{' '}
+                    {progress.targetMinutes - game.playtime_forever > 30
+                        ? `Te faltan unas ${formatHours(progress.targetMinutes - game.playtime_forever)} ${GOAL_TARGET_TEXT[progress.goal]} (${formatHours(progress.targetMinutes)}).`
+                        : `Ya has pasado la duración ${GOAL_DURATION_TEXT[progress.goal]} (${formatHours(progress.targetMinutes)}).`}{' '}
                     <span className="juego-panel__source">Según {DURATION_SOURCE_LABEL[duration.source]}.</span>
                 </p>
             )}
