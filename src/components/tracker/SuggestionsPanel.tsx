@@ -12,7 +12,7 @@ import './tracker.css'
 
 /**
  * Sugerencias de la sincronización (#18): "¿Lo has terminado?" y "¿Lo dejas en pausa?", resueltas con un clic.
- * Irá al dashboard (#29); de momento vive en el inicio.
+ * Vive en el dashboard (#29).
  */
 export default function SuggestionsPanel() {
     const [games, setGames] = useState<LibraryGame[]>([])

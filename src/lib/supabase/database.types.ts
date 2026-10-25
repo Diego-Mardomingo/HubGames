@@ -661,6 +661,33 @@ export type Database = {
         }
         Relationships: []
       }
+      hubgames_monthly_goals: {
+        Row: {
+          user_id: string
+          month: string
+          kind: string
+          target: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          month: string
+          kind: string
+          target: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          month?: string
+          kind?: string
+          target?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hubgames_plataformas: {
         Row: {
           plataforma: string
