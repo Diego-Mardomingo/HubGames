@@ -429,6 +429,10 @@
   height: 42px;
 }
 
+.setting__form--wrap {
+  flex-wrap: wrap;
+}
+
 .setting__form--stack {
   flex-direction: column;
 }

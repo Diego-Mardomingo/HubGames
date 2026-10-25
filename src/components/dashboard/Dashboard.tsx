@@ -332,7 +332,16 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                         elapsed={monthElapsed(data.goals.month, new Date(now))}
                     />
 
-                    <Panel id="dash-year" icon={CalendarDays} title={`Tu ${year.year}`}>
+                    <Panel
+                        id="dash-year"
+                        icon={CalendarDays}
+                        title={`Tu ${year.year}`}
+                        action={
+                            <Link href="/estadisticas" className="dash-panel__link">
+                                Ver estadísticas
+                            </Link>
+                        }
+                    >
                         <dl className="dash-year">
                             <div>
                                 <dt>Completados</dt>
