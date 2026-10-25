@@ -1,7 +1,7 @@
 name: Steam Sync
 
 # Sincronización diaria con Steam (#14): biblioteca, foto de horas (#15), wishlist y precios (#35, #36) y logros (#13)
-# de todos los usuarios vinculados.
+# de todos los usuarios vinculados. Después, los avisos push de precio (#37).
 # También sirve para la primera sincronización completa, que no cabe en una función de Vercel Hobby.
 on:
   schedule:
@@ -68,6 +68,24 @@ jobs:
             npx tsx scripts/steam-sync.ts --user "$USER_ID"
           else
             npx tsx scripts/steam-sync.ts
+          fi
+
+      # Avisos de precio de la wishlist (#37), con los precios recién sincronizados. También si algún usuario falló:
+      # los precios de los demás ya están al día.
+      - name: Avisos de precio
+        if: ${{ !cancelled() }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # El mismo par VAPID que usa la web para suscribirse.
+          WEB_PUSH_VAPID_PUBLIC_KEY: ${{ secrets.WEB_PUSH_VAPID_PUBLIC_KEY }}
+          WEB_PUSH_VAPID_PRIVATE_KEY: ${{ secrets.WEB_PUSH_VAPID_PRIVATE_KEY }}
+          USER_ID: ${{ inputs.user_id }}
+        run: |
+          if [ -n "$USER_ID" ]; then
+            npx tsx scripts/price-alerts.ts --user "$USER_ID"
+          else
+            npx tsx scripts/price-alerts.ts
           fi
 
       - name: Avisar del resultado

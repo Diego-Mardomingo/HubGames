@@ -24,6 +24,11 @@ self.addEventListener('push', (event) => {
     badge: '/img/HGLogo.webp',
     data: { url },
   };
+  // Avisos de precio (#37): una notificación por juego; la nueva sustituye a la anterior del mismo juego.
+  if (data.tag) {
+    options.tag = data.tag;
+    options.renotify = true;
+  }
 
   event.waitUntil(self.registration.showNotification(title, options));
 });

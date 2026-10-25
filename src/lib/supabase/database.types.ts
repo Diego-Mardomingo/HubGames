@@ -742,6 +742,39 @@ export type Database = {
         }
         Relationships: []
       }
+      hubgames_price_alerts: {
+        Row: {
+          user_id: string
+          appid: number
+          mode: string
+          target_price: number | null
+          target_discount: number | null
+          last_notified_price: number | null
+          last_notified_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          appid: number
+          mode?: string
+          target_price?: number | null
+          target_discount?: number | null
+          last_notified_price?: number | null
+          last_notified_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          appid?: number
+          mode?: string
+          target_price?: number | null
+          target_discount?: number | null
+          last_notified_price?: number | null
+          last_notified_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hubgames_price_snapshots: {
         Row: {
           appid: number

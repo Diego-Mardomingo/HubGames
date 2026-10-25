@@ -340,7 +340,7 @@ export default function PerfilPage() {
                             <div className="setting__text">
                                 <p className="setting__title">Notificaciones</p>
                                 <p className="setting__desc">
-                                    {notificationsLoading ? 'Actualizando…' : 'Aviso diario cuando sale un nuevo JUDI'}
+                                    {notificationsLoading ? 'Actualizando…' : 'Nuevo JUDI cada día y bajadas de precio de tu wishlist'}
                                 </p>
                             </div>
                             <button
