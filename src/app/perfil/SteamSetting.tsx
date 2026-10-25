@@ -20,9 +20,9 @@ const STATUS_MESSAGES: Record<string, { ok: boolean; text: string }> = {
 
 const RELATIVE = new Intl.RelativeTimeFormat('es-ES', { numeric: 'auto' })
 
-/** "hace 5 minutos", "ayer"… */
+/** "hace 5 minutos", "ayer"… Solo pasado: con relojes desfasados, nunca "dentro de…". */
 function timeAgo(iso: string): string {
-    const seconds = Math.round((Date.parse(iso) - Date.now()) / 1000)
+    const seconds = Math.min(0, Math.round((Date.parse(iso) - Date.now()) / 1000))
     const units: [Intl.RelativeTimeFormatUnit, number][] = [['day', 86400], ['hour', 3600], ['minute', 60]]
     for (const [unit, size] of units) {
         if (Math.abs(seconds) >= size) return RELATIVE.format(Math.round(seconds / size), unit)

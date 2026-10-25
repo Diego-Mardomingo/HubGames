@@ -337,7 +337,7 @@
 
 .stats-bars__value {
   flex: none;
-  color: var(--muted-light);
+  color: var(--muted);
   font-size: 0.8125rem;
 }
 
@@ -583,7 +583,7 @@
 .wrapped-hero__lead {
   max-width: 44ch;
   margin: 0.75rem 0 0;
-  color: var(--muted-light);
+  color: var(--foreground);
   font-size: 1.125rem;
   line-height: 1.5;
 }
@@ -729,7 +729,7 @@
 
 .wrapped-top__hours {
   flex: none;
-  color: var(--muted-light);
+  color: var(--muted);
   font-size: 0.875rem;
 }
 
@@ -763,7 +763,7 @@
   height: 72px;
   border-radius: var(--radius);
   background: color-mix(in srgb, var(--c) 16%, transparent);
-  color: var(--c);
+  color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground));
 }
 
 .wrapped-rare__icon img {
@@ -785,7 +785,7 @@
 
 .wrapped-rare__pct {
   margin: 0.75rem 0 0;
-  color: var(--muted-light);
+  color: var(--muted);
   font-size: 1.0625rem;
 }
 
@@ -798,14 +798,10 @@
 
 .wrapped-rare__tier {
   margin-left: 0.75rem;
-  color: var(--c);
+  color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground));
   white-space: nowrap;
   font-size: 0.875rem;
   font-weight: 600;
-}
-
-:root:not([data-theme='dark']) .wrapped-rare__tier {
-  color: color-mix(in srgb, var(--c) 72%, var(--foreground));
 }
 
 .wrapped-pair {
@@ -907,5 +903,12 @@
   .stats-games li,
   .stats-covers a {
     transition: none;
+  }
+}
+
+/* Móvil: objetivo táctil de 44 px */
+@media (max-width: 768px) {
+  .wrapped__back {
+    min-height: 44px;
   }
 }

@@ -292,17 +292,17 @@ export default function GamePanel({ appid, name, duration }: Props) {
                 <div>
                     <dt>Horas</dt>
                     <dd>{formatHours(game.playtime_forever)}</dd>
-                    {game.playtime_2weeks > 0 && <span>{formatHours(game.playtime_2weeks)} en 2 semanas</span>}
+                    {game.playtime_2weeks > 0 && <dd className="juego-stats__note">{formatHours(game.playtime_2weeks)} en 2 semanas</dd>}
                 </div>
                 <div>
                     <dt>Última partida</dt>
                     <dd>{game.rtime_last_played ? SHORT_DATE.format(new Date(game.rtime_last_played)) : 'Nunca'}</dd>
-                    {game.started_at && game.status === 'jugando' && <span>Jugando desde el {formatDate(game.started_at)}</span>}
+                    {game.started_at && game.status === 'jugando' && <dd className="juego-stats__note">Jugando desde el {formatDate(game.started_at)}</dd>}
                 </div>
                 <div>
                     <dt>Tu nota</dt>
                     <dd>{game.rating !== null ? String(game.rating).replace('.', ',') : '—'}</dd>
-                    {game.completed_at && <span>Completado el {formatDate(game.completed_at)}</span>}
+                    {game.completed_at && <dd className="juego-stats__note">Completado el {formatDate(game.completed_at)}</dd>}
                 </div>
                 <div>
                     <dt>Logros</dt>
@@ -321,15 +321,15 @@ export default function GamePanel({ appid, name, duration }: Props) {
                                     <small className="juego-stats__pct">{pct} %</small>
                                 )}
                             </dd>
-                            <span className={`hg-bar${isPerfect(game) ? ' is-done' : ''}`} aria-hidden>
+                            <dd className={`hg-bar${isPerfect(game) ? ' is-done' : ''}`} aria-hidden>
                                 <span style={{ width: `${pct}%` }} />
-                            </span>
-                            <span>
+                            </dd>
+                            <dd className="juego-stats__note">
                                 {game.last_unlock_at && `Último el ${formatDate(game.last_unlock_at)} · `}
                                 <Link href={`/juego/${appid}/logros`} className="juego-stats__link">
                                     Ver logros
                                 </Link>
-                            </span>
+                            </dd>
                         </>
                     )}
                 </div>

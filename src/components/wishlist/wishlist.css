@@ -137,7 +137,7 @@
 }
 
 .wish-attribution a {
-  color: var(--muted-light);
+  color: var(--muted);
 }
 
 /* Bloque de precio en la ficha /juego */
@@ -219,7 +219,7 @@
 .price-alert__field {
   display: grid;
   gap: 0.3rem;
-  color: var(--muted-light);
+  color: var(--muted);
   font-size: 0.8125rem;
   font-weight: 500;
 }

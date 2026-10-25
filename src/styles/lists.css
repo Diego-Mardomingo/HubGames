@@ -167,7 +167,7 @@
   padding: 3px 10px;
   border-radius: 999px;
   background: var(--surface-2);
-  color: var(--muted-light);
+  color: var(--muted);
   font-size: 0.78125rem;
   font-weight: 600;
   white-space: nowrap;
@@ -227,7 +227,7 @@
   height: 40px;
   border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--c) 16%, transparent);
-  color: var(--c);
+  color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground));
 }
 
 .hg-ach__icon img {
@@ -279,15 +279,11 @@
 }
 
 .hg-ach__pct small {
-  color: var(--c);
+  color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground));
   font-size: 0.71875rem;
   font-weight: 600;
 }
 
-/* El color de rareza como texto: en claro, mezclado con el texto para llegar a 4.5:1 sobre la superficie. */
-:root:not([data-theme='dark']) .hg-ach__pct small {
-  color: color-mix(in srgb, var(--c) 72%, var(--foreground));
-}
 
 .hg-ach__rating {
   display: inline-flex;
@@ -315,7 +311,7 @@
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: var(--muted-light);
+  color: var(--muted);
   font-size: 0.8125rem;
   font-weight: 500;
   transition: background 0.15s, color 0.15s;
@@ -447,7 +443,7 @@ kbd.hg-kbd,
   padding: 0 0.3em;
   border-radius: 4px;
   background: var(--surface-2);
-  color: var(--muted-light);
+  color: var(--muted);
   font: inherit;
   font-size: 0.6875rem;
   line-height: 1.5;
@@ -561,7 +557,7 @@ kbd.hg-kbd,
   }
 
   .hg-seg__opt {
-    min-height: 40px;
+    min-height: 44px;
   }
 
   .hg-cards {

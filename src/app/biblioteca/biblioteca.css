@@ -249,7 +249,7 @@
   align-items: center;
   gap: 0.5rem;
   min-height: 36px;
-  color: var(--muted-light);
+  color: var(--muted);
   font-size: 0.8125rem;
   cursor: pointer;
 }
@@ -354,6 +354,10 @@
 }
 
 @media (max-width: 640px) {
+  .tray-check {
+    min-height: 44px;
+  }
+
   .hg-row.lib-row {
     grid-template-columns: 96px minmax(0, 1fr);
   }
@@ -416,4 +420,11 @@
 
 .tray-toolbar > .hg-seg {
   min-width: 0;
+}
+
+/* Móvil: objetivo táctil de 44 px */
+@media (max-width: 768px) {
+  .lib-back {
+    min-height: 44px;
+  }
 }

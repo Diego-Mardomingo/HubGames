@@ -569,7 +569,7 @@ const phaseImageVariants = {
 function systemConfettiColors(): string[] {
     const css = getComputedStyle(document.documentElement)
     const read = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback
-    return [read('--primary', '#2f5bff'), read('--rar-leg', '#c98a0b'), read('--foreground', '#1b1f27'), read('--surface-3', '#d6dae1')]
+    return [read('--primary', '#2453ff'), read('--rar-leg', '#c98a0b'), read('--foreground', '#1b1f27'), read('--surface-3', '#d6dae1')]
 }
 
 export default function JudiClient() {

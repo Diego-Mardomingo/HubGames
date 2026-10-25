@@ -239,14 +239,14 @@ export default function Nav() {
                                     transition={{ type: 'spring', stiffness: 500, damping: 40 }}
                                 />
                             )}
-                            <motion.span className="nav-tab__icon" whileTap={{ scale: 0.82 }}>
+                            <span className="nav-tab__icon">
                                 <Icon size={20} strokeWidth={active ? 2.4 : 2} />
                                 {link.badge ? (
                                     <span className="nav-badge nav-badge--tab" aria-label={`${link.badge} en la bandeja`}>
                                         {link.badge > 99 ? '99+' : link.badge}
                                     </span>
                                 ) : null}
-                            </motion.span>
+                            </span>
                             <span className="nav-tab__label">{link.label}</span>
                         </Link>
                     )

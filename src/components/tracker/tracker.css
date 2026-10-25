@@ -220,43 +220,10 @@
   text-align: center;
 }
 
-/* ── Barra fina de progreso de logros y etiqueta de estado (ficha del juego) ── */
-
-.lib-progress {
-  display: block;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  overflow: hidden;
-}
-
-.lib-progress span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--primary);
-}
-
-.lib-progress.is-done span {
-  background: var(--success);
-}
-
-.lib-status {
-  display: inline-flex;
-  padding: 2px 9px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--muted-light);
-  font-size: 0.75rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
+/* ── Color del estado en el selector de la ficha del juego ── */
 
 .lib-status--jugando { color: var(--primary); }
 .lib-status--completado { color: var(--success); }
-
-span.lib-status--jugando { background: var(--primary-glow); }
-span.lib-status--completado { background: var(--success-glow); }
 
 /* ── Buscador de juegos de Steam (#20): paleta de comandos con Ctrl+K ── */
 
@@ -310,7 +277,7 @@ span.lib-status--completado { background: var(--success-glow); }
   padding: 0 0.3em;
   border-radius: 4px;
   background: var(--surface-2);
-  color: var(--muted-light);
+  color: var(--muted);
   font: inherit;
   font-size: 0.6875rem;
   line-height: 1.5;
@@ -318,11 +285,7 @@ span.lib-status--completado { background: var(--success-glow); }
 }
 
 .game-search__spin {
-  animation: game-search-spin 0.9s linear infinite;
-}
-
-@keyframes game-search-spin {
-  to { rotate: 360deg; }
+  animation: spin 0.9s linear infinite;
 }
 
 .game-search > .alert {

@@ -10,6 +10,8 @@
 
 .admin-page {
   display: grid;
+  /* minmax(0, 1fr): las pestañas desplazables no ensanchan la columna en móvil */
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   min-width: 0;
 }
@@ -225,7 +227,7 @@
   padding: 1px 6px;
   border-radius: 4px;
   background: var(--surface-2);
-  color: var(--muted-light);
+  color: var(--muted);
   font-size: 0.6875rem;
   white-space: nowrap;
 }
@@ -404,5 +406,11 @@
 
   .admin-log-detail__row:not(.admin-log-detail__row--block) {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-tabs-list .hg-seg__opt {
+    min-height: 44px;
   }
 }

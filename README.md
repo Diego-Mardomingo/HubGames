@@ -8,8 +8,8 @@
   <p>
     <img alt="Steam" src="https://img.shields.io/badge/Steam-sincronizado-171A21?style=flat-square&logo=steam&logoColor=white">
     <img alt="PWA" src="https://img.shields.io/badge/PWA-instalable-5A0FC8?style=flat-square">
-    <img alt="Avisos push" src="https://img.shields.io/badge/avisos-push-9a86ff?style=flat-square">
-    <img alt="Gratis" src="https://img.shields.io/badge/gratis-100%25-2ad4f0?style=flat-square">
+    <img alt="Avisos push" src="https://img.shields.io/badge/avisos-push-2453ff?style=flat-square">
+    <img alt="Gratis" src="https://img.shields.io/badge/gratis-100%25-1a7743?style=flat-square">
     <a href="https://github.com/Diego-Mardomingo/HubGames/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Diego-Mardomingo/HubGames/actions/workflows/ci.yml/badge.svg"></a>
   </p>
 </div>
@@ -76,6 +76,8 @@ Next.js · React · TypeScript · Tailwind CSS · Framer Motion · Supabase · V
 
 Todo funciona con planes gratuitos: Vercel Hobby, Supabase Free y GitHub Actions.
 
+Diseño: superficies planas, un único acento cobalto y color solo para la rareza de los logros, en tema claro y oscuro. Tokens, componentes y reglas en la [guía de estilo](docs/design-system.md).
+
 <details>
 <summary><strong>🛠️ Para desarrolladores</strong></summary>
 
@@ -116,9 +118,9 @@ npm run dev          # http://localhost:3000
 HubGames/
 ├── src/
 │   ├── app/                 # App Router: páginas y route handlers
-│   ├── components/          # Nav, dashboard, tracker, achievements, wishlist, ui (shadcn) y motion
+│   ├── components/          # Nav, dashboard, tracker, achievements, wishlist, marca y ui (shadcn)
 │   ├── lib/                 # Lógica pura con tests (*.test.ts) y acceso a datos (*-db.ts)
-│   ├── styles/              # Estilos globales y navegación
+│   ├── styles/              # Tokens y estilos globales, navegación, listas y piezas ui (ver docs/design-system.md)
 │   └── proxy.ts             # Sesión y protección de /admin
 ├── scripts/                 # Tareas de los workflows (sync, JUDI, health check, avisos de precio, HLTB)
 ├── supabase/                # Migraciones de HubGames y Edge Function del aviso de JUDI

@@ -418,7 +418,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface);
-  color: var(--muted-light);
+  color: var(--muted);
 }
 
 .goal__stepper button:hover:not(:disabled) {

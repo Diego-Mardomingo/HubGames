@@ -42,14 +42,31 @@ export default function ActivityHeatmap({ map, stats, footer, preview = false }:
     const id = useId()
     const scrollRef = useRef<HTMLDivElement>(null)
     const gridRef = useRef<HTMLDivElement>(null)
+    const monthsRef = useRef<HTMLDivElement>(null)
     const [tip, setTip] = useState<Tip | null>(null)
     const [active, setActive] = useState<number | null>(null)
     const lastDay = map.days.findLastIndex((d) => !d.future)
 
     // En pantallas estrechas el mapa se desplaza en horizontal: se empieza por lo más reciente.
+    // La etiqueta de un mes que queda cortada por el borde izquierdo se oculta (si no, se lee «ay» por «may»).
     useLayoutEffect(() => {
         const el = scrollRef.current
-        if (el) el.scrollLeft = el.scrollWidth
+        const months = monthsRef.current
+        if (!el || !months) return
+        const clipMonths = () => {
+            const edge = el.getBoundingClientRect().left
+            for (const label of months.children as HTMLCollectionOf<HTMLElement>) {
+                label.style.visibility = label.getBoundingClientRect().left < edge ? 'hidden' : ''
+            }
+        }
+        el.scrollLeft = el.scrollWidth
+        clipMonths()
+        el.addEventListener('scroll', clipMonths, { passive: true })
+        window.addEventListener('resize', clipMonths)
+        return () => {
+            el.removeEventListener('scroll', clipMonths)
+            window.removeEventListener('resize', clipMonths)
+        }
     }, [])
 
     // El tooltip es `fixed`: si la página se desplaza, se oculta en vez de quedarse descolocado.
@@ -153,7 +170,7 @@ export default function ActivityHeatmap({ map, stats, footer, preview = false }:
                             />
                         ))}
                     </div>
-                    <div className="heat__months" aria-hidden>
+                    <div ref={monthsRef} className="heat__months" aria-hidden>
                         {map.months.map((m) => (
                             <span key={m.week} style={{ gridColumnStart: m.week + 1 }}>
                                 {m.label}

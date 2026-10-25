@@ -270,7 +270,7 @@
 .pf-top__rank--2,
 .pf-top__rank--3 {
   background: color-mix(in srgb, var(--medal) 18%, transparent);
-  color: color-mix(in srgb, var(--medal) 70%, var(--foreground));
+  color: color-mix(in srgb, var(--medal) 62%, var(--foreground));
 }
 
 .pf-top__rank--1 { --medal: var(--pf-rank-1); }

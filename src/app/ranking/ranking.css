@@ -125,7 +125,7 @@
   margin-bottom: 0.375rem;
   border-radius: 50%;
   background: color-mix(in srgb, var(--medal) 18%, transparent);
-  color: color-mix(in srgb, var(--medal) 70%, var(--foreground));
+  color: color-mix(in srgb, var(--medal) 62%, var(--foreground));
   font-size: 0.875rem;
   font-weight: 700;
 }
