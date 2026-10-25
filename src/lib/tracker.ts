@@ -163,3 +163,18 @@ export async function playingLoad(userId: string): Promise<{ count: number; limi
     ])
     return { count: count ?? 0, limit }
 }
+
+/** Biblioteca completa del usuario con sesión (de 1000 en 1000, el máximo de PostgREST). */
+export async function loadLibrary(): Promise<LibraryGame[]> {
+    const out: LibraryGame[] = []
+    for (let from = 0; ; from += 1000) {
+        const { data, error } = await supabase
+            .from('hubgames_library')
+            .select('*')
+            .order('appid')
+            .range(from, from + 999)
+        if (error) throw new Error(error.message)
+        out.push(...(data as LibraryGame[]))
+        if (data.length < 1000) return out
+    }
+}

@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { persistJudiHomeScrollYFromWindow } from '@/lib/judi-home-scroll'
 import { LogoMark, Wordmark } from '@/components/brand/Logo'
-import { Home, Gamepad2, Trophy, User, Shield, LogIn, Library, Search } from 'lucide-react'
+import { Home, Gamepad2, Trophy, User, Shield, LogIn, Library, Search, Award } from 'lucide-react'
 import { countTray, TRACKER_CHANGED_EVENT } from '@/lib/tracker'
 import GameSearch, { openGameSearch } from '@/components/tracker/GameSearch'
 
@@ -98,7 +98,12 @@ export default function Nav() {
 
     const navLinks = [
         { href: '/', label: 'Inicio', icon: Home },
-        ...(user ? [{ href: '/biblioteca', label: 'Biblioteca', icon: Library, badge: trayCount }] : []),
+        ...(user
+            ? [
+                  { href: '/biblioteca', label: 'Biblioteca', icon: Library, badge: trayCount },
+                  { href: '/logros', label: 'Logros', icon: Award },
+              ]
+            : []),
         { href: '/judi', label: 'JUDI', icon: Gamepad2 },
         { href: '/ranking', label: 'Ranking', icon: Trophy },
         ...(isAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield }] : []),

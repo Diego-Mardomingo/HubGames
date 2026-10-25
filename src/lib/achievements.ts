@@ -1,6 +1,7 @@
-// Logros (#25): tipos de la vista hubgames_achievements, rareza, filtros y dificultad. Sin acceso a la base de datos,
-// con tests en achievements.test.ts.
+// Logros (#25, #26): tipos de la vista hubgames_achievements, rareza, filtros, dificultad y vistas de cazador.
+// Sin acceso a la base de datos, con tests en achievements.test.ts.
 import type { Database } from './supabase/database.types'
+import type { LibraryGame } from './tracker'
 
 type AchievementRow = Database['public']['Tables']['hubgames_achievements']['Row']
 
@@ -123,4 +124,69 @@ export function steamGuidesUrl(appid: number): string {
 
 export function youtubeSearchUrl(gameName: string, achievementName: string): string {
     return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${gameName} ${achievementName} logro`)}`
+}
+
+// ── Vistas de cazador (#26) ──
+
+type GameProgress = Pick<LibraryGame, 'appid' | 'achievements_total' | 'achievements_unlocked' | 'rtime_last_played' | 'last_unlock_at'>
+
+const DAY_MS = 24 * 3600_000
+/** Sin jugar ni desbloquear nada en este tiempo = "olvidado". */
+export const FORGOTTEN_AFTER_MS = 90 * DAY_MS
+/** A partir de este % de logros, un juego cuenta como "cerca del 100 %". */
+export const NEAR_COMPLETION_PERCENT = 50
+
+function progress(game: GameProgress): { total: number; unlocked: number; remaining: number; percent: number } {
+    const total = game.achievements_total ?? 0
+    const unlocked = Math.min(game.achievements_unlocked ?? 0, total)
+    return { total, unlocked, remaining: total - unlocked, percent: total > 0 ? (unlocked / total) * 100 : 0 }
+}
+
+/** Última vez que tocaste el juego: la partida o el desbloqueo más reciente. */
+export function lastTouched(game: Pick<GameProgress, 'rtime_last_played' | 'last_unlock_at'>): number | null {
+    const times = [game.rtime_last_played, game.last_unlock_at].filter((t): t is string => !!t).map(Date.parse)
+    return times.length > 0 ? Math.max(...times) : null
+}
+
+/** Juegos con al menos la mitad de los logros y sin el 100 %, de menos a más logros restantes. */
+export function nearCompletion<T extends GameProgress>(games: T[]): T[] {
+    return games
+        .filter((g) => {
+            const p = progress(g)
+            return p.remaining > 0 && p.percent >= NEAR_COMPLETION_PERCENT
+        })
+        .sort((a, b) => progress(a).remaining - progress(b).remaining || progress(b).percent - progress(a).percent)
+}
+
+/** Juegos con más del 50 % de logros, sin el 100 % y sin tocar desde hace más de 90 días. Los más avanzados primero. */
+export function forgottenGames<T extends GameProgress>(games: T[], now: number = Date.now()): T[] {
+    return games
+        .filter((g) => {
+            const p = progress(g)
+            const touched = lastTouched(g)
+            return p.remaining > 0 && p.percent > NEAR_COMPLETION_PERCENT && touched !== null && now - touched > FORGOTTEN_AFTER_MS
+        })
+        .sort((a, b) => progress(b).percent - progress(a).percent)
+}
+
+/** Juegos con todos los logros, del 100 % más reciente al más antiguo. */
+export function perfectGames<T extends GameProgress>(games: T[]): T[] {
+    return games
+        .filter((g) => {
+            const p = progress(g)
+            return p.total > 0 && p.remaining === 0
+        })
+        .sort((a, b) => (b.last_unlock_at ? Date.parse(b.last_unlock_at) : 0) - (a.last_unlock_at ? Date.parse(a.last_unlock_at) : 0))
+}
+
+/** Tus logros desbloqueados más raros (los que no tienen % global no cuentan). */
+export function rarestUnlocked(list: Achievement[], limit: number): Achievement[] {
+    return list
+        .filter((a) => a.achieved && a.global_percent !== null)
+        .sort((a, b) => a.global_percent! - b.global_percent!)
+        .slice(0, limit)
+}
+
+export function remainingAchievements(game: GameProgress): number {
+    return progress(game).remaining
 }

@@ -21,12 +21,13 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { AlertTriangle, Clock, GripVertical, Inbox, LayoutGrid, Library, List, Minus, Plus, Search, Star, Trophy, X } from 'lucide-react'
-import { supabase, safeGetSession } from '@/lib/supabase/client'
+import { safeGetSession } from '@/lib/supabase/client'
 import {
     DEFAULT_PLAYING_LIMIT,
     STATUS_LABELS,
     formatHours,
     getPlayingLimit,
+    loadLibrary,
     reorderBacklog,
     setPlayingLimit,
     type LibraryGame,
@@ -78,20 +79,6 @@ const TAB_LABELS: Record<LibraryTab, string> = {
 
 function parseTab(value: string | null): LibraryTab {
     return LIBRARY_TABS.includes(value as LibraryTab) ? (value as LibraryTab) : 'todos'
-}
-
-async function loadLibrary(): Promise<LibraryGame[]> {
-    const out: LibraryGame[] = []
-    for (let from = 0; ; from += 1000) {
-        const { data, error } = await supabase
-            .from('hubgames_library')
-            .select('*')
-            .order('appid')
-            .range(from, from + 999)
-        if (error) throw new Error(error.message)
-        out.push(...(data as LibraryGame[]))
-        if (data.length < 1000) return out
-    }
 }
 
 export default function BibliotecaPage() {

@@ -2,6 +2,11 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import {
     estimateDifficulty,
+    forgottenGames,
+    lastTouched,
+    nearCompletion,
+    perfectGames,
+    rarestUnlocked,
     formatPercent,
     matchesAchievementFilter,
     rarity,
@@ -115,5 +120,66 @@ describe('estimateDifficulty', () => {
 describe('youtubeSearchUrl', () => {
     it('codifica el juego y el logro', () => {
         assert.equal(youtubeSearchUrl('Hades', 'Fin & principio'), 'https://www.youtube.com/results?search_query=Hades%20Fin%20%26%20principio%20logro')
+    })
+})
+
+type Game = Parameters<typeof nearCompletion>[0][number]
+
+function game(appid: number, unlocked: number | null, total: number | null, extra: Partial<Game> = {}): Game {
+    return { appid, achievements_unlocked: unlocked, achievements_total: total, rtime_last_played: null, last_unlock_at: null, ...extra }
+}
+
+const NOW = Date.parse('2026-10-25T12:00:00Z')
+const daysAgo = (d: number) => new Date(NOW - d * 24 * 3600_000).toISOString()
+
+describe('nearCompletion', () => {
+    it('desde el 50 %, sin el 100 %, por logros restantes', () => {
+        const list = [game(1, 9, 10), game(2, 45, 50), game(3, 10, 10), game(4, 4, 10), game(5, 5, 10), game(6, 0, 0), game(7, 98, 100)]
+        assert.deepEqual(nearCompletion(list).map((g) => g.appid), [1, 7, 2, 5])
+    })
+
+    it('a igualdad de restantes, el más avanzado primero', () => {
+        assert.deepEqual(nearCompletion([game(1, 8, 10), game(2, 18, 20)]).map((g) => g.appid), [2, 1])
+    })
+})
+
+describe('lastTouched', () => {
+    it('la fecha más reciente entre partida y desbloqueo', () => {
+        assert.equal(lastTouched({ rtime_last_played: daysAgo(10), last_unlock_at: daysAgo(5) }), NOW - 5 * 24 * 3600_000)
+        assert.equal(lastTouched({ rtime_last_played: null, last_unlock_at: null }), null)
+    })
+})
+
+describe('forgottenGames', () => {
+    it('más del 50 %, sin el 100 % y más de 90 días sin tocar', () => {
+        const list = [
+            game(1, 6, 10, { rtime_last_played: daysAgo(100), last_unlock_at: daysAgo(120) }),
+            game(2, 9, 10, { rtime_last_played: daysAgo(200) }),
+            game(3, 6, 10, { rtime_last_played: daysAgo(100), last_unlock_at: daysAgo(30) }),
+            game(4, 5, 10, { rtime_last_played: daysAgo(300) }),
+            game(5, 10, 10, { rtime_last_played: daysAgo(300) }),
+            game(6, 8, 10),
+        ]
+        assert.deepEqual(forgottenGames(list, NOW).map((g) => g.appid), [2, 1])
+    })
+})
+
+describe('perfectGames', () => {
+    it('solo los 100 %, el más reciente primero', () => {
+        const list = [game(1, 10, 10, { last_unlock_at: daysAgo(50) }), game(2, 3, 3, { last_unlock_at: daysAgo(1) }), game(3, 2, 3), game(4, 0, 0)]
+        assert.deepEqual(perfectGames(list).map((g) => g.appid), [2, 1])
+    })
+})
+
+describe('rarestUnlocked', () => {
+    it('desbloqueados con % global, de más raro a más común', () => {
+        const list = [
+            ach({ apiname: 'a', achieved: true, global_percent: 12 }),
+            ach({ apiname: 'b', achieved: true, global_percent: 0.5 }),
+            ach({ apiname: 'c', achieved: false, global_percent: 0.1 }),
+            ach({ apiname: 'd', achieved: true, global_percent: null }),
+            ach({ apiname: 'e', achieved: true, global_percent: 3 }),
+        ]
+        assert.deepEqual(rarestUnlocked(list, 2).map((a) => a.apiname), ['b', 'e'])
     })
 })
