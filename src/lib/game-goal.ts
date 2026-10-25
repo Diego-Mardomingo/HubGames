@@ -1,18 +1,24 @@
-// Objetivo por juego (#24): historia, historia + extras o 100 %. Puro (sin base de datos), con tests en game-goal.test.ts.
+// Objetivo por juego (#24): historia, historia + extras, 100 % o rejugable (sin final, se marca a mano). Puro (sin base de datos), con tests en game-goal.test.ts.
 import type { LibraryGame } from './tracker'
 import { achievementPercent, gameDuration } from './library'
 
-export const GAME_GOALS = ['historia', 'extras', 'completo'] as const
+export const GAME_GOALS = ['historia', 'extras', 'completo', 'rejugable'] as const
 export type GameGoal = (typeof GAME_GOALS)[number]
 
 export const GOAL_LABELS: Record<GameGoal, string> = {
     historia: 'Historia',
     extras: 'Historia + extras',
     completo: '100 %',
+    rejugable: 'Rejugable',
 }
 
 export function parseGoal(goal: string | null | undefined): GameGoal {
     return GAME_GOALS.includes(goal as GameGoal) ? (goal as GameGoal) : 'historia'
+}
+
+/** Juego sin final (multijugador, sandbox, roguelike...): no se mide por horas ni se espera terminarlo. */
+export function isReplayable(game: Pick<LibraryGame, 'goal'>): boolean {
+    return parseGoal(game.goal) === 'rejugable'
 }
 
 type GoalColumns =
@@ -25,10 +31,11 @@ type GoalColumns =
     | 'hltb_completionist'
     | 'steamspy_median_forever'
 
-/** Minutos que marca la meta del objetivo: historia, historia + extras o 100 % según HowLongToBeat. null sin dato. */
+/** Minutos que marca la meta del objetivo: historia, historia + extras o 100 % según HowLongToBeat. null sin dato o si es rejugable. */
 export function goalMinutes(game: Pick<LibraryGame, GoalColumns>): number | null {
-    const d = gameDuration(game)
     const goal = parseGoal(game.goal)
+    if (goal === 'rejugable') return null
+    const d = gameDuration(game)
     if (goal === 'extras') return d.mainExtra
     if (goal === 'completo') return d.completionist
     return d.main

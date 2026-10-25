@@ -37,6 +37,7 @@ import {
     DURATION_FILTER_LABELS,
     LIBRARY_TABS,
     NO_FILTERS,
+    REPLAYABLE_FILTER_LABELS,
     SORT_LABELS,
     achievementPercent,
     filterOptions,
@@ -50,6 +51,7 @@ import {
     type DurationFilter,
     type LibraryFilters,
     type LibraryTab,
+    type ReplayableFilter,
     type SortKey,
 } from '@/lib/library'
 import { isPerfect } from '@/lib/tracker-rules'
@@ -376,6 +378,21 @@ function Biblioteca() {
                             {(Object.keys(DURATION_FILTER_LABELS) as DurationFilter[]).map((k) => (
                                 <SelectItem key={k} value={k}>
                                     {DURATION_FILTER_LABELS[k]}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Select
+                        value={filters.replayable}
+                        onValueChange={(v) => setFilters((f) => ({ ...f, replayable: v as ReplayableFilter }))}
+                    >
+                        <SelectTrigger className="lib-select" aria-label="Rejugables" title="Juegos sin final que has marcado con el objetivo Rejugable">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {(Object.keys(REPLAYABLE_FILTER_LABELS) as ReplayableFilter[]).map((k) => (
+                                <SelectItem key={k} value={k}>
+                                    {REPLAYABLE_FILTER_LABELS[k]}
                                 </SelectItem>
                             ))}
                         </SelectContent>

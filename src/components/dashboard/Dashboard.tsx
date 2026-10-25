@@ -28,7 +28,7 @@ import type { DashboardData } from '@/lib/dashboard-db'
 import { countsByMonth, monthElapsed, progressFor, suggestTargets } from '@/lib/goals'
 import { DURATION_SOURCE_LABEL, achievementPercent, gameDuration } from '@/lib/library'
 import { formatHours } from '@/lib/format'
-import { GOAL_LABELS, goalMinutes, goalRemainingMinutes, parseGoal } from '@/lib/game-goal'
+import { GOAL_LABELS, goalMinutes, goalRemainingMinutes, isReplayable, parseGoal } from '@/lib/game-goal'
 import type { LibraryGame } from '@/lib/tracker'
 import { isPerfect } from '@/lib/tracker-rules'
 import { Button } from '@/components/ui/button'
@@ -216,7 +216,7 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                                             </Link>
                                             <Link href={`/juego/${g.appid}`} className="dash-queue__name">
                                                 {g.name ?? `App ${g.appid}`}
-                                                <small>{d.main !== null ? `Historia: ${formatHours(d.main)}` : 'Sin duración'}</small>
+                                                <small>{isReplayable(g) ? 'Rejugable' : d.main !== null ? `Historia: ${formatHours(d.main)}` : 'Sin duración'}</small>
                                             </Link>
                                             <a className="dash-icon-btn" href={steamRunUrl(g.appid)} aria-label={`Jugar a ${g.name ?? g.appid}`} title="Jugar">
                                                 <Play size={15} aria-hidden />

@@ -2,6 +2,7 @@
 // Puro (con tests en recommend.test.ts): lo que falta según HowLongToBeat, la posición en la cola,
 // cuánto hace que no lo juegas y el % de logros.
 import { remainingMinutes } from './dashboard'
+import { isReplayable } from './game-goal'
 import { gameDuration } from './library'
 import { formatHours } from './format'
 import type { LibraryGame } from './tracker'
@@ -70,8 +71,10 @@ function noise(appid: number, seed: number): number {
 
 function signals(g: LibraryGame, session: SessionLength, mood: Mood, now: number, seed: number): Signal[] | null {
     const out: Signal[] = []
-    const remaining = remainingMinutes(g)
-    const duration = gameDuration(g)
+    // Los rejugables no tienen final: ni "te falta poco", ni "cabe en tu sesión", ni "es corto".
+    const replayable = isReplayable(g)
+    const remaining = replayable ? null : remainingMinutes(g)
+    const main = replayable ? null : gameDuration(g).main
     const started = g.playtime_forever >= STARTED_MIN || g.status === 'jugando'
     const last = daysAgo(g.rtime_last_played, now)
     const ach = achievementInfo(g)
@@ -80,9 +83,9 @@ function signals(g: LibraryGame, session: SessionLength, mood: Mood, now: number
     // Lo que te apetece decide qué juegos entran y pesa más.
     switch (mood) {
         case 'terminar': {
-            if (!started) return null
+            if (!started || replayable) return null
             if (remaining === null) out.push({ points: 0.5 })
-            else if (remaining === 0) out.push({ points: 2, reason: `Ya has pasado la historia (${formatHours(duration.main!)}): ¿lo cierras?` })
+            else if (remaining === 0) out.push({ points: 2, reason: `Ya has pasado la historia (${formatHours(main!)}): ¿lo cierras?` })
             else out.push({ points: 3 * (1 - Math.min(remaining, 40 * 60) / (40 * 60)), reason: `Te faltan unas ${formatHours(remaining)} para terminarlo` })
             break
         }
@@ -113,9 +116,9 @@ function signals(g: LibraryGame, session: SessionLength, mood: Mood, now: number
     if (session === 'corta') {
         // Algo a medias se retoma rápido; empezar algo largo en menos de una hora, no tanto.
         if (started) out.push({ points: 0.5 })
-        if (!started && duration.main !== null && duration.main > 20 * 60) out.push({ points: -1 })
-        if (!started && duration.main !== null && duration.main <= 5 * 60) out.push({ points: 0.8, reason: `Es corto (${formatHours(duration.main)})` })
-    } else if (session === 'larga' && !started && duration.main !== null && duration.main > 10 * 60) {
+        if (!started && main !== null && main > 20 * 60) out.push({ points: -1 })
+        if (!started && main !== null && main <= 5 * 60) out.push({ points: 0.8, reason: `Es corto (${formatHours(main)})` })
+    } else if (session === 'larga' && !started && main !== null && main > 10 * 60) {
         out.push({ points: 0.5, reason: 'Buena sesión para meterte de lleno' })
     }
 
