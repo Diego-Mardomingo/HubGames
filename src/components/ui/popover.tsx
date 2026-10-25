@@ -14,10 +14,7 @@ const PopoverContent = React.forwardRef<
             ref={ref}
             align={align}
             sideOffset={sideOffset}
-            className={cn(
-                'z-50 w-72 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-2 text-[var(--foreground)] shadow-[var(--shadow-card)] outline-none',
-                className
-            )}
+            className={cn('hg-popover', className)}
             {...props}
         />
     </PopoverPrimitive.Portal>

@@ -1,21 +1,40 @@
 'use client'
 
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react'
 
-/** Donde se escribe, las teclas son del usuario: ni j/k ni flechas. */
-function isTyping(el: Element | null): boolean {
+/**
+ * Donde se escribe, las teclas son del usuario: ni j/k ni flechas. Tampoco en el asa de arrastre de dnd-kit,
+ * que usa las flechas para mover el elemento.
+ */
+export function isTyping(el: Element | null): boolean {
     if (!el) return false
     if ((el as HTMLElement).isContentEditable) return true
-    return !!el.closest('input, textarea, select, [role="dialog"], [role="radiogroup"], [role="listbox"], [role="menu"]')
+    return !!el.closest(
+        'input, textarea, select, [role="dialog"], [role="radiogroup"], [role="listbox"], [role="menu"], [aria-roledescription="sortable"]',
+    )
 }
 
 /**
  * Lista navegable con teclado (cursor de selección): ↑/↓ o j/k mueven el foco entre los enlaces principales de las
  * filas (`[data-row-link]`) y Enter, nativo del enlace, abre la ficha. Las flechas solo actúan con el foco dentro de
- * la lista (fuera siguen desplazando la página); j/k también entran en ella desde cualquier sitio que no sea un campo.
+ * la lista (fuera siguen desplazando la página); j/k también entran en ella desde cualquier sitio que no sea un campo
+ * ni otra lista navegable (con varias en la página, entra en la primera).
  */
-export default function KeyboardList({ children, className, label }: { children: ReactNode; className?: string; label: string }) {
-    const ref = useRef<HTMLUListElement>(null)
+export default function KeyboardList({
+    children,
+    className,
+    label,
+    as: Tag = 'ul',
+    onKeyDown,
+}: {
+    children: ReactNode
+    className?: string
+    label: string
+    as?: 'ul' | 'ol'
+    /** Atajos propios de la lista (la bandeja clasifica con cifras). */
+    onKeyDown?: (e: ReactKeyboardEvent<HTMLElement>) => void
+}) {
+    const ref = useRef<HTMLUListElement & HTMLOListElement>(null)
 
     useEffect(() => {
         function onKey(e: KeyboardEvent) {
@@ -28,6 +47,7 @@ export default function KeyboardList({ children, className, label }: { children:
             const focused = document.activeElement
             const inside = !!focused && list.contains(focused)
             if (isTyping(focused) || (arrow && !inside)) return
+            if (!inside && focused?.closest('[data-keyboard-list]')) return
 
             const links = Array.from(list.querySelectorAll<HTMLElement>('[data-row-link]'))
             if (links.length === 0) return
@@ -43,8 +63,8 @@ export default function KeyboardList({ children, className, label }: { children:
     }, [])
 
     return (
-        <ul ref={ref} className={className} aria-label={label}>
+        <Tag ref={ref} className={className} aria-label={label} data-keyboard-list="" onKeyDown={onKeyDown}>
             {children}
-        </ul>
+        </Tag>
     )
 }

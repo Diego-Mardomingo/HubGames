@@ -1,44 +1,52 @@
 'use client'
 
 import { useState } from 'react'
-import { Eye, Lock, MonitorPlay } from 'lucide-react'
-import { RARITY_LABELS, formatPercent, rarity, youtubeSearchUrl, type Achievement } from '@/lib/achievements'
+import { Eye, Lock, MonitorPlay, Trophy } from 'lucide-react'
+import { formatPercent, youtubeSearchUrl, type Achievement } from '@/lib/achievements'
+import { RARITY_TIER_LABELS, rarityColor, rarityTier } from '@/lib/rarity'
 import './achievements.css'
 
 const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
 
-export function RarityBadge({ percent }: { percent: number | null }) {
-    const tier = rarity(percent)
-    if (!tier) return <span className="rarity rarity--none">Sin dato</span>
-    return (
-        <span className={`rarity rarity--${tier}`} title={`${formatPercent(percent)} de los jugadores lo tiene`}>
-            {RARITY_LABELS[tier]} · {formatPercent(percent)}
-        </span>
-    )
-}
+type CSSVars = React.CSSProperties & Record<`--${string}`, string>
 
 interface Props {
     achievement: Achievement
     gameName: string
     /** Texto extra bajo la descripción (por ejemplo, el juego en /logros). */
     context?: React.ReactNode
+    /** Oculta la fecha de desbloqueo (en el historial ya está en el encabezado del día). */
+    hideDate?: boolean
 }
 
-/** Un logro: icono, nombre, descripción, rareza y fecha. Los ocultos bloqueados no enseñan el nombre hasta pulsar. */
-export default function AchievementItem({ achievement: a, gameName, context }: Props) {
+/**
+ * Un logro: icono tintado y borde izquierdo con el color de su rareza, nombre, descripción, % global con el nombre de
+ * la rareza y fecha. Los ocultos bloqueados no enseñan el nombre hasta pulsar.
+ */
+export default function AchievementItem({ achievement: a, gameName, context, hideDate }: Props) {
     const [revealed, setRevealed] = useState(false)
     const secret = a.hidden && !a.achieved && !revealed
     const name = a.display_name ?? a.apiname
     const icon = a.achieved ? a.icon : (a.icongray ?? a.icon)
+    const tier = rarityTier(a.global_percent)
 
     return (
-        <li className={`ach-item ${a.achieved ? 'is-unlocked' : 'is-locked'}`}>
-            <span className="ach-item__icon">
+        <li
+            className={`hg-ach ach-item ${a.achieved ? 'is-unlocked' : 'is-locked'}`}
+            style={tier ? ({ '--c': rarityColor(tier) } as CSSVars) : undefined}
+        >
+            <span className="hg-ach__icon ach-item__icon">
                 {/* <img>: iconos del CDN de Steam; next/image gastaría transformaciones de Vercel Hobby. */}
-                {icon && !secret ? <img src={icon} alt="" loading="lazy" width={48} height={48} /> : <Lock size={18} aria-hidden />}
+                {icon && !secret ? (
+                    <img src={icon} alt="" loading="lazy" width={32} height={32} />
+                ) : a.achieved ? (
+                    <Trophy size={18} aria-hidden />
+                ) : (
+                    <Lock size={16} aria-hidden />
+                )}
             </span>
-            <div className="ach-item__body">
-                <p className="ach-item__name">
+            <div className="hg-ach__body">
+                <p className="hg-ach__name ach-item__name">
                     {secret ? (
                         <>
                             <span className="ach-item__secret">Logro oculto</span>
@@ -53,10 +61,22 @@ export default function AchievementItem({ achievement: a, gameName, context }: P
                 {!secret && a.description && <p className="ach-item__desc">{a.description}</p>}
                 {context && <p className="ach-item__context">{context}</p>}
             </div>
-            <div className="ach-item__meta">
-                <RarityBadge percent={a.global_percent} />
+            <div className="hg-ach__pct ach-item__meta">
+                {tier ? (
+                    <span title={`${formatPercent(a.global_percent)} de los jugadores lo tiene`}>
+                        {formatPercent(a.global_percent)}
+                        <span className="sr-only"> de jugadores</span>
+                    </span>
+                ) : (
+                    <span className="ach-item__nodata">Sin dato</span>
+                )}
+                {tier && <small>{RARITY_TIER_LABELS[tier]}</small>}
                 {a.achieved && a.unlocktime ? (
-                    <time dateTime={a.unlocktime}>{DATE.format(new Date(a.unlocktime))}</time>
+                    !hideDate && (
+                        <time className="ach-item__date" dateTime={a.unlocktime}>
+                            {DATE.format(new Date(a.unlocktime))}
+                        </time>
+                    )
                 ) : (
                     !secret && (
                         <a

@@ -107,7 +107,7 @@ export default function MonthlyGoals({ userId, month, saved, suggested, progress
                                 )}
                                 {targets && !draft && <span className={`goal__pace goal__pace--${pace}`}>{PACE_LABELS[pace]}</span>}
                             </div>
-                            <span className={`dash-bar${pace === 'cumplida' ? ' is-done' : ''}`} aria-hidden>
+                            <span className={`hg-bar${pace === 'cumplida' ? ' is-done' : ''}`} aria-hidden>
                                 <span style={{ width: `${pct}%` }} />
                             </span>
                         </li>

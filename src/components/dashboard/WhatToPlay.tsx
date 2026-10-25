@@ -15,14 +15,14 @@ function Segmented<T extends string>({ label, value, options, onChange }: { labe
     return (
         <div className="wtp-choice" role="radiogroup" aria-label={label}>
             <span className="wtp-choice__label">{label}</span>
-            <div className="wtp-choice__options">
+            <div className="hg-seg">
                 {(Object.keys(options) as T[]).map((key) => (
                     <button
                         key={key}
                         type="button"
                         role="radio"
                         aria-checked={value === key}
-                        className={`wtp-chip ${value === key ? 'is-active' : ''}`}
+                        className={`hg-seg__opt ${value === key ? 'is-active' : ''}`}
                         onClick={() => onChange(key)}
                     >
                         {options[key]}
@@ -89,19 +89,19 @@ export default function WhatToPlay({ games, now, initialSeed }: { games: Library
                           : 'No hay juegos en Jugando ni en Pendientes que encajen.'}
                 </p>
             ) : (
-                <ul className="dash-rows">
+                <ul className="hg-rows">
                     {visible.map((index, slot) => {
                         const { game, reasons } = list[index]
                         return (
-                            <li key={`${slot}-${game.appid}`} className="dash-row dash-row--wtp">
-                                <span className="dash-row__cover">
+                            <li key={`${slot}-${game.appid}`} className="hg-row hg-row--wtp">
+                                <span className="hg-row__cover">
                                     <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="112px" />
                                 </span>
-                                <span className="dash-row__main">
-                                    <Link href={`/juego/${game.appid}`} className="dash-row__link">
+                                <span className="hg-row__main">
+                                    <Link href={`/juego/${game.appid}`} className="hg-row__link">
                                         {game.name ?? `App ${game.appid}`}
                                     </Link>
-                                    <span className="dash-row__meta">
+                                    <span className="hg-row__meta">
                                         {(reasons.length ? reasons : ['Una buena opción para hoy']).slice(0, 3).join(' · ')}
                                     </span>
                                 </span>

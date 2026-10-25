@@ -1,9 +1,11 @@
-/* ── Wishlist y precios (#35, #36) ── */
+/* ── Wishlist y precios (#35, #36, #37) ──
+   La fila es la compartida de styles/lists.css (.hg-row); aquí, precio, mínimos y avisos. */
 
+/* Precio actual: descuento en verde como texto, precio original tachado y precio final. */
 .price-now {
   display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: baseline;
+  gap: 0.6rem;
   white-space: nowrap;
 }
 
@@ -13,18 +15,15 @@
 }
 
 .price-now__cut {
-  padding: 3px 7px;
-  border-radius: var(--radius-sm);
-  background: rgba(52, 211, 153, 0.16);
   color: var(--success);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 700;
 }
 
 .price-now__amounts {
   display: grid;
   justify-items: end;
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 .price-now__amounts s {
@@ -33,46 +32,47 @@
 }
 
 .price-now__amounts strong {
-  font-size: 0.9375rem;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .price-lows {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.25rem 0.75rem;
+  gap: 0.15rem 0.75rem;
   color: var(--muted);
   font-size: 0.75rem;
 }
 
+.price-lows__now,
 .price-lows__hit {
   color: var(--success);
 }
 
-.price-lows__source {
+.price-lows__now {
   display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.price-lows__source {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin: -4px 0;
+  border-radius: 6px;
   color: var(--muted);
 }
 
 .price-lows__source:hover {
   color: var(--foreground);
+  background: var(--surface-2);
 }
 
-.price-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(252, 211, 77, 0.14);
-  border: 1px solid rgba(252, 211, 77, 0.4);
-  color: var(--gold);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-/* /wishlist */
-
+/* ── /wishlist ── */
 .wish-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -82,72 +82,55 @@
 }
 
 .wish-toolbar .lib-select {
-  width: auto;
   min-width: 190px;
 }
 
-
-.wish-row {
-  display: grid;
-  grid-template-columns: 140px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.9rem;
-  padding: 0.6rem 0.9rem 0.6rem 0.6rem;
-  border-radius: var(--radius-lg);
+.hg-row.wish-row {
+  grid-template-columns: 112px minmax(0, 1fr) 160px 116px;
 }
 
-.wish-row.is-low {
-  box-shadow: inset 0 0 0 1px rgba(252, 211, 77, 0.35);
-}
-
-.wish-row__cover {
-  position: relative;
-  display: block;
-  aspect-ratio: 460 / 215;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
+.wish-row .price-now {
+  justify-self: end;
 }
 
 .wish-row__info {
-  display: grid;
-  gap: 0.3rem;
-  min-width: 0;
-}
-
-.wish-row__name {
-  overflow: hidden;
-  color: inherit;
-  font-weight: 600;
-  text-decoration: none;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.wish-row__name:hover {
-  color: var(--primary);
+  gap: 3px;
 }
 
 .wish-row__meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.25rem 0.75rem;
+  gap: 0.15rem 0.75rem;
+  margin: 0;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
 }
 
-.wish-row__side {
-  display: grid;
-  justify-items: end;
-  gap: 0.4rem;
+.wish-row__alert {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .wish-row__actions {
   display: flex;
-  gap: 0.25rem;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.wish-row__actions .hg-button {
+  width: 36px;
+  height: 36px;
+  color: var(--muted);
+}
+
+.wish-row__actions .hg-button:hover {
+  color: var(--foreground);
 }
 
 .wish-attribution {
+  margin: 0.5rem 0 0;
   color: var(--muted);
   font-size: 0.75rem;
   text-align: center;
@@ -157,37 +140,7 @@
   color: var(--muted-light);
 }
 
-@media (max-width: 640px) {
-  .wish-toolbar > *,
-  .wish-toolbar .lib-select {
-    flex: 1 1 100%;
-  }
-
-  .wish-toolbar .tray-sort {
-    flex: 1;
-    justify-content: center;
-    padding: 0 0.5rem;
-  }
-
-  .wish-row {
-    grid-template-columns: 96px minmax(0, 1fr);
-    align-items: start;
-  }
-
-  .wish-row__side {
-    grid-column: 1 / -1;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    justify-items: start;
-  }
-
-  .wish-row__actions {
-    justify-self: end;
-  }
-}
-
 /* Bloque de precio en la ficha /juego */
-
 .juego-price {
   display: grid;
   gap: 0.5rem;
@@ -198,13 +151,7 @@
   justify-items: start;
 }
 
-/* Aviso de precio (#37) */
-
-/* Sin esto se ve el fondo por defecto de <button> del navegador. */
-.price-alert__trigger:not(:hover) {
-  background-color: transparent;
-}
-
+/* ── Aviso de precio (#37): popover con opciones planas ── */
 .price-alert__trigger.is-off {
   color: var(--muted);
 }
@@ -212,13 +159,14 @@
 .price-alert {
   display: grid;
   gap: 0.6rem;
-  width: 290px;
+  width: 300px;
   padding: 0.75rem;
 }
 
 .price-alert__title {
   overflow: hidden;
-  font-size: 0.8125rem;
+  margin: 0;
+  font-size: 0.875rem;
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -226,28 +174,32 @@
 
 .price-alert__modes {
   display: grid;
-  gap: 0.3rem;
+  gap: 2px;
 }
 
 .price-alert__mode {
   display: grid;
   gap: 1px;
-  padding: 0.45rem 0.6rem;
-  border: 1px solid var(--border);
+  padding: 0.5rem 0.65rem;
+  border: 0;
   border-radius: var(--radius-sm);
   background: transparent;
   color: inherit;
   text-align: left;
-  cursor: pointer;
 }
 
 .price-alert__mode:hover {
-  border-color: var(--border-hover);
+  background: var(--surface-2);
 }
 
 .price-alert__mode.is-active {
-  border-color: var(--primary);
-  background: rgba(154, 134, 255, 0.12);
+  background: var(--primary-glow);
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.price-alert__mode:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
 }
 
 .price-alert__mode-label {
@@ -255,16 +207,21 @@
   font-weight: 600;
 }
 
+.price-alert__mode.is-active .price-alert__mode-label {
+  color: var(--primary);
+}
+
 .price-alert__mode-hint {
   color: var(--muted);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
 }
 
 .price-alert__field {
   display: grid;
   gap: 0.3rem;
   color: var(--muted-light);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 
 .price-alert__input {
@@ -277,21 +234,24 @@
 .price-alert__input input {
   flex: 1;
   min-width: 0;
-  height: 2rem;
-  padding: 0 0.6rem;
+  height: 36px;
+  padding: 0 0.65rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: transparent;
+  background: var(--surface);
   color: var(--foreground);
+  font: inherit;
   font-size: 0.875rem;
 }
 
 .price-alert__input input:focus {
   border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
   outline: none;
 }
 
 .price-alert__error {
+  margin: 0;
   color: var(--danger);
   font-size: 0.75rem;
 }
@@ -302,8 +262,45 @@
   gap: 0.4rem;
 }
 
-.wish-row__alert {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+@media (max-width: 640px) {
+  .wish-toolbar > *,
+  .wish-toolbar .lib-select {
+    flex: 1 1 100%;
+  }
+
+  .wish-toolbar .hg-seg__opt {
+    flex: 1;
+  }
+
+  .hg-row.wish-row {
+    grid-template-columns: 96px minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .wish-row__info {
+    grid-column: 2 / -1;
+  }
+
+  .wish-row .price-now {
+    grid-column: 1 / 3;
+    grid-row: 2;
+    align-self: center;
+    justify-self: start;
+  }
+
+  .wish-row .price-now__amounts {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .wish-row__actions {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .wish-row__actions .hg-button {
+    width: 44px;
+    height: 44px;
+  }
 }

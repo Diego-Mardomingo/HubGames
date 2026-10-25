@@ -1,0 +1,579 @@
+/* ══════════════════════════════════════════════════════════════════
+   Listas compartidas (Inicio, biblioteca, logros, wishlist):
+   filas de juegos con cápsula pequeña y cursor de selección, logros
+   tintados por rareza, barras finas, chips y controles segmentados.
+   ══════════════════════════════════════════════════════════════════ */
+
+.hg-keyhint {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+/* ── Filas de juegos ── */
+.hg-rows {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hg-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  min-height: 68px;
+  padding: 8px 12px 8px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+/* Cursor de selección: ratón o foco de teclado en cualquier elemento de la fila. */
+.hg-row:hover,
+.hg-row:has(:focus-visible) {
+  border-color: transparent;
+  box-shadow: 0 0 0 3px var(--cursor);
+}
+
+.hg-row__cover {
+  position: relative;
+  display: block;
+  width: 112px;
+  height: 52px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.hg-row__cover .game-cover {
+  background: var(--surface-2);
+}
+
+.hg-row__cover .game-cover--empty span {
+  display: none;
+}
+
+/* Franja de 3 px con el color de la rareza del logro más raro conseguido. */
+.hg-row.has-rarity .hg-row__cover::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  height: 3px;
+  background: var(--c);
+}
+
+.hg-row__main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hg-row__link {
+  overflow: hidden;
+  color: var(--foreground);
+  font-weight: 600;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Toda la fila abre la ficha; los demás enlaces y botones quedan por encima. */
+.hg-row__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.hg-row__link:focus-visible {
+  outline: none;
+}
+
+.hg-row a:not(.hg-row__link),
+.hg-row button {
+  position: relative;
+  z-index: 1;
+}
+
+.hg-row__meta {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hg-row__prog {
+  display: grid;
+  gap: 6px;
+  font-size: 0.8125rem;
+}
+
+.hg-row__prog--none {
+  color: var(--muted);
+}
+
+.hg-row__prog-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.hg-row__prog-label b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.hg-row__ach-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.hg-row__ach-link:hover {
+  color: var(--foreground);
+  text-decoration: underline;
+}
+
+.hg-bar {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.hg-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+}
+
+.hg-bar.is-done span {
+  background: var(--success);
+}
+
+.hg-chip {
+  justify-self: end;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted-light);
+  font-size: 0.78125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.hg-chip--playing {
+  background: var(--primary-glow);
+  color: var(--primary);
+}
+
+.hg-chip--done {
+  background: var(--success-glow);
+  color: var(--success);
+}
+
+.hg-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  transition: color 0.15s, background 0.15s;
+}
+
+.hg-icon-btn:hover {
+  color: var(--foreground);
+  background: var(--surface-2);
+}
+
+/* ── Logros: icono tintado y borde izquierdo con el color de la rareza (--c) ── */
+.hg-achs {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hg-ach {
+  --c: var(--muted);
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: inset 3px 0 0 var(--c);
+}
+
+.hg-ach__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--c) 16%, transparent);
+  color: var(--c);
+}
+
+.hg-ach__icon img {
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+  object-fit: cover;
+}
+
+.hg-ach__body {
+  display: grid;
+  min-width: 0;
+}
+
+.hg-ach__name {
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hg-ach__name a,
+.hg-ach__game a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.hg-ach__name a:hover,
+.hg-ach__game a:hover {
+  text-decoration: underline;
+}
+
+.hg-ach__game {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.78125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hg-ach__pct {
+  display: grid;
+  justify-items: end;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.hg-ach__pct small {
+  color: var(--c);
+  font-size: 0.71875rem;
+  font-weight: 600;
+}
+
+/* El color de rareza como texto: en claro, mezclado con el texto para llegar a 4.5:1 sobre la superficie. */
+:root:not([data-theme='dark']) .hg-ach__pct small {
+  color: color-mix(in srgb, var(--c) 72%, var(--foreground));
+}
+
+.hg-ach__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.hg-ach--completed .hg-ach__pct small {
+  color: var(--muted);
+}
+
+/* ── Control segmentado plano (filtros, pestañas, ordenación) ── */
+.hg-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.hg-seg__opt {
+  min-height: 30px;
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted-light);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+
+.hg-seg__opt:hover {
+  color: var(--foreground);
+}
+
+.hg-seg__opt.is-active {
+  background: var(--surface);
+  color: var(--primary);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.hg-seg__opt:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.hg-seg__opt[aria-current='page'],
+.hg-seg__opt[aria-pressed='true'],
+.hg-seg__opt[aria-checked='true'],
+.hg-seg__opt[aria-selected='true'] {
+  background: var(--surface);
+  color: var(--primary);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.hg-seg__opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.hg-seg__opt svg {
+  width: 15px;
+  height: 15px;
+}
+
+.hg-seg__count {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Pestañas que no caben: se desplazan en horizontal en vez de partir en dos líneas. */
+.hg-seg--scroll {
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.hg-seg--scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Secciones de lista: título, recuento, pista y acciones ── */
+.hg-section {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.hg-section__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+}
+
+.hg-section__title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.hg-section__count {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.hg-section__hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.hg-section__head > .hg-section__hint {
+  flex-basis: 100%;
+}
+
+.hg-empty {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.hg-empty p {
+  margin: 0;
+}
+
+.hg-more {
+  justify-self: center;
+}
+
+kbd.hg-kbd,
+.hg-keyhint kbd {
+  display: inline-block;
+  min-width: 1.35em;
+  padding: 0 0.3em;
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--muted-light);
+  font: inherit;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ── Tarjetas pequeñas para rejillas (cápsula, nombre y una línea de datos) ── */
+.hg-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hg-card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+  padding: 6px 6px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.hg-card:hover,
+.hg-card:has(:focus-visible) {
+  border-color: transparent;
+  box-shadow: 0 0 0 3px var(--cursor);
+}
+
+.hg-card__cover {
+  position: relative;
+  display: block;
+  aspect-ratio: 460 / 215;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.hg-card__cover .game-cover--empty span {
+  display: none;
+}
+
+.hg-card__body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 0 4px;
+}
+
+.hg-card__link {
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hg-card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.hg-card__link:focus-visible {
+  outline: none;
+}
+
+.hg-card a:not(.hg-card__link),
+.hg-card button {
+  position: relative;
+  z-index: 1;
+}
+
+.hg-card__meta {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 960px), (hover: none) {
+  .hg-keyhint {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .hg-row {
+    grid-template-columns: 96px minmax(0, 1fr) auto;
+    gap: 0.75rem;
+  }
+
+  .hg-row__cover {
+    width: 96px;
+    height: 45px;
+  }
+
+  .hg-icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .hg-seg__opt {
+    min-height: 40px;
+  }
+
+  .hg-cards {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hg-row,
+  .hg-card,
+  .hg-icon-btn,
+  .hg-seg__opt {
+    transition: none;
+  }
+}

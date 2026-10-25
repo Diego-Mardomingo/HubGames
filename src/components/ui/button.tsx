@@ -26,7 +26,7 @@ const buttonVariants = cva(
             variant: {
                 default: 'hg-btn--primary',
                 secondary: 'hg-btn--secondary',
-                ghost: 'border border-transparent text-[var(--foreground)] shadow-none hover:bg-[var(--surface-2)]',
+                ghost: 'border border-transparent bg-[transparent] text-[var(--foreground)] shadow-none hover:bg-[var(--surface-2)]',
                 outline:
                     'border border-[var(--border)] bg-[var(--surface)]/80 text-[var(--foreground)] shadow-none hover:bg-[var(--surface-2)] hover:border-[var(--border-hover)]',
                 danger: 'hg-btn--danger',

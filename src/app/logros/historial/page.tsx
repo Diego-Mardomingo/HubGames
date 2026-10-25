@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, CalendarDays, Flame, History, Trophy, X } from 'lucide-react'
+import { ArrowLeft, X } from 'lucide-react'
 import { safeGetSession } from '@/lib/supabase/client'
 import { loadLibrary } from '@/lib/tracker'
 import type { Achievement } from '@/lib/achievements'
@@ -17,11 +17,11 @@ import {
     streaks,
     yearsWithUnlocks,
     type Streak,
+    type TimelineDay,
 } from '@/lib/achievement-history'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import Loader from '@/components/Loader'
-import { Reveal } from '@/components/motion'
 import AchievementItem from '@/components/achievements/AchievementItem'
 import '@/components/achievements/achievements.css'
 
@@ -30,6 +30,8 @@ const WEEKDAYS = ['L', '', 'X', '', 'V', '', 'D']
 const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 const LONG_DAY = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 const SHORT_DAY = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+const WEEKDAY = new Intl.DateTimeFormat('es-ES', { weekday: 'short' })
+const MONTH_YEAR = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' })
 
 interface Data {
     unlocked: Achievement[]
@@ -48,6 +50,22 @@ function capitalize(text: string): string {
 
 function plural(n: number, one: string, many: string): string {
     return `${n.toLocaleString('es-ES')} ${n === 1 ? one : many}`
+}
+
+function dayTotal(d: TimelineDay<Achievement>): number {
+    return d.games.reduce((n, g) => n + g.achievements.length, 0)
+}
+
+/** Días seguidos del mismo mes, juntos bajo su encabezado ("Octubre de 2026"). */
+function byMonth(days: TimelineDay<Achievement>[]): { month: string; days: TimelineDay<Achievement>[] }[] {
+    const out: { month: string; days: TimelineDay<Achievement>[] }[] = []
+    for (const d of days) {
+        const month = d.day.slice(0, 7)
+        const last = out[out.length - 1]
+        if (last && last.month === month) last.days.push(d)
+        else out.push({ month, days: [d] })
+    }
+    return out
 }
 
 /** Línea temporal y heatmap de desbloqueos (#28), con la racha de días seguidos con algún logro. */
@@ -95,6 +113,7 @@ export default function HistorialPage() {
     const years = derived.years.includes(thisYear) ? derived.years : [thisYear, ...derived.years]
     const yearTotal = weeks.flat().reduce((n, c) => n + (c.inYear ? c.count : 0), 0)
     const timeline = selectedDay ? derived.timeline.filter((d) => d.day === selectedDay) : derived.timeline
+    const months = byMonth(timeline.slice(0, visibleDays))
     const gameName = (appid: number) => data.names.get(appid) ?? `App ${appid}`
 
     // Etiqueta del mes encima de la primera semana que empieza en él.
@@ -114,26 +133,16 @@ export default function HistorialPage() {
     }
 
     return (
-        <div className="logros logros--wide">
-            <Link href="/logros" className="eyebrow logros__back">
-                <ArrowLeft size={13} aria-hidden /> Logros
-            </Link>
-
+        <div className="logros">
             <header className="page-head">
                 <div>
-                    <Reveal>
-                        <span className="eyebrow">
-                            <History size={13} aria-hidden /> Historial
-                        </span>
-                    </Reveal>
-                    <Reveal delay={0.05}>
-                        <h1 className="page-title">Línea temporal</h1>
-                    </Reveal>
-                    <Reveal delay={0.1}>
-                        <p className="page-subtitle">
-                            {plural(data.unlocked.length, 'logro', 'logros')} en {plural(derived.counts.size, 'día', 'días')} distintos.
-                        </p>
-                    </Reveal>
+                    <Link href="/logros" className="logros__back">
+                        <ArrowLeft size={14} aria-hidden /> Logros
+                    </Link>
+                    <h1 className="page-title">Historial</h1>
+                    <p className="page-subtitle">
+                        {plural(data.unlocked.length, 'logro', 'logros')} en {plural(derived.counts.size, 'día', 'días')} distintos.
+                    </p>
                 </div>
             </header>
 
@@ -143,28 +152,20 @@ export default function HistorialPage() {
                 </p>
             )}
 
-            <div className="streaks">
-                <div className={`streak glass ${derived.streak.current.length > 0 ? 'is-active' : ''}`}>
-                    <Flame size={18} aria-hidden />
-                    <div>
-                        <p className="streak__value">{plural(derived.streak.current.length, 'día', 'días')}</p>
-                        <p className="streak__label">Racha actual · {streakRange(derived.streak.current)}</p>
-                    </div>
-                </div>
-                <div className="streak glass">
-                    <Trophy size={18} aria-hidden />
-                    <div>
-                        <p className="streak__value">{plural(derived.streak.best.length, 'día', 'días')}</p>
-                        <p className="streak__label">Mejor racha · {streakRange(derived.streak.best)}</p>
-                    </div>
-                </div>
-            </div>
-
             <section className="heatmap glass" aria-labelledby="historial-heatmap">
                 <header className="heatmap__head">
-                    <h2 id="historial-heatmap" className="hunt__title">
-                        <CalendarDays size={16} aria-hidden /> {plural(yearTotal, 'logro', 'logros')} en {year}
-                    </h2>
+                    <div className="heatmap__stats">
+                        <h2 id="historial-heatmap" className="heatmap__stat">
+                            <b>{yearTotal.toLocaleString('es-ES')}</b> {yearTotal === 1 ? 'logro' : 'logros'} en {year}
+                        </h2>
+                        <p className={`heatmap__stat${derived.streak.current.length > 0 ? ' is-active' : ''}`} title={streakRange(derived.streak.current)}>
+                            <b>{derived.streak.current.length.toLocaleString('es-ES')}</b> {derived.streak.current.length === 1 ? 'día' : 'días'} de racha
+                        </p>
+                        <p className="heatmap__stat" title={streakRange(derived.streak.best)}>
+                            <b>{derived.streak.best.length.toLocaleString('es-ES')}</b> {derived.streak.best.length === 1 ? 'día' : 'días'} en tu mejor racha
+                            {derived.streak.best.length > 0 && <span className="heatmap__range">{streakRange(derived.streak.best)}</span>}
+                        </p>
+                    </div>
                     <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
                         <SelectTrigger className="heatmap__year" aria-label="Año">
                             <SelectValue />
@@ -179,7 +180,7 @@ export default function HistorialPage() {
                     </Select>
                 </header>
                 <div className="heatmap__scroll" ref={heatmapScroll}>
-                    <div className="heatmap__grid" style={{ gridTemplateColumns: `24px repeat(${weeks.length}, 1fr)` }}>
+                    <div className="heatmap__grid" style={{ gridTemplateColumns: `24px repeat(${weeks.length}, minmax(0, 1fr))` }}>
                         <span />
                         {monthLabels.map((m, i) => (
                             <span key={i} className="heatmap__month">
@@ -197,9 +198,11 @@ export default function HistorialPage() {
                                         <button
                                             key={cell.day}
                                             type="button"
-                                            className={`heatmap__cell heat-${heatLevel(cell.count)} ${selectedDay === cell.day ? 'is-selected' : ''}`}
+                                            className={`heatmap__cell ${selectedDay === cell.day ? 'is-selected' : ''}`}
+                                            data-l={heatLevel(cell.count)}
                                             title={text}
                                             aria-label={text}
+                                            aria-pressed={selectedDay === cell.day}
                                             disabled={cell.count === 0}
                                             onClick={() => pickDay(cell.day, cell.count)}
                                         />
@@ -209,12 +212,15 @@ export default function HistorialPage() {
                         ))}
                     </div>
                 </div>
-                <p className="heatmap__legend" aria-hidden>
-                    Menos
-                    {[0, 1, 2, 3, 4].map((l) => (
-                        <span key={l} className={`heatmap__cell heat-${l}`} />
-                    ))}
-                    Más
+                <p className="heatmap__legend">
+                    <span aria-hidden className="heatmap__scale">
+                        menos
+                        {[0, 1, 2, 3, 4].map((l) => (
+                            <span key={l} className="heatmap__cell" data-l={l} />
+                        ))}
+                        más
+                    </span>
+                    <span>Pulsa un día para ver solo sus logros.</span>
                 </p>
             </section>
 
@@ -223,36 +229,55 @@ export default function HistorialPage() {
                     <p className="timeline__filter">
                         Solo el {LONG_DAY.format(parseDayKey(selectedDay))}.
                         <Button variant="ghost" size="sm" onClick={() => setSelectedDay(null)}>
-                            <X aria-hidden /> Ver todos
+                            <X aria-hidden /> Ver todos los días
                         </Button>
                     </p>
                 )}
-                {timeline.length === 0 && <p className="logros__empty glass">Aún no hay desbloqueos.</p>}
-                {timeline.slice(0, visibleDays).map((d) => {
-                    const total = d.games.reduce((n, g) => n + g.achievements.length, 0)
+                {timeline.length === 0 && <p className="hg-empty">Aún no hay desbloqueos.</p>}
+                {months.map((m) => {
+                    const monthTotal = m.days.reduce((n, d) => n + dayTotal(d), 0)
                     return (
-                        <article key={d.day} className="timeline__day">
-                            <h2 className="timeline__date">
-                                {capitalize(LONG_DAY.format(parseDayKey(d.day)))}
-                                <span className="ach-tab__count">{total}</span>
+                        <section key={m.month} className="tl-month" aria-label={capitalize(MONTH_YEAR.format(parseDayKey(`${m.month}-01`)))}>
+                            <h2 className="tl-month__title">
+                                {capitalize(MONTH_YEAR.format(parseDayKey(`${m.month}-01`)))}
+                                <span className="hg-section__count">{plural(monthTotal, 'logro', 'logros')}</span>
                             </h2>
-                            {d.games.map((g) => (
-                                <div key={g.appid} className="timeline__game glass">
-                                    <Link href={`/juego/${g.appid}/logros`} className="timeline__game-name">
-                                        {gameName(g.appid)}
-                                    </Link>
-                                    <ul className="ach-list">
-                                        {g.achievements.map((a) => (
-                                            <AchievementItem key={a.apiname} achievement={a} gameName={gameName(g.appid)} />
-                                        ))}
-                                    </ul>
-                                </div>
-                            ))}
-                        </article>
+                            <ol className="tl-days">
+                                {m.days.map((d) => {
+                                    const date = parseDayKey(d.day)
+                                    return (
+                                        <li key={d.day} className="tl-day">
+                                            <p className="tl-day__date" aria-hidden>
+                                                <b>{date.getDate()}</b>
+                                                <span>{WEEKDAY.format(date).replace('.', '')}</span>
+                                            </p>
+                                            <div className="tl-day__body">
+                                                <h3 className="tl-day__title">
+                                                    <span className="sr-only">{capitalize(LONG_DAY.format(date))}: </span>
+                                                    {plural(dayTotal(d), 'logro', 'logros')}
+                                                </h3>
+                                                {d.games.map((g) => (
+                                                    <div key={g.appid} className="tl-game">
+                                                        <Link href={`/juego/${g.appid}/logros`} className="tl-game__name">
+                                                            {gameName(g.appid)}
+                                                        </Link>
+                                                        <ul className="hg-achs ach-list">
+                                                            {g.achievements.map((a) => (
+                                                                <AchievementItem key={a.apiname} achievement={a} gameName={gameName(g.appid)} hideDate />
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </li>
+                                    )
+                                })}
+                            </ol>
+                        </section>
                     )
                 })}
                 {timeline.length > visibleDays && (
-                    <Button variant="secondary" className="hunt__more" onClick={() => setVisibleDays((n) => n + DAYS_STEP)}>
+                    <Button variant="secondary" className="hg-more" onClick={() => setVisibleDays((n) => n + DAYS_STEP)}>
                         Ver días anteriores
                     </Button>
                 )}

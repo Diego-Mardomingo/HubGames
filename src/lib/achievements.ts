@@ -1,7 +1,8 @@
-// Logros (#25, #26, #27): tipos de la vista hubgames_achievements, rareza, filtros, dificultad, vistas de cazador,
-// puntos e hitos. Sin acceso a la base de datos, con tests en achievements.test.ts.
+// Logros (#25, #26, #27): tipos de la vista hubgames_achievements, filtros, dificultad, vistas de cazador,
+// puntos e hitos. La rareza vive en rarity.ts. Sin acceso a la base de datos, con tests en achievements.test.ts.
 import type { Database } from './supabase/database.types'
 import type { LibraryGame } from './tracker'
+import { RARITY_TIERS, rarityTier } from './rarity'
 
 type AchievementRow = Database['public']['Tables']['hubgames_achievements']['Row']
 
@@ -14,26 +15,6 @@ export type Achievement = Omit<AchievementRow, 'user_id' | 'appid' | 'apiname' |
 }
 
 export const ACHIEVEMENT_COLUMNS = 'appid, apiname, achieved, unlocktime, display_name, description, icon, icongray, hidden, global_percent'
-
-export type Rarity = 'comun' | 'poco_comun' | 'raro' | 'muy_raro' | 'ultra_raro'
-
-export const RARITY_LABELS: Record<Rarity, string> = {
-    comun: 'Común',
-    poco_comun: 'Poco común',
-    raro: 'Raro',
-    muy_raro: 'Muy raro',
-    ultra_raro: 'Ultra raro',
-}
-
-/** Nivel de rareza según el % global de jugadores que lo tienen. null si Steam no da el dato. */
-export function rarity(percent: number | null): Rarity | null {
-    if (percent === null) return null
-    if (percent > 50) return 'comun'
-    if (percent >= 20) return 'poco_comun'
-    if (percent >= 5) return 'raro'
-    if (percent >= 1) return 'muy_raro'
-    return 'ultra_raro'
-}
 
 export function formatPercent(percent: number | null): string {
     if (percent === null) return '—'
@@ -97,23 +78,23 @@ export interface DifficultyEstimate {
     remaining: number
     /** % global del más raro que te falta: el que marca el techo para el 100 %. */
     rarest: number | null
-    /** Cuántos de los que faltan son raros o más (menos del 20 %). */
+    /** Cuántos de los que faltan son de rareza rara o más (menos del 15 %). */
     hard: number
 }
 
 /**
- * Dificultad estimada de lo que te queda. El 100 % depende sobre todo del logro más raro que falta,
- * así que ese marca el nivel; si además faltan muchos raros, sube un escalón. null si no falta ninguno.
+ * Dificultad estimada de lo que te queda. El 100 % depende sobre todo del logro más raro que falta, así que su
+ * rareza marca el nivel (común → fácil … legendaria → muy difícil); si además faltan muchos raros, sube un escalón.
+ * null si no falta ninguno.
  */
 export function estimateDifficulty(list: Pick<Achievement, 'achieved' | 'global_percent'>[]): DifficultyEstimate | null {
     const locked = list.filter((a) => !a.achieved)
     if (locked.length === 0) return null
     const percents = locked.map((a) => a.global_percent).filter((p): p is number => p !== null)
     const rarest = percents.length > 0 ? Math.min(...percents) : null
-    const hard = percents.filter((p) => p < 20).length
+    const hard = percents.filter((p) => p < 15).length
     const levels: Difficulty[] = ['facil', 'asequible', 'exigente', 'dificil', 'muy_dificil']
-    const tiers: Rarity[] = ['comun', 'poco_comun', 'raro', 'muy_raro', 'ultra_raro']
-    let index = rarest === null ? 1 : tiers.indexOf(rarity(rarest)!)
+    let index = rarest === null ? 1 : RARITY_TIERS.indexOf(rarityTier(rarest)!)
     if (hard >= 10 && index < levels.length - 1) index++
     return { level: levels[index], remaining: locked.length, rarest, hard }
 }
@@ -245,8 +226,8 @@ export interface Milestone {
 const COUNT_MILESTONES = [100, 500, 1000, 2500, 5000, 10000]
 const PERFECT_MILESTONES = [1, 10, 25, 50, 100]
 const RARE_MILESTONES: { id: string; label: string; below: number }[] = [
-    { id: 'primer-muy-raro', label: 'Primer logro muy raro', below: 5 },
-    { id: 'primer-ultra-raro', label: 'Primer logro ultra raro', below: 1 },
+    { id: 'primer-epico', label: 'Primer logro épico', below: 5 },
+    { id: 'primer-legendario', label: 'Primer logro legendario', below: 1 },
 ]
 
 function perfectLabel(n: number): string {
@@ -255,7 +236,7 @@ function perfectLabel(n: number): string {
 
 /**
  * Hitos calculados hacia atrás con las fechas de desbloqueo: número de logros, juegos al 100 % y primeros logros
- * muy raros y ultra raros. Un juego cuenta como 100 % desde su último desbloqueo. Devuelve los alcanzados
+ * épicos (< 5 %) y legendarios (< 1 %). Un juego cuenta como 100 % desde su último desbloqueo. Devuelve los alcanzados
  * (el más reciente primero) y el siguiente de cada serie.
  */
 export function computeMilestones(

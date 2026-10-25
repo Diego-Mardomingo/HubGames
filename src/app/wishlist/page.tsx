@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ExternalLink, Heart, Search, Trash2 } from 'lucide-react'
+import { ExternalLink, Search, Trash2 } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import {
     WISHLIST_FILTER_LABELS,
@@ -21,13 +21,14 @@ import {
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import Loader from '@/components/Loader'
+import KeyboardList from '@/components/KeyboardList'
 import GameCover from '@/components/tracker/GameCover'
 import { openGameSearch } from '@/components/tracker/GameSearch'
 import { PriceLows, PriceNow } from '@/components/wishlist/PriceInfo'
 import PriceAlertControl from '@/components/wishlist/PriceAlertControl'
 import { alertLabel, type AlertMode, type PriceAlert } from '@/lib/price-alerts'
-import { Reveal } from '@/components/motion'
 import '../biblioteca/biblioteca.css'
+import '@/components/wishlist/wishlist.css'
 
 const PAGE = 50
 const FILTERS: WishlistFilter[] = ['todos', 'oferta', 'minimo']
@@ -114,22 +115,13 @@ export default function WishlistPage() {
         <div className="biblioteca">
             <header className="page-head">
                 <div>
-                    <Reveal>
-                        <span className="eyebrow">
-                            <Heart size={13} aria-hidden /> Precios
-                        </span>
-                    </Reveal>
-                    <Reveal delay={0.05}>
-                        <h1 className="page-title">Wishlist</h1>
-                    </Reveal>
-                    <Reveal delay={0.1}>
-                        <p className="page-subtitle">
-                            {counts.todos} {counts.todos === 1 ? 'juego' : 'juegos'}
-                            {counts.oferta > 0 && `, ${counts.oferta} en oferta`}
-                            {counts.minimo > 0 && ` y ${counts.minimo} en mínimo histórico`}.
-                            {lastSync && ` Precios del ${DATE.format(new Date(lastSync))}.`}
-                        </p>
-                    </Reveal>
+                    <h1 className="page-title">Wishlist</h1>
+                    <p className="page-subtitle">
+                        {counts.todos} {counts.todos === 1 ? 'juego' : 'juegos'}
+                        {counts.oferta > 0 && `, ${counts.oferta} en oferta`}
+                        {counts.minimo > 0 && ` y ${counts.minimo} en mínimo histórico`}.
+                        {lastSync && ` Precios del ${DATE.format(new Date(lastSync))}.`}
+                    </p>
                 </div>
                 <div className="lib-head-actions">
                     <Button variant="secondary" onClick={openGameSearch}>
@@ -145,20 +137,20 @@ export default function WishlistPage() {
             )}
 
             <div className="wish-toolbar">
-                <div className="tray-sorts" role="group" aria-label="Filtrar">
+                <div className="hg-seg" role="group" aria-label="Filtrar">
                     {FILTERS.map((f) => (
                         <button
                             key={f}
                             type="button"
                             aria-pressed={filter === f}
-                            className={`tray-sort ${filter === f ? 'is-active' : ''}`}
+                            className="hg-seg__opt"
                             onClick={() => {
                                 setFilter(f)
                                 setVisible(PAGE)
                             }}
                         >
                             {WISHLIST_FILTER_LABELS[f]}
-                            <span className="tray-sort__count">{counts[f]}</span>
+                            <span className="hg-seg__count">{counts[f]}</span>
                         </button>
                     ))}
                 </div>
@@ -177,8 +169,7 @@ export default function WishlistPage() {
             </div>
 
             {list.length === 0 ? (
-                <div className="tray-empty glass">
-                    <Heart size={28} aria-hidden />
+                <div className="hg-empty">
                     {counts.todos === 0 ? (
                         <>
                             <p>
@@ -194,7 +185,7 @@ export default function WishlistPage() {
                     )}
                 </div>
             ) : (
-                <ul className="lib-list">
+                <KeyboardList className="hg-rows wish-list" label="Juegos de tu wishlist">
                     {list.slice(0, visible).map((game, i) => (
                         <WishlistItem
                             key={game.appid}
@@ -207,11 +198,11 @@ export default function WishlistPage() {
                             onAlertSaved={(a) => setAlerts((m) => new Map(m).set(game.appid, a))}
                         />
                     ))}
-                </ul>
+                </KeyboardList>
             )}
 
             {list.length > visible && (
-                <div className="tray-more">
+                <div className="lib-more">
                     <Button variant="secondary" onClick={() => setVisible((v) => v + PAGE)}>
                         Mostrar más ({list.length - visible})
                     </Button>
@@ -248,12 +239,12 @@ function WishlistItem({
 }) {
     const name = game.name ?? `App ${game.appid}`
     return (
-        <li className={`wish-row glass ${isAtHistoricalLow(game) ? 'is-low' : ''}`}>
-            <Link href={`/juego/${game.appid}`} className="wish-row__cover" tabIndex={-1} aria-hidden>
-                <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="140px" priority={priority} />
-            </Link>
-            <div className="wish-row__info">
-                <Link href={`/juego/${game.appid}`} className="wish-row__name">
+        <li className="hg-row wish-row">
+            <span className="hg-row__cover">
+                <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="112px" priority={priority} />
+            </span>
+            <div className="hg-row__main wish-row__info">
+                <Link href={`/juego/${game.appid}`} className="hg-row__link" data-row-link>
                     {name}
                 </Link>
                 <p className="wish-row__meta">
@@ -265,21 +256,19 @@ function WishlistItem({
                 </p>
                 <PriceLows game={game} />
             </div>
-            <div className="wish-row__side">
-                <PriceNow game={game} />
-                <div className="wish-row__actions">
-                    {userId && <PriceAlertControl appid={game.appid} userId={userId} name={name} alert={alert} onSaved={onAlertSaved} />}
-                    <Button size="icon" variant="ghost" asChild>
-                        <a href={`https://store.steampowered.com/app/${game.appid}/`} target="_blank" rel="noreferrer" aria-label={`${name} en la tienda de Steam`} title="Ver en la tienda de Steam">
-                            <ExternalLink aria-hidden />
-                        </a>
+            <PriceNow game={game} />
+            <div className="wish-row__actions">
+                {userId && <PriceAlertControl appid={game.appid} userId={userId} name={name} alert={alert} onSaved={onAlertSaved} />}
+                <Button size="icon" variant="ghost" asChild>
+                    <a href={`https://store.steampowered.com/app/${game.appid}/`} target="_blank" rel="noreferrer" aria-label={`${name} en la tienda de Steam`} title="Ver en la tienda de Steam">
+                        <ExternalLink aria-hidden />
+                    </a>
+                </Button>
+                {game.source === 'manual' && (
+                    <Button size="icon" variant="ghost" onClick={onRemove} disabled={busy} aria-label={`Quitar ${name} de la wishlist`} title="Quitar de la wishlist">
+                        <Trash2 aria-hidden />
                     </Button>
-                    {game.source === 'manual' && (
-                        <Button size="icon" variant="ghost" onClick={onRemove} disabled={busy} aria-label={`Quitar ${name} de la wishlist`} title="Quitar de la wishlist">
-                            <Trash2 aria-hidden />
-                        </Button>
-                    )}
-                </div>
+                )}
             </div>
         </li>
     )

@@ -9,6 +9,7 @@ import { addToWishlist } from '@/lib/wishlist'
 import type { SteamSearchResult } from '@/app/api/steam/search/route'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { statusChipClass } from './status'
 import './tracker.css'
 
 const DEBOUNCE_MS = 250
@@ -164,7 +165,6 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
                     aria-controls="game-search-results"
                     aria-activedescendant={shown.length ? `game-search-${shown[active]?.appid}` : undefined}
                 />
-                <kbd>Esc</kbd>
             </label>
 
             {error && (
@@ -175,9 +175,7 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
 
             {term.trim().length >= 2 && !loading && shown.length === 0 && !error && <p className="game-search__hint">Sin resultados.</p>}
             {term.trim().length < 2 && (
-                <p className="game-search__hint">
-                    Escribe el nombre de un juego. <kbd>↑</kbd> <kbd>↓</kbd> para moverte y <kbd>Enter</kbd> para abrir su ficha.
-                </p>
+                <p className="game-search__hint">Escribe el nombre de un juego: los que ya tienes salen marcados con su estado.</p>
             )}
 
             {shown.length > 0 && (
@@ -200,12 +198,12 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
                                         <span className="game-search__name">{r.name}</span>
                                         <span className="game-search__meta">
                                             {status ? (
-                                                <span className={`lib-status lib-status--${status}`}>{STATUS_LABELS[status]}</span>
+                                                <span className={statusChipClass(status)}>{STATUS_LABELS[status]}</span>
                                             ) : (
                                                 <span>No lo tienes</span>
                                             )}
                                             {r.price && <span>{r.price}</span>}
-                                            {r.discount && <span className="game-search__discount">-{r.discount}%</span>}
+                                            {r.discount && <span className="game-search__discount">-{r.discount} %</span>}
                                         </span>
                                     </span>
                                 </button>
@@ -231,6 +229,18 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
                     })}
                 </ul>
             )}
+
+            <p className="game-search__foot" aria-hidden>
+                <span>
+                    <kbd>↑</kbd> <kbd>↓</kbd> para moverte
+                </span>
+                <span>
+                    <kbd>Enter</kbd> abre la ficha
+                </span>
+                <span>
+                    <kbd>Esc</kbd> cierra
+                </span>
+            </p>
         </>
     )
 }

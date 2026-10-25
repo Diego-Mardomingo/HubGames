@@ -1,17 +1,17 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type KeyboardEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Ban, Check, CheckCheck, Clock, Flag, Inbox, ListPlus, Play, Trophy, X } from 'lucide-react'
+import { ArrowLeft, Ban, Check, CheckCheck, Flag, ListPlus, Play, X } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { completeGames, formatHours, setGamesStatus, type GameStatus, type LibraryGame } from '@/lib/tracker'
 import { isPerfect } from '@/lib/tracker-rules'
 import { Button } from '@/components/ui/button'
 import Loader from '@/components/Loader'
+import KeyboardList from '@/components/KeyboardList'
+import GameCover from '@/components/tracker/GameCover'
 import CompleteDialog from '@/components/tracker/CompleteDialog'
-import { Reveal } from '@/components/motion'
 import '../biblioteca.css'
 
 type SortKey = 'horas' | 'verguenza' | 'valorados' | 'nombre'
@@ -25,6 +25,7 @@ const SORTS: { key: SortKey; label: string }[] = [
 
 type Action = { status: GameStatus; label: string; icon: typeof Check }
 
+/** El orden es el de los atajos: 1 pendiente, 2 jugando, 3 completado, 4 abandonado y 5 no me interesa. */
 const ACTIONS: Action[] = [
     { status: 'pendiente', label: 'Pendiente', icon: ListPlus },
     { status: 'jugando', label: 'Jugando', icon: Play },
@@ -73,6 +74,8 @@ export default function BandejaPage() {
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState('')
     const [completing, setCompleting] = useState<LibraryGame | null>(null)
+    // Tras clasificar con el teclado, el foco pasa a la fila que ocupa el mismo sitio.
+    const [focusIndex, setFocusIndex] = useState<number | null>(null)
 
     useEffect(() => {
         safeGetSession().then(({ data: { session } }) => {
@@ -92,6 +95,15 @@ export default function BandejaPage() {
     const sorted = useMemo(() => sortGames(games ?? [], sort), [games, sort])
     const shown = sorted.slice(0, visible)
     const shameCount = useMemo(() => (games ?? []).filter((g) => g.playtime_forever === 0).length, [games])
+
+    useEffect(() => {
+        if (focusIndex === null) return
+        const links = document.querySelectorAll<HTMLElement>('.tray-list [data-row-link]')
+        const next = links[Math.min(focusIndex, links.length - 1)]
+        next?.focus()
+        next?.closest('li')?.scrollIntoView({ block: 'nearest' })
+        setFocusIndex(null)
+    }, [focusIndex, games])
 
     /** Quita los juegos de la bandeja al momento y, si falla, los devuelve. */
     async function classify(targets: LibraryGame[], status: GameStatus) {
@@ -113,6 +125,12 @@ export default function BandejaPage() {
         }
     }
 
+    /** Completar pide nota y fecha; el resto de estados se guarda al momento. */
+    function act(game: LibraryGame, status: GameStatus) {
+        if (status === 'completado') setCompleting(game)
+        else void classify([game], status)
+    }
+
     function toggle(appid: number) {
         setSelected((s) => {
             const next = new Set(s)
@@ -122,30 +140,42 @@ export default function BandejaPage() {
         })
     }
 
+    /** Atajos sobre la fila con el foco: 1–5 la clasifican y x la selecciona. */
+    function onListKey(e: KeyboardEvent<HTMLElement>) {
+        if (e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return
+        const row = (e.target as HTMLElement).closest<HTMLElement>('li[data-appid]')
+        const game = row && shown.find((g) => g.appid === Number(row.dataset.appid))
+        if (!game) return
+        const digit = Number(e.key)
+        if (Number.isInteger(digit) && digit >= 1 && digit <= ACTIONS.length) {
+            e.preventDefault()
+            const index = shown.indexOf(game)
+            act(game, ACTIONS[digit - 1].status)
+            if (ACTIONS[digit - 1].status !== 'completado') setFocusIndex(index)
+        } else if (e.key === 'x' || e.key === 'X') {
+            e.preventDefault()
+            toggle(game.appid)
+        }
+    }
+
     if (!games) return <Loader label="Cargando bandeja" />
 
     const selectedGames = sorted.filter((g) => selected.has(g.appid))
     const allShownSelected = shown.length > 0 && shown.every((g) => selected.has(g.appid))
 
     return (
-        <div className="biblioteca">
+        <div className={`biblioteca bandeja${selectedGames.length > 0 ? ' has-batch' : ''}`}>
             <header className="page-head">
                 <div>
-                    <Reveal>
-                        <Link href="/biblioteca" className="eyebrow">
-                            <Inbox size={13} aria-hidden /> Biblioteca
-                        </Link>
-                    </Reveal>
-                    <Reveal delay={0.05}>
-                        <h1 className="page-title">Bandeja</h1>
-                    </Reveal>
-                    <Reveal delay={0.1}>
-                        <p className="page-subtitle">
-                            {games.length === 0
-                                ? 'Nada por clasificar.'
-                                : `${games.length} ${games.length === 1 ? 'juego' : 'juegos'} sin clasificar. Un clic y fuera de la bandeja.`}
-                        </p>
-                    </Reveal>
+                    <Link href="/biblioteca" className="lib-back">
+                        <ArrowLeft size={14} aria-hidden /> Biblioteca
+                    </Link>
+                    <h1 className="page-title">Bandeja</h1>
+                    <p className="page-subtitle">
+                        {games.length === 0
+                            ? 'Nada por clasificar.'
+                            : `${games.length} ${games.length === 1 ? 'juego' : 'juegos'} sin clasificar. Un clic, o una tecla, y fuera de la bandeja.`}
+                    </p>
                 </div>
             </header>
 
@@ -156,8 +186,8 @@ export default function BandejaPage() {
             )}
 
             {games.length === 0 ? (
-                <div className="tray-empty glass">
-                    <CheckCheck size={28} aria-hidden />
+                <div className="hg-empty lib-empty">
+                    <CheckCheck size={22} aria-hidden className="lib-empty__icon" />
                     <p>Tu bandeja está vacía. Los juegos nuevos de Steam llegarán aquí al sincronizar.</p>
                     <Button variant="secondary" asChild>
                         <Link href="/perfil">Ir a Steam en el perfil</Link>
@@ -166,21 +196,20 @@ export default function BandejaPage() {
             ) : (
                 <>
                     <div className="tray-toolbar">
-                        <div className="tray-sorts" role="tablist" aria-label="Ordenar">
+                        <div className="hg-seg hg-seg--scroll" role="group" aria-label="Ordenar">
                             {SORTS.map((s) => (
                                 <button
                                     key={s.key}
                                     type="button"
-                                    role="tab"
-                                    aria-selected={sort === s.key}
-                                    className={`tray-sort ${sort === s.key ? 'is-active' : ''}`}
+                                    aria-pressed={sort === s.key}
+                                    className="hg-seg__opt"
                                     onClick={() => {
                                         setSort(s.key)
                                         setVisible(PAGE)
                                     }}
                                 >
                                     {s.label}
-                                    {s.key === 'verguenza' && <span className="tray-sort__count">{shameCount}</span>}
+                                    {s.key === 'verguenza' && <span className="hg-seg__count">{shameCount}</span>}
                                 </button>
                             ))}
                         </div>
@@ -188,91 +217,80 @@ export default function BandejaPage() {
                             <input
                                 type="checkbox"
                                 checked={allShownSelected}
-                                onChange={() =>
-                                    setSelected(allShownSelected ? new Set() : new Set(shown.map((g) => g.appid)))
-                                }
+                                onChange={() => setSelected(allShownSelected ? new Set() : new Set(shown.map((g) => g.appid)))}
                             />
                             Seleccionar {shown.length === sorted.length ? 'todos' : 'los visibles'}
                         </label>
                     </div>
 
-                    {sort === 'verguenza' && (
-                        <p className="tray-note">
-                            La lista de la vergüenza: juegos que tienes y nunca has abierto.
-                        </p>
-                    )}
+                    <p className="lib-note">
+                        {sort === 'verguenza' && <span>La lista de la vergüenza: juegos que tienes y nunca has abierto.</span>}
+                        <span className="hg-keyhint">
+                            <kbd>↑</kbd> <kbd>↓</kbd> o <kbd>j</kbd> <kbd>k</kbd> para moverte ·{' '}
+                            {ACTIONS.map((a, i) => (
+                                <span key={a.status}>
+                                    <kbd>{i + 1}</kbd> {a.label.toLowerCase()} ·{' '}
+                                </span>
+                            ))}
+                            <kbd>x</kbd> selecciona
+                        </span>
+                    </p>
 
-                    <ul className="tray-list">
-                        <AnimatePresence initial={false}>
-                            {shown.map((game) => (
-                                <motion.li
-                                    key={game.appid}
-                                    layout
-                                    className={`tray-row glass ${selected.has(game.appid) ? 'is-selected' : ''}`}
-                                    initial={{ opacity: 0, y: 6 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, x: 40, transition: { duration: 0.18 } }}
-                                >
+                    <KeyboardList className="hg-rows tray-list" label="Juegos sin clasificar" onKeyDown={onListKey}>
+                        {shown.map((game) => {
+                            const name = game.name ?? `App ${game.appid}`
+                            const isSelected = selected.has(game.appid)
+                            return (
+                                <li key={game.appid} data-appid={game.appid} className={`hg-row tray-row${isSelected ? ' is-selected' : ''}`}>
                                     <label className="tray-row__select">
                                         <input
                                             type="checkbox"
-                                            checked={selected.has(game.appid)}
+                                            checked={isSelected}
                                             onChange={() => toggle(game.appid)}
-                                            aria-label={`Seleccionar ${game.name ?? game.appid}`}
+                                            aria-label={`Seleccionar ${name}`}
                                         />
                                     </label>
-                                    <div className="tray-row__cover">
-                                        {game.header_image && <img src={game.header_image} alt="" loading="lazy" />}
-                                    </div>
-                                    <div className="tray-row__info">
-                                        <p className="tray-row__name">
-                                            <Link href={`/juego/${game.appid}`}>{game.name ?? `App ${game.appid}`}</Link>
-                                        </p>
-                                        <p className="tray-row__meta">
-                                            <span>
-                                                <Clock size={12} aria-hidden /> {formatHours(game.playtime_forever)}
-                                            </span>
-                                            {game.achievements_total ? (
-                                                <span>
-                                                    <Trophy size={12} aria-hidden /> {game.achievements_unlocked ?? 0}/
-                                                    {game.achievements_total}
-                                                </span>
-                                            ) : null}
-                                            {isPerfect(game) && (
-                                                <span className="badge-100" title="Todos los logros desbloqueados">
-                                                    <Trophy size={11} aria-hidden /> 100%
-                                                </span>
-                                            )}
+                                    <span className="hg-row__cover">
+                                        <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="112px" />
+                                    </span>
+                                    <span className="hg-row__main">
+                                        <Link href={`/juego/${game.appid}`} className="hg-row__link" data-row-link>
+                                            {name}
+                                        </Link>
+                                        <span className="hg-row__meta">
+                                            {formatHours(game.playtime_forever)}
+                                            {game.achievements_total ? ` · ${game.achievements_unlocked ?? 0} / ${game.achievements_total} logros` : null}
+                                            {isPerfect(game) && ' (100 %)'}
                                             {game.steamspy_userscore !== null && (
-                                                <span title="Valoraciones positivas en Steam">
-                                                    {game.steamspy_userscore}% positivas
-                                                </span>
+                                                <span title="Valoraciones positivas en Steam"> · {game.steamspy_userscore} % positivas</span>
                                             )}
-                                        </p>
-                                    </div>
-                                    <div className="tray-row__actions">
-                                        {ACTIONS.map((a) => (
+                                        </span>
+                                    </span>
+                                    <span className="tray-row__actions">
+                                        {ACTIONS.map((a, i) => (
                                             <Button
                                                 key={a.status}
                                                 type="button"
                                                 size="sm"
                                                 variant="secondary"
-                                                className={`tray-action tray-action--${a.status}`}
-                                                title={a.label}
-                                                onClick={() => (a.status === 'completado' ? setCompleting(game) : classify([game], a.status))}
+                                                className="tray-action"
+                                                title={`${a.label} (${i + 1})`}
+                                                aria-label={a.label}
+                                                aria-keyshortcuts={String(i + 1)}
+                                                onClick={() => act(game, a.status)}
                                             >
                                                 <a.icon aria-hidden />
                                                 <span className="tray-action__label">{a.label}</span>
                                             </Button>
                                         ))}
-                                    </div>
-                                </motion.li>
-                            ))}
-                        </AnimatePresence>
-                    </ul>
+                                    </span>
+                                </li>
+                            )
+                        })}
+                    </KeyboardList>
 
                     {sorted.length > visible && (
-                        <div className="tray-more">
+                        <div className="lib-more">
                             <Button variant="secondary" onClick={() => setVisible((v) => v + PAGE)}>
                                 Mostrar más ({sorted.length - visible})
                             </Button>
@@ -281,47 +299,43 @@ export default function BandejaPage() {
                 </>
             )}
 
-            <AnimatePresence>
-                {selectedGames.length > 0 && (
-                    <motion.div
-                        className="tray-batch glass"
-                        initial={{ opacity: 0, y: 24 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 24 }}
-                    >
-                        <span className="tray-batch__count">
-                            {selectedGames.length} {selectedGames.length === 1 ? 'seleccionado' : 'seleccionados'}
-                        </span>
-                        <div className="tray-batch__actions">
-                            {ACTIONS.map((a) => (
-                                <Button
-                                    key={a.status}
-                                    type="button"
-                                    size="sm"
-                                    variant="secondary"
-                                    disabled={busy}
-                                    title={a.label}
-                                    onClick={() => classify(selectedGames, a.status)}
-                                >
-                                    <a.icon aria-hidden />
-                                    <span className="tray-action__label">{a.label}</span>
-                                </Button>
-                            ))}
-                            <Button type="button" size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
-                                Cancelar
+            {selectedGames.length > 0 && (
+                <div className="tray-batch" role="region" aria-label="Clasificar los seleccionados">
+                    <span className="tray-batch__count">
+                        {selectedGames.length} {selectedGames.length === 1 ? 'seleccionado' : 'seleccionados'}
+                    </span>
+                    <div className="tray-batch__actions">
+                        {ACTIONS.map((a) => (
+                            <Button
+                                key={a.status}
+                                type="button"
+                                size="sm"
+                                variant="secondary"
+                                disabled={busy}
+                                title={a.label}
+                                aria-label={a.label}
+                                onClick={() => classify(selectedGames, a.status)}
+                            >
+                                <a.icon aria-hidden />
+                                <span className="tray-action__label">{a.label}</span>
                             </Button>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        ))}
+                        <Button type="button" size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+                            Cancelar
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             <CompleteDialog
                 game={completing}
                 onOpenChange={(open) => !open && setCompleting(null)}
                 onSaved={(appid) => {
+                    const index = shown.findIndex((g) => g.appid === appid)
                     setCompleting(null)
                     setGames((list) => list && list.filter((g) => g.appid !== appid))
                     setSelected((s) => new Set([...s].filter((id) => id !== appid)))
+                    if (index !== -1) setFocusIndex(index)
                 }}
             />
         </div>

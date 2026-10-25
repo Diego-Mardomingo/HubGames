@@ -94,28 +94,8 @@
   text-decoration: underline;
 }
 
-.dash-hint {
-  margin-left: auto;
-  color: var(--muted);
-  font-size: 0.75rem;
-  white-space: nowrap;
-}
-
-.dash-hint + .dash-link {
+.hg-keyhint + .dash-link {
   margin-left: 0.75rem;
-}
-
-.dash-hint kbd {
-  display: inline-block;
-  min-width: 1.35em;
-  padding: 0 0.3em;
-  border-radius: 4px;
-  background: var(--surface-2);
-  color: var(--muted-light);
-  font: inherit;
-  font-size: 0.6875rem;
-  line-height: 1.5;
-  text-align: center;
 }
 
 .dash-empty {
@@ -282,203 +262,16 @@
   pointer-events: none;
 }
 
-/* ── Filas de juegos (en curso, cola, cerca del 100 %, qué jugar) ── */
-.dash-rows {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.dash-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: 112px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 1rem;
-  min-height: 68px;
-  padding: 8px 12px 8px 8px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  transition: box-shadow 0.15s ease, border-color 0.15s ease;
-}
-
-/* Cursor de selección: ratón o foco de teclado en cualquier elemento de la fila. */
-.dash-row:hover,
-.dash-row:has(:focus-visible) {
-  border-color: transparent;
-  box-shadow: 0 0 0 3px var(--cursor);
-}
-
-.dash-row--playing {
+.hg-row.hg-row--playing {
   grid-template-columns: 112px minmax(0, 1fr) minmax(130px, 170px) auto auto;
 }
 
-.dash-row--near {
+.hg-row.hg-row--near {
   grid-template-columns: 112px minmax(0, 1fr) minmax(90px, 130px);
 }
 
-.dash-row__cover {
-  position: relative;
-  display: block;
-  width: 112px;
-  height: 52px;
-  border-radius: 6px;
-  overflow: hidden;
-  background: var(--surface-2);
-}
-
-.dash-row__cover .game-cover {
-  background: var(--surface-2);
-}
-
-.dash-row__cover .game-cover--empty span {
-  display: none;
-}
-
-/* Franja de 3 px con el color de la rareza del logro más raro conseguido. */
-.dash-row.has-rarity .dash-row__cover::after {
-  content: '';
-  position: absolute;
-  inset: auto 0 0;
-  z-index: 1;
-  height: 3px;
-  background: var(--c);
-}
-
-.dash-row__main {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.dash-row__link {
-  overflow: hidden;
-  color: var(--foreground);
-  font-weight: 600;
-  text-decoration: none;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Toda la fila abre la ficha; los demás enlaces y botones quedan por encima. */
-.dash-row__link::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-}
-
-.dash-row__link:focus-visible {
-  outline: none;
-}
-
-.dash-row a:not(.dash-row__link),
-.dash-row button {
-  position: relative;
-  z-index: 1;
-}
-
-.dash-row__meta {
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 0.8125rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dash-row--wtp .dash-row__meta {
+.hg-row--wtp .hg-row__meta {
   white-space: normal;
-}
-
-.dash-row__prog {
-  display: grid;
-  gap: 6px;
-  font-size: 0.8125rem;
-}
-
-.dash-row__prog--none {
-  color: var(--muted);
-}
-
-.dash-row__prog-label {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.dash-row__prog-label b {
-  color: var(--foreground);
-  font-weight: 600;
-}
-
-.dash-row__ach-link {
-  color: inherit;
-  text-decoration: none;
-}
-
-.dash-row__ach-link:hover {
-  color: var(--foreground);
-  text-decoration: underline;
-}
-
-.dash-bar {
-  display: block;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  overflow: hidden;
-}
-
-.dash-bar span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--primary);
-}
-
-.dash-bar.is-done span {
-  background: var(--success);
-}
-
-.dash-chip {
-  justify-self: end;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--muted-light);
-  font-size: 0.78125rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.dash-chip--playing {
-  background: var(--primary-glow);
-  color: var(--primary);
-}
-
-.dash-chip--done {
-  background: var(--success-glow);
-  color: var(--success);
-}
-
-.dash-icon-btn {
-  display: inline-grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  color: var(--muted);
-  transition: color 0.15s, background 0.15s;
-}
-
-.dash-icon-btn:hover {
-  color: var(--foreground);
-  background: var(--surface-2);
 }
 
 /* ── En curso | logros recientes ── */
@@ -487,106 +280,6 @@
   grid-template-columns: minmax(0, 1fr) 340px;
   gap: 1.75rem;
   align-items: start;
-}
-
-.dash-achs {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.dash-ach {
-  --c: var(--muted);
-  display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 10px 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: inset 3px 0 0 var(--c);
-}
-
-.dash-ach__icon {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--c) 16%, transparent);
-  color: var(--c);
-}
-
-.dash-ach__icon img {
-  width: 32px;
-  height: 32px;
-  border-radius: 5px;
-  object-fit: cover;
-}
-
-.dash-ach__body {
-  display: grid;
-  min-width: 0;
-}
-
-.dash-ach__name {
-  overflow: hidden;
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1.3;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dash-ach__name a,
-.dash-ach__game a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.dash-ach__name a:hover,
-.dash-ach__game a:hover {
-  text-decoration: underline;
-}
-
-.dash-ach__game {
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 0.78125rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dash-ach__pct {
-  display: grid;
-  justify-items: end;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.dash-ach__pct small {
-  color: var(--c);
-  font-size: 0.71875rem;
-  font-weight: 600;
-}
-
-/* El color de rareza como texto: en claro, mezclado con el texto para llegar a 4.5:1 sobre la superficie. */
-:root:not([data-theme='dark']) .dash-ach__pct small {
-  color: color-mix(in srgb, var(--c) 72%, var(--foreground));
-}
-
-.dash-ach__rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.dash-ach--completed .dash-ach__pct small {
-  color: var(--muted);
 }
 
 /* ── ¿Qué juego hoy? (#30) ── */
@@ -607,44 +300,7 @@
   font-size: 0.8125rem;
 }
 
-.wtp-choice__options {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  padding: 3px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-}
-
-.wtp-chip {
-  min-height: 30px;
-  padding: 0 0.75rem;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--muted-light);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  transition: background 0.15s, color 0.15s;
-}
-
-.wtp-chip:hover {
-  color: var(--foreground);
-}
-
-.wtp-chip.is-active {
-  background: var(--surface);
-  color: var(--primary);
-  font-weight: 600;
-  box-shadow: var(--shadow-sm);
-}
-
-.wtp-chip:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 1px;
-}
-
-.wtp .dash-row {
+.wtp .hg-row {
   background: var(--background);
 }
 
@@ -826,11 +482,11 @@
     grid-template-columns: minmax(0, 1fr) 300px;
   }
 
-  .dash-row--playing {
+  .hg-row.hg-row--playing {
     grid-template-columns: 112px minmax(0, 1fr) minmax(120px, 150px) auto;
   }
 
-  .dash-row--playing .dash-chip {
+  .hg-row.hg-row--playing .hg-chip {
     display: none;
   }
 }
@@ -841,21 +497,13 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .dash-hint {
-    display: none;
-  }
-
-  .dash-hint + .dash-link {
+  .hg-keyhint + .dash-link {
     margin-left: auto;
   }
 }
 
 @media (hover: none) {
-  .dash-hint {
-    display: none;
-  }
-
-  .dash-hint + .dash-link {
+  .hg-keyhint + .dash-link {
     margin-left: auto;
   }
 }
@@ -896,31 +544,19 @@
     grid-column: 1 / -1;
   }
 
-  .dash-row,
-  .dash-row--playing,
-  .dash-row--near {
+  .hg-row.hg-row--playing,
+  .hg-row.hg-row--near {
     grid-template-columns: 96px minmax(0, 1fr) auto;
-    gap: 0.75rem;
   }
 
-  .dash-row__cover {
-    width: 96px;
-    height: 45px;
-  }
-
-  .dash-row--playing .dash-row__prog,
-  .dash-row--near .dash-row__prog {
+  .hg-row.hg-row--playing .hg-row__prog,
+  .hg-row.hg-row--near .hg-row__prog {
     grid-column: 2 / -1;
     grid-row: 2;
   }
 
-  .dash-row--wtp .wtp-actions {
+  .hg-row--wtp .wtp-actions {
     grid-column: 1 / -1;
-  }
-
-  .dash-icon-btn {
-    width: 44px;
-    height: 44px;
   }
 
   .goal__stepper button {
@@ -934,19 +570,7 @@
     gap: 0.35rem;
   }
 
-  .wtp-chip {
-    min-height: 40px;
-  }
-
   .dash-landing {
     padding: 1.5rem 0 3rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .dash-row,
-  .dash-icon-btn,
-  .wtp-chip {
-    transition: none;
   }
 }

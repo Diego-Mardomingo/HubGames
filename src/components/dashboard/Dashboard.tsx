@@ -25,7 +25,7 @@ import { Button } from '@/components/ui/button'
 import GameCover from '@/components/tracker/GameCover'
 import SuggestionsPanel from '@/components/tracker/SuggestionsPanel'
 import ActivityHeatmap from './ActivityHeatmap'
-import KeyboardList from './KeyboardList'
+import KeyboardList from '@/components/KeyboardList'
 import SyncButton from './SyncButton'
 import WhatToPlay from './WhatToPlay'
 import MonthlyGoals from './MonthlyGoals'
@@ -50,7 +50,7 @@ function Panel({ id, title, action, children, className }: { id: string; title: 
 
 function Cover({ game, title }: { game: Pick<LibraryGame, 'appid' | 'name' | 'header_image'>; title?: string }) {
     return (
-        <span className="dash-row__cover" title={title}>
+        <span className="hg-row__cover" title={title}>
             <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="112px" />
         </span>
     )
@@ -58,16 +58,16 @@ function Cover({ game, title }: { game: Pick<LibraryGame, 'appid' | 'name' | 'he
 
 function AchievementBar({ game }: { game: LibraryGame }) {
     const pct = achievementPercent(game)
-    if (pct === null) return <span className="dash-row__prog dash-row__prog--none">Sin logros</span>
+    if (pct === null) return <span className="hg-row__prog hg-row__prog--none">Sin logros</span>
     return (
-        <span className="dash-row__prog">
-            <span className="dash-row__prog-label">
-                <Link href={`/juego/${game.appid}/logros`} className="dash-row__ach-link">
+        <span className="hg-row__prog">
+            <span className="hg-row__prog-label">
+                <Link href={`/juego/${game.appid}/logros`} className="hg-row__ach-link">
                     <b>{game.achievements_unlocked ?? 0}</b> / {game.achievements_total} logros
                 </Link>
                 <span>{pct} %</span>
             </span>
-            <span className="dash-bar" aria-hidden>
+            <span className="hg-bar" aria-hidden>
                 <span style={{ width: `${pct}%` }} />
             </span>
         </span>
@@ -85,13 +85,13 @@ function PlayingRow({ game, rarest }: { game: LibraryGame; rarest: number | unde
     const name = game.name ?? `App ${game.appid}`
     const perfect = isPerfect(game)
     return (
-        <li className={`dash-row dash-row--playing${tier ? ' has-rarity' : ''}`} style={tier ? ({ '--c': rarityColor(tier) } as CSSVars) : undefined}>
+        <li className={`hg-row hg-row--playing${tier ? ' has-rarity' : ''}`} style={tier ? ({ '--c': rarityColor(tier) } as CSSVars) : undefined}>
             <Cover game={game} title={tier && rarest !== undefined ? `Logro más raro: ${RARITY_TIER_LABELS[tier].toLowerCase()} (${formatPercent(rarest)})` : undefined} />
-            <span className="dash-row__main">
-                <Link href={`/juego/${game.appid}`} className="dash-row__link" data-row-link>
+            <span className="hg-row__main">
+                <Link href={`/juego/${game.appid}`} className="hg-row__link" data-row-link>
                     {name}
                 </Link>
-                <span className="dash-row__meta">
+                <span className="hg-row__meta">
                     <span>{formatHours(game.playtime_forever)}</span>
                     {' · '}
                     <time
@@ -109,10 +109,10 @@ function PlayingRow({ game, rarest }: { game: LibraryGame; rarest: number | unde
                 </span>
             </span>
             <AchievementBar game={game} />
-            <span className={`dash-chip${perfect ? ' dash-chip--done' : ' dash-chip--playing'}`} title={perfect ? 'Todos los logros desbloqueados' : undefined}>
+            <span className={`hg-chip${perfect ? ' hg-chip--done' : ' hg-chip--playing'}`} title={perfect ? 'Todos los logros desbloqueados' : undefined}>
                 {perfect ? '100 %' : STATUS_LABELS[game.status]}
             </span>
-            <a className="dash-icon-btn" href={steamRunUrl(game.appid)} aria-label={`Jugar a ${name}`} title="Jugar">
+            <a className="hg-icon-btn" href={steamRunUrl(game.appid)} aria-label={`Jugar a ${name}`} title="Jugar">
                 <Play size={16} aria-hidden />
             </a>
         </li>
@@ -122,23 +122,23 @@ function PlayingRow({ game, rarest }: { game: LibraryGame; rarest: number | unde
 function ActivityItem({ item }: { item: Activity }) {
     if (item.kind === 'completado') {
         return (
-            <li className="dash-ach dash-ach--completed">
-                <span className="dash-ach__icon" aria-hidden>
+            <li className="hg-ach hg-ach--completed">
+                <span className="hg-ach__icon" aria-hidden>
                     <Flag size={18} />
                 </span>
-                <span className="dash-ach__body">
-                    <span className="dash-ach__name">
+                <span className="hg-ach__body">
+                    <span className="hg-ach__name">
                         Completaste <Link href={`/juego/${item.appid}`}>{item.game ?? `App ${item.appid}`}</Link>
                     </span>
-                    <span className="dash-ach__game">
+                    <span className="hg-ach__game">
                         <time dateTime={item.at} title={shortDate(item.at)}>
                             {timeAgo(item.at)}
                         </time>
                     </span>
                 </span>
                 {item.rating !== null && (
-                    <span className="dash-ach__pct">
-                        <span className="dash-ach__rating">
+                    <span className="hg-ach__pct">
+                        <span className="hg-ach__rating">
                             <Star size={12} aria-hidden /> {String(item.rating).replace('.', ',')}
                         </span>
                         <small>tu nota</small>
@@ -150,13 +150,13 @@ function ActivityItem({ item }: { item: Activity }) {
     const a = item.achievement
     const tier = rarityTier(a.global_percent)
     return (
-        <li className="dash-ach" style={tier ? ({ '--c': rarityColor(tier) } as CSSVars) : undefined}>
-            <span className="dash-ach__icon" aria-hidden>
+        <li className="hg-ach" style={tier ? ({ '--c': rarityColor(tier) } as CSSVars) : undefined}>
+            <span className="hg-ach__icon" aria-hidden>
                 {a.icon ? <img src={a.icon} alt="" loading="lazy" /> : <Trophy size={18} />}
             </span>
-            <span className="dash-ach__body">
-                <span className="dash-ach__name">{a.display_name ?? 'Logro'}</span>
-                <span className="dash-ach__game">
+            <span className="hg-ach__body">
+                <span className="hg-ach__name">{a.display_name ?? 'Logro'}</span>
+                <span className="hg-ach__game">
                     <Link href={`/juego/${item.appid}/logros`}>{item.game ?? `App ${item.appid}`}</Link>
                     {' · '}
                     <time dateTime={item.at} title={shortDate(item.at)}>
@@ -165,7 +165,7 @@ function ActivityItem({ item }: { item: Activity }) {
                 </span>
             </span>
             {a.global_percent !== null && (
-                <span className="dash-ach__pct">
+                <span className="hg-ach__pct">
                     <span>
                         {formatPercent(a.global_percent)}
                         <span className="sr-only"> de jugadores</span>
@@ -261,7 +261,7 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                     action={
                         <>
                             {playing.length > 1 && (
-                                <span className="dash-hint">
+                                <span className="hg-keyhint">
                                     <kbd>↑</kbd> <kbd>↓</kbd> o <kbd>j</kbd> <kbd>k</kbd> para moverte · <kbd>Enter</kbd> abre la ficha
                                 </span>
                             )}
@@ -274,7 +274,7 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                     {playing.length === 0 ? (
                         <p className="dash-empty">Nada en curso. Cuando juegues a algo, aparecerá aquí tras la sincronización.</p>
                     ) : (
-                        <KeyboardList className="dash-rows" label="Juegos en curso">
+                        <KeyboardList className="hg-rows" label="Juegos en curso">
                             {playing.map((g) => (
                                 <PlayingRow key={g.appid} game={g} rarest={data.rarestPercent[g.appid]} />
                             ))}
@@ -295,7 +295,7 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                     {activity.length === 0 ? (
                         <p className="dash-empty">Todavía no hay actividad.</p>
                     ) : (
-                        <ul className="dash-achs">
+                        <ul className="hg-achs">
                             {activity.map((a) => (
                                 <ActivityItem key={`${a.kind}-${a.appid}-${a.at}-${a.kind === 'logro' ? a.achievement.display_name : ''}`} item={a} />
                             ))}
@@ -321,20 +321,20 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                         {queue.length === 0 ? (
                             <p className="dash-empty">No tienes pendientes. Clasifica juegos desde la bandeja.</p>
                         ) : (
-                            <ol className="dash-rows">
+                            <ol className="hg-rows">
                                 {queue.map((g) => {
                                     const d = gameDuration(g)
                                     const name = g.name ?? `App ${g.appid}`
                                     return (
-                                        <li key={g.appid} className="dash-row dash-row--queue">
+                                        <li key={g.appid} className="hg-row hg-row--queue">
                                             <Cover game={g} />
-                                            <span className="dash-row__main">
-                                                <Link href={`/juego/${g.appid}`} className="dash-row__link">
+                                            <span className="hg-row__main">
+                                                <Link href={`/juego/${g.appid}`} className="hg-row__link">
                                                     {name}
                                                 </Link>
-                                                <span className="dash-row__meta">{d.main !== null ? `Historia: ${formatHours(d.main)}` : 'Sin duración'}</span>
+                                                <span className="hg-row__meta">{d.main !== null ? `Historia: ${formatHours(d.main)}` : 'Sin duración'}</span>
                                             </span>
-                                            <a className="dash-icon-btn" href={steamRunUrl(g.appid)} aria-label={`Jugar a ${name}`} title="Jugar">
+                                            <a className="hg-icon-btn" href={steamRunUrl(g.appid)} aria-label={`Jugar a ${name}`} title="Jugar">
                                                 <Play size={16} aria-hidden />
                                             </a>
                                         </li>
@@ -357,27 +357,27 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                         {near.length === 0 ? (
                             <p className="dash-empty">Ningún juego por encima del 50 % de logros sin terminar.</p>
                         ) : (
-                            <ul className="dash-rows">
+                            <ul className="hg-rows">
                                 {near.map((g) => {
                                     const left = (g.achievements_total ?? 0) - (g.achievements_unlocked ?? 0)
                                     const pct = achievementPercent(g) ?? 0
                                     return (
-                                        <li key={g.appid} className="dash-row dash-row--near">
+                                        <li key={g.appid} className="hg-row hg-row--near">
                                             <Cover game={g} />
-                                            <span className="dash-row__main">
-                                                <Link href={`/juego/${g.appid}/logros`} className="dash-row__link">
+                                            <span className="hg-row__main">
+                                                <Link href={`/juego/${g.appid}/logros`} className="hg-row__link">
                                                     {g.name ?? `App ${g.appid}`}
                                                 </Link>
-                                                <span className="dash-row__meta">{left === 1 ? 'Te falta 1 logro' : `Te faltan ${left} logros`}</span>
+                                                <span className="hg-row__meta">{left === 1 ? 'Te falta 1 logro' : `Te faltan ${left} logros`}</span>
                                             </span>
-                                            <span className="dash-row__prog">
-                                                <span className="dash-row__prog-label">
+                                            <span className="hg-row__prog">
+                                                <span className="hg-row__prog-label">
                                                     <span>
                                                         <b>{g.achievements_unlocked ?? 0}</b> / {g.achievements_total}
                                                     </span>
                                                     <span>{pct} %</span>
                                                 </span>
-                                                <span className="dash-bar" aria-hidden>
+                                                <span className="hg-bar" aria-hidden>
                                                     <span style={{ width: `${pct}%` }} />
                                                 </span>
                                             </span>
