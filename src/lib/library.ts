@@ -86,9 +86,33 @@ export function achievementPercent(game: Pick<LibraryGame, 'achievements_total' 
     return Math.floor(((game.achievements_unlocked ?? 0) / game.achievements_total) * 100)
 }
 
-/** Duración estimada en minutos: la mediana de SteamSpy hasta que llegue HowLongToBeat (#23). */
-export function estimatedMinutes(game: Pick<LibraryGame, 'steamspy_median_forever'>): number | null {
-    return game.steamspy_median_forever && game.steamspy_median_forever > 0 ? game.steamspy_median_forever : null
+/** Duraciones de un juego en minutos (#23): HowLongToBeat; si no lo tiene, la mediana de SteamSpy como historia. */
+export interface GameDuration {
+    main: number | null
+    mainExtra: number | null
+    completionist: number | null
+    source: 'hltb' | 'steamspy' | null
+}
+
+type DurationColumns = 'hltb_main' | 'hltb_main_extra' | 'hltb_completionist' | 'steamspy_median_forever'
+
+export function gameDuration(game: Pick<LibraryGame, DurationColumns>): GameDuration {
+    const positive = (n: number | null) => (n && n > 0 ? n : null)
+    const hltb = { mainExtra: positive(game.hltb_main_extra), completionist: positive(game.hltb_completionist) }
+    if (positive(game.hltb_main)) return { main: game.hltb_main, ...hltb, source: 'hltb' }
+    const spy = positive(game.steamspy_median_forever)
+    if (spy) return { main: spy, ...hltb, source: 'steamspy' }
+    return { main: null, ...hltb, source: hltb.mainExtra || hltb.completionist ? 'hltb' : null }
+}
+
+/** Duración estimada de la historia en minutos, para filtrar y ordenar la biblioteca. */
+export function estimatedMinutes(game: Pick<LibraryGame, DurationColumns>): number | null {
+    return gameDuration(game).main
+}
+
+export const DURATION_SOURCE_LABEL: Record<NonNullable<GameDuration['source']>, string> = {
+    hltb: 'HowLongToBeat',
+    steamspy: 'mediana de SteamSpy',
 }
 
 function durationBucket(minutes: number | null): DurationFilter {

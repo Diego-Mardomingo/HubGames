@@ -13,7 +13,7 @@ import {
     type GameStatus,
     type LibraryGame,
 } from '@/lib/tracker'
-import { achievementPercent } from '@/lib/library'
+import { DURATION_SOURCE_LABEL, achievementPercent, type GameDuration } from '@/lib/library'
 import { isPerfect } from '@/lib/tracker-rules'
 import { addToWishlist, removeFromWishlist, type WishlistGame } from '@/lib/wishlist'
 import { Button } from '@/components/ui/button'
@@ -25,8 +25,8 @@ import { PriceLows, PriceNow } from '@/components/wishlist/PriceInfo'
 interface Props {
     appid: number
     name: string
-    /** Duración de referencia en minutos: mediana de SteamSpy hasta que llegue HowLongToBeat (#23). */
-    medianMinutes: number | null
+    /** Duraciones de HowLongToBeat o, si no hay, la mediana de SteamSpy (#23). */
+    duration: GameDuration
     storeUrl: string
 }
 
@@ -49,7 +49,23 @@ async function loadWish(appid: number): Promise<WishlistGame | null> {
 }
 
 /** Tus datos del juego y las acciones (#22). Se cargan en el cliente: la ficha de Steam ya viene del servidor. */
-export default function GamePanel({ appid, name, medianMinutes, storeUrl }: Props) {
+/** "Historia 12 h · Historia + extras 20 h · 100% 45 h (HowLongToBeat)". */
+function DurationNote({ duration }: { duration: GameDuration }) {
+    if (!duration.source) return null
+    const parts = [
+        duration.main !== null && `Historia ${formatHours(duration.main)}`,
+        duration.mainExtra !== null && `Historia + extras ${formatHours(duration.mainExtra)}`,
+        duration.completionist !== null && `100% ${formatHours(duration.completionist)}`,
+    ].filter(Boolean)
+    return (
+        <p className="juego-panel__note">
+            <Hourglass size={13} aria-hidden /> {parts.join(' · ')}{' '}
+            <span className="juego-panel__source">({DURATION_SOURCE_LABEL[duration.source]})</span>
+        </p>
+    )
+}
+
+export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
     const [state, setState] = useState<State>({ kind: 'cargando' })
     const [completing, setCompleting] = useState(false)
     const [busy, setBusy] = useState(false)
@@ -143,14 +159,15 @@ export default function GamePanel({ appid, name, medianMinutes, storeUrl }: Prop
                         </Button>
                     )}
                 </div>
-                {medianMinutes !== null && <p className="juego-panel__note">Duración orientativa: {formatHours(medianMinutes)} (mediana en Steam).</p>}
+                <DurationNote duration={duration} />
             </section>
         )
     }
 
     const { game, userId } = state
     const pct = achievementPercent(game)
-    const remaining = medianMinutes !== null ? medianMinutes - game.playtime_forever : null
+    const main = duration.main
+    const remaining = main !== null ? main - game.playtime_forever : null
 
     function update(patch: Partial<LibraryGame>) {
         setState((s) => (s.kind === 'ok' ? { ...s, game: { ...s.game, ...patch } } : s))
@@ -277,14 +294,17 @@ export default function GamePanel({ appid, name, medianMinutes, storeUrl }: Prop
                 </div>
             </dl>
 
-            {medianMinutes !== null && remaining !== null && (
+            {main !== null && remaining !== null && duration.source && (
                 <p className="juego-panel__note">
                     <Hourglass size={13} aria-hidden />{' '}
                     {remaining > 30
-                        ? `Te faltan unas ${formatHours(remaining)} para la duración habitual (${formatHours(medianMinutes)}).`
-                        : `Ya has pasado la duración habitual (${formatHours(medianMinutes)}).`}{' '}
-                    <span className="juego-panel__source">Mediana de SteamSpy, hasta que llegue HowLongToBeat.</span>
+                        ? `Te faltan unas ${formatHours(remaining)} para terminar la historia (${formatHours(main)}).`
+                        : `Ya has pasado la duración de la historia (${formatHours(main)}).`}{' '}
+                    <span className="juego-panel__source">Según {DURATION_SOURCE_LABEL[duration.source]}.</span>
                 </p>
+            )}
+            {duration.source === 'hltb' && (duration.mainExtra !== null || duration.completionist !== null) && (
+                <DurationNote duration={duration} />
             )}
             {game.started_at && game.status === 'jugando' && (
                 <p className="juego-panel__note">

@@ -3,7 +3,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, CalendarDays, ExternalLink, ThumbsUp } from 'lucide-react'
-import { getCatalogGame, parseAppid } from '@/lib/catalog'
+import { getCatalogGame, getHltb, parseAppid } from '@/lib/catalog'
+import { gameDuration } from '@/lib/library'
 import { htmlToParagraphs, parseGenres, parseScreenshots, parseTrailers } from '@/lib/steam-text'
 import { Reveal } from '@/components/motion'
 import GamePanel from './GamePanel'
@@ -25,8 +26,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function JuegoPage({ params }: Props) {
     const appid = parseAppid((await params).appid)
     if (!appid) notFound()
-    const game = await getCatalogGame(appid)
+    const [game, hltb] = await Promise.all([getCatalogGame(appid), getHltb(appid)])
     if (!game) notFound()
+    const duration = gameDuration({
+        hltb_main: hltb?.main ?? null,
+        hltb_main_extra: hltb?.main_extra ?? null,
+        hltb_completionist: hltb?.completionist ?? null,
+        steamspy_median_forever: game.steamspy_median_forever,
+    })
 
     const genres = parseGenres(game.genres)
     const screenshots = parseScreenshots(game.screenshots)
@@ -98,7 +105,7 @@ export default async function JuegoPage({ params }: Props) {
             <GamePanel
                 appid={appid}
                 name={game.name}
-                medianMinutes={game.steamspy_median_forever && game.steamspy_median_forever > 0 ? game.steamspy_median_forever : null}
+                duration={duration}
                 storeUrl={storeUrl}
             />
 

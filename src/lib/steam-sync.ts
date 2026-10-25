@@ -585,6 +585,7 @@ export async function applyTrackerRules(supabase: Client, userId: string, now: n
                 achievements_unlocked: game.achievements_unlocked,
                 last_unlock_at: game.last_unlock_at,
                 suggestion_dismissed_at: game.suggestion_dismissed_at,
+                hltb_main_minutes: game.hltb_main,
             },
             now,
         )

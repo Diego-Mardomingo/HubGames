@@ -25,7 +25,7 @@ export interface RuleInput {
     achievements_unlocked: number | null
     last_unlock_at: string | null
     suggestion_dismissed_at: string | null
-    /** Duración de la historia según HowLongToBeat, en minutos (#23). Mientras no exista, null. */
+    /** Duración de la historia según HowLongToBeat, en minutos (#23). null si no hay dato. */
     hltb_main_minutes?: number | null
 }
 

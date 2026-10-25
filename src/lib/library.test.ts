@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import {
     achievementPercent,
     filterOptions,
+    gameDuration,
     genreNames,
     inTab,
     matchesFilters,
@@ -43,6 +44,9 @@ function game(overrides: Partial<LibraryGame> = {}): LibraryGame {
         genres: null,
         release_date: null,
         steamspy_median_forever: null,
+        hltb_main: null,
+        hltb_main_extra: null,
+        hltb_completionist: null,
         ...overrides,
     }
 }
@@ -102,6 +106,19 @@ describe('filtros', () => {
         assert.equal(matchesFilters(at(40), { ...NO_FILTERS, duration: 'muy_largo' }), true)
         assert.equal(matchesFilters(at(null), { ...NO_FILTERS, duration: 'sin_dato' }), true)
         assert.equal(matchesFilters(game({ steamspy_median_forever: 0 }), { ...NO_FILTERS, duration: 'sin_dato' }), true)
+    })
+
+    it('duración: HowLongToBeat antes que SteamSpy', () => {
+        assert.deepEqual(gameDuration(game({ hltb_main: 600, hltb_main_extra: 900, steamspy_median_forever: 120 })), {
+            main: 600,
+            mainExtra: 900,
+            completionist: null,
+            source: 'hltb',
+        })
+        assert.equal(gameDuration(game({ steamspy_median_forever: 120 })).source, 'steamspy')
+        assert.equal(gameDuration(game({ hltb_completionist: 3000 })).main, null)
+        assert.equal(gameDuration(game({})).source, null)
+        assert.equal(matchesFilters(game({ hltb_main: 20 * 60, steamspy_median_forever: 60 }), { ...NO_FILTERS, duration: 'largo' }), true)
     })
 
     it('opciones de los desplegables sin repetidos y ordenadas', () => {
