@@ -39,16 +39,19 @@ type State =
     | { kind: 'ok'; userId: string; game: LibraryGame }
 
 /** "Te faltan unas 11 h para terminar la historia" según el objetivo (#24). */
+// Rejugable no tiene meta en horas: sus textos no llegan a mostrarse.
 const GOAL_TARGET_TEXT: Record<GameGoal, string> = {
     historia: 'para terminar la historia',
     extras: 'para la historia y los extras',
     completo: 'para el 100 %',
+    rejugable: '',
 }
 
 const GOAL_DURATION_TEXT: Record<GameGoal, string> = {
     historia: 'de la historia',
     extras: 'de la historia y los extras',
     completo: 'del 100 %',
+    rejugable: '',
 }
 
 const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -297,11 +300,13 @@ export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
                         <Target size={13} aria-hidden /> Objetivo: {GOAL_LABELS[progress.goal]}
                     </span>
                     <span className="juego-goal__value">
-                        {progress.percent === null
-                            ? 'Sin duración para medirlo'
-                            : progress.basis === 'logros'
-                              ? `${progress.percent} % de logros`
-                              : `${progress.percent} % · ${formatHours(game.playtime_forever)} de ${formatHours(progress.targetMinutes!)}`}
+                        {progress.goal === 'rejugable'
+                            ? 'Sin final: lo juegas por jugar'
+                            : progress.percent === null
+                              ? 'Sin duración para medirlo'
+                              : progress.basis === 'logros'
+                                ? `${progress.percent} % de logros`
+                                : `${progress.percent} % · ${formatHours(game.playtime_forever)} de ${formatHours(progress.targetMinutes!)}`}
                     </span>
                 </div>
                 {progress.percent !== null && (
