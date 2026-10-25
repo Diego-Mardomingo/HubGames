@@ -2,11 +2,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from './supabase/database.types'
 import type { JudiDay, JudiTodayState, RecentUnlock } from './dashboard'
+import { AVERAGE_MONTHS, monthKey, previousMonths, type GoalKind } from './goals'
 import type { LibraryGame } from './tracker'
 
 type Client = SupabaseClient<Database>
 
 export interface DashboardData {
+    userId: string
     username: string | null
     steam: { linked: boolean; lastSyncAt: string | null; visibility: string | null }
     games: LibraryGame[]
@@ -14,6 +16,8 @@ export interface DashboardData {
     unlocksThisYear: number
     minutesThisYear: number
     judi: { today: string; todayId: number | null; days: JudiDay[]; state: JudiTodayState }
+    /** Metas del mes (#31): las guardadas y las fechas de tus logros del mes y los anteriores, para el progreso y la media. */
+    goals: { month: string; targets: Partial<Record<GoalKind, number>>; unlockTimes: string[] }
 }
 
 /** Hoy en Madrid como DD-MM-YYYY, el formato de hubgames_lista_videojuegos_judi.fecha. */
@@ -42,8 +46,10 @@ function legacyToMs(fecha: string): number {
 export async function loadDashboard(supabase: Client, userId: string, now: Date = new Date()): Promise<DashboardData> {
     const yearStart = `${now.getFullYear()}-01-01`
     const today = judiToday(now)
+    const month = monthKey(now)
+    const since = previousMonths(month, AVERAGE_MONTHS).at(-1)!
 
-    const [profile, steam, games, recent, yearUnlocks, playtime, judiList, judiProgress] = await Promise.all([
+    const [profile, steam, games, recent, yearUnlocks, playtime, judiList, judiProgress, goals, unlockTimes] = await Promise.all([
         supabase.from('hubgames_usuarios').select('username').eq('id', userId).maybeSingle(),
         supabase.from('hubgames_user_steam').select('last_sync_at, visibility').eq('user_id', userId).maybeSingle(),
         all((from, to) => supabase.from('hubgames_library').select('*').eq('user_id', userId).order('appid').range(from, to)),
@@ -72,6 +78,18 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
                 .eq('id_usuario', userId)
                 .range(from, to),
         ),
+        supabase.from('hubgames_monthly_goals').select('kind, target').eq('user_id', userId).eq('month', month),
+        // Desde el día 1 del mes más antiguo de la media; con margen de un día por la zona horaria.
+        all((from, to) =>
+            supabase
+                .from('hubgames_user_achievements')
+                .select('unlocktime')
+                .eq('user_id', userId)
+                .eq('achieved', true)
+                .gte('unlocktime', new Date(Date.parse(`${since}T00:00:00Z`) - 86400_000).toISOString())
+                .order('unlocktime')
+                .range(from, to),
+        ),
     ])
 
     // Los JUDI de mañana ya están en la tabla desde las 11:00, pero no cuentan hasta las 00:00.
@@ -84,6 +102,7 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
         todayId === null ? 'sin_juego' : !mine ? 'pendiente' : mine.completado ? 'acertado' : mine.fase6 ? 'fallado' : 'en_curso'
 
     return {
+        userId,
         username: profile.data?.username ?? null,
         steam: { linked: !!steam.data, lastSyncAt: steam.data?.last_sync_at ?? null, visibility: steam.data?.visibility ?? null },
         games: games as LibraryGame[],
@@ -99,6 +118,11 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
                 completado: !!progress.get(j.id)?.completado,
                 perdido: !!progress.get(j.id)?.fase6,
             })),
+        },
+        goals: {
+            month,
+            targets: Object.fromEntries((goals.data ?? []).map((g) => [g.kind, g.target])),
+            unlockTimes: unlockTimes.flatMap((u) => (u.unlocktime ? [u.unlocktime] : [])),
         },
     }
 }

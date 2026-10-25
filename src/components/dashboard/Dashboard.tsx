@@ -26,6 +26,7 @@ import {
     type JudiTodayState,
 } from '@/lib/dashboard'
 import type { DashboardData } from '@/lib/dashboard-db'
+import { countsByMonth, monthElapsed, progressFor, suggestTargets } from '@/lib/goals'
 import { DURATION_SOURCE_LABEL, achievementPercent, gameDuration } from '@/lib/library'
 import { formatHours } from '@/lib/format'
 import type { LibraryGame } from '@/lib/tracker'
@@ -37,6 +38,7 @@ import SuggestionsPanel from '@/components/tracker/SuggestionsPanel'
 import GameLine from '@/components/achievements/GameLine'
 import SyncButton from './SyncButton'
 import WhatToPlay from './WhatToPlay'
+import MonthlyGoals from './MonthlyGoals'
 import { shortDate, timeAgo } from './format'
 import './dashboard.css'
 
@@ -122,6 +124,7 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
     const year = yearSummary(data.games, data.unlocksThisYear, data.minutesThisYear)
     const streak = judiStreak(data.judi.days, data.judi.today)
     const judiDone = data.judi.state === 'acertado' || data.judi.state === 'fallado'
+    const goalCounts = countsByMonth(data.games, data.goals.unlockTimes)
 
     return (
         <div className="dash">
@@ -319,6 +322,15 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                             )}
                         </div>
                     </Panel>
+
+                    <MonthlyGoals
+                        userId={data.userId}
+                        month={data.goals.month}
+                        saved={data.goals.targets}
+                        suggested={suggestTargets(goalCounts, data.goals.month)}
+                        progress={progressFor(goalCounts, data.goals.month)}
+                        elapsed={monthElapsed(data.goals.month, new Date(now))}
+                    />
 
                     <Panel id="dash-year" icon={CalendarDays} title={`Tu ${year.year}`}>
                         <dl className="dash-year">

@@ -503,6 +503,88 @@
   }
 }
 
+/* Metas mensuales (#31) */
+.goals__list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.goal {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.goal__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--muted-light);
+}
+
+.goal__name strong {
+  color: var(--foreground);
+  font-family: var(--font-mono);
+}
+
+.goal__pace {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.goal__pace--cumplida { color: var(--success); }
+.goal__pace--al_dia { color: var(--accent); }
+.goal__pace--por_detras { color: var(--warning); }
+
+.lib-progress.is-done span {
+  background: var(--success);
+}
+
+.goal__stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.goal__stepper strong {
+  min-width: 2ch;
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  text-align: center;
+}
+
+.goal__stepper button {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted-light);
+  cursor: pointer;
+}
+
+.goal__stepper button:hover:not(:disabled) {
+  color: var(--foreground);
+  border-color: var(--border-hover);
+}
+
+.goal__stepper button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.goals__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 /* Inicio sin sesión */
 .dash-landing {
   display: grid;
