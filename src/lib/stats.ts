@@ -220,3 +220,41 @@ export function delta(current: number | null, previous: number | null): number |
 }
 
 export const MONTH_SHORT = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+
+/** Resumen anual estilo Wrapped (#33): lo que se enseña en la página y en la imagen para compartir. */
+export interface Wrapped {
+    year: number
+    hoursMeasured: boolean
+    minutes: number
+    /** Top 5 del año por horas; el primero es el más jugado. */
+    top: TopGame[]
+    rarest: (StatsUnlock & { game: string | null }) | null
+    streak: Streak
+    completed: number
+    unlocks: number
+    perfect: number
+    activeGames: number
+    topGenre: string | null
+}
+
+export function buildWrapped(s: YearStats, games: Pick<LibraryGame, 'appid' | 'name'>[]): Wrapped {
+    const names = new Map(games.map((g) => [g.appid, g.name]))
+    return {
+        year: s.year,
+        hoursMeasured: s.hoursMeasured,
+        minutes: s.minutes,
+        top: s.topGames,
+        rarest: s.rarest ? { ...s.rarest, game: names.get(s.rarest.appid) ?? null } : null,
+        streak: s.bestStreak,
+        completed: s.completed.length,
+        unlocks: s.unlocks,
+        perfect: s.perfect.length,
+        activeGames: s.activeGames,
+        topGenre: s.genres[0]?.name ?? null,
+    }
+}
+
+/** ¿Hay algo que resumir? Sin horas, logros ni completados, el resumen sería una página vacía. */
+export function hasWrapped(w: Wrapped): boolean {
+    return w.minutes > 0 || w.unlocks > 0 || w.completed > 0
+}

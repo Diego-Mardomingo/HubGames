@@ -7,7 +7,7 @@ import { loadStatsInput } from '@/lib/stats-db'
 import { MONTH_SHORT, approxMinutesByYear, availableYears, delta, madridYear, yearStats, type YearStats } from '@/lib/stats'
 import { formatHours } from '@/lib/format'
 import { formatPercent } from '@/lib/achievements'
-
+import { Button } from '@/components/ui/button'
 import { Reveal } from '@/components/motion'
 import GameCover from '@/components/tracker/GameCover'
 import './stats.css'
@@ -264,6 +264,11 @@ export default async function EstadisticasPage({ searchParams }: { searchParams:
                         </p>
                     </Reveal>
                 </div>
+                <Button asChild>
+                    <Link href={`/estadisticas/resumen?year=${year}`}>
+                        <Sparkles aria-hidden /> Tu resumen {year}
+                    </Link>
+                </Button>
             </header>
 
             <nav className="stats-years" aria-label="Año">
