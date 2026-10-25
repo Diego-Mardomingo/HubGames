@@ -10,6 +10,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      hubgames_achievements: {
+        Row: {
+          user_id: string | null
+          appid: number | null
+          apiname: string | null
+          achieved: boolean | null
+          unlocktime: string | null
+          display_name: string | null
+          description: string | null
+          icon: string | null
+          icongray: string | null
+          hidden: boolean | null
+          global_percent: number | null
+        }
+        Insert: {
+          user_id?: string | null
+          appid?: number | null
+          apiname?: string | null
+          achieved?: boolean | null
+          unlocktime?: string | null
+          display_name?: string | null
+          description?: string | null
+          icon?: string | null
+          icongray?: string | null
+          hidden?: boolean | null
+          global_percent?: number | null
+        }
+        Update: {
+          user_id?: string | null
+          appid?: number | null
+          apiname?: string | null
+          achieved?: boolean | null
+          unlocktime?: string | null
+          display_name?: string | null
+          description?: string | null
+          icon?: string | null
+          icongray?: string | null
+          hidden?: boolean | null
+          global_percent?: number | null
+        }
+        Relationships: []
+      }
       hubgames_capturas: {
         Row: {
           captura: string
