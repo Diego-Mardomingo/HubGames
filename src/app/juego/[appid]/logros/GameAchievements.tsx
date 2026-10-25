@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, Gauge, LogIn, Trophy } from 'lucide-react'
+import { ArrowLeft, BookOpen, Gauge, LogIn, Sparkles, Trophy } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import {
     ACHIEVEMENT_COLUMNS,
@@ -12,6 +12,7 @@ import {
     estimateDifficulty,
     formatPercent,
     matchesAchievementFilter,
+    pointsOf,
     sortAchievements,
     steamGuidesUrl,
     type Achievement,
@@ -74,6 +75,7 @@ export default function GameAchievements({ appid, name }: Props) {
     const total = list.length
     const pct = total > 0 ? Math.floor((unlocked / total) * 100) : 0
     const difficulty = estimateDifficulty(list)
+    const points = pointsOf(list)
 
     return (
         <div className="logros">
@@ -127,6 +129,9 @@ export default function GameAchievements({ appid, name }: Props) {
                             <span className="ach-summary__bar" aria-hidden>
                                 <span style={{ width: `${pct}%` }} />
                             </span>
+                            <p className="ach-summary__points" title="Puntos según la rareza de cada logro">
+                                <Sparkles size={13} aria-hidden /> {points.earned.toLocaleString('es-ES')} de {points.possible.toLocaleString('es-ES')} puntos de cazador
+                            </p>
                         </div>
                         <div className="ach-summary__side">
                             {difficulty ? (

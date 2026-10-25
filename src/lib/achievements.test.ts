@@ -1,7 +1,11 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import {
+    achievementPoints,
+    computeMilestones,
     estimateDifficulty,
+    pointsByGame,
+    pointsOf,
     forgottenGames,
     lastTouched,
     nearCompletion,
@@ -181,5 +185,71 @@ describe('rarestUnlocked', () => {
             ach({ apiname: 'e', achieved: true, global_percent: 3 }),
         ]
         assert.deepEqual(rarestUnlocked(list, 2).map((a) => a.apiname), ['b', 'e'])
+    })
+})
+
+describe('achievementPoints', () => {
+    it('escala logarítmica con mínimo 1', () => {
+        assert.equal(achievementPoints(100), 1)
+        assert.equal(achievementPoints(50), 3)
+        assert.equal(achievementPoints(10), 10)
+        assert.equal(achievementPoints(1), 20)
+        assert.equal(achievementPoints(0.1), 30)
+        assert.equal(achievementPoints(0.01), 30)
+        assert.equal(achievementPoints(null), 1)
+    })
+})
+
+describe('pointsOf y pointsByGame', () => {
+    it('suma ganados y posibles', () => {
+        assert.deepEqual(pointsOf([ach({ achieved: true, global_percent: 10 }), ach({ global_percent: 1 })]), { earned: 10, possible: 30 })
+    })
+
+    it('total y por juego, de más a menos', () => {
+        const list = [
+            ach({ appid: 1, achieved: true, global_percent: 50 }),
+            ach({ appid: 2, achieved: true, global_percent: 1 }),
+            ach({ appid: 1, achieved: true, global_percent: 10 }),
+            ach({ appid: 3, achieved: false, global_percent: 1 }),
+        ]
+        assert.deepEqual(pointsByGame(list), { total: 33, games: [{ appid: 2, points: 20 }, { appid: 1, points: 13 }] })
+    })
+})
+
+describe('computeMilestones', () => {
+    const day = (n: number) => new Date(Date.UTC(2025, 0, 1) + n * 24 * 3600_000).toISOString()
+
+    it('fecha de cada hito con los desbloqueos y el siguiente de cada serie', () => {
+        // 120 logros: el 100.º el día 99. El juego 1 (3 logros) se completa el día 2; el 2 no está completo.
+        const unlocked = Array.from({ length: 120 }, (_, i) =>
+            ach({ appid: i < 3 ? 1 : 2, achieved: true, unlocktime: day(i), global_percent: i === 50 ? 3 : i === 80 ? 0.5 : 40 }),
+        )
+        const games = [
+            { appid: 1, achievements_total: 3, achievements_unlocked: 3 },
+            { appid: 2, achievements_total: 200, achievements_unlocked: 117 },
+        ]
+        const { reached, next } = computeMilestones([...unlocked].reverse(), games)
+        assert.deepEqual(
+            reached.map((m) => [m.id, m.date]),
+            [
+                ['logros-100', day(99)],
+                ['primer-ultra-raro', day(80)],
+                ['primer-muy-raro', day(50)],
+                ['perfectos-1', day(2)],
+            ],
+        )
+        assert.deepEqual(
+            next.map((m) => [m.id, m.current, m.target]),
+            [
+                ['logros-500', 120, 500],
+                ['perfectos-10', 1, 10],
+            ],
+        )
+    })
+
+    it('sin logros: todo pendiente', () => {
+        const { reached, next } = computeMilestones([], [])
+        assert.equal(reached.length, 0)
+        assert.deepEqual(next.map((m) => m.id), ['logros-100', 'perfectos-1', 'primer-muy-raro', 'primer-ultra-raro'])
     })
 })

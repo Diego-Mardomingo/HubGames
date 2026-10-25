@@ -1,5 +1,5 @@
-// Logros (#25, #26): tipos de la vista hubgames_achievements, rareza, filtros, dificultad y vistas de cazador.
-// Sin acceso a la base de datos, con tests en achievements.test.ts.
+// Logros (#25, #26, #27): tipos de la vista hubgames_achievements, rareza, filtros, dificultad, vistas de cazador,
+// puntos e hitos. Sin acceso a la base de datos, con tests en achievements.test.ts.
 import type { Database } from './supabase/database.types'
 import type { LibraryGame } from './tracker'
 
@@ -189,4 +189,108 @@ export function rarestUnlocked(list: Achievement[], limit: number): Achievement[
 
 export function remainingAchievements(game: GameProgress): number {
     return progress(game).remaining
+}
+
+// ── Puntuación de cazador e hitos (#27) ──
+
+/**
+ * Puntos de un logro según su rareza, en escala logarítmica: 10 × log10(100 / %), redondeado y como mínimo 1.
+ * Un logro del 50 % vale 3; del 10 %, 10; del 1 %, 20; del 0,1 %, 30. Sin % global, 1.
+ */
+export function achievementPoints(percent: number | null): number {
+    if (percent === null) return 1
+    const p = Math.min(Math.max(percent, 0.1), 100)
+    return Math.max(1, Math.round(10 * Math.log10(100 / p)))
+}
+
+/** Puntos ganados (desbloqueados) y posibles (todos) de una lista de logros. */
+export function pointsOf(list: Pick<Achievement, 'achieved' | 'global_percent'>[]): { earned: number; possible: number } {
+    let earned = 0
+    let possible = 0
+    for (const a of list) {
+        const pts = achievementPoints(a.global_percent)
+        possible += pts
+        if (a.achieved) earned += pts
+    }
+    return { earned, possible }
+}
+
+/** Puntos de los logros desbloqueados, en total y por juego (de más a menos). */
+export function pointsByGame(unlocked: Pick<Achievement, 'appid' | 'achieved' | 'global_percent'>[]): {
+    total: number
+    games: { appid: number; points: number }[]
+} {
+    const byGame = new Map<number, number>()
+    let total = 0
+    for (const a of unlocked) {
+        if (!a.achieved) continue
+        const pts = achievementPoints(a.global_percent)
+        total += pts
+        byGame.set(a.appid, (byGame.get(a.appid) ?? 0) + pts)
+    }
+    const games = [...byGame].map(([appid, points]) => ({ appid, points })).sort((a, b) => b.points - a.points || a.appid - b.appid)
+    return { total, games }
+}
+
+export interface Milestone {
+    id: string
+    label: string
+    /** ISO del momento en que se alcanzó; null si aún no. */
+    date: string | null
+    /** Para los pendientes con progreso medible. */
+    current?: number
+    target?: number
+}
+
+const COUNT_MILESTONES = [100, 500, 1000, 2500, 5000, 10000]
+const PERFECT_MILESTONES = [1, 10, 25, 50, 100]
+const RARE_MILESTONES: { id: string; label: string; below: number }[] = [
+    { id: 'primer-muy-raro', label: 'Primer logro muy raro', below: 5 },
+    { id: 'primer-ultra-raro', label: 'Primer logro ultra raro', below: 1 },
+]
+
+function perfectLabel(n: number): string {
+    return n === 1 ? 'Primer juego al 100 %' : `${n} juegos al 100 %`
+}
+
+/**
+ * Hitos calculados hacia atrás con las fechas de desbloqueo: número de logros, juegos al 100 % y primeros logros
+ * muy raros y ultra raros. Un juego cuenta como 100 % desde su último desbloqueo. Devuelve los alcanzados
+ * (el más reciente primero) y el siguiente de cada serie.
+ */
+export function computeMilestones(
+    unlocked: Pick<Achievement, 'appid' | 'achieved' | 'unlocktime' | 'global_percent'>[],
+    games: Pick<LibraryGame, 'appid' | 'achievements_total' | 'achievements_unlocked'>[],
+): { reached: Milestone[]; next: Milestone[] } {
+    const time = (iso: string | null) => (iso ? Date.parse(iso) : 0)
+    const list = unlocked.filter((a) => a.achieved).sort((a, b) => time(a.unlocktime) - time(b.unlocktime))
+    const reached: Milestone[] = []
+    const next: Milestone[] = []
+
+    const nextCount = COUNT_MILESTONES.find((n) => n > list.length)
+    for (const n of COUNT_MILESTONES) {
+        if (n <= list.length) reached.push({ id: `logros-${n}`, label: `${n.toLocaleString('es-ES')} logros`, date: list[n - 1].unlocktime })
+    }
+    if (nextCount) next.push({ id: `logros-${nextCount}`, label: `${nextCount.toLocaleString('es-ES')} logros`, date: null, current: list.length, target: nextCount })
+
+    const lastUnlock = new Map<number, string | null>()
+    for (const a of list) lastUnlock.set(a.appid, a.unlocktime)
+    const perfectDates = games
+        .filter((g) => (g.achievements_total ?? 0) > 0 && (g.achievements_unlocked ?? 0) >= (g.achievements_total ?? 0) && lastUnlock.has(g.appid))
+        .map((g) => lastUnlock.get(g.appid) ?? null)
+        .sort((a, b) => time(a) - time(b))
+    for (const n of PERFECT_MILESTONES) {
+        if (n <= perfectDates.length) reached.push({ id: `perfectos-${n}`, label: perfectLabel(n), date: perfectDates[n - 1] })
+    }
+    const nextPerfect = PERFECT_MILESTONES.find((n) => n > perfectDates.length)
+    if (nextPerfect) next.push({ id: `perfectos-${nextPerfect}`, label: perfectLabel(nextPerfect), date: null, current: perfectDates.length, target: nextPerfect })
+
+    for (const m of RARE_MILESTONES) {
+        const first = list.find((a) => a.global_percent !== null && a.global_percent < m.below)
+        if (first) reached.push({ id: m.id, label: m.label, date: first.unlocktime })
+        else next.push({ id: m.id, label: m.label, date: null })
+    }
+
+    reached.sort((a, b) => time(b.date) - time(a.date))
+    return { reached, next }
 }

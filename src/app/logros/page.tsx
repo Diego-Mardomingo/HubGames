@@ -3,14 +3,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Award, Gem, Hourglass, Sparkles, Target, Trophy } from 'lucide-react'
+import { Award, Flag, Gem, Hourglass, Sparkles, Target, Trophy } from 'lucide-react'
 import { safeGetSession } from '@/lib/supabase/client'
 import { loadLibrary, type LibraryGame } from '@/lib/tracker'
 import {
+    computeMilestones,
     forgottenGames,
     lastTouched,
     nearCompletion,
     perfectGames,
+    pointsByGame,
     rarestUnlocked,
     remainingAchievements,
     type Achievement,
@@ -35,6 +37,7 @@ interface Data {
     easy: Achievement[]
 }
 
+const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
 const AGO = new Intl.RelativeTimeFormat('es-ES', { numeric: 'auto' })
 
 function ago(ms: number | null): string {
@@ -120,6 +123,8 @@ export default function LogrosPage() {
             forgotten: forgottenGames(games),
             rarest: rarestUnlocked(data.unlocked, 10),
             perfect: perfectGames(data.games),
+            points: pointsByGame(data.unlocked),
+            milestones: computeMilestones(data.unlocked, data.games),
         }
     }, [data])
 
@@ -158,6 +163,56 @@ export default function LogrosPage() {
                     {error}
                 </p>
             )}
+
+            <section className="score glass" aria-labelledby="hunt-score">
+                <div className="score__main">
+                    <h2 id="hunt-score" className="hunt__title">
+                        <Sparkles size={16} aria-hidden /> Puntuación de cazador
+                    </h2>
+                    <p className="score__total">
+                        {views.points.total.toLocaleString('es-ES')}
+                        <small>puntos</small>
+                    </p>
+                    <p className="score__formula">
+                        Cada logro vale más cuanto menos gente lo tiene: 3 puntos uno del 50 %, 10 uno del 10 %, 20 uno del 1 % y hasta 30.
+                    </p>
+                    {views.points.games.length > 0 && (
+                        <ol className="score__top" aria-label="Juegos con más puntos">
+                            {views.points.games.slice(0, 5).map((g) => (
+                                <li key={g.appid}>
+                                    <Link href={`/juego/${g.appid}/logros`}>{gameName(g.appid)}</Link>
+                                    <span>{g.points.toLocaleString('es-ES')} pts</span>
+                                </li>
+                            ))}
+                        </ol>
+                    )}
+                </div>
+                <div className="milestones">
+                    <h3 className="milestones__title">Hitos</h3>
+                    <ul className="milestones__list">
+                        {views.milestones.reached.map((m) => (
+                            <li key={m.id} className="milestone">
+                                <span className="milestone__icon">
+                                    <Trophy size={12} aria-hidden />
+                                </span>
+                                <span className="milestone__label">{m.label}</span>
+                                {m.date && <time dateTime={m.date}>{DATE.format(new Date(m.date))}</time>}
+                            </li>
+                        ))}
+                        {views.milestones.next.map((m) => (
+                            <li key={m.id} className="milestone is-pending">
+                                <span className="milestone__icon">
+                                    <Flag size={12} aria-hidden />
+                                </span>
+                                <span className="milestone__label">{m.label}</span>
+                                <span className="milestone__progress">
+                                    {m.target !== undefined ? `${(m.current ?? 0).toLocaleString('es-ES')}/${m.target.toLocaleString('es-ES')}` : 'Pendiente'}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </section>
 
             <div className="hunt-grid">
                 <Section id="hunt-near" icon={Target} title="Cerca del 100 %" hint="Al menos la mitad de los logros. Los que menos te faltan, primero." count={views.near.length}>

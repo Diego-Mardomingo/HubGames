@@ -501,3 +501,149 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* ── Puntuación de cazador e hitos (#27) ── */
+
+.ach-summary__points {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--muted-light);
+  font-size: 0.8125rem;
+}
+
+.score {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 1.25rem;
+  padding: 1.1rem 1.25rem;
+}
+
+.score__main {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+
+.score__total {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.score__total small {
+  margin-left: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  -webkit-text-fill-color: var(--muted);
+}
+
+.score__formula {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.score__top {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+}
+
+.score__top li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.score__top a {
+  overflow: hidden;
+  color: var(--muted-light);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-decoration: none;
+}
+
+.score__top a:hover {
+  color: var(--foreground);
+}
+
+.score__top span {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  color: var(--muted);
+}
+
+.milestones {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+
+.milestones__title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.milestones__list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.milestone {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: center;
+  font-size: 0.8125rem;
+}
+
+.milestone__icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(252, 211, 77, 0.14);
+  color: var(--gold);
+}
+
+.milestone.is-pending .milestone__icon {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+}
+
+.milestone.is-pending .milestone__label {
+  color: var(--muted-light);
+}
+
+.milestone time,
+.milestone__progress {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+}
+
+@media (max-width: 720px) {
+  .score {
+    grid-template-columns: 1fr;
+  }
+}
