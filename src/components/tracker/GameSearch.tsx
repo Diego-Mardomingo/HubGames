@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Check, Heart, ListPlus, Loader2, Search } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { STATUS_LABELS, setGamesStatus, type GameStatus } from '@/lib/tracker'
+import { addToWishlist } from '@/lib/wishlist'
 import type { SteamSearchResult } from '@/app/api/steam/search/route'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -21,7 +22,7 @@ export function openGameSearch() {
 
 /**
  * Buscador de juegos de Steam (#20), con Ctrl+K (o ⌘K). Marca los que ya tienes y los pasa a pendientes con un clic.
- * Los que no tienes irán a la wishlist (#35).
+ * Los que no tienes se añaden a la wishlist (#35).
  */
 export default function GameSearch() {
     const [open, setOpen] = useState(false)
@@ -58,6 +59,7 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
     const [term, setTerm] = useState('')
     const [results, setResults] = useState<SteamSearchResult[]>([])
     const [owned, setOwned] = useState<Map<number, GameStatus>>(new Map())
+    const [wished, setWished] = useState<Set<number>>(new Set())
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [active, setActive] = useState(0)
@@ -76,11 +78,16 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
                 const body = await res.json()
                 if (!res.ok) throw new Error(body.error ?? 'No se pudo buscar')
                 const found: SteamSearchResult[] = body.results
-                const { data } = found.length
-                    ? await supabase.from('hubgames_user_games').select('appid, status').in('appid', found.map((r) => r.appid))
-                    : { data: [] }
+                const ids = found.map((r) => r.appid)
+                const [{ data }, { data: wishlist }] = found.length
+                    ? await Promise.all([
+                          supabase.from('hubgames_user_games').select('appid, status').in('appid', ids),
+                          supabase.from('hubgames_user_wishlist').select('appid').in('appid', ids),
+                      ])
+                    : [{ data: [] }, { data: [] }]
                 if (controller.signal.aborted) return
                 setOwned(new Map((data ?? []).map((r) => [r.appid, r.status as GameStatus])))
+                setWished(new Set((wishlist ?? []).map((r) => r.appid)))
                 setResults(found)
                 setActive(0)
             } catch (e) {
@@ -110,6 +117,19 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
             setOwned((m) => new Map(m).set(appid, 'pendiente'))
         } catch (e) {
             setError(e instanceof Error ? e.message : 'No se pudo guardar')
+        } finally {
+            setSaving(null)
+        }
+    }
+
+    async function toWishlist(appid: number) {
+        setSaving(appid)
+        setError('')
+        try {
+            await addToWishlist(appid)
+            setWished((s) => new Set(s).add(appid))
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'No se pudo añadir a la wishlist')
         } finally {
             setSaving(null)
         }
@@ -197,8 +217,12 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
                                     <Button size="sm" variant="secondary" disabled={saving === r.appid} onClick={() => toBacklog(r.appid)}>
                                         <ListPlus aria-hidden /> Añadir a pendientes
                                     </Button>
+                                ) : wished.has(r.appid) ? (
+                                    <span className="game-search__done">
+                                        <Heart size={14} aria-hidden /> En la wishlist
+                                    </span>
                                 ) : (
-                                    <Button size="sm" variant="ghost" disabled title="Llegará con la wishlist (#35)">
+                                    <Button size="sm" variant="ghost" disabled={saving === r.appid} onClick={() => toWishlist(r.appid)}>
                                         <Heart aria-hidden /> Wishlist
                                     </Button>
                                 )}

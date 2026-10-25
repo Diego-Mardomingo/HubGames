@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { persistJudiHomeScrollYFromWindow } from '@/lib/judi-home-scroll'
 import { LogoMark, Wordmark } from '@/components/brand/Logo'
-import { Home, Gamepad2, Trophy, User, Shield, LogIn, Library, Search, Award } from 'lucide-react'
+import { Home, Gamepad2, Trophy, User, Shield, LogIn, Library, Search, Award, Heart } from 'lucide-react'
 import { countTray, TRACKER_CHANGED_EVENT } from '@/lib/tracker'
 import GameSearch, { openGameSearch } from '@/components/tracker/GameSearch'
 
@@ -102,6 +102,8 @@ export default function Nav() {
             ? [
                   { href: '/biblioteca', label: 'Biblioteca', icon: Library, badge: trayCount },
                   { href: '/logros', label: 'Logros', icon: Award },
+                  // En móvil no cabe en la barra inferior: se llega desde la biblioteca.
+                  { href: '/wishlist', label: 'Wishlist', icon: Heart, desktopOnly: true },
               ]
             : []),
         { href: '/judi', label: 'JUDI', icon: Gamepad2 },
@@ -110,7 +112,7 @@ export default function Nav() {
     ]
 
     const mobileLinks = [
-        ...navLinks,
+        ...navLinks.filter((link) => !('desktopOnly' in link)),
         user
             ? { href: '/perfil', label: 'Perfil', icon: User }
             : { href: '/login', label: 'Entrar', icon: LogIn },
