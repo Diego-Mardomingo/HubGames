@@ -110,7 +110,7 @@ export default function RegistroPage() {
     }
 
     return (
-        <AuthShell title="Crea tu cuenta" subtitle="Únete a HubGames y compite cada día en el ranking.">
+        <AuthShell title="Crea tu cuenta" subtitle="Crea la cuenta y después conecta Steam para traer tus juegos y logros.">
             <Button variant="secondary" onClick={handleGoogleRegister} className="btn-block">
                 <GoogleIcon />
                 Registrarse con Google
@@ -118,7 +118,7 @@ export default function RegistroPage() {
 
             <div className="divider-text">o con tu email</div>
 
-            <form onSubmit={handleRegister} style={{ display: 'grid', gap: '0.9rem' }}>
+            <form onSubmit={handleRegister} className="auth__fields">
                 <div className="field">
                     <label className="field__label" htmlFor="reg-username">Nombre de usuario</label>
                     <div className="field__control">

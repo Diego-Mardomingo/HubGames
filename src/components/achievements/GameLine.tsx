@@ -10,27 +10,31 @@ interface Props {
     detail: React.ReactNode
 }
 
-/** Juego en las vistas de cazador (#26): cabecera, nombre, progreso de logros y enlace a sus logros. */
+/** Juego en las vistas de cazador (#26): cápsula, nombre, progreso de logros con barra fina y enlace a sus logros. */
 export default function GameLine({ game, detail }: Props) {
     const pct = achievementPercent(game) ?? 0
     return (
-        <li>
-            <Link href={`/juego/${game.appid}/logros`} className="game-line">
-                <span className="game-line__cover">
-                    <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="96px" />
-                </span>
-                <span className="game-line__body">
-                    <span className="game-line__name">{game.name ?? `App ${game.appid}`}</span>
-                    <span className="game-line__detail">{detail}</span>
-                    <span className="lib-progress" aria-hidden>
-                        <span style={{ width: `${pct}%` }} />
+        <li className="hg-row game-line">
+            <span className="hg-row__cover">
+                <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="112px" />
+            </span>
+            <span className="hg-row__main">
+                <Link href={`/juego/${game.appid}/logros`} className="hg-row__link" data-row-link>
+                    {game.name ?? `App ${game.appid}`}
+                </Link>
+                <span className="hg-row__meta">{detail}</span>
+            </span>
+            <span className="hg-row__prog">
+                <span className="hg-row__prog-label">
+                    <span>
+                        <b>{game.achievements_unlocked ?? 0}</b> / {game.achievements_total}
                     </span>
+                    <span>{pct} %</span>
                 </span>
-                <span className="game-line__pct">
-                    {game.achievements_unlocked ?? 0}/{game.achievements_total}
-                    <small>{pct} %</small>
+                <span className="hg-bar" aria-hidden>
+                    <span style={{ width: `${pct}%` }} />
                 </span>
-            </Link>
+            </span>
         </li>
     )
 }

@@ -5,6 +5,7 @@ import { createServerClient } from '@/lib/supabase/server'
 import { loadStatsInput } from '@/lib/stats-db'
 import { availableYears, buildWrapped, hasWrapped, madridYear, yearStats } from '@/lib/stats'
 import Wrapped from './Wrapped'
+import '@/styles/lists.css'
 import '../stats.css'
 
 export const metadata: Metadata = {
@@ -31,9 +32,11 @@ export default async function ResumenPage({ searchParams }: { searchParams: Prom
     if (!hasWrapped(data)) {
         return (
             <div className="wrapped">
-                <p className="stats-empty glass stats-empty--box">
+                <p className="hg-empty">
                     Sin horas, logros ni juegos completados en {year}: no hay nada que resumir.{' '}
-                    <Link href={`/estadisticas?year=${year}`}>Volver a las estadísticas</Link>
+                    <Link href={`/estadisticas?year=${year}`} className="link">
+                        Volver a las estadísticas
+                    </Link>
                 </p>
             </div>
         )

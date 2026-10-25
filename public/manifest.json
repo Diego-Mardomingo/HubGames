@@ -1,11 +1,11 @@
 {
-    "name": "HubGames - JUDI",
+    "name": "HubGames — Biblioteca de Steam y logros",
     "short_name": "HubGames",
-    "description": "Adivina el juego del día y compite en el ranking",
+    "description": "Tu biblioteca de Steam, tus logros y a qué jugar hoy. Y cada día, JUDI: adivina el juego.",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#07070c",
-    "theme_color": "#07070c",
+    "background_color": "#eef0f3",
+    "theme_color": "#eef0f3",
     "orientation": "portrait-primary",
     "icons": [
         {

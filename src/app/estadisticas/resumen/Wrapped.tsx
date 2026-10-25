@@ -2,16 +2,17 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, Award, Clock, Download, Flame, Gem, Share2, Sparkles, Trophy } from 'lucide-react'
+import { ArrowLeft, Download, Share2, Trophy } from 'lucide-react'
 import type { Wrapped as WrappedData } from '@/lib/stats'
 import { formatPercent } from '@/lib/achievements'
-import { CountUp } from '@/components/motion'
+import { RARITY_TIER_LABELS, rarityColor, rarityTier } from '@/lib/rarity'
 import { Button } from '@/components/ui/button'
 import GameCover from '@/components/tracker/GameCover'
 
-const EASE = [0.22, 1, 0.36, 1] as const
 const DAY = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long' })
+const NUMBER = new Intl.NumberFormat('es-ES')
+
+type CSSVars = React.CSSProperties & Record<`--${string}`, string>
 
 function fmtDay(key: string | null): string {
     if (!key) return ''
@@ -19,29 +20,24 @@ function fmtDay(key: string | null): string {
     return DAY.format(new Date(y, m - 1, d, 12))
 }
 
-/** Una "diapositiva" que entra al hacer scroll. */
-function Slide({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-    const reduce = useReducedMotion()
+function Block({ title, children, className = '' }: { title: string; children: React.ReactNode; className?: string }) {
     return (
-        <motion.section
-            className={`wrapped-slide glass ${className}`}
-            initial={reduce ? false : { opacity: 0, y: 40, scale: 0.97 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: '-15% 0px' }}
-            transition={{ duration: 0.7, ease: EASE }}
-        >
+        <section className={`wrapped-block glass ${className}`}>
+            <h2 className="wrapped-block__title">{title}</h2>
             {children}
-        </motion.section>
+        </section>
     )
 }
 
-/** Resumen anual (#33): una historia que se recorre con scroll y una imagen para compartir. */
+/** Resumen anual (#33): el año en cifras grandes, de arriba abajo, y una imagen para compartir. */
 export default function Wrapped({ data }: { data: WrappedData }) {
     const [message, setMessage] = useState<string | null>(null)
     const hours = Math.round(data.minutes / 60)
+    const approx = data.hoursMeasured ? '' : '≈ '
     const imageUrl = `/api/estadisticas/resumen/imagen?year=${data.year}`
     const fileName = `hubgames-${data.year}.png`
     const [best, ...rest] = data.top
+    const rareTier = data.rarest ? rarityTier(data.rarest.global_percent) : null
 
     async function share() {
         setMessage(null)
@@ -66,141 +62,135 @@ export default function Wrapped({ data }: { data: WrappedData }) {
 
     return (
         <div className="wrapped">
-            <Link href={`/estadisticas?year=${data.year}`} className="eyebrow wrapped__back">
-                <ArrowLeft size={13} aria-hidden /> Estadísticas de {data.year}
+            <Link href={`/estadisticas?year=${data.year}`} className="wrapped__back">
+                <ArrowLeft size={14} aria-hidden /> Estadísticas de {data.year}
             </Link>
 
-            <motion.header
-                className="wrapped-hero"
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: EASE }}
-            >
-                <span className="eyebrow">
-                    <Sparkles size={13} aria-hidden /> Tu resumen
-                </span>
-                <h1 className="wrapped-hero__year text-gradient">{data.year}</h1>
+            <header className="wrapped-hero">
+                <p className="wrapped-hero__kicker">Tu resumen del año</p>
+                <h1 className="wrapped-hero__year">{data.year}</h1>
                 <p className="wrapped-hero__lead">
                     {data.activeGames} {data.activeGames === 1 ? 'juego' : 'juegos'} con actividad
                     {data.topGenre ? `, sobre todo ${data.topGenre.toLowerCase()}` : ''}. Esto es lo que dio de sí.
                 </p>
-            </motion.header>
+            </header>
 
-            <Slide className="wrapped-slide--hours">
-                <Clock size={22} aria-hidden className="wrapped-slide__icon" />
-                <p className="wrapped-slide__kicker">Horas jugadas</p>
+            <Block title="Horas jugadas">
                 <p className="wrapped-big">
-                    {data.hoursMeasured ? '' : '≈ '}
-                    <CountUp value={hours} duration={1.6} /> h
+                    {approx}
+                    {NUMBER.format(hours)} h
                 </p>
-                <p className="wrapped-slide__note">
+                <p className="wrapped-note">
                     {data.hoursMeasured
                         ? 'Medidas día a día con tu historial de horas.'
                         : 'Aproximadas: las horas de cada juego, repartidas entre los años de sus logros.'}
                 </p>
-            </Slide>
+            </Block>
 
             {best && (
-                <Slide className="wrapped-slide--best">
-                    <p className="wrapped-slide__kicker">Tu juego del año</p>
-                    <Link href={`/juego/${best.appid}`} className="wrapped-best__cover">
-                        <GameCover appid={best.appid} name={best.name} headerImage={best.header_image} variant="header" sizes="(max-width: 640px) 90vw, 560px" />
-                    </Link>
-                    <p className="wrapped-best__name">{best.name ?? `App ${best.appid}`}</p>
-                    <p className="wrapped-slide__note">
-                        {data.hoursMeasured ? '' : '≈ '}
-                        {Math.round(best.minutes / 60)} h · el {data.minutes ? Math.round((best.minutes / data.minutes) * 100) : 0} % de tu año
-                    </p>
-                </Slide>
+                <Block title="Tu juego del año" className="wrapped-best">
+                    <div className="wrapped-best__row">
+                        <span className="wrapped-best__cover">
+                            <GameCover appid={best.appid} name={best.name} headerImage={best.header_image} variant="header" sizes="240px" />
+                        </span>
+                        <div className="wrapped-best__text">
+                            <Link href={`/juego/${best.appid}`} className="wrapped-best__name">
+                                {best.name ?? `App ${best.appid}`}
+                            </Link>
+                            <p className="wrapped-note">
+                                {approx}
+                                {Math.round(best.minutes / 60)} h · el {data.minutes ? Math.round((best.minutes / data.minutes) * 100) : 0} % de tu año
+                            </p>
+                        </div>
+                    </div>
+                </Block>
             )}
 
             {rest.length > 0 && (
-                <Slide>
-                    <Trophy size={22} aria-hidden className="wrapped-slide__icon" />
-                    <p className="wrapped-slide__kicker">Tu top 5</p>
+                <Block title="Tu top 5">
                     <ol className="wrapped-top">
                         {data.top.map((g, i) => (
-                            <motion.li
-                                key={g.appid}
-                                initial={{ opacity: 0, x: -20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, ease: EASE, delay: 0.1 + i * 0.08 }}
-                            >
+                            <li key={g.appid}>
                                 <span className="wrapped-top__pos">{i + 1}</span>
                                 <span className="wrapped-top__cover">
-                                    <GameCover appid={g.appid} name={g.name} headerImage={g.header_image} variant="header" sizes="120px" />
+                                    <GameCover appid={g.appid} name={g.name} headerImage={g.header_image} variant="header" sizes="96px" />
                                 </span>
-                                <Link href={`/juego/${g.appid}`} className="wrapped-top__name">
-                                    {g.name ?? `App ${g.appid}`}
-                                </Link>
-                                <span className="wrapped-top__hours">{Math.round(g.minutes / 60)} h</span>
-                            </motion.li>
+                                <span className="wrapped-top__main">
+                                    <span className="wrapped-top__label">
+                                        <Link href={`/juego/${g.appid}`} className="wrapped-top__name">
+                                            {g.name ?? `App ${g.appid}`}
+                                        </Link>
+                                        <span className="wrapped-top__hours">
+                                            {approx}
+                                            {Math.round(g.minutes / 60)} h
+                                        </span>
+                                    </span>
+                                    <span className="wrapped-top__bar" style={{ width: `${(g.minutes / best.minutes) * 100}%` }} aria-hidden />
+                                </span>
+                            </li>
                         ))}
                     </ol>
-                </Slide>
+                </Block>
             )}
 
             {data.rarest && (
-                <Slide className="wrapped-slide--rare">
-                    <Gem size={22} aria-hidden className="wrapped-slide__icon" />
-                    <p className="wrapped-slide__kicker">Tu logro más raro</p>
-                    <div className="wrapped-rare">
-                        {data.rarest.icon && (
-                            // eslint-disable-next-line @next/next/no-img-element -- icono de 64 px del CDN de Steam
-                            <img src={data.rarest.icon} alt="" width={72} height={72} />
-                        )}
-                        <div>
+                <Block title="Tu logro más raro">
+                    <div className="wrapped-rare" style={rareTier ? ({ '--c': rarityColor(rareTier) } as CSSVars) : undefined}>
+                        <span className="wrapped-rare__icon">
+                            {data.rarest.icon ? (
+                                // eslint-disable-next-line @next/next/no-img-element -- icono de 64 px del CDN de Steam
+                                <img src={data.rarest.icon} alt="" width={56} height={56} />
+                            ) : (
+                                <Trophy size={28} aria-hidden />
+                            )}
+                        </span>
+                        <div className="wrapped-rare__text">
                             <p className="wrapped-rare__name">{data.rarest.display_name ?? 'Logro'}</p>
-                            <p className="wrapped-slide__note">{data.rarest.game}</p>
+                            {data.rarest.game && <p className="wrapped-note">{data.rarest.game}</p>}
                         </div>
                     </div>
-                    <p className="wrapped-big wrapped-big--sm">
-                        Solo el {formatPercent(data.rarest.global_percent)} de los jugadores lo tiene
+                    <p className="wrapped-rare__pct">
+                        Solo el <b>{formatPercent(data.rarest.global_percent)}</b> de los jugadores lo tiene
+                        {rareTier && (
+                            <span className="wrapped-rare__tier" style={{ '--c': rarityColor(rareTier) } as CSSVars}>
+                                {RARITY_TIER_LABELS[rareTier]}
+                            </span>
+                        )}
                     </p>
-                </Slide>
+                </Block>
             )}
 
-            <Slide>
-                <Flame size={22} aria-hidden className="wrapped-slide__icon" />
-                <p className="wrapped-slide__kicker">Tu mejor racha</p>
-                <p className="wrapped-big">
-                    <CountUp value={data.streak.length} /> {data.streak.length === 1 ? 'día' : 'días'}
-                </p>
-                <p className="wrapped-slide__note">
-                    {data.streak.length > 0
-                        ? `Seguidos con logros o partidas, del ${fmtDay(data.streak.start)} al ${fmtDay(data.streak.end)}.`
-                        : 'Sin días con logros o partidas registradas.'}
-                </p>
-            </Slide>
+            <div className="wrapped-pair">
+                <Block title="Tu mejor racha">
+                    <p className="wrapped-big wrapped-big--md">
+                        {data.streak.length} {data.streak.length === 1 ? 'día' : 'días'}
+                    </p>
+                    <p className="wrapped-note">
+                        {data.streak.length > 0
+                            ? `Seguidos con logros o partidas, del ${fmtDay(data.streak.start)} al ${fmtDay(data.streak.end)}.`
+                            : 'Sin días con logros o partidas registradas.'}
+                    </p>
+                </Block>
 
-            <Slide>
-                <Award size={22} aria-hidden className="wrapped-slide__icon" />
-                <p className="wrapped-slide__kicker">En números</p>
-                <dl className="wrapped-numbers">
-                    <div>
-                        <dt>Logros</dt>
-                        <dd>
-                            <CountUp value={data.unlocks} />
-                        </dd>
-                    </div>
-                    <div>
-                        <dt>Completados</dt>
-                        <dd>
-                            <CountUp value={data.completed} />
-                        </dd>
-                    </div>
-                    <div>
-                        <dt>Al 100 %</dt>
-                        <dd>
-                            <CountUp value={data.perfect} />
-                        </dd>
-                    </div>
-                </dl>
-            </Slide>
+                <Block title="En números">
+                    <dl className="wrapped-numbers">
+                        <div>
+                            <dt>Logros</dt>
+                            <dd>{NUMBER.format(data.unlocks)}</dd>
+                        </div>
+                        <div>
+                            <dt>Completados</dt>
+                            <dd>{NUMBER.format(data.completed)}</dd>
+                        </div>
+                        <div>
+                            <dt>Al 100 %</dt>
+                            <dd>{NUMBER.format(data.perfect)}</dd>
+                        </div>
+                    </dl>
+                </Block>
+            </div>
 
-            <Slide className="wrapped-slide--share">
-                <p className="wrapped-slide__kicker">Compártelo</p>
+            <Block title="Compártelo" className="wrapped-share">
                 {/* eslint-disable-next-line @next/next/no-img-element -- PNG generado con next/og */}
                 <img className="wrapped-share__img" src={imageUrl} alt={`Resumen de ${data.year} en HubGames`} width={1200} height={630} />
                 <div className="wrapped-share__actions">
@@ -214,11 +204,11 @@ export default function Wrapped({ data }: { data: WrappedData }) {
                     </Button>
                 </div>
                 {message && (
-                    <p className="wrapped-slide__note" role="status">
+                    <p className="wrapped-note" role="status">
                         {message}
                     </p>
                 )}
-            </Slide>
+            </Block>
         </div>
     )
 }

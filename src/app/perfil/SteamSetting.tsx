@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Gamepad2, RefreshCw } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import type { Database } from '@/lib/supabase/database.types'
@@ -20,9 +20,9 @@ const STATUS_MESSAGES: Record<string, { ok: boolean; text: string }> = {
 
 const RELATIVE = new Intl.RelativeTimeFormat('es-ES', { numeric: 'auto' })
 
-/** "hace 5 minutos", "ayer"… */
+/** "hace 5 minutos", "ayer"… Solo pasado: con relojes desfasados, nunca "dentro de…". */
 function timeAgo(iso: string): string {
-    const seconds = Math.round((Date.parse(iso) - Date.now()) / 1000)
+    const seconds = Math.min(0, Math.round((Date.parse(iso) - Date.now()) / 1000))
     const units: [Intl.RelativeTimeFormatUnit, number][] = [['day', 86400], ['hour', 3600], ['minute', 60]]
     for (const [unit, size] of units) {
         if (Math.abs(seconds) >= size) return RELATIVE.format(Math.round(seconds / size), unit)
@@ -87,74 +87,91 @@ export default function SteamSetting() {
     const needsFix = link && (link.visibility === 'privado' || link.visibility === 'detalles_privados')
 
     return (
-        <div className="setting glass">
-            <div className="setting__head">
-                <span className={`setting__icon ${link ? '' : 'is-muted'}`} aria-hidden>
-                    <Gamepad2 size={17} />
-                </span>
-                <div className="setting__text">
-                    <p className="setting__title">Steam</p>
-                    <p className="setting__desc">
-                        {!loaded
-                            ? 'Cargando…'
-                            : link
-                              ? `${link.persona_name ?? link.steamid} · vinculado el ${new Date(link.linked_at).toLocaleDateString('es-ES')}`
-                              : 'Conecta tu cuenta para traer tus juegos y logros'}
-                    </p>
-                </div>
-            </div>
-            {link && (
-                <p className="setting__desc">
-                    Última sincronización:{' '}
-                    {link.last_sync_at ? (
-                        <time dateTime={link.last_sync_at} title={new Date(link.last_sync_at).toLocaleString('es-ES')}>
-                            {timeAgo(link.last_sync_at)}
-                        </time>
-                    ) : (
-                        'todavía no'
-                    )}
-                </p>
-            )}
-            {needsFix && (
-                <p className="setting__desc" role="alert">
-                    En Steam → Editar perfil → Configuración de privacidad: pon el perfil y los detalles del juego
-                    en <strong>Público</strong> y desmarca «Mantener siempre privado mi tiempo de juego total».
-                    Después vuelve a conectar.
-                </p>
-            )}
-            {message && (
-                <p className="setting__desc" role="status" style={{ color: message.ok ? undefined : 'var(--destructive, #f87171)' }}>
-                    {message.text}
-                </p>
-            )}
-            {syncMessage && (
-                <p className="setting__desc" role="status" style={{ color: syncMessage.ok ? undefined : 'var(--destructive, #f87171)' }}>
-                    {syncMessage.text}
-                </p>
-            )}
-            {loaded &&
-                (link ? (
-                    <div className="setting__form">
-                        {!needsFix && (
-                            <Button type="button" disabled={syncing} onClick={syncNow}>
-                                <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} />
-                                {syncing ? 'Sincronizando…' : 'Sincronizar ahora'}
-                            </Button>
-                        )}
-                        {needsFix && (
-                            <Button asChild variant="secondary">
-                                <a href="/api/steam/link">Volver a comprobar</a>
-                            </Button>
-                        )}
-                        <Button type="button" variant="secondary" disabled={busy} onClick={unlink}>
-                            Desvincular
-                        </Button>
+        <section className="pf-section" aria-labelledby="pf-steam">
+            <h2 id="pf-steam" className="pf-section__title">
+                Steam
+            </h2>
+            <div className="pf-rows">
+                <div className="pf-row pf-row--inline">
+                    <div className="pf-row__text">
+                        <span className="pf-row__label">Cuenta de Steam</span>
+                        <p className="pf-row__desc">
+                            {!loaded
+                                ? 'Cargando…'
+                                : link
+                                  ? `${link.persona_name ?? link.steamid} · vinculada el ${new Date(link.linked_at).toLocaleDateString('es-ES')}`
+                                  : 'Conéctala para traer tus juegos y logros.'}
+                        </p>
                     </div>
-                ) : (
-                    <Button asChild>
-                        <a href="/api/steam/link">Conectar con Steam</a>
-                    </Button>
-                ))}
-        </div>
+                    {loaded && (
+                        <div className="pf-row__control">
+                            {link ? (
+                                <>
+                                    {needsFix && (
+                                        <Button asChild variant="secondary">
+                                            <a href="/api/steam/link">Volver a comprobar</a>
+                                        </Button>
+                                    )}
+                                    <Button type="button" variant="secondary" disabled={busy} onClick={unlink}>
+                                        Desvincular
+                                    </Button>
+                                </>
+                            ) : (
+                                <Button asChild>
+                                    <a href="/api/steam/link">Conectar con Steam</a>
+                                </Button>
+                            )}
+                        </div>
+                    )}
+                </div>
+                {link && (
+                    <div className="pf-row pf-row--inline">
+                        <div className="pf-row__text">
+                            <span className="pf-row__label">Última sincronización</span>
+                            <p className="pf-row__desc">
+                                {link.last_sync_at ? (
+                                    <time dateTime={link.last_sync_at} title={new Date(link.last_sync_at).toLocaleString('es-ES')}>
+                                        {timeAgo(link.last_sync_at)}
+                                    </time>
+                                ) : (
+                                    'Todavía no'
+                                )}
+                            </p>
+                        </div>
+                        {!needsFix && (
+                            <div className="pf-row__control">
+                                <Button type="button" disabled={syncing} onClick={syncNow}>
+                                    <RefreshCw size={14} className={syncing ? 'hg-spin' : ''} aria-hidden />
+                                    {syncing ? 'Sincronizando…' : 'Sincronizar ahora'}
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                )}
+                {(needsFix || message || syncMessage) && (
+                    <div className="pf-row pf-row--notes">
+                        {needsFix && (
+                            <p className="alert alert--error" role="alert">
+                                <span>
+                                    En Steam → Editar perfil → Configuración de privacidad: pon el perfil y los detalles del juego en{' '}
+                                    <strong>Público</strong> y desmarca «Mantener siempre privado mi tiempo de juego total». Después
+                                    vuelve a comprobar.
+                                </span>
+                            </p>
+                        )}
+                        {message && (
+                            <p className={`alert ${message.ok ? 'alert--ok' : 'alert--error'}`} role="status">
+                                {message.text}
+                            </p>
+                        )}
+                        {syncMessage && (
+                            <p className={`alert ${syncMessage.ok ? 'alert--ok' : 'alert--error'}`} role="status">
+                                {syncMessage.text}
+                            </p>
+                        )}
+                    </div>
+                )}
+            </div>
+        </section>
     )
 }

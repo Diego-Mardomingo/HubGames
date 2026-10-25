@@ -10,7 +10,7 @@ const TabsList = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <TabsPrimitive.List
         ref={ref}
-        className={cn('inline-flex h-10 items-center justify-center rounded-[var(--radius)] bg-[var(--surface-2)] p-1 text-[var(--muted)]', className)}
+        className={cn('hg-seg', className)}
         {...props}
     />
 ))
@@ -22,10 +22,7 @@ const TabsTrigger = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <TabsPrimitive.Trigger
         ref={ref}
-        className={cn(
-            'inline-flex items-center justify-center whitespace-nowrap rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] data-[state=active]:bg-[var(--primary)] data-[state=active]:text-[var(--primary-foreground)]',
-            className
-        )}
+        className={cn('hg-seg__opt', className)}
         {...props}
     />
 ))
@@ -37,7 +34,7 @@ const TabsContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <TabsPrimitive.Content
         ref={ref}
-        className={cn('mt-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] rounded-[var(--radius)]', className)}
+        className={cn('hg-tabs__content', className)}
         {...props}
     />
 ))

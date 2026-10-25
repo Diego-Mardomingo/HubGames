@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { Dices, Play, RefreshCw, Sparkles } from 'lucide-react'
+import { Dices, Play, RefreshCw } from 'lucide-react'
 import { MOOD_LABELS, SESSION_LABELS, recommend, type Mood, type SessionLength } from '@/lib/recommend'
 import { steamRunUrl } from '@/lib/dashboard'
 import type { LibraryGame } from '@/lib/tracker'
@@ -15,14 +15,14 @@ function Segmented<T extends string>({ label, value, options, onChange }: { labe
     return (
         <div className="wtp-choice" role="radiogroup" aria-label={label}>
             <span className="wtp-choice__label">{label}</span>
-            <div className="wtp-choice__options">
+            <div className="hg-seg">
                 {(Object.keys(options) as T[]).map((key) => (
                     <button
                         key={key}
                         type="button"
                         role="radio"
                         aria-checked={value === key}
-                        className={`wtp-chip ${value === key ? 'is-active' : ''}`}
+                        className={`hg-seg__opt ${value === key ? 'is-active' : ''}`}
                         onClick={() => onChange(key)}
                     >
                         {options[key]}
@@ -65,10 +65,10 @@ export default function WhatToPlay({ games, now, initialSeed }: { games: Library
     }
 
     return (
-        <section className="dash-panel glass wtp" aria-labelledby="dash-wtp">
+        <section className="dash-panel wtp" aria-labelledby="dash-wtp">
             <header className="dash-panel__head">
                 <h2 id="dash-wtp" className="dash-panel__title">
-                    <Sparkles size={16} aria-hidden /> ¿Qué juego hoy?
+                    ¿Qué juego hoy?
                 </h2>
                 {list.length > SHOWN && (
                     <Button type="button" variant="ghost" size="sm" onClick={() => choose(() => setSeed((s) => s + 1))} title="Otras propuestas">
@@ -89,25 +89,23 @@ export default function WhatToPlay({ games, now, initialSeed }: { games: Library
                           : 'No hay juegos en Jugando ni en Pendientes que encajen.'}
                 </p>
             ) : (
-                <ul className="wtp-list">
+                <ul className="hg-rows">
                     {visible.map((index, slot) => {
                         const { game, reasons } = list[index]
                         return (
-                            <li key={`${slot}-${game.appid}`} className="wtp-card">
-                                <Link href={`/juego/${game.appid}`} className="wtp-card__cover">
-                                    <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="(max-width: 640px) 100vw, 320px" />
-                                </Link>
-                                <div className="wtp-card__body">
-                                    <Link href={`/juego/${game.appid}`} className="wtp-card__name">
+                            <li key={`${slot}-${game.appid}`} className="hg-row hg-row--wtp">
+                                <span className="hg-row__cover">
+                                    <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="112px" />
+                                </span>
+                                <span className="hg-row__main">
+                                    <Link href={`/juego/${game.appid}`} className="hg-row__link">
                                         {game.name ?? `App ${game.appid}`}
                                     </Link>
-                                    <ul className="wtp-reasons">
-                                        {(reasons.length ? reasons : ['Una buena opción para hoy']).slice(0, 3).map((r) => (
-                                            <li key={r}>{r}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div className="wtp-card__actions">
+                                    <span className="hg-row__meta">
+                                        {(reasons.length ? reasons : ['Una buena opción para hoy']).slice(0, 3).join(' · ')}
+                                    </span>
+                                </span>
+                                <span className="wtp-actions">
                                     <Button asChild size="sm">
                                         <a href={steamRunUrl(game.appid)}>
                                             <Play aria-hidden /> Jugar
@@ -118,7 +116,7 @@ export default function WhatToPlay({ games, now, initialSeed }: { games: Library
                                             <RefreshCw aria-hidden /> Otra
                                         </Button>
                                     )}
-                                </div>
+                                </span>
                             </li>
                         )
                     })}

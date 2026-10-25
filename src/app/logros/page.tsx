@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Award, Flag, Gem, History, Hourglass, Sparkles, Target, Trophy } from 'lucide-react'
+import { Flag, History, Trophy } from 'lucide-react'
 import { safeGetSession } from '@/lib/supabase/client'
 import { loadLibrary, type LibraryGame } from '@/lib/tracker'
 import {
@@ -20,12 +20,11 @@ import {
 import { loadEasyMissing, loadUnlockedAchievements } from '@/lib/achievements-db'
 import { Button } from '@/components/ui/button'
 import Loader from '@/components/Loader'
-import { Reveal } from '@/components/motion'
+import KeyboardList from '@/components/KeyboardList'
 import AchievementItem from '@/components/achievements/AchievementItem'
 import GameLine from '@/components/achievements/GameLine'
 import GameCover from '@/components/tracker/GameCover'
 import '@/components/achievements/achievements.css'
-import '@/components/tracker/tracker.css'
 
 /** "Fácil" = lo tiene más de la mitad de los jugadores. */
 const EASY_PERCENT = 50
@@ -55,38 +54,24 @@ function useMore(total: number) {
         shown,
         more:
             total > shown ? (
-                <Button variant="ghost" size="sm" className="hunt__more" onClick={() => setShown((n) => n + STEP * 2)}>
+                <Button variant="ghost" size="sm" className="hg-more" onClick={() => setShown((n) => n + STEP * 2)}>
                     Ver más ({total - shown})
                 </Button>
             ) : null,
     }
 }
 
-function Section({
-    id,
-    icon: Icon,
-    title,
-    hint,
-    count,
-    children,
-}: {
-    id: string
-    icon: typeof Trophy
-    title: string
-    hint: string
-    count: number
-    children: React.ReactNode
-}) {
+function Section({ id, title, hint, count, children }: { id: string; title: string; hint: string; count: number; children: React.ReactNode }) {
     return (
-        <section className="hunt glass" aria-labelledby={id}>
-            <header className="hunt__head">
-                <h2 id={id} className="hunt__title">
-                    <Icon size={16} aria-hidden /> {title}
-                    <span className="ach-tab__count">{count}</span>
+        <section className="hg-section" aria-labelledby={id}>
+            <header className="hg-section__head">
+                <h2 id={id} className="hg-section__title">
+                    {title}
+                    <span className="hg-section__count">{count}</span>
                 </h2>
-                <p className="hunt__hint">{hint}</p>
+                <p className="hg-section__hint">{hint}</p>
             </header>
-            {count === 0 ? <p className="hunt__empty">Nada por aquí todavía.</p> : children}
+            {count === 0 ? <p className="hg-empty">Nada por aquí todavía.</p> : children}
         </section>
     )
 }
@@ -139,26 +124,17 @@ export default function LogrosPage() {
     const withAchievements = data.games.filter((g) => (g.achievements_unlocked ?? 0) > 0).length
 
     return (
-        <div className="logros logros--wide">
+        <div className="logros">
             <header className="page-head">
                 <div>
-                    <Reveal>
-                        <span className="eyebrow">
-                            <Trophy size={13} aria-hidden /> Caza de logros
-                        </span>
-                    </Reveal>
-                    <Reveal delay={0.05}>
-                        <h1 className="page-title">Logros</h1>
-                    </Reveal>
-                    <Reveal delay={0.1}>
-                        <p className="page-subtitle">
-                            {data.unlocked.length} logros desbloqueados en {withAchievements} juegos, {views.perfect.length} al 100 %.
-                        </p>
-                    </Reveal>
+                    <h1 className="page-title">Logros</h1>
+                    <p className="page-subtitle">
+                        {data.unlocked.length.toLocaleString('es-ES')} logros desbloqueados en {withAchievements} juegos, {views.perfect.length} al 100 %.
+                    </p>
                 </div>
                 <Button variant="secondary" asChild>
                     <Link href="/logros/historial">
-                        <History aria-hidden /> Línea temporal
+                        <History aria-hidden /> Ver historial
                     </Link>
                 </Button>
             </header>
@@ -171,8 +147,8 @@ export default function LogrosPage() {
 
             <section className="score glass" aria-labelledby="hunt-score">
                 <div className="score__main">
-                    <h2 id="hunt-score" className="hunt__title">
-                        <Sparkles size={16} aria-hidden /> Puntuación de cazador
+                    <h2 id="hunt-score" className="score__title">
+                        Puntuación de cazador
                     </h2>
                     <p className="score__total">
                         {views.points.total.toLocaleString('es-ES')}
@@ -197,8 +173,8 @@ export default function LogrosPage() {
                     <ul className="milestones__list">
                         {views.milestones.reached.map((m) => (
                             <li key={m.id} className="milestone">
-                                <span className="milestone__icon">
-                                    <Trophy size={12} aria-hidden />
+                                <span className="milestone__icon" aria-hidden>
+                                    <Trophy size={12} />
                                 </span>
                                 <span className="milestone__label">{m.label}</span>
                                 {m.date && <time dateTime={m.date}>{DATE.format(new Date(m.date))}</time>}
@@ -206,13 +182,22 @@ export default function LogrosPage() {
                         ))}
                         {views.milestones.next.map((m) => (
                             <li key={m.id} className="milestone is-pending">
-                                <span className="milestone__icon">
-                                    <Flag size={12} aria-hidden />
+                                <span className="milestone__icon" aria-hidden>
+                                    <Flag size={12} />
                                 </span>
                                 <span className="milestone__label">{m.label}</span>
-                                <span className="milestone__progress">
-                                    {m.target !== undefined ? `${(m.current ?? 0).toLocaleString('es-ES')}/${m.target.toLocaleString('es-ES')}` : 'Pendiente'}
-                                </span>
+                                {m.target !== undefined ? (
+                                    <span className="milestone__progress">
+                                        <span>
+                                            {(m.current ?? 0).toLocaleString('es-ES')} / {m.target.toLocaleString('es-ES')}
+                                        </span>
+                                        <span className="hg-bar" aria-hidden>
+                                            <span style={{ width: `${Math.min(100, ((m.current ?? 0) / m.target) * 100)}%` }} />
+                                        </span>
+                                    </span>
+                                ) : (
+                                    <span className="milestone__progress">Pendiente</span>
+                                )}
                             </li>
                         ))}
                     </ul>
@@ -220,24 +205,18 @@ export default function LogrosPage() {
             </section>
 
             <div className="hunt-grid">
-                <Section id="hunt-near" icon={Target} title="Cerca del 100 %" hint="Al menos la mitad de los logros. Los que menos te faltan, primero." count={views.near.length}>
-                    <ul className="game-lines">
+                <Section id="hunt-near" title="Cerca del 100 %" hint="Al menos la mitad de los logros. Los que menos te faltan, primero." count={views.near.length}>
+                    <KeyboardList className="hg-rows game-lines" label="Juegos cerca del 100 %">
                         {views.near.slice(0, near.shown).map((g) => {
                             const left = remainingAchievements(g)
                             return <GameLine key={g.appid} game={g} detail={left === 1 ? 'Te falta 1 logro' : `Te faltan ${left} logros`} />
                         })}
-                    </ul>
+                    </KeyboardList>
                     {near.more}
                 </Section>
 
-                <Section
-                    id="hunt-easy"
-                    icon={Sparkles}
-                    title="Logros fáciles que te faltan"
-                    hint="Los tiene más de la mitad de los jugadores y tú no."
-                    count={views.easy.length}
-                >
-                    <ul className="ach-list">
+                <Section id="hunt-easy" title="Logros fáciles que te faltan" hint="Los tiene más de la mitad de los jugadores y tú no." count={views.easy.length}>
+                    <ul className="hg-achs ach-list">
                         {views.easy.slice(0, easy.shown).map((a) => (
                             <AchievementItem key={`${a.appid}:${a.apiname}`} achievement={a} gameName={gameName(a.appid)} context={gameLink(a.appid)} />
                         ))}
@@ -247,21 +226,20 @@ export default function LogrosPage() {
 
                 <Section
                     id="hunt-forgotten"
-                    icon={Hourglass}
                     title="Olvidados"
                     hint="Más de la mitad de los logros y sin tocarlos desde hace más de 90 días."
                     count={views.forgotten.length}
                 >
-                    <ul className="game-lines">
+                    <KeyboardList className="hg-rows game-lines" label="Juegos olvidados">
                         {views.forgotten.slice(0, forgotten.shown).map((g) => (
                             <GameLine key={g.appid} game={g} detail={`Última vez ${ago(lastTouched(g))}`} />
                         ))}
-                    </ul>
+                    </KeyboardList>
                     {forgotten.more}
                 </Section>
 
-                <Section id="hunt-rare" icon={Gem} title="Tus logros más raros" hint="Los que menos jugadores tienen." count={views.rarest.length}>
-                    <ul className="ach-list">
+                <Section id="hunt-rare" title="Tus logros más raros" hint="Los que menos jugadores tienen." count={views.rarest.length}>
+                    <ul className="hg-achs ach-list">
                         {views.rarest.map((a) => (
                             <AchievementItem key={`${a.appid}:${a.apiname}`} achievement={a} gameName={gameName(a.appid)} context={gameLink(a.appid)} />
                         ))}
@@ -269,22 +247,22 @@ export default function LogrosPage() {
                 </Section>
             </div>
 
-            <Section id="hunt-perfect" icon={Award} title="Juegos al 100 %" hint="Todos los logros desbloqueados." count={views.perfect.length}>
-                <ul className="perfect-grid">
+            <Section id="hunt-perfect" title="Juegos al 100 %" hint="Todos los logros desbloqueados." count={views.perfect.length}>
+                <KeyboardList className="hg-cards" label="Juegos al 100 %">
                     {views.perfect.map((g) => (
-                        <li key={g.appid}>
-                            <Link href={`/juego/${g.appid}/logros`} className="perfect-card" title={g.name ?? undefined}>
-                                <span className="perfect-card__cover">
-                                    <GameCover appid={g.appid} name={g.name} headerImage={g.header_image} variant="header" sizes="192px" />
-                                </span>
-                                <span className="perfect-card__name">{g.name ?? `App ${g.appid}`}</span>
-                                <span className="badge-100">
-                                    <Trophy size={11} aria-hidden /> {g.achievements_total}
-                                </span>
-                            </Link>
+                        <li key={g.appid} className="hg-card">
+                            <span className="hg-card__cover">
+                                <GameCover appid={g.appid} name={g.name} headerImage={g.header_image} variant="header" sizes="180px" />
+                            </span>
+                            <span className="hg-card__body">
+                                <Link href={`/juego/${g.appid}/logros`} className="hg-card__link" title={g.name ?? undefined} data-row-link>
+                                    {g.name ?? `App ${g.appid}`}
+                                </Link>
+                                <span className="hg-card__meta">{g.achievements_total} logros</span>
+                            </span>
                         </li>
                     ))}
-                </ul>
+                </KeyboardList>
             </Section>
         </div>
     )

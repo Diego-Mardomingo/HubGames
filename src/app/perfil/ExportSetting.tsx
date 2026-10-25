@@ -1,4 +1,4 @@
-import { Download, FileJson, FileSpreadsheet } from 'lucide-react'
+import { FileJson, FileSpreadsheet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 /**
@@ -7,34 +7,38 @@ import { Button } from '@/components/ui/button'
  */
 export default function ExportSetting() {
     return (
-        <div className="setting glass">
-            <div className="setting__head">
-                <span className="setting__icon" aria-hidden>
-                    <Download size={17} />
-                </span>
-                <div className="setting__text">
-                    <p className="setting__title">Tus datos</p>
-                    <p className="setting__desc">Descarga tu biblioteca, notas, fechas y logros</p>
+        <section className="pf-section" aria-labelledby="pf-data">
+            <h2 id="pf-data" className="pf-section__title">
+                Tus datos
+            </h2>
+            <div className="pf-rows">
+                <div className="pf-row">
+                    <div className="pf-row__text">
+                        <span className="pf-row__label">Exportar</span>
+                        <p className="pf-row__desc">
+                            Tu biblioteca (estados, notas, reseñas y fechas) y tus logros. El CSV usa «;» y decimales con coma, para
+                            abrirlo directamente en Excel en español.
+                        </p>
+                    </div>
+                    <div className="pf-row__control pf-row__control--wrap">
+                        <Button variant="secondary" size="sm" asChild>
+                            <a href="/api/export?tipo=biblioteca" download>
+                                <FileSpreadsheet aria-hidden /> Biblioteca (CSV)
+                            </a>
+                        </Button>
+                        <Button variant="secondary" size="sm" asChild>
+                            <a href="/api/export?tipo=logros" download>
+                                <FileSpreadsheet aria-hidden /> Logros (CSV)
+                            </a>
+                        </Button>
+                        <Button variant="secondary" size="sm" asChild>
+                            <a href="/api/export?tipo=todo" download>
+                                <FileJson aria-hidden /> Todo (JSON)
+                            </a>
+                        </Button>
+                    </div>
                 </div>
             </div>
-            <div className="setting__form setting__form--wrap">
-                <Button variant="secondary" size="sm" asChild>
-                    <a href="/api/export?tipo=biblioteca" download>
-                        <FileSpreadsheet aria-hidden /> Biblioteca (CSV)
-                    </a>
-                </Button>
-                <Button variant="secondary" size="sm" asChild>
-                    <a href="/api/export?tipo=logros" download>
-                        <FileSpreadsheet aria-hidden /> Logros (CSV)
-                    </a>
-                </Button>
-                <Button variant="secondary" size="sm" asChild>
-                    <a href="/api/export?tipo=todo" download>
-                        <FileJson aria-hidden /> Todo (JSON)
-                    </a>
-                </Button>
-            </div>
-            <p className="setting__desc">El CSV usa «;» y decimales con coma, para abrirlo directamente en Excel en español.</p>
-        </div>
+        </section>
     )
 }

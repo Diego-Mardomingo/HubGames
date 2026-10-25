@@ -1,0 +1,111 @@
+# Guía de estilo de HubGames
+
+Dirección «Panel de actividad»: una herramienta para consultar tu biblioteca y tus logros, no un escaparate. Esta guía resume el sistema aplicado; la fuente de verdad son los tokens de `src/styles/globals.css`.
+
+## Principios
+
+- **Superficies planas.** Fondo, superficie y borde fino. Nada de cristal (`backdrop-filter`), degradados decorativos, brillos, auroras ni sombras de color.
+- **Un único acento** (`--primary`, cobalto) para acciones, selección y progreso. El resto del color con significado lo ponen **solo las rarezas de los logros** (y los estados `--success`/`--danger`/`--warning` en mensajes).
+- **Portadas pequeñas.** Cápsula de Steam (`header.jpg`) a ~112×52 px y radio pequeño en listas y rejillas. La imagen grande solo en la ficha de un juego (`/juego/[appid]`).
+- **Cursor de selección.** Las filas y tarjetas clicables muestran `box-shadow: 0 0 0 3px var(--cursor)` con el ratón o el foco de teclado. Es la firma de la interfaz.
+- **Movimiento solo como respuesta** a una acción (abrir, expandir, confirmar, seleccionar). Sin animaciones de entrada escalonadas ni hovers que salten o roten. `prefers-reduced-motion` lo anula todo (regla global al final de `globals.css`).
+- **Texto sobrio.** Español, frases cortas, mayúscula solo inicial. Sin etiquetas en MAYÚSCULAS con tracking, sin «eyebrows», sin numeraciones decorativas ni «→» en cada enlace. Botones con verbo concreto.
+- **Accesible en los dos temas.** Texto ≥ 4,5:1, foco visible, objetivos táctiles ≥ 44 px en móvil, botones-icono con `aria-label`, y nada que dependa solo del color (la rareza va siempre con su nombre o su %).
+
+## Color
+
+Claro en `:root`, oscuro en `[data-theme='dark']` (lo pone `themeScript` de `src/lib/theme.ts` antes de pintar; el selector es `ThemeToggle`). **No escribas colores a mano**: usa siempre variables.
+
+| Token | Claro | Oscuro | Uso |
+|---|---|---|---|
+| `--background` | `#eef0f3` | `#15171c` | fondo de página |
+| `--surface` | `#ffffff` | `#1e2129` | tarjetas, filas, paneles |
+| `--surface-2` | `#e4e7ec` | `#282c36` | rellenos suaves, pistas de barras, hover |
+| `--surface-3` | `#d6dae1` | `#323744` | rellenos más marcados (interruptor apagado) |
+| `--foreground` | `#1b1f27` | `#e8eaee` | texto |
+| `--muted` | `#5d6472` | `#9aa1ae` | texto secundario |
+| `--border` / `--border-hover` | `#dadde3` / `#c3c8d1` | `#2e323c` / `#404553` | bordes finos |
+| `--primary` / `--primary-hover` | `#2453ff` / `#1a43e0` | `#7b9bff` / `#95afff` | acento |
+| `--primary-foreground` | `#ffffff` | `#0e1220` | texto sobre el acento |
+| `--primary-glow` | cobalto 12 % | cobalto 14 % | fondo de chip o pestaña activa |
+| `--cursor`, `--ring` | = `--primary` | = `--primary` | cursor de selección y foco |
+| `--success` | `#1a7743` | `#4cc97e` | completado, correcto |
+| `--danger` / `--danger-foreground` | `#c7243b` / `#ffffff` | `#f26b7e` / `#1b0a0d` | errores, acciones destructivas |
+| `--warning` | `#8e5e18` | `#f2b53a` | avisos |
+| `--success-glow`, `--danger-glow` | 10 % | 14 % | fondo de alertas |
+| `--scrim` | negro frío 55 % | negro 65 % | velo bajo diálogos |
+| `--shadow-sm`, `--shadow-lg` | neutras | neutras | segmento activo; menús y diálogos |
+
+Contraste medido (WCAG): `--muted` ≥ 4,8:1 sobre `--background`, `--surface` y `--surface-2` en claro (≥ 5,4:1 en oscuro); `--primary`, `--success`, `--danger` y `--warning` ≥ 4,5:1 sobre los tres fondos y sobre su propio `-glow`; el texto sobre `--primary` y `--danger` ≥ 5,5:1.
+
+### Excepciones a «sin colores a mano»
+
+- Imagen OG del resumen anual (`src/app/api/estadisticas/resumen/imagen/route.tsx`): `ImageResponse` no admite variables; usa los valores del tema oscuro.
+- `themeColor` de `src/app/layout.tsx` (metadato del navegador): valores de `--background`.
+- Velos oscuros sobre capturas y texto `#fff` encima (JUDI: insignia y pista sobre la captura, zoom), y el fondo `#000` del vídeo del tráiler.
+- `#fff` sobre color sólido (bola del interruptor) y el logo de Google con sus colores de marca.
+- Colores de reserva del confeti de JUDI (lee las variables y solo usa el valor escrito si fallan).
+
+## Rarezas de logros
+
+Según el porcentaje global de jugadores que lo tienen (`src/lib/rarity.ts`, con `rarityTier`, `RARITY_TIER_LABELS` y `rarityColor`):
+
+| Nivel | Umbral | Token | Claro | Oscuro |
+|---|---|---|---|---|
+| Común | ≥ 40 % | `--rar-comun` | `#8a8f98` | `#9aa0aa` |
+| Poco común | < 40 % | `--rar-poco` | `#2e9e5b` | `#4cc97e` |
+| Rara | < 15 % | `--rar-rara` | `#2f6fe0` | `#5b93ff` |
+| Épica | < 5 % | `--rar-epica` | `#8b4fd8` | `#b07cff` |
+| Legendaria | < 1 % | `--rar-leg` | `#c98a0b` | `#f2b53a` |
+
+- Como relleno (franja de la fila, borde izquierdo del logro, puntos, barras) se usa el token tal cual.
+- Como **texto o icono** se mezcla con el texto: `color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground))`. `--rar-ink` vale 62 % en claro (llega a ≥ 4,5:1 incluso para común y legendaria) y 100 % en oscuro.
+- La rareza nunca va sola: siempre con su nombre («Épica») o su porcentaje.
+- La dificultad de un logro reutiliza la escala (fácil = común … muy difícil = legendaria); las medallas de ranking y perfil, legendaria y común.
+
+## Tipografía
+
+Una sola familia: **Onest** (`--font-body`, cargada con `next/font`). Los números usan cifras tabulares (`font-variant-numeric: tabular-nums` en `body`); no hay monoespaciada.
+
+| Uso | Tamaño | Peso |
+|---|---|---|
+| Título de página (`.page-title`) | `clamp(1.625rem, 2.6vw, 2rem)`, tracking −0,02em | 700 |
+| Título de sección | 1–1,0625rem | 600–700 |
+| Cifra destacada | 1,125–1,75rem | 700 |
+| Texto de lectura | 0,9375rem | 400 |
+| Texto de interfaz (filas, botones) | 0,875rem | 500–600 |
+| Secundario (meta, ayudas) | 0,8125rem | 400–500 |
+| Pequeño (chips, ejes, leyendas) | 0,6875–0,78125rem | 500–600 |
+
+## Espaciado, radios y layout
+
+- Radios: `--radius-sm` 8px (botones, campos, cápsulas), `--radius` 10px (filas), `--radius-lg` 14px (paneles `.glass`), `--radius-xl` 18px (contenedores grandes). Pastillas y chips: 999px.
+- Espaciado en múltiplos de 4px; huecos habituales de 8, 12, 16 y 24px entre filas, bloques y secciones.
+- Layout: barra lateral fija (`--side-w`: 232px, 72px por debajo de 1100px), barra superior y barra de pestañas inferior por debajo de 768px. Contenido en `#main-content`, máximo 1200px.
+
+## Componentes compartidos
+
+| Pieza | Dónde | Notas |
+|---|---|---|
+| Tokens, botones (`.hg-button`, `.hg-btn--primary/secondary/danger`), campos (`.hg-input`, `.field*`), `.alert--error/ok`, `.switch`, `.link`, `.glass`, `.page-head/title/subtitle`, loader, pantallas de acceso y mantenimiento | `src/styles/globals.css` | `components/ui/button.tsx` aplica las clases |
+| Barra lateral, barra superior y pestañas móviles | `src/components/Nav.tsx`, `src/styles/nav.css` | |
+| Filas de juego (`.hg-row`, cápsula, barra `.hg-bar`, `.hg-chip`), logros (`.hg-ach`), control segmentado (`.hg-seg`), cabeceras de lista (`.hg-section`), pista de teclado (`.hg-keyhint`), tarjetas pequeñas (`.hg-card`), `.hg-icon-btn` | `src/styles/lists.css` | El cursor de selección vive aquí |
+| Diálogo, sheet, popover, select, pestañas, tooltip, badge, calendario | `src/styles/ui.css` + `src/components/ui/*` | Primitivas de Radix con CSS propio |
+| Lista navegable con ↑/↓ o j/k | `src/components/KeyboardList.tsx` | Las filas marcan su enlace con `data-row-link` |
+| Selector de tema | `src/components/ThemeToggle.tsx`, `src/lib/theme.ts` | Claro, oscuro o sistema (`hg-theme` en `localStorage`) |
+| Marca | `src/components/brand/Logo.tsx` (`LogoMark`, `Wordmark`, `Logo`) | Corchetes de selección alrededor de una gema |
+| Mapa de actividad anual | `src/components/dashboard/ActivityHeatmap.tsx` | Escala del acento sobre `--surface-2`; un único tab-stop recorrible con flechas |
+| Rarezas | `src/lib/rarity.ts` | Nivel, nombre y color a partir del % global |
+
+Tailwind 4 está activo **sin preflight** (solo `theme.css` y `utilities.css` en `globals.css`); se usa poco, sobre todo en `components/ui`. Para estilos nuevos, preferir el CSS propio junto a la página o los componentes compartidos de arriba.
+
+## Reglas de uso
+
+1. Antes de crear una clase, busca si ya existe en `lists.css`, `ui.css` o `globals.css`.
+2. Portada grande solo en la ficha; en el resto, cápsula pequeña.
+3. Un solo acento: no introduzcas otro color de marca ni pintes con las rarezas cosas que no sean logros.
+4. Filas y tarjetas clicables: enlace principal extendido a toda la fila (`::after`) y cursor de selección en hover y `:focus-visible`/`:focus-within`.
+5. Sin mayúsculas forzadas, degradados, cristal ni glows. Las sombras, neutras y solo para lo que flota (menús, diálogos, segmento activo).
+6. Movimiento solo como respuesta, corto (0,15–0,3 s, `--ease-out`) y anulado con `prefers-reduced-motion`.
+7. En móvil, todo lo interactivo mide al menos 44 px (si el control se ve más pequeño, amplía su área con un pseudo-elemento, como en `.hg-button` o `.switch`).
+8. Comprueba cada cambio en claro y oscuro, a 1440, ~1000 y 390 px.

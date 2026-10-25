@@ -14,39 +14,26 @@ interface DateRangePickerProps {
 
 export function DateRangePicker({ value, onChange, className }: DateRangePickerProps) {
     return (
-        <div className={cn('grid gap-2', className)}>
+        <div className={cn('hg-daterange', className)}>
             <Popover>
                 <PopoverTrigger asChild>
-                    <Button
-                        variant="outline"
-                        className={cn(
-                            'h-auto min-h-10 w-full justify-start py-2.5 text-left font-normal',
-                            !value && 'text-[var(--muted)]'
-                        )}
-                    >
+                    <Button variant="secondary" className={cn('hg-daterange__trigger', !value?.from && 'is-empty')}>
                         <CalendarDays size={16} data-icon="inline-start" aria-hidden />
                         {value?.from ? (
                             value.to ? (
                                 <>
-                                    {format(value.from, 'dd/MM/yyyy')} - {format(value.to, 'dd/MM/yyyy')}
+                                    {format(value.from, 'dd/MM/yyyy')} – {format(value.to, 'dd/MM/yyyy')}
                                 </>
                             ) : (
                                 format(value.from, 'dd/MM/yyyy')
                             )
                         ) : (
-                            <span>Seleccionar rango de fecha</span>
+                            <span>Elegir un rango de fechas</span>
                         )}
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                        initialFocus
-                        mode="range"
-                        defaultMonth={value?.from}
-                        selected={value}
-                        onSelect={onChange}
-                        numberOfMonths={1}
-                    />
+                <PopoverContent className="hg-popover--auto" align="start">
+                    <Calendar autoFocus mode="range" defaultMonth={value?.from} selected={value} onSelect={onChange} numberOfMonths={1} />
                 </PopoverContent>
             </Popover>
         </div>

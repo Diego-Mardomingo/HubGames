@@ -20,7 +20,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { AlertTriangle, Clock, GripVertical, Heart, Inbox, LayoutGrid, Library, List, Minus, Plus, Search, Star, Trophy, X } from 'lucide-react'
+import { AlertTriangle, GripVertical, Heart, Inbox, LayoutGrid, List, Minus, Plus, Search, Star, X } from 'lucide-react'
 import { safeGetSession } from '@/lib/supabase/client'
 import {
     DEFAULT_PLAYING_LIMIT,
@@ -58,9 +58,10 @@ import { isPerfect } from '@/lib/tracker-rules'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import Loader from '@/components/Loader'
+import KeyboardList from '@/components/KeyboardList'
 import GameCover from '@/components/tracker/GameCover'
 import { openGameSearch } from '@/components/tracker/GameSearch'
-import { Reveal } from '@/components/motion'
+import { statusChipClass } from '@/components/tracker/status'
 import './biblioteca.css'
 
 const PAGE = 60
@@ -100,8 +101,9 @@ function Biblioteca() {
     const [games, setGames] = useState<LibraryGame[] | null>(null)
     const [limit, setLimit] = useState(DEFAULT_PLAYING_LIMIT)
     // Solo se pinta en el cliente (antes sale el Loader), así que se puede leer localStorage al iniciar.
+    // Lista compacta por defecto; la rejilla de tarjetas pequeñas solo si la eliges.
     const [view, setView] = useState<View>(() =>
-        typeof window !== 'undefined' && localStorage.getItem(VIEW_KEY) === 'lista' ? 'lista' : 'cuadricula',
+        typeof window !== 'undefined' && localStorage.getItem(VIEW_KEY) === 'cuadricula' ? 'cuadricula' : 'lista',
     )
     const [sortTab, setSortTab] = useState(tab)
     const [sort, setSort] = useState<SortKey>(sortsFor(tab)[0])
@@ -202,27 +204,18 @@ function Biblioteca() {
     const overLimit = counts.jugando > limit
 
     return (
-        <div className="biblioteca biblioteca--wide">
+        <div className="biblioteca">
             <header className="page-head">
                 <div>
-                    <Reveal>
-                        <span className="eyebrow">
-                            <Library size={13} aria-hidden /> Tracker
-                        </span>
-                    </Reveal>
-                    <Reveal delay={0.05}>
-                        <h1 className="page-title">Biblioteca</h1>
-                    </Reveal>
-                    <Reveal delay={0.1}>
-                        <p className="page-subtitle">
-                            {counts.todos} {counts.todos === 1 ? 'juego clasificado' : 'juegos clasificados'}
-                            {counts.jugando > 0 && `, ${counts.jugando} en curso`}.
-                        </p>
-                    </Reveal>
+                    <h1 className="page-title">Biblioteca</h1>
+                    <p className="page-subtitle">
+                        {counts.todos} {counts.todos === 1 ? 'juego clasificado' : 'juegos clasificados'}
+                        {counts.jugando > 0 && `, ${counts.jugando} en curso`}.
+                    </p>
                 </div>
                 <div className="lib-head-actions">
-                    <Button variant="secondary" onClick={openGameSearch}>
-                        <Search aria-hidden /> Buscar juego
+                    <Button variant="secondary" onClick={openGameSearch} aria-keyshortcuts="Control+K">
+                        <Search aria-hidden /> Buscar juego <kbd className="hg-kbd lib-kbd">Ctrl K</kbd>
                     </Button>
                     <Button variant="secondary" asChild>
                         <Link href="/wishlist">
@@ -230,9 +223,9 @@ function Biblioteca() {
                         </Link>
                     </Button>
                     {counts.tray > 0 && (
-                        <Button variant="secondary" asChild>
+                        <Button asChild>
                             <Link href="/biblioteca/bandeja">
-                                <Inbox aria-hidden /> Bandeja <span className="lib-count">{counts.tray}</span>
+                                <Inbox aria-hidden /> Clasificar bandeja <span className="lib-count">{counts.tray}</span>
                             </Link>
                         </Button>
                     )}
@@ -245,23 +238,23 @@ function Biblioteca() {
                 </p>
             )}
 
-            <nav className="lib-tabs" aria-label="Estados">
+            <nav className="hg-seg hg-seg--scroll lib-tabs" aria-label="Estados">
                 {LIBRARY_TABS.map((t) => (
                     <button
                         key={t}
                         type="button"
                         aria-current={tab === t ? 'page' : undefined}
-                        className={`tray-sort ${tab === t ? 'is-active' : ''}`}
+                        className="hg-seg__opt"
                         onClick={() => changeTab(t)}
                     >
                         {TAB_LABELS[t]}
-                        <span className="tray-sort__count">{counts[t]}</span>
+                        <span className="hg-seg__count">{counts[t]}</span>
                     </button>
                 ))}
             </nav>
 
             {tab === 'jugando' && (
-                <div className={`lib-limit glass ${overLimit ? 'is-over' : ''}`}>
+                <div className={`lib-limit ${overLimit ? 'is-over' : ''}`}>
                     {overLimit ? (
                         <p>
                             <AlertTriangle size={15} aria-hidden /> Tienes {counts.jugando} juegos a la vez y tu límite es {limit}.
@@ -403,41 +396,41 @@ function Biblioteca() {
                         </Button>
                     )}
                 </div>
-                <div className="tray-sorts" role="group" aria-label="Vista">
-                    <button
-                        type="button"
-                        className={`tray-sort ${view === 'cuadricula' ? 'is-active' : ''}`}
-                        aria-pressed={view === 'cuadricula'}
-                        onClick={() => changeView('cuadricula')}
-                        title="Cuadrícula"
-                    >
-                        <LayoutGrid size={15} aria-hidden />
-                        <span className="sr-only">Cuadrícula</span>
+                <div className="hg-seg" role="group" aria-label="Vista">
+                    <button type="button" className="hg-seg__opt" aria-pressed={view === 'lista'} onClick={() => changeView('lista')} title="Lista">
+                        <List aria-hidden />
+                        <span className="sr-only">Lista</span>
                     </button>
                     <button
                         type="button"
-                        className={`tray-sort ${view === 'lista' ? 'is-active' : ''}`}
-                        aria-pressed={view === 'lista'}
-                        onClick={() => changeView('lista')}
-                        title="Lista"
+                        className="hg-seg__opt"
+                        aria-pressed={view === 'cuadricula'}
+                        onClick={() => changeView('cuadricula')}
+                        title="Rejilla"
                     >
-                        <List size={15} aria-hidden />
-                        <span className="sr-only">Lista</span>
+                        <LayoutGrid aria-hidden />
+                        <span className="sr-only">Rejilla</span>
                     </button>
                 </div>
             </div>
 
-            {tab === 'pendiente' && list.length > 1 && (
-                <p className="tray-note">
-                    {canDrag
-                        ? 'Arrastra desde el asa para ordenar tus pendientes: el primero es el siguiente al que jugarás.'
-                        : 'Para ordenar arrastrando, elige "Mi orden" y quita los filtros.'}
+            {list.length > 0 && (
+                <p className="lib-note">
+                    {tab === 'pendiente' && list.length > 1 && (
+                        <span>
+                            {canDrag
+                                ? 'Arrastra desde el asa para ordenar tus pendientes: el primero es el siguiente al que jugarás.'
+                                : 'Para ordenar arrastrando, elige "Mi orden" y quita los filtros.'}
+                        </span>
+                    )}
+                    <span className="hg-keyhint">
+                        <kbd>↑</kbd> <kbd>↓</kbd> o <kbd>j</kbd> <kbd>k</kbd> para moverte · <kbd>Enter</kbd> abre la ficha
+                    </span>
                 </p>
             )}
 
             {list.length === 0 ? (
-                <div className="tray-empty glass">
-                    <Library size={28} aria-hidden />
+                <div className="hg-empty lib-empty">
                     {hasFilters(filters) ? (
                         <>
                             <p>Ningún juego cumple los filtros.</p>
@@ -465,7 +458,7 @@ function Biblioteca() {
                         strategy={view === 'cuadricula' ? rectSortingStrategy : verticalListSortingStrategy}
                         disabled={!canDrag}
                     >
-                        <ul className={view === 'cuadricula' ? 'lib-grid' : 'lib-list'}>
+                        <KeyboardList className={view === 'cuadricula' ? 'hg-cards lib-grid' : 'hg-rows lib-list'} label={`Juegos: ${TAB_LABELS[tab]}`}>
                             {shown.map((game, i) => (
                                 <LibraryItem
                                     key={game.appid}
@@ -477,13 +470,13 @@ function Biblioteca() {
                                     priority={i < 6}
                                 />
                             ))}
-                        </ul>
+                        </KeyboardList>
                     </SortableContext>
                 </DndContext>
             )}
 
             {list.length > visible && (
-                <div className="tray-more">
+                <div className="lib-more">
                     <Button variant="secondary" onClick={() => setVisible((v) => v + PAGE)}>
                         Mostrar más ({list.length - visible})
                     </Button>
@@ -515,95 +508,94 @@ function LibraryItem({
     const pct = achievementPercent(game)
     const name = game.name ?? `App ${game.appid}`
     const style = { transform: CSS.Translate.toString(transform), transition }
+    const perfect = isPerfect(game)
 
-    const handle = draggable ? (
-        <button type="button" ref={setActivatorNodeRef} className="lib-handle" aria-label={`Mover ${name}`} {...attributes} {...listeners}>
-            <GripVertical size={16} aria-hidden />
-        </button>
-    ) : null
+    const drag =
+        draggable || position !== null ? (
+            <span className="lib-drag">
+                {draggable && (
+                    <button type="button" ref={setActivatorNodeRef} className="lib-handle" aria-label={`Mover ${name}`} {...attributes} {...listeners}>
+                        <GripVertical size={16} aria-hidden />
+                    </button>
+                )}
+                {position !== null && <span className="lib-position">{position}</span>}
+            </span>
+        ) : null
 
     const meta = (
-        <p className="lib-meta">
-            <span>
-                <Clock size={12} aria-hidden /> {formatHours(game.playtime_forever)}
-            </span>
-            {pct !== null && (
-                <span title={`${game.achievements_unlocked ?? 0} de ${game.achievements_total} logros`}>
-                    <Trophy size={12} aria-hidden /> {pct}%
-                </span>
-            )}
+        <>
+            <span>{formatHours(game.playtime_forever)}</span>
             {game.rating !== null && (
                 <span className="lib-rating" title="Tu nota">
+                    {' · '}
                     <Star size={12} aria-hidden /> {String(game.rating).replace('.', ',')}
                 </span>
             )}
-        </p>
+        </>
     )
+
+    const chip = perfect ? (
+        <span className="hg-chip hg-chip--done" title="Todos los logros desbloqueados">
+            100 %
+        </span>
+    ) : showStatus ? (
+        <span className={statusChipClass(game.status)}>{STATUS_LABELS[game.status]}</span>
+    ) : null
 
     if (view === 'lista') {
         return (
-            <li ref={setNodeRef} style={style} className={`lib-row glass ${isDragging ? 'is-dragging' : ''}`}>
-                {handle}
-                {position !== null && <span className="lib-position">{position}</span>}
-                <Link href={`/juego/${game.appid}`} className="lib-row__link">
-                    <span className="lib-row__cover">
-                        <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="120px" />
-                    </span>
-                    <span className="lib-row__info">
-                        <span className="lib-row__name">
-                            {name}
-                            {isPerfect(game) && (
-                                <span className="badge-100" title="Todos los logros desbloqueados">
-                                    <Trophy size={11} aria-hidden /> 100%
-                                </span>
-                            )}
+            <li ref={setNodeRef} style={style} className={`hg-row lib-row${drag ? ' has-drag' : ''}${isDragging ? ' is-dragging' : ''}`}>
+                {drag}
+                <span className="hg-row__cover">
+                    <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="112px" priority={priority} />
+                </span>
+                <span className="hg-row__main">
+                    <Link href={`/juego/${game.appid}`} className="hg-row__link" data-row-link>
+                        {name}
+                    </Link>
+                    <span className="hg-row__meta">{meta}</span>
+                </span>
+                {pct !== null ? (
+                    <span className="hg-row__prog" title={`${game.achievements_unlocked ?? 0} de ${game.achievements_total} logros`}>
+                        <span className="hg-row__prog-label">
+                            <span>
+                                <b>{game.achievements_unlocked ?? 0}</b> / {game.achievements_total} logros
+                            </span>
+                            <span>{pct} %</span>
                         </span>
-                        {meta}
-                    </span>
-                    {showStatus && <span className={`lib-status lib-status--${game.status}`}>{STATUS_LABELS[game.status]}</span>}
-                    {pct !== null && (
-                        <span className="lib-progress" aria-hidden>
+                        <span className={`hg-bar${perfect ? ' is-done' : ''}`} aria-hidden>
                             <span style={{ width: `${pct}%` }} />
                         </span>
-                    )}
-                </Link>
+                    </span>
+                ) : (
+                    <span className="hg-row__prog hg-row__prog--none">Sin logros</span>
+                )}
+                <span className="lib-row__chip">{chip}</span>
             </li>
         )
     }
 
     return (
-        <li ref={setNodeRef} style={style} className={`lib-card ${isDragging ? 'is-dragging' : ''}`}>
-            <Link href={`/juego/${game.appid}`} className="lib-card__link">
-                <span className="lib-card__cover">
-                    <GameCover
-                        appid={game.appid}
-                        name={game.name}
-                        headerImage={game.header_image}
-                        variant="vertical"
-                        sizes="(max-width: 640px) 45vw, 192px"
-                        priority={priority}
-                    />
-                    {isPerfect(game) && (
-                        <span className="badge-100 lib-card__badge" title="Todos los logros desbloqueados">
-                            <Trophy size={11} aria-hidden /> 100%
-                        </span>
-                    )}
-                    {showStatus && <span className={`lib-status lib-status--${game.status} lib-card__status`}>{STATUS_LABELS[game.status]}</span>}
-                    {pct !== null && (
-                        <span className="lib-progress lib-card__progress" aria-hidden>
-                            <span style={{ width: `${pct}%` }} />
-                        </span>
-                    )}
+        <li ref={setNodeRef} style={style} className={`hg-card lib-card${isDragging ? ' is-dragging' : ''}`}>
+            <span className="hg-card__cover">
+                <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="(max-width: 640px) 45vw, 200px" priority={priority} />
+            </span>
+            <span className="hg-card__body">
+                <Link href={`/juego/${game.appid}`} className="hg-card__link" title={name} data-row-link>
+                    {name}
+                </Link>
+                <span className="hg-card__meta">
+                    {meta}
+                    {pct !== null && ` · ${pct} % logros`}
                 </span>
-                <span className="lib-card__name">{name}</span>
-                {meta}
-            </Link>
-            {(handle || position !== null) && (
-                <span className="lib-card__drag">
-                    {position !== null && <span className="lib-position">{position}</span>}
-                    {handle}
-                </span>
-            )}
+                {pct !== null && (
+                    <span className={`hg-bar lib-card__bar${perfect ? ' is-done' : ''}`} aria-hidden>
+                        <span style={{ width: `${pct}%` }} />
+                    </span>
+                )}
+                {chip && <span className="lib-card__chip">{chip}</span>}
+            </span>
+            {drag && <span className="lib-card__drag">{drag}</span>}
         </li>
     )
 }

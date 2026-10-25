@@ -13,10 +13,7 @@ const TooltipContent = React.forwardRef<
     <TooltipPrimitive.Content
         ref={ref}
         sideOffset={sideOffset}
-        className={cn(
-            'z-50 overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface-2)] px-3 py-1.5 text-xs text-[var(--foreground)] shadow-md',
-            className
-        )}
+        className={cn('hg-tooltip', className)}
         {...props}
     />
 ))

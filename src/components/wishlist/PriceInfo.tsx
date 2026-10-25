@@ -31,7 +31,7 @@ export function PriceNow({ game }: { game: PriceData }) {
     const onSale = (game.discount_percent ?? 0) > 0
     return (
         <span className="price-now">
-            {onSale && <span className="price-now__cut">-{game.discount_percent}%</span>}
+            {onSale && <span className="price-now__cut">-{game.discount_percent} %</span>}
             <span className="price-now__amounts">
                 {onSale && <s>{formatPrice(game.price_initial)}</s>}
                 <strong>{formatPrice(game.price_final)}</strong>
@@ -46,8 +46,8 @@ export function PriceLows({ game }: { game: PriceData }) {
     return (
         <span className="price-lows">
             {isAtHistoricalLow(game) && (
-                <span className="price-badge" title="El precio actual en Steam es el más bajo que ha tenido">
-                    <TrendingDown size={12} aria-hidden /> ¡En mínimo histórico!
+                <span className="price-lows__now" title="El precio actual en Steam es el más bajo que ha tenido">
+                    <TrendingDown size={13} aria-hidden /> En mínimo histórico
                 </span>
             )}
             {game.steam_low !== null && (

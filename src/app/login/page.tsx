@@ -81,7 +81,7 @@ export default function LoginPage() {
     }
 
     return (
-        <AuthShell title="Bienvenido de nuevo" subtitle="Inicia sesión para guardar tu progreso y entrar en el ranking.">
+        <AuthShell title="Bienvenido de nuevo" subtitle="Entra para ver tu biblioteca, tus logros y tu progreso en JUDI.">
             <Button variant="secondary" onClick={handleGoogleLogin} className="btn-block">
                 <GoogleIcon />
                 Continuar con Google
@@ -89,7 +89,7 @@ export default function LoginPage() {
 
             <div className="divider-text">o con tu email</div>
 
-            <form onSubmit={handleLogin} style={{ display: 'grid', gap: '0.9rem' }}>
+            <form onSubmit={handleLogin} className="auth__fields">
                 <div className="field">
                     <label className="field__label" htmlFor="login-email">Email</label>
                     <div className="field__control">

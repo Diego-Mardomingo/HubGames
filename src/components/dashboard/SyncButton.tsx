@@ -30,9 +30,9 @@ export default function SyncButton() {
 
     return (
         <div className="dash-sync">
-            <Button type="button" variant="secondary" disabled={syncing} onClick={sync}>
+            <Button type="button" disabled={syncing} onClick={sync}>
                 <RefreshCw className={syncing ? 'animate-spin' : ''} aria-hidden />
-                {syncing ? 'Sincronizando…' : 'Sincronizar ahora'}
+                {syncing ? 'Sincronizando…' : 'Sincronizar'}
             </Button>
             {message && (
                 <span className={`dash-sync__msg ${message.ok ? '' : 'is-error'}`} role="status">

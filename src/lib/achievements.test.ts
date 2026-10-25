@@ -13,7 +13,6 @@ import {
     rarestUnlocked,
     formatPercent,
     matchesAchievementFilter,
-    rarity,
     sortAchievements,
     youtubeSearchUrl,
     type Achievement,
@@ -36,19 +35,6 @@ function ach(overrides: Partial<Achievement> = {}): Achievement {
         ...overrides,
     }
 }
-
-describe('rarity', () => {
-    it('clasifica por tramos', () => {
-        assert.equal(rarity(80), 'comun')
-        assert.equal(rarity(50), 'poco_comun')
-        assert.equal(rarity(20), 'poco_comun')
-        assert.equal(rarity(19.9), 'raro')
-        assert.equal(rarity(5), 'raro')
-        assert.equal(rarity(1), 'muy_raro')
-        assert.equal(rarity(0.4), 'ultra_raro')
-        assert.equal(rarity(null), null)
-    })
-})
 
 describe('formatPercent', () => {
     it('usa coma decimal por debajo del 10 %', () => {
@@ -105,6 +91,12 @@ describe('estimateDifficulty', () => {
     it('el logro más raro que falta marca el nivel', () => {
         const est = estimateDifficulty([ach({ global_percent: 70 }), ach({ global_percent: 3 }), ach({ achieved: true, global_percent: 0.1 })])
         assert.deepEqual(est, { level: 'dificil', remaining: 2, rarest: 3, hard: 1 })
+    })
+
+    it('la rareza del más raro que falta marca el nivel (escala de rarity.ts)', () => {
+        assert.equal(estimateDifficulty([ach({ global_percent: 30 })])?.level, 'asequible')
+        assert.equal(estimateDifficulty([ach({ global_percent: 10 })])?.level, 'exigente')
+        assert.equal(estimateDifficulty([ach({ global_percent: 0.5 })])?.level, 'muy_dificil')
     })
 
     it('solo comunes: fácil', () => {
@@ -233,8 +225,8 @@ describe('computeMilestones', () => {
             reached.map((m) => [m.id, m.date]),
             [
                 ['logros-100', day(99)],
-                ['primer-ultra-raro', day(80)],
-                ['primer-muy-raro', day(50)],
+                ['primer-legendario', day(80)],
+                ['primer-epico', day(50)],
                 ['perfectos-1', day(2)],
             ],
         )
@@ -250,6 +242,6 @@ describe('computeMilestones', () => {
     it('sin logros: todo pendiente', () => {
         const { reached, next } = computeMilestones([], [])
         assert.equal(reached.length, 0)
-        assert.deepEqual(next.map((m) => m.id), ['logros-100', 'perfectos-1', 'primer-muy-raro', 'primer-ultra-raro'])
+        assert.deepEqual(next.map((m) => m.id), ['logros-100', 'perfectos-1', 'primer-epico', 'primer-legendario'])
     })
 })

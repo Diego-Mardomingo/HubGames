@@ -3,10 +3,14 @@
 const RELATIVE = new Intl.RelativeTimeFormat('es-ES', { numeric: 'auto' })
 const SHORT = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', timeZone: 'Europe/Madrid' })
 
-/** "hace 5 minutos", "ayer", "hace 5 días", "hace 3 meses"… A partir de 20 h cuenta en días de calendario. */
+/**
+ * "hace 5 minutos", "ayer", "hace 5 días", "hace 3 meses"… A partir de 20 h cuenta en días de calendario.
+ * Solo pasado: una fecha posterior a `now` (relojes desfasados entre máquinas) cuenta como "hace un momento",
+ * nunca "dentro de…".
+ */
 export function timeAgo(iso: string | null, now: number = Date.now()): string {
     if (!iso) return 'nunca'
-    const seconds = Math.round((Date.parse(iso) - now) / 1000)
+    const seconds = Math.min(0, Math.round((Date.parse(iso) - now) / 1000))
     if (Math.abs(seconds) < 20 * 3600) {
         for (const [unit, size] of [['hour', 3600], ['minute', 60]] as const) {
             if (Math.abs(seconds) >= size) return RELATIVE.format(Math.round(seconds / size), unit)

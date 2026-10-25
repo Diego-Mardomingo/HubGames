@@ -1,17 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <defs>
-    <linearGradient id="g" gradientUnits="userSpaceOnUse" x1="10" y1="10" x2="54" y2="54">
-      <stop offset="0" stop-color="#b69cff"/>
-      <stop offset=".55" stop-color="#6f8bff"/>
-      <stop offset="1" stop-color="#2ad4f0"/>
-    </linearGradient>
-  </defs>
-  <rect x="1" y="1" width="62" height="62" rx="18" fill="#100f1c" stroke="url(#g)" stroke-opacity=".45" stroke-width="1.5"/>
-  <g transform="translate(32 32) scale(.74) translate(-32 -32)" stroke="url(#g)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M13 14V50"/>
-    <path d="M13 32H21.5"/>
-    <path d="M50.5 20.5C48 16.5 44 14 38 14H31V22.5"/>
-    <path d="M31 41.5V50H38C45.5 50 50.5 45.5 50.5 39V32H40.5"/>
-    <circle cx="31" cy="32" r="5.4" fill="#fff" stroke="none"/>
+  <rect width="64" height="64" rx="14" fill="#15171c"/>
+  <g transform="translate(32 32) scale(.78) translate(-32 -32)">
+    <path d="M6 20V6h14M44 6h14v14M58 44v14H44M20 58H6V44" stroke="#7b9bff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M32 16.5 45.5 24.25v15.5L32 47.5 18.5 39.75v-15.5z" fill="#e8eaee"/>
+    <path d="M32 32 45.5 24.25v15.5L32 47.5z" fill="#f2b53a"/>
   </g>
 </svg>

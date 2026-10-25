@@ -1,43 +1,38 @@
 'use client'
 
-import { useId } from 'react'
 import { motion, type Transition } from 'framer-motion'
 
 /**
- * Monograma HubGames: H y G comparten el trazo central, que se interrumpe en un nodo (el "hub").
- * Del nodo salen cuatro conexiones (arriba, abajo, izquierda, derecha), como una cruceta.
+ * Marca HubGames: una gema (el logro) enmarcada por el cursor de selección de la interfaz.
+ * Los corchetes usan el acento; la gema, el color del texto; la faceta, el dorado de "legendaria".
  */
-const STROKES = [
-    'M13 14V50', // H: pierna izquierda
-    'M13 32H21.5', // H: travesaño → nodo
-    'M50.5 20.5C48 16.5 44 14 38 14H31V22.5', // G: arco superior → nodo
-    'M31 41.5V50H38C45.5 50 50.5 45.5 50.5 39V32H40.5', // G: base + espolón → nodo
-] as const
+const BRACKETS = 'M6 20V6h14M44 6h14v14M58 44v14H44M20 58H6V44'
+const GEM = 'M32 16.5 45.5 24.25v15.5L32 47.5 18.5 39.75v-15.5z'
+const FACET = 'M32 32 45.5 24.25v15.5L32 47.5z'
 
 type LogoMarkProps = {
     size?: number
-    /** Dibuja los trazos al montar. */
+    /** Los corchetes "se ajustan" sobre la gema al montar. */
     animated?: boolean
     /** Bucle infinito (para el loader). */
     loop?: boolean
-    /** Fondo tipo icono de app (squircle). */
+    /** Fondo tipo icono de app. */
     tile?: boolean
     className?: string
     title?: string
 }
 
 const ease: Transition['ease'] = [0.22, 1, 0.36, 1]
+const origin = { transformOrigin: '32px 32px', transformBox: 'view-box' } as const
 
 export function LogoMark({ size = 32, animated = false, loop = false, tile = false, className, title }: LogoMarkProps) {
-    const uid = useId().replace(/:/g, '')
-    const gradId = `hg-grad-${uid}`
-    const glowId = `hg-glow-${uid}`
-    const strokeW = size < 24 ? 7.5 : 6.4
-
-    const drawTransition = (i: number): Transition =>
-        loop
-            ? { duration: 1.1, ease: 'easeInOut', delay: i * 0.12, repeat: Infinity, repeatType: 'reverse', repeatDelay: 0.25 }
-            : { duration: 0.75, ease, delay: 0.1 + i * 0.09 }
+    const motionOn = animated || loop
+    const gem = (
+        <>
+            <path d={GEM} fill="currentColor" />
+            <path d={FACET} fill="var(--rar-leg)" />
+        </>
+    )
 
     return (
         <svg
@@ -50,65 +45,46 @@ export function LogoMark({ size = 32, animated = false, loop = false, tile = fal
             aria-label={title}
             aria-hidden={title ? undefined : true}
         >
-            <defs>
-                <linearGradient id={gradId} gradientUnits="userSpaceOnUse" x1="10" y1="10" x2="54" y2="54">
-                    <stop offset="0" stopColor="#b69cff" />
-                    <stop offset="0.55" stopColor="#6f8bff" />
-                    <stop offset="1" stopColor="#2ad4f0" />
-                </linearGradient>
-                <filter id={glowId} x="-150%" y="-150%" width="400%" height="400%">
-                    <feGaussianBlur stdDeviation="2.4" result="b" />
-                    <feMerge>
-                        <feMergeNode in="b" />
-                        <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                </filter>
-            </defs>
-
-            {tile && <rect x="1" y="1" width="62" height="62" rx="18" fill="#100f1c" stroke={`url(#${gradId})`} strokeOpacity="0.45" strokeWidth="1.5" />}
-
-            <g
-                transform={tile ? 'translate(32 32) scale(0.74) translate(-32 -32)' : undefined}
-                stroke={`url(#${gradId})`}
-                strokeWidth={strokeW}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            >
-                {STROKES.map((d, i) =>
-                    animated || loop ? (
-                        <motion.path
-                            key={d}
-                            d={d}
-                            initial={{ pathLength: 0, opacity: 0 }}
-                            animate={{ pathLength: 1, opacity: 1 }}
-                            transition={{ pathLength: drawTransition(i), opacity: { duration: 0.15, delay: loop ? 0 : 0.1 + i * 0.09 } }}
-                        />
-                    ) : (
-                        <path key={d} d={d} />
-                    )
-                )}
-
-                <circle className="hg-mark__ring" cx="31" cy="32" r="5" stroke="#7fe8ff" strokeWidth="1.6" fill="none" />
-                {animated || loop ? (
-                    <motion.circle
-                        className="hg-mark__node"
-                        cx="31"
-                        cy="32"
-                        r="5.4"
-                        fill="#ffffff"
-                        stroke="none"
-                        filter={`url(#${glowId})`}
-                        initial={{ scale: 0 }}
-                        animate={loop ? { scale: [0.7, 1.15, 0.7] } : { scale: 1 }}
+            {tile && <rect x="0" y="0" width="64" height="64" rx="14" fill="var(--surface)" />}
+            <g transform={tile ? 'translate(32 32) scale(0.78) translate(-32 -32)' : undefined}>
+                {motionOn ? (
+                    <motion.path
+                        className="hg-mark__brackets"
+                        d={BRACKETS}
+                        stroke="var(--cursor)"
+                        strokeWidth={5.5}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={origin}
+                        initial={{ scale: 1.3, opacity: 0 }}
+                        animate={loop ? { scale: [1, 0.86, 1], opacity: 1 } : { scale: 1, opacity: 1 }}
                         transition={
                             loop
-                                ? { duration: 1.4, repeat: Infinity, ease: 'easeInOut' }
-                                : { type: 'spring', stiffness: 420, damping: 14, delay: 0.55 }
+                                ? { scale: { duration: 1.2, repeat: Infinity, ease: 'easeInOut' }, opacity: { duration: 0.2 } }
+                                : { duration: 0.5, ease }
                         }
-                        style={{ transformOrigin: '31px 32px', transformBox: 'view-box' }}
                     />
                 ) : (
-                    <circle className="hg-mark__node" cx="31" cy="32" r="5.4" fill="#ffffff" stroke="none" filter={`url(#${glowId})`} />
+                    <path
+                        className="hg-mark__brackets"
+                        d={BRACKETS}
+                        stroke="var(--cursor)"
+                        strokeWidth={5.5}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    />
+                )}
+                {motionOn ? (
+                    <motion.g
+                        style={origin}
+                        initial={{ scale: 0.6, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.4, ease, delay: 0.1 }}
+                    >
+                        {gem}
+                    </motion.g>
+                ) : (
+                    gem
                 )}
             </g>
         </svg>
@@ -116,11 +92,7 @@ export function LogoMark({ size = 32, animated = false, loop = false, tile = fal
 }
 
 export function Wordmark({ className }: { className?: string }) {
-    return (
-        <span className={['hg-wordmark', className].filter(Boolean).join(' ')}>
-            hub<span className="hg-wordmark__accent">games</span>
-        </span>
-    )
+    return <span className={['hg-wordmark', className].filter(Boolean).join(' ')}>HubGames</span>
 }
 
 export function Logo({ size = 30, animated = true }: { size?: number; animated?: boolean }) {
