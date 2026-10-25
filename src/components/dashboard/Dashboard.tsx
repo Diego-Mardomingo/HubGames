@@ -36,6 +36,7 @@ import GameCover from '@/components/tracker/GameCover'
 import SuggestionsPanel from '@/components/tracker/SuggestionsPanel'
 import GameLine from '@/components/achievements/GameLine'
 import SyncButton from './SyncButton'
+import WhatToPlay from './WhatToPlay'
 import { shortDate, timeAgo } from './format'
 import './dashboard.css'
 
@@ -113,7 +114,7 @@ const JUDI_STATE: Record<JudiTodayState, string> = {
 }
 
 /** Dashboard (#29): el "centro de control" para ver de un vistazo a qué jugar hoy. */
-export default function Dashboard({ data }: { data: DashboardData }) {
+export default function Dashboard({ data, now, seed }: { data: DashboardData; now: number; seed: number }) {
     const playing = playingNow(data.games)
     const queue = nextInQueue(data.games)
     const near = nearHundred(data.games)
@@ -180,6 +181,8 @@ export default function Dashboard({ data }: { data: DashboardData }) {
                     </ul>
                 )}
             </Panel>
+
+            <WhatToPlay games={data.games} now={now} initialSeed={seed} />
 
             <div className="dash-grid">
                 <div className="dash-col">

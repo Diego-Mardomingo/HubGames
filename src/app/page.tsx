@@ -54,6 +54,8 @@ export default async function HomePage() {
     } = await supabase.auth.getUser()
     if (!user) return <Landing />
 
-    const data = await loadDashboard(supabase, user.id)
-    return <Dashboard data={data} />
+    const now = new Date()
+    const data = await loadDashboard(supabase, user.id, now)
+    // La semilla de "Sorpréndeme" (#30) cambia en cada visita.
+    return <Dashboard data={data} now={now.getTime()} seed={now.getTime() % 1_000_000} />
 }
