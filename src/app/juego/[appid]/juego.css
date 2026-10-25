@@ -249,6 +249,18 @@
   font-size: 0.75rem;
 }
 
+.juego-stats__link {
+  justify-self: start;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.juego-stats__link:hover {
+  text-decoration: underline;
+}
+
 /* Medios */
 
 .juego__section {

@@ -227,6 +227,9 @@ export default function GamePanel({ appid, name, medianMinutes, storeUrl }: Prop
                                 <span style={{ width: `${pct}%` }} />
                             </span>
                             {game.last_unlock_at && <span>Último el {formatDate(game.last_unlock_at)}</span>}
+                            <Link href={`/juego/${appid}/logros`} className="juego-stats__link">
+                                Ver logros
+                            </Link>
                         </>
                     )}
                 </div>
