@@ -60,6 +60,7 @@
   margin: 0;
   font-size: 1.625rem;
   font-weight: 700;
+  font-variant-numeric: proportional-nums;
   letter-spacing: -0.02em;
 }
 
@@ -154,64 +155,56 @@
   gap: 0.75rem;
 }
 
-.ach-tabs {
-  display: inline-flex;
+.ach-sort {
+  display: flex;
   flex-wrap: wrap;
-  gap: 2px;
-  padding: 3px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-}
-
-.ach-tab {
-  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  min-height: 30px;
-  padding: 0 0.75rem;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--muted-light);
-  font: inherit;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  transition: background 0.15s, color 0.15s;
-}
-
-.ach-tab:hover {
-  color: var(--foreground);
-}
-
-.ach-tab.is-active {
-  background: var(--surface);
-  color: var(--primary);
-  font-weight: 600;
-  box-shadow: var(--shadow-sm);
-}
-
-.ach-tab:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 1px;
-}
-
-.ach-tab__count {
+  gap: 0.5rem;
   color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.8125rem;
 }
 
-.ach-select,
 .heatmap__year {
   width: auto;
-  min-width: 210px;
+  min-width: 96px;
   height: 36px;
   gap: 0.5rem;
   font-size: 0.8125rem;
 }
 
-.heatmap__year {
-  min-width: 96px;
+/* Conseguidos por rareza: punto con el color, nombre y recuento en tinta de texto. */
+.ach-tiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.ach-tiers li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.ach-tiers li::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.ach-tiers__name {
+  margin-right: 0.125rem;
+}
+
+.ach-tiers b {
+  color: var(--foreground);
+  font-weight: 600;
 }
 
 /* ── Un logro (sobre .hg-ach) ── */
@@ -728,14 +721,6 @@ button.heatmap__cell:focus-visible {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .ach-select {
-    min-width: 0;
-    width: 100%;
-  }
-
-  .ach-tab {
-    min-height: 40px;
-  }
 }
 
 @media (max-width: 640px) {
@@ -792,11 +777,5 @@ button.heatmap__cell:focus-visible {
 
   .milestone__progress .hg-bar {
     display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ach-tab {
-    transition: none;
   }
 }

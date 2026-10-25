@@ -2,12 +2,11 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, Gauge, LogIn, Sparkles, Trophy } from 'lucide-react'
+import { ArrowLeft, BookOpen, Gauge, LogIn, Trophy } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import {
     ACHIEVEMENT_COLUMNS,
     ACHIEVEMENT_FILTER_LABELS,
-    ACHIEVEMENT_SORT_LABELS,
     DIFFICULTY_LABELS,
     estimateDifficulty,
     formatPercent,
@@ -20,10 +19,10 @@ import {
     type AchievementSort,
 } from '@/lib/achievements'
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import Loader from '@/components/Loader'
-import { Reveal } from '@/components/motion'
 import AchievementItem from '@/components/achievements/AchievementItem'
+import { RARITY_TIERS, RARITY_TIER_LABELS, rarityColor, rarityTier, type RarityTier } from '@/lib/rarity'
+import '@/styles/lists.css'
 import '@/components/achievements/achievements.css'
 import '@/components/tracker/tracker.css'
 
@@ -36,7 +35,24 @@ type State = { kind: 'cargando' } | { kind: 'sin_sesion' } | { kind: 'ok'; list:
 
 const FILTERS: AchievementFilter[] = ['todos', 'bloqueados', 'desbloqueados', 'ocultos']
 const SORTS: AchievementSort[] = ['rareza', 'fecha', 'nombre']
+/** Etiquetas cortas para el control segmentado ("Ordenar por …"). */
+const SORT_LABELS: Record<AchievementSort, string> = { rareza: 'Rareza', fecha: 'Recientes', nombre: 'Nombre' }
 const NONE: Achievement[] = []
+
+type CSSVars = React.CSSProperties & Record<`--${string}`, string>
+
+/** Conseguidos y totales por rareza (los logros sin dato de Steam no cuentan). */
+function byRarity(list: Achievement[]): { tier: RarityTier; unlocked: number; total: number }[] {
+    const rows = RARITY_TIERS.map((tier) => ({ tier, unlocked: 0, total: 0 }))
+    for (const a of list) {
+        const tier = rarityTier(a.global_percent)
+        if (!tier) continue
+        const row = rows[RARITY_TIERS.indexOf(tier)]
+        row.total++
+        if (a.achieved) row.unlocked++
+    }
+    return rows.filter((r) => r.total > 0)
+}
 
 /** Página de logros de un juego (#25): progreso, filtros, rareza con colores y dificultad estimada. */
 export default function GameAchievements({ appid, name }: Props) {
@@ -76,23 +92,17 @@ export default function GameAchievements({ appid, name }: Props) {
     const pct = total > 0 ? Math.floor((unlocked / total) * 100) : 0
     const difficulty = estimateDifficulty(list)
     const points = pointsOf(list)
+    const tiers = byRarity(list)
 
     return (
         <div className="logros">
-            <Link href={`/juego/${appid}`} className="eyebrow logros__back">
-                <ArrowLeft size={13} aria-hidden /> {name}
+            <Link href={`/juego/${appid}`} className="logros__back">
+                <ArrowLeft size={14} aria-hidden /> {name}
             </Link>
 
             <header className="page-head">
                 <div>
-                    <Reveal>
-                        <span className="eyebrow">
-                            <Trophy size={13} aria-hidden /> Logros
-                        </span>
-                    </Reveal>
-                    <Reveal delay={0.05}>
-                        <h1 className="page-title">{name}</h1>
-                    </Reveal>
+                    <h1 className="page-title">Logros de {name}</h1>
                 </div>
             </header>
 
@@ -130,7 +140,7 @@ export default function GameAchievements({ appid, name }: Props) {
                                 <span style={{ width: `${pct}%` }} />
                             </span>
                             <p className="ach-summary__points" title="Puntos según la rareza de cada logro">
-                                <Sparkles size={13} aria-hidden /> {points.earned.toLocaleString('es-ES')} de {points.possible.toLocaleString('es-ES')} puntos de cazador
+                                {points.earned.toLocaleString('es-ES')} de {points.possible.toLocaleString('es-ES')} puntos de cazador
                             </p>
                         </div>
                         <div className="ach-summary__side">
@@ -151,6 +161,18 @@ export default function GameAchievements({ appid, name }: Props) {
                                     Todos los logros desbloqueados.
                                 </p>
                             )}
+                            {tiers.length > 0 && (
+                                <ul className="ach-tiers" aria-label="Conseguidos por rareza">
+                                    {tiers.map((t) => (
+                                        <li key={t.tier} style={{ '--c': rarityColor(t.tier) } as CSSVars}>
+                                            <span className="ach-tiers__name">{RARITY_TIER_LABELS[t.tier]}</span>
+                                            <span>
+                                                <b>{t.unlocked}</b>/{t.total}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                             <div className="ach-summary__links">
                                 <a href={steamGuidesUrl(appid)} target="_blank" rel="noreferrer">
                                     <BookOpen size={13} aria-hidden /> Guías de Steam
@@ -160,36 +182,40 @@ export default function GameAchievements({ appid, name }: Props) {
                     </section>
 
                     <div className="ach-toolbar">
-                        <nav className="ach-tabs" aria-label="Filtrar logros">
+                        <div className="hg-seg hg-seg--scroll" role="group" aria-label="Filtrar logros">
                             {FILTERS.map((f) => (
                                 <button
                                     key={f}
                                     type="button"
-                                    className={`ach-tab ${filter === f ? 'is-active' : ''}`}
+                                    className={`hg-seg__opt${filter === f ? ' is-active' : ''}`}
                                     aria-pressed={filter === f}
                                     onClick={() => setFilter(f)}
                                 >
                                     {ACHIEVEMENT_FILTER_LABELS[f]}
-                                    <span className="ach-tab__count">{counts[f]}</span>
+                                    <span className="hg-seg__count">{counts[f]}</span>
                                 </button>
                             ))}
-                        </nav>
-                        <Select value={sort} onValueChange={(v) => setSort(v as AchievementSort)}>
-                            <SelectTrigger className="ach-select" aria-label="Ordenar logros">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {SORTS.map((s) => (
-                                    <SelectItem key={s} value={s}>
-                                        {ACHIEVEMENT_SORT_LABELS[s]}
-                                    </SelectItem>
+                        </div>
+                        <div className="ach-sort">
+                            <span id="ach-sort-label">Ordenar por</span>
+                            <div className="hg-seg" role="group" aria-labelledby="ach-sort-label">
+                                {SORTS.map((o) => (
+                                    <button
+                                        key={o}
+                                        type="button"
+                                        className={`hg-seg__opt${sort === o ? ' is-active' : ''}`}
+                                        aria-pressed={sort === o}
+                                        onClick={() => setSort(o)}
+                                    >
+                                        {SORT_LABELS[o]}
+                                    </button>
                                 ))}
-                            </SelectContent>
-                        </Select>
+                            </div>
+                        </div>
                     </div>
 
                     {shown.length === 0 ? (
-                        <p className="logros__empty glass">No hay logros con este filtro.</p>
+                        <p className="hg-empty">No hay logros con este filtro.</p>
                     ) : (
                         <ul className="ach-list">
                             {shown.map((a) => (

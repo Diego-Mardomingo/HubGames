@@ -1,10 +1,29 @@
 'use client'
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import Image from 'next/image'
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react'
 import type Hls from 'hls.js'
 import type { Screenshot, Trailer } from '@/lib/steam-text'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+
+/**
+ * Imagen grande de la ficha: el arte "hero" de la biblioteca de Steam (1920×620, sin logo) y, si no existe, la
+ * cabecera de la tienda. Sin imagen no se pinta nada: el título va debajo, sobre la superficie.
+ */
+export function HeroImage({ appid, headerImage }: { appid: number; headerImage: string | null }) {
+    const sources = [`https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${appid}/library_hero.jpg`, headerImage].filter(
+        (s): s is string => !!s,
+    )
+    const [index, setIndex] = useState(0)
+    const src = sources[index]
+    if (!src) return null
+    return (
+        <span className={`juego__hero${index === 0 ? '' : ' juego__hero--header'}`}>
+            <Image key={src} src={src} alt="" fill sizes="(max-width: 1100px) 100vw, 1040px" priority onError={() => setIndex((i) => i + 1)} />
+        </span>
+    )
+}
 
 /** Capturas en miniatura; al pulsar, se abren a tamaño completo y se pasan con las flechas. */
 export function Screenshots({ screenshots, name }: { screenshots: Screenshot[]; name: string }) {

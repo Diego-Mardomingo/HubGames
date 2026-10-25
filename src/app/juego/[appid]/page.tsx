@@ -1,14 +1,13 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, CalendarDays, ExternalLink, ThumbsUp } from 'lucide-react'
+import { ArrowLeft, ExternalLink, ThumbsUp } from 'lucide-react'
 import { getCatalogGame, getHltb, parseAppid } from '@/lib/catalog'
 import { gameDuration } from '@/lib/library'
 import { htmlToParagraphs, parseGenres, parseScreenshots, parseTrailers } from '@/lib/steam-text'
-import { Reveal } from '@/components/motion'
+import { Button } from '@/components/ui/button'
 import GamePanel from './GamePanel'
-import { Screenshots, Trailers } from './Media'
+import { HeroImage, Screenshots, Trailers } from './Media'
 import './juego.css'
 
 interface Props {
@@ -44,29 +43,27 @@ export default async function JuegoPage({ params }: Props) {
 
     return (
         <div className="juego">
-            {game.background_raw && (
-                <div className="juego__backdrop" aria-hidden style={{ backgroundImage: `url(${JSON.stringify(game.background_raw)})` }} />
-            )}
-
-            <Link href="/biblioteca" className="eyebrow juego__back">
-                <ArrowLeft size={13} aria-hidden /> Biblioteca
+            <Link href="/biblioteca" className="juego__back">
+                <ArrowLeft size={14} aria-hidden /> Biblioteca
             </Link>
 
-            <header className="juego__hero">
-                {game.header_image && (
-                    <span className="juego__header-image">
-                        <Image src={game.header_image} alt="" fill sizes="(max-width: 768px) 100vw, 460px" priority />
-                    </span>
-                )}
+            <header className="juego__head">
+                <HeroImage appid={appid} headerImage={game.header_image} />
                 <div className="juego__heading">
-                    <Reveal>
-                        <h1 className="page-title">{game.name}</h1>
-                    </Reveal>
-                    {studios.length > 0 && <p className="juego__studios">{studios.join(' · ')}</p>}
+                    <div className="juego__title-row">
+                        <div className="juego__title">
+                            <h1 className="page-title">{game.name}</h1>
+                            {studios.length > 0 && <p className="juego__studios">{studios.join(' · ')}</p>}
+                        </div>
+                        <Button variant="secondary" asChild>
+                            <a href={storeUrl} target="_blank" rel="noreferrer">
+                                <ExternalLink aria-hidden /> Ver en Steam
+                            </a>
+                        </Button>
+                    </div>
                     <ul className="juego__facts">
                         {(game.release_date_text || game.release_date) && (
                             <li>
-                                <CalendarDays size={13} aria-hidden />
                                 {game.coming_soon ? 'Próximamente: ' : ''}
                                 {game.release_date_text ?? game.release_date}
                             </li>
@@ -75,16 +72,18 @@ export default async function JuegoPage({ params }: Props) {
                             <li>
                                 {game.metacritic_url ? (
                                     <a className="juego__metacritic" href={game.metacritic_url} target="_blank" rel="noreferrer">
-                                        Metacritic {game.metacritic_score}
+                                        Metacritic <b>{game.metacritic_score}</b>
                                     </a>
                                 ) : (
-                                    <span className="juego__metacritic">Metacritic {game.metacritic_score}</span>
+                                    <span className="juego__metacritic">
+                                        Metacritic <b>{game.metacritic_score}</b>
+                                    </span>
                                 )}
                             </li>
                         )}
                         {game.steamspy_userscore !== null && (
                             <li title="Reseñas positivas en Steam (SteamSpy)">
-                                <ThumbsUp size={13} aria-hidden /> {game.steamspy_userscore}% positivas
+                                <ThumbsUp size={13} aria-hidden /> {game.steamspy_userscore} % positivas
                             </li>
                         )}
                         {game.is_free && <li>Gratis</li>}
@@ -96,9 +95,6 @@ export default async function JuegoPage({ params }: Props) {
                             ))}
                         </ul>
                     )}
-                    <a className="juego__store" href={storeUrl} target="_blank" rel="noreferrer">
-                        Ver en la tienda de Steam <ExternalLink size={12} aria-hidden />
-                    </a>
                 </div>
             </header>
 
@@ -106,7 +102,6 @@ export default async function JuegoPage({ params }: Props) {
                 appid={appid}
                 name={game.name}
                 duration={duration}
-                storeUrl={storeUrl}
             />
 
             {trailers.length > 0 && (

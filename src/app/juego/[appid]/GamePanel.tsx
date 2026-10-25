@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, CalendarCheck, Clock, Flag, Gamepad2, Heart, HeartOff, Hourglass, LogIn, Play, Star, Target, Trophy } from 'lucide-react'
+import { AlertTriangle, Flag, Heart, HeartOff, LogIn, Play, Trophy } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import {
     GAME_STATUSES,
@@ -21,6 +21,7 @@ import { addToWishlist, removeFromWishlist, type WishlistGame } from '@/lib/wish
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import '@/styles/lists.css'
 import CompleteDialog from '@/components/tracker/CompleteDialog'
 import { PriceLows, PriceNow } from '@/components/wishlist/PriceInfo'
 
@@ -29,7 +30,6 @@ interface Props {
     name: string
     /** Duraciones de HowLongToBeat o, si no hay, la mediana de SteamSpy (#23). */
     duration: GameDuration
-    storeUrl: string
 }
 
 type State =
@@ -57,13 +57,15 @@ function formatDate(iso: string | null): string | null {
     return iso ? DATE.format(new Date(iso)) : null
 }
 
+/** Fecha corta para las cifras grandes ("23 oct 2026"). */
+const SHORT_DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+
 /** Fila de la wishlist con precio y mínimos (#35, #36), o null si no está en ella. */
 async function loadWish(appid: number): Promise<WishlistGame | null> {
     const { data } = await supabase.from('hubgames_wishlist').select('*').eq('appid', appid).maybeSingle()
     return (data as WishlistGame | null) ?? null
 }
 
-/** Tus datos del juego y las acciones (#22). Se cargan en el cliente: la ficha de Steam ya viene del servidor. */
 /** "Historia 12 h · Historia + extras 20 h · 100% 45 h (HowLongToBeat)". */
 function DurationNote({ duration }: { duration: GameDuration }) {
     if (!duration.source) return null
@@ -74,13 +76,13 @@ function DurationNote({ duration }: { duration: GameDuration }) {
     ].filter(Boolean)
     return (
         <p className="juego-panel__note">
-            <Hourglass size={13} aria-hidden /> {parts.join(' · ')}{' '}
-            <span className="juego-panel__source">({DURATION_SOURCE_LABEL[duration.source]})</span>
+            Duración: {parts.join(' · ')} <span className="juego-panel__source">({DURATION_SOURCE_LABEL[duration.source]})</span>
         </p>
     )
 }
 
-export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
+/** Tus datos del juego y las acciones (#22). Se cargan en el cliente: la ficha de Steam ya viene del servidor. */
+export default function GamePanel({ appid, name, duration }: Props) {
     const [state, setState] = useState<State>({ kind: 'cargando' })
     const [completing, setCompleting] = useState(false)
     const [busy, setBusy] = useState(false)
@@ -108,8 +110,8 @@ export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
     if (state.kind === 'cargando') {
         return (
             <section className="juego-panel glass" aria-busy>
-                <Skeleton className="h-6 w-40" />
-                <Skeleton className="h-16 w-full" />
+                <Skeleton className="juego-skel juego-skel--bar" />
+                <Skeleton className="juego-skel juego-skel--block" />
             </section>
         )
     }
@@ -157,11 +159,6 @@ export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
                     </p>
                 )}
                 <div className="juego-panel__actions">
-                    <Button variant="secondary" asChild>
-                        <a href={storeUrl} target="_blank" rel="noreferrer">
-                            Ver en la tienda
-                        </a>
-                    </Button>
                     {wish?.source === 'steam' ? (
                         <Button variant="secondary" asChild>
                             <Link href="/wishlist">
@@ -236,7 +233,7 @@ export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
         <section className="juego-panel glass" aria-label="Tus datos">
             <div className="juego-panel__top">
                 <div className="juego-panel__selects">
-                    <label className="juego-panel__status">
+                    <label className="juego-panel__field">
                         <span>Estado</span>
                         <Select value={game.status} onValueChange={(v) => changeStatus(v as GameStatus)} disabled={busy}>
                             <SelectTrigger className={`juego-panel__select lib-status--${game.status}`} aria-label="Estado">
@@ -251,7 +248,7 @@ export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
                             </SelectContent>
                         </Select>
                     </label>
-                    <label className="juego-panel__status">
+                    <label className="juego-panel__field">
                         <span>Objetivo</span>
                         <Select value={parseGoal(game.goal)} onValueChange={(v) => changeGoal(v as GameGoal)} disabled={busy}>
                             <SelectTrigger className="juego-panel__select juego-panel__select--goal" aria-label="Objetivo">
@@ -291,11 +288,56 @@ export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
                 </p>
             )}
 
+            <dl className="juego-stats">
+                <div>
+                    <dt>Horas</dt>
+                    <dd>{formatHours(game.playtime_forever)}</dd>
+                    {game.playtime_2weeks > 0 && <span>{formatHours(game.playtime_2weeks)} en 2 semanas</span>}
+                </div>
+                <div>
+                    <dt>Última partida</dt>
+                    <dd>{game.rtime_last_played ? SHORT_DATE.format(new Date(game.rtime_last_played)) : 'Nunca'}</dd>
+                    {game.started_at && game.status === 'jugando' && <span>Jugando desde el {formatDate(game.started_at)}</span>}
+                </div>
+                <div>
+                    <dt>Tu nota</dt>
+                    <dd>{game.rating !== null ? String(game.rating).replace('.', ',') : '—'}</dd>
+                    {game.completed_at && <span>Completado el {formatDate(game.completed_at)}</span>}
+                </div>
+                <div>
+                    <dt>Logros</dt>
+                    {pct === null ? (
+                        <dd>Sin logros</dd>
+                    ) : (
+                        <>
+                            <dd>
+                                {game.achievements_unlocked ?? 0}
+                                <small>/{game.achievements_total}</small>
+                                {isPerfect(game) ? (
+                                    <span className="badge-100" title="Todos los logros desbloqueados">
+                                        <Trophy size={11} aria-hidden /> 100%
+                                    </span>
+                                ) : (
+                                    <small className="juego-stats__pct">{pct} %</small>
+                                )}
+                            </dd>
+                            <span className={`hg-bar${isPerfect(game) ? ' is-done' : ''}`} aria-hidden>
+                                <span style={{ width: `${pct}%` }} />
+                            </span>
+                            <span>
+                                {game.last_unlock_at && `Último el ${formatDate(game.last_unlock_at)} · `}
+                                <Link href={`/juego/${appid}/logros`} className="juego-stats__link">
+                                    Ver logros
+                                </Link>
+                            </span>
+                        </>
+                    )}
+                </div>
+            </dl>
+
             <div className="juego-goal">
                 <div className="juego-goal__row">
-                    <span className="juego-goal__label">
-                        <Target size={13} aria-hidden /> Objetivo: {GOAL_LABELS[progress.goal]}
-                    </span>
+                    <span className="juego-goal__label">Objetivo: {GOAL_LABELS[progress.goal]}</span>
                     <span className="juego-goal__value">
                         {progress.percent === null
                             ? 'Sin duración para medirlo'
@@ -305,7 +347,7 @@ export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
                     </span>
                 </div>
                 {progress.percent !== null && (
-                    <span className={`lib-progress${progress.done ? ' is-done' : ''}`} aria-hidden>
+                    <span className={`hg-bar${progress.done ? ' is-done' : ''}`} aria-hidden>
                         <span style={{ width: `${progress.percent}%` }} />
                     </span>
                 )}
@@ -317,76 +359,18 @@ export default function GamePanel({ appid, name, duration, storeUrl }: Props) {
                         </Button>
                     </p>
                 )}
+                {progress.basis === 'horas' && progress.targetMinutes !== null && duration.source && (
+                    <p className="juego-panel__note">
+                        {progress.targetMinutes - game.playtime_forever > 30
+                            ? `Te faltan unas ${formatHours(progress.targetMinutes - game.playtime_forever)} ${GOAL_TARGET_TEXT[progress.goal]} (${formatHours(progress.targetMinutes)}).`
+                            : `Ya has pasado la duración ${GOAL_DURATION_TEXT[progress.goal]} (${formatHours(progress.targetMinutes)}).`}{' '}
+                        <span className="juego-panel__source">Según {DURATION_SOURCE_LABEL[duration.source]}.</span>
+                    </p>
+                )}
+                {duration.source === 'hltb' && (duration.mainExtra !== null || duration.completionist !== null) && (
+                    <DurationNote duration={duration} />
+                )}
             </div>
-
-            <dl className="juego-stats">
-                <div>
-                    <dt>
-                        <Clock size={13} aria-hidden /> Horas
-                    </dt>
-                    <dd>{formatHours(game.playtime_forever)}</dd>
-                    {game.playtime_2weeks > 0 && <span>{formatHours(game.playtime_2weeks)} en 2 semanas</span>}
-                </div>
-                <div>
-                    <dt>
-                        <Gamepad2 size={13} aria-hidden /> Última partida
-                    </dt>
-                    <dd>{formatDate(game.rtime_last_played) ?? 'Nunca'}</dd>
-                </div>
-                <div>
-                    <dt>
-                        <Star size={13} aria-hidden /> Tu nota
-                    </dt>
-                    <dd>{game.rating !== null ? String(game.rating).replace('.', ',') : '—'}</dd>
-                    {game.completed_at && <span>Completado el {formatDate(game.completed_at)}</span>}
-                </div>
-                <div>
-                    <dt>
-                        <Trophy size={13} aria-hidden /> Logros
-                    </dt>
-                    {pct === null ? (
-                        <dd>Sin logros</dd>
-                    ) : (
-                        <>
-                            <dd>
-                                {game.achievements_unlocked ?? 0}/{game.achievements_total}{' '}
-                                {isPerfect(game) ? (
-                                    <span className="badge-100" title="Todos los logros desbloqueados">
-                                        <Trophy size={11} aria-hidden /> 100%
-                                    </span>
-                                ) : (
-                                    <small>{pct}%</small>
-                                )}
-                            </dd>
-                            <span className="lib-progress" aria-hidden>
-                                <span style={{ width: `${pct}%` }} />
-                            </span>
-                            {game.last_unlock_at && <span>Último el {formatDate(game.last_unlock_at)}</span>}
-                            <Link href={`/juego/${appid}/logros`} className="juego-stats__link">
-                                Ver logros
-                            </Link>
-                        </>
-                    )}
-                </div>
-            </dl>
-
-            {progress.basis === 'horas' && progress.targetMinutes !== null && duration.source && (
-                <p className="juego-panel__note">
-                    <Hourglass size={13} aria-hidden />{' '}
-                    {progress.targetMinutes - game.playtime_forever > 30
-                        ? `Te faltan unas ${formatHours(progress.targetMinutes - game.playtime_forever)} ${GOAL_TARGET_TEXT[progress.goal]} (${formatHours(progress.targetMinutes)}).`
-                        : `Ya has pasado la duración ${GOAL_DURATION_TEXT[progress.goal]} (${formatHours(progress.targetMinutes)}).`}{' '}
-                    <span className="juego-panel__source">Según {DURATION_SOURCE_LABEL[duration.source]}.</span>
-                </p>
-            )}
-            {duration.source === 'hltb' && (duration.mainExtra !== null || duration.completionist !== null) && (
-                <DurationNote duration={duration} />
-            )}
-            {game.started_at && game.status === 'jugando' && (
-                <p className="juego-panel__note">
-                    <CalendarCheck size={13} aria-hidden /> Jugando desde el {formatDate(game.started_at)}.
-                </p>
-            )}
 
             <CompleteDialog
                 game={completing ? { ...game, name } : null}
