@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Award, Flag, Gem, Hourglass, Sparkles, Target, Trophy } from 'lucide-react'
+import { Award, Flag, Gem, History, Hourglass, Sparkles, Target, Trophy } from 'lucide-react'
 import { safeGetSession } from '@/lib/supabase/client'
 import { loadLibrary, type LibraryGame } from '@/lib/tracker'
 import {
@@ -156,6 +156,11 @@ export default function LogrosPage() {
                         </p>
                     </Reveal>
                 </div>
+                <Button variant="secondary" asChild>
+                    <Link href="/logros/historial">
+                        <History aria-hidden /> Línea temporal
+                    </Link>
+                </Button>
             </header>
 
             {error && (

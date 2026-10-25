@@ -647,3 +647,186 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Historial: rachas, heatmap y línea temporal (#28) ── */
+
+.streaks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.streak {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1.1rem;
+  color: var(--muted);
+}
+
+.streak.is-active {
+  color: #fb923c;
+}
+
+.streak p {
+  margin: 0;
+}
+
+.streak__value {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.streak__label {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.heatmap {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.1rem 1.25rem;
+  min-width: 0;
+}
+
+.heatmap__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.heatmap__year {
+  width: 110px;
+}
+
+.heatmap__scroll {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.heatmap__grid {
+  display: grid;
+  gap: 3px;
+  min-width: 720px;
+}
+
+.heatmap__row {
+  display: contents;
+}
+
+.heatmap__month,
+.heatmap__weekday {
+  color: var(--muted);
+  font-size: 0.625rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.heatmap__weekday {
+  align-self: center;
+}
+
+.heatmap__cell {
+  display: block;
+  aspect-ratio: 1;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+button.heatmap__cell:not(:disabled) {
+  cursor: pointer;
+}
+
+button.heatmap__cell:not(:disabled):hover,
+.heatmap__cell.is-selected {
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+}
+
+.heatmap__cell.is-out {
+  background: transparent;
+}
+
+.heat-1 { background: rgba(154, 134, 255, 0.28); }
+.heat-2 { background: rgba(154, 134, 255, 0.5); }
+.heat-3 { background: rgba(111, 139, 255, 0.75); }
+.heat-4 { background: #2ad4f0; }
+
+.heatmap__legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.6875rem;
+}
+
+.heatmap__legend .heatmap__cell {
+  width: 11px;
+  height: 11px;
+}
+
+.timeline {
+  display: grid;
+  gap: 1.25rem;
+  scroll-margin-top: calc(var(--nav-h) + 1rem);
+}
+
+.timeline__filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--muted-light);
+  font-size: 0.875rem;
+}
+
+.timeline__day {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.timeline__date {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.timeline__date::first-letter {
+  text-transform: uppercase;
+}
+
+.timeline__game {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.8rem 0.9rem;
+}
+
+.timeline__game-name {
+  justify-self: start;
+  color: var(--muted-light);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.timeline__game-name:hover {
+  color: var(--foreground);
+}
+
+@media (max-width: 560px) {
+  .streaks {
+    grid-template-columns: 1fr;
+  }
+}
