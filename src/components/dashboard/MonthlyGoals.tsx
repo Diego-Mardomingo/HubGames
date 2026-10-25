@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Minus, Pencil, Plus, Target } from 'lucide-react'
+import { Check, Minus, Pencil, Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { GOAL_KINDS, GOAL_LABELS, GOAL_MAX, goalPace, monthName, type GoalKind, type GoalPace } from '@/lib/goals'
 import { Button } from '@/components/ui/button'
@@ -55,10 +55,10 @@ export default function MonthlyGoals({ userId, month, saved, suggested, progress
     const title = `Metas de ${monthName(month)}`
 
     return (
-        <section className="dash-panel glass goals" aria-labelledby="dash-goals">
+        <section className="dash-panel goals" aria-labelledby="dash-goals">
             <header className="dash-panel__head">
                 <h2 id="dash-goals" className="dash-panel__title">
-                    <Target size={16} aria-hidden /> {title}
+                    {title}
                 </h2>
                 {targets && !draft && (
                     <Button type="button" variant="ghost" size="sm" onClick={() => setDraft(targets)}>
@@ -107,7 +107,7 @@ export default function MonthlyGoals({ userId, month, saved, suggested, progress
                                 )}
                                 {targets && !draft && <span className={`goal__pace goal__pace--${pace}`}>{PACE_LABELS[pace]}</span>}
                             </div>
-                            <span className={`lib-progress ${pace === 'cumplida' ? 'is-done' : ''}`} aria-hidden>
+                            <span className={`dash-bar${pace === 'cumplida' ? ' is-done' : ''}`} aria-hidden>
                                 <span style={{ width: `${pct}%` }} />
                             </span>
                         </li>

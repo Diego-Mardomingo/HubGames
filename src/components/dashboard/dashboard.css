@@ -1,94 +1,121 @@
-/* ── Dashboard (#29) ── */
+/* ── Inicio: dashboard (#29) y portada sin sesión ──
+   Jerarquía: cabecera → mapa de actividad → [en curso | logros recientes] → qué jugar → cola, 100 %, JUDI y metas. */
 
 .dash {
   display: grid;
-  gap: 1.25rem;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding-bottom: 6rem;
-}
-
-.dash .page-head {
-  margin-bottom: 0.25rem;
+  gap: 1.75rem;
+  padding-bottom: 4rem;
 }
 
 .dash .suggestions {
   max-width: none;
 }
 
-.dash-head-sync {
+/* Cabecera: saludo + estado de la sincronización + Sincronizar */
+.dash-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.dash-head .page-title {
+  margin: 0;
+}
+
+.dash-head .page-subtitle {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.dash-sync {
   display: grid;
   justify-items: end;
   gap: 0.35rem;
 }
 
-.dash-head-sync__last {
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-
-.dash-sync {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
 .dash-sync__msg {
   color: var(--success);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
 }
 
 .dash-sync__msg.is-error {
   color: var(--danger);
 }
 
-.dash-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  gap: 1.25rem;
-  align-items: start;
-}
-
-.dash-col {
-  display: grid;
-  gap: 1.25rem;
-  min-width: 0;
-}
-
-/* Paneles */
+/* Paneles: título + acciones a la derecha. Los de listas no llevan caja: las filas ya son superficies. */
 .dash-panel {
   display: grid;
-  gap: 0.85rem;
-  padding: 1.1rem 1.25rem;
+  gap: 0.75rem;
+  align-content: start;
   min-width: 0;
+  padding: 1.1rem 1.25rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.dash-panel--list {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
 }
 
 .dash-panel__head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: baseline;
   gap: 0.75rem;
+  min-height: 2rem;
+}
+
+.dash-panel__head > :last-child:not(:first-child) {
+  margin-left: auto;
 }
 
 .dash-panel__title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
-.dash-panel__link {
-  color: var(--muted-light);
+.dash-link {
+  color: var(--muted);
   font-size: 0.8125rem;
+  font-weight: 500;
   text-decoration: none;
+  white-space: nowrap;
 }
 
-.dash-panel__link:hover {
+.dash-link:hover {
   color: var(--foreground);
+  text-decoration: underline;
+}
+
+.dash-hint {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.dash-hint + .dash-link {
+  margin-left: 0.75rem;
+}
+
+.dash-hint kbd {
+  display: inline-block;
+  min-width: 1.35em;
+  padding: 0 0.3em;
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--muted-light);
+  font: inherit;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .dash-empty {
@@ -97,226 +124,552 @@
   font-size: 0.875rem;
 }
 
-/* Jugando ahora */
-.dash-playing-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 0.85rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.dash-playing {
-  position: relative;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  border-radius: var(--radius);
+.dash-panel--list .dash-empty {
+  padding: 1rem 1.25rem;
+  background: var(--surface);
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.02);
-  overflow: hidden;
-  transition: border-color 0.2s var(--ease-out), transform 0.2s var(--ease-out);
+  border-radius: var(--radius-lg);
 }
 
-.dash-playing:hover {
-  border-color: var(--border-hover);
-  transform: translateY(-2px);
-}
-
-.dash-playing__cover {
+/* ── Mapa de actividad ── */
+.heat {
   position: relative;
-  display: block;
-  aspect-ratio: 460 / 215;
-}
-
-.dash-playing__body {
-  display: grid;
-  gap: 0.5rem;
-  padding: 0.75rem 0.9rem 0.9rem;
-  align-content: start;
-}
-
-.dash-playing__name {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  color: var(--foreground);
-  text-decoration: none;
-  /* Deja sitio al botón "Jugar", que va sobre la portada. */
+  padding: 1.1rem 1.25rem 1rem;
   min-width: 0;
 }
 
-.dash-playing__name:hover {
-  text-decoration: underline;
-}
-
-.dash-playing__play {
-  position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
-  box-shadow: var(--shadow-lg);
-}
-
-.dash-facts {
+.heat__meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 0.9rem;
+  align-items: baseline;
+  gap: 0.35rem 1.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.heat__meta p {
   margin: 0;
-  padding: 0;
-  list-style: none;
-  color: var(--muted-light);
-  font-size: 0.8125rem;
+  color: var(--muted);
+  font-size: 0.84375rem;
 }
 
-.dash-facts li {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
+.heat__meta b {
+  margin-right: 0.3rem;
+  color: var(--foreground);
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-.dash-ach {
+.heat__meta .heat__range {
+  margin-left: auto;
+}
+
+.heat__scroll {
+  overflow-x: auto;
+  /* Hueco para el contorno del día activo sin que lo recorte el desplazamiento. */
+  padding: 3px;
+  margin: -3px;
+  scrollbar-width: thin;
+}
+
+.heat__body {
+  /* Celdas fluidas: llenan el ancho; por debajo de ~10 px por semana, el mapa se desplaza. */
+  min-width: calc(var(--weeks) * 11px);
+}
+
+.heat__grid {
   display: grid;
-  gap: 0.35rem;
+  grid-template-columns: repeat(var(--weeks), minmax(0, 1fr));
+  grid-template-rows: repeat(7, auto);
+  grid-auto-flow: column;
+  gap: 3px;
+  border-radius: 4px;
+}
+
+.heat__grid:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+
+.heat__grid i,
+.heat__legend i {
+  display: block;
+  border-radius: 3px;
+  background: var(--surface-2);
+}
+
+.heat__grid i {
+  aspect-ratio: 1;
+}
+
+.heat [data-l='1'] { --heat-c: color-mix(in srgb, var(--primary) 28%, var(--surface-2)); }
+.heat [data-l='2'] { --heat-c: color-mix(in srgb, var(--primary) 52%, var(--surface-2)); }
+.heat [data-l='3'] { --heat-c: color-mix(in srgb, var(--primary) 76%, var(--surface-2)); }
+.heat [data-l='4'] { --heat-c: var(--primary); }
+
+.heat__grid i[data-l]:not([data-l='0']),
+.heat__legend i[data-l]:not([data-l='0']) {
+  background: var(--heat-c);
+}
+
+.heat__grid i.is-future {
+  visibility: hidden;
+}
+
+.heat:not(.heat--preview) .heat__grid i:not(.is-future):hover,
+.heat__grid i.is-active {
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+}
+
+.heat__months {
+  display: grid;
+  grid-template-columns: repeat(var(--weeks), minmax(0, 1fr));
+  column-gap: 3px;
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.71875rem;
+}
+
+.heat__months span {
+  grid-row: 1;
+  white-space: nowrap;
+}
+
+.heat__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  margin-top: 0.85rem;
+  color: var(--muted);
   font-size: 0.75rem;
 }
 
-.dash-ach a {
-  color: var(--muted);
-  text-decoration: none;
+.heat__legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 }
 
-.dash-ach a:hover {
-  color: var(--foreground);
+.heat__legend i {
+  width: 11px;
+  height: 11px;
 }
 
-/* Cola */
-.dash-queue {
+.heat__legend i:first-child {
+  margin-left: 0.35rem;
+}
+
+.heat__legend i:last-child {
+  margin-right: 0.35rem;
+}
+
+.heat__extra {
+  margin-left: auto;
+}
+
+.heat__tip {
+  position: fixed;
+  z-index: 60;
+  transform: translate(-50%, calc(-100% - 8px));
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 0.78125rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ── Filas de juegos (en curso, cola, cerca del 100 %, qué jugar) ── */
+.dash-rows {
   display: grid;
-  gap: 0.5rem;
+  gap: 6px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.dash-queue li {
+.dash-row {
+  position: relative;
   display: grid;
-  grid-template-columns: 1.5rem 80px minmax(0, 1fr) auto;
+  grid-template-columns: 112px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
+  min-height: 68px;
+  padding: 8px 12px 8px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.dash-queue__pos {
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  text-align: center;
+/* Cursor de selección: ratón o foco de teclado en cualquier elemento de la fila. */
+.dash-row:hover,
+.dash-row:has(:focus-visible) {
+  border-color: transparent;
+  box-shadow: 0 0 0 3px var(--cursor);
 }
 
-.dash-queue__cover {
+.dash-row--playing {
+  grid-template-columns: 112px minmax(0, 1fr) minmax(130px, 170px) auto auto;
+}
+
+.dash-row--near {
+  grid-template-columns: 112px minmax(0, 1fr) minmax(90px, 130px);
+}
+
+.dash-row__cover {
   position: relative;
   display: block;
-  aspect-ratio: 460 / 215;
-  border-radius: var(--radius-sm);
+  width: 112px;
+  height: 52px;
+  border-radius: 6px;
   overflow: hidden;
+  background: var(--surface-2);
 }
 
-.dash-queue__name {
+.dash-row__cover .game-cover {
+  background: var(--surface-2);
+}
+
+.dash-row__cover .game-cover--empty span {
+  display: none;
+}
+
+/* Franja de 3 px con el color de la rareza del logro más raro conseguido. */
+.dash-row.has-rarity .dash-row__cover::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  height: 3px;
+  background: var(--c);
+}
+
+.dash-row__main {
   display: grid;
+  gap: 2px;
   min-width: 0;
+}
+
+.dash-row__link {
+  overflow: hidden;
   color: var(--foreground);
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Toda la fila abre la ficha; los demás enlaces y botones quedan por encima. */
+.dash-row__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.dash-row__link:focus-visible {
+  outline: none;
+}
+
+.dash-row a:not(.dash-row__link),
+.dash-row button {
+  position: relative;
+  z-index: 1;
+}
+
+.dash-row__meta {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-row--wtp .dash-row__meta {
+  white-space: normal;
+}
+
+.dash-row__prog {
+  display: grid;
+  gap: 6px;
+  font-size: 0.8125rem;
+}
+
+.dash-row__prog--none {
+  color: var(--muted);
+}
+
+.dash-row__prog-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.dash-row__prog-label b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.dash-row__ach-link {
+  color: inherit;
   text-decoration: none;
 }
 
-.dash-queue__name:hover {
+.dash-row__ach-link:hover {
+  color: var(--foreground);
   text-decoration: underline;
 }
 
-.dash-queue__name small {
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 400;
+.dash-bar {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.dash-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+}
+
+.dash-bar.is-done span {
+  background: var(--success);
+}
+
+.dash-chip {
+  justify-self: end;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted-light);
+  font-size: 0.78125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dash-chip--playing {
+  background: var(--primary-glow);
+  color: var(--primary);
+}
+
+.dash-chip--done {
+  background: var(--success-glow);
+  color: var(--success);
 }
 
 .dash-icon-btn {
   display: inline-grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  color: var(--muted-light);
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  transition: color 0.15s, background 0.15s;
 }
 
 .dash-icon-btn:hover {
   color: var(--foreground);
-  border-color: var(--border-hover);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-2);
 }
 
-/* Actividad */
-.dash-activity {
+/* ── En curso | logros recientes ── */
+.dash-cols {
   display: grid;
-  gap: 0.6rem;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+.dash-achs {
+  display: grid;
+  gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.dash-activity li {
+.dash-ach {
+  --c: var(--muted);
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) auto;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.7rem;
-  font-size: 0.8125rem;
+  gap: 0.75rem;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: inset 3px 0 0 var(--c);
 }
 
-.dash-activity__icon {
+.dash-ach__icon {
   display: grid;
   place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--c) 16%, transparent);
+  color: var(--c);
+}
+
+.dash-ach__icon img {
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--gold);
+  border-radius: 5px;
   object-fit: cover;
 }
 
-.dash-activity__icon.is-completed {
-  color: var(--success);
-}
-
-.dash-activity__text {
+.dash-ach__body {
+  display: grid;
   min-width: 0;
-  color: var(--muted-light);
 }
 
-.dash-activity__text strong {
-  color: var(--foreground);
+.dash-ach__name {
+  overflow: hidden;
+  font-size: 0.875rem;
   font-weight: 600;
-}
-
-.dash-activity__text a {
-  color: var(--muted-light);
-}
-
-.dash-activity__text small {
-  color: var(--muted);
-}
-
-.dash-activity__when {
-  color: var(--muted);
-  font-size: 0.75rem;
+  line-height: 1.3;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* JUDI y resumen del año */
+.dash-ach__name a,
+.dash-ach__game a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.dash-ach__name a:hover,
+.dash-ach__game a:hover {
+  text-decoration: underline;
+}
+
+.dash-ach__game {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.78125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-ach__pct {
+  display: grid;
+  justify-items: end;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dash-ach__pct small {
+  color: var(--c);
+  font-size: 0.71875rem;
+  font-weight: 600;
+}
+
+/* El color de rareza como texto: en claro, mezclado con el texto para llegar a 4.5:1 sobre la superficie. */
+:root:not([data-theme='dark']) .dash-ach__pct small {
+  color: color-mix(in srgb, var(--c) 72%, var(--foreground));
+}
+
+.dash-ach__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.dash-ach--completed .dash-ach__pct small {
+  color: var(--muted);
+}
+
+/* ── ¿Qué juego hoy? (#30) ── */
+.wtp-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+}
+
+.wtp-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.wtp-choice__label {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.wtp-choice__options {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.wtp-chip {
+  min-height: 30px;
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted-light);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+
+.wtp-chip:hover {
+  color: var(--foreground);
+}
+
+.wtp-chip.is-active {
+  background: var(--surface);
+  color: var(--primary);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.wtp-chip:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.wtp .dash-row {
+  background: var(--background);
+}
+
+.wtp-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ── Cola, cerca del 100 %, JUDI y metas ── */
+.dash-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 1.75rem;
+  align-items: start;
+}
+
+.dash-col {
+  display: grid;
+  gap: 1.75rem;
+  min-width: 0;
+}
+
 .dash-judi__state {
   margin: 0;
-  color: var(--muted-light);
+  color: var(--muted);
   font-size: 0.875rem;
 }
 
@@ -328,185 +681,27 @@
 }
 
 .dash-stat {
-  display: grid;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
 }
 
 .dash-stat strong {
-  font-family: var(--font-display);
   font-size: 1.75rem;
+  font-weight: 700;
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .dash-stat small {
   color: var(--muted);
-  font-size: 0.75rem;
-}
-
-.dash-year {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin: 0;
-}
-
-.dash-year div {
-  display: grid;
-  gap: 2px;
-  padding: 0.6rem 0.75rem;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.dash-year dt {
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-
-.dash-year dd {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 600;
-}
-
-.dash-year__note {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-
-/* ¿Qué juego hoy? (#30) */
-.wtp-choices {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem 1.5rem;
-}
-
-.wtp-choice {
-  display: grid;
-  gap: 0.35rem;
-}
-
-.wtp-choice__label {
-  color: var(--muted);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.wtp-choice__options {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border);
-}
-
-.wtp-chip {
-  height: 30px;
-  padding: 0 0.85rem;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--muted-light);
   font-size: 0.8125rem;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.wtp-chip:hover {
-  color: var(--foreground);
-}
-
-.wtp-chip.is-active {
-  background: var(--grad-soft);
-  color: var(--foreground);
-  box-shadow: inset 0 0 0 1px rgba(154, 134, 255, 0.35);
-}
-
-.wtp-chip:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 1px;
-}
-
-.wtp-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.85rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.wtp-card {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.02);
-  overflow: hidden;
-  animation: fadeInUp 0.35s var(--ease-out) both;
-}
-
-.wtp-card__cover {
-  position: relative;
-  display: block;
-  aspect-ratio: 460 / 215;
-}
-
-.wtp-card__body {
-  display: grid;
-  gap: 0.4rem;
-  align-content: start;
-  padding: 0.75rem 0.9rem 0;
-}
-
-.wtp-card__name {
-  color: var(--foreground);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.wtp-card__name:hover {
-  text-decoration: underline;
-}
-
-.wtp-reasons {
-  display: grid;
-  gap: 0.25rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  color: var(--muted-light);
-  font-size: 0.8125rem;
-}
-
-.wtp-reasons li::before {
-  content: '·';
-  margin-right: 0.4rem;
-  color: var(--accent);
-  font-weight: 700;
-}
-
-.wtp-card__actions {
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.75rem 0.9rem 0.9rem;
-}
-
-@media (max-width: 900px) {
-  .wtp-list {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 /* Metas mensuales (#31) */
 .goals__list {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.85rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -514,7 +709,7 @@
 
 .goal {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .goal__row {
@@ -522,27 +717,28 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  color: var(--muted);
   font-size: 0.8125rem;
-  color: var(--muted-light);
 }
 
 .goal__name strong {
   color: var(--foreground);
-  font-family: var(--font-mono);
+  font-weight: 600;
 }
 
 .goal__pace {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .goal__pace--cumplida { color: var(--success); }
-.goal__pace--al_dia { color: var(--accent); }
+.goal__pace--al_dia { color: var(--primary); }
 .goal__pace--por_detras { color: var(--warning); }
 
-.lib-progress.is-done span {
-  background: var(--success);
+/* El ámbar de "vas por detrás" no llega a 4.5:1 sobre blanco: en claro se oscurece. */
+:root:not([data-theme='dark']) .goal__pace--por_detras {
+  color: color-mix(in srgb, var(--warning) 75%, var(--foreground));
 }
 
 .goal__stepper {
@@ -554,20 +750,19 @@
 .goal__stepper strong {
   min-width: 2ch;
   color: var(--foreground);
-  font-family: var(--font-mono);
+  font-weight: 600;
   text-align: center;
 }
 
 .goal__stepper button {
   display: inline-grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 999px;
+  width: 30px;
+  height: 30px;
   border: 1px solid var(--border);
-  background: transparent;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
   color: var(--muted-light);
-  cursor: pointer;
 }
 
 .goal__stepper button:hover:not(:disabled) {
@@ -585,39 +780,173 @@
   gap: 0.5rem;
 }
 
-/* Inicio sin sesión */
+/* ── Portada sin sesión ── */
 .dash-landing {
   display: grid;
-  gap: 1.25rem;
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 3rem 0 6rem;
-  text-align: center;
+  gap: 2.5rem;
+  max-width: 960px;
+  padding: 3rem 0 4rem;
+}
+
+.dash-landing__intro {
+  display: grid;
+  gap: 0.25rem;
+  max-width: 640px;
+}
+
+.dash-landing__intro .page-title {
+  font-size: clamp(1.875rem, 3.4vw, 2.5rem);
+}
+
+.dash-landing__intro .page-subtitle {
+  font-size: 1rem;
 }
 
 .dash-landing__actions {
   display: flex;
-  justify-content: center;
-  gap: 0.6rem;
   flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
 }
 
-.dash-landing .page-subtitle {
-  margin-inline: auto;
+.dash-landing__preview {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
 }
 
-@media (max-width: 900px) {
+.dash-landing__preview figcaption {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .dash-cols {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+
+  .dash-row--playing {
+    grid-template-columns: 112px minmax(0, 1fr) minmax(120px, 150px) auto;
+  }
+
+  .dash-row--playing .dash-chip {
+    display: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .dash-cols,
   .dash-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-hint {
+    display: none;
+  }
+
+  .dash-hint + .dash-link {
+    margin-left: auto;
+  }
+}
+
+@media (hover: none) {
+  .dash-hint {
+    display: none;
+  }
+
+  .dash-hint + .dash-link {
+    margin-left: auto;
   }
 }
 
 @media (max-width: 640px) {
-  .dash-head-sync {
+  .dash {
+    gap: 1.5rem;
+  }
+
+  .dash-sync {
     justify-items: start;
   }
 
-  .dash-playing-list {
-    grid-template-columns: minmax(0, 1fr);
+  .heat {
+    padding: 1rem;
+  }
+
+  .heat__meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem 1rem;
+  }
+
+  .heat__body {
+    min-width: calc(var(--weeks) * 13px);
+  }
+
+  .heat__meta b {
+    font-size: 1.125rem;
+  }
+
+  .heat__meta .heat__range,
+  .heat__extra {
+    margin-left: 0;
+  }
+
+  .heat__meta .heat__range {
+    grid-column: 1 / -1;
+  }
+
+  .dash-row,
+  .dash-row--playing,
+  .dash-row--near {
+    grid-template-columns: 96px minmax(0, 1fr) auto;
+    gap: 0.75rem;
+  }
+
+  .dash-row__cover {
+    width: 96px;
+    height: 45px;
+  }
+
+  .dash-row--playing .dash-row__prog,
+  .dash-row--near .dash-row__prog {
+    grid-column: 2 / -1;
+    grid-row: 2;
+  }
+
+  .dash-row--wtp .wtp-actions {
+    grid-column: 1 / -1;
+  }
+
+  .dash-icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .goal__stepper button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .wtp-choice {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+
+  .wtp-chip {
+    min-height: 40px;
+  }
+
+  .dash-landing {
+    padding: 1.5rem 0 3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-row,
+  .dash-icon-btn,
+  .wtp-chip {
+    transition: none;
   }
 }
