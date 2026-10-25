@@ -58,9 +58,10 @@
   align-items: center;
   gap: 7px;
   height: 38px;
-  padding: 0 16px;
+  padding: 0 14px;
   border-radius: 999px;
   color: var(--muted);
+  white-space: nowrap;
   text-decoration: none;
   font-weight: 600;
   font-size: 0.8125rem;
@@ -221,6 +222,34 @@
   transform: translateY(-1px);
 }
 
+/* Con todos los enlaces (sesión iniciada) la barra no cabe en pantallas medianas: fuera iconos y el atajo. */
+@media (max-width: 1240px) {
+  .nav-link {
+    padding: 0 10px;
+  }
+
+  .nav-link__icon,
+  .nav-search__kbd {
+    display: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .nav-inner {
+    gap: 0.5rem;
+  }
+
+  .nav-link {
+    padding: 0 8px;
+    font-size: 0.75rem;
+  }
+
+  .nav-brand .hg-wordmark,
+  .nav-account__name {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
   .nav-shell {
     display: none;
@@ -327,6 +356,7 @@
 }
 
 .nav-search__kbd {
+  white-space: nowrap;
   padding: 1px 6px;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.06);
