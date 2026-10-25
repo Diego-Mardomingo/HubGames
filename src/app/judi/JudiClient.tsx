@@ -8,6 +8,7 @@ import { supabase, safeGetUser } from '@/lib/supabase/client'
 import Loader from '@/components/Loader'
 import { getFailedAttempts, getPointsForRecord, type JudiProgressRecord } from '@/lib/judi-ranking'
 import { findJudiLocalKey, judiCaptureUrl, parseJudiDay, writeJudiLocal, type JudiDay, type JudiHints } from '@/lib/judi'
+import JudiFinishActions from './JudiFinishActions'
 import {
     JUDI_HOME_SCROLL_Y_KEY,
     getWindowScrollY,
@@ -1766,6 +1767,13 @@ export default function JudiClient() {
                                                     </Button>
                                                 )}
                                             </div>
+                                            <JudiFinishActions
+                                                game={selectedGame.juego}
+                                                appid={selectedGame.juego.appid ?? null}
+                                                state={gameState}
+                                                failed={failedNow}
+                                                loggedIn={!!user}
+                                            />
                                         </motion.div>
                                     )}
 

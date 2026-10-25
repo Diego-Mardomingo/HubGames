@@ -1572,6 +1572,41 @@
   margin-top: 1.25rem;
 }
 
+.result__extra {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+}
+
+.result__extra-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.result__done {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--success);
+}
+
+.result__msg {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
 /* Zoom */
 .zoom-overlay {
   position: fixed;

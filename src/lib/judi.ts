@@ -94,3 +94,14 @@ export function writeJudiLocal<T>(raw: Record<string, T>, fecha: string, id: num
     next[fecha] = value
     return next
 }
+
+/**
+ * Resultado para compartir (#38), al estilo Wordle: 🟥 por fallo, 🟩 el acierto y ⬛ los intentos que sobraron.
+ * Sin el nombre del juego, para no destripárselo a quien no lo ha jugado.
+ */
+export function judiShareText(game: { id: number; fecha: string }, state: 'won' | 'lost', failed: number, url: string): string {
+    const misses = state === 'lost' ? 6 : Math.min(Math.max(0, failed), 5)
+    const squares = state === 'lost' ? '🟥'.repeat(6) : '🟥'.repeat(misses) + '🟩' + '⬛'.repeat(5 - misses)
+    const score = state === 'lost' ? 'X/6' : `${misses + 1}/6`
+    return `JUDI #${game.id} (${game.fecha.replaceAll('-', '/')}) ${score}\n${squares}\n${url}`
+}

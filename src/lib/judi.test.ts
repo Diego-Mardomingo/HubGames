@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { findJudiLocalKey, judiCaptureUrl, parseJudiDay, writeJudiLocal } from './judi'
+import { findJudiLocalKey, judiCaptureUrl, judiShareText, parseJudiDay, writeJudiLocal } from './judi'
 
 describe('JUDI en el servidor (#39)', () => {
     it('lee la respuesta de las RPC sin nombre mientras se juega', () => {
@@ -38,7 +38,7 @@ describe('JUDI en el servidor (#39)', () => {
     })
 
     it('localStorage de invitados: lee la clave antigua fecha::appid y escribe por fecha', () => {
-        const raw = { '24-10-2026::620': { completado: true }, '25-10-2026': { fase1: true } }
+        const raw: Record<string, Record<string, unknown>> = { '24-10-2026::620': { completado: true }, '25-10-2026': { fase1: true } }
         assert.equal(findJudiLocalKey(raw, '24-10-2026'), '24-10-2026::620')
         assert.equal(findJudiLocalKey(raw, '25-10-2026'), '25-10-2026')
         assert.equal(findJudiLocalKey(raw, '23-10-2026'), undefined)
@@ -46,5 +46,16 @@ describe('JUDI en el servidor (#39)', () => {
         const next = writeJudiLocal(raw, '24-10-2026', 267, { completado: true, nombre: 'Portal 2' })
         assert.deepEqual(Object.keys(next).sort(), ['24-10-2026', '25-10-2026'])
         assert.deepEqual(next['24-10-2026'], { completado: true, nombre: 'Portal 2' })
+    })
+})
+
+describe('compartir resultado de JUDI (#38)', () => {
+    const game = { id: 268, fecha: '25-10-2026' }
+    it('acierto con fallos', () => {
+        assert.equal(judiShareText(game, 'won', 2, 'https://x/judi'), 'JUDI #268 (25/10/2026) 3/6\n🟥🟥🟩⬛⬛⬛\nhttps://x/judi')
+    })
+    it('acierto a la primera y partida perdida', () => {
+        assert.equal(judiShareText(game, 'won', 0, 'u').split('\n')[1], '🟩⬛⬛⬛⬛⬛')
+        assert.equal(judiShareText(game, 'lost', 6, 'u'), 'JUDI #268 (25/10/2026) X/6\n🟥🟥🟥🟥🟥🟥\nu')
     })
 })
