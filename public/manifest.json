@@ -4,8 +4,8 @@
     "description": "Adivina el juego del día y compite en el ranking",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#07070c",
-    "theme_color": "#07070c",
+    "background_color": "#eef0f3",
+    "theme_color": "#eef0f3",
     "orientation": "portrait-primary",
     "icons": [
         {

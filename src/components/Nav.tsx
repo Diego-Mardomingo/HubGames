@@ -10,6 +10,7 @@ import { LogoMark, Wordmark } from '@/components/brand/Logo'
 import { Home, Gamepad2, Trophy, User, Shield, LogIn, Library, Search, Award, Heart, BarChart3 } from 'lucide-react'
 import { countTray, TRACKER_CHANGED_EVENT } from '@/lib/tracker'
 import GameSearch, { openGameSearch } from '@/components/tracker/GameSearch'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export default function Nav() {
     const [user, setUser] = useState<any>(null)
@@ -131,7 +132,7 @@ export default function Nav() {
 
     const brand = (
         <Link href="/" scroll={false} className="nav-brand" onClick={pathname === '/' ? handleHomeLinkClick : undefined} aria-label="HubGames, inicio">
-            <LogoMark size={30} animated />
+            <LogoMark size={28} animated />
             <Wordmark />
         </Link>
     )
@@ -144,20 +145,22 @@ export default function Nav() {
             {...linkHandlers('/perfil')}
             className={`nav-account ${isActive('/perfil') ? 'active' : ''}`}
             aria-label="Mi perfil"
+            title="Mi perfil"
         >
             <span className="nav-account__avatar">{initial}</span>
             <span className="nav-account__name">{username || 'Perfil'}</span>
         </Link>
     ) : (
-        <Link href="/login" {...linkHandlers('/login')} className="nav-cta btn-shine">
-            <LogIn size={15} aria-hidden />
-            Entrar
+        <Link href="/login" {...linkHandlers('/login')} className="nav-cta" title="Entrar">
+            <LogIn size={16} aria-hidden />
+            <span className="nav-cta__label">Entrar</span>
         </Link>
     )
 
     const searchButton = user && !isLoading ? (
         <button type="button" className="nav-search" onClick={openGameSearch} aria-label="Buscar un juego (Ctrl+K)" title="Buscar un juego (Ctrl+K)">
             <Search size={16} aria-hidden />
+            <span className="nav-search__label">Buscar juego</span>
             <kbd className="nav-search__kbd">Ctrl K</kbd>
         </button>
     ) : null
@@ -169,50 +172,58 @@ export default function Nav() {
             {/* Móvil: barra superior con marca + cuenta */}
             <header className={`nav-mobile-top ${scrolled ? 'is-scrolled' : ''}`} suppressHydrationWarning>
                 {brand}
-                {user && !isLoading ? (
-                    <div className="nav-right">
-                        {searchButton}
+                <div className="nav-right">
+                    {searchButton}
+                    <ThemeToggle compact />
+                    {user && !isLoading ? (
                         <Link href="/perfil" {...linkHandlers('/perfil')} className="nav-account nav-account--compact" aria-label="Mi perfil">
                             <span className="nav-account__avatar">{initial}</span>
                         </Link>
-                    </div>
-                ) : null}
-            </header>
-
-            {/* Escritorio: barra flotante de cristal */}
-            <header className={`nav-shell ${scrolled ? 'is-scrolled' : ''}`} suppressHydrationWarning>
-                <div className="nav-inner">
-                    {brand}
-                    <nav className="nav-menu" aria-label="Principal">
-                        {navLinks.map((link) => {
-                            const Icon = link.icon
-                            const active = isActive(link.href)
-                            return (
-                                <Link key={link.href} href={link.href} {...linkHandlers(link.href)} className={`nav-link ${active ? 'active' : ''}`}>
-                                    {active && (
-                                        <motion.span
-                                            layoutId="nav-pill"
-                                            className="nav-link__pill"
-                                            transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-                                        />
-                                    )}
-                                    <Icon size={16} className="nav-link__icon" />
-                                    <span>{link.label}</span>
-                                    {link.badge ? (
-                                        <span className="nav-badge" aria-label={`${link.badge} en la bandeja`}>
-                                            {link.badge > 99 ? '99+' : link.badge}
-                                        </span>
-                                    ) : null}
-                                </Link>
-                            )
-                        })}
-                    </nav>
-                    <div className="nav-right">
-                        {searchButton}
-                        {accountChip}
-                    </div>
+                    ) : null}
                 </div>
             </header>
+
+            {/* Escritorio: barra lateral fija */}
+            <aside className="nav-side" suppressHydrationWarning>
+                {brand}
+                {searchButton}
+                <nav className="nav-menu" aria-label="Principal">
+                    {navLinks.map((link) => {
+                        const Icon = link.icon
+                        const active = isActive(link.href)
+                        return (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                {...linkHandlers(link.href)}
+                                className={`nav-link ${active ? 'active' : ''}`}
+                                aria-current={active ? 'page' : undefined}
+                                title={link.label}
+                            >
+                                {active && (
+                                    <motion.span
+                                        layoutId="nav-pill"
+                                        className="nav-link__pill"
+                                        transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                                    />
+                                )}
+                                <Icon size={18} className="nav-link__icon" aria-hidden />
+                                <span className="nav-link__label">{link.label}</span>
+                                {link.badge ? (
+                                    <span className="nav-badge" aria-label={`${link.badge} en la bandeja`}>
+                                        {link.badge > 99 ? '99+' : link.badge}
+                                    </span>
+                                ) : null}
+                            </Link>
+                        )
+                    })}
+                </nav>
+                <div className="nav-side__foot">
+                    <ThemeToggle className="nav-side__theme" />
+                    <ThemeToggle compact className="nav-side__theme-compact" />
+                    {accountChip}
+                </div>
+            </aside>
 
             {/* Móvil: tab bar inferior */}
             <nav className="nav-tabbar" aria-label="Principal móvil" suppressHydrationWarning>
@@ -225,7 +236,7 @@ export default function Nav() {
                                 <motion.span
                                     layoutId="tab-pill"
                                     className="nav-tab__pill"
-                                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                                    transition={{ type: 'spring', stiffness: 500, damping: 40 }}
                                 />
                             )}
                             <motion.span className="nav-tab__icon" whileTap={{ scale: 0.82 }}>

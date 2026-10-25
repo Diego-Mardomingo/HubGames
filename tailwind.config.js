@@ -8,8 +8,8 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                'hubgames-dark': '#07070c',
-                'hubgames-accent': '#9a86ff',
+                'hubgames-dark': '#15171c',
+                'hubgames-accent': '#2f5bff',
             },
         },
     },

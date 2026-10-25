@@ -1,18 +1,20 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, JetBrains_Mono, Sora } from 'next/font/google'
+import { Onest } from 'next/font/google'
 import '@/styles/globals.css'
 import '@/styles/nav.css'
 import Nav from '@/components/Nav'
 import Providers from '@/components/Providers'
 import SiteFooter from '@/components/SiteFooter'
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
+import { themeScript } from '@/lib/theme'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
-const sora = Sora({ subsets: ['latin'], weight: ['500', '600', '700', '800'], variable: '--font-sora', display: 'swap' })
-const jetbrains = JetBrains_Mono({ subsets: ['latin'], weight: ['500', '700'], variable: '--font-jetbrains', display: 'swap' })
+const onest = Onest({ subsets: ['latin'], variable: '--font-onest', display: 'swap' })
 
 export const viewport: Viewport = {
-    themeColor: '#07070c',
+    themeColor: [
+        { media: '(prefers-color-scheme: light)', color: '#eef0f3' },
+        { media: '(prefers-color-scheme: dark)', color: '#15171c' },
+    ],
     width: 'device-width',
     initialScale: 1,
 }
@@ -72,22 +74,20 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
     return (
-        <html lang="es" className={`${inter.variable} ${sora.variable} ${jetbrains.variable}`}>
+        <html lang="es" className={onest.variable} suppressHydrationWarning>
+            <head>
+                <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+            </head>
             <body className="antialiased">
-                <div className="app-bg" aria-hidden>
-                    <div className="app-bg__blob app-bg__blob--a" />
-                    <div className="app-bg__blob app-bg__blob--b" />
-                    <div className="app-bg__blob app-bg__blob--c" />
-                    <div className="app-bg__grid" />
-                    <div className="app-bg__noise" />
-                </div>
                 <ServiceWorkerRegistration />
                 <Providers>
                     <Nav />
-                    <main id="main-content">
-                        {children}
-                    </main>
-                    <SiteFooter />
+                    <div className="app-main">
+                        <main id="main-content">
+                            {children}
+                        </main>
+                        <SiteFooter />
+                    </div>
                 </Providers>
             </body>
         </html>
