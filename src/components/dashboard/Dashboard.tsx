@@ -20,7 +20,6 @@ import {
     nextInQueue,
     playingNow,
     recentActivity,
-    remainingMinutes,
     steamRunUrl,
     yearSummary,
     type JudiTodayState,
@@ -29,6 +28,7 @@ import type { DashboardData } from '@/lib/dashboard-db'
 import { countsByMonth, monthElapsed, progressFor, suggestTargets } from '@/lib/goals'
 import { DURATION_SOURCE_LABEL, achievementPercent, gameDuration } from '@/lib/library'
 import { formatHours } from '@/lib/format'
+import { GOAL_LABELS, goalMinutes, goalRemainingMinutes, parseGoal } from '@/lib/game-goal'
 import type { LibraryGame } from '@/lib/tracker'
 import { isPerfect } from '@/lib/tracker-rules'
 import { Button } from '@/components/ui/button'
@@ -58,7 +58,10 @@ function Panel({ id, icon: Icon, title, action, children }: { id: string; icon: 
 
 function PlayingCard({ game }: { game: LibraryGame }) {
     const pct = achievementPercent(game)
-    const left = remainingMinutes(game)
+    // Lo que falta según tu objetivo (#24): historia, historia + extras o, sin logros, el 100 % en horas.
+    const left = goalRemainingMinutes(game)
+    const target = goalMinutes(game)
+    const goal = GOAL_LABELS[parseGoal(game.goal)]
     const duration = gameDuration(game)
     return (
         <li className="dash-playing">
@@ -81,9 +84,9 @@ function PlayingCard({ game }: { game: LibraryGame }) {
                     <li title={game.rtime_last_played ? new Date(game.rtime_last_played).toLocaleString('es-ES', { timeZone: 'Europe/Madrid' }) : undefined}>
                         <CalendarDays size={13} aria-hidden /> {timeAgo(game.rtime_last_played)}
                     </li>
-                    {left !== null && duration.source && (
-                        <li title={`Historia: ${formatHours(duration.main!)} según ${DURATION_SOURCE_LABEL[duration.source]}`}>
-                            <Hourglass size={13} aria-hidden /> {left > 0 ? `Faltan ~${formatHours(left)}` : 'Historia superada'}
+                    {left !== null && target !== null && duration.source && (
+                        <li title={`${goal}: ${formatHours(target)} según ${DURATION_SOURCE_LABEL[duration.source]}`}>
+                            <Hourglass size={13} aria-hidden /> {left > 0 ? `Faltan ~${formatHours(left)}` : `${goal}: superado`}
                         </li>
                     )}
                 </ul>
