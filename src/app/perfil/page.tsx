@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react'
 import SteamSetting from './SteamSetting'
+import ExportSetting from './ExportSetting'
 import { useRouter } from 'next/navigation'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { getNotificationPreference, subscribeToDailyNotifications, disableDailyNotifications } from '@/lib/notifications'
@@ -431,6 +432,8 @@ export default function PerfilPage() {
                     <Suspense fallback={null}>
                         <SteamSetting />
                     </Suspense>
+
+                    <ExportSetting />
                 </div>
             </section>
         </div>
