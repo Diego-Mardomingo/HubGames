@@ -121,6 +121,15 @@ describe('filtros', () => {
         assert.equal(matchesFilters(game({ hltb_main: 20 * 60, steamspy_median_forever: 60 }), { ...NO_FILTERS, duration: 'largo' }), true)
     })
 
+    it('rejugables: solo los marcados con ese objetivo, o solo los demás', () => {
+        const cs = game({ goal: 'rejugable' })
+        const story = game({ goal: 'historia' })
+        const pick = (replayable: typeof NO_FILTERS.replayable) => [cs, story].filter((g) => matchesFilters(g, { ...NO_FILTERS, replayable }))
+        assert.deepEqual(pick('todos'), [cs, story])
+        assert.deepEqual(pick('rejugables'), [cs])
+        assert.deepEqual(pick('con_final'), [story])
+    })
+
     it('opciones de los desplegables sin repetidos y ordenadas', () => {
         const opts = filterOptions([
             game({ genres: [{ description: 'RPG' }, { description: 'Acción' }], completed_at: '2024-01-01T12:00:00Z' }),

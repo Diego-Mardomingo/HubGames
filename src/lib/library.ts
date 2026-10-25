@@ -36,6 +36,7 @@ export function sortsFor(tab: LibraryTab): SortKey[] {
 
 export type AchievementFilter = 'todos' | 'sin_logros' | 'empezados' | 'casi' | 'perfectos'
 export type DurationFilter = 'todas' | 'corto' | 'medio' | 'largo' | 'muy_largo' | 'sin_dato'
+export type ReplayableFilter = 'todos' | 'rejugables' | 'con_final'
 
 export const ACHIEVEMENT_FILTER_LABELS: Record<AchievementFilter, string> = {
     todos: 'Cualquier % de logros',
@@ -54,6 +55,12 @@ export const DURATION_FILTER_LABELS: Record<DurationFilter, string> = {
     sin_dato: 'Sin duración',
 }
 
+export const REPLAYABLE_FILTER_LABELS: Record<ReplayableFilter, string> = {
+    todos: 'Rejugables y con final',
+    rejugables: 'Solo rejugables',
+    con_final: 'Solo con final',
+}
+
 export interface LibraryFilters {
     genre: string | null
     completedYear: number | null
@@ -61,6 +68,8 @@ export interface LibraryFilters {
     minRating: number | null
     achievements: AchievementFilter
     duration: DurationFilter
+    /** Objetivo "rejugable" (sin final) o el resto. */
+    replayable: ReplayableFilter
 }
 
 export const NO_FILTERS: LibraryFilters = {
@@ -69,10 +78,11 @@ export const NO_FILTERS: LibraryFilters = {
     minRating: null,
     achievements: 'todos',
     duration: 'todas',
+    replayable: 'todos',
 }
 
 export function hasFilters(f: LibraryFilters): boolean {
-    return f.genre !== null || f.completedYear !== null || f.minRating !== null || f.achievements !== 'todos' || f.duration !== 'todas'
+    return f.genre !== null || f.completedYear !== null || f.minRating !== null || f.achievements !== 'todos' || f.duration !== 'todas' || f.replayable !== 'todos'
 }
 
 /** Nombres de género de la ficha de Steam (`[{ id, description }]`). */
@@ -145,6 +155,7 @@ export function matchesFilters(game: LibraryGame, f: LibraryFilters): boolean {
         if (f.achievements === 'perfectos' && pct < 100) return false
     }
     if (f.duration !== 'todas' && durationBucket(estimatedMinutes(game)) !== f.duration) return false
+    if (f.replayable !== 'todos' && (game.goal === 'rejugable') !== (f.replayable === 'rejugables')) return false
     return true
 }
 
