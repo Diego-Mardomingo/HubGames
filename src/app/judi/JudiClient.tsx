@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence, useAnimate } from 'framer-motion'
 import { supabase, safeGetUser } from '@/lib/supabase/client'
-import type { TablesInsert, TablesUpdate } from '@/lib/supabase/database.types'
 import Loader from '@/components/Loader'
 import { getFailedAttempts, getPointsForRecord, type JudiProgressRecord } from '@/lib/judi-ranking'
+import { findJudiLocalKey, judiCaptureUrl, parseJudiDay, writeJudiLocal, type JudiDay, type JudiHints } from '@/lib/judi'
 import {
     JUDI_HOME_SCROLL_Y_KEY,
     getWindowScrollY,
@@ -44,14 +44,12 @@ import { Button } from '@/components/ui/button'
 import { CountUp, Reveal, RollingText, useTilt } from '@/components/motion'
 import './judi.css'
 
+/** Un día de JUDI. El nombre y la portada solo llegan cuando lo has terminado (#39). */
 type GameRecord = {
     id: number
-    id_videojuego: number
-    nombre: string
     fecha: string
-    calificacion: number
-    desarrollador: string
-    released: string
+    nombre?: string | null
+    appid?: number | null
     completado?: boolean
     fase6?: boolean
     fase1?: boolean
@@ -65,19 +63,17 @@ type GameRecord = {
 
 type GameData = {
     juego: GameRecord
-    capturas: string[]
-    plataformas: string[]
-    generos: string[]
-    /** Pico jugadores concurrentes (Steam / SteamSpy) */
-    steamCcu: number | null
-    /** Porcentaje aproximado de reseñas positivas (userscore o positivas/total) */
-    steamPositivePct: number | null
-    releaseYear: string | null
-    developersLabel: string | null
+    captureCount: number
+    /** Pistas de las fases desbloqueadas; las del servidor se van sumando con cada fallo. */
+    hints: JudiHints
 }
 
+/** Progreso de un invitado en localStorage. Al terminar se guardan también el nombre y la portada. */
 type JudiProgress = JudiProgressRecord & {
     id_lista_judi?: number
+    nombre?: string | null
+    header_image?: string | null
+    appid?: number | null
 }
 
 type GuessOption = {
@@ -297,11 +293,6 @@ function useNextDailyCountdown() {
     return msLeft
 }
 
-/** Clave estable para localStorage: evita colisiones cuando los ids de lista se reinician (TRUNCATE). */
-function judiLocalStorageKey(game: { fecha: string; id_videojuego: number }) {
-    return `${game.fecha}::${game.id_videojuego}`
-}
-
 function getLocalProgressRaw(): Record<string, JudiProgress> {
     try {
         const raw = localStorage.getItem('judi_progress')
@@ -320,18 +311,15 @@ function getLocalGuessesRaw(): Record<string, string[]> {
     }
 }
 
-function readLocalProgressForGame(
-    game: { fecha: string; id_videojuego: number },
-    raw: Record<string, JudiProgress>
-): JudiProgress | undefined {
-    return raw[judiLocalStorageKey(game)]
+/** Por fecha: la clave es estable aunque se reinicien los ids de la lista (TRUNCATE). */
+function readLocalProgressForGame(game: { fecha: string }, raw: Record<string, JudiProgress>): JudiProgress | undefined {
+    const key = findJudiLocalKey(raw, game.fecha)
+    return key ? raw[key] : undefined
 }
 
-function readLocalGuessesForGame(
-    game: { fecha: string; id_videojuego: number },
-    raw: Record<string, string[]>
-): string[] {
-    return raw[judiLocalStorageKey(game)] ?? []
+function readLocalGuessesForGame(game: { fecha: string }, raw: Record<string, string[]>): string[] {
+    const key = findJudiLocalKey(raw, game.fecha)
+    return (key ? raw[key] : undefined) ?? []
 }
 
 function normalizeGameName(value: string) {
@@ -343,49 +331,14 @@ function normalizeGameName(value: string) {
         .trim()
 }
 
-function parseSteamDevelopers(raw: unknown): string[] {
-    if (!raw) return []
-    if (Array.isArray(raw)) return raw.filter((x): x is string => typeof x === 'string' && x.trim().length > 0)
-    return []
-}
-
-/** Porcentaje de reseñas positivas: prioriza steamspy_userscore; si no, positivas / (positivas + negativas). */
-function steamPositivePercent(
-    userscore: number | null | undefined,
-    positive: number | null | undefined,
-    negative: number | null | undefined
-): number | null {
-    if (userscore != null && Number.isFinite(Number(userscore)) && Number(userscore) > 0) {
-        return Math.round(Number(userscore))
-    }
-    const p = positive ?? 0
-    const n = negative ?? 0
-    if (p + n === 0) return null
-    return Math.round((p / (p + n)) * 100)
-}
-
-function extractReleaseYear(
-    steam: { release_date?: string | null; release_date_text?: string | null } | null | undefined,
-    listaReleased: string
-): string | null {
-    const raw = steam?.release_date
-    if (raw) {
-        const d = new Date(raw)
-        if (!Number.isNaN(d.getTime())) return String(d.getFullYear())
-    }
-    const text = `${steam?.release_date_text ?? ''} ${listaReleased}`.trim()
-    const m = text.match(/\b(19|20)\d{2}\b/)
-    return m ? m[0] : null
-}
-
-/** Índice de captura según fase: 1 → última captura (pista visual inicial); 2–6 → capturas 0…4 */
-function getCaptureUrlForPhase(phase: number, capturas: string[]): string | undefined {
-    if (capturas.length === 0) return undefined
-    const idx =
-        phase === 1
-            ? Math.min(5, capturas.length - 1)
-            : Math.min(Math.max(0, phase - 2), capturas.length - 1)
-    return capturas[idx] ?? capturas[0]
+/** Fase desbloqueada según el progreso (igual que hubgames_judi_phase): fase5 → 6, …, fase1 → 2, nada → 1. */
+function phaseFromProgress(p?: JudiProgressRecord): number {
+    if (p?.fase5) return 6
+    if (p?.fase4) return 5
+    if (p?.fase3) return 4
+    if (p?.fase2) return 3
+    if (p?.fase1) return 2
+    return 1
 }
 
 const SWIPE_MIN_PX = 56
@@ -487,7 +440,7 @@ function GameTile({ game, index, onPlay }: { game: GameRecord; index: number; on
             <div className="tile__body">
                 <span className="tile__date">{formatShortDate(game.fecha)}</span>
                 <span className="tile__title">
-                    {finished ? game.nombre : status === 'progress' ? 'En curso' : 'Sin jugar'}
+                    {finished ? game.nombre ?? (status === 'won' ? 'Acertado' : 'Fallado') : status === 'progress' ? 'En curso' : 'Sin jugar'}
                 </span>
                 <div className="tile__foot">
                     {finished ? (
@@ -545,7 +498,7 @@ function HeroCard({ game, onPlay }: { game: GameRecord | null; onPlay: (game: Ga
                     </div>
                     <span className="hero-card__date">{longDate}</span>
                     <div className="hero-card__row hero-card__row--bottom">
-                        <span className="hero-card__name">{finished ? game.nombre : '¿Lo reconoces?'}</span>
+                        <span className="hero-card__name">{finished ? game.nombre ?? (status === 'won' ? 'Acertado' : 'Fallado') : '¿Lo reconoces?'}</span>
                         <AttemptPips
                             states={
                                 status === 'won'
@@ -614,6 +567,7 @@ export default function JudiClient() {
     const [searchLoading, setSearchLoading] = useState(false)
     const [showDropdown, setShowDropdown] = useState(false)
     const [guessSubmitting, setGuessSubmitting] = useState(false)
+    const [guessError, setGuessError] = useState<string | null>(null)
     const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing')
     const [wrongGuesses, setWrongGuesses] = useState<string[]>([])
     const [captureZoomOpen, setCaptureZoomOpen] = useState(false)
@@ -759,74 +713,28 @@ export default function JudiClient() {
         setLoading(true)
         const { data: { user: authUser } } = await safeGetUser()
         setUser(authUser)
-        const { data: judiGamesRaw } = await supabase
-            .from('hubgames_lista_videojuegos_judi')
-            .select('*')
-            .order('id', { ascending: false })
+        // Solo los días ya publicados (hasta hoy en Madrid), con tu progreso. Nombre y portada, solo de los terminados.
+        const { data: rows } = await supabase.rpc('hubgames_judi_list')
+        const rawLocal = authUser ? {} : getLocalProgressRaw()
 
-        // Ocultar juegos con fecha futura en Madrid: se insertan a las 11:00 pero no se muestran hasta las 00:00
-        const todayMadrid = getLegacyJudiDateMadridString(new Date())
-        const todayDate = parseLegacyDate(todayMadrid)
-        const judiGames = (judiGamesRaw ?? []).filter((game) => {
-            const gameDate = parseLegacyDate(game.fecha)
-            if (!gameDate || !todayDate) return true
-            return gameDate <= todayDate
-        })
-
-        let userProgress: JudiProgress[] = []
-        if (authUser) {
-            const { data: progress } = await supabase
-                .from('hubgames_judi_fases_usuario')
-                .select('id_lista_judi, completado, fase1, fase2, fase3, fase4, fase5, fase6')
-                .eq('id_usuario', authUser.id)
-            userProgress = progress || []
-        } else {
-            const rawLocal = getLocalProgressRaw()
-            judiGames.forEach((game) => {
-                const rec = readLocalProgressForGame(game, rawLocal)
-                if (rec) {
-                    userProgress.push({ ...rec, id_lista_judi: game.id })
-                }
-            })
-        }
-
-        const progressByGameId = new Map<number, JudiProgress>()
-        userProgress.forEach((record) => {
-            if (record.id_lista_judi) {
-                progressByGameId.set(record.id_lista_judi, record)
-            }
-        })
-
-        const appIds = judiGames
-            .map((game) => game.id_videojuego)
-            .filter(Boolean)
-        let imageByAppId = new Map<number, string>()
-
-        if (appIds.length > 0) {
-            const { data: imageRows } = await supabase
-                .from('hubgames_juegos_steam')
-                .select('steam_appid, header_image')
-                .in('steam_appid', appIds)
-
-            imageByAppId = new Map(
-                (imageRows || []).map((row: any) => [row.steam_appid, row.header_image])
-            )
-        }
-
-        setGames(judiGames.map((game) => {
-            const progress = progressByGameId.get(game.id)
-            const points = progress ? getPointsForRecord(progress) : null
+        setGames((rows ?? []).map((row) => {
+            // Invitados: el servidor no sabe nada; el progreso, el nombre y la portada salen de localStorage.
+            const local = authUser ? undefined : readLocalProgressForGame(row, rawLocal)
+            const progress: JudiProgress = authUser ? row : (local ?? {})
+            const points = getPointsForRecord(progress)
             return {
-                ...game,
-                completado: Boolean(progress?.completado),
-                fase1: Boolean(progress?.fase1),
-                fase2: Boolean(progress?.fase2),
-                fase3: Boolean(progress?.fase3),
-                fase4: Boolean(progress?.fase4),
-                fase5: Boolean(progress?.fase5),
-                fase6: Boolean(progress?.fase6),
+                id: row.id,
+                fecha: row.fecha,
+                nombre: authUser ? row.nombre : local?.nombre ?? null,
+                header_image: authUser ? row.header_image : local?.header_image ?? null,
+                completado: Boolean(progress.completado),
+                fase1: Boolean(progress.fase1),
+                fase2: Boolean(progress.fase2),
+                fase3: Boolean(progress.fase3),
+                fase4: Boolean(progress.fase4),
+                fase5: Boolean(progress.fase5),
+                fase6: Boolean(progress.fase6),
                 puntos: points ?? undefined,
-                header_image: imageByAppId.get(game.id_videojuego) || null,
             }
         }))
         setLoading(false)
@@ -845,146 +753,87 @@ export default function JudiClient() {
         setSearchResults([])
         setShowDropdown(false)
         setWrongGuesses([])
+        setGuessError(null)
 
-        const [capturasRes, platformsRes, genresRes, steamRes] = await Promise.all([
-            supabase.from('hubgames_capturas').select('captura').eq('id_videojuego', game.id_videojuego),
-            supabase.from('hubgames_videojuego_plataforma').select('plataforma').eq('id_videojuego', game.id_videojuego),
-            supabase.from('hubgames_videojuego_genero').select('genero').eq('id_videojuego', game.id_videojuego),
-            supabase
-                .from('hubgames_juegos_steam')
-                .select(
-                    'steamspy_ccu, steamspy_userscore, steamspy_positive, steamspy_negative, release_date, release_date_text, developers'
-                )
-                .eq('steam_appid', game.id_videojuego)
-                .maybeSingle(),
-        ])
-
-        const steam = steamRes.data
-        const steamCcuRaw = steam?.steamspy_ccu
-        const steamCcu =
-            steamCcuRaw != null ? Number(steamCcuRaw) : null
-        const steamPositivePct = steam
-            ? steamPositivePercent(steam.steamspy_userscore, steam.steamspy_positive, steam.steamspy_negative)
-            : null
-        const releaseYear = extractReleaseYear(steam, game.released || '')
-        const devs = parseSteamDevelopers(steam?.developers)
-        const developersLabel = devs.length > 0 ? devs.join(', ') : null
-
-        const gameData: GameData = {
-            juego: game,
-            capturas: (capturasRes.data || []).map((item) => item.captura),
-            plataformas: (platformsRes.data || []).map((item) => item.plataforma),
-            generos: (genresRes.data || []).map((item) => item.genero),
-            steamCcu: steamCcu != null && Number.isFinite(steamCcu) ? steamCcu : null,
-            steamPositivePct,
-            releaseYear,
-            developersLabel,
-        }
-
-        let progress: any = null
-        let savedWrongGuesses: string[] = []
         const { data: { user: authUser } } = await safeGetUser()
+        let day: JudiDay | null
+        let progress: JudiProgress | undefined
+        let savedWrongGuesses: string[] = []
         if (authUser) {
-            const { data } = await supabase
-                .from('hubgames_judi_fases_usuario')
-                .select('*')
-                .eq('id_lista_judi', game.id)
-                .eq('id_usuario', authUser.id)
-                .maybeSingle()
-            progress = data
-            const { data: intentos } = await supabase
-                .from('hubgames_judi_intentos')
-                .select('intento')
-                .eq('id_lista_judi', game.id)
-                .eq('id_usuario', authUser.id)
-            savedWrongGuesses = (intentos || []).map((item) => item.intento)
+            const { data } = await supabase.rpc('hubgames_judi_get_day', { p_id: game.id })
+            day = parseJudiDay(data)
+            savedWrongGuesses = day?.guesses ?? []
         } else {
-            const progressData = getLocalProgressRaw()
-            progress = readLocalProgressForGame(game, progressData)
-            const guessesData = getLocalGuessesRaw()
-            savedWrongGuesses = readLocalGuessesForGame(game, guessesData)
+            progress = readLocalProgressForGame(game, getLocalProgressRaw())
+            savedWrongGuesses = readLocalGuessesForGame(game, getLocalGuessesRaw())
+            const finished = Boolean(progress?.completado || progress?.fase6)
+            const phase = finished ? 6 : phaseFromProgress(progress)
+            const { data } = await supabase.rpc('hubgames_judi_get_day', { p_id: game.id, p_phase: phase })
+            day = parseJudiDay(data)
+            // Partidas de invitado terminadas antes de #39: no guardaban el nombre. Se pide como al perder la fase 6.
+            if (day && finished && !progress?.nombre) {
+                const { data: reveal } = await supabase.rpc('hubgames_judi_guess_anon', { p_id: game.id, p_guess: '', p_phase: 6 })
+                const revealed = parseJudiDay(reveal)
+                if (revealed) {
+                    day = { ...day, nombre: revealed.nombre, headerImage: revealed.headerImage, appid: revealed.appid }
+                    saveLocalProgress(game, { nombre: revealed.nombre, header_image: revealed.headerImage, appid: revealed.appid })
+                }
+            }
         }
+
+        if (!day) {
+            setLoading(false)
+            return
+        }
+
+        const juego: GameRecord = {
+            ...game,
+            nombre: day.nombre ?? progress?.nombre ?? game.nombre ?? null,
+            header_image: day.headerImage ?? progress?.header_image ?? game.header_image ?? null,
+            appid: day.appid ?? progress?.appid ?? null,
+        }
+        const state: JudiDay['state'] = authUser
+            ? day.state
+            : progress?.completado ? 'won' : progress?.fase6 ? 'lost' : 'playing'
 
         setWrongGuesses(savedWrongGuesses)
-        if (progress?.completado) {
+        if (state === 'won') {
             setGameState('won')
             setHighestUnlockedPhase(6)
             setActiveViewedPhase(6)
-            // Misma lógica que en partida: vidas = intentos restantes; los fallos vienen de fase1..fase5 (el acierto no marca faseN).
-            const failedOnWin = getFailedAttempts(progress as JudiProgressRecord)
+            // Vidas = intentos restantes; los fallos vienen de fase1..fase5 (el acierto no marca faseN).
+            const failedOnWin = authUser ? day.failed ?? 0 : getFailedAttempts(progress as JudiProgressRecord)
             setLives(JUDI_ATTEMPT_SLOTS - failedOnWin)
-        } else if (progress?.fase6) {
+        } else if (state === 'lost') {
             setGameState('lost')
             setHighestUnlockedPhase(6)
             setActiveViewedPhase(6)
             setLives(0)
         } else {
-            let phase = 1
-            if (progress?.fase5) phase = 6
-            else if (progress?.fase4) phase = 5
-            else if (progress?.fase3) phase = 4
-            else if (progress?.fase2) phase = 3
-            else if (progress?.fase1) phase = 2
-            setHighestUnlockedPhase(phase)
-            setActiveViewedPhase(phase)
-            setLives(7 - phase)
+            setHighestUnlockedPhase(day.phase)
+            setActiveViewedPhase(day.phase)
+            setLives(7 - day.phase)
             setGameState('playing')
         }
 
-        setSelectedGame(gameData)
+        setSelectedGame({ juego, captureCount: day.captureCount, hints: day.hints })
         setView('game')
         setLoading(false)
     }
 
-    const saveWrongGuess = async (gameRef: { id: number; fecha: string; id_videojuego: number }, guess: string) => {
-        const { data: { user: authUser } } = await safeGetUser()
-        if (authUser) {
-            await supabase.from('hubgames_judi_intentos').insert({ id_lista_judi: gameRef.id, id_usuario: authUser.id, intento: guess }).select()
-        } else {
-            const guessesData = getLocalGuessesRaw()
-            const key = judiLocalStorageKey(gameRef)
-            if (!guessesData[key]) guessesData[key] = []
-            if (!guessesData[key].includes(guess)) guessesData[key].push(guess)
-            delete guessesData[String(gameRef.id)]
-            localStorage.setItem('judi_intentos', JSON.stringify(guessesData))
-        }
+    /** Invitados: el progreso sigue en localStorage, ahora con la fecha como clave. */
+    const saveLocalProgress = (gameRef: { id: number; fecha: string }, patch: Partial<JudiProgress>) => {
+        const progressData = getLocalProgressRaw()
+        const prev = readLocalProgressForGame(gameRef, progressData) ?? {}
+        const next = writeJudiLocal(progressData, gameRef.fecha, gameRef.id, { ...prev, ...patch, id_lista_judi: gameRef.id })
+        localStorage.setItem('judi_progress', JSON.stringify(next))
     }
 
-    const clearWrongGuesses = async (gameRef: { id: number; fecha: string; id_videojuego: number }) => {
-        const { data: { user: authUser } } = await safeGetUser()
-        if (authUser) {
-            await supabase.from('hubgames_judi_intentos').delete().eq('id_lista_judi', gameRef.id).eq('id_usuario', authUser.id)
-        } else {
-            const guessesData = getLocalGuessesRaw()
-            const key = judiLocalStorageKey(gameRef)
-            delete guessesData[key]
-            delete guessesData[String(gameRef.id)]
-            localStorage.setItem('judi_intentos', JSON.stringify(guessesData))
-        }
-    }
-
-    const updateProgress = async (gameRef: { id: number; fecha: string; id_videojuego: number }, field: string, value: any) => {
-        const { data: { user: authUser } } = await safeGetUser()
-        if (authUser) {
-            const { data: existing } = await supabase
-                .from('hubgames_judi_fases_usuario')
-                .select('id_lista_judi')
-                .eq('id_lista_judi', gameRef.id)
-                .eq('id_usuario', authUser.id)
-                .maybeSingle()
-            if (existing) {
-                await supabase.from('hubgames_judi_fases_usuario').update({ [field]: value } as TablesUpdate<'hubgames_judi_fases_usuario'>).eq('id_lista_judi', gameRef.id).eq('id_usuario', authUser.id)
-            } else {
-                await supabase.from('hubgames_judi_fases_usuario').insert({ id_lista_judi: gameRef.id, id_usuario: authUser.id, [field]: value } as TablesInsert<'hubgames_judi_fases_usuario'>)
-            }
-        } else {
-            const progressData = getLocalProgressRaw()
-            const key = judiLocalStorageKey(gameRef)
-            const prev = progressData[key] ?? { id_lista_judi: gameRef.id }
-            progressData[key] = { ...prev, id_lista_judi: gameRef.id, [field]: value } as JudiProgress
-            delete progressData[String(gameRef.id)]
-            localStorage.setItem('judi_progress', JSON.stringify(progressData))
-        }
+    const saveLocalGuesses = (gameRef: { id: number; fecha: string }, guesses: string[]) => {
+        const guessesData = getLocalGuessesRaw()
+        const next = writeJudiLocal(guessesData, gameRef.fecha, gameRef.id, guesses)
+        if (guesses.length === 0) delete next[gameRef.fecha]
+        localStorage.setItem('judi_intentos', JSON.stringify(next))
     }
 
     /** Feedback de fallo: sacudida del buscador + destello en la captura. */
@@ -995,79 +844,78 @@ export default function JudiClient() {
         }
     }
 
-    const submitGuess = async (rawGuess: string) => {
+    /**
+     * Envía un intento al servidor (#39); `guess` null = saltar. Con sesión, el servidor guarda el progreso; sin sesión,
+     * solo lo comprueba y el progreso se guarda en localStorage.
+     */
+    const sendAttempt = async (guess: string | null) => {
         if (!selectedGame || gameState !== 'playing' || guessSubmitting) return
-        const guessText = rawGuess.trim()
-        if (!guessText) return
-
-        const alreadyGuessed = wrongGuesses.some((guess) => normalizeGameName(guess) === normalizeGameName(guessText))
-        if (alreadyGuessed) return
-
+        const game = selectedGame.juego
         setGuessSubmitting(true)
-        const isCorrect =
-            Boolean(guessText) && normalizeGameName(guessText) === normalizeGameName(selectedGame.juego.nombre)
-
+        setGuessError(null)
         try {
-            if (isCorrect) {
-                setGameState('won')
-                await updateProgress(selectedGame.juego, 'completado', true)
-                await clearWrongGuesses(selectedGame.juego)
-                setSearchQuery('')
-                setSearchResults([])
-                setShowDropdown(false)
+            const { data: { user: authUser } } = await safeGetUser()
+            const { data, error } = authUser
+                ? await supabase.rpc('hubgames_judi_guess', { p_id: game.id, p_guess: guess ?? '' })
+                : await supabase.rpc('hubgames_judi_guess_anon', { p_id: game.id, p_guess: guess ?? '', p_phase: highestUnlockedPhase })
+            const day = parseJudiDay(data)
+            if (error || !day) {
+                setGuessError('No se ha podido comprobar el intento. Inténtalo de nuevo.')
                 return
             }
+            if (day.result === 'duplicate') return
 
-            const nextPhase = highestUnlockedPhase + 1
-            signalMiss()
-            await saveWrongGuess(selectedGame.juego, guessText)
-            setWrongGuesses((prev) => [...prev, guessText])
-
-            if (nextPhase > 6) {
-                setHighestUnlockedPhase(6)
-                setLives(0)
-                setGameState('lost')
-                await updateProgress(selectedGame.juego, 'fase6', true)
-            } else {
-                const currentPhaseToMark = highestUnlockedPhase
-                setHighestUnlockedPhase(nextPhase)
-                setActiveViewedPhase(nextPhase)
-                setLives(7 - nextPhase)
-                await updateProgress(selectedGame.juego, `fase${currentPhaseToMark}`, true)
+            const reveal = { nombre: day.nombre, header_image: day.headerImage, appid: day.appid }
+            if (day.nombre) {
+                setSelectedGame((prev) => (prev ? { ...prev, juego: { ...prev.juego, ...reveal } } : prev))
             }
+            setSelectedGame((prev) => (prev ? { ...prev, hints: day.hints, captureCount: day.captureCount } : prev))
             setSearchQuery('')
             setSearchResults([])
             setShowDropdown(false)
+
+            if (day.state === 'won') {
+                setGameState('won')
+                if (!authUser) {
+                    saveLocalProgress(game, { completado: true, ...reveal })
+                    saveLocalGuesses(game, [])
+                }
+                return
+            }
+
+            signalMiss()
+            if (guess) {
+                const nextGuesses = [...wrongGuesses, guess]
+                setWrongGuesses(nextGuesses)
+                if (!authUser) saveLocalGuesses(game, nextGuesses)
+            }
+            if (day.state === 'lost') {
+                setHighestUnlockedPhase(6)
+                setLives(0)
+                setGameState('lost')
+                if (!authUser) saveLocalProgress(game, { fase6: true, ...reveal })
+            } else {
+                if (!authUser) saveLocalProgress(game, { [`fase${highestUnlockedPhase}`]: true })
+                setHighestUnlockedPhase(day.phase)
+                setActiveViewedPhase(day.phase)
+                setLives(7 - day.phase)
+            }
         } finally {
             setGuessSubmitting(false)
         }
     }
 
+    const submitGuess = async (rawGuess: string) => {
+        const guessText = rawGuess.trim()
+        if (!guessText) return
+        const alreadyGuessed = wrongGuesses.some((guess) => normalizeGameName(guess) === normalizeGameName(guessText))
+        if (alreadyGuessed) return
+        await sendAttempt(guessText)
+    }
+
     /** Consume un intento sin elegir título (misma lógica que fallar, sin guardar nombre en intentos). */
     const skipAttempt = async () => {
-        if (!selectedGame || gameState !== 'playing' || guessSubmitting) return
-        setGuessSubmitting(true)
-        signalMiss()
-        try {
-            const nextPhase = highestUnlockedPhase + 1
-            if (nextPhase > 6) {
-                setHighestUnlockedPhase(6)
-                setLives(0)
-                setGameState('lost')
-                await updateProgress(selectedGame.juego, 'fase6', true)
-            } else {
-                const currentPhaseToMark = highestUnlockedPhase
-                setHighestUnlockedPhase(nextPhase)
-                setActiveViewedPhase(nextPhase)
-                setLives(7 - nextPhase)
-                await updateProgress(selectedGame.juego, `fase${currentPhaseToMark}`, true)
-            }
-            setSearchQuery('')
-            setSearchResults([])
-            setShowDropdown(false)
-        } finally {
-            setGuessSubmitting(false)
-        }
+        await sendAttempt(null)
     }
 
     const goAdjacentPhase = useCallback(
@@ -1260,23 +1108,24 @@ export default function JudiClient() {
         lastPhaseRef.current = activeViewedPhase
     }
 
-    const hints = selectedGame
+    const h = selectedGame?.hints
+    const hints = h
         ? [
-            { phase: 2, label: 'Géneros', value: selectedGame.generos.join(', ') || 'N/D', icon: Tags },
+            { phase: 2, label: 'Géneros', value: h.generos ?? 'N/D', icon: Tags },
             {
                 phase: 3,
                 label: 'Pico de jugadores (Steam)',
-                value: selectedGame.steamCcu != null ? selectedGame.steamCcu.toLocaleString('es-ES') : 'N/D',
+                value: h.ccu != null ? h.ccu.toLocaleString('es-ES') : 'N/D',
                 icon: Users,
             },
             {
                 phase: 4,
                 label: 'Reseñas positivas (Steam)',
-                value: selectedGame.steamPositivePct != null ? `${selectedGame.steamPositivePct} %` : 'N/D',
+                value: h.positivas != null ? `${h.positivas} %` : 'N/D',
                 icon: ThumbsUp,
             },
-            { phase: 5, label: 'Año de lanzamiento', value: selectedGame.releaseYear ?? 'N/D', icon: CalendarDays },
-            { phase: 6, label: 'Estudio', value: selectedGame.developersLabel ?? 'N/D', icon: Building2 },
+            { phase: 5, label: 'Año de lanzamiento', value: h.anio ?? 'N/D', icon: CalendarDays },
+            { phase: 6, label: 'Estudio', value: h.estudio ?? 'N/D', icon: Building2 },
         ]
         : []
     const activeHint = hints.find((h) => h.phase === activeViewedPhase)
@@ -1329,9 +1178,8 @@ export default function JudiClient() {
     const nextPendingGame = selectedGame
         ? games.find((g) => !g.completado && !g.fase6 && g.id !== selectedGame.juego.id) ?? null
         : null
-    const currentCapture = selectedGame
-        ? getCaptureUrlForPhase(activeViewedPhase, selectedGame.capturas) || selectedGame.capturas[0]
-        : undefined
+    const currentCapture =
+        selectedGame && selectedGame.captureCount > 0 ? judiCaptureUrl(selectedGame.juego.id, activeViewedPhase) : undefined
 
     const filterCounts: Record<ListFilter, number> = {
         all: games.length,
@@ -1705,12 +1553,12 @@ export default function JudiClient() {
                                                 />
                                             )}
                                         </AnimatePresence>
-                                        {selectedGame.capturas.length === 0 && (
+                                        {selectedGame.captureCount === 0 && (
                                             <div className="stage__empty">
                                                 <MysteryArt seed={selectedGame.juego.id} big />
                                             </div>
                                         )}
-                                        {selectedGame.capturas.length > 0 && (
+                                        {selectedGame.captureCount > 0 && (
                                             <button type="button" className="stage__zoom" onClick={onCaptureImageClick} aria-label="Ampliar captura">
                                                 <span className="stage__zoom-icon">
                                                     <Maximize2 size={16} />
@@ -1850,6 +1698,11 @@ export default function JudiClient() {
                                                     )}
                                                 </AnimatePresence>
                                             </div>
+                                            {guessError && (
+                                                <p className="guess__error" role="alert">
+                                                    {guessError}
+                                                </p>
+                                            )}
                                             <p className="guess__help">
                                                 Cada fallo desbloquea una captura y una pista nuevas.{' '}
                                                 <span className="guess__help-keys">Usa ← → para moverte entre fases.</span>

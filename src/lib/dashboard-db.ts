@@ -49,7 +49,7 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
     const month = monthKey(now)
     const since = previousMonths(month, AVERAGE_MONTHS).at(-1)!
 
-    const [profile, steam, games, recent, yearUnlocks, playtime, judiList, judiProgress, goals, unlockTimes] = await Promise.all([
+    const [profile, steam, games, recent, yearUnlocks, playtime, judiDays, goals, unlockTimes] = await Promise.all([
         supabase.from('hubgames_usuarios').select('username').eq('id', userId).maybeSingle(),
         supabase.from('hubgames_user_steam').select('last_sync_at, visibility').eq('user_id', userId).maybeSingle(),
         all((from, to) => supabase.from('hubgames_library').select('*').eq('user_id', userId).order('appid').range(from, to)),
@@ -70,14 +70,8 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
         all((from, to) =>
             supabase.from('hubgames_playtime_daily').select('minutes').eq('user_id', userId).gte('date', yearStart).range(from, to),
         ),
-        all((from, to) => supabase.from('hubgames_lista_videojuegos_judi').select('id, fecha').order('id').range(from, to)),
-        all((from, to) =>
-            supabase
-                .from('hubgames_judi_fases_usuario')
-                .select('id_lista_judi, completado, fase6')
-                .eq('id_usuario', userId)
-                .range(from, to),
-        ),
+        // Días publicados con tu progreso (#39: la lista ya no se lee directamente).
+        all((from, to) => supabase.rpc('hubgames_judi_list').range(from, to)),
         supabase.from('hubgames_monthly_goals').select('kind, target').eq('user_id', userId).eq('month', month),
         // Desde el día 1 del mes más antiguo de la media; con margen de un día por la zona horaria.
         all((from, to) =>
@@ -92,14 +86,14 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
         ),
     ])
 
-    // Los JUDI de mañana ya están en la tabla desde las 11:00, pero no cuentan hasta las 00:00.
+    // hubgames_judi_list ya solo devuelve hasta hoy en Madrid; el filtro cubre el margen entre relojes.
     const todayMs = legacyToMs(today)
-    const progress = new Map(judiProgress.map((p) => [p.id_lista_judi, p]))
-    const published = judiList.filter((j) => legacyToMs(j.fecha) <= todayMs)
-    const todayId = published.find((j) => j.fecha === today)?.id ?? null
-    const mine = todayId !== null ? progress.get(todayId) : undefined
+    const published = judiDays.filter((j) => legacyToMs(j.fecha) <= todayMs).sort((a, b) => a.id - b.id)
+    const mine = published.find((j) => j.fecha === today)
+    const todayId = mine?.id ?? null
+    const started = mine && (mine.completado || mine.fase1 || mine.fase2 || mine.fase3 || mine.fase4 || mine.fase5 || mine.fase6)
     const state: JudiTodayState =
-        todayId === null ? 'sin_juego' : !mine ? 'pendiente' : mine.completado ? 'acertado' : mine.fase6 ? 'fallado' : 'en_curso'
+        !mine ? 'sin_juego' : !started ? 'pendiente' : mine.completado ? 'acertado' : mine.fase6 ? 'fallado' : 'en_curso'
 
     return {
         userId,
@@ -115,8 +109,8 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
             state,
             days: published.map((j) => ({
                 fecha: j.fecha,
-                completado: !!progress.get(j.id)?.completado,
-                perdido: !!progress.get(j.id)?.fase6,
+                completado: j.completado,
+                perdido: j.fase6,
             })),
         },
         goals: {

@@ -21,6 +21,23 @@ const FUNCTIONS = {
           id_usuario: string
           username: string | null
         }[]`,
+    hubgames_judi_list: `{
+          completado: boolean
+          fase1: boolean
+          fase2: boolean
+          fase3: boolean
+          fase4: boolean
+          fase5: boolean
+          fase6: boolean
+          fecha: string
+          header_image: string | null
+          id: number
+          nombre: string | null
+        }[]`,
+    hubgames_judi_get_day: 'Json',
+    hubgames_judi_guess: 'Json',
+    hubgames_judi_guess_anon: 'Json',
+    hubgames_judi_capture_url: 'string | null',
     hubgames_judi_search_pool: '{ game_name: string; steam_appid: number }[]',
     hubgames_judi_pick_daily: 'Json',
     hubgames_reorder_backlog: 'undefined',
