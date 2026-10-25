@@ -69,7 +69,7 @@ export default function GameAchievements({ appid, name }: Props) {
     )
     const shown = useMemo(() => sortAchievements(list.filter((a) => matchesAchievementFilter(a, filter)), sort), [list, filter, sort])
 
-    if (state.kind === 'cargando') return <Loader label="Cargando logros" />
+    if (state.kind === 'cargando') return <Loader label="Cargando logros" resetScroll />
 
     const unlocked = counts.desbloqueados
     const total = list.length

@@ -171,8 +171,17 @@
   color: var(--muted);
 }
 
-.ach-select {
-  min-width: 200px;
+.ach-select,
+.heatmap__year {
+  width: auto;
+  min-width: 210px;
+  height: 36px;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.heatmap__year {
+  min-width: 100px;
 }
 
 /* Lista */
@@ -333,6 +342,10 @@
   .ach-select {
     min-width: 0;
     width: 100%;
+  }
+
+  .ach-tabs {
+    border-radius: var(--radius-lg);
   }
 }
 
@@ -699,10 +712,6 @@
   gap: 0.75rem;
 }
 
-.heatmap__year {
-  width: 110px;
-}
-
 .heatmap__scroll {
   overflow-x: auto;
   padding-bottom: 4px;
@@ -801,10 +810,6 @@ button.heatmap__cell:not(:disabled):hover,
   margin: 0;
   font-size: 0.9375rem;
   font-weight: 600;
-}
-
-.timeline__date::first-letter {
-  text-transform: uppercase;
 }
 
 .timeline__game {

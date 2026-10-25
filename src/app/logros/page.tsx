@@ -132,7 +132,7 @@ export default function LogrosPage() {
     const easy = useMore(views?.easy.length ?? 0)
     const forgotten = useMore(views?.forgotten.length ?? 0)
 
-    if (!data || !views) return <Loader label="Cargando logros" />
+    if (!data || !views) return <Loader label="Cargando logros" resetScroll />
 
     const gameName = (appid: number) => views.byAppid.get(appid)?.name ?? `App ${appid}`
     const gameLink = (appid: number) => <Link href={`/juego/${appid}/logros`}>{gameName(appid)}</Link>

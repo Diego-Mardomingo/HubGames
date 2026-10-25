@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, CalendarDays, Flame, History, Trophy, X } from 'lucide-react'
@@ -42,6 +42,10 @@ function streakRange(s: Streak): string {
     return `${SHORT_DAY.format(parseDayKey(s.start))} – ${SHORT_DAY.format(parseDayKey(s.end))}`
 }
 
+function capitalize(text: string): string {
+    return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
 function plural(n: number, one: string, many: string): string {
     return `${n.toLocaleString('es-ES')} ${n === 1 ? one : many}`
 }
@@ -77,8 +81,15 @@ export default function HistorialPage() {
     }, [data])
 
     const weeks = useMemo(() => (derived ? heatmapWeeks(year, derived.counts) : []), [derived, year])
+    const heatmapScroll = useRef<HTMLDivElement>(null)
 
-    if (!data || !derived) return <Loader label="Cargando historial" />
+    // En pantallas estrechas el heatmap se desplaza: el año en curso abre en los meses más recientes.
+    useEffect(() => {
+        const el = heatmapScroll.current
+        if (el) el.scrollLeft = year === new Date().getFullYear() ? el.scrollWidth : 0
+    }, [year, weeks])
+
+    if (!data || !derived) return <Loader label="Cargando historial" resetScroll />
 
     const thisYear = new Date().getFullYear()
     const years = derived.years.includes(thisYear) ? derived.years : [thisYear, ...derived.years]
@@ -167,7 +178,7 @@ export default function HistorialPage() {
                         </SelectContent>
                     </Select>
                 </header>
-                <div className="heatmap__scroll">
+                <div className="heatmap__scroll" ref={heatmapScroll}>
                     <div className="heatmap__grid" style={{ gridTemplateColumns: `24px repeat(${weeks.length}, 1fr)` }}>
                         <span />
                         {monthLabels.map((m, i) => (
@@ -222,7 +233,7 @@ export default function HistorialPage() {
                     return (
                         <article key={d.day} className="timeline__day">
                             <h2 className="timeline__date">
-                                {LONG_DAY.format(parseDayKey(d.day))}
+                                {capitalize(LONG_DAY.format(parseDayKey(d.day)))}
                                 <span className="ach-tab__count">{total}</span>
                             </h2>
                             {d.games.map((g) => (
