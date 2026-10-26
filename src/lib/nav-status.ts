@@ -1,10 +1,11 @@
-// Indicadores de la navegación: estado del JUDI de hoy y juegos de la wishlist en mínimo histórico.
+// Indicadores de la navegación: estado del JUDI de hoy y juegos de la wishlist en mínimo histórico (también los usa el buscador).
 // Consultas ligeras desde el navegador (RLS: cada uno ve lo suyo). El contador de la bandeja es `countTray` (tracker.ts).
 import { supabase } from '@/lib/supabase/client'
 import { isMissingRpc, judiTodayState, type JudiProgressFlags, type JudiTodayState } from '@/lib/dashboard'
 import { judiToday } from '@/lib/dashboard-db'
 import { findJudiLocalKey } from '@/lib/judi'
-import { isAtHistoricalLow } from '@/lib/wishlist'
+import { isAtHistoricalLow, type WishlistGame } from '@/lib/wishlist'
+import type { PriceData } from '@/components/wishlist/PriceInfo'
 
 /** Progreso de invitado guardado por /judi en localStorage (`judi_progress`, por fecha). */
 function localProgress(fecha: string): JudiProgressFlags | undefined {
@@ -38,13 +39,22 @@ export async function loadJudiToday(signedIn: boolean): Promise<JudiTodayState> 
     return judiTodayState(Boolean(day), signedIn ? day : localProgress(today))
 }
 
-/** Juegos de tu wishlist en mínimo histórico de Steam (mismo criterio que el filtro «En mínimo histórico»). */
-export async function countWishlistDeals(): Promise<number> {
+/** Juego de la wishlist en mínimo histórico: lo justo para el indicador de la navegación y el buscador (Ctrl + K). */
+export type WishlistDeal = Pick<WishlistGame, 'appid' | 'name' | 'header_image' | 'steamspy_userscore'> & PriceData
+
+/**
+ * Juegos de tu wishlist en mínimo histórico de Steam (mismo criterio que el filtro «En mínimo histórico»), del más
+ * rebajado al menos. Una sola consulta que comparten el indicador de la navegación y el buscador.
+ */
+export async function loadWishlistDeals(): Promise<WishlistDeal[]> {
     const { data, error } = await supabase
         .from('hubgames_wishlist')
-        .select('price_final, discount_percent, steam_low, all_low')
+        .select(
+            'appid, name, header_image, steamspy_userscore, price_initial, price_final, discount_percent, is_free, coming_soon, itad_id, steam_low, steam_low_at, all_low, all_low_shop, all_low_at'
+        )
         .gt('discount_percent', 0)
         .not('steam_low', 'is', null)
-    if (error || !data) return 0
-    return data.filter(isAtHistoricalLow).length
+        .order('discount_percent', { ascending: false })
+    if (error || !data) return []
+    return (data as WishlistDeal[]).filter(isAtHistoricalLow)
 }
