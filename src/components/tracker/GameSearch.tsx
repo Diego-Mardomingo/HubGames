@@ -281,7 +281,9 @@ function SearchBody({ deals, onNavigate }: { deals: WishlistDeal[]; onNavigate: 
                 setVersion((v) => v + 1)
                 setActive(0)
             } catch (e) {
-                if (!controller.signal.aborted) setError(e instanceof Error ? e.message : 'No se pudo buscar')
+                if (controller.signal.aborted) return
+                // Errores de la API (con su mensaje) o de red (TypeError de fetch, JSON roto): texto propio.
+                setError(e instanceof Error && e.name === 'Error' ? e.message : 'No se pudo conectar con el buscador')
             } finally {
                 if (!controller.signal.aborted) setLoading(false)
             }
@@ -289,6 +291,8 @@ function SearchBody({ deals, onNavigate }: { deals: WishlistDeal[]; onNavigate: 
         return () => {
             clearTimeout(timer)
             controller.abort()
+            // Si se cancela a medias (otra tecla, campo vacío), el indicador no se queda girando.
+            setLoading(false)
         }
     }, [q, typing, attempt])
 
@@ -546,7 +550,7 @@ function SearchBody({ deals, onNavigate }: { deals: WishlistDeal[]; onNavigate: 
                         )}
                     </span>
                 </button>
-                <span className="game-search__price">{shownPrice ? <PriceTag game={shownPrice} /> : pendButton || wishButton ? hint : null}</span>
+                <span className="game-search__price">{shownPrice && <PriceTag game={shownPrice} />}</span>
                 {actions}
             </li>
         )

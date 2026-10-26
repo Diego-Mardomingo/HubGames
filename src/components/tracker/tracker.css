@@ -241,6 +241,12 @@
   overflow: hidden;
 }
 
+/* Por encima de la barra superior móvil (z-index 51 en nav.css), que si no tapa el campo. */
+.hg-dialog.game-search,
+.hg-overlay:has(+ .game-search) {
+  z-index: 52;
+}
+
 /* Abrir: escala desde el centro (0,96 → 1) con fundido; el velo, 160 ms. Cerrar: 140 ms hacia 0,97. */
 .hg-dialog.game-search[data-state='open'] {
   animation: hg-search-open 0.2s var(--ease-out);
@@ -378,7 +384,7 @@
 .game-search__item {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 214px;
+  grid-template-columns: minmax(0, 1fr) auto 230px;
   align-items: center;
   gap: 12px;
   min-height: 60px;
@@ -583,6 +589,27 @@
   display: flex;
   justify-content: flex-end;
   min-width: 0;
+}
+
+/* Precio más estrecho que en la biblioteca: descuento y precio en una línea, el mínimo debajo */
+.game-search__price .price-tag {
+  grid-template-columns: auto auto;
+  font-size: 0.8125rem;
+}
+
+.game-search__price .price-tag__cut {
+  grid-row: auto;
+  padding: 1px 6px;
+  font-size: 0.75rem;
+}
+
+.game-search__price .price-tag__now strong {
+  font-size: 0.875rem;
+}
+
+.game-search__price .price-tag__low {
+  grid-column: 1 / -1;
+  justify-self: end;
 }
 
 .game-search__actions {
@@ -823,8 +850,19 @@
     justify-content: flex-start;
   }
 
+  .game-search__price .price-tag__low {
+    grid-column: auto;
+  }
+
+  .game-search__price .price-tag {
+    grid-template-columns: auto auto auto;
+  }
+
+  .game-search__price .price-tag__now {
+    grid-column: auto;
+  }
+
   .game-search__price:empty,
-  .game-search__price:has(> .game-search__hint-open),
   .game-search__actions--hint {
     display: none;
   }
