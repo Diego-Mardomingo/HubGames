@@ -13,6 +13,8 @@ describe('¿Qué juego hoy?', () => {
             game({ name: 'Jugando', status: 'jugando', playtime_forever: 300 }),
             game({ name: 'Completado', status: 'completado', playtime_forever: 300 }),
             game({ name: 'Pausado', status: 'pausado', playtime_forever: 300 }),
+            game({ name: 'Ya jugado', status: 'ya_jugado', playtime_forever: 300 }),
+            game({ name: 'Otros', status: 'otros', playtime_forever: 300 }),
         ]
         assert.deepEqual(names(recommend(list, 'media', 'terminar', NOW)), ['Jugando'])
     })

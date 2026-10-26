@@ -152,14 +152,14 @@ function time(iso: string | null): number {
 
 // ── Rediseño del Inicio ──
 
-export type ListCountKey = 'jugando' | 'pendiente' | 'pausado' | 'completado' | 'bandeja'
+export type ListCountKey = 'jugando' | 'pendiente' | 'pausado' | 'completado' | 'ya_jugado' | 'otros' | 'bandeja'
 
 /**
  * Juegos por lista para los atajos de la cabecera. `unowned` son los pendientes sin comprar (cuentan en Pendiente,
  * como en la biblioteca).
  */
 export function listCounts(games: Pick<LibraryGame, 'status'>[], unowned: Pick<LibraryGame, 'status'>[] = []): Record<ListCountKey, number> {
-    const out: Record<ListCountKey, number> = { jugando: 0, pendiente: 0, pausado: 0, completado: 0, bandeja: 0 }
+    const out: Record<ListCountKey, number> = { jugando: 0, pendiente: 0, pausado: 0, completado: 0, ya_jugado: 0, otros: 0, bandeja: 0 }
     for (const g of [...games, ...unowned]) if (g.status in out) out[g.status as ListCountKey]++
     return out
 }

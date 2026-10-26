@@ -95,9 +95,17 @@ describe('dashboard', () => {
     })
 
     it('atajos de listas: los sin comprar cuentan en Pendiente', () => {
-        const owned = [game({ status: 'jugando' }), game({ status: 'pendiente' }), game({ status: 'bandeja' }), game({ status: 'descartado' })]
+        const owned = [
+            game({ status: 'jugando' }),
+            game({ status: 'pendiente' }),
+            game({ status: 'bandeja' }),
+            game({ status: 'descartado' }),
+            game({ status: 'ya_jugado' }),
+            game({ status: 'ya_jugado' }),
+            game({ status: 'otros' }),
+        ]
         const unowned = [game({ status: 'pendiente', owned: false })]
-        assert.deepEqual(listCounts(owned, unowned), { jugando: 1, pendiente: 2, pausado: 0, completado: 0, bandeja: 1 })
+        assert.deepEqual(listCounts(owned, unowned), { jugando: 1, pendiente: 2, pausado: 0, completado: 0, ya_jugado: 2, otros: 1, bandeja: 1 })
     })
 
     it('JUDI: los últimos 7 días, el último hoy', () => {

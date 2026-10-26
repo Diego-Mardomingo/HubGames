@@ -22,9 +22,14 @@ function game(overrides: Partial<LibraryGame> = {}): LibraryGame {
 const names = (games: LibraryGame[]) => games.map((g) => g.name)
 
 describe('pestañas y datos derivados', () => {
-    it('"todos" incluye todo menos la bandeja y los descartados', () => {
+    it('"todos" incluye todo menos la bandeja, los descartados y "Otros"', () => {
         assert.equal(inTab(game({ status: 'bandeja' }), 'todos'), false)
         assert.equal(inTab(game({ status: 'descartado' }), 'todos'), false)
+        assert.equal(inTab(game({ status: 'otros' }), 'todos'), false)
+        assert.equal(inTab(game({ status: 'ya_jugado' }), 'todos'), true)
+        assert.equal(inTab(game({ status: 'ya_jugado' }), 'ya_jugado'), true)
+        assert.equal(inTab(game({ status: 'otros' }), 'otros'), true)
+        assert.equal(inTab(game({ status: 'ya_jugado' }), 'completado'), false)
         assert.equal(inTab(game({ status: 'jugando' }), 'pendiente'), false)
         assert.equal(inTab(game({ status: 'bandeja' }), 'bandeja'), true)
         // Las marcas se suman al estado: un completado sin final está en las dos listas.
@@ -170,6 +175,8 @@ describe('lista de inicio', () => {
         // Un orden que no existe en esa lista vuelve al de por defecto.
         assert.equal(parseLibraryHome({ tab: 'completado', sort: 'manual' })?.sort, 'completado')
         assert.equal(parseLibraryHome({ tab: 'inventada' })?.tab, 'todos')
+        assert.equal(parseLibraryHome({ tab: 'ya_jugado' })?.tab, 'ya_jugado')
+        assert.equal(parseLibraryHome({ tab: 'otros' })?.tab, 'otros')
         assert.equal(parseLibraryHome(null), null)
     })
 })

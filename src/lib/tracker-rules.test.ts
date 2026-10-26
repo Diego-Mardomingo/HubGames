@@ -40,12 +40,20 @@ describe('Jugando según actividad', () => {
         assert.equal(out.statusChanged, false)
     })
 
-    for (const status of ['completado', 'abandonado', 'descartado'] as const) {
+    for (const status of ['completado', 'abandonado', 'descartado', 'ya_jugado', 'otros'] as const) {
         it(`nunca toca ${status}`, () => {
             const out = evaluateGame(game({ status, status_source: 'manual', rtime_last_played: daysAgo(1), playtime_2weeks: 60 }), NOW)
             assert.equal(out.status, status)
             assert.equal(out.statusChanged, false)
             assert.equal(out.suggestion, null)
+        })
+    }
+
+    for (const status of ['ya_jugado', 'otros'] as const) {
+        it(`no pregunta si has terminado un juego en ${status}, aunque tenga el 100 % o pase de su duración`, () => {
+            const perfect = { achievements_total: 10, achievements_unlocked: 10, last_unlock_at: daysAgo(1) }
+            assert.equal(evaluateGame(game({ status, status_source: 'auto', ...perfect }), NOW).suggestion, null)
+            assert.equal(evaluateGame(game({ status, playtime_forever: 900, hltb_main_minutes: 600 }), NOW).suggestion, null)
         })
     }
 
