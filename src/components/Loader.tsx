@@ -15,7 +15,7 @@ export default function Loader({ label = 'Cargando', resetScroll = false }: { la
 
     return (
         <div className="loader-container" role="status" aria-live="polite">
-            <LogoMark size={56} loop />
+            <LogoMark size={40} loop />
             <span className="loader-container__label">{label}</span>
         </div>
     )

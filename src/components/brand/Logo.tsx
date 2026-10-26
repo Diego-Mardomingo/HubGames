@@ -1,92 +1,48 @@
-'use client'
-
-import { motion, type Transition } from 'framer-motion'
-
 /**
- * Marca HubGames: una gema (el logro) enmarcada por el cursor de selección de la interfaz.
- * Los corchetes usan el acento; la gema, el color del texto; la faceta, el dorado de "legendaria".
+ * Marca HubGames: la H y la G dibujadas como las barras y anillos de progreso de la interfaz.
+ * El travesaño de la H es una barra al 70 % y la G un anillo casi completo; la abertura de la G queda como pista vacía.
+ * Las animaciones (entrada, bucle del loader y la barra que se completa al pasar el ratón) viven en globals.css.
  */
-const BRACKETS = 'M6 20V6h14M44 6h14v14M58 44v14H44M20 58H6V44'
-const GEM = 'M32 16.5 45.5 24.25v15.5L32 47.5 18.5 39.75v-15.5z'
-const FACET = 'M32 32 45.5 24.25v15.5L32 47.5z'
+const STEMS = 'M10 36V84M48 36V84'
+const BAR = 'M16 60H42'
+const G = 'M109.15 43.93A25 25 0 1 0 115 60H92'
+const G_GAP = 'M109.15 43.93A25 25 0 0 1 115 60'
+
+/** Recorte del viewBox alrededor del dibujo: ancho / alto. */
+const VIEWBOX = '3 28 120 64'
+const RATIO = 120 / 64
 
 type LogoMarkProps = {
+    /** Alto en px; el ancho sale de la proporción del monograma. */
     size?: number
-    /** Los corchetes "se ajustan" sobre la gema al montar. */
+    /** La G y la barra de la H se rellenan al montar. */
     animated?: boolean
-    /** Bucle infinito (para el loader). */
+    /** Relleno en bucle (para el loader). */
     loop?: boolean
-    /** Fondo tipo icono de app. */
-    tile?: boolean
     className?: string
     title?: string
 }
 
-const ease: Transition['ease'] = [0.22, 1, 0.36, 1]
-const origin = { transformOrigin: '32px 32px', transformBox: 'view-box' } as const
-
-export function LogoMark({ size = 32, animated = false, loop = false, tile = false, className, title }: LogoMarkProps) {
-    const motionOn = animated || loop
-    const gem = (
-        <>
-            <path d={GEM} fill="currentColor" />
-            <path d={FACET} fill="var(--rar-leg)" />
-        </>
-    )
-
+export function LogoMark({ size = 24, animated = false, loop = false, className, title }: LogoMarkProps) {
+    const classes = ['hg-mark', loop ? 'hg-mark--loop' : animated && 'hg-mark--intro', className].filter(Boolean).join(' ')
     return (
         <svg
-            className={['hg-mark', className].filter(Boolean).join(' ')}
-            width={size}
+            className={classes}
+            width={Math.round(size * RATIO)}
             height={size}
-            viewBox="0 0 64 64"
+            viewBox={VIEWBOX}
             fill="none"
+            strokeWidth={12}
             role={title ? 'img' : undefined}
             aria-label={title}
             aria-hidden={title ? undefined : true}
         >
-            {tile && <rect x="0" y="0" width="64" height="64" rx="14" fill="var(--surface)" />}
-            <g transform={tile ? 'translate(32 32) scale(0.78) translate(-32 -32)' : undefined}>
-                {motionOn ? (
-                    <motion.path
-                        className="hg-mark__brackets"
-                        d={BRACKETS}
-                        stroke="var(--cursor)"
-                        strokeWidth={5.5}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        style={origin}
-                        initial={{ scale: 1.3, opacity: 0 }}
-                        animate={loop ? { scale: [1, 0.86, 1], opacity: 1 } : { scale: 1, opacity: 1 }}
-                        transition={
-                            loop
-                                ? { scale: { duration: 1.2, repeat: Infinity, ease: 'easeInOut' }, opacity: { duration: 0.2 } }
-                                : { duration: 0.5, ease }
-                        }
-                    />
-                ) : (
-                    <path
-                        className="hg-mark__brackets"
-                        d={BRACKETS}
-                        stroke="var(--cursor)"
-                        strokeWidth={5.5}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    />
-                )}
-                {motionOn ? (
-                    <motion.g
-                        style={origin}
-                        initial={{ scale: 0.6, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.4, ease, delay: 0.1 }}
-                    >
-                        {gem}
-                    </motion.g>
-                ) : (
-                    gem
-                )}
-            </g>
+            <path d={STEMS} stroke="currentColor" strokeLinecap="round" />
+            <path d={BAR} stroke="var(--surface-3)" />
+            <path className="hg-mark__bar" d={BAR} pathLength={100} stroke="var(--primary)" />
+            <path d={G_GAP} stroke="var(--surface-3)" strokeLinecap="round" />
+            <path d={G} stroke="var(--surface-3)" strokeLinecap="round" strokeLinejoin="round" />
+            <path className="hg-mark__g" d={G} pathLength={100} stroke="var(--primary)" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     )
 }
@@ -95,7 +51,7 @@ export function Wordmark({ className }: { className?: string }) {
     return <span className={['hg-wordmark', className].filter(Boolean).join(' ')}>HubGames</span>
 }
 
-export function Logo({ size = 30, animated = true }: { size?: number; animated?: boolean }) {
+export function Logo({ size = 20, animated = true }: { size?: number; animated?: boolean }) {
     return (
         <span className="hg-logo">
             <LogoMark size={size} animated={animated} />

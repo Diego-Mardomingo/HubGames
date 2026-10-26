@@ -132,7 +132,7 @@ export default function Nav() {
 
     const brand = (
         <Link href="/" scroll={false} className="nav-brand" onClick={pathname === '/' ? handleHomeLinkClick : undefined} aria-label="HubGames, inicio">
-            <LogoMark size={28} animated />
+            <LogoMark size={22} animated />
             <Wordmark />
         </Link>
     )

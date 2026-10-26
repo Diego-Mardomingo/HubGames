@@ -72,7 +72,7 @@ export default function AuthShell({
     return (
         <div className="auth">
             <aside className="auth__brand">
-                <Logo size={32} animated={false} />
+                <Logo size={26} animated={false} />
                 <div className="auth__pitch">
                     <p className="auth__tagline">Tu biblioteca de Steam y tus logros, en orden.</p>
                     <p className="auth__tagline-sub">
