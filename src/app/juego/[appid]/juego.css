@@ -200,10 +200,12 @@ a.juego__metacritic:hover {
   gap: 0.75rem;
 }
 
-/* Estado: las siete listas a la vista, cada una con su color; la activa, con borde de su color */
+/* Estado: las diez listas a la vista, cada una con su color; la activa, con borde de su color.
+   En rejilla de 5 × 2 (en móvil, 2 columnas): con diez, un flex suelto dejaba la última sola en otra línea. */
 .juego-status {
-  display: flex;
-  flex-wrap: wrap;
+  flex: 1 1 100%;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 4px;
   padding: 4px;
   border-radius: 12px;
@@ -215,6 +217,7 @@ a.juego__metacritic:hover {
   align-items: center;
   gap: 6px;
   min-height: 34px;
+  justify-content: center;
   padding: 0 11px;
   border: 0;
   border-radius: 9px;
@@ -222,9 +225,11 @@ a.juego__metacritic:hover {
   color: var(--muted);
   font-size: 0.8125rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .juego-status__opt svg {
+  flex-shrink: 0;
   width: 14px;
   height: 14px;
   color: var(--c);
@@ -1092,6 +1097,10 @@ a.juego__metacritic:hover {
 }
 
 @media (max-width: 860px) {
+  .juego-status__opt {
+    padding: 0 6px;
+  }
+
   .juego-ach__cols {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1119,9 +1128,11 @@ a.juego__metacritic:hover {
     padding: 1rem;
   }
 
+  .juego-status {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .juego-status__opt {
-    flex: 1 1 auto;
-    justify-content: center;
     min-height: 44px;
   }
 

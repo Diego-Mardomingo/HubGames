@@ -57,6 +57,7 @@ Un juego tiene **un estado** y puede tener además **marcas**, que se suman al e
 | Pendiente | estado | `--st-pendiente` | `#0b7285` | `#3bc9db` | marcador |
 | Jugando | estado | `--st-jugando` | `#2453ff` | `#7b9bff` | play |
 | Pausado | estado | `--st-pausado` | `#8e5e18` | `#f2b53a` | pausa |
+| Rejugable | estado | `--st-rejugable` | `#9c3c08` | `#ff9a5c` | flechas en bucle (`Repeat`) |
 | Completado | estado | `--st-completado` | `#1a7743` | `#4cc97e` | bandera |
 | Abandonado | estado | `--st-abandonado` | `#c7243b` | `#f26b7e` | círculo con aspa |
 | Ya jugado | estado | `--st-yajugado` | `#5c5b06` | `#d2cf5c` | reloj con flecha atrás (`History`) |
@@ -68,8 +69,10 @@ Un juego tiene **un estado** y puede tener además **marcas**, que se suman al e
 - Clases: `st-<lista>` pone `--c` (`st-todos` usa el acento) y `.hg-tint` lo pinta como texto sobre su fondo tenue (`--tint`: 12 % en claro, 14 % en oscuro). Componentes: `StatusChip` y `MarkFlags`.
 - **Pendientes sin comprar** (añadidos desde el buscador o la ficha, `owned = false`): portada desaturada con borde discontinuo cian, etiqueta «Sin comprar» y precio en lugar de logros. Los comprados llevan «Comprado».
 - El estado nunca va solo con el color: siempre con su icono y su nombre.
-- **Ya jugado** (oliva): jugados antes de HubGames o sin seguimiento, ni completados ni abandonados. **Otros** (fucsia): lo que no encaja en ninguna lista (software, demos, betas, bandas sonoras, juegos de servicio). Los dos son estados cerrados: no cuentan como completados (estadísticas, metas, rachas), no salen en «Qué jugar» y las reglas automáticas no los tocan. «Otros» tampoco sale en «Todos», como los descartados. En la bandeja son las teclas 6 y 7.
+- **Ya jugado** (oliva): jugados antes de HubGames o sin seguimiento, ni completados ni abandonados. **Otros** (fucsia): lo que no encaja en ninguna lista (software, demos, betas, bandas sonoras). Los dos son estados cerrados: no cuentan como completados (estadísticas, metas, rachas), no salen en «Qué jugar» y las reglas automáticas no los tocan. «Otros» tampoco sale en «Todos», como los descartados. En la bandeja son las teclas 6 y 7.
 - Contraste de los dos (texto sobre `--background` / `--surface` / `--surface-2`, y sobre su tinte encima de cada uno): Ya jugado claro 6,23 / 7,11 / 5,73 (tinte 5,25 / 5,94 / 4,86), oscuro 10,95 / 9,83 / 8,53 (tinte 8,09 / 7,13 / 6,17); Otros claro 6,49 / 7,41 / 5,98 (tinte 5,34 / 6,06 / 4,94), oscuro 7,85 / 7,04 / 6,11 (tinte 6,19 / 5,48 / 4,76).
+- **Rejugable** (naranja teja): juegos vivos de partidas sueltas, sin un final que perseguir, a los que vuelves de vez en cuando (CS2, Project Zomboid, Path of Exile 2). Es una lista activa: sale en «Todos» y en el raíl va justo después de Pausado. No cuenta como completado (estadísticas, metas, rachas), pero sus horas sí cuentan como las de cualquier juego. Es un estado estable: echar una partida no lo pasa a Jugando ni genera sugerencias («¿Lo has terminado?», «¿Lo pausas?»), y la sincronización con Steam no lo toca. En «Qué jugar» solo entra con «Menos de 1 h», con el motivo «Para una partida rápida», y nunca en «Terminar algo». Su lista se ordena por defecto por «Jugado recientemente» y no tiene filtro de nota (la nota se pone al completar). En la bandeja es la tecla 8 (con ocho botones, de 1401 a 1760 px bajan a una segunda línea bajo el nombre y por debajo de 1400 px se quedan solo con el icono). El selector de estado de la ficha es una rejilla de 5 × 2 (2 columnas en móvil). La marca **Sin final** sigue siendo independiente: se suma a cualquier estado.
+- Contraste de Rejugable: claro 6,00 / 6,86 / 5,53 (tinte 5,01 / 5,68 / 4,64), oscuro 8,56 / 7,69 / 6,67 (tinte 6,67 / 5,90 / 5,12). Se distingue de Pausado (ámbar, más amarillo y apagado) y de Abandonado (rojo carmín) por tono: queda a medio camino, más saturado que el ámbar.
 
 ## Puntuaciones y precios
 

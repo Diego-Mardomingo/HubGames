@@ -350,6 +350,7 @@ const LIST_SHORTCUTS: { key: ListCountKey; label: string }[] = [
     { key: 'jugando', label: 'Jugando' },
     { key: 'pendiente', label: 'Pendiente' },
     { key: 'pausado', label: 'Pausado' },
+    { key: 'rejugable', label: 'Rejugable' },
     { key: 'completado', label: 'Completado' },
     { key: 'ya_jugado', label: 'Ya jugado' },
     { key: 'otros', label: 'Otros' },

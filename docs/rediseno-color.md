@@ -33,7 +33,7 @@ Leyenda de estado en la checklist: `[ ]` pendiente · `🎨` mockup listo, esper
 
 La fuente de verdad es `docs/design-system.md`. Resumen de lo que hace que Biblioteca y Ficha se lean de un vistazo:
 
-- **Color por lista.** Cada estado (Bandeja, Pendiente, Jugando, Pausado, Completado, Abandonado, Ya jugado, Descartado, Otros) y cada marca (Favorito, Sin final) tiene token `--st-*`, icono (`LIST_ICONS`) y nombre. Se usan igual en el raíl, la franja de la fila, el chip y el selector.
+- **Color por lista.** Cada estado (Bandeja, Pendiente, Jugando, Pausado, Rejugable, Completado, Abandonado, Ya jugado, Descartado, Otros) y cada marca (Favorito, Sin final) tiene token `--st-*`, icono (`LIST_ICONS`) y nombre. Se usan igual en el raíl, la franja de la fila, el chip y el selector.
 - **Color por puntuación.** Metacritic, reseñas de Steam y tu nota en cuatro niveles `--sc-top/good/mid/bad` (`src/lib/scores.ts`), siempre con el texto al lado («Aclamado», «Muy positivas»).
 - **Color por precio.** Descuento tintado en verde; **mínimo histórico en amarillo sólido** (`--deal`, `.hg-deal`), lo más llamativo de la página; rebajado pero ha estado más barato en `--sc-mid`.
 - **Color por rareza** en los logros (`--rar-*`, `src/lib/rarity.ts`).
