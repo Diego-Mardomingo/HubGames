@@ -31,7 +31,7 @@ import {
 import { countTray, TRACKER_CHANGED_EVENT } from '@/lib/tracker'
 import { JUDI_CHANGED_EVENT } from '@/lib/judi'
 import type { JudiTodayState } from '@/lib/dashboard'
-import { countWishlistDeals, loadJudiToday } from '@/lib/nav-status'
+import { loadJudiToday, loadWishlistDeals, type WishlistDeal } from '@/lib/nav-status'
 import { isSidebarCollapsed, setSidebarCollapsed, subscribeSidebar } from '@/lib/sidebar'
 import GameSearch, { openGameSearch } from '@/components/tracker/GameSearch'
 import SearchShortcut, { useSearchShortcut } from '@/components/tracker/SearchShortcut'
@@ -58,7 +58,7 @@ export default function Nav() {
     const [isAdminUser, setIsAdminUser] = useState(false)
     const [scrolled, setScrolled] = useState(false)
     const [trayCount, setTrayCount] = useState(0)
-    const [dealCount, setDealCount] = useState(0)
+    const [dealGames, setDealGames] = useState<WishlistDeal[]>([])
     const [judiState, setJudiState] = useState<JudiTodayState>('sin_juego')
     const pathname = usePathname()
     const shortcut = useSearchShortcut()
@@ -132,10 +132,11 @@ export default function Nav() {
     }, [user, pathname])
 
     // Juegos de la wishlist en mínimo histórico: al iniciar sesión y al navegar (los precios se actualizan a diario).
+    // La misma lista llega al buscador, que la enseña antes de escribir.
     useEffect(() => {
         if (!user) return
         let cancelled = false
-        countWishlistDeals().then((n) => { if (!cancelled) setDealCount(n) })
+        loadWishlistDeals().then((list) => { if (!cancelled) setDealGames(list) })
         return () => { cancelled = true }
     }, [user, pathname])
 
@@ -162,7 +163,7 @@ export default function Nav() {
     const signedIn = !isLoading && Boolean(user)
     const isAdmin = !isLoading && isAdminUser
     const tray = signedIn ? trayCount : 0
-    const deals = signedIn ? dealCount : 0
+    const deals = signedIn ? dealGames.length : 0
     const judi = JUDI_INDICATOR[judiState]
     const username: string | null = !isLoading && user ? user.user_metadata?.username || null : null
     const initial = (username || user?.email || '?')[0]?.toUpperCase()
@@ -297,7 +298,7 @@ export default function Nav() {
 
     return (
         <>
-            {signedIn ? <GameSearch /> : null}
+            {signedIn ? <GameSearch deals={dealGames} /> : null}
 
             {/* Móvil: barra superior con marca + cuenta */}
             <header className={`nav-mobile-top ${scrolled ? 'is-scrolled' : ''}`} suppressHydrationWarning>
