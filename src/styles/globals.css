@@ -330,11 +330,15 @@ a {
 }
 
 .hg-wordmark {
-    font-weight: 700;
+  font-weight: 700;
   font-size: 1.0625rem;
   letter-spacing: -0.02em;
   color: inherit;
   line-height: 1;
+}
+
+.hg-wordmark__accent {
+  color: var(--primary);
 }
 
 /* ══════════════════════════════════════════════════════════════════

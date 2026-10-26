@@ -10,8 +10,8 @@ import { WishlistMock } from './mocks/Wishlist'
 import { C, F } from './theme'
 import { Background } from './ui/Background'
 import { CoverWall } from './ui/CoverWall'
-import { LogoMark } from './ui/Logo'
-import { AppWindow, GradText, type NavKey } from './ui/kit'
+import { BRAND, LogoMark } from './ui/Logo'
+import { AppWindow, type NavKey } from './ui/kit'
 
 /** Frame "final" de las maquetas: todo visible y quieto. */
 const END = 400
@@ -33,7 +33,7 @@ export const Hero = () => (
         <div style={{ position: 'absolute', left: 90, top: 0, bottom: 0, width: 640, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <LogoMark size={110} tile />
             <div style={{ fontFamily: F.display, fontWeight: 800, fontSize: 112, letterSpacing: '-0.05em', lineHeight: 1, marginTop: 28 }}>
-                hub<GradText>games</GradText>
+                Hub<span style={{ color: BRAND.accent }}>Games</span>
             </div>
             <div style={{ fontFamily: F.display, fontWeight: 600, fontSize: 40, letterSpacing: '-0.02em', marginTop: 18, color: '#d9d4ff' }}>Tu centro de control gamer.</div>
             <div style={{ fontSize: 24, lineHeight: 1.5, color: C.mutedLight, marginTop: 18 }}>
@@ -104,7 +104,7 @@ export const Poster = () => (
                 <Play size={64} fill="#fff" color="#fff" style={{ translate: '6px 0' }} />
             </div>
             <div style={{ fontFamily: F.display, fontWeight: 800, fontSize: 84, letterSpacing: '-0.045em', textShadow: '0 10px 50px rgba(0,0,0,0.8)' }}>
-                Mira <GradText>HubGames</GradText> en 50 segundos
+                Mira Hub<span style={{ color: BRAND.accent }}>Games</span> en 50 segundos
             </div>
         </AbsoluteFill>
     </AbsoluteFill>

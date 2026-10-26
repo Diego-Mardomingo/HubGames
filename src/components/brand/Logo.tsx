@@ -48,7 +48,11 @@ export function LogoMark({ size = 24, animated = false, loop = false, className,
 }
 
 export function Wordmark({ className }: { className?: string }) {
-    return <span className={['hg-wordmark', className].filter(Boolean).join(' ')}>HubGames</span>
+    return (
+        <span className={['hg-wordmark', className].filter(Boolean).join(' ')}>
+            Hub<span className="hg-wordmark__accent">Games</span>
+        </span>
+    )
 }
 
 export function Logo({ size = 20, animated = true }: { size?: number; animated?: boolean }) {
