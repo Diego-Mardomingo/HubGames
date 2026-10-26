@@ -112,7 +112,7 @@ export default function SteamSetting() {
                                             <a href="/api/steam/link">Volver a comprobar</a>
                                         </Button>
                                     )}
-                                    <Button type="button" variant="secondary" disabled={busy} onClick={unlink}>
+                                    <Button type="button" variant="secondary" loading={busy} onClick={unlink}>
                                         Desvincular
                                     </Button>
                                 </>

@@ -105,7 +105,7 @@ export default function LoginPage() {
                     </div>
                 </div>
                 <FormError message={error} />
-                <Button type="submit" disabled={loading} className="btn-block">
+                <Button type="submit" loading={loading} className="btn-block">
                     {loading ? 'Entrando...' : (
                         <>
                             Entrar

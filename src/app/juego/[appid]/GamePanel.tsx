@@ -43,6 +43,7 @@ import { pricePosition, priceVerdict, ratingTier, type ScoreTier } from '@/lib/s
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Spinner } from '@/components/ui/spinner'
 import { LIST_ICONS, StatusChip } from '@/components/tracker/status'
 import type { PriceData } from '@/components/wishlist/PriceInfo'
 import { useGame } from './GameContext'
@@ -118,13 +119,15 @@ const MARKS: { mark: GameMark; list: 'favorito' | 'sin_final'; label: string }[]
 
 function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: string; duration: GameDuration }) {
     const { appid, update, openComplete } = useGame()
-    const [busy, setBusy] = useState(false)
+    /** Acción guardándose ("status:jugando", "mark:favorite", "goal"): su control enseña el spinner y el resto espera. */
+    const [pending, setPending] = useState<string | null>(null)
+    const busy = pending !== null
     const [error, setError] = useState('')
     const [warning, setWarning] = useState('')
     const pct = achievementPercent(game)
 
-    async function save(action: () => Promise<void>, patch: Partial<LibraryGame>) {
-        setBusy(true)
+    async function save(key: string, action: () => Promise<void>, patch: Partial<LibraryGame>) {
+        setPending(key)
         setError('')
         try {
             await action()
@@ -132,7 +135,7 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
         } catch (e) {
             setError(e instanceof Error ? e.message : 'No se pudo guardar')
         } finally {
-            setBusy(false)
+            setPending(null)
         }
     }
 
@@ -143,7 +146,7 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
             return
         }
         setWarning('')
-        await save(() => setGamesStatus([appid], status), {
+        await save(`status:${status}`, () => setGamesStatus([appid], status), {
             status,
             status_source: 'manual',
             suggestion: null,
@@ -171,10 +174,11 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                                 type="button"
                                 className={`juego-status__opt st-${s}`}
                                 aria-pressed={game.status === s}
+                                aria-busy={pending === `status:${s}` || undefined}
                                 disabled={busy}
                                 onClick={() => changeStatus(s)}
                             >
-                                <Icon aria-hidden /> {STATUS_LABELS[s]}
+                                {pending === `status:${s}` ? <Spinner /> : <Icon aria-hidden />} {STATUS_LABELS[s]}
                             </button>
                         )
                     })}
@@ -189,10 +193,11 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                                 type="button"
                                 className={`juego-mark st-${list}`}
                                 aria-pressed={on}
+                                aria-busy={pending === `mark:${mark}` || undefined}
                                 disabled={busy}
-                                onClick={() => save(() => setGameMark(appid, mark, !on), { [mark]: !on })}
+                                onClick={() => save(`mark:${mark}`, () => setGameMark(appid, mark, !on), { [mark]: !on })}
                             >
-                                <Icon aria-hidden /> {label}
+                                {pending === `mark:${mark}` ? <Spinner /> : <Icon aria-hidden />} {label}
                             </button>
                         )
                     })}
@@ -269,7 +274,7 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                     <div className="juego-goal__row">
                         <span className="juego-goal__label">
                             <Target size={15} aria-hidden /> Objetivo
-                            <Select value={parseGoal(game.goal)} onValueChange={(v) => save(() => setGameGoal(appid, v as GameGoal), { goal: v })} disabled={busy}>
+                            <Select value={parseGoal(game.goal)} onValueChange={(v) => save('goal', () => setGameGoal(appid, v as GameGoal), { goal: v })} disabled={busy}>
                                 <SelectTrigger className="juego-goal__select" aria-label="Objetivo">
                                     <SelectValue />
                                 </SelectTrigger>
@@ -281,6 +286,7 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                                     ))}
                                 </SelectContent>
                             </Select>
+                            {pending === 'goal' && <Spinner className="juego-goal__spin" />}
                         </span>
                         <span className="juego-goal__value">
                             {progress.percent === null
@@ -376,13 +382,15 @@ function costPerHourTier(eurosPerHour: number): ScoreTier {
 
 function BuyPanel({ duration, achievementsTotal, storeUrl }: Props) {
     const { appid, state, reload } = useGame()
-    const [busy, setBusy] = useState(false)
+    const [pending, setPending] = useState<'favorite' | 'pending' | 'wish' | null>(null)
+    const busy = pending !== null
     const [error, setError] = useState('')
     if (state.kind !== 'no_lo_tienes') return null
-    const { pending, wish, price } = state
+    const { pending: inPending, wish, price } = state
 
-    async function run(action: () => Promise<void>) {
-        setBusy(true)
+    /** Guarda y vuelve a leer el estado; el spinner sigue hasta que la ficha ya enseña el cambio. */
+    async function run(key: NonNullable<typeof pending>, action: () => Promise<void>) {
+        setPending(key)
         setError('')
         try {
             await action()
@@ -390,7 +398,7 @@ function BuyPanel({ duration, achievementsTotal, storeUrl }: Props) {
         } catch (e) {
             setError(e instanceof Error ? e.message : 'No se pudo guardar')
         } finally {
-            setBusy(false)
+            setPending(null)
         }
     }
 
@@ -401,9 +409,9 @@ function BuyPanel({ duration, achievementsTotal, storeUrl }: Props) {
         <div className="juego-buy">
             <section className="juego-panel glass juego-buy__price" aria-label="Precio">
                 <div className="juego-buy__state">
-                    {pending && <StatusChip status="pendiente" />}
+                    {inPending && <StatusChip status="pendiente" />}
                     <span className="lib-own lib-own--no">
-                        <ShoppingCart aria-hidden /> {pending ? 'Sin comprar' : 'No lo tienes'}
+                        <ShoppingCart aria-hidden /> {inPending ? 'Sin comprar' : 'No lo tienes'}
                     </span>
                     {wish && (
                         <span className="juego-buy__wish">
@@ -426,23 +434,24 @@ function BuyPanel({ duration, achievementsTotal, storeUrl }: Props) {
                             <ShoppingCart aria-hidden /> Comprar en Steam
                         </a>
                     </Button>
-                    {pending ? (
+                    {inPending ? (
                         <>
                             <button
                                 type="button"
                                 className="juego-mark st-favorito"
-                                aria-pressed={pending.favorite}
+                                aria-pressed={inPending.favorite}
+                                aria-busy={pending === 'favorite' || undefined}
                                 disabled={busy}
-                                onClick={() => run(() => setGameMark(appid, 'favorite', !pending.favorite))}
+                                onClick={() => run('favorite', () => setGameMark(appid, 'favorite', !inPending.favorite))}
                             >
-                                <Heart aria-hidden /> Favorito
+                                {pending === 'favorite' ? <Spinner /> : <Heart aria-hidden />} Favorito
                             </button>
-                            <Button variant="ghost" disabled={busy} onClick={() => run(() => removeFromPending(appid))}>
+                            <Button variant="ghost" loading={pending === 'pending'} disabled={busy} onClick={() => run('pending', () => removeFromPending(appid))}>
                                 <BookmarkX aria-hidden /> Quitar de Pendientes
                             </Button>
                         </>
                     ) : (
-                        <Button variant="secondary" disabled={busy} onClick={() => run(() => addToPending(appid))}>
+                        <Button variant="secondary" loading={pending === 'pending'} disabled={busy} onClick={() => run('pending', () => addToPending(appid))}>
                             <BookmarkPlus aria-hidden /> Añadir a Pendientes
                         </Button>
                     )}
@@ -453,7 +462,7 @@ function BuyPanel({ duration, achievementsTotal, storeUrl }: Props) {
                             </Link>
                         </Button>
                     ) : (
-                        <Button variant="ghost" disabled={busy} onClick={() => run(() => (wish ? removeFromWishlist(appid) : addToWishlist(appid)))}>
+                        <Button variant="ghost" loading={pending === 'wish'} disabled={busy} onClick={() => run('wish', () => (wish ? removeFromWishlist(appid) : addToWishlist(appid)))}>
                             {wish ? <HeartOff aria-hidden /> : <Heart aria-hidden />} {wish ? 'Quitar de la wishlist' : 'Añadir a la wishlist'}
                         </Button>
                     )}

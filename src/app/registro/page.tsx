@@ -150,7 +150,7 @@ export default function RegistroPage() {
                     </div>
                 </div>
                 <FormError message={error} />
-                <Button type="submit" disabled={loading} className="btn-block">
+                <Button type="submit" loading={loading} className="btn-block">
                     {loading ? 'Creando cuenta...' : (
                         <>
                             <UserRoundPlus size={16} data-icon="inline-start" aria-hidden />

@@ -13,6 +13,7 @@ import { LogOut, AlertTriangle, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import Loader from '@/components/Loader'
+import { Spinner } from '@/components/ui/spinner'
 import ThemeToggle from '@/components/ThemeToggle'
 import './perfil.css'
 
@@ -25,7 +26,9 @@ export default function PerfilPage() {
     const [confirmPassword, setConfirmPassword] = useState('')
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
-    const [updating, setUpdating] = useState(false)
+    /** Formulario guardándose: solo su botón enseña el spinner. */
+    const [updating, setUpdating] = useState<'username' | 'password' | null>(null)
+    const [loggingOut, setLoggingOut] = useState(false)
     const [judiStats, setJudiStats] = useState<any>(null)
     const [leaderboardPreview, setLeaderboardPreview] = useState<any[]>([])
     const [userRank, setUserRank] = useState<number | null>(null)
@@ -97,7 +100,7 @@ export default function PerfilPage() {
 
     const handleUpdateUsername = async (event: React.FormEvent) => {
         event.preventDefault()
-        setUpdating(true); setError(''); setSuccess('')
+        setUpdating('username'); setError(''); setSuccess('')
         try {
             const { error: authError } = await supabase.auth.updateUser({ data: { username } })
             if (authError) throw authError
@@ -107,14 +110,14 @@ export default function PerfilPage() {
             await checkUser()
         } catch (err: any) {
             setError(err.message || 'Error al actualizar el username')
-        } finally { setUpdating(false) }
+        } finally { setUpdating(null) }
     }
 
     const handleUpdatePassword = async (event: React.FormEvent) => {
         event.preventDefault()
-        setUpdating(true); setError(''); setSuccess('')
-        if (newPassword !== confirmPassword) { setError('Las contraseñas no coinciden'); setUpdating(false); return }
-        if (newPassword.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); setUpdating(false); return }
+        setUpdating('password'); setError(''); setSuccess('')
+        if (newPassword !== confirmPassword) { setError('Las contraseñas no coinciden'); setUpdating(null); return }
+        if (newPassword.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); setUpdating(null); return }
         try {
             const { error: passwordError } = await supabase.auth.updateUser({ password: newPassword })
             if (passwordError) throw passwordError
@@ -122,7 +125,7 @@ export default function PerfilPage() {
             setNewPassword(''); setConfirmPassword('')
         } catch (err: any) {
             setError(err.message || 'Error al actualizar contraseña')
-        } finally { setUpdating(false) }
+        } finally { setUpdating(null) }
     }
 
     const handleToggleNotifications = async () => {
@@ -143,7 +146,7 @@ export default function PerfilPage() {
         } finally { setNotificationsLoading(false) }
     }
 
-    const handleLogout = async () => { await supabase.auth.signOut(); router.push('/') }
+    const handleLogout = async () => { setLoggingOut(true); await supabase.auth.signOut(); router.push('/') }
 
     if (loading) return <Loader label="Cargando perfil" />
 
@@ -233,7 +236,7 @@ export default function PerfilPage() {
                                         placeholder="Tu nombre"
                                         autoComplete="username"
                                     />
-                                    <Button type="submit" variant="secondary" disabled={updating}>
+                                    <Button type="submit" variant="secondary" loading={updating === 'username'} disabled={updating !== null}>
                                         Guardar
                                     </Button>
                                 </div>
@@ -265,7 +268,7 @@ export default function PerfilPage() {
                                         placeholder="Confirmar contraseña"
                                         autoComplete="new-password"
                                     />
-                                    <Button type="submit" variant="secondary" disabled={updating}>
+                                    <Button type="submit" variant="secondary" loading={updating === 'password'} disabled={updating !== null}>
                                         Cambiar contraseña
                                     </Button>
                                 </div>
@@ -277,7 +280,7 @@ export default function PerfilPage() {
                                     <p className="pf-row__desc">Cierra la sesión en este dispositivo.</p>
                                 </div>
                                 <div className="pf-row__control">
-                                    <Button variant="secondary" onClick={handleLogout}>
+                                    <Button variant="secondary" loading={loggingOut} onClick={handleLogout}>
                                         <LogOut size={15} data-icon="inline-start" aria-hidden /> Cerrar sesión
                                     </Button>
                                 </div>
@@ -313,6 +316,7 @@ export default function PerfilPage() {
                                     </p>
                                 </div>
                                 <div className="pf-row__control">
+                                    {notificationsLoading && <Spinner className="pf-switch-spin" />}
                                     <button
                                         type="button"
                                         role="switch"
