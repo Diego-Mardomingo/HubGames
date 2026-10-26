@@ -124,10 +124,10 @@ export default function PriceAlertControl({
                     </p>
                 )}
                 <div className="price-alert__actions">
-                    <Button size="sm" variant="secondary" onClick={() => setOpen(false)}>
+                    <Button size="sm" variant="secondary" disabled={saving} onClick={() => setOpen(false)}>
                         Cancelar
                     </Button>
-                    <Button size="sm" onClick={() => void save()} disabled={saving}>
+                    <Button size="sm" onClick={() => void save()} loading={saving}>
                         {saving ? 'Guardando…' : 'Guardar'}
                     </Button>
                 </div>

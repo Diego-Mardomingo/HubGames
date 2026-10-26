@@ -31,7 +31,7 @@ export default function SyncButton() {
     return (
         <div className="dash-sync">
             <Button type="button" disabled={syncing} onClick={sync}>
-                <RefreshCw className={syncing ? 'animate-spin' : ''} aria-hidden />
+                <RefreshCw className={syncing ? 'hg-spin' : ''} aria-hidden />
                 {syncing ? 'Sincronizando…' : 'Sincronizar'}
             </Button>
             {message && (

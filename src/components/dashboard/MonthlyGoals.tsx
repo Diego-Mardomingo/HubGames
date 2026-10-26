@@ -121,7 +121,7 @@ export default function MonthlyGoals({ userId, month, saved, suggested, progress
             )}
             {draft ? (
                 <div className="goals__actions">
-                    <Button type="button" size="sm" disabled={busy} onClick={() => save(draft)}>
+                    <Button type="button" size="sm" loading={busy} onClick={() => save(draft)}>
                         <Check aria-hidden /> Guardar
                     </Button>
                     <Button type="button" size="sm" variant="secondary" disabled={busy} onClick={() => setDraft(null)}>
@@ -131,7 +131,7 @@ export default function MonthlyGoals({ userId, month, saved, suggested, progress
             ) : (
                 !targets && (
                     <div className="goals__actions">
-                        <Button type="button" size="sm" disabled={busy} onClick={() => save(suggested)}>
+                        <Button type="button" size="sm" loading={busy} onClick={() => save(suggested)}>
                             <Check aria-hidden /> Aceptar
                         </Button>
                         <Button type="button" size="sm" variant="secondary" disabled={busy} onClick={() => setDraft(suggested)}>

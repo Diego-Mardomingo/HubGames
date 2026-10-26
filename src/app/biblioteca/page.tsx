@@ -379,7 +379,8 @@ function Biblioteca() {
                                 variant="secondary"
                                 className={`lib-pin${isHomeTab ? ' is-pinned' : ''}`}
                                 onClick={saveHome}
-                                disabled={savingHome || (isHomeTab && !homeChanged)}
+                                loading={savingHome}
+                                disabled={isHomeTab && !homeChanged}
                                 title="La biblioteca se abrirá en esta lista, con este orden, filtros y vista"
                             >
                                 <Pin aria-hidden />

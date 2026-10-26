@@ -178,10 +178,10 @@ function CompleteForm({
             )}
 
             <div className="complete-form__actions">
-                <Button type="button" variant="secondary" onClick={onCancel}>
+                <Button type="button" variant="secondary" disabled={saving} onClick={onCancel}>
                     Cancelar
                 </Button>
-                <Button type="submit" disabled={saving}>
+                <Button type="submit" loading={saving}>
                     {saving ? 'Guardando…' : 'Guardar'}
                 </Button>
             </div>

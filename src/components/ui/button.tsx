@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
+import { Spinner } from './spinner'
 
 /**
  * Botón estilo shadcn/ui (CVA + Radix Slot).
@@ -9,6 +10,8 @@ import { cn } from '@/lib/utils'
  *
  * Iconos: `data-icon="inline-start"` | `inline-end` en Lucide/SVG o `<i className="fa-..." />`.
  * Espacio icono–texto: clase `.hg-button` en globals.css (`column-gap`; las utilidades `gap-*` no se emitían en el bundle).
+ *
+ * `loading`: la acción se está guardando. Desactiva el botón y cambia su icono por un spinner (sin icono, lo añade).
  */
 const buttonVariants = cva(
     [
@@ -49,12 +52,30 @@ export interface ButtonProps
     extends React.ButtonHTMLAttributes<HTMLButtonElement>,
         VariantProps<typeof buttonVariants> {
     asChild?: boolean
+    loading?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant, size, asChild = false, ...props }, ref) => {
-        const Comp = asChild ? Slot : 'button'
-        return <Comp ref={ref} className={cn(buttonVariants({ variant, size }), className)} {...props} />
+    ({ className, variant, size, asChild = false, loading = false, disabled, children, ...props }, ref) => {
+        if (asChild) {
+            return (
+                <Slot ref={ref} className={cn(buttonVariants({ variant, size }), className)} {...props}>
+                    {children}
+                </Slot>
+            )
+        }
+        return (
+            <button
+                ref={ref}
+                className={cn(buttonVariants({ variant, size }), loading && 'is-loading', className)}
+                disabled={disabled || loading}
+                aria-busy={loading || undefined}
+                {...props}
+            >
+                {loading && <Spinner />}
+                {children}
+            </button>
+        )
     }
 )
 Button.displayName = 'Button'

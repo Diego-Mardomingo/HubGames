@@ -64,7 +64,8 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [active, setActive] = useState(0)
-    const [saving, setSaving] = useState<number | null>(null)
+    /** Resultado y acción guardándose: solo ese botón enseña el spinner. */
+    const [saving, setSaving] = useState<{ appid: number; to: 'pendientes' | 'wishlist' } | null>(null)
     const listRef = useRef<HTMLUListElement>(null)
 
     useEffect(() => {
@@ -111,7 +112,7 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
     }
 
     async function toBacklog(appid: number) {
-        setSaving(appid)
+        setSaving({ appid, to: 'pendientes' })
         setError('')
         try {
             // Los que no sigues (no los tienes) entran como pendientes sin comprar, con su precio.
@@ -126,7 +127,7 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
     }
 
     async function toWishlist(appid: number) {
-        setSaving(appid)
+        setSaving({ appid, to: 'wishlist' })
         setError('')
         try {
             await addToWishlist(appid)
@@ -214,12 +215,18 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
                                         <Check size={14} aria-hidden /> En pendientes
                                     </span>
                                 ) : status ? (
-                                    <Button size="sm" variant="secondary" disabled={saving === r.appid} onClick={() => toBacklog(r.appid)}>
+                                    <Button size="sm" variant="secondary" loading={saving?.appid === r.appid} onClick={() => toBacklog(r.appid)}>
                                         <ListPlus aria-hidden /> Añadir a pendientes
                                     </Button>
                                 ) : (
                                     <span className="game-search__actions">
-                                        <Button size="sm" variant="secondary" disabled={saving === r.appid} onClick={() => toBacklog(r.appid)}>
+                                        <Button
+                                            size="sm"
+                                            variant="secondary"
+                                            loading={saving?.appid === r.appid && saving.to === 'pendientes'}
+                                            disabled={saving?.appid === r.appid}
+                                            onClick={() => toBacklog(r.appid)}
+                                        >
                                             <ListPlus aria-hidden /> Pendientes
                                         </Button>
                                         {wished.has(r.appid) ? (
@@ -227,7 +234,13 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
                                                 <Heart size={14} aria-hidden /> En la wishlist
                                             </span>
                                         ) : (
-                                            <Button size="sm" variant="ghost" disabled={saving === r.appid} onClick={() => toWishlist(r.appid)}>
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                loading={saving?.appid === r.appid && saving.to === 'wishlist'}
+                                                disabled={saving?.appid === r.appid}
+                                                onClick={() => toWishlist(r.appid)}
+                                            >
                                                 <Heart aria-hidden /> Wishlist
                                             </Button>
                                         )}
