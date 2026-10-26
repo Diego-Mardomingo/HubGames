@@ -7,6 +7,7 @@ import { evaluateGame } from './tracker-rules'
 import { goalMinutes } from './game-goal'
 import { refreshPrices, type PriceSyncResult } from './prices'
 import type { GameStatus } from './tracker'
+import { achievementIconUrl } from './steam-icon'
 
 type Client = SupabaseClient<Database>
 
@@ -449,8 +450,8 @@ export async function syncSteamAchievements(
             apiname: a.name,
             display_name: a.displayName ?? null,
             description: a.description ?? null,
-            icon: a.icon ?? null,
-            icongray: a.icongray ?? null,
+            icon: achievementIconUrl(a.icon),
+            icongray: achievementIconUrl(a.icongray),
             hidden: a.hidden === 1,
         }))
         for (const part of chunks(rows, UPSERT_CHUNK)) {

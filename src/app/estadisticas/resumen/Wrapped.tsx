@@ -8,6 +8,7 @@ import { formatPercent } from '@/lib/achievements'
 import { RARITY_TIER_LABELS, rarityColor, rarityTier } from '@/lib/rarity'
 import { Button } from '@/components/ui/button'
 import GameCover from '@/components/tracker/GameCover'
+import { achievementIconUrl } from '@/lib/steam-icon'
 
 const DAY = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long' })
 const NUMBER = new Intl.NumberFormat('es-ES')
@@ -139,7 +140,7 @@ export default function Wrapped({ data }: { data: WrappedData }) {
                         <span className="wrapped-rare__icon">
                             {data.rarest.icon ? (
                                 // eslint-disable-next-line @next/next/no-img-element -- icono de 64 px del CDN de Steam
-                                <img src={data.rarest.icon} alt="" width={56} height={56} />
+                                <img src={achievementIconUrl(data.rarest.icon) ?? undefined} alt="" width={56} height={56} />
                             ) : (
                                 <Trophy size={28} aria-hidden />
                             )}

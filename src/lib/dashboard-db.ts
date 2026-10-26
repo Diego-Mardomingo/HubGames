@@ -80,7 +80,7 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
             .eq('achieved', true)
             .not('unlocktime', 'is', null)
             .order('unlocktime', { ascending: false })
-            .limit(8),
+            .limit(5),
         supabase
             .from('hubgames_user_achievements')
             .select('appid', { count: 'exact', head: true })

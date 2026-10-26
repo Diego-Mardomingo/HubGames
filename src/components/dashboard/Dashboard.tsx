@@ -62,6 +62,7 @@ import MonthlyGoals from './MonthlyGoals'
 import OpenSearchButton from './OpenSearchButton'
 import { shortDate, timeAgo } from './format'
 import './dashboard.css'
+import { achievementIconUrl } from '@/lib/steam-icon'
 
 type CSSVars = React.CSSProperties & Record<`--${string}`, string | number>
 
@@ -239,7 +240,7 @@ function ActivityItem({ item, index, now }: { item: Activity; index: number; now
     return (
         <li className={`hg-ach${flash ? ' hg-rar-flash' : ''}`} style={tier ? ({ '--c': rarityColor(tier), '--i': index } as CSSVars) : undefined}>
             <span className="hg-ach__icon" aria-hidden>
-                {a.icon ? <img src={a.icon} alt="" loading="lazy" /> : <Trophy size={18} />}
+                {a.icon ? <img src={achievementIconUrl(a.icon) ?? undefined} alt="" loading="lazy" /> : <Trophy size={18} />}
             </span>
             <span className="hg-ach__body">
                 <span className="hg-ach__name">{a.display_name ?? 'Logro'}</span>
@@ -436,7 +437,8 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
     const playing = playingNow(data.games)
     const queue = nextInQueue([...data.games, ...data.unowned])
     const near = nearHundred(data.games)
-    const activity = recentActivity(data.recentUnlocks, data.games)
+    // Tantos logros como quepan junto a «En curso» (entre 3 y 5), para que las dos columnas queden parejas.
+    const activity = recentActivity(data.recentUnlocks, data.games, Math.min(5, Math.max(3, playing.length + 1)))
     const year = yearSummary(data.games, data.unlocksThisYear, data.minutesThisYear)
     const goalCounts = countsByMonth(data.games, data.goals.unlockTimes)
     const monthProgress = progressFor(goalCounts, data.goals.month)

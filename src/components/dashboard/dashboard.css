@@ -504,6 +504,27 @@ a.dash-list:hover .dash-list__icon {
   align-items: start;
 }
 
+/* Logros recientes junto a «En curso»: filas algo más compactas que en /logros para que la columna no se alargue. */
+.dash-cols .hg-achs {
+  gap: 6px;
+}
+
+.dash-cols .hg-ach {
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 0.625rem;
+  padding: 7px 10px;
+}
+
+.dash-cols .hg-ach__icon {
+  width: 34px;
+  height: 34px;
+}
+
+.dash-cols .hg-ach__icon img {
+  width: 28px;
+  height: 28px;
+}
+
 .dash-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);

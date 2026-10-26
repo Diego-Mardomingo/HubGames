@@ -227,12 +227,14 @@
 
 /* ── Buscador de juegos de Steam (#20): paleta de comandos con Ctrl + K ──
    Cada resultado con el lenguaje de la biblioteca: franja y chip de su lista, puntuaciones con color y precio con
-   veredicto. Columnas fijas (precio y acciones) para que todo se alinee entre filas. */
+   veredicto. Columnas fijas (precio y acciones) para que todo se alinee entre filas.
+   Con `.hg-dialog` delante: si no, `.hg-dialog` de ui.css (misma especificidad, cargado después) impone su ancho de
+   36rem, su centrado y su altura. */
 
-.game-search {
-  top: 12vh;
+.hg-dialog.game-search {
+  top: 10vh;
   translate: -50% 0;
-  max-width: 760px;
+  max-width: 960px;
   max-height: 76vh;
   display: flex;
   flex-direction: column;
@@ -822,7 +824,7 @@
 
 /* Móvil: casi a pantalla completa; precio y acciones bajan a su línea, con botones de 44 px */
 @media (max-width: 640px) {
-  .game-search {
+  .hg-dialog.game-search {
     top: 0.5rem;
     width: calc(100vw - 1rem);
     max-height: calc(100dvh - 1rem);
