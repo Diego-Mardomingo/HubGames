@@ -1327,6 +1327,22 @@ export type Database = {
           nombre: string | null
         }[]
       }
+      hubgames_judi_today: {
+        Args: never
+        Returns: {
+          completado: boolean
+          fase1: boolean
+          fase2: boolean
+          fase3: boolean
+          fase4: boolean
+          fase5: boolean
+          fase6: boolean
+          fecha: string
+          header_image: string | null
+          id: number
+          nombre: string | null
+        }[]
+      }
       hubgames_judi_get_day: {
         Args: { p_id: number; p_phase?: number }
         Returns: Json

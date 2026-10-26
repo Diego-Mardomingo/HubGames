@@ -107,14 +107,18 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
 
 ### 2. Inicio
 
-- [ ] **Inicio con sesión (dashboard)** — `/` · `src/components/dashboard/Dashboard.tsx`, `ActivityHeatmap.tsx`, `MonthlyGoals.tsx`, `WhatToPlay.tsx`, `SyncButton.tsx`, `dashboard.css`
+- [x] **Inicio con sesión (dashboard)** — `/` · `src/components/dashboard/Dashboard.tsx`, `ActivityHeatmap.tsx`, `MonthlyGoals.tsx`, `WhatToPlay.tsx`, `SyncButton.tsx`, `dashboard.css`
   - Hoy: saludo, mapa de actividad, paneles «En curso», «Logros recientes», «Siguientes en la cola», «Cerca del 100 %», «JUDI de hoy», objetivos del mes y «Qué jugar».
   - Ideas: cada panel con el color de la lista a la que pertenece (En curso → Jugando, Cola → Pendiente, Cerca del 100 % → Completado); filas con franja y `StatusChip`/`MarkFlags` como en la biblioteca; logros recientes con su rareza; tiles de cifras como los de la ficha; puntuaciones y precios con color en «Qué jugar»; objetivos del mes con barras de progreso con color.
   - Animación: cifras que cuentan, mapa de actividad que se pinta por semanas, barras de objetivos y «Cerca del 100 %» que se rellenan, paneles con entrada escalonada corta, «Sorpréndeme» de «Qué jugar» con un barajado de cartas.
-- [ ] **Portada sin sesión (landing)** — `/` sin sesión · `src/app/page.tsx` (`Landing`), `dashboard.css`
+  - Mockup: `docs/mockups/inicio.html` (aprobada la variante B: pendientes sin comprar en la cola y en «Empezar algo nuevo»; sin «el logro más difícil que te falta»)
+  - Hecho en la rama `Diego-Mardomingo/rediseno-inicio`, commit `416e57c` (y `410afc0`: `hubgames_judi_today` para el JUDI de hoy en la navegación). Crea las piezas de movimiento compartidas (`CountUp`, `.hg-enter`, `.hg-bar--fill`, `.hg-rar-flash`, `.hg-pop-in`, `.hg-draw`, `.hg-seg--slide`) y mueve los tiles de la ficha a `Tile` / `.hg-tile`.
+- [x] **Portada sin sesión (landing)** — `/` sin sesión · `src/app/page.tsx` (`Landing`), `dashboard.css`
   - Hoy: titular, tres botones y mapa de actividad de ejemplo.
   - Ideas: enseñar el producto con color: una vista previa de filas de biblioteca con sus listas, una ficha con puntuación y mínimo histórico, logros por rareza. Que de un vistazo se entienda qué hace HubGames.
   - Animación: la vista previa «en acción» (una fila que cambia de Pendiente a Jugando, un logro que se desbloquea, el mapa que se rellena), una sola vez al cargar.
+  - Mockup: `docs/mockups/inicio.html` (sección «Portada sin sesión»)
+  - Hecho en la rama `Diego-Mardomingo/rediseno-inicio`, commit `416e57c`.
 
 ### 3. Buscar y añadir juegos
 

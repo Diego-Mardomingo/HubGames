@@ -4,7 +4,7 @@ import type { Database } from './supabase/database.types'
 import { judiTodayState, playingNow, type JudiDay, type JudiTodayState, type RecentUnlock } from './dashboard'
 import { heatmapStart, madridDate } from './activity-heatmap'
 import { AVERAGE_MONTHS, monthKey, previousMonths, type GoalKind } from './goals'
-import type { LibraryGame } from './tracker'
+import { DEFAULT_PLAYING_LIMIT, type LibraryGame } from './tracker'
 
 type Client = SupabaseClient<Database>
 
@@ -13,10 +13,15 @@ export interface DashboardData {
     username: string | null
     steam: { linked: boolean; lastSyncAt: string | null; visibility: string | null }
     games: LibraryGame[]
+    /** Pendientes sin comprar (owned = false), con su precio: van en la cola y en «Empezar algo nuevo», nunca en las cifras. */
+    unowned: LibraryGame[]
+    /** Límite de juegos en «Jugando» (#21). */
+    playingLimit: number
     recentUnlocks: RecentUnlock[]
     unlocksThisYear: number
     minutesThisYear: number
-    judi: { today: string; todayId: number | null; days: JudiDay[]; state: JudiTodayState }
+    /** `failedToday`: intentos gastados hoy (fases marcadas), para «2 de 6 intentos» si lo tienes a medias. */
+    judi: { today: string; todayId: number | null; days: JudiDay[]; state: JudiTodayState; failedToday: number }
     /** Metas del mes (#31): las guardadas y las fechas de tus logros del mes y los anteriores, para el progreso y la media. */
     goals: { month: string; targets: Partial<Record<GoalKind, number>>; unlockTimes: string[] }
     /** Mapa de actividad: minutos por día (hubgames_playtime_daily) y logros desde el inicio del mapa (último año). */
@@ -60,10 +65,14 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
     const goalsFromMs = Date.parse(`${since}T00:00:00Z`) - 86400_000
     const unlocksFromMs = Math.min(goalsFromMs, Date.parse(`${activityFrom}T00:00:00Z`) - 86400_000)
 
-    const [profile, steam, games, recent, yearUnlocks, playtime, judiDays, goals, unlockTimes] = await Promise.all([
-        supabase.from('hubgames_usuarios').select('username').eq('id', userId).maybeSingle(),
+    const [profile, steam, games, unowned, recent, yearUnlocks, playtime, judiDays, goals, unlockTimes] = await Promise.all([
+        supabase.from('hubgames_usuarios').select('username, playing_limit').eq('id', userId).maybeSingle(),
         supabase.from('hubgames_user_steam').select('last_sync_at, visibility').eq('user_id', userId).maybeSingle(),
         all((from, to) => supabase.from('hubgames_library').select('*').eq('user_id', userId).eq('owned', true).order('appid').range(from, to)),
+        // Pendientes sin comprar: consulta aparte para que horas, completados y metas sigan contando solo lo que tienes.
+        all((from, to) =>
+            supabase.from('hubgames_library').select('*').eq('user_id', userId).eq('owned', false).eq('status', 'pendiente').order('appid').range(from, to),
+        ),
         supabase
             .from('hubgames_achievements')
             .select('appid, display_name, icon, global_percent, unlocktime')
@@ -139,6 +148,8 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
         username: profile.data?.username ?? null,
         steam: { linked: !!steam.data, lastSyncAt: steam.data?.last_sync_at ?? null, visibility: steam.data?.visibility ?? null },
         games: games as LibraryGame[],
+        unowned: unowned as LibraryGame[],
+        playingLimit: profile.data?.playing_limit ?? DEFAULT_PLAYING_LIMIT,
         recentUnlocks: (recent.data ?? []).filter((u): u is RecentUnlock => u.appid !== null),
         unlocksThisYear: yearUnlocks.count ?? 0,
         minutesThisYear: playtime.reduce((sum, r) => sum + (r.date && r.date >= yearStart ? (r.minutes ?? 0) : 0), 0),
@@ -146,6 +157,7 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
             today,
             todayId,
             state,
+            failedToday: mine ? [mine.fase1, mine.fase2, mine.fase3, mine.fase4, mine.fase5, mine.fase6].filter(Boolean).length : 0,
             days: published.map((j) => ({
                 fecha: j.fecha,
                 completado: j.completado,

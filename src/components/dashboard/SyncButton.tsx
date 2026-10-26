@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { RefreshCw } from 'lucide-react'
+import { Check, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 /** "Sincronizar ahora" (#14) en el dashboard: al terminar, vuelve a pedir los datos de la página. */
@@ -36,6 +36,7 @@ export default function SyncButton() {
             </Button>
             {message && (
                 <span className={`dash-sync__msg ${message.ok ? '' : 'is-error'}`} role="status">
+                    {message.ok && <Check aria-hidden className="hg-draw" />}
                     {message.text}
                 </span>
             )}

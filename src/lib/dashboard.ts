@@ -117,6 +117,15 @@ export function judiTodayState(exists: boolean, progress: JudiProgressFlags | nu
     return p.fase1 || p.fase2 || p.fase3 || p.fase4 || p.fase5 ? 'en_curso' : 'pendiente'
 }
 
+/**
+ * ¿El error de una llamada RPC es porque la función aún no existe? (PostgREST: PGRST202, «not found in the schema
+ * cache»; Postgres: 42883). Sirve para caer al método anterior mientras no se aplique una migración.
+ */
+export function isMissingRpc(error: { code?: string | null; message?: string | null } | null | undefined): boolean {
+    if (!error) return false
+    return error.code === 'PGRST202' || error.code === '42883' || /could not find the function/i.test(error.message ?? '')
+}
+
 export function parseJudiDate(fecha: string): number | null {
     const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(fecha)
     return m ? Date.UTC(Number(m[3]), Number(m[2]) - 1, Number(m[1])) : null
@@ -139,4 +148,46 @@ export function judiStreak(days: JudiDay[], today: string): number {
 
 function time(iso: string | null): number {
     return iso ? Date.parse(iso) : 0
+}
+
+// ── Rediseño del Inicio ──
+
+export type ListCountKey = 'jugando' | 'pendiente' | 'pausado' | 'completado' | 'bandeja'
+
+/**
+ * Juegos por lista para los atajos de la cabecera. `unowned` son los pendientes sin comprar (cuentan en Pendiente,
+ * como en la biblioteca).
+ */
+export function listCounts(games: Pick<LibraryGame, 'status'>[], unowned: Pick<LibraryGame, 'status'>[] = []): Record<ListCountKey, number> {
+    const out: Record<ListCountKey, number> = { jugando: 0, pendiente: 0, pausado: 0, completado: 0, bandeja: 0 }
+    for (const g of [...games, ...unowned]) if (g.status in out) out[g.status as ListCountKey]++
+    return out
+}
+
+export type JudiWeekState = 'ok' | 'ko' | 'hoy' | 'sin_jugar' | 'sin_juego'
+
+const WEEKDAY = ['D', 'L', 'M', 'X', 'J', 'V', 'S']
+
+/**
+ * Los últimos 7 días de JUDI (el último, hoy): acertado, fallado, hoy sin terminar, sin jugar o sin JUDI publicado.
+ * `today` en formato DD-MM-YYYY, como `fecha`.
+ */
+export function judiWeek(days: JudiDay[], today: string): { fecha: string; label: string; state: JudiWeekState }[] {
+    const todayMs = parseJudiDate(today)
+    if (todayMs === null) return []
+    const byDate = new Map(days.map((d) => [d.fecha, d]))
+    return Array.from({ length: 7 }, (_, i) => {
+        const date = new Date(todayMs - (6 - i) * 86400_000)
+        const fecha = `${String(date.getUTCDate()).padStart(2, '0')}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${date.getUTCFullYear()}`
+        const day = byDate.get(fecha)
+        const isToday = i === 6
+        const state: JudiWeekState = !day ? 'sin_juego' : day.completado ? 'ok' : day.perdido ? 'ko' : isToday ? 'hoy' : 'sin_jugar'
+        return { fecha, label: isToday ? 'Hoy' : WEEKDAY[date.getUTCDay()], state }
+    })
+}
+
+/** Minutos jugados en el mes `month` (clave YYYY-MM-01) según la foto diaria. */
+export function minutesInMonth(playtime: { date: string; minutes: number }[], month: string): number {
+    const prefix = month.slice(0, 7)
+    return playtime.reduce((sum, r) => sum + (r.date.startsWith(prefix) ? r.minutes : 0), 0)
 }

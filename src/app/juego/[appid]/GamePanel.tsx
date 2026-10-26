@@ -2,6 +2,7 @@
 
 import { useState, type CSSProperties } from 'react'
 import Link from 'next/link'
+import Tile from '@/components/Tile'
 import {
     AlertTriangle,
     BookmarkPlus,
@@ -216,33 +217,33 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                 </p>
             )}
 
-            <dl className="juego-tiles">
+            <dl className="hg-tiles">
                 <Tile icon={<Clock aria-hidden />} tone="st-jugando" label="Horas">
-                    <dd className="juego-tile__value">{formatHours(game.playtime_forever)}</dd>
-                    {game.playtime_2weeks > 0 && <dd className="juego-tile__note">{formatHours(game.playtime_2weeks)} en 2 semanas</dd>}
+                    <dd className="hg-tile__value">{formatHours(game.playtime_forever)}</dd>
+                    {game.playtime_2weeks > 0 && <dd className="hg-tile__note">{formatHours(game.playtime_2weeks)} en 2 semanas</dd>}
                 </Tile>
                 <Tile icon={<CalendarClock aria-hidden />} tone="st-pendiente" label="Última partida">
-                    <dd className="juego-tile__value">{game.rtime_last_played ? SHORT_DATE.format(new Date(game.rtime_last_played)) : 'Nunca'}</dd>
-                    {game.started_at && game.status === 'jugando' && <dd className="juego-tile__note">Jugando desde el {formatDate(game.started_at)}</dd>}
+                    <dd className="hg-tile__value">{game.rtime_last_played ? SHORT_DATE.format(new Date(game.rtime_last_played)) : 'Nunca'}</dd>
+                    {game.started_at && game.status === 'jugando' && <dd className="hg-tile__note">Jugando desde el {formatDate(game.started_at)}</dd>}
                 </Tile>
                 <Tile icon={<Star aria-hidden />} tone={game.rating !== null ? `sc-${ratingTier(game.rating)}` : 'st-pausado'} label="Tu nota">
-                    <dd className={`juego-tile__value${game.rating !== null ? ' juego-tile__value--tinted' : ''}`}>
+                    <dd className={`hg-tile__value${game.rating !== null ? ' hg-tile__value--tinted' : ''}`}>
                         {game.rating !== null ? String(game.rating).replace('.', ',') : '—'}
                     </dd>
-                    <dd className="juego-tile__note">
+                    <dd className="hg-tile__note">
                         {game.completed_at ? `Completado el ${formatDate(game.completed_at)}` : game.rating === null ? 'Se pone al completarlo' : null}
                     </dd>
                 </Tile>
                 <Tile icon={<Trophy aria-hidden />} tone="st-sin_final" label="Logros">
                     {pct === null ? (
-                        <dd className="juego-tile__value">Sin logros</dd>
+                        <dd className="hg-tile__value">Sin logros</dd>
                     ) : (
                         <>
-                            <dd className="juego-tile__value">
+                            <dd className="hg-tile__value">
                                 {game.achievements_unlocked ?? 0}
                                 <small>/{game.achievements_total}</small>
                             </dd>
-                            <dd className="juego-tile__note">
+                            <dd className="hg-tile__note">
                                 {isPerfect(game) ? (
                                     <span className="badge-100">
                                         <Trophy size={11} aria-hidden /> 100%
@@ -251,7 +252,7 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                                     `${pct} %`
                                 )}
                                 {' · '}
-                                <a href="#juego-logros" className="juego-tile__link">
+                                <a href="#juego-logros" className="hg-tile__link">
                                     Ver abajo
                                 </a>
                             </dd>
@@ -324,18 +325,6 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                 </div>
             )}
         </section>
-    )
-}
-
-function Tile({ icon, tone, label, children }: { icon: React.ReactNode; tone: string; label: string; children: React.ReactNode }) {
-    return (
-        <div className={`juego-tile ${tone}`}>
-            <dt>
-                <span className="juego-tile__icon hg-tint">{icon}</span>
-                {label}
-            </dt>
-            {children}
-        </div>
     )
 }
 

@@ -86,4 +86,17 @@ describe('¿Qué juego hoy?', () => {
         assert.deepEqual(names(recommend(list, 'media', 'sorpresa', NOW, 1)), a)
         assert.notDeepEqual(names(recommend(list, 'media', 'sorpresa', NOW, 2)), a)
     })
+
+    it('sin comprar: solo en «Empezar algo nuevo», con su mínimo histórico como motivo', () => {
+        const silksong = game({ name: 'Silksong', owned: false, backlog_position: 2, price_final: 1950, price_initial: 1950, discount_percent: 0, steam_low: 1950 })
+        const enOferta = game({ name: 'En oferta', owned: false, backlog_position: 3, price_final: 999, price_initial: 3999, discount_percent: 75, steam_low: 999 })
+        const tuyo = game({ name: 'Tuyo', backlog_position: 1 })
+        assert.deepEqual(names(recommend([silksong, enOferta, tuyo], 'media', 'nuevo', NOW)), ['Tuyo', 'Silksong', 'En oferta'])
+        const deal = recommend([enOferta], 'media', 'nuevo', NOW)[0]
+        assert.ok(deal.reasons.includes('Está en su mínimo histórico'))
+        assert.ok(!recommend([silksong], 'media', 'nuevo', NOW)[0].reasons.includes('Está en su mínimo histórico'))
+        for (const mood of ['terminar', 'logros', 'sorpresa'] as const) {
+            assert.deepEqual(names(recommend([silksong, tuyo], 'media', mood, NOW)).includes('Silksong'), false)
+        }
+    })
 })

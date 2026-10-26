@@ -889,6 +889,8 @@ a {
   *::before,
   *::after {
     animation-duration: 0.001ms !important;
+    /* Sin retraso: las entradas escalonadas no dejan nada oculto mientras esperan */
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;

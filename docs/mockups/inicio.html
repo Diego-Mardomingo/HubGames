@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Inicio (dashboard y portada) · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-hover: #ad1b31; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --rar-comun: #8a8f98; --rar-poco: #2e9e5b; --rar-rara: #2f6fe0; --rar-epica: #8b4fd8; --rar-leg: #c98a0b; --rar-ink: 62%;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-completado: #1a7743;
+  --st-abandonado: #c7243b; --st-descartado: #6b7280; --st-favorito: #c2255c; --st-sinfinal: #6741d9;
+  --sc-top: #1a7743; --sc-good: #4d7c0f; --sc-mid: #8e5e18; --sc-bad: #c7243b;
+  --deal: #f5c400; --deal-foreground: #2b2100; --tint: 12%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --scrim: rgba(10, 12, 16, 0.55);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Texto ámbar en claro: se oscurece para llegar a 4,5:1 (como .goal__pace--por_detras) */
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-hover: #ff8090; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --rar-comun: #9aa0aa; --rar-poco: #4cc97e; --rar-rara: #5b93ff; --rar-epica: #b07cff; --rar-leg: #f2b53a; --rar-ink: 100%;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e; --st-descartado: #8a919e; --st-favorito: #f783ac; --st-sinfinal: #b197fc;
+  --sc-top: #4cc97e; --sc-good: #a9d15b; --sc-mid: #f2b53a; --sc-bad: #f26b7e;
+  --deal: #ffd43b; --deal-foreground: #221a00; --tint: 14%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --scrim: rgba(0, 0, 0, 0.65);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; color: inherit; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.note { max-width: 1040px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul { margin: 0; padding-left: 20px; }
+.note li { margin: 3px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 100ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: hidden; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 60ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.vlabel { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.9375rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--surface-2); }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css, variante A del mockup de navegación) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; text-align: left; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nv-count { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px 0 6px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; line-height: 1; }
+.nv-count .i { font-size: 12px; stroke-width: 2.4; }
+.nv-count.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.nv-count--deal { background: var(--deal); color: var(--deal-foreground); }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.theme-btn { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 18px; }
+.nv-side:not(.is-compact) .theme-btn, .is-compact .theme-toggle { display: none; }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-3); color: var(--foreground); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.nv-cta { display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 40px; padding: 0 1rem; border-radius: var(--radius-sm); color: var(--primary-foreground); background: var(--primary); font-size: 0.875rem; font-weight: 600; }
+.nv-cta .i { font-size: 16px; }
+.nv-cta-hint { margin: 0; padding: 0 0.25rem; color: var(--muted); font-size: 0.8125rem; line-height: 1.4; }
+.nv-side.is-compact { width: 72px; align-items: center; padding: 1.25rem 0.75rem 1rem; }
+.is-compact .hg-wordmark, .is-compact .nv-link__label, .is-compact .nv-search__label, .is-compact .nv-kbd,
+.is-compact .nv-account__text, .is-compact .nv-cta__label, .is-compact .nv-cta-hint, .is-compact .nv-group__title { display: none; }
+.is-compact .nv-brand { padding: 0.25rem 0; }
+.is-compact .nv-menu { align-items: center; gap: 0; }
+.is-compact .nv-group { align-items: center; }
+.is-compact .nv-group + .nv-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.is-compact .nv-link, .is-compact .nv-search, .is-compact .nv-cta { width: 44px; height: 44px; padding: 0; justify-content: center; }
+.is-compact .nv-link > .nv-count { display: none; }
+.is-compact .nv-account { width: 44px; padding: 0; justify-content: center; }
+.is-compact .nv-foot { align-items: center; }
+.nv-dot { position: absolute; display: inline-flex; align-items: center; justify-content: center; gap: 2px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; font-size: 0.625rem; font-weight: 700; line-height: 1; box-shadow: 0 0 0 2px var(--ring-bg, var(--background)); }
+.nv-dot.hg-tint { background: color-mix(in srgb, var(--c) calc(var(--tint) + 6%), var(--ring-bg, var(--background))); }
+.nv-dot.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.nv-dot .i { font-size: 10px; stroke-width: 3; }
+.nv-dot--icon { padding: 0; width: 18px; }
+.is-compact .nv-dot { top: -3px; right: -7px; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); --ring-bg: var(--surface); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); background: var(--primary-glow); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+.m-tab__label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-tab .nv-dot { top: -8px; left: calc(50% + 7px); }
+.ft { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.5rem 1.5rem; margin-top: 1rem; padding: 1.25rem 0 0.5rem; color: var(--muted); font-size: 0.8125rem; border-top: 1px solid var(--border); }
+.ft__lines p { margin: 0; }
+.ft a { text-decoration: underline; text-decoration-color: var(--border-hover); text-underline-offset: 3px; }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.page.is-compact { margin-left: 72px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 2rem; }
+.w-mid .page-in { padding: 1.75rem 1.75rem 2rem; }
+.m-page { padding: 1.25rem 1rem 110px; }
+.page-title { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .page-title { font-size: 1.625rem; }
+
+/* ══ Piezas compartidas (copia de src/styles/lists.css y globals.css) ══ */
+.st-todos { --c: var(--primary); } .st-bandeja { --c: var(--st-bandeja); } .st-pendiente { --c: var(--st-pendiente); }
+.st-jugando { --c: var(--st-jugando); } .st-pausado { --c: var(--st-pausado); } .st-completado { --c: var(--st-completado); }
+.st-abandonado { --c: var(--st-abandonado); } .st-favorito { --c: var(--st-favorito); } .st-sin_final { --c: var(--st-sinfinal); }
+.sc-top { --c: var(--sc-top); } .sc-good { --c: var(--sc-good); } .sc-mid { --c: var(--sc-mid); } .sc-bad { --c: var(--sc-bad); }
+.rar-comun { --c: var(--rar-comun); } .rar-poco { --c: var(--rar-poco); } .rar-rara { --c: var(--rar-rara); } .rar-epica { --c: var(--rar-epica); } .rar-leg { --c: var(--rar-leg); }
+.ok { --c: var(--success); } .ko { --c: var(--danger); } .warn { --c: var(--warning); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.warn, .hg-tint.st-pausado, .hg-tint.sc-mid { color: var(--warn-ink); }
+.rar-ink { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; transition: background .15s, border-color .15s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { border-color: var(--border-hover); }
+.btn--ghost { background: transparent; color: var(--muted); }
+.btn--ghost:hover { background: var(--surface-2); color: var(--foreground); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.w-mob .btn--sm { height: 44px; }
+
+.hg-rows { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.hg-row { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: center; gap: 1rem; min-height: 68px; padding: 8px 12px 8px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: box-shadow .15s ease, border-color .15s ease; }
+.hg-row:hover, .hg-row:has(:focus-visible) { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+/* Franja de la lista a la que pertenece (como .lib-row de la biblioteca) */
+.hg-row.lib-row::before { content: ''; position: absolute; inset: -1px auto -1px -1px; width: 4px; border-radius: var(--radius) 0 0 var(--radius); background: var(--c); transition: background-color .25s var(--ease-out); }
+.hg-row__cover { position: relative; display: block; width: 112px; height: 52px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.hg-row__cover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s var(--ease-out); }
+.hg-row:hover .hg-row__cover img { transform: scale(1.05); }
+.hg-row__cover.has-rar::after { content: ''; position: absolute; inset: auto 0 0; z-index: 1; height: 3px; background: var(--c); }
+.hg-row__main { display: grid; gap: 3px; min-width: 0; }
+.hg-row__name { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.hg-row__link { overflow: hidden; color: var(--foreground); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.hg-row__link::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.hg-row a:not(.hg-row__link), .hg-row button { position: relative; z-index: 1; }
+.hg-row__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; color: var(--muted); font-size: 0.8125rem; min-width: 0; }
+.lib-meta { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.lib-meta .i { font-size: 13px; }
+.hg-row__prog { display: grid; gap: 6px; font-size: 0.8125rem; }
+.hg-row__prog-label { display: flex; justify-content: space-between; gap: 0.5rem; color: var(--muted); white-space: nowrap; }
+.hg-row__prog-label b { color: var(--foreground); font-weight: 600; }
+.hg-bar { position: relative; display: block; height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.hg-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--c, var(--primary)); transform-origin: left; transition: width .25s var(--ease-out), background-color .25s; }
+.hg-row .hg-bar > span, .win .hg-bar > span { background: var(--primary); }
+.hg-bar.is-done > span, .hg-row .hg-bar.is-done > span { background: var(--success); }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; justify-self: end; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.78125rem; font-weight: 600; white-space: nowrap; transition: background-color .25s, color .25s; }
+.hg-chip .i { font-size: 13px; }
+.hg-chip.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.hg-flag { display: inline-grid; flex: none; place-items: center; width: 20px; height: 20px; border-radius: 6px; font-size: 12px; }
+.hg-score { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 26px; height: 20px; padding: 0 5px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+.hg-score .i { font-size: 11px; }
+.hg-deal { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 6px; background: var(--deal); color: var(--deal-foreground); font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+.hg-deal .i { font-size: 12px; }
+.lib-own--no { display: inline-flex; align-items: center; gap: 4px; padding: 0 7px; border-radius: 5px; color: var(--st-pendiente); outline: 1px dashed var(--st-pendiente); outline-offset: -1px; font-size: 0.72rem; font-weight: 700; line-height: 1.6; }
+.lib-own--no .i { font-size: 11px; }
+.is-unowned .hg-row__cover img { filter: saturate(0.35) brightness(0.85); }
+.is-unowned .hg-row__cover::before { content: ''; position: absolute; inset: 0; z-index: 2; border: 1.5px dashed var(--st-pendiente); border-radius: inherit; }
+.hg-icon-btn { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius-sm); color: var(--muted); font-size: 16px; transition: color .15s, background .15s; }
+.hg-icon-btn:hover { color: var(--foreground); background: var(--surface-2); }
+.hg-keyhint { color: var(--muted); font-size: 0.75rem; white-space: nowrap; }
+.hg-keyhint kbd { display: inline-block; min-width: 1.35em; padding: 0 .3em; border-radius: 4px; background: var(--surface-2); font: inherit; font-size: .6875rem; text-align: center; }
+.hg-achs { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.hg-ach { --c: var(--muted); position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 0.75rem; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: inset 3px 0 0 var(--c); overflow: hidden; }
+.hg-ach__icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--c) 16%, transparent); color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: 18px; }
+.hg-ach__body { display: grid; min-width: 0; }
+.hg-ach__name { overflow: hidden; font-size: 0.875rem; font-weight: 600; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.hg-ach__game { overflow: hidden; color: var(--muted); font-size: 0.78125rem; text-overflow: ellipsis; white-space: nowrap; }
+.hg-ach__pct { display: grid; justify-items: end; font-size: 0.8125rem; font-weight: 600; white-space: nowrap; }
+.hg-ach__pct small { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: 0.71875rem; font-weight: 600; }
+.hg-ach.st-completado { --c: var(--st-completado); }
+.hg-ach.rar-comun { --c: var(--rar-comun); } .hg-ach.rar-poco { --c: var(--rar-poco); } .hg-ach.rar-rara { --c: var(--rar-rara); } .hg-ach.rar-epica { --c: var(--rar-epica); } .hg-ach.rar-leg { --c: var(--rar-leg); }
+.hg-ach.st-completado .hg-ach__icon { color: var(--c); }
+.hg-seg { position: relative; display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.hg-seg__opt { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: .4rem; min-height: 30px; padding: 0 0.75rem; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-size: 0.8125rem; font-weight: 500; white-space: nowrap; transition: color .2s; }
+.hg-seg__opt:hover { color: var(--foreground); }
+.hg-seg__opt[aria-checked='true'] { color: var(--primary); font-weight: 600; }
+.hg-seg__opt .i { font-size: 14px; }
+.w-mob .hg-seg__opt { min-height: 40px; }
+/* Fondo activo que se desliza (layoutId en la app) */
+.seg-thumb { position: absolute; z-index: 0; top: 0; left: 0; border-radius: 6px; background: var(--surface); box-shadow: var(--shadow-sm); transition: transform .22s var(--ease-out), width .22s var(--ease-out), height .22s var(--ease-out); pointer-events: none; }
+
+/* ══ Inicio con sesión ══ */
+.dash { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.75rem; }
+.sec-block, .dash-col, .land, .lcard__body { grid-template-columns: minmax(0, 1fr); }
+.w-mob .dash { gap: 1.5rem; }
+.dash-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.dash-status { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: .4rem 0 0; color: var(--muted); font-size: 0.875rem; }
+.dash-status > span { display: inline-flex; align-items: center; gap: 6px; }
+.dash-status .i { font-size: 15px; }
+.dash-status .is-ok .i { color: var(--success); }
+.dash-status .is-warn { color: var(--warn-ink); font-weight: 500; }
+.dash-status a { text-decoration: underline; text-underline-offset: 3px; }
+.dash-sync { display: grid; justify-items: end; gap: .35rem; }
+.dash-sync__msg { display: inline-flex; align-items: center; gap: 5px; color: var(--success); font-size: .8125rem; font-weight: 600; min-height: 1.2em; }
+.dash-sync__msg .i { font-size: 14px; stroke-width: 2.6; }
+.w-mob .dash-sync { justify-items: start; }
+
+/* Tus listas: atajos a la biblioteca con el color, el icono y el número de cada lista (como el raíl) */
+.dash-lists { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1rem; }
+.w-mob .dash-lists { flex-wrap: nowrap; overflow-x: auto; margin: 1rem -1rem 0; padding: 3px 1rem; scrollbar-width: none; }
+.dash-list { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px 0 5px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-size: .8125rem; font-weight: 500; white-space: nowrap; transition: box-shadow .15s, border-color .15s; }
+.w-mob .dash-list { height: 44px; }
+.dash-list:hover { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.dash-list__icon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; font-size: 13px; transition: transform .16s var(--ease-out); }
+.dash-list:hover .dash-list__icon { transform: translateY(-1px) scale(1.06); }
+.dash-list b { font-weight: 700; color: color-mix(in srgb, var(--c) 85%, var(--foreground)); }
+.dash-list b small { color: var(--muted); font-weight: 500; font-size: .75rem; }
+.dash-list.st-bandeja { border-style: dashed; border-color: color-mix(in srgb, var(--c) 55%, transparent); }
+
+/* Paneles y cabeceras de sección: icono tintado del color de la lista a la que pertenece */
+.panel { min-width: 0; padding: 1.1rem 1.25rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.w-mob .panel { padding: 1rem; }
+.sec-block { display: grid; gap: .75rem; align-content: start; min-width: 0; }
+.sec-head { display: flex; align-items: center; gap: .625rem; min-height: 2rem; }
+.panel > .sec-head { margin-bottom: .875rem; }
+.sec-head__icon { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 8px; font-size: 16px; }
+.sec-head h2 { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
+.sec-head__count { color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.sec-head__end { margin-left: auto; display: flex; align-items: center; gap: .75rem; }
+.dash-link { color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.dash-link:hover { color: var(--foreground); text-decoration: underline; }
+.w-mob .dash-link { display: inline-flex; align-items: center; min-height: 44px; }
+.w-mid .hg-keyhint, .w-mob .hg-keyhint { display: none; }
+
+/* Actividad: tiles como los de la ficha + mapa */
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 0 1.25rem; }
+.w-mob .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.tile { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 14px; border-radius: 12px; background: var(--surface-2); }
+.w-mob .tile { padding: 12px; }
+.tile dt { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.tile__icon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; font-size: 13px; }
+.tile dd { margin: 0; }
+.tile__value { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .tile__value { font-size: 1.375rem; }
+.tile__value small { color: var(--muted); font-size: .9375rem; font-weight: 500; letter-spacing: 0; }
+.tile__value--tinted { color: color-mix(in srgb, var(--c) 85%, var(--foreground)); }
+[data-theme='dark'] .tile__value--tinted { color: var(--c); }
+.tile__note { color: var(--muted); font-size: .78125rem; }
+.tile__note b { color: var(--foreground); font-weight: 600; }
+
+.heat__scroll { overflow-x: auto; padding: 3px; margin: -3px; scrollbar-width: thin; }
+.heat__body { min-width: calc(var(--weeks) * 11px); }
+.w-mob .heat__body { min-width: calc(var(--weeks) * 13px); }
+.heat__grid { display: grid; grid-template-columns: repeat(var(--weeks), minmax(0, 1fr)); grid-template-rows: repeat(7, auto); grid-auto-flow: column; gap: 3px; }
+.heat__grid i, .heat__legend i { display: block; border-radius: 3px; background: var(--surface-2); }
+.heat__grid i { aspect-ratio: 1; }
+.heat [data-l='1'] { --heat-c: color-mix(in srgb, var(--primary) 28%, var(--surface-2)); }
+.heat [data-l='2'] { --heat-c: color-mix(in srgb, var(--primary) 52%, var(--surface-2)); }
+.heat [data-l='3'] { --heat-c: color-mix(in srgb, var(--primary) 76%, var(--surface-2)); }
+.heat [data-l='4'] { --heat-c: var(--primary); }
+.heat__grid i[data-l]:not([data-l='0']), .heat__legend i[data-l]:not([data-l='0']) { background: var(--heat-c); }
+.panel .heat__grid i, .panel .heat__legend i[data-l='0'] { background-color: var(--surface-2); }
+.heat__grid i.is-future { visibility: hidden; }
+.heat__grid i.is-today { outline: 2px solid var(--foreground); outline-offset: 1px; }
+.heat__grid i:not(.is-future):hover { outline: 2px solid var(--foreground); outline-offset: 1px; }
+.heat__months { display: grid; grid-template-columns: repeat(var(--weeks), minmax(0, 1fr)); column-gap: 3px; margin-top: .4rem; color: var(--muted); font-size: .71875rem; }
+.heat__months span { grid-row: 1; white-space: nowrap; }
+.heat__foot { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.25rem; margin-top: .85rem; color: var(--muted); font-size: .75rem; }
+.heat__legend { display: inline-flex; align-items: center; gap: 3px; }
+.heat__legend i { width: 11px; height: 11px; }
+.heat__legend i:first-child { margin-left: .35rem; } .heat__legend i:last-child { margin-right: .35rem; }
+.heat__extra { margin-left: auto; }
+.w-mob .heat__extra { margin-left: 0; }
+
+/* Columnas */
+.dash-cols { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 1.75rem; align-items: start; }
+.w-mid .dash-cols { grid-template-columns: minmax(0, 1fr) 290px; gap: 1.5rem; }
+.dash-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 1.75rem; align-items: start; }
+.w-mid .dash-grid { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 1.5rem; }
+.w-mob .dash-cols, .w-mob .dash-grid { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+.dash-col { display: grid; gap: 1.75rem; min-width: 0; }
+
+/* Filas de cada panel */
+.row-play { grid-template-columns: 112px minmax(0, 1fr) minmax(130px, 170px) auto; }
+.row-queue { grid-template-columns: 24px 112px minmax(0, 1fr) auto; }
+.row-near { grid-template-columns: 112px minmax(0, 1fr) minmax(110px, 150px) 124px; }
+.row-wtp { grid-template-columns: 112px minmax(0, 1fr) auto; }
+.w-mid .row-play { grid-template-columns: 96px minmax(0, 1fr) auto; grid-template-areas: 'c m a' 'c p p'; row-gap: 6px; }
+.w-mid .row-play .hg-row__cover, .w-mid .row-near .hg-row__cover { width: 96px; height: 45px; }
+.w-mid .row-play > .hg-row__cover { grid-area: c; } .w-mid .row-play > .hg-row__main { grid-area: m; } .w-mid .row-play > .hg-row__prog { grid-area: p; } .w-mid .row-play > .row-act { grid-area: a; }
+.w-mid .row-near { grid-template-columns: 96px minmax(0, 1fr) auto; grid-template-areas: 'c m s' 'c p p'; row-gap: 6px; }
+.row-near > .hg-row__cover { grid-area: c; } .row-near > .hg-row__main { grid-area: m; } .row-near > .hg-row__prog { grid-area: p; } .row-near > .hg-chip { grid-area: s; }
+.row-near { grid-template-areas: 'c m p s'; }
+.w-mid .row-play .btn__label { display: none; }
+.w-mob .hg-row { gap: .75rem; padding: 8px 8px 8px 12px; }
+.w-mob .hg-row__cover { width: 88px; height: 41px; }
+.w-mob .row-play { grid-template-columns: 88px minmax(0, 1fr) auto; grid-template-areas: 'c m a' 'p p p'; row-gap: 8px; }
+.w-mob .row-play > .hg-row__cover { grid-area: c; } .w-mob .row-play > .hg-row__main { grid-area: m; } .w-mob .row-play > .hg-row__prog { grid-area: p; } .w-mob .row-play > .row-act { grid-area: a; }
+.w-mob .row-play .btn__label { display: none; }
+.w-mob .row-play .btn { width: 44px; padding: 0; height: 44px; }
+.w-mob .row-queue { grid-template-columns: 22px 88px minmax(0, 1fr) auto; }
+.w-mob .row-near { grid-template-columns: 88px minmax(0, 1fr) auto; grid-template-areas: 'c m m' 'p p s'; row-gap: 8px; }
+.w-mob .wtp .sec-head__count { display: none; }
+.w-mob .row-near > .hg-row__prog { align-self: center; }
+.w-mob .row-wtp { grid-template-columns: 88px minmax(0, 1fr); }
+.w-mob .row-wtp .row-end { grid-column: 1 / -1; justify-content: flex-start; }
+.row-act { display: flex; align-items: center; gap: 6px; }
+.row-end { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.rar-tag { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; white-space: nowrap; }
+.rar-tag .i { font-size: 11px; fill: currentColor; stroke: none; }
+.q-pos { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; font-size: .75rem; font-weight: 700; }
+.w-mob .q-pos { width: 22px; height: 22px; }
+.goal-left { color: var(--foreground); font-weight: 500; }
+
+/* Vacíos: icono con el color de la lista, texto corto y una acción */
+.dash-empty { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .5rem 1rem; padding: 1rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.dash-empty__icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; font-size: 19px; }
+.dash-empty p { margin: 0; color: var(--muted); font-size: .875rem; }
+.dash-empty p b { display: block; color: var(--foreground); font-weight: 600; }
+.dash-empty .btn { grid-column: 2; justify-self: start; }
+.dash-empty--plain { padding: .25rem 0 0; background: none; border: 0; }
+
+/* Sugerencias (se rediseñan en su propio elemento: aquí solo para el contexto) */
+.sugg { display: flex; align-items: center; gap: 1rem; padding: .75rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: .875rem; }
+.sugg img { width: 80px; height: 37px; border-radius: 5px; object-fit: cover; }
+.sugg p { margin: 0; flex: 1; }
+.sugg p small { display: block; color: var(--muted); font-size: .8125rem; }
+.w-mob .sugg { flex-wrap: wrap; }
+
+/* ¿Qué juego hoy? */
+.wtp-choices { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; margin-bottom: 1rem; }
+.wtp-choice { display: flex; align-items: center; gap: .6rem; }
+.wtp-choice__label { color: var(--muted); font-size: .8125rem; }
+.w-mob .wtp-choice { flex-direction: column; align-items: flex-start; gap: .35rem; }
+.wtp .hg-row { background: var(--background); }
+.wtp .hg-row__meta { white-space: normal; }
+.wtp-why { color: var(--foreground); }
+
+/* JUDI de hoy */
+.judi-state { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px 0 8px; border-radius: 999px; font-size: .8125rem; font-weight: 700; }
+.judi-state .i { font-size: 14px; stroke-width: 2.4; }
+.judi-msg { margin: 0 0 1rem; font-size: .9375rem; }
+.judi-msg small { display: block; color: var(--muted); font-size: .8125rem; }
+.judi-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.judi-streak { display: grid; gap: 2px; }
+.judi-streak__n { display: flex; align-items: center; gap: .4rem; }
+.judi-streak__n .i { font-size: 18px; color: var(--warn-ink); }
+.judi-streak strong { font-size: 1.75rem; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+.judi-streak small { color: var(--muted); font-size: .8125rem; }
+.judi-week { display: flex; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.judi-day { display: grid; justify-items: center; gap: 3px; color: var(--muted); font-size: .6875rem; font-weight: 600; }
+.judi-day i { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; background: var(--surface-2); font-size: 13px; }
+.judi-day i .i { stroke-width: 2.8; }
+.judi-day.ok i, .judi-day.ko i { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.judi-day.hoy i { background: transparent; outline: 1.5px dashed var(--warn-ink); outline-offset: -1.5px; color: var(--warn-ink); }
+.judi-day.hoy { color: var(--foreground); }
+.judi-foot { display: flex; justify-content: space-between; align-items: center; gap: .75rem; margin-top: 1rem; padding-top: .875rem; border-top: 1px solid var(--border); }
+.judi-lives { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: .8125rem; }
+.judi-lives i { width: 10px; height: 10px; border-radius: 3px; background: var(--surface-3); }
+.judi-lives i.used { background: var(--danger); }
+
+/* Metas del mes: barra del color del ritmo y marca de «hoy» */
+.goals { display: grid; gap: 1rem; margin: 0; padding: 0; list-style: none; }
+.goal { display: grid; gap: .45rem; }
+.goal__row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; color: var(--muted); font-size: .8125rem; }
+.goal__name { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.goal__icon { display: grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: 6px; font-size: 13px; }
+.goal__name strong { color: var(--foreground); font-weight: 700; }
+.pace { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; font-size: .75rem; font-weight: 600; white-space: nowrap; }
+.pace .i { font-size: 12px; stroke-width: 2.6; }
+.goal__track { position: relative; }
+.goal__track .hg-bar { height: 8px; }
+.goal__today { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--foreground); opacity: .45; }
+.goals-foot { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: 1rem; color: var(--muted); font-size: .75rem; }
+.goals-foot__mark { display: inline-flex; align-items: center; gap: 6px; }
+.goals-foot__mark i { width: 2px; height: 12px; background: var(--foreground); opacity: .45; border-radius: 1px; }
+.stepper { display: inline-flex; align-items: center; gap: .45rem; }
+.stepper button { display: inline-grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--muted); font-size: 13px; }
+.w-mob .stepper button { width: 44px; height: 44px; }
+.stepper button:hover { color: var(--foreground); border-color: var(--border-hover); }
+.stepper strong { min-width: 2.5ch; text-align: center; color: var(--foreground); }
+.goals-actions { display: flex; gap: .5rem; margin-top: 1rem; }
+
+/* Sin Steam */
+.connect { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1rem 1.25rem; padding: 1.5rem; }
+.w-mob .connect { grid-template-columns: minmax(0, 1fr); padding: 1.25rem; }
+.connect__icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; font-size: 24px; }
+.connect h2 { margin: 0; font-size: 1.25rem; letter-spacing: -0.01em; }
+.connect p { margin: .25rem 0 0; color: var(--muted); font-size: .9375rem; max-width: 60ch; }
+.connect__steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 1.25rem 0; padding: 0; list-style: none; }
+.w-mob .connect__steps { grid-template-columns: minmax(0, 1fr); }
+.connect__steps li { display: grid; gap: 6px; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); font-size: .8125rem; color: var(--muted); }
+.connect__steps li b { display: flex; align-items: center; gap: 8px; color: var(--foreground); font-size: .875rem; }
+.connect__steps .tile__icon { width: 26px; height: 26px; }
+.connect__actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* ══ Portada sin sesión ══ */
+.land { display: grid; gap: 2.5rem; padding: 1.25rem 0 1rem; }
+.w-mob .land { gap: 2rem; padding: .5rem 0 0; }
+.land-top { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 2.5rem; align-items: center; }
+.w-mid .land-top { grid-template-columns: minmax(0, 1fr); gap: 1.75rem; }
+.w-mob .land-top { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+.land-hero h1 { margin: 0; font-size: 2.5rem; font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; }
+.w-mid .land-hero h1 { font-size: 2.25rem; max-width: 22ch; }
+.w-mob .land-hero h1 { font-size: 1.875rem; }
+.land-hero > p { margin: .875rem 0 0; color: var(--muted); font-size: 1.0625rem; max-width: 46ch; }
+.w-mob .land-hero > p { font-size: 1rem; }
+.land-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.5rem; }
+.w-mob .land-actions .btn { height: 44px; }
+.land-legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 1.5rem 0 0; padding: 0; list-style: none; }
+
+/* Ventana de la biblioteca */
+.win { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1rem; box-shadow: var(--shadow-lg); }
+.w-mob .win { padding: .75rem; border-radius: var(--radius-lg); }
+.win__head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .75rem; }
+.win__head h2 { margin: 0; font-size: 1rem; font-weight: 700; }
+.win__rail { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: .75rem; }
+.w-mob .win__rail { flex-wrap: nowrap; overflow: hidden; }
+.mini-pill { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px 0 4px; border: 1px solid var(--border); border-radius: 999px; background: var(--background); font-size: .78125rem; font-weight: 500; white-space: nowrap; }
+.mini-pill .dash-list__icon { width: 22px; height: 22px; font-size: 12px; }
+.mini-pill b { font-weight: 700; color: color-mix(in srgb, var(--c) 85%, var(--foreground)); display: inline-block; }
+.win .hg-row { background: var(--background); grid-template-columns: 88px minmax(0, 1fr) 118px auto; gap: .75rem; }
+.win .hg-row__cover { width: 88px; height: 41px; }
+.w-mid .win .hg-row { grid-template-columns: 112px minmax(0, 1fr) 170px 120px; }
+.w-mid .win .hg-row__cover { width: 112px; height: 52px; }
+.w-mob .win .hg-row { grid-template-columns: 76px minmax(0, 1fr) auto; }
+.w-mob .win .hg-row__cover { width: 76px; height: 36px; }
+.w-mob .win .hg-row > .hg-row__prog { display: none; }
+.w-mob .win .hg-row { grid-template-areas: 'c m s' 'c x x'; row-gap: 6px; }
+.w-mob .win .hg-row > .hg-row__cover { grid-area: c; } .w-mob .win .hg-row > .hg-row__main { grid-area: m; } .w-mob .win .hg-row > .price { grid-area: x; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; } .w-mob .win .hg-row > :last-child { grid-area: s; }
+.lib-own--no { white-space: nowrap; }
+.w-mob .win .hg-chip { font-size: .71875rem; padding: 2px 8px 2px 6px; }
+.price { display: grid; justify-items: start; gap: 3px; font-size: .8125rem; }
+.price b { font-size: .9375rem; }
+
+/* Tarjetas de lo que hace */
+.land-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.w-mid .land-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+.w-mob .land-cards { grid-template-columns: minmax(0, 1fr); }
+.lcard { display: grid; grid-template-rows: auto 1fr; gap: 1rem; padding: 1.1rem 1.1rem 1.2rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); min-width: 0; }
+.w-mid .lcard { padding: 1rem; }
+.lcard__head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px .75rem; align-items: center; }
+.lcard__head .sec-head__icon { grid-row: span 2; }
+.lcard__head h3 { margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
+.lcard__head p { margin: 0; color: var(--muted); font-size: .8125rem; line-height: 1.4; }
+.lcard__body { display: grid; gap: .75rem; align-content: start; min-width: 0; }
+.ficha { display: grid; gap: .6rem; }
+.ficha__img { aspect-ratio: 460 / 215; width: 100%; border-radius: 8px; overflow: hidden; background: var(--surface-2); }
+.ficha__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ficha__name { margin: 0; font-weight: 700; font-size: .9375rem; }
+.ficha__scores { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: .8125rem; color: var(--muted); }
+.ficha__scores span { display: inline-flex; align-items: center; gap: 6px; }
+.verdict { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin: 0; padding: 9px 11px; border-radius: var(--radius); background: var(--deal); color: var(--deal-foreground); font-size: .8125rem; font-weight: 700; }
+.verdict .i { font-size: 16px; }
+.verdict span { font-weight: 500; }
+.verdict .verdict__price { margin-left: auto; font-size: 1rem; font-weight: 700; }
+.rar-stack { display: flex; gap: 2px; height: 8px; border-radius: 999px; overflow: hidden; }
+.rar-stack span { background: var(--c); transition: flex-grow .45s var(--ease-out); }
+.rar-legend { display: flex; flex-wrap: wrap; gap: 2px 10px; margin: 0; padding: 0; list-style: none; color: var(--muted); font-size: .75rem; }
+.rar-legend li { display: inline-flex; align-items: center; gap: 5px; }
+.rar-legend li::before { content: ''; width: 8px; height: 8px; border-radius: 2px; background: var(--c); }
+.lcard .hg-ach { padding: 8px 10px; grid-template-columns: 34px minmax(0, 1fr) auto; gap: .6rem; transition: box-shadow .3s; }
+.lcard .hg-ach__icon { width: 34px; height: 34px; font-size: 16px; transition: background-color .3s, color .3s; }
+.hg-ach.is-locked { --c: var(--border-hover); }
+.hg-ach.is-locked .hg-ach__icon { background: var(--surface-2); color: var(--muted); }
+.hg-ach.is-locked .hg-ach__name { color: var(--muted); }
+.judi-shot { position: relative; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; background: var(--surface-2); }
+.judi-shot img { width: 100%; height: 100%; object-fit: cover; transform: scale(2.4); transform-origin: 30% 60%; filter: blur(1.5px); }
+.judi-shot span { position: absolute; left: 8px; top: 8px; padding: 2px 8px; border-radius: 6px; background: rgba(10, 12, 16, .78); color: #fff; font-size: .72rem; font-weight: 700; }
+.judi-tries { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.judi-tries li { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px 0 7px; border-radius: 999px; font-size: .75rem; font-weight: 600; }
+.judi-tries li.skip { background: var(--surface-2); color: var(--muted); }
+.land-heat figcaption { margin-top: .6rem; color: var(--muted); font-size: .8125rem; }
+
+/* ══ Microanimaciones ══ */
+/* Entrada de bloques: fundido + 8 px, escalonado de 30 ms (solo los 8 primeros) */
+.entering [data-in] { animation: in-up .32s var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * 30ms); }
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } }
+/* Barras que se rellenan (solo transform) */
+.entering .hg-bar > span { animation: bar-fill .45s var(--ease-out) backwards; animation-delay: calc(150ms + var(--i, 0) * 30ms); }
+@keyframes bar-fill { from { transform: scaleX(0); } }
+.entering .goal__today { animation: fade-in .25s var(--ease-out) backwards .5s; }
+.entering .rar-stack span { animation: bar-fill .45s var(--ease-out) backwards .2s; }
+@keyframes fade-in { from { opacity: 0; } }
+/* Mapa: se pinta por semanas, de la más antigua a hoy (5 ms por semana, ~450 ms en total) */
+.entering .heat__grid i { animation: heat-in .2s var(--ease-out) backwards; animation-delay: calc(120ms + var(--w) * 5ms); }
+@keyframes heat-in { from { opacity: 0; transform: scale(.4); } }
+.entering .heat__grid i.is-today { animation: heat-in .2s var(--ease-out) backwards, today-pop .4s var(--ease-out) .5s; }
+@keyframes today-pop { 40% { transform: scale(1.35); } }
+/* Logros épicos y legendarios: destello breve de su color al aparecer */
+.entering .hg-ach.is-flash { animation: in-up .32s var(--ease-out) backwards, rar-flash .9s var(--ease-out) .35s; animation-delay: calc(var(--i, 0) * 30ms), calc(350ms + var(--i, 0) * 30ms); }
+@keyframes rar-flash { 0% { background-color: color-mix(in srgb, var(--c) 30%, var(--surface)); } 100% { background-color: var(--surface); } }
+/* JUDI: días que aparecen escalonados */
+.entering .judi-day i { animation: pop-in .26s var(--ease-out) backwards; animation-delay: calc(250ms + var(--d) * 30ms); }
+@keyframes pop-in { from { opacity: 0; transform: scale(.5); } }
+/* Contador que salta (AnimatedCount) */
+.pop { animation: count-pop .3s var(--ease-out); }
+@keyframes count-pop { 40% { transform: scale(1.18); } }
+.num-up { display: inline-block; animation: num-up .22s var(--ease-out); }
+@keyframes num-up { from { transform: translateY(70%); opacity: 0; } }
+/* Check que se dibuja */
+.draw path, .draw polyline { stroke-dasharray: 30; animation: draw .3s var(--ease-out) backwards; }
+@keyframes draw { from { stroke-dashoffset: 30; } }
+.spin { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+/* Botón Jugar: el icono avanza al pasar */
+.btn .i-play { transition: transform .16s var(--ease-out); }
+.btn:hover .i-play, .hg-row:hover .btn .i-play { transform: translateX(2px); }
+.btn:hover .i-dice { animation: dice .4s var(--ease-out); }
+@keyframes dice { 50% { transform: rotate(-20deg) scale(1.1); } }
+/* Portada: deal que destella al aparecer */
+.flash-deal { animation: count-pop .3s var(--ease-out), deal-flash .7s var(--ease-out); }
+@keyframes deal-flash { 0% { box-shadow: 0 0 0 0 var(--deal); } 40% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--deal) 50%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
+.chip-swap { animation: count-pop .3s var(--ease-out); }
+
+/* Interruptor de movimiento reducido (simula prefers-reduced-motion) */
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+}
+.anim-list li { margin: 3px 0; }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Inicio (dashboard y portada)</h1>
+  <div class="doc-bar__actions">
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p>El Inicio ya tenía todas las piezas, pero casi todo era neutro y cobalto: no se sabía de un vistazo qué es «en curso», qué es «cola» o qué logro vale la pena. La propuesta le aplica el lenguaje de Biblioteca y Ficha <b>sin cambiar el orden de los bloques</b> (cabecera → actividad → en curso | logros → qué jugar → cola, 100 %, JUDI y metas).</p>
+  <ul>
+    <li><b>Atajos a tus listas en la cabecera</b>: Jugando 3/3, Pendiente, Pausado, Completado y Bandeja como cápsulas con su icono, color y número (el mismo dibujo que el raíl). Llevan a <code>/biblioteca?estado=…</code>. Debajo del saludo, el estado de Steam con icono: «Sincronizado hace 2 h» en verde o, si el perfil oculta los detalles de juego, un aviso ámbar con el motivo (hoy ese dato se carga pero no se enseña).</li>
+    <li><b>Cifras como tiles de la ficha</b>: horas (Jugando), logros (Sin final, como en la ficha), completados (Completado) y nota media (color de su nivel <code>--sc-*</code>), cada una con una nota («38 h en octubre», «3 juegos al 100 %»). Salen del pie del mapa, que se queda solo con leyenda y enlaces.</li>
+    <li><b>Cada panel con el color de su lista</b>: icono tintado en la cabecera y franja de 4 px en las filas, como <code>.lib-row</code>. En curso → Jugando, Cola → Pendiente (con su posición numerada), Cerca del 100 % → Completado. El <code>StatusChip</code> solo aparece donde los estados se mezclan (Cerca del 100 % y Qué jugar); en En curso y Cola sería repetir la franja.</li>
+    <li><b>Rareza visible, no solo en el título</b>: en En curso, el logro más raro va como etiqueta («◆ Legendaria 0,8 %») además de la franja bajo la cápsula; en Cerca del 100 %, «el más difícil que te falta» con su rareza (<b>dato nuevo</b>). Logros recientes ya tenía rareza; el completado lleva su bandera verde y tu nota con su color.</li>
+    <li><b>«¿Qué juego hoy?» con datos para decidir</b>: estado de origen (chip), Metacritic y reseñas con color, duración y <code>MarkFlags</code>. El motivo principal va en texto normal y el resto en gris.</li>
+    <li><b>JUDI de hoy</b> con el estado como en la navegación (Hoy ámbar / Acertado verde / Fallado rojo), la racha con su llama y <b>los últimos 7 días</b> como casillas (acierto, fallo, sin jugar, hoy con borde discontinuo). A medias, las vidas gastadas.</li>
+    <li><b>Metas del mes con ritmo</b>: barra del color del ritmo (cumplida verde, al día cobalto, vas por detrás ámbar), chip con icono y una <b>marca de «hoy»</b> en la barra (día 26 de 31) para ver dónde deberías ir.</li>
+    <li><b>Vacíos con acción</b> (patrón de «Estados vacíos»): icono con el color de la lista, una frase y un botón. <b>Sin Steam</b>, en vez de ocho paneles vacíos, una tarjeta para conectar con tres pasos y JUDI, que funciona sin Steam.</li>
+    <li><b>Portada</b>: enseña el producto en vez de solo el mapa: una ventana de biblioteca con listas y filas (incluido un pendiente sin comprar en mínimo histórico), y tres tarjetas: precios con veredicto, logros por rareza y JUDI. El mapa de ejemplo se queda debajo.</li>
+  </ul>
+
+  <h3>Decisión que tienes que tomar: variante A o B (pendientes sin comprar en el Inicio)</h3>
+  <ul>
+    <li><b>A · Solo lo que tienes</b> (como hoy; recomendada para empezar): el Inicio sigue leyendo solo juegos comprados. Cola y «Qué jugar» son de cosas que puedes abrir ya.</li>
+    <li><b>B · También lo que quieres comprar</b>: la cola incluye los pendientes sin comprar (cápsula apagada, «Sin comprar» y precio con veredicto: el mínimo histórico en amarillo) y «Empezar algo nuevo» puede proponerlos con «Ver en Steam» en lugar de «Jugar». Más útil para decidir una compra; exige leer también <code>owned = false</code> en <code>loadDashboard</code> (ver datos). Se compara en la sección «Variantes».</li>
+  </ul>
+
+  <h3>Datos</h3>
+  <ul>
+    <li><b>Ya disponibles</b>: recuentos por lista (de <code>data.games</code>), Metacritic (<code>metacritic_score</code>), reseñas (<code>steamspy_userscore</code>), duraciones, marcas, últimos 7 días de JUDI (<code>data.judi.days</code>), visibilidad de Steam (<code>data.steam.visibility</code>, hoy sin usar), horas del mes (de <code>data.activity.playtime</code>), completados del mes y logro más raro de cada juego en curso.</li>
+    <li><b>Nuevo · límite de Jugando</b> («3/3»): añadir <code>playing_limit</code> a la consulta de <code>hubgames_usuarios</code> que ya se hace (sin consulta extra).</li>
+    <li><b>Nuevo · logro más difícil que te falta</b> en Cerca del 100 %: mínimo <code>global_percent</code> de <code>hubgames_achievements</code> con <code>achieved = false</code> para esos 5 juegos, igual que <code>rarestPercent</code>. Si no compensa, se quita y queda «Te faltan 3 logros».</li>
+    <li><b>Nuevo · vidas del JUDI a medias</b>: contar las fases de <code>mine</code> en <code>loadDashboard</code> (ya se leen; solo hay que pasarlas).</li>
+    <li><b>Solo en la variante B</b>: los pendientes con <code>owned = false</code> y sus precios (<code>price_final</code>, <code>steam_low</code>…). Mejor una segunda consulta acotada (<code>status = 'pendiente'</code>) que quitar el filtro, porque horas, completados y metas deben seguir contando solo lo que tienes. Las cifras «Pendiente 37» ya incluirían los sin comprar.</li>
+    <li>Portada: todo son datos de ejemplo fijos, sin consultas.</li>
+  </ul>
+
+  <h3>Microanimaciones (pruébalas en el primer marco de 1440 px; «Repetir entrada» arriba)</h3>
+  <ul class="anim-list">
+    <li><b>Entrada escalonada de bloques</b> (cabecera, cápsulas, actividad, paneles): fundido + 8 px. <span class="t">320 ms · <code>--ease-out</code> · 30 ms entre bloques, solo los 8 primeros.</span></li>
+    <li><b>Cifras que cuentan</b> desde 0 en los tiles, la racha de JUDI y los números de las cápsulas. <span class="t">450 ms · ease-out. Pieza compartida nueva: <code>CountUp</code> (o un modo «al montar» de <code>AnimatedCount</code>), que reutilizarán Logros, Estadísticas y Perfil.</span></li>
+    <li><b>Mapa que se pinta por semanas</b>, de la más antigua a hoy; la casilla de hoy hace un pequeño «pop» al final. <span class="t">200 ms por casilla, 5 ms entre semanas (~450 ms en total) + pop 400 ms · solo <code>transform</code>/<code>opacity</code>.</span></li>
+    <li><b>Barras que se rellenan</b>: logros de En curso, Cerca del 100 % y metas; la marca de «hoy» aparece después. <span class="t">450 ms · <code>scaleX</code> · 150 ms de retraso + 30 ms por fila. Pieza compartida: clase de barra que se rellena en <code>lists.css</code>.</span></li>
+    <li><b>Destello de rareza</b> en los logros épicos y legendarios recientes: el fondo se tiñe de su color y vuelve. <span class="t">900 ms · una vez al llegar (celebración pequeña).</span></li>
+    <li><b>Días de JUDI</b> que aparecen escalonados. <span class="t">260 ms · 30 ms entre días.</span></li>
+    <li><b>Hover de filas</b>: cursor de selección (ya existe), la cápsula se acerca un 5 % y el icono de «Jugar» avanza 2 px; en las cápsulas de listas el icono sube 1 px. <span class="t">150–200 ms.</span></li>
+    <li><b>Controles «Tiempo» y «Ganas»</b> con el fondo activo que se desliza; al cambiar, las propuestas cambian con un fundido cruzado. <span class="t">220 ms · <code>layoutId</code>.</span></li>
+    <li><b>Barajar / Sorpréndeme</b>: las tres propuestas se recogen en un mazo hacia la del medio (con un leve giro) y vuelven a repartirse con las nuevas. <span class="t">180 ms recoger + 280 ms repartir, 30 ms entre cartas · framer-motion.</span> <b>Otra</b>: solo esa fila sale por la izquierda y entra la nueva por la derecha. <span class="t">160 + 220 ms.</span></li>
+    <li><b>Sincronizar</b>: el icono gira mientras dura (ya existe), al terminar se dibuja un check junto a «Sincronizado» y las cifras que cambian saltan (<code>AnimatedCount</code>). <span class="t">check 300 ms · salto 300/220 ms.</span></li>
+    <li><b>Metas</b>: al ajustar, el número salta y la barra cambia de ancho; al guardar, el check del chip «¡Cumplida!» se dibuja. <span class="t">250 ms.</span></li>
+    <li><b>Portada «en acción»</b>, una sola vez al cargar: tarjetas escalonadas; a los 0,7 s «Hades II» pasa de Pendiente a Jugando (franja y chip cambian de color, el chip salta y los contadores Pendiente/Jugando se actualizan); a 1,2 s se desbloquea un logro épico (icono, borde y reparto por rareza se tiñen, con destello); a 1,6 s destella el mínimo histórico; el mapa se pinta como en el dashboard. <span class="t">Cada paso 250–450 ms; total ~2 s; el contenido se ve desde el primer momento.</span></li>
+    <li>Con <b>movimiento reducido</b> todo pasa a instantáneo (interruptor arriba; en la app, <code>prefers-reduced-motion</code> y <code>MotionConfig</code>).</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px · con sesión (prueba en vivo)</h2>
+  <p>Barra ancha. Datos normales: 3 juegos en curso (al límite de 3), bandeja con 14, JUDI pendiente con 4 días de racha, metas guardadas (una cumplida, una al día, una por detrás). Prueba «Sincronizar», los controles de «¿Qué juego hoy?», «Barajar», «Otra», «Ajustar» en las metas y el hover de las filas.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="f-desk"></div></div>
+</section>
+
+<section class="sec">
+  <h2>~1000 px · barra plegada</h2>
+  <p>Mismos datos. En curso y Cerca del 100 % pasan la barra de logros a una segunda línea; «Jugar» se queda en icono.</p>
+  <div class="scroller"><div class="frame w-mid" style="width:1000px" id="f-mid"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Una columna. Las cápsulas de listas se desplazan en horizontal; el mapa empieza en lo más reciente; todo lo pulsable mide 44 px o más.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px" id="f-mob"></div><p class="frame-cap">Con datos normales.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-empty"></div><p class="frame-cap">Sin Steam conectado: tarjeta para conectar con tres pasos y JUDI (funciona sin Steam).</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Casos límite · ~1000 px</h2>
+  <p>Nada en curso, cola vacía, sin logros cerca del 100 %, JUDI ya acertado hoy, metas sin aceptar todavía (propuesta), perfil de Steam con los detalles de juego ocultos y nombre de usuario largo.</p>
+  <div class="scroller"><div class="frame w-mid" style="width:1000px" id="f-edge"></div></div>
+  <p style="margin-top:28px;color:var(--muted);font-size:.875rem">Sin Steam conectado (escritorio). JUDI fallado ayer y hoy a medias (2 vidas gastadas).</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="f-nosteam"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · pendientes sin comprar</h2>
+  <p>Solo los dos paneles afectados, con «Ganas: Empezar algo nuevo» seleccionado.</p>
+  <div class="vlabel"><b>A</b> Solo lo que tienes (como hoy)</div>
+  <div class="scroller"><div class="frame w-desk" style="width:1140px;padding:24px" id="f-var-a"></div></div>
+  <div class="vlabel" style="margin-top:28px"><b>B</b> También pendientes sin comprar, con su precio</div>
+  <div class="scroller"><div class="frame w-desk" style="width:1140px;padding:24px" id="f-var-b"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Portada sin sesión · 1440 px</h2>
+  <p>Al cargar, la vista previa se pone «en acción» una vez (pulsa «Repetir entrada» para volver a verlo).</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="f-land"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Portada · ~1000 px y 390 px</h2>
+  <p>A ~1000 px la ventana de biblioteca pasa debajo del titular; en móvil todo va en una columna y las filas pierden la barra de logros.</p>
+  <div class="scroller"><div class="row-frames">
+    <div class="frame w-mid" style="width:1000px" id="f-land-mid"></div>
+    <div class="frame w-mob" style="width:390px" id="f-land-mob"></div>
+  </div></div>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide, los mismos que usa la app) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+  pause: '<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  circlex: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  tag: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  ext: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3"/>',
+  hourglass: '<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
+  star: '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+  dices: '<rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path d="M6 18h.01"/><path d="M10 14h.01"/><path d="M15 6h.01"/><path d="M18 9h.01"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  pencil: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>',
+  minus: '<path d="M5 12h14"/>',
+  plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+  infinity: '<path d="M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8"/>',
+  flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  calendar: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  thumb: '<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+  cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+  diamond: '<path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41L13.7 2.71a2.41 2.41 0 0 0-3.41 0z"/>',
+  bulb: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+  target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm');
+
+function logo(size = 22, word = true) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>` + (word ? '<span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>' : '');
+}
+
+/* ── Navegación (resumen de la implementada) ── */
+const JUDI_NAV = { pendiente: ['warn', 'clock', 'Hoy'], en_curso: ['warn', 'clock', 'Hoy'], acertado: ['ok', 'check', 'Acertado'], fallado: ['ko', 'x', 'Fallado'] };
+function sidebar(o) {
+  const c = o.compact;
+  const pill = (k) => {
+    if (k === 'lib' && o.tray) return c ? `<span class="nv-dot hg-tint st-bandeja">${o.tray}</span>` : `<span class="nv-count hg-tint st-bandeja">${ic('inbox')}${o.tray}</span>`;
+    if (k === 'wish' && o.deals) return c ? `<span class="nv-dot nv-count--deal">${o.deals}</span>` : `<span class="nv-count nv-count--deal">${ic('tag')}${o.deals}</span>`;
+    if (k === 'judi' && o.judi) { const [cl, i, t] = JUDI_NAV[o.judi]; return c ? `<span class="nv-dot nv-dot--icon hg-tint ${cl}">${ic(i)}</span>` : `<span class="nv-count hg-tint ${cl}">${ic(i)}${t}</span>`; }
+    return '';
+  };
+  const link = (k, label, icon) => `<a href="#" class="nv-link ${k === 'home' ? 'active' : ''}" title="${label}">${ic(icon)}<span class="nv-link__label">${label}</span>${pill(k)}</a>`;
+  const groups = [`<div class="nv-group">${link('home', 'Inicio', 'home')}</div>`];
+  if (o.user) groups.push(`<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('lib', 'Biblioteca', 'library')}${link('ach', 'Logros', 'award')}${link('wish', 'Wishlist', 'heart')}${link('stats', 'Estadísticas', 'chart')}</div>`);
+  groups.push(`<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('judi', 'JUDI', 'gamepad')}${link('rank', 'Ranking', 'trophy')}</div>`);
+  const theme = `<span class="theme-btn">${ic('sun')}</span><div class="theme-toggle"><span class="on">${ic('sun')}</span><span>${ic('moon')}</span><span>${ic('monitor')}</span></div>`;
+  const account = o.user
+    ? `<a href="#" class="nv-account"><span class="nv-avatar">${o.user[0].toUpperCase()}</span><span class="nv-account__text"><span>${o.user}</span><span class="nv-account__meta">Ver perfil</span></span></a>`
+    : `<p class="nv-cta-hint">Entra para tener tu biblioteca de Steam y tus logros.</p><a href="#" class="nv-cta">${ic('login')}<span class="nv-cta__label">Entrar</span></a>`;
+  const search = o.user ? `<span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span>` : '';
+  return `<aside class="nv-side ${c ? 'is-compact' : ''}"><a href="#" class="nv-brand">${logo(22)}</a>${search}<nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}${account}</div></aside>`;
+}
+function mobileChrome(o, body) {
+  const tabs = [['home', 'Inicio', 'home']];
+  if (o.user) tabs.push(['lib', 'Biblioteca', 'library'], ['ach', 'Logros', 'award']);
+  tabs.push(['judi', 'JUDI', 'gamepad'], ['rank', 'Ranking', 'trophy'], o.user ? ['perfil', 'Perfil', 'user'] : ['login', 'Entrar', 'login']);
+  const dot = (k) => k === 'lib' && o.tray ? `<span class="nv-dot hg-tint st-bandeja">${o.tray}</span>` : k === 'judi' && o.judi ? `<span class="nv-dot nv-dot--icon hg-tint ${JUDI_NAV[o.judi][0]}">${ic(JUDI_NAV[o.judi][1])}</span>` : '';
+  const tabbar = tabs.map(([k, l, i]) => `<a href="#" class="m-tab ${k === 'home' ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}${dot(k)}</span><span class="m-tab__label">${l}</span></a>`).join('');
+  const top = `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right">${o.user ? `<span class="m-icon">${ic('search')}</span>` : ''}<span class="m-icon">${ic('sun')}</span>${o.user ? `<span class="m-icon"><span class="nv-avatar">${o.user[0].toUpperCase()}</span></span>` : ''}</div></header>`;
+  return `${top}<div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+function footer() {
+  return `<footer class="ft"><span class="nv-brand" style="padding:0">${logo(17)}</span><div class="ft__lines"><p style="color:var(--foreground)">Tu biblioteca de Steam y tus logros, en un sitio.</p><p>Datos de <a href="#">Steam</a>, precios de <a href="#">IsThereAnyDeal</a> y duraciones de <a href="#">HowLongToBeat</a>.</p></div><a href="#">GitHub</a></footer>`;
+}
+function desktopChrome(o, body) {
+  return sidebar(o) + `<div class="page ${o.compact ? 'is-compact' : ''}"><div class="page-in">${body}${footer()}</div></div>`;
+}
+
+/* ── Utilidades de datos ── */
+const IMG = (id) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`;
+const ST = { jugando: ['play', 'Jugando'], pendiente: ['bookmark', 'Pendiente'], pausado: ['pause', 'Pausado'], completado: ['flag', 'Completado'], abandonado: ['circlex', 'Abandonado'], bandeja: ['inbox', 'Bandeja'] };
+const chip = (s) => `<span class="hg-chip hg-tint st-${s}">${ic(ST[s][0])}${ST[s][1]}</span>`;
+const RAR = { comun: 'Común', poco: 'Poco común', rara: 'Rara', epica: 'Épica', leg: 'Legendaria' };
+const tier = (p) => (p < 1 ? 'leg' : p < 5 ? 'epica' : p < 15 ? 'rara' : p < 40 ? 'poco' : 'comun');
+const pct = (p) => `${String(p).replace('.', ',')} %`;
+const mc = (s) => { const t = s >= 75 ? 'top' : s >= 50 ? 'mid' : 'bad'; const l = s >= 90 ? 'Aclamado' : s >= 75 ? 'Favorable' : s >= 50 ? 'Variado' : 'Desfavorable'; return `<span class="hg-score hg-tint sc-${t}" title="Metacritic: ${l}">${s}</span>`; };
+const rev = (p, long = false) => { const t = p >= 80 ? 'top' : p >= 70 ? 'good' : p >= 40 ? 'mid' : 'bad'; const l = p >= 95 ? 'Extremadamente positivas' : p >= 80 ? 'Muy positivas' : p >= 70 ? 'Mayormente positivas' : 'Variadas'; return `<span class="hg-score hg-tint sc-${t}" title="Reseñas de Steam: ${l}">${ic('thumb')} ${p} %</span>${long ? ` <span>${l}</span>` : ''}`; };
+const nota = (n) => { const t = n >= 9 ? 'top' : n >= 7 ? 'good' : n >= 5 ? 'mid' : 'bad'; return `<span class="hg-score hg-tint sc-${t}" title="Tu nota">${ic('star')} ${String(n).replace('.', ',')}</span>`; };
+const flags = (g) => (g.fav ? `<span class="hg-flag hg-tint st-favorito" title="Favorito">${ic('heart')}</span>` : '') + (g.endless ? `<span class="hg-flag hg-tint st-sin_final" title="Sin final">${ic('infinity')}</span>` : '');
+const cover = (g, rar) => `<span class="hg-row__cover ${rar ? `has-rar rar-${rar}` : ''}"><img src="${IMG(g.id)}" alt=""></span>`;
+const count = (n, fmt = '') => `<span data-count="${n}" data-fmt="${fmt}">${fmt === 'h' ? n + ' h' : n}</span>`;
+
+/* ── Datos de ejemplo ── */
+const PLAYING = [
+  { id: 1145350, name: 'Hades II', h: '38 h', last: 'ayer', ach: [21, 49], rar: 3.2, left: 'faltan ~6 h' },
+  { id: 1245620, name: 'ELDEN RING', h: '142 h', last: 'hace 2 días', ach: [31, 42], rar: 0.8, left: 'historia superada', fav: true },
+  { id: 2379780, name: 'Balatro', h: '64 h', last: 'hoy', ach: [18, 30], rar: 9.8, endless: true },
+];
+const RECENT = [
+  { name: 'Pacto con la Noche', game: 'Hades II', ago: 'hace 2 h', p: 12.4 },
+  { name: 'Comodín legendario', game: 'Balatro', ago: 'hace 5 h', p: 0.7 },
+  { name: 'Señor de la Ceniza', game: 'ELDEN RING', ago: 'ayer', p: 4.6 },
+  { done: true, game: 'Portal 2', ago: 'hace 3 días', rating: 9.5 },
+  { name: 'Mazo de cristal', game: 'Balatro', ago: 'hace 3 días', p: 22.1 },
+  { name: 'Primer encargo', game: 'Hades II', ago: 'hace 4 días', p: 61 },
+];
+const QUEUE = [
+  { id: 367520, name: 'Hollow Knight', dur: '27 h', mc: 87, rev: 97, fav: true },
+  { id: 504230, name: 'Celeste', dur: '8 h', mc: 92, rev: 97 },
+  { id: 632470, name: 'Disco Elysium - The Final Cut', dur: '22 h', mc: 97, rev: 92 },
+  { id: 814380, name: 'Sekiro: Shadows Die Twice - GOTY Edition', dur: '30 h', mc: 88, rev: 95 },
+  { id: 413150, name: 'Stardew Valley', endless: true, mc: 89, rev: 98 },
+];
+const UNOWNED = [
+  { id: 1030300, name: 'Hollow Knight: Silksong', dur: '28 h', mc: 91, rev: 86, unowned: true, price: { low: true, final: '19,50 €' } },
+  { id: 1903340, name: 'Clair Obscur: Expedition 33', dur: '31 h', mc: 92, rev: 95, unowned: true, price: { cut: 15, final: '42,49 €', was: '49,99 €' } },
+];
+const NEAR = [
+  { id: 753640, name: 'Outer Wilds', st: 'completado', ach: [30, 31], hard: 3.4 },
+  { id: 620, name: 'Portal 2', st: 'completado', ach: [48, 51], hard: 11.2 },
+  { id: 268910, name: 'Cuphead', st: 'pausado', ach: [31, 36], hard: 0.6 },
+  { id: 292030, name: 'The Witcher 3: Wild Hunt - Complete Edition', st: 'completado', ach: [66, 78], hard: 2.1 },
+  { id: 1092790, name: 'Inscryption', st: 'abandonado', ach: [12, 19], hard: 6.8 },
+];
+const G = Object.fromEntries([...PLAYING.map((g) => ({ ...g, st: 'jugando' })), ...QUEUE.map((g) => ({ ...g, st: 'pendiente' })), ...UNOWNED.map((g) => ({ ...g, st: 'pendiente' }))].map((g) => [g.name, g]));
+G['Hades II'] = { ...G['Hades II'], mc: 95, rev: 96, dur: '22 h' };
+G['ELDEN RING'] = { ...G['ELDEN RING'], mc: 96, rev: 93, dur: '59 h' };
+G['Balatro'] = { ...G['Balatro'], mc: 90, rev: 97 };
+const WTP = {
+  terminar: [['Hades II', 'Te faltan ~6 h para la historia', 'Lo jugaste ayer'], ['Celeste', 'Es corto: ~8 h en total', 'Primero de tu cola tras Hollow Knight'], ['ELDEN RING', 'Historia superada: te quedan los extras', 'Hace 2 días']],
+  nuevo: [['Hollow Knight', 'Primero en tu cola', 'Muy bien valorado'], ['Celeste', 'Cabe en pocas sesiones', 'Sin empezar'], ['Disco Elysium - The Final Cut', 'Metacritic 97', 'Lleva 8 meses en tu cola']],
+  logros: [['Balatro', 'Te faltan 12 logros', 'Lo jugaste hoy'], ['Hades II', '28 logros por desbloquear', 'Lo jugaste ayer'], ['ELDEN RING', 'Te faltan 11 logros', 'Hace 2 días']],
+  sorpresa: [['Sekiro: Shadows Die Twice - GOTY Edition', 'Lleva 1 año en tu cola'], ['Stardew Valley', 'Sin final: una partida cuando quieras'], ['Balatro', 'Lo jugaste hoy']],
+  extra: [['Disco Elysium - The Final Cut', 'Metacritic 97'], ['Stardew Valley', 'Sin final'], ['Sekiro: Shadows Die Twice - GOTY Edition', 'Muy bien valorado'], ['Hollow Knight', 'Primero en tu cola'], ['Celeste', 'Es corto: ~8 h']],
+};
+const WTP_B_NEW = [['Hollow Knight', 'Primero en tu cola', 'Muy bien valorado'], ['Hollow Knight: Silksong', 'En mínimo histórico', 'Segundo en tu cola'], ['Celeste', 'Cabe en pocas sesiones', 'Sin empezar']];
+
+/* ── Piezas del dashboard ── */
+function lists(o) {
+  const L = [['jugando', 'Jugando', `${o.playing}<small>/3</small>`], ['pendiente', 'Pendiente', o.pend], ['pausado', 'Pausado', 9], ['completado', 'Completado', 58], ['bandeja', 'Bandeja', o.tray]];
+  return `<nav class="dash-lists" aria-label="Tus listas" data-in style="--i:1">${L.filter((l) => l[2] !== 0).map(([k, label, n], i) => `<a href="#" class="dash-list st-${k}"><span class="dash-list__icon hg-tint">${ic(ST[k][0])}</span>${label}<b>${typeof n === 'number' ? count(n) : n}</b></a>`).join('')}</nav>`;
+}
+function head(o) {
+  const status = !o.linked
+    ? `<span>${ic('link')} Conecta tu cuenta de Steam para ver tu biblioteca y tus logros.</span>`
+    : `<span class="is-ok" id="${o.id}-sync-txt">${ic('check')} Sincronizado con Steam hace 2 h</span>` + (o.private ? `<span class="is-warn">${ic('alert')} Tu perfil de Steam oculta los detalles de juego: no se pueden leer horas ni logros. <a href="#">Cómo cambiarlo</a></span>` : '');
+  const action = o.linked
+    ? `<div class="dash-sync"><button class="btn btn--primary" type="button" data-sync>${ic('refresh')}<span>Sincronizar</span></button><span class="dash-sync__msg" role="status"></span></div>`
+    : ''; // sin Steam, la acción está en la tarjeta de abajo (un solo botón)
+  return `<header data-in style="--i:0"><div class="dash-head"><div><h1 class="page-title">Hola, ${o.user}</h1><p class="dash-status">${status}</p></div>${action}</div>${o.linked ? lists(o) : ''}</header>`;
+}
+function tiles() {
+  const T = [
+    ['st-jugando', 'clock', 'Horas este año', count(312, 'h'), '<b>38 h</b> en octubre'],
+    ['st-sin_final', 'trophy', 'Logros este año', count(486), '<b>3</b> juegos al 100 %'],
+    ['st-completado', 'flag', 'Completados', count(14), '<b>1</b> en octubre'],
+    ['sc-good', 'star', 'Tu nota media', '<span class="tile__value--tinted">8,2</span>', 'Bien · de 14 completados'],
+  ];
+  return `<dl class="tiles">${T.map(([c, i, l, v, n]) => `<div class="tile ${c}"><dt><span class="tile__icon hg-tint">${ic(i)}</span>${l}</dt><dd class="tile__value">${v}</dd><dd class="tile__note">${n}</dd></div>`).join('')}</dl>`;
+}
+/* Mapa: 53 semanas desde el lunes 27-10-2025; hoy, lunes 26-10-2026 */
+function heatmap(seed = 7, empty = false) {
+  let s = seed; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  const start = Date.UTC(2025, 9, 27); const weeks = 53; const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sept', 'oct', 'nov', 'dic'];
+  let cells = '', months = '', lastM = -1;
+  for (let w = 0; w < weeks; w++) {
+    for (let d = 0; d < 7; d++) {
+      const i = w * 7 + d; const date = new Date(start + i * 864e5);
+      const future = i > 364; const today = i === 364;
+      const wk = d >= 5; const boost = w > 44 ? 0.15 : 0;
+      let l = 0;
+      if (!empty && !future && rnd() > (wk ? 0.3 : 0.55) - boost) { const r = rnd(); l = r < 0.35 ? 1 : r < 0.65 ? 2 : r < 0.88 ? 3 : 4; if (wk && l < 4 && rnd() > 0.6) l++; }
+      if (today && !empty) l = 2;
+      cells += `<i data-l="${l}" style="--w:${w}" class="${future ? 'is-future' : today ? 'is-today' : ''}" title="${date.getUTCDate()} ${MES[date.getUTCMonth()]}"></i>`;
+      if (d === 0 && date.getUTCMonth() !== lastM) { const nd = new Date(start + (w + 2) * 7 * 864e5); if (w < 51 && !(w === 0 && nd.getUTCMonth() !== date.getUTCMonth())) months += `<span style="grid-column-start:${w + 1}">${MES[date.getUTCMonth()]}</span>`; lastM = date.getUTCMonth(); }
+    }
+  }
+  return `<div class="heat"><div class="heat__scroll"><div class="heat__body" style="--weeks:${weeks}"><div class="heat__grid" tabindex="0" aria-label="Días del último año">${cells}</div><div class="heat__months">${months}</div></div></div>`;
+}
+function activityPanel(o) {
+  return `<section class="panel" data-in style="--i:2" aria-label="Actividad del último año">${tiles()}${heatmap()}<div class="heat__foot"><span class="heat__legend">menos<i data-l="0"></i><i data-l="1"></i><i data-l="2"></i><i data-l="3"></i><i data-l="4"></i>más</span><span>oct 2025 – oct 2026</span><span class="heat__extra"><a href="#" class="dash-link">Ver estadísticas</a></span></div></div></section>`;
+}
+function secHead(cls, icon, title, countTxt, end) {
+  return `<header class="sec-head"><span class="sec-head__icon hg-tint ${cls}">${ic(icon)}</span><h2>${title}</h2>${countTxt ? `<span class="sec-head__count">${countTxt}</span>` : ''}<span class="sec-head__end">${end || ''}</span></header>`;
+}
+function emptyBox(cls, icon, title, text, btn) {
+  return `<div class="dash-empty"><span class="dash-empty__icon hg-tint ${cls}">${ic(icon)}</span><p><b>${title}</b>${text}</p>${btn ? `<a href="#" class="btn btn--secondary btn--sm">${btn}</a>` : ''}</div>`;
+}
+function playingPanel(o) {
+  const body = !o.playing
+    ? emptyBox('st-jugando', 'play', 'Nada en curso', 'Elige algo de tu cola o de «¿Qué juego hoy?».', `${ic('dices')} Elegir a qué jugar`)
+    : `<ul class="hg-rows">${PLAYING.map((g, i) => {
+        const p = Math.round(g.ach[0] / g.ach[1] * 100); const t = tier(g.rar);
+        return `<li class="hg-row lib-row row-play st-jugando">${cover(g, t)}<span class="hg-row__main"><span class="hg-row__name"><a href="#" class="hg-row__link">${g.name}</a>${flags(g)}</span><span class="hg-row__meta"><span class="lib-meta">${ic('clock')} ${g.h}</span><span class="lib-meta">${ic('calendar')} ${g.last}</span>${g.endless ? '' : `<span class="lib-meta goal-left">${ic('hourglass')} ${g.left}</span>`}<span class="rar-tag rar-${t} rar-ink" title="Logro más raro que tienes">${ic('diamond')} ${RAR[t]} ${pct(g.rar)}</span></span></span><span class="hg-row__prog"><span class="hg-row__prog-label"><span><b>${g.ach[0]}</b> / ${g.ach[1]} logros</span><span>${p} %</span></span><span class="hg-bar" style="--i:${i}"><span style="width:${p}%"></span></span></span><span class="row-act"><a href="#" class="btn btn--secondary btn--sm" aria-label="Jugar a ${g.name}">${ic('play', 'i-play')}<span class="btn__label">Jugar</span></a></span></li>`;
+      }).join('')}</ul>`;
+  return `<section class="sec-block" data-in style="--i:3">${secHead('st-jugando', 'play', 'En curso', o.playing ? `${o.playing} de 3 a la vez` : '', `${o.playing > 1 ? '<span class="hg-keyhint"><kbd>↑</kbd> <kbd>↓</kbd> para moverte</span>' : ''}<a href="#" class="dash-link">Ver todos</a>`)}${body}</section>`;
+}
+function recentPanel(o) {
+  const items = (o.recent || RECENT).map((a, i) => {
+    if (a.done) return `<li class="hg-ach st-completado"><span class="hg-ach__icon">${ic('flag')}</span><span class="hg-ach__body"><span class="hg-ach__name">Completaste ${a.game}</span><span class="hg-ach__game">${a.ago}</span></span><span class="hg-ach__pct">${nota(a.rating)}<small style="color:var(--muted)">tu nota</small></span></li>`;
+    const t = tier(a.p);
+    return `<li class="hg-ach rar-${t} ${t === 'leg' || t === 'epica' ? 'is-flash' : ''}" style="--i:${i + 4}"><span class="hg-ach__icon">${ic('trophy')}</span><span class="hg-ach__body"><span class="hg-ach__name">${a.name}</span><span class="hg-ach__game">${a.game} · ${a.ago}</span></span><span class="hg-ach__pct"><span>${pct(a.p)}</span><small>${RAR[t]}</small></span></li>`;
+  }).join('');
+  return `<section class="sec-block" data-in style="--i:4">${secHead('rar-leg rar-ink', 'trophy', 'Logros recientes', '', '<a href="#" class="dash-link">Historial</a>')}${items ? `<ul class="hg-achs">${items}</ul>` : emptyBox('rar-comun', 'trophy', 'Sin logros todavía', 'Aparecerán aquí al sincronizar.')}</section>`;
+}
+function scoresLine(g) {
+  return `${g.dur ? `<span class="lib-meta" title="Duración de la historia">${ic('hourglass')} ${g.dur}</span>` : ''}${g.mc ? mc(g.mc) : ''}${g.rev ? rev(g.rev) : ''}`;
+}
+function wtpRow([name, ...why], i) {
+  const g = G[name];
+  const price = g.unowned ? (g.price.low ? `<span class="hg-deal">${ic('tag')} Mínimo histórico · ${g.price.final}</span>` : `<span class="hg-score hg-tint sc-top">-${g.price.cut} %</span> ${g.price.final}`) : '';
+  const act = g.unowned
+    ? `<a href="#" class="btn btn--primary btn--sm">${ic('ext')} Ver en Steam</a>`
+    : `<a href="#" class="btn btn--primary btn--sm">${ic('play', 'i-play')} Jugar</a>`;
+  return `<li class="hg-row lib-row row-wtp st-${g.st} ${g.unowned ? 'is-unowned' : ''}" data-slot="${i}">${cover(g)}<span class="hg-row__main"><span class="hg-row__name"><a href="#" class="hg-row__link">${name}</a>${flags(g)}${g.unowned ? `<span class="lib-own--no">${ic('cart')} Sin comprar</span>` : ''}</span><span class="hg-row__meta"><span class="wtp-why">${why[0]}</span>${why[1] ? `<span>${why[1]}</span>` : ''}</span><span class="hg-row__meta">${scoresLine(g)}${price}</span></span><span class="row-end">${chip(g.st)}${act}<button type="button" class="btn btn--secondary btn--sm" data-other>${ic('refresh')} Otra</button></span></li>`;
+}
+function seg(name, opts, active) {
+  return `<div class="wtp-choice"><span class="wtp-choice__label">${name}</span><div class="hg-seg" role="radiogroup" aria-label="${name}" data-seg="${name}"><span class="seg-thumb"></span>${opts.map(([k, l, i]) => `<button type="button" role="radio" class="hg-seg__opt" data-k="${k}" aria-checked="${k === active}">${i ? ic(i) : ''}${l}</button>`).join('')}</div></div>`;
+}
+function wtpPanel(o) {
+  const mood = o.mood || 'terminar';
+  const rows = o.variant === 'B' && mood === 'nuevo' ? WTP_B_NEW : WTP[mood];
+  return `<section class="panel wtp" data-in style="--i:5" data-wtp="${o.variant || 'A'}">${secHead('st-todos', 'dices', '¿Qué juego hoy?', 'De tus Jugando y Pendientes', `<button type="button" class="btn btn--ghost btn--sm" data-shuffle>${ic('dices', 'i-dice')} Barajar</button>`)}<div class="wtp-choices">${seg('Tiempo', [['corta', 'Menos de 1 h'], ['media', '1-3 h'], ['larga', 'Sesión larga']], 'media')}${seg('Ganas', [['terminar', 'Terminar algo'], ['nuevo', 'Empezar algo nuevo'], ['logros', 'Cazar logros'], ['sorpresa', 'Sorpréndeme']], mood)}</div><ul class="hg-rows" data-wtp-rows>${rows.map(wtpRow).join('')}</ul></section>`;
+}
+function queuePanel(o) {
+  const list = o.queue === 0 ? [] : o.variant === 'B' ? [QUEUE[0], UNOWNED[0], QUEUE[1], UNOWNED[1], QUEUE[2]] : QUEUE;
+  const body = !list.length
+    ? emptyBox('st-pendiente', 'bookmark', 'Tu cola está vacía', 'Clasifica juegos de la bandeja o busca uno para añadirlo.', `${ic('search')} Buscar un juego`)
+    : `<ol class="hg-rows">${list.map((g, i) => {
+        const price = g.unowned ? `<span class="hg-row__meta">${g.price.low ? `<span class="hg-deal">${ic('tag')} Mínimo histórico · ${g.price.final}</span>` : `<span class="hg-score hg-tint sc-top">-${g.price.cut} %</span><b style="color:var(--foreground)">${g.price.final}</b><span class="hg-score hg-tint sc-mid" title="Rebajado, pero ha estado más barato">Ha estado más barato</span>`}</span>` : '';
+        return `<li class="hg-row lib-row row-queue st-pendiente ${g.unowned ? 'is-unowned' : ''}"><span class="q-pos hg-tint st-pendiente">${i + 1}</span>${cover(g)}<span class="hg-row__main"><span class="hg-row__name"><a href="#" class="hg-row__link">${g.name}</a>${flags(g)}${g.unowned ? `<span class="lib-own--no">${ic('cart')} Sin comprar</span>` : ''}</span><span class="hg-row__meta">${g.endless ? `<span class="lib-meta" style="color:var(--st-sinfinal)">${ic('infinity')} Sin final</span>` : `<span class="lib-meta" title="Duración de la historia">${ic('hourglass')} Historia ${g.dur}</span>`}${mc(g.mc)}${rev(g.rev)}</span>${price}</span>${g.unowned ? `<a href="#" class="hg-icon-btn" aria-label="Ver ${g.name} en Steam" title="Ver en Steam">${ic('ext')}</a>` : `<a href="#" class="hg-icon-btn" aria-label="Jugar a ${g.name}" title="Jugar">${ic('play', 'i-play')}</a>`}</li>`;
+      }).join('')}</ol>`;
+  return `<section class="sec-block" data-in style="--i:6">${secHead('st-pendiente', 'bookmark', 'Siguientes en la cola', list.length ? `${o.pend} pendientes` : '', '<a href="#" class="dash-link">Ordenar</a>')}${body}</section>`;
+}
+function nearPanel(o) {
+  const body = o.near === 0
+    ? emptyBox('st-completado', 'trophy', 'Nada cerca del 100 %', 'Aquí salen los juegos con más de la mitad de los logros.')
+    : `<ul class="hg-rows">${NEAR.map((g, i) => {
+        const p = Math.floor(g.ach[0] / g.ach[1] * 100); const left = g.ach[1] - g.ach[0]; const t = tier(g.hard);
+        return `<li class="hg-row lib-row row-near st-${g.st}">${cover(g)}<span class="hg-row__main"><a href="#" class="hg-row__link">${g.name}</a><span class="hg-row__meta"><span>${left === 1 ? 'Te falta 1 logro' : `Te faltan ${left}`}</span><span class="rar-tag rar-${t} rar-ink" title="El logro más difícil que te falta">${ic('diamond')} el más difícil, ${RAR[t].toLowerCase()} ${pct(g.hard)}</span></span></span><span class="hg-row__prog"><span class="hg-row__prog-label"><span><b>${g.ach[0]}</b> / ${g.ach[1]}</span><span>${p} %</span></span><span class="hg-bar" style="--i:${i}"><span style="width:${p}%"></span></span></span>${chip(g.st)}</li>`;
+      }).join('')}</ul>`;
+  return `<section class="sec-block" data-in style="--i:7">${secHead('st-completado', 'trophy', 'Cerca del 100 %', '', '<a href="#" class="dash-link">Logros</a>')}${body}</section>`;
+}
+const JUDI_STATE = {
+  pendiente: ['warn', 'clock', 'Hoy', 'El juego de hoy te está esperando.', 'Seis capturas, seis intentos.', 'Jugar', 'primary'],
+  en_curso: ['warn', 'clock', 'A medias', 'Lo tienes a medias: te quedan 4 vidas.', 'Sigue donde lo dejaste.', 'Seguir', 'primary'],
+  acertado: ['ok', 'check', 'Acertado', '¡Acertado a la segunda! Vuelve mañana.', 'Nuevo juego a las 00:00 (hora de Madrid).', 'Ver JUDI', 'secondary'],
+  fallado: ['ko', 'x', 'Fallado', 'Hoy se te resistió. Mañana, más.', 'Nuevo juego a las 00:00 (hora de Madrid).', 'Ver JUDI', 'secondary'],
+};
+function judiPanel(o) {
+  const [cl, icon, label, msg, sub, btn, kind] = JUDI_STATE[o.judi];
+  const DAYS = ['M', 'X', 'J', 'V', 'S', 'D', 'L'];
+  const week = o.week.map((d, i) => {
+    const today = i === 6;
+    const st = today ? (o.judi === 'acertado' ? 'ok' : o.judi === 'fallado' ? 'ko' : 'hoy') : d;
+    const inner = st === 'ok' ? ic('check') : st === 'ko' ? ic('x') : st === 'hoy' ? ic('clock') : '';
+    const sr = st === 'ok' ? 'acertado' : st === 'ko' ? 'fallado' : st === 'hoy' ? 'hoy, sin terminar' : 'sin jugar';
+    return `<li class="judi-day ${st}" style="--d:${i}" title="${today ? 'Hoy' : DAYS[i]}: ${sr}"><i>${inner}</i>${today ? 'Hoy' : DAYS[i]}</li>`;
+  }).join('');
+  const lives = o.judi === 'en_curso' ? `<span class="judi-lives">${[1, 1, 0, 0, 0, 0].map((u) => `<i class="${u ? 'used' : ''}"></i>`).join('')} 2 de 6 intentos</span>` : `<span class="judi-lives">${sub}</span>`;
+  return `<section class="panel" data-in style="--i:6">${secHead('', 'gamepad', 'JUDI de hoy', '', `<span class="judi-state hg-tint ${cl}">${ic(icon)}${label}</span>`)}<p class="judi-msg">${msg}</p><div class="judi-row"><div class="judi-streak"><span class="judi-streak__n">${ic('flame')}<strong>${count(o.streak)}</strong></span><small>${o.streak === 1 ? 'día de racha' : 'días de racha'}</small></div><ol class="judi-week" aria-label="Últimos 7 días">${week}</ol></div><div class="judi-foot">${lives}<a href="#" class="btn btn--${kind} btn--sm">${kind === 'primary' ? ic('play', 'i-play') : ''}${btn}</a></div></section>`;
+}
+const GOALS = [
+  { k: 'completar', icon: 'flag', cls: 'st-completado', one: 'juego terminado', many: 'juegos terminados', done: 1, target: 2, step: 1 },
+  { k: 'logros', icon: 'trophy', cls: 'st-sin_final', one: 'logro', many: 'logros', done: 31, target: 50, step: 5 },
+  { k: 'perfectos', icon: 'target', cls: 'st-completado', one: 'juego al 100 %', many: 'juegos al 100 %', done: 1, target: 1, step: 1 },
+];
+const ELAPSED = 26 / 31;
+function pace(done, target) { return done >= target ? 'cumplida' : done >= Math.floor(target * ELAPSED) ? 'al_dia' : 'por_detras'; }
+const PACE = { cumplida: ['ok', 'check', '¡Cumplida!'], al_dia: ['st-todos', 'clock', 'Vas al día'], por_detras: ['warn', 'alert', 'Vas por detrás'] };
+function goalItem(g, saved, editing) {
+  const p = pace(g.done, g.target); const [pc, pi, pl] = PACE[p];
+  const w = Math.min(100, Math.round(g.done / g.target * 100));
+  const name = editing
+    ? `<span class="stepper" data-goal="${g.k}"><button type="button" aria-label="Menos" data-step="-1">${ic('minus')}</button><strong>${g.target}</strong><button type="button" aria-label="Más" data-step="1">${ic('plus')}</button><span>${g.target === 1 ? g.one : g.many}</span></span>`
+    : `<span class="goal__name"><span class="goal__icon hg-tint ${g.cls}">${ic(g.icon)}</span><span><strong>${g.done}/${g.target}</strong> ${g.target === 1 ? g.one : g.many}</span></span>`;
+  return `<li class="goal" data-k="${g.k}"><div class="goal__row">${name}${saved && !editing ? `<span class="pace hg-tint ${pc}">${ic(pi)}${pl}</span>` : ''}</div><div class="goal__track ${saved ? pc : 'st-todos'}"><span class="hg-bar ${p === 'cumplida' ? '' : ''}" style="--i:${GOALS.indexOf(g)}"><span style="width:${w}%"></span></span>${saved ? `<span class="goal__today" style="left:${ELAPSED * 100}%" title="Hoy: día 26 de 31"></span>` : ''}</div></li>`;
+}
+function goalsPanel(o, editing = false) {
+  const saved = o.goalsSaved !== false;
+  const end = saved && !editing ? `<button type="button" class="btn btn--ghost btn--sm" data-goals-edit>${ic('pencil')} Ajustar</button>` : '';
+  const foot = editing
+    ? `<div class="goals-actions"><button type="button" class="btn btn--primary btn--sm" data-goals-save>${ic('check')} Guardar</button><button type="button" class="btn btn--secondary btn--sm" data-goals-cancel>Cancelar</button></div>`
+    : saved ? `<div class="goals-foot"><span class="goals-foot__mark"><i></i>Hoy, día 26 de 31</span><span>Quedan 5 días</span></div>`
+    : `<div class="goals-actions"><button type="button" class="btn btn--primary btn--sm">${ic('check')} Aceptar</button><button type="button" class="btn btn--secondary btn--sm">${ic('pencil')} Ajustar</button></div>`;
+  return `<section class="panel" data-in style="--i:7" data-goals>${secHead('st-todos', 'target', 'Metas de octubre', '', end)}${saved ? '' : '<p class="dash-empty--plain" style="margin:0 0 .875rem;color:var(--muted);font-size:.875rem">Propuesta según tu media de los últimos 6 meses:</p>'}<ul class="goals">${GOALS.map((g) => goalItem(g, saved, editing)).join('')}</ul>${foot}</section>`;
+}
+function suggestions() {
+  return `<div class="sugg" data-in style="--i:1"><img src="${IMG(753640)}" alt=""><p><b>¿Has terminado Outer Wilds?</b><small>Tienes 30 de 31 logros y no lo juegas desde hace 3 semanas.</small></p><button class="btn btn--secondary btn--sm" type="button">${ic('flag')} Completar</button><button class="btn btn--ghost btn--sm" type="button">No</button></div>`;
+}
+function connectCard() {
+  return `<section class="panel connect" data-in style="--i:1"><span class="connect__icon hg-tint st-todos">${ic('gamepad')}</span><div><h2>Conecta tu cuenta de Steam</h2><p>HubGames lee tus juegos, horas y logros de Steam y los ordena por listas. Solo lectura: no publica nada en tu nombre.</p><ol class="connect__steps"><li><b><span class="tile__icon hg-tint st-bandeja">${ic('inbox')}</span>Llegan a la bandeja</b>Tus juegos entran sin clasificar.</li><li><b><span class="tile__icon hg-tint st-jugando">${ic('play')}</span>Los clasificas</b>Jugando, Pendiente, Completado…</li><li><b><span class="tile__icon hg-tint rar-epica rar-ink">${ic('trophy')}</span>Sigues tus logros</b>Con su rareza y lo que te falta.</li></ol><div class="connect__actions"><a href="#" class="btn btn--primary">${ic('gamepad')} Conectar con Steam</a><a href="#" class="btn btn--secondary">${ic('search')} Buscar un juego</a></div></div></section>`;
+}
+
+function dashboard(o) {
+  if (!o.linked) {
+    const g2 = o.w === 'mob' ? `${judiPanel(o)}` : `<div class="dash-grid"><div class="dash-col">${judiPanel(o)}</div><div></div></div>`;
+    return `<div class="dash">${head(o)}${connectCard()}${g2}</div>`;
+  }
+  const cols = `<div class="dash-cols">${playingPanel(o)}${recentPanel(o)}</div>`;
+  const grid = `<div class="dash-grid"><div class="dash-col">${queuePanel(o)}${nearPanel(o)}</div><div class="dash-col">${judiPanel(o)}${goalsPanel(o)}</div></div>`;
+  return `<div class="dash">${head(o)}${o.sugg ? suggestions() : ''}${activityPanel(o)}${cols}${wtpPanel(o)}${grid}</div>`;
+}
+
+/* ── Portada ── */
+const LAND_ROWS = [
+  { id: 1245620, name: 'ELDEN RING', st: 'jugando', meta: ['clock', '142 h'], ach: [31, 42], fav: true },
+  { id: 1145350, name: 'Hades II', st: 'pendiente', meta: ['hourglass', 'Historia 22 h'], ach: [0, 49], swap: true, mcs: 95 },
+  { id: 753640, name: 'Outer Wilds', st: 'completado', meta: ['clock', '24 h'], ach: [31, 31], rating: 9.5 },
+  { id: 632470, name: 'Disco Elysium - The Final Cut', st: 'pendiente', meta: ['hourglass', 'Historia 22 h'], unowned: true, mcs: 97 },
+];
+function landRow(g) {
+  const p = g.ach ? Math.round(g.ach[0] / g.ach[1] * 100) : 0;
+  const right = g.unowned
+    ? `<span class="price"><span class="hg-deal" data-deal>${ic('tag')} Mínimo histórico</span><span><b>9,99 €</b> <span class="hg-score hg-tint sc-top">-75 %</span></span></span>`
+    : `<span class="hg-row__prog"><span class="hg-row__prog-label"><span><b>${g.ach[0]}</b> / ${g.ach[1]}</span><span style="${p === 100 ? 'color:var(--success);font-weight:700' : ''}">${p} %</span></span><span class="hg-bar ${p === 100 ? 'is-done' : ''}"><span style="width:${p}%"></span></span></span>`;
+  return `<li class="hg-row lib-row st-${g.st} ${g.unowned ? 'is-unowned' : ''}" ${g.swap ? 'data-swap' : ''}><span class="hg-row__cover"><img src="${IMG(g.id)}" alt=""></span><span class="hg-row__main"><span class="hg-row__name"><span class="hg-row__link">${g.name}</span>${flags(g)}</span><span class="hg-row__meta">${g.unowned ? `<span class="lib-own--no">${ic('cart')} Sin comprar</span>` : `<span class="lib-meta">${ic(g.meta[0])} ${g.meta[1]}</span>`}${g.rating ? nota(g.rating) : ''}${g.mcs ? mc(g.mcs) : ''}</span></span>${right}<span style="justify-self:end">${chip(g.st)}</span></li>`;
+}
+function landing(o) {
+  const pills = [['jugando', 'Jugando', 1], ['pendiente', 'Pendiente', 37], ['completado', 'Completado', 58], ['bandeja', 'Bandeja', 14]];
+  const win = `<div class="win" data-in style="--i:2" aria-label="Vista previa de la biblioteca"><div class="win__head"><h2>Biblioteca</h2><span class="hg-keyhint">Ejemplo</span></div><div class="win__rail">${pills.map(([k, l, n]) => `<span class="mini-pill st-${k}" ${k === 'bandeja' ? 'style="border-style:dashed"' : ''}><span class="dash-list__icon hg-tint">${ic(ST[k][0])}</span>${l} <b data-pill="${k}">${n}</b></span>`).join('')}</div><ul class="hg-rows">${LAND_ROWS.map(landRow).join('')}</ul></div>`;
+  const hero = `<div class="land-hero" data-in style="--i:0"><h1>Tu biblioteca de Steam, tus logros y a qué jugar hoy</h1><p>Conecta Steam y HubGames pone cada juego en su lista, te dice qué logros te faltan y cuándo algo de tu wishlist está más barato que nunca.</p><div class="land-actions"><a href="#" class="btn btn--primary">${ic('login')} Entrar</a><a href="#" class="btn btn--secondary">${ic('gamepad')} Jugar a JUDI</a><a href="#" class="btn btn--ghost">${ic('trophy')} Ver el ranking</a></div></div>`;
+  const ficha = `<article class="lcard" data-in style="--i:3"><div class="lcard__head"><span class="sec-head__icon hg-tint sc-top">${ic('tag')}</span><h3>Cada precio, con veredicto</h3><p>Puntuaciones con color y el mínimo histórico en amarillo.</p></div><div class="lcard__body ficha"><div class="ficha__img"><img src="${IMG(1086940)}" alt=""></div><p class="ficha__name">Baldur's Gate 3</p><div class="ficha__scores"><span>${mc(96)} Aclamado</span><span>${rev(96)} Extremadamente positivas</span></div><p class="verdict" data-deal>${ic('tag')} Mínimo histórico <span>nunca ha estado más barato</span><span class="verdict__price">47,99 €</span></p></div></article>`;
+  const ach = `<article class="lcard" data-in style="--i:4"><div class="lcard__head"><span class="sec-head__icon hg-tint rar-epica rar-ink">${ic('trophy')}</span><h3>Logros por rareza</h3><p>De común a legendaria, y los que te faltan para el 100 %.</p></div><div class="lcard__body"><div style="display:flex;justify-content:space-between;font-size:.8125rem;color:var(--muted)"><span><b style="color:var(--foreground)">Hollow Knight</b></span><span><b style="color:var(--foreground)" data-achn>43</b> / 63 logros</span></div><div class="rar-stack" data-stack><span class="rar-comun" style="flex-grow:14"></span><span class="rar-poco" style="flex-grow:12"></span><span class="rar-rara" style="flex-grow:10"></span><span class="rar-epica" style="flex-grow:6" data-epic></span><span class="rar-leg" style="flex-grow:1"></span><span style="flex-grow:20;background:var(--surface-2)" data-rest></span></div><ul class="rar-legend"><li class="rar-comun">Común</li><li class="rar-poco">Poco común</li><li class="rar-rara">Rara</li><li class="rar-epica">Épica</li><li class="rar-leg">Legendaria</li></ul><ul class="hg-achs"><li class="hg-ach rar-leg"><span class="hg-ach__icon">${ic('trophy')}</span><span class="hg-ach__body"><span class="hg-ach__name">Hollow Knight puro</span><span class="hg-ach__game">hace 2 días</span></span><span class="hg-ach__pct"><span>0,9 %</span><small>Legendaria</small></span></li><li class="hg-ach is-locked" data-unlock><span class="hg-ach__icon">${ic('lock')}</span><span class="hg-ach__body"><span class="hg-ach__name">Paz en el Abismo</span><span class="hg-ach__game">Te falta</span></span><span class="hg-ach__pct"><span>3,1 %</span><small>Épica</small></span></li></ul></div></article>`;
+  const judi = `<article class="lcard" data-in style="--i:5"><div class="lcard__head"><span class="sec-head__icon hg-tint">${ic('gamepad')}</span><h3>JUDI, cada día</h3><p>Adivina el juego por su captura. Sin cuenta, cuando quieras.</p></div><div class="lcard__body"><div class="judi-shot"><img src="${IMG(413150)}" alt=""><span>Captura 3 de 6</span></div><ul class="judi-tries"><li class="hg-tint ko">${ic('x')} Terraria</li><li class="skip">Saltado</li><li class="hg-tint warn">${ic('clock')} Tu turno</li></ul></div></article>`;
+  const heat = `<figure class="land-heat panel" data-in style="--i:6;margin:0"><div class="tiles" style="margin-bottom:1rem">${[['st-jugando', 'clock', 'Horas este año', '312 h'], ['st-sin_final', 'trophy', 'Logros', '1284'], ['st-completado', 'flag', 'Completados', '18'], ['sc-good', 'star', 'Nota media', '8,2']].map(([c, i, l, v]) => `<div class="tile ${c}"><dt><span class="tile__icon hg-tint">${ic(i)}</span>${l}</dt><dd class="tile__value">${v}</dd></div>`).join('')}</div>${heatmap(11)}</div><figcaption>Tu año de un vistazo: cada casilla es un día, más intensa cuanto más juegas.</figcaption></figure>`;
+  return `<div class="land"><div class="land-top">${hero}${win}</div><div class="land-cards">${ficha}${ach}${judi}</div>${heat}</div>`;
+}
+
+/* ── Montaje ── */
+const base = { user: 'diego', linked: true, playing: 3, pend: 37, tray: 14, deals: 2, judi: 'pendiente', streak: 4, week: ['ko', 'none', 'ok', 'ok', 'ok', 'ok', null], sugg: true };
+function mount(id, html) { const el = document.getElementById(id); el.innerHTML = html; return el; }
+const w = (el) => el.classList.contains('w-mob') ? 'mob' : el.classList.contains('w-mid') ? 'mid' : 'desk';
+
+mount('f-desk', desktopChrome({ ...base }, dashboard({ ...base, id: 'desk' })));
+mount('f-mid', desktopChrome({ ...base, compact: true }, dashboard({ ...base, id: 'mid', sugg: false })));
+mount('f-mob', mobileChrome(base, dashboard({ ...base, id: 'mob', w: 'mob', sugg: false })));
+const noSteam = { user: 'diego', linked: false, tray: 0, judi: 'en_curso', streak: 0, week: ['ok', 'ok', 'none', 'ok', 'ok', 'ko', null] };
+mount('f-mob-empty', mobileChrome(noSteam, dashboard({ ...noSteam, id: 'mobe', w: 'mob' })));
+const edge = { user: 'diego_mardomingo_largo', linked: true, private: true, playing: 0, pend: 0, queue: 0, near: 0, tray: 0, judi: 'acertado', streak: 12, week: ['ok', 'ok', 'ok', 'ok', 'ok', 'ok', null], goalsSaved: false, recent: [{ done: true, game: 'Hades', ago: 'hace 2 meses', rating: 6 }] };
+mount('f-edge', desktopChrome({ ...edge, compact: true }, dashboard({ ...edge, id: 'edge', mood: 'nuevo' })));
+mount('f-nosteam', desktopChrome(noSteam, dashboard({ ...noSteam, id: 'nos' })));
+const varPanels = (v) => `<div class="dash" style="gap:1.5rem">${wtpPanel({ variant: v, mood: 'nuevo' })}<div style="max-width:680px">${queuePanel({ variant: v, pend: v === 'B' ? 39 : 37 })}</div></div>`;
+mount('f-var-a', varPanels('A'));
+mount('f-var-b', varPanels('B'));
+mount('f-land', desktopChrome({ judi: 'pendiente' }, landing({})));
+mount('f-land-mid', desktopChrome({ judi: 'pendiente', compact: true }, landing({})));
+mount('f-land-mob', mobileChrome({ judi: 'pendiente' }, landing({})));
+
+/* Mapa en móvil: empieza en lo más reciente */
+const scrollHeat = () => document.querySelectorAll('.w-mob .heat__scroll').forEach((s) => (s.scrollLeft = s.scrollWidth));
+
+/* ── Fondo deslizante de los segmentados ── */
+function placeThumb(segEl, animate = true) {
+  const t = segEl.querySelector('.seg-thumb'); const a = segEl.querySelector('[aria-checked="true"]');
+  if (!a) return;
+  if (!animate) t.style.transition = 'none';
+  t.style.width = a.offsetWidth + 'px'; t.style.height = a.offsetHeight + 'px';
+  t.style.transform = `translate(${a.offsetLeft}px, ${a.offsetTop}px)`;
+  if (!animate) { void t.offsetWidth; t.style.transition = ''; }
+}
+const placeAllThumbs = () => document.querySelectorAll('.hg-seg').forEach((s) => placeThumb(s, false));
+
+/* ── Cifras que cuentan ── */
+function countUp(root) {
+  root.querySelectorAll('[data-count]').forEach((el) => {
+    const to = +el.dataset.count; const fmt = el.dataset.fmt;
+    const out = (v) => (fmt === 'h' ? `${v} h` : String(v));
+    if (rm()) { el.textContent = out(to); return; }
+    const t0 = performance.now(); const dur = 450;
+    const step = (t) => { const k = Math.min(1, (t - t0) / dur); const e = 1 - Math.pow(1 - k, 3); el.textContent = out(Math.round(to * e)); if (k < 1) requestAnimationFrame(step); };
+    el.textContent = out(0); requestAnimationFrame(step);
+  });
+}
+
+/* ── Entrada ── */
+const timers = [];
+function entry() {
+  timers.splice(0).forEach(clearTimeout);
+  document.querySelectorAll('.frame').forEach((f) => { f.classList.remove('entering'); void f.offsetWidth; f.classList.add('entering'); countUp(f); });
+  landingAction();
+}
+function replayCls(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+
+/* ── Portada «en acción» (una vez) ── */
+function landingAction() {
+  document.querySelectorAll('#f-land, #f-land-mid, #f-land-mob').forEach((f) => {
+    // estado inicial
+    const row = f.querySelector('[data-swap]');
+    row.classList.remove('st-jugando'); row.classList.add('st-pendiente');
+    const ch = row.querySelector('.hg-chip'); ch.outerHTML = chip('pendiente');
+    f.querySelector('[data-pill="pendiente"]').textContent = '37'; f.querySelector('[data-pill="jugando"]').textContent = '1';
+    const un = f.querySelector('[data-unlock]'); un.className = 'hg-ach is-locked'; un.querySelector('.hg-ach__icon').innerHTML = ic('lock'); un.querySelector('.hg-ach__game').textContent = 'Te falta';
+    f.querySelector('[data-achn]').textContent = '43'; f.querySelector('[data-epic]').style.flexGrow = 6; f.querySelector('[data-rest]').style.flexGrow = 20;
+    const go = (ms, fn) => timers.push(setTimeout(fn, rm() ? 0 : ms));
+    go(700, () => {
+      row.classList.replace('st-pendiente', 'st-jugando');
+      const c = row.querySelector('.hg-chip'); c.className = 'hg-chip hg-tint st-jugando chip-swap'; c.innerHTML = `${ic('play')}Jugando`;
+      const pp = f.querySelector('[data-pill="pendiente"]'); pp.textContent = '36'; replayCls(pp, 'pop');
+      const pj = f.querySelector('[data-pill="jugando"]'); pj.textContent = '2'; replayCls(pj, 'pop');
+    });
+    go(1200, () => {
+      un.className = 'hg-ach rar-epica is-flash-now'; un.querySelector('.hg-ach__icon').innerHTML = ic('trophy');
+      un.querySelector('.hg-ach__game').textContent = 'ahora mismo';
+      un.animate([{ backgroundColor: 'color-mix(in srgb, var(--rar-epica) 30%, var(--surface))' }, { backgroundColor: 'var(--surface)' }], { duration: rm() ? 1 : 900, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+      const n = f.querySelector('[data-achn]'); n.textContent = '44'; replayCls(n, 'pop');
+      f.querySelector('[data-epic]').style.flexGrow = 7; f.querySelector('[data-rest]').style.flexGrow = 19;
+    });
+    go(1600, () => f.querySelectorAll('[data-deal]').forEach((d) => replayCls(d, 'flash-deal')));
+  });
+}
+
+/* ── ¿Qué juego hoy?: segmentados, barajar y «Otra» ── */
+function animateOut(li, i, mid, h) {
+  return li.animate([{ transform: 'none', opacity: 1 }, { transform: `translateY(${(mid - i) * h}px) rotate(${(i - mid) * 2}deg) scale(.96)`, opacity: .4 }], { duration: rm() ? 1 : 180, easing: 'ease-in', fill: 'forwards' }).finished;
+}
+function shuffleRows(ul, rows) {
+  const lis = [...ul.children]; const mid = (lis.length - 1) / 2; const h = lis[0] ? lis[0].offsetHeight + 6 : 0;
+  Promise.all(lis.map((li, i) => animateOut(li, i, mid, h))).then(() => {
+    ul.innerHTML = rows.map(wtpRow).join('');
+    [...ul.children].forEach((li, i) => li.animate([{ transform: `translateY(${(mid - i) * h}px) rotate(${(i - mid) * 2}deg) scale(.96)`, opacity: .4 }, { transform: 'none', opacity: 1 }], { duration: rm() ? 1 : 280, delay: rm() ? 0 : i * 30, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'backwards' }));
+  });
+}
+function crossfade(ul, rows) {
+  ul.animate([{ opacity: 1 }, { opacity: 0 }], { duration: rm() ? 1 : 120, fill: 'forwards' }).finished.then(() => {
+    ul.innerHTML = rows.map(wtpRow).join('');
+    ul.animate([{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], { duration: rm() ? 1 : 220, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+  });
+}
+let shuffleN = 0;
+document.addEventListener('click', (e) => {
+  const opt = e.target.closest('.hg-seg__opt');
+  if (opt) {
+    const segEl = opt.parentElement; segEl.querySelectorAll('.hg-seg__opt').forEach((b) => b.setAttribute('aria-checked', String(b === opt))); placeThumb(segEl);
+    const panel = opt.closest('.wtp'); const ul = panel.querySelector('[data-wtp-rows]');
+    if (segEl.dataset.seg === 'Ganas') {
+      const k = opt.dataset.k; const rows = panel.dataset.wtp === 'B' && k === 'nuevo' ? WTP_B_NEW : WTP[k];
+      k === 'sorpresa' ? shuffleRows(ul, rows) : crossfade(ul, rows);
+    } else crossfade(ul, [...ul.children].map((li) => [li.querySelector('.hg-row__link').textContent, li.querySelector('.wtp-why').textContent]));
+    return;
+  }
+  const sh = e.target.closest('[data-shuffle]');
+  if (sh) { const ul = sh.closest('.wtp').querySelector('[data-wtp-rows]'); const pool = [...WTP.extra, ...WTP.terminar]; shuffleN++; shuffleRows(ul, [0, 1, 2].map((i) => pool[(shuffleN * 3 + i) % pool.length])); return; }
+  const other = e.target.closest('[data-other]');
+  if (other) {
+    const li = other.closest('li'); const ul = li.parentElement; const shown = [...ul.children].map((x) => x.querySelector('.hg-row__link').textContent);
+    const next = WTP.extra.find((r) => !shown.includes(r[0])) || WTP.extra[0];
+    li.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(-24px)', opacity: 0 }], { duration: rm() ? 1 : 160, easing: 'ease-in', fill: 'forwards' }).finished.then(() => {
+      const tmp = document.createElement('ul'); tmp.innerHTML = wtpRow(next, +li.dataset.slot); const n = tmp.firstElementChild; li.replaceWith(n);
+      n.animate([{ transform: 'translateX(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: rm() ? 1 : 220, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+    });
+    return;
+  }
+  /* Sincronizar */
+  const sync = e.target.closest('[data-sync]');
+  if (sync && !sync.disabled) {
+    const box = sync.closest('.dash-sync'); const msg = box.querySelector('.dash-sync__msg');
+    sync.disabled = true; sync.innerHTML = `${ic('refresh', 'spin')}<span>Sincronizando…</span>`; msg.innerHTML = '';
+    setTimeout(() => {
+      sync.disabled = false; sync.innerHTML = `${ic('refresh')}<span>Sincronizar</span>`;
+      msg.innerHTML = `${ic('check', 'draw')} Sincronizado · 2 logros nuevos`;
+      const frame = sync.closest('.frame');
+      const st = frame.querySelector('.dash-status .is-ok'); if (st) st.innerHTML = `${ic('check', 'draw')} Sincronizado con Steam hace un momento`;
+      frame.querySelectorAll('.tile [data-count]').forEach((el, i) => {
+        if (i > 1) return; const v = +el.dataset.count + (i === 0 ? 2 : 2); el.dataset.count = v;
+        el.innerHTML = `<span class="num-up">${el.dataset.fmt === 'h' ? v + ' h' : v}</span>`; replayCls(el.closest('.tile__value'), 'pop');
+      });
+    }, rm() ? 300 : 1400);
+    return;
+  }
+  /* Metas */
+  const ed = e.target.closest('[data-goals-edit]');
+  if (ed) { const p = ed.closest('[data-goals]'); p.outerHTML = goalsPanel(base, true); return; }
+  const cancel = e.target.closest('[data-goals-cancel]');
+  if (cancel) { cancel.closest('[data-goals]').outerHTML = goalsPanel(base); return; }
+  const save = e.target.closest('[data-goals-save]');
+  if (save) {
+    const p = save.closest('[data-goals]'); const tmp = document.createElement('div'); tmp.innerHTML = goalsPanel(base); const n = tmp.firstElementChild; p.replaceWith(n);
+    n.querySelectorAll('.pace .i').forEach((s) => s.classList.add('draw'));
+    return;
+  }
+  const stepB = e.target.closest('[data-step]');
+  if (stepB) {
+    const k = stepB.parentElement.dataset.goal; const g = GOALS.find((x) => x.k === k);
+    g.target = Math.max(g.step, g.target + g.step * +stepB.dataset.step);
+    const li = stepB.closest('.goal'); const strong = li.querySelector('.stepper strong');
+    strong.innerHTML = `<span class="num-up">${g.target}</span>`; replayCls(strong, 'pop');
+    li.querySelector('.stepper > span').textContent = g.target === 1 ? g.one : g.many;
+    li.querySelector('.hg-bar > span').style.width = Math.min(100, Math.round(g.done / g.target * 100)) + '%';
+    return;
+  }
+});
+
+/* ── Controles del documento ── */
+document.getElementById('replay-btn').addEventListener('click', entry);
+const rmBtn = document.getElementById('rm-btn');
+rmBtn.addEventListener('click', () => { const on = document.documentElement.classList.toggle('rm'); rmBtn.setAttribute('aria-pressed', String(on)); rmBtn.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`; });
+const themeBtn = document.getElementById('theme-btn');
+function setTheme(t) { document.documentElement.dataset.theme = t; themeBtn.setAttribute('aria-pressed', String(t === 'dark')); themeBtn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro'; }
+themeBtn.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+if (location.hash.includes('dark')) setTheme('dark');
+if (location.hash.includes('rm')) { document.documentElement.classList.add('rm'); }
+
+/* Captura de un solo marco: #solo=<id> (para revisar el mockup) */
+const solo = /solo=([\w-]+)/.exec(location.hash);
+if (solo) { const f = document.getElementById(solo[1]); document.body.innerHTML = ''; document.body.style.padding = '0'; document.body.appendChild(f); f.style.borderRadius = '0'; }
+
+placeAllThumbs();
+scrollHeat();
+entry();
+document.fonts && document.fonts.ready.then(placeAllThumbs);
+</script>
+</body>
+</html>
