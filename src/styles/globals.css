@@ -59,6 +59,8 @@
   --st-completado: #1a7743;
   --st-abandonado: #c7243b;
   --st-descartado: #6b7280;
+  --st-yajugado: #5c5b06;
+  --st-otros: #931f8f;
   --st-favorito: #c2255c;
   --st-sinfinal: #6741d9;
   /* Puntuaciones (Metacritic, reseñas, tu nota): de mejor a peor */
@@ -128,6 +130,8 @@
   --st-completado: #4cc97e;
   --st-abandonado: #f26b7e;
   --st-descartado: #8a919e;
+  --st-yajugado: #d2cf5c;
+  --st-otros: #eb84f8;
   --st-favorito: #f783ac;
   --st-sinfinal: #b197fc;
   --sc-top: #4cc97e;

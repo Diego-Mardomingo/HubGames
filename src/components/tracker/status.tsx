@@ -1,4 +1,4 @@
-import { Bookmark, CircleX, EyeOff, Flag, Heart, Inbox, Infinity as InfinityIcon, Pause, Play, type LucideIcon } from 'lucide-react'
+import { Bookmark, CircleX, EyeOff, Flag, Heart, History, Inbox, Infinity as InfinityIcon, Pause, Play, Shapes, type LucideIcon } from 'lucide-react'
 import { STATUS_LABELS, type GameStatus } from '@/lib/tracker'
 import type { LibraryTab } from '@/lib/library'
 import '@/styles/lists.css'
@@ -11,7 +11,9 @@ export const LIST_ICONS: Record<GameStatus | 'favorito' | 'sin_final', LucideIco
     pausado: Pause,
     completado: Flag,
     abandonado: CircleX,
+    ya_jugado: History,
     descartado: EyeOff,
+    otros: Shapes,
     favorito: Heart,
     sin_final: InfinityIcon,
 }
