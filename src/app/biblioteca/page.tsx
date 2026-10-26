@@ -673,8 +673,6 @@ function RailItem({
     )
 }
 
-type CSSVars = CSSProperties & Record<`--${string}`, string>
-
 function LibraryItem({
     game,
     view,
@@ -702,7 +700,8 @@ function LibraryItem({
     })
     const pct = achievementPercent(game)
     const name = game.name ?? `App ${game.appid}`
-    const style: CSSVars = { transform: CSS.Translate.toString(transform) ?? '', transition: transition ?? '', '--c': `var(--st-${game.status})` }
+    // El color de la franja sale de la clase st-<estado> (lists.css), como en el resto de listas.
+    const style: CSSProperties = { transform: CSS.Translate.toString(transform) ?? '', transition: transition ?? '' }
     const perfect = isPerfect(game)
     const minutes = estimatedMinutes(game)
 
@@ -789,7 +788,7 @@ function LibraryItem({
             <li
                 ref={setNodeRef}
                 style={style}
-                className={`hg-row lib-row${drag ? ' has-drag' : ''}${isDragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}`}
+                className={`hg-row lib-row st-${game.status}${drag ? ' has-drag' : ''}${isDragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}`}
             >
                 {drag}
                 <span className="hg-row__cover lib-cover">{cover}</span>
@@ -812,7 +811,7 @@ function LibraryItem({
     }
 
     return (
-        <li ref={setNodeRef} style={style} className={`hg-card lib-card${isDragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}`}>
+        <li ref={setNodeRef} style={style} className={`hg-card lib-card st-${game.status}${isDragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}`}>
             <span className="hg-card__cover lib-cover">{cover}</span>
             <span className="hg-card__body">
                 <span className="lib-row__name">
