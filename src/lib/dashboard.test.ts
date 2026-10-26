@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { judiStreak, judiTodayState, nearHundred, nextInQueue, playingNow, recentActivity, remainingMinutes, yearSummary } from './dashboard'
+import { isMissingRpc, judiStreak, judiTodayState, nearHundred, nextInQueue, playingNow, recentActivity, remainingMinutes, yearSummary } from './dashboard'
 import { libraryGame as game } from './test-utils'
 
 const names = (list: { name: string | null }[]) => list.map((g) => g.name)
@@ -84,5 +84,13 @@ describe('dashboard', () => {
         assert.equal(judiStreak([d('25-10-2026', false, true), d('24-10-2026')], '25-10-2026'), 0)
         // El orden de entrada da igual (fechas DD-MM-YYYY).
         assert.equal(judiStreak([d('30-09-2026'), d('01-10-2026', false), d('02-10-2026')], '02-10-2026'), 1)
+    })
+
+    it('función RPC inexistente: PGRST202, 42883 o el mensaje de PostgREST', () => {
+        assert.equal(isMissingRpc({ code: 'PGRST202', message: 'Could not find the function public.hubgames_judi_today' }), true)
+        assert.equal(isMissingRpc({ code: '42883', message: 'function does not exist' }), true)
+        assert.equal(isMissingRpc({ code: null, message: 'Could not find the function x without parameters in the schema cache' }), true)
+        assert.equal(isMissingRpc({ code: '42501', message: 'permission denied' }), false)
+        assert.equal(isMissingRpc(null), false)
     })
 })

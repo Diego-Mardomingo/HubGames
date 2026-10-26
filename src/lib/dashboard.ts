@@ -117,6 +117,15 @@ export function judiTodayState(exists: boolean, progress: JudiProgressFlags | nu
     return p.fase1 || p.fase2 || p.fase3 || p.fase4 || p.fase5 ? 'en_curso' : 'pendiente'
 }
 
+/**
+ * ¿El error de una llamada RPC es porque la función aún no existe? (PostgREST: PGRST202, «not found in the schema
+ * cache»; Postgres: 42883). Sirve para caer al método anterior mientras no se aplique una migración.
+ */
+export function isMissingRpc(error: { code?: string | null; message?: string | null } | null | undefined): boolean {
+    if (!error) return false
+    return error.code === 'PGRST202' || error.code === '42883' || /could not find the function/i.test(error.message ?? '')
+}
+
 export function parseJudiDate(fecha: string): number | null {
     const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(fecha)
     return m ? Date.UTC(Number(m[3]), Number(m[2]) - 1, Number(m[1])) : null
