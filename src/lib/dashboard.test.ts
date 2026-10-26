@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { judiStreak, nearHundred, nextInQueue, playingNow, recentActivity, remainingMinutes, yearSummary } from './dashboard'
+import { judiStreak, judiTodayState, nearHundred, nextInQueue, playingNow, recentActivity, remainingMinutes, yearSummary } from './dashboard'
 import { libraryGame as game } from './test-utils'
 
 const names = (list: { name: string | null }[]) => list.map((g) => g.name)
@@ -63,6 +63,15 @@ describe('dashboard', () => {
         ]
         assert.deepEqual(yearSummary(list, 40, 600, now), { year: 2026, completed: 3, perfect: 1, unlocks: 40, minutes: 600, averageRating: 7.5 })
         assert.equal(yearSummary([], 0, 0, now).averageRating, null)
+    })
+
+    it('estado del JUDI de hoy', () => {
+        assert.equal(judiTodayState(false, { completado: true }), 'sin_juego')
+        assert.equal(judiTodayState(true, null), 'pendiente')
+        assert.equal(judiTodayState(true, { fase1: false }), 'pendiente')
+        assert.equal(judiTodayState(true, { fase2: true }), 'en_curso')
+        assert.equal(judiTodayState(true, { fase1: true, completado: true }), 'acertado')
+        assert.equal(judiTodayState(true, { fase6: true }), 'fallado')
     })
 
     it('racha de JUDI como en /judi', () => {

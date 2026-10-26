@@ -686,6 +686,40 @@ kbd.hg-kbd,
   }
 }
 
+/* ── Contador que salta (AnimatedCount): pop de la cápsula y cifra que entra desde abajo (sube) o desde arriba (baja) ── */
+.hg-count {
+  display: inline-flex;
+  align-items: center;
+}
+
+.hg-count--pop {
+  animation: hg-count-pop 0.3s var(--ease-out);
+}
+
+.hg-count__num {
+  display: inline-block;
+}
+
+.hg-count__num--up {
+  animation: hg-count-up 0.22s var(--ease-out);
+}
+
+.hg-count__num--down {
+  animation: hg-count-down 0.22s var(--ease-out);
+}
+
+@keyframes hg-count-pop {
+  40% { transform: scale(1.18); }
+}
+
+@keyframes hg-count-up {
+  from { transform: translateY(70%); opacity: 0; }
+}
+
+@keyframes hg-count-down {
+  from { transform: translateY(-70%); opacity: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hg-row,
   .hg-card,

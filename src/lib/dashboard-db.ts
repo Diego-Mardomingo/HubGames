@@ -1,7 +1,7 @@
 // Datos del dashboard (#29), leídos en el servidor con la sesión del usuario (RLS: cada uno ve lo suyo).
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from './supabase/database.types'
-import { playingNow, type JudiDay, type JudiTodayState, type RecentUnlock } from './dashboard'
+import { judiTodayState, playingNow, type JudiDay, type JudiTodayState, type RecentUnlock } from './dashboard'
 import { heatmapStart, madridDate } from './activity-heatmap'
 import { AVERAGE_MONTHS, monthKey, previousMonths, type GoalKind } from './goals'
 import type { LibraryGame } from './tracker'
@@ -108,9 +108,7 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
     const published = judiDays.filter((j) => legacyToMs(j.fecha) <= todayMs).sort((a, b) => a.id - b.id)
     const mine = published.find((j) => j.fecha === today)
     const todayId = mine?.id ?? null
-    const started = mine && (mine.completado || mine.fase1 || mine.fase2 || mine.fase3 || mine.fase4 || mine.fase5 || mine.fase6)
-    const state: JudiTodayState =
-        !mine ? 'sin_juego' : !started ? 'pendiente' : mine.completado ? 'acertado' : mine.fase6 ? 'fallado' : 'en_curso'
+    const state: JudiTodayState = judiTodayState(Boolean(mine), mine)
 
     // Logro más raro de cada juego en curso: solo de los juegos de la lista, para no leer todos tus logros.
     const playingIds = playingNow(games as LibraryGame[]).map((g) => g.appid)

@@ -105,6 +105,18 @@ export interface JudiDay {
 
 export type JudiTodayState = 'sin_juego' | 'pendiente' | 'en_curso' | 'acertado' | 'fallado'
 
+/** Progreso de un JUDI: el de hubgames_judi_list (con sesión) o el de localStorage (invitados). */
+export type JudiProgressFlags = Partial<Record<'completado' | 'fase1' | 'fase2' | 'fase3' | 'fase4' | 'fase5' | 'fase6', boolean | null>>
+
+/** Estado del JUDI de hoy a partir de su progreso; `exists` = hay JUDI publicado hoy. */
+export function judiTodayState(exists: boolean, progress: JudiProgressFlags | null | undefined): JudiTodayState {
+    if (!exists) return 'sin_juego'
+    const p = progress ?? {}
+    if (p.completado) return 'acertado'
+    if (p.fase6) return 'fallado'
+    return p.fase1 || p.fase2 || p.fase3 || p.fase4 || p.fase5 ? 'en_curso' : 'pendiente'
+}
+
 export function parseJudiDate(fecha: string): number | null {
     const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(fecha)
     return m ? Date.UTC(Number(m[3]), Number(m[2]) - 1, Number(m[1])) : null

@@ -7,7 +7,7 @@ import { motion, AnimatePresence, useAnimate } from 'framer-motion'
 import { supabase, safeGetUser } from '@/lib/supabase/client'
 import Loader from '@/components/Loader'
 import { getFailedAttempts, getPointsForRecord, type JudiProgressRecord } from '@/lib/judi-ranking'
-import { findJudiLocalKey, judiCaptureUrl, parseJudiDay, writeJudiLocal, type JudiDay, type JudiHints } from '@/lib/judi'
+import { findJudiLocalKey, JUDI_CHANGED_EVENT, judiCaptureUrl, parseJudiDay, writeJudiLocal, type JudiDay, type JudiHints } from '@/lib/judi'
 import JudiFinishActions from './JudiFinishActions'
 import {
     JUDI_HOME_SCROLL_Y_KEY,
@@ -922,6 +922,7 @@ export default function JudiClient() {
             }
         } finally {
             setGuessSubmitting(false)
+            window.dispatchEvent(new Event(JUDI_CHANGED_EVENT))
         }
     }
 

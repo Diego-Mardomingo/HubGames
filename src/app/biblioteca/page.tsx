@@ -87,6 +87,7 @@ import KeyboardList from '@/components/KeyboardList'
 import GameCover from '@/components/tracker/GameCover'
 import GameMenu from '@/components/tracker/GameMenu'
 import { openGameSearch } from '@/components/tracker/GameSearch'
+import SearchShortcut from '@/components/tracker/SearchShortcut'
 import { LIST_ICONS, MarkFlags, StatusChip, listClass } from '@/components/tracker/status'
 import { PriceTag } from '@/components/wishlist/PriceInfo'
 import '@/components/wishlist/wishlist.css'
@@ -312,7 +313,7 @@ function Biblioteca() {
                 </div>
                 <div className="lib-head-actions">
                     <Button variant="secondary" onClick={openGameSearch} aria-keyshortcuts="Control+K">
-                        <Search aria-hidden /> Buscar juego <kbd className="hg-kbd lib-kbd">Ctrl K</kbd>
+                        <Search aria-hidden /> Buscar juego <SearchShortcut className="hg-kbd lib-kbd" />
                     </Button>
                     <Button variant="secondary" asChild>
                         <Link href="/wishlist">

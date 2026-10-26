@@ -9,7 +9,7 @@ Dirección «Panel de actividad»: una herramienta para consultar tu biblioteca 
 - **Minimalismo con tinte.** El color va como texto o icono sobre su propio fondo al 12–14 % (`.hg-tint`), en franjas finas o en bordes; nunca en bloques saturados. La única excepción es el mínimo histórico, en amarillo sólido para que salte a la vista.
 - **Portadas pequeñas.** Cápsula de Steam (`header.jpg`) a ~112×52 px y radio pequeño en listas y rejillas. La imagen grande solo en la ficha de un juego (`/juego/[appid]`).
 - **Cursor de selección.** Las filas y tarjetas clicables muestran `box-shadow: 0 0 0 3px var(--cursor)` con el ratón o el foco de teclado. Es la firma de la interfaz.
-- **Movimiento solo como respuesta** a una acción (abrir, expandir, confirmar, seleccionar). Sin animaciones de entrada escalonadas ni hovers que salten o roten. `prefers-reduced-motion` lo anula todo (regla global al final de `globals.css`).
+- **Microanimaciones con peso.** Navegar tiene que sentirse vivo: cada acción tiene respuesta (chip que cambia de color, check que se dibuja, fila que se va a su lista), los indicadores activos se deslizan, las cifras cuentan y las barras se rellenan al llegar, y las filas entran con un escalonado muy corto. Siempre cortas, sutiles y sin bloquear; celebración solo en los momentos que lo merecen (completar, 100 %, legendario, acierto en JUDI). `prefers-reduced-motion` lo anula todo (regla global al final de `globals.css`). Detalle en `docs/rediseno-color.md`, sección «Microanimaciones».
 - **Texto sobrio.** Español, frases cortas, mayúscula solo inicial. Sin etiquetas en MAYÚSCULAS con tracking, sin «eyebrows», sin numeraciones decorativas ni «→» en cada enlace. Botones con verbo concreto.
 - **Accesible en los dos temas.** Texto ≥ 4,5:1, foco visible, objetivos táctiles ≥ 44 px en móvil, botones-icono con `aria-label`, y nada que dependa solo del color (la rareza va siempre con su nombre o su %).
 
@@ -117,14 +117,18 @@ Una sola familia: **Onest** (`--font-body`, cargada con `next/font`). Los númer
 
 - Radios: `--radius-sm` 8px (botones, campos, cápsulas), `--radius` 10px (filas), `--radius-lg` 14px (paneles `.glass`), `--radius-xl` 18px (contenedores grandes). Pastillas y chips: 999px.
 - Espaciado en múltiplos de 4px; huecos habituales de 8, 12, 16 y 24px entre filas, bloques y secciones.
-- Layout: barra lateral fija (`--side-w`: 232px, 72px por debajo de 1100px), barra superior y barra de pestañas inferior por debajo de 768px. Contenido en `#main-content`, máximo 1200px.
+- Layout: barra lateral fija (`--side-w`: 232px, 72px por debajo de 1100px o si el usuario la pliega), barra superior y barra de pestañas inferior por debajo de 768px. Contenido en `#main-content`, máximo 1200px.
 
 ## Componentes compartidos
 
 | Pieza | Dónde | Notas |
 |---|---|---|
 | Tokens, botones (`.hg-button`, `.hg-btn--primary/secondary/danger`), campos (`.hg-input`, `.field*`), `.alert--error/ok`, `.switch`, `.link`, `.glass`, `.page-head/title/subtitle`, loader, pantallas de acceso y mantenimiento | `src/styles/globals.css` | `components/ui/button.tsx` aplica las clases |
-| Barra lateral, barra superior y pestañas móviles | `src/components/Nav.tsx`, `src/styles/nav.css` | |
+| Barra lateral, barra superior y pestañas móviles | `src/components/Nav.tsx`, `src/styles/nav.css` | Grupos con título («Tu colección», «Juego diario», «Administración»). El cobalto solo marca el elemento activo (superficie + barra de 3 px que se desliza con `layoutId`, icono en acento que rebota); avatar neutro salvo en el perfil. La barra es un contenedor: a 72 px pasa a solo iconos con `@container nav-side`. En móvil, como mucho 6 pestañas (Admin va a la barra superior) |
+| Indicadores de la navegación (`.nav-ind`) | `src/styles/nav.css`, `src/lib/nav-status.ts` | Bandeja con el color de su lista (`.hg-tint.st-bandeja`, borde discontinuo), mínimos de la wishlist en `--deal` sólido y JUDI de hoy («Hoy» `--warning`, «Acertado» `--success`, «Fallado» `--danger`). Siempre icono + cifra o palabra; en la barra plegada y en las pestañas, insignia en la esquina del icono |
+| Barra lateral plegable (≥ 1100 px) | `src/lib/sidebar.ts` (`sidebarScript`, `setSidebarCollapsed`), botón `.nav-collapse` | Preferencia en `localStorage` (`hg-sidebar`) aplicada antes de pintar con `data-side="collapsed"` en `<html>`, como el tema. Al plegar, las etiquetas se desvanecen (150 ms) y luego cambia el ancho (220 ms); al desplegar, al revés |
+| Contador que salta | `src/components/AnimatedCount.tsx`, `.hg-count*` en `src/styles/lists.css` | Pop de la cápsula (300 ms) y cifra que entra desde abajo si sube o desde arriba si baja (220 ms); no se anima al montar. Para contadores de raíl, bandeja y tiles |
+| Atajo del buscador | `src/components/tracker/SearchShortcut.tsx` | Siempre «Ctrl + K» (o «⌘ + K» en Mac), con espacios alrededor del «+» |
 | Filas de juego (`.hg-row`, cápsula, barra `.hg-bar`, `.hg-chip`), logros (`.hg-ach`), control segmentado (`.hg-seg`), cabeceras de lista (`.hg-section`), pista de teclado (`.hg-keyhint`), tarjetas pequeñas (`.hg-card`), `.hg-icon-btn` | `src/styles/lists.css` | El cursor de selección vive aquí |
 | Diálogo, sheet, popover, select, pestañas, tooltip, badge, calendario | `src/styles/ui.css` + `src/components/ui/*` | Primitivas de Radix con CSS propio |
 | Lista navegable con ↑/↓ o j/k | `src/components/KeyboardList.tsx` | Las filas marcan su enlace con `data-row-link` |
@@ -142,6 +146,6 @@ Tailwind 4 está activo **sin preflight** (solo `theme.css` y `utilities.css` en
 3. Un solo acento para actuar. Todo color nuevo debe significar algo y salir de los tokens de arriba (listas, puntuaciones, precio, rarezas): no inventes colores ni pintes con las rarezas cosas que no sean logros.
 4. Filas y tarjetas clicables: enlace principal extendido a toda la fila (`::after`) y cursor de selección en hover y `:focus-visible`/`:focus-within`.
 5. Sin mayúsculas forzadas, degradados, cristal ni glows. Las sombras, neutras y solo para lo que flota (menús, diálogos, segmento activo).
-6. Movimiento solo como respuesta, corto (0,15–0,3 s, `--ease-out`) y anulado con `prefers-reduced-motion`.
+6. Movimiento con intención: 120–250 ms para respuestas, 250–450 ms para entradas y cambios de vista, hasta ~1 s solo en celebraciones; `--ease-out` o muelles sin rebote exagerado; solo `transform`/`opacity` (y trazos, recortes, colores); escalonados de ≤ 30 ms y solo en los primeros elementos; anulado con `prefers-reduced-motion`. Las animaciones que se repiten (contador, barra que se rellena, indicador deslizante, entrada de filas) son compartidas.
 7. En móvil, todo lo interactivo mide al menos 44 px (si el control se ve más pequeño, amplía su área con un pseudo-elemento, como en `.hg-button` o `.switch`).
 8. Comprueba cada cambio en claro y oscuro, a 1440, ~1000 y 390 px.

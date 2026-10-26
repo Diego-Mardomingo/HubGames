@@ -1,5 +1,8 @@
 import type { Json } from '@/lib/supabase/database.types'
 
+/** Se lanza en `window` tras cada intento en JUDI, para que la navegación refresque el estado de hoy. */
+export const JUDI_CHANGED_EVENT = 'hg-judi-changed'
+
 /** Pistas desbloqueadas de un JUDI (#39). Solo vienen las de las fases ya abiertas. */
 export type JudiHints = {
     generos?: string | null

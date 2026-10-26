@@ -9,6 +9,7 @@ import Providers from '@/components/Providers'
 import SiteFooter from '@/components/SiteFooter'
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
 import { themeScript } from '@/lib/theme'
+import { sidebarScript } from '@/lib/sidebar'
 
 const onest = Onest({ subsets: ['latin'], variable: '--font-onest', display: 'swap' })
 
@@ -79,6 +80,7 @@ export default function RootLayout({
         <html lang="es" className={onest.variable} suppressHydrationWarning>
             <head>
                 <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+                <script dangerouslySetInnerHTML={{ __html: sidebarScript }} />
             </head>
             <body className="antialiased">
                 <ServiceWorkerRegistration />

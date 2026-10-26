@@ -6,7 +6,9 @@
 }
 
 /* ── Barra lateral ─────────────────────────────────────────────── */
+/* Es un contenedor: con 72 px (por debajo de 1100 px o plegada a mano) pasa a solo iconos con @container. */
 .nav-side {
+  container: nav-side / inline-size;
   position: fixed;
   inset: 0 auto 0 0;
   z-index: 50;
@@ -14,11 +16,29 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  padding: 1.25rem 0.875rem 1rem;
+  padding: 1.25rem 0.75rem 1rem;
   border-right: 1px solid var(--border);
   background: var(--background);
+  overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: none;
+}
+
+/* Plegar / desplegar a mano: el ancho solo se anima durante el cambio (sidebar.ts), no al cargar ni al redimensionar. */
+[data-side-anim] .nav-side {
+  transition: width 0.22s var(--ease-out);
+}
+
+[data-side-anim] .app-main {
+  transition: padding-left 0.22s var(--ease-out);
+}
+
+.nav-side :is(.hg-wordmark, .nav-link__label, .nav-search__label, .nav-search__kbd, .nav-account__text, .nav-group__title, .nav-cta-hint, .nav-cta__label, .nav-side__theme, .nav-link > .nav-ind) {
+  transition: opacity 0.15s var(--ease-out);
+}
+
+[data-side-fade] .nav-side :is(.hg-wordmark, .nav-link__label, .nav-search__label, .nav-search__kbd, .nav-account__text, .nav-group__title, .nav-cta-hint, .nav-cta__label, .nav-side__theme, .nav-link > .nav-ind) {
+  opacity: 0;
 }
 
 .nav-brand {
@@ -34,7 +54,23 @@
 .nav-menu {
   display: flex;
   flex-direction: column;
+  gap: 0.875rem;
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
   gap: 2px;
+}
+
+/* Título de grupo, como en el raíl de la biblioteca */
+.nav-group__title {
+  margin: 0;
+  padding: 0 0.75rem 0.25rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .nav-link {
@@ -43,7 +79,7 @@
   align-items: center;
   gap: 0.75rem;
   height: 40px;
-  padding: 0 0.75rem;
+  padding: 0 0.5rem 0 0.75rem;
   border-radius: var(--radius-sm);
   color: var(--muted);
   white-space: nowrap;
@@ -53,7 +89,8 @@
   transition: color 0.15s, background 0.15s;
 }
 
-.nav-link > *:not(.nav-link__pill) {
+.nav-link > *:not(.nav-link__pill),
+.nav-account > *:not(.nav-link__pill) {
   position: relative;
   z-index: 1;
 }
@@ -61,6 +98,11 @@
 .nav-link:hover {
   color: var(--foreground);
   background: var(--surface-2);
+}
+
+.nav-link:focus-visible,
+.nav-account:focus-visible {
+  outline-offset: -2px;
 }
 
 .nav-link.active {
@@ -72,7 +114,7 @@
   background: transparent;
 }
 
-/* Elemento activo: superficie + barra de acento (el "cursor" de la navegación) */
+/* Elemento activo: superficie + barra de acento (el "cursor" de la navegación). Se desliza entre enlaces (layoutId). */
 .nav-link__pill {
   position: absolute;
   inset: 0;
@@ -82,35 +124,87 @@
   box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm);
 }
 
-.nav-link__icon {
-  flex-shrink: 0;
+.nav-link__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Contador de la bandeja */
-.nav-badge {
-  display: inline-grid;
-  place-items: center;
-  min-width: 20px;
-  height: 20px;
+/* Iconos: suben 2 px al pasar, se encogen al pulsar y rebotan al activarse (el único cobalto de la barra). */
+.nav-link__icon {
+  flex-shrink: 0;
+  transition: transform 0.16s var(--ease-out), color 0.2s var(--ease-out);
+}
+
+.nav-link:hover .nav-link__icon {
+  transform: translateY(-2px);
+}
+
+.nav-link:active .nav-link__icon {
+  transform: scale(0.88);
+  transition-duration: 0.1s;
+}
+
+.nav-link.active .nav-link__icon {
+  color: var(--primary);
+  animation: nav-icon-bounce 0.3s var(--ease-out);
+}
+
+@keyframes nav-icon-bounce {
+  40% { transform: scale(1.18); }
+}
+
+/* ── Indicadores: bandeja (color de su lista), mínimos de la wishlist (amarillo sólido) y JUDI de hoy ──
+   Siempre icono + cifra o palabra; nunca solo color. La cifra salta al cambiar (AnimatedCount). */
+.nav-ind {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
   margin-left: auto;
-  padding: 0 6px;
+  padding: 0 7px 0 6px;
   border-radius: 999px;
-  background: var(--primary);
-  color: var(--primary-foreground);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
   line-height: 1;
 }
 
-.nav-badge--tab {
-  position: absolute;
-  top: -6px;
-  left: calc(50% + 6px);
-  margin: 0;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  font-size: 0.5625rem;
+.nav-ind__icon {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  stroke-width: 2.4;
+}
+
+.nav-ind--tray {
+  outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent);
+  outline-offset: -1px;
+}
+
+.nav-ind--deal {
+  background: var(--deal);
+  color: var(--deal-foreground);
+}
+
+.nav-ind--ok { --c: var(--success); }
+.nav-ind--ko { --c: var(--danger); }
+.nav-ind--warn { --c: var(--warning); }
+
+/* El ámbar de aviso, en claro, se oscurece un poco para llegar a 4,5:1 sobre su tinte. */
+:root:not([data-theme='dark']) .nav-ind--warn {
+  color: color-mix(in srgb, var(--warning) 85%, var(--foreground));
+}
+
+/* Al cambiar el estado de JUDI, la marca, el aspa o el reloj se dibujan. */
+.nav-ind--state .nav-ind__icon :is(path, polyline, circle, line) {
+  stroke-dasharray: 64;
+  animation: nav-ind-draw 0.3s var(--ease-out) backwards;
+}
+
+@keyframes nav-ind-draw {
+  from { stroke-dashoffset: 64; }
 }
 
 /* Buscador de juegos (#20) */
@@ -125,6 +219,7 @@
   background: var(--surface);
   color: var(--muted);
   font-size: 0.875rem;
+  white-space: nowrap;
   transition: color 0.15s, border-color 0.15s;
 }
 
@@ -132,6 +227,10 @@
 .nav-search:focus-visible {
   color: var(--foreground);
   border-color: var(--border-hover);
+}
+
+.nav-search > svg {
+  flex: none;
 }
 
 .nav-search__label {
@@ -155,8 +254,45 @@
   gap: 0.75rem;
 }
 
+.nav-side__tools {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.nav-side__theme {
+  flex: 1;
+}
+
 .nav-side__theme-compact {
   display: none !important;
+}
+
+/* Plegar / desplegar la barra (solo en pantallas anchas) */
+.nav-collapse {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  transition: color 0.15s, background 0.15s;
+}
+
+.nav-collapse:hover {
+  color: var(--foreground);
+  background: var(--surface-2);
+}
+
+.nav-collapse svg {
+  transition: transform 0.16s var(--ease-out);
+}
+
+.nav-collapse:active svg {
+  transform: scale(0.88);
 }
 
 /* Selector de tema */
@@ -209,6 +345,7 @@
 
 /* Cuenta */
 .nav-account {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.625rem;
@@ -226,9 +363,8 @@
   background: var(--surface-2);
 }
 
-.nav-account.active {
-  background: var(--surface);
-  box-shadow: inset 3px 0 0 var(--cursor);
+.nav-account.active:hover {
+  background: transparent;
 }
 
 .nav-account--ghost {
@@ -240,6 +376,7 @@
   50% { opacity: 0.5; }
 }
 
+/* Avatar neutro: el cobalto queda para «estás aquí» (en tu perfil). */
 .nav-account__avatar {
   display: grid;
   place-items: center;
@@ -247,10 +384,22 @@
   height: 30px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: var(--primary);
-  color: var(--primary-foreground);
+  background: var(--surface-3);
+  color: var(--foreground);
   font-weight: 700;
   font-size: 0.8125rem;
+  transition: background 0.2s var(--ease-out), color 0.2s var(--ease-out);
+}
+
+.nav-account.active .nav-account__avatar {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.nav-account__text {
+  display: grid;
+  min-width: 0;
+  line-height: 1.2;
 }
 
 .nav-account__name {
@@ -260,11 +409,26 @@
   white-space: nowrap;
 }
 
+.nav-account__meta {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .nav-account--compact {
   padding: 0;
   width: 38px;
   height: 38px;
   justify-content: center;
+}
+
+.nav-cta-hint {
+  margin: 0;
+  padding: 0 0.25rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.4;
 }
 
 .nav-cta {
@@ -287,19 +451,21 @@
   background: var(--primary-hover);
 }
 
-/* ── Barra lateral plegada: solo iconos ────────────────────────── */
-@media (max-width: 1100px) {
-  .nav-side {
-    align-items: center;
-    padding: 1.25rem 0.75rem 1rem;
+/* ── Barra plegada (72 px): solo iconos ────────────────────────── */
+@container nav-side (max-width: 120px) {
+  .nav-brand {
+    align-self: center;
+    padding: 0.25rem 0;
   }
 
   .nav-brand .hg-wordmark,
   .nav-link__label,
   .nav-search__label,
   .nav-search__kbd,
-  .nav-account__name,
+  .nav-account__text,
   .nav-cta__label,
+  .nav-cta-hint,
+  .nav-group__title,
   .nav-side__theme {
     display: none !important;
   }
@@ -308,18 +474,42 @@
     display: grid !important;
   }
 
+  .nav-menu {
+    gap: 0;
+  }
+
   .nav-menu,
+  .nav-group,
   .nav-side__foot {
     align-items: center;
   }
 
+  /* Sin títulos, los grupos se separan con una línea fina */
+  .nav-group + .nav-group {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    align-self: stretch;
+  }
+
+  .nav-side__tools {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
   .nav-link,
   .nav-search,
-  .nav-cta {
+  .nav-cta,
+  .nav-collapse,
+  .theme-toggle-btn {
     width: 44px;
     height: 44px;
     padding: 0;
     justify-content: center;
+  }
+
+  .nav-search {
+    align-self: center;
   }
 
   .nav-account {
@@ -328,14 +518,45 @@
     justify-content: center;
   }
 
-  .nav-link .nav-badge {
+  /* Indicadores en la esquina del icono: cifra (bandeja, mínimos) o icono (JUDI), con aro del color de fondo */
+  .nav-link > .nav-ind {
     position: absolute;
-    top: 2px;
-    right: 0;
-    min-width: 16px;
-    height: 16px;
+    top: -3px;
+    right: -7px;
+    height: 18px;
+    min-width: 18px;
+    justify-content: center;
     padding: 0 4px;
-    font-size: 0.5625rem;
+    font-size: 0.625rem;
+    box-shadow: 0 0 0 2px var(--background);
+  }
+
+  .nav-link > .nav-ind.hg-tint {
+    background: color-mix(in srgb, var(--c) calc(var(--tint) + 6%), var(--background));
+  }
+
+  .nav-link > .nav-ind--tray .nav-ind__icon,
+  .nav-link > .nav-ind--deal .nav-ind__icon,
+  .nav-link > .nav-ind--state .nav-ind__text {
+    display: none;
+  }
+
+  .nav-link > .nav-ind--state {
+    width: 18px;
+    padding: 0;
+  }
+
+  .nav-link > .nav-ind--state .nav-ind__icon {
+    width: 10px;
+    height: 10px;
+    stroke-width: 3;
+  }
+}
+
+/* Por debajo de 1100 px la barra siempre va plegada: sin botón de plegar. */
+@media (max-width: 1100px) {
+  .nav-collapse {
+    display: none;
   }
 }
 
@@ -380,9 +601,33 @@
 
   /* Objetivos táctiles de 44 px en la barra superior */
   .nav-mobile-top .theme-toggle-btn,
-  .nav-mobile-top .nav-account--compact {
+  .nav-mobile-top .nav-account--compact,
+  .nav-top-icon {
     width: 44px;
     height: 44px;
+  }
+
+  .nav-mobile-top .nav-account__avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .nav-mobile-top .nav-account.active {
+    background: transparent;
+  }
+
+  /* Admin (solo admins) en la barra superior, para no pasar de 6 pestañas */
+  .nav-top-icon {
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-sm);
+    color: var(--muted);
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .nav-top-icon.active {
+    color: var(--primary);
+    background: var(--primary-glow);
   }
 
   .nav-mobile-top .nav-brand {
@@ -408,9 +653,12 @@
   .nav-tab {
     position: relative;
     flex: 1;
+    min-width: 0;
+    min-height: 50px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 2px;
     padding: 6px 4px 4px;
     border-radius: var(--radius-sm);
@@ -418,7 +666,7 @@
     text-decoration: none;
     font-size: 0.6875rem;
     font-weight: 600;
-    transition: color 0.15s;
+    transition: color 0.2s var(--ease-out);
   }
 
   .nav-tab > *:not(.nav-tab__pill) {
@@ -444,8 +692,53 @@
     transition: transform 0.15s var(--ease-out);
   }
 
-  /* Respuesta al toque (antes con framer-motion, que añadía un tab-stop sin nombre a cada icono) */
+  .nav-tab__label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Respuesta al toque y rebote al activarse */
   .nav-tab:active .nav-tab__icon {
     transform: scale(0.85);
+  }
+
+  .nav-tab.active .nav-tab__icon {
+    animation: nav-icon-bounce 0.3s var(--ease-out);
+  }
+
+  /* Indicadores en la esquina del icono de la pestaña */
+  .nav-tab .nav-ind {
+    position: absolute;
+    top: -8px;
+    left: calc(50% + 6px);
+    height: 18px;
+    min-width: 18px;
+    justify-content: center;
+    margin: 0;
+    padding: 0 4px;
+    font-size: 0.625rem;
+    box-shadow: 0 0 0 2px var(--surface);
+  }
+
+  .nav-tab .nav-ind.hg-tint {
+    background: color-mix(in srgb, var(--c) calc(var(--tint) + 6%), var(--surface));
+  }
+
+  .nav-tab .nav-ind--tray .nav-ind__icon,
+  .nav-tab .nav-ind--state .nav-ind__text {
+    display: none;
+  }
+
+  .nav-tab .nav-ind--state {
+    width: 18px;
+    padding: 0;
+  }
+
+  .nav-tab .nav-ind--state .nav-ind__icon {
+    width: 10px;
+    height: 10px;
+    stroke-width: 3;
   }
 }
