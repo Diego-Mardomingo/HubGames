@@ -11,8 +11,11 @@ export const IDLE_WINDOW_MS = 30 * DAY_MS
 
 /** Estados que pasan solos a "Jugando" si hay actividad. */
 const AUTO_PLAYING_FROM: GameStatus[] = ['bandeja', 'pendiente', 'pausado']
-/** Estados cerrados: nunca se tocan ni reciben sugerencias. */
-const CLOSED: GameStatus[] = ['completado', 'abandonado', 'descartado']
+/**
+ * Estados cerrados: nunca se tocan ni reciben sugerencias. "Ya jugado" y "Otros" son decisiones del usuario igual de
+ * firmes: volver a jugar uno no lo devuelve a "Jugando" ni le pregunta si lo has terminado.
+ */
+const CLOSED: GameStatus[] = ['completado', 'abandonado', 'descartado', 'ya_jugado', 'otros']
 
 export interface RuleInput {
     status: GameStatus

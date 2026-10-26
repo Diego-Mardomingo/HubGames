@@ -4,7 +4,7 @@ import { parseLibraryHome, type LibraryHome } from './library'
 import { supabase } from './supabase/client'
 import type { Database, Json } from './supabase/database.types'
 
-export const GAME_STATUSES = ['bandeja', 'pendiente', 'jugando', 'pausado', 'completado', 'abandonado', 'descartado'] as const
+export const GAME_STATUSES = ['bandeja', 'pendiente', 'jugando', 'pausado', 'completado', 'abandonado', 'ya_jugado', 'descartado', 'otros'] as const
 export type GameStatus = (typeof GAME_STATUSES)[number]
 
 export const STATUS_LABELS: Record<GameStatus, string> = {
@@ -14,7 +14,9 @@ export const STATUS_LABELS: Record<GameStatus, string> = {
     pausado: 'Pausado',
     completado: 'Completado',
     abandonado: 'Abandonado',
+    ya_jugado: 'Ya jugado',
     descartado: 'Descartado',
+    otros: 'Otros',
 }
 
 type LibraryRow = Database['public']['Tables']['hubgames_library']['Row']

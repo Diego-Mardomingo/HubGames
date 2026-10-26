@@ -12,7 +12,9 @@ export const LIBRARY_TABS: LibraryTab[] = [
     'pausado',
     'completado',
     'abandonado',
+    'ya_jugado',
     'descartado',
+    'otros',
     'favorito',
     'sin_final',
     'bandeja',
@@ -170,9 +172,12 @@ export function completedYear(game: Pick<LibraryGame, 'completed_at'>): number |
     return game.completed_at ? new Date(game.completed_at).getFullYear() : null
 }
 
+/** Estados que no salen en "Todos" (además de la bandeja). */
+const OUT_OF_ALL: GameStatus[] = ['descartado', 'otros']
+
 export function inTab(game: Pick<LibraryGame, 'status' | 'favorite' | 'endless'>, tab: LibraryTab): boolean {
-    // Los descartados tienen su propia lista: en "Todos" solo estorban.
-    if (tab === 'todos') return game.status !== 'bandeja' && game.status !== 'descartado'
+    // Los descartados y "Otros" (software, demos, bandas sonoras...) tienen su propia lista: en "Todos" solo estorban.
+    if (tab === 'todos') return game.status !== 'bandeja' && !OUT_OF_ALL.includes(game.status)
     if (tab === 'favorito') return game.favorite
     if (tab === 'sin_final') return game.endless
     return game.status === tab

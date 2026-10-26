@@ -104,20 +104,24 @@ const TAB_LABELS: Record<LibraryTab, string> = {
     pausado: 'Pausados',
     completado: 'Completados',
     abandonado: 'Abandonados',
+    ya_jugado: 'Ya jugados',
     descartado: 'Descartados',
+    otros: 'Otros',
     favorito: 'Favoritos',
     sin_final: 'Sin final',
     bandeja: 'Bandeja',
 }
 
 const TAB_HINTS: Record<LibraryTab, string> = {
-    todos: 'Todos tus juegos clasificados, menos los descartados',
+    todos: 'Todos tus juegos clasificados, menos los descartados y los de «Otros»',
     jugando: 'Lo que juegas ahora',
     pendiente: 'Para jugar más adelante, comprados o no',
     pausado: 'En pausa por un tiempo',
     completado: 'Terminados',
     abandonado: 'Empezados y dejados',
+    ya_jugado: 'Jugados antes o sin seguimiento: ni completados ni abandonados',
     descartado: 'Los tienes, pero no te interesan',
+    otros: 'Lo que no encaja en ninguna lista: software, demos, betas, bandas sonoras...',
     favorito: 'Tus favoritos, estén en la lista que estén',
     sin_final: 'Juegos que no se terminan: se juegan. Estén en la lista que estén',
     bandeja: 'Sin clasificar: decide a qué lista va cada uno',
@@ -126,7 +130,7 @@ const TAB_HINTS: Record<LibraryTab, string> = {
 /** Grupos del raíl de listas. La bandeja va aparte, al final. */
 const RAIL: { title: string | null; tabs: LibraryTab[] }[] = [
     { title: null, tabs: ['todos'] },
-    { title: 'Estados', tabs: ['jugando', 'pendiente', 'pausado', 'completado', 'abandonado', 'descartado'] },
+    { title: 'Estados', tabs: ['jugando', 'pendiente', 'pausado', 'completado', 'abandonado', 'ya_jugado', 'descartado', 'otros'] },
     { title: 'Marcas', tabs: ['favorito', 'sin_final'] },
 ]
 
@@ -217,8 +221,8 @@ function Biblioteca() {
             for (const t of LIBRARY_TABS) if (inTab(g, t)) out[t]++
             if (!g.owned) unowned++
         }
-        // "Todos" no enseña los descartados, pero también están clasificados.
-        return { ...out, unowned, classified: out.todos + out.descartado }
+        // "Todos" no enseña los descartados ni "Otros", pero también están clasificados.
+        return { ...out, unowned, classified: out.todos + out.descartado + out.otros }
     }, [games])
 
     const inList = useMemo(() => (games ?? []).filter((g) => inTab(g, tab)), [games, tab])
@@ -480,7 +484,7 @@ function Biblioteca() {
                                 </SelectContent>
                             </Select>
                         )}
-                        {(tab === 'completado' || tab === 'todos' || tab === 'abandonado' || tab === 'favorito' || tab === 'sin_final') && (
+                        {(tab === 'completado' || tab === 'todos' || tab === 'abandonado' || tab === 'ya_jugado' || tab === 'favorito' || tab === 'sin_final') && (
                             <Select
                                 value={filters.minRating === null ? ALL : String(filters.minRating)}
                                 onValueChange={(v) => setFilters((f) => ({ ...f, minRating: v === ALL ? null : Number(v) }))}
@@ -669,8 +673,6 @@ function RailItem({
     )
 }
 
-type CSSVars = CSSProperties & Record<`--${string}`, string>
-
 function LibraryItem({
     game,
     view,
@@ -698,7 +700,8 @@ function LibraryItem({
     })
     const pct = achievementPercent(game)
     const name = game.name ?? `App ${game.appid}`
-    const style: CSSVars = { transform: CSS.Translate.toString(transform) ?? '', transition: transition ?? '', '--c': `var(--st-${game.status})` }
+    // El color de la franja sale de la clase st-<estado> (lists.css), como en el resto de listas.
+    const style: CSSProperties = { transform: CSS.Translate.toString(transform) ?? '', transition: transition ?? '' }
     const perfect = isPerfect(game)
     const minutes = estimatedMinutes(game)
 
@@ -785,7 +788,7 @@ function LibraryItem({
             <li
                 ref={setNodeRef}
                 style={style}
-                className={`hg-row lib-row${drag ? ' has-drag' : ''}${isDragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}`}
+                className={`hg-row lib-row st-${game.status}${drag ? ' has-drag' : ''}${isDragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}`}
             >
                 {drag}
                 <span className="hg-row__cover lib-cover">{cover}</span>
@@ -808,7 +811,7 @@ function LibraryItem({
     }
 
     return (
-        <li ref={setNodeRef} style={style} className={`hg-card lib-card${isDragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}`}>
+        <li ref={setNodeRef} style={style} className={`hg-card lib-card st-${game.status}${isDragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}`}>
             <span className="hg-card__cover lib-cover">{cover}</span>
             <span className="hg-card__body">
                 <span className="lib-row__name">
