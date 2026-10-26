@@ -171,7 +171,8 @@ export function completedYear(game: Pick<LibraryGame, 'completed_at'>): number |
 }
 
 export function inTab(game: Pick<LibraryGame, 'status' | 'favorite' | 'endless'>, tab: LibraryTab): boolean {
-    if (tab === 'todos') return game.status !== 'bandeja'
+    // Los descartados tienen su propia lista: en "Todos" solo estorban.
+    if (tab === 'todos') return game.status !== 'bandeja' && game.status !== 'descartado'
     if (tab === 'favorito') return game.favorite
     if (tab === 'sin_final') return game.endless
     return game.status === tab
