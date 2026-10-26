@@ -1,7 +1,8 @@
 // Tracker (#17): tipos de la vista hubgames_library y cambios de estado desde el navegador (RLS: cada usuario los suyos).
 import type { GameGoal } from './game-goal'
+import { parseLibraryHome, type LibraryHome } from './library'
 import { supabase } from './supabase/client'
-import type { Database } from './supabase/database.types'
+import type { Database, Json } from './supabase/database.types'
 
 export const GAME_STATUSES = ['bandeja', 'pendiente', 'jugando', 'pausado', 'completado', 'abandonado', 'descartado'] as const
 export type GameStatus = (typeof GAME_STATUSES)[number]
@@ -13,19 +14,30 @@ export const STATUS_LABELS: Record<GameStatus, string> = {
     pausado: 'Pausado',
     completado: 'Completado',
     abandonado: 'Abandonado',
-    descartado: 'No me interesa',
+    descartado: 'Descartado',
 }
 
 type LibraryRow = Database['public']['Tables']['hubgames_library']['Row']
 
 /** Fila de hubgames_library. La vista marca todo como nullable; estas columnas nunca lo son. */
-export type LibraryGame = Omit<LibraryRow, 'user_id' | 'appid' | 'status' | 'playtime_forever' | 'playtime_2weeks'> & {
+export type LibraryGame = Omit<
+    LibraryRow,
+    'user_id' | 'appid' | 'status' | 'playtime_forever' | 'playtime_2weeks' | 'favorite' | 'endless' | 'owned'
+> & {
     user_id: string
     appid: number
     status: GameStatus
     playtime_forever: number
     playtime_2weeks: number
+    /** Marcas que se suman al estado. */
+    favorite: boolean
+    /** Sin final: se juega por jugar (multijugador, sandbox, roguelike...). */
+    endless: boolean
+    /** false = pendiente sin comprar (no está en tu biblioteca de Steam). */
+    owned: boolean
 }
+
+export type GameMark = 'favorite' | 'endless'
 
 /** Lo emite cualquier cambio de estado; la nav lo escucha para refrescar el contador de la bandeja. */
 export const TRACKER_CHANGED_EVENT = 'hubgames:tracker-changed'
@@ -120,6 +132,34 @@ export async function setGameGoal(appid: number, goal: GameGoal): Promise<void> 
     notifyChanged()
 }
 
+/** Marca o desmarca un juego como favorito o sin final. Son independientes del estado. */
+export async function setGameMark(appid: number, mark: GameMark, value: boolean): Promise<void> {
+    const { error } = await supabase
+        .from('hubgames_user_games')
+        .update(mark === 'favorite' ? { favorite: value } : { endless: value })
+        .eq('appid', appid)
+    if (error) throw new Error(error.message)
+    notifyChanged()
+}
+
+/** Añade a Pendientes un juego que no tienes (trae su ficha, su precio y su mínimo). */
+export async function addToPending(appid: number): Promise<void> {
+    const res = await fetch('/api/pendientes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appid }),
+    })
+    if (!res.ok) throw new Error((await res.json().catch(() => null))?.error ?? 'No se pudo añadir a Pendientes')
+    notifyChanged()
+}
+
+/** Quita de Pendientes un juego que no tienes. Los que tienes en Steam cambian de estado, no se quitan. */
+export async function removeFromPending(appid: number): Promise<void> {
+    const res = await fetch(`/api/pendientes?appid=${appid}`, { method: 'DELETE' })
+    if (!res.ok) throw new Error((await res.json().catch(() => null))?.error ?? 'No se pudo quitar de Pendientes')
+    notifyChanged()
+}
+
 /** "Todavía no" a una sugerencia (#18): no se repite por el mismo motivo (ver tracker-rules.ts). */
 export async function dismissSuggestion(appid: number): Promise<void> {
     const { error } = await supabase
@@ -155,6 +195,20 @@ export async function getPlayingLimit(userId: string): Promise<number> {
 
 export async function setPlayingLimit(userId: string, limit: number): Promise<void> {
     const { error } = await supabase.from('hubgames_usuarios').update({ playing_limit: limit }).eq('id', userId)
+    if (error) throw new Error(error.message)
+}
+
+/** Lista de inicio de /biblioteca (📌), o null si no ha fijado ninguna. */
+export async function getLibraryHome(userId: string): Promise<LibraryHome | null> {
+    const { data } = await supabase.from('hubgames_usuarios').select('library_home').eq('id', userId).maybeSingle()
+    return parseLibraryHome(data?.library_home)
+}
+
+export async function setLibraryHome(userId: string, home: LibraryHome): Promise<void> {
+    const { error } = await supabase
+        .from('hubgames_usuarios')
+        .update({ library_home: home as unknown as Json })
+        .eq('id', userId)
     if (error) throw new Error(error.message)
 }
 

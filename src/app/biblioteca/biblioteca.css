@@ -46,8 +46,181 @@
   text-align: center;
 }
 
-.lib-tabs {
-  justify-self: start;
+/* ── Raíl de listas + lista activa ── */
+.lib-layout {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  align-items: start;
+  gap: 1.5rem;
+}
+
+.lib-rail {
+  position: sticky;
+  top: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.lib-rail__group {
+  display: grid;
+  gap: 2px;
+}
+
+.lib-rail__title {
+  margin: 0;
+  padding: 0 0.6rem 0.25rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.lib-rail__item {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 40px;
+  padding: 0 0.6rem 0 0.4rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+}
+
+.lib-rail__item:hover {
+  background: var(--surface-2);
+}
+
+.lib-rail__item:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+.lib-rail__item[aria-current='page'] {
+  border-color: var(--border);
+  background: var(--surface);
+  font-weight: 600;
+}
+
+.lib-rail__item--tray {
+  border: 1px dashed var(--border-hover);
+}
+
+.lib-rail__icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+}
+
+.lib-rail__icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.lib-rail__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.lib-rail__pin {
+  width: 12px;
+  height: 12px;
+  color: var(--primary);
+}
+
+.lib-rail__count {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.lib-rail__item[aria-current='page'] .lib-rail__count {
+  color: var(--c);
+  font-weight: 700;
+}
+
+.lib-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+.lib-listhead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lib-listhead__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.lib-listhead__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.lib-listhead__text {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.lib-listhead__text h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.lib-listhead__text p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.lib-listhead__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lib-pin.is-pinned {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  background: var(--primary-glow);
+  color: var(--primary);
+}
+
+.lib-pin.is-pinned:disabled {
+  opacity: 1;
+}
+
+.lib-home-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: -0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.lib-home-note svg {
+  flex: none;
+  color: var(--primary);
 }
 
 /* Límite de juegos a la vez en "Jugando" */
@@ -89,14 +262,7 @@
   font-weight: 600;
 }
 
-/* Filtros + selector de vista */
-.lib-toolbar {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
+/* Filtros */
 .lib-filters {
   display: flex;
   flex-wrap: wrap;
@@ -110,6 +276,11 @@
   height: 36px;
   gap: 0.5rem;
   font-size: 0.8125rem;
+}
+
+.lib-select.is-set {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  color: var(--primary);
 }
 
 .lib-note {
@@ -135,23 +306,128 @@
   justify-content: center;
 }
 
-/* ── Lista: fila con cápsula, datos, progreso de logros y estado ── */
+/* ── Lista: franja con el color del estado, cápsula, datos, logros o precio, estado y menú ── */
 .hg-row.lib-row {
-  grid-template-columns: 112px minmax(0, 1fr) minmax(130px, 180px) 96px;
+  grid-template-columns: 112px minmax(0, 1fr) minmax(150px, 200px) auto;
+  padding-left: 14px;
 }
 
 .hg-row.lib-row.has-drag {
-  grid-template-columns: auto 112px minmax(0, 1fr) minmax(130px, 180px) 96px;
+  grid-template-columns: auto 112px minmax(0, 1fr) minmax(150px, 200px) auto;
 }
 
-.lib-row__chip {
+/* Con chip de estado, la última columna es fija para que las barras de logros queden alineadas */
+.lib-list.has-status .hg-row.lib-row {
+  grid-template-columns: 112px minmax(0, 1fr) minmax(150px, 200px) 168px;
+}
+
+.lib-row::before,
+.lib-card::before {
+  content: '';
+  position: absolute;
+  background: var(--c);
+}
+
+.lib-row::before {
+  inset: -1px auto -1px -1px;
+  width: 4px;
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+
+.lib-card::before {
+  inset: -1px -1px auto;
+  height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.lib-row__name {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
-.lib-rating svg {
-  display: inline;
-  vertical-align: -1px;
+.lib-row__name .hg-row__link,
+.lib-row__name .hg-card__link {
+  min-width: 0;
+}
+
+.hg-row__meta.lib-row__meta,
+.hg-card__meta.lib-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  white-space: normal;
+}
+
+.lib-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lib-meta svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Los que no tienes: portada apagada con borde discontinuo y etiqueta */
+.lib-cover-tag {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(10, 12, 16, 0.82);
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 700;
+}
+
+.lib-cover-tag svg {
+  width: 10px;
+  height: 10px;
+}
+
+.is-unowned .lib-cover img {
+  filter: saturate(0.35) brightness(0.85);
+}
+
+.is-unowned .lib-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1.5px dashed var(--st-pendiente);
+  border-radius: inherit;
+}
+
+.lib-perfect {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.lib-row__end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.lib-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.lib-card__foot .hg-icon-btn {
+  margin: -4px -4px -4px 0;
 }
 
 .hg-row.lib-row.is-dragging,
@@ -208,11 +484,6 @@
 /* ── Rejilla: tarjetas pequeñas ── */
 .lib-card__bar {
   height: 4px;
-  margin-top: 2px;
-}
-
-.lib-card__chip {
-  display: flex;
   margin-top: 2px;
 }
 
@@ -289,6 +560,10 @@
   gap: 4px;
 }
 
+.tray-action svg {
+  color: var(--c);
+}
+
 .tray-batch {
   position: fixed;
   left: var(--side-w);
@@ -325,14 +600,55 @@
   }
 }
 
-@media (max-width: 900px) {
-  .lib-toolbar {
-    flex-direction: column-reverse;
-    align-items: stretch;
+@media (max-width: 1100px) {
+  .lib-row__end .hg-chip {
+    display: none;
   }
 
-  .lib-toolbar > .hg-seg {
-    align-self: flex-end;
+  .lib-list.has-status .hg-row.lib-row {
+    grid-template-columns: 112px minmax(0, 1fr) minmax(150px, 200px) auto;
+  }
+}
+
+@media (max-width: 900px) {
+  /* El raíl pasa a ser una tira horizontal desplazable */
+  .lib-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .lib-rail {
+    position: static;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .lib-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .lib-rail__group {
+    display: contents;
+  }
+
+  .lib-rail__title {
+    display: none;
+  }
+
+  .lib-rail__item {
+    flex: none;
+    grid-template-columns: auto auto auto;
+    gap: 0.4rem;
+    border-color: var(--border);
+    background: var(--surface);
+  }
+
+  .lib-rail__icon {
+    width: 24px;
+    height: 24px;
   }
 
   .lib-select {
@@ -340,16 +656,13 @@
     flex: 1 1 140px;
   }
 
-  .hg-row.lib-row {
-    grid-template-columns: 112px minmax(0, 1fr) minmax(120px, 150px);
+  .hg-row.lib-row,
+  .lib-list.has-status .hg-row.lib-row {
+    grid-template-columns: 112px minmax(0, 1fr) minmax(120px, 160px) auto;
   }
 
   .hg-row.lib-row.has-drag {
-    grid-template-columns: auto 112px minmax(0, 1fr) minmax(120px, 150px);
-  }
-
-  .lib-row__chip {
-    display: none;
+    grid-template-columns: auto 112px minmax(0, 1fr) minmax(120px, 160px) auto;
   }
 }
 
@@ -358,16 +671,23 @@
     min-height: 44px;
   }
 
-  .hg-row.lib-row {
-    grid-template-columns: 96px minmax(0, 1fr);
+  .hg-row.lib-row,
+  .lib-list.has-status .hg-row.lib-row {
+    grid-template-columns: 96px minmax(0, 1fr) auto;
   }
 
   .hg-row.lib-row.has-drag {
-    grid-template-columns: auto 96px minmax(0, 1fr);
+    grid-template-columns: auto 96px minmax(0, 1fr) auto;
   }
 
-  .hg-row.lib-row .hg-row__prog {
-    grid-column: -2 / -1;
+  .hg-row.lib-row > .hg-row__prog,
+  .hg-row.lib-row > .price-tag {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .lib-rail__item {
+    min-height: 44px;
   }
 
   .lib-handle {

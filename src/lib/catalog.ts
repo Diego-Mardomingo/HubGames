@@ -9,7 +9,7 @@ import type { Json } from './supabase/database.types'
 const COLUMNS =
     'steam_appid, name, type, short_description, about_the_game, developers, publishers, website, header_image, ' +
     'background_raw, release_date, release_date_text, coming_soon, metacritic_score, metacritic_url, genres, ' +
-    'screenshots, movies, is_free, steamspy_userscore, steamspy_median_forever, achievements_total'
+    'screenshots, movies, is_free, steamspy_userscore, steamspy_median_forever, achievements_total, price_overview'
 
 export interface CatalogGame {
     steam_appid: number
@@ -34,6 +34,8 @@ export interface CatalogGame {
     steamspy_userscore: number | null
     steamspy_median_forever: number | null
     achievements_total: number | null
+    /** Precio de la tienda cuando se guardó la ficha (céntimos). Respaldo si no hay precio sincronizado. */
+    price_overview: Json | null
 }
 
 /** appid válido de Steam (entero positivo de 32 bits), o null. */

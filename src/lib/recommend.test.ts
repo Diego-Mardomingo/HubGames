@@ -29,11 +29,11 @@ describe('¿Qué juego hoy?', () => {
         assert.ok(out[0].reasons.includes('Te da tiempo a acabarlo hoy'))
     })
 
-    it('rejugable: no sale en terminar ni cuenta su duración', () => {
-        const cs = game({ name: 'CS', status: 'jugando', goal: 'rejugable', playtime_forever: 5000, hltb_main: 120 })
+    it('sin final: no sale en terminar ni cuenta su duración', () => {
+        const cs = game({ name: 'CS', status: 'jugando', endless: true, playtime_forever: 5000, hltb_main: 120 })
         const casi = game({ name: 'Casi', status: 'jugando', playtime_forever: 500, hltb_main: 600 })
         assert.deepEqual(names(recommend([cs, casi], 'media', 'terminar', NOW)), ['Casi'])
-        const corto = recommend([game({ name: 'Roguelike', goal: 'rejugable', hltb_main: 120 })], 'corta', 'sorpresa', NOW)
+        const corto = recommend([game({ name: 'Roguelike', endless: true, hltb_main: 120 })], 'corta', 'sorpresa', NOW)
         assert.ok(!corto[0].reasons.some((r) => r.startsWith('Es corto')))
     })
 

@@ -63,7 +63,7 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
     const [profile, steam, games, recent, yearUnlocks, playtime, judiDays, goals, unlockTimes] = await Promise.all([
         supabase.from('hubgames_usuarios').select('username').eq('id', userId).maybeSingle(),
         supabase.from('hubgames_user_steam').select('last_sync_at, visibility').eq('user_id', userId).maybeSingle(),
-        all((from, to) => supabase.from('hubgames_library').select('*').eq('user_id', userId).order('appid').range(from, to)),
+        all((from, to) => supabase.from('hubgames_library').select('*').eq('user_id', userId).eq('owned', true).order('appid').range(from, to)),
         supabase
             .from('hubgames_achievements')
             .select('appid, display_name, icon, global_percent, unlocktime')

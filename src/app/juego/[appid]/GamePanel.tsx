@@ -1,114 +1,87 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, Flag, Heart, HeartOff, LogIn, Play, Trophy } from 'lucide-react'
-import { supabase, safeGetSession } from '@/lib/supabase/client'
+import {
+    AlertTriangle,
+    BookmarkPlus,
+    BookmarkX,
+    CalendarClock,
+    Clock,
+    Flag,
+    Heart,
+    HeartOff,
+    Hourglass,
+    Infinity as InfinityIcon,
+    LineChart,
+    LogIn,
+    ShoppingCart,
+    Star,
+    Target,
+    TrendingDown,
+    Trophy,
+} from 'lucide-react'
 import {
     GAME_STATUSES,
     STATUS_LABELS,
+    addToPending,
     formatHours,
     playingLoad,
+    removeFromPending,
     setGameGoal,
+    setGameMark,
     setGamesStatus,
+    type GameMark,
     type GameStatus,
     type LibraryGame,
 } from '@/lib/tracker'
 import { DURATION_SOURCE_LABEL, achievementPercent, type GameDuration } from '@/lib/library'
 import { isPerfect } from '@/lib/tracker-rules'
 import { GAME_GOALS, GOAL_LABELS, goalProgress, parseGoal, type GameGoal } from '@/lib/game-goal'
-import { addToWishlist, removeFromWishlist, type WishlistGame } from '@/lib/wishlist'
+import { addToWishlist, formatPrice, itadUrl, removeFromWishlist } from '@/lib/wishlist'
+import { pricePosition, priceVerdict, ratingTier, type ScoreTier } from '@/lib/scores'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { LIST_ICONS, StatusChip } from '@/components/tracker/status'
+import type { PriceData } from '@/components/wishlist/PriceInfo'
+import { useGame } from './GameContext'
 import '@/styles/lists.css'
-import CompleteDialog from '@/components/tracker/CompleteDialog'
-import { PriceLows, PriceNow } from '@/components/wishlist/PriceInfo'
 
 interface Props {
-    appid: number
-    name: string
     /** Duraciones de HowLongToBeat o, si no hay, la mediana de SteamSpy (#23). */
     duration: GameDuration
+    /** Logros del juego según la tienda, para los que no tienes. */
+    achievementsTotal: number | null
+    storeUrl: string
 }
 
-type State =
-    | { kind: 'cargando' }
-    | { kind: 'sin_sesion' }
-    | { kind: 'no_lo_tienes'; wish: WishlistGame | null }
-    | { kind: 'ok'; userId: string; game: LibraryGame }
-
 /** "Te faltan unas 11 h para terminar la historia" según el objetivo (#24). */
-// Rejugable no tiene meta en horas: sus textos no llegan a mostrarse.
 const GOAL_TARGET_TEXT: Record<GameGoal, string> = {
     historia: 'para terminar la historia',
     extras: 'para la historia y los extras',
     completo: 'para el 100 %',
-    rejugable: '',
 }
 
 const GOAL_DURATION_TEXT: Record<GameGoal, string> = {
     historia: 'de la historia',
     extras: 'de la historia y los extras',
     completo: 'del 100 %',
-    rejugable: '',
 }
 
 const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+/** Fecha corta para las cifras grandes ("23 oct 2026"). */
+const SHORT_DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
 
 function formatDate(iso: string | null): string | null {
     return iso ? DATE.format(new Date(iso)) : null
 }
 
-/** Fecha corta para las cifras grandes ("23 oct 2026"). */
-const SHORT_DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
-
-/** Fila de la wishlist con precio y mínimos (#35, #36), o null si no está en ella. */
-async function loadWish(appid: number): Promise<WishlistGame | null> {
-    const { data } = await supabase.from('hubgames_wishlist').select('*').eq('appid', appid).maybeSingle()
-    return (data as WishlistGame | null) ?? null
-}
-
-/** "Historia 12 h · Historia + extras 20 h · 100% 45 h (HowLongToBeat)". */
-function DurationNote({ duration }: { duration: GameDuration }) {
-    if (!duration.source) return null
-    const parts = [
-        duration.main !== null && `Historia ${formatHours(duration.main)}`,
-        duration.mainExtra !== null && `Historia + extras ${formatHours(duration.mainExtra)}`,
-        duration.completionist !== null && `100% ${formatHours(duration.completionist)}`,
-    ].filter(Boolean)
-    return (
-        <p className="juego-panel__note">
-            Duración: {parts.join(' · ')} <span className="juego-panel__source">({DURATION_SOURCE_LABEL[duration.source]})</span>
-        </p>
-    )
-}
+type CSSVars = CSSProperties & Record<`--${string}`, string>
 
 /** Tus datos del juego y las acciones (#22). Se cargan en el cliente: la ficha de Steam ya viene del servidor. */
-export default function GamePanel({ appid, name, duration }: Props) {
-    const [state, setState] = useState<State>({ kind: 'cargando' })
-    const [completing, setCompleting] = useState(false)
-    const [busy, setBusy] = useState(false)
-    const [error, setError] = useState('')
-    const [warning, setWarning] = useState('')
-
-    useEffect(() => {
-        let cancelled = false
-        safeGetSession().then(async ({ data: { session } }) => {
-            if (!session) {
-                if (!cancelled) setState({ kind: 'sin_sesion' })
-                return
-            }
-            const { data, error: loadError } = await supabase.from('hubgames_library').select('*').eq('appid', appid).maybeSingle()
-            const wish = data ? null : await loadWish(appid)
-            if (cancelled) return
-            if (loadError) setError(loadError.message)
-            setState(data ? { kind: 'ok', userId: session.user.id, game: data as LibraryGame } : { kind: 'no_lo_tienes', wish })
-        })
-        return () => {
-            cancelled = true
-        }
-    }, [appid])
+export default function GamePanel(props: Props) {
+    const { state } = useGame()
 
     if (state.kind === 'cargando') {
         return (
@@ -132,150 +105,97 @@ export default function GamePanel({ appid, name, duration }: Props) {
         )
     }
 
-    if (state.kind === 'no_lo_tienes') {
-        const { wish } = state
-        const toggleWish = async () => {
-            setBusy(true)
-            setError('')
-            try {
-                if (wish) await removeFromWishlist(appid)
-                else await addToWishlist(appid)
-                setState({ kind: 'no_lo_tienes', wish: wish ? null : await loadWish(appid) })
-            } catch (e) {
-                setError(e instanceof Error ? e.message : 'No se pudo guardar')
-            } finally {
-                setBusy(false)
-            }
-        }
-        return (
-            <section className="juego-panel glass juego-panel--empty">
-                <p>{wish ? 'Está en tu wishlist.' : 'No está en tu biblioteca de Steam.'}</p>
-                {wish && (
-                    <div className="juego-price">
-                        <PriceNow game={wish} />
-                        <PriceLows game={wish} />
-                    </div>
-                )}
-                {error && (
-                    <p className="alert alert--error" role="alert">
-                        {error}
-                    </p>
-                )}
-                <div className="juego-panel__actions">
-                    {wish?.source === 'steam' ? (
-                        <Button variant="secondary" asChild>
-                            <Link href="/wishlist">
-                                <Heart aria-hidden /> Ver la wishlist
-                            </Link>
-                        </Button>
-                    ) : (
-                        <Button variant="secondary" onClick={toggleWish} disabled={busy}>
-                            {wish ? <HeartOff aria-hidden /> : <Heart aria-hidden />} {wish ? 'Quitar de la wishlist' : 'Añadir a la wishlist'}
-                        </Button>
-                    )}
-                </div>
-                <DurationNote duration={duration} />
-            </section>
-        )
-    }
+    if (state.kind === 'no_lo_tienes') return <BuyPanel {...props} />
+    return <OwnedPanel game={state.game} userId={state.userId} duration={props.duration} />
+}
 
-    const { game, userId } = state
+// ─── Lo tienes ───────────────────────────────────────────────────────────────
+
+const MARKS: { mark: GameMark; list: 'favorito' | 'sin_final'; label: string }[] = [
+    { mark: 'favorite', list: 'favorito', label: 'Favorito' },
+    { mark: 'endless', list: 'sin_final', label: 'Sin final' },
+]
+
+function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: string; duration: GameDuration }) {
+    const { appid, update, openComplete } = useGame()
+    const [busy, setBusy] = useState(false)
+    const [error, setError] = useState('')
+    const [warning, setWarning] = useState('')
     const pct = achievementPercent(game)
 
-    function update(patch: Partial<LibraryGame>) {
-        setState((s) => (s.kind === 'ok' ? { ...s, game: { ...s.game, ...patch } } : s))
-    }
-
-    async function changeGoal(goal: GameGoal) {
-        if (goal === parseGoal(game.goal)) return
+    async function save(action: () => Promise<void>, patch: Partial<LibraryGame>) {
         setBusy(true)
         setError('')
         try {
-            await setGameGoal(appid, goal)
-            update({ goal })
+            await action()
+            update(patch)
         } catch (e) {
             setError(e instanceof Error ? e.message : 'No se pudo guardar')
         } finally {
             setBusy(false)
+        }
+    }
+
+    async function changeStatus(status: GameStatus) {
+        if (status === game.status) return
+        if (status === 'completado') {
+            openComplete()
+            return
+        }
+        setWarning('')
+        await save(() => setGamesStatus([appid], status), {
+            status,
+            status_source: 'manual',
+            suggestion: null,
+            ...(status === 'jugando' && !game.started_at && { started_at: new Date().toISOString() }),
+        })
+        if (status === 'jugando') {
+            const { count, limit } = await playingLoad(userId)
+            if (count > limit) setWarning(`Ahora tienes ${count} juegos en Jugando y tu límite es ${limit}.`)
         }
     }
 
     const progress = goalProgress(game)
     // Con objetivo 100 %, al llegar al 100 % de logros se propone marcarlo como completado.
-    const suggestComplete = progress.goal === 'completo' && progress.done && game.status !== 'completado'
-
-    async function changeStatus(status: GameStatus) {
-        if (status === game.status) return
-        if (status === 'completado') {
-            setCompleting(true)
-            return
-        }
-        setBusy(true)
-        setError('')
-        setWarning('')
-        try {
-            await setGamesStatus([appid], status)
-            update({
-                status,
-                status_source: 'manual',
-                suggestion: null,
-                ...(status === 'jugando' && !game.started_at && { started_at: new Date().toISOString() }),
-            })
-            if (status === 'jugando') {
-                const { count, limit } = await playingLoad(userId)
-                if (count > limit) setWarning(`Ahora tienes ${count} juegos en Jugando y tu límite es ${limit}.`)
-            }
-        } catch (e) {
-            setError(e instanceof Error ? e.message : 'No se pudo guardar')
-        } finally {
-            setBusy(false)
-        }
-    }
+    const suggestComplete = !game.endless && progress.goal === 'completo' && progress.done && game.status !== 'completado'
 
     return (
         <section className="juego-panel glass" aria-label="Tus datos">
             <div className="juego-panel__top">
-                <div className="juego-panel__selects">
-                    <label className="juego-panel__field">
-                        <span>Estado</span>
-                        <Select value={game.status} onValueChange={(v) => changeStatus(v as GameStatus)} disabled={busy}>
-                            <SelectTrigger className={`juego-panel__select lib-status--${game.status}`} aria-label="Estado">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {GAME_STATUSES.map((s) => (
-                                    <SelectItem key={s} value={s}>
-                                        {STATUS_LABELS[s]}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </label>
-                    <label className="juego-panel__field">
-                        <span>Objetivo</span>
-                        <Select value={parseGoal(game.goal)} onValueChange={(v) => changeGoal(v as GameGoal)} disabled={busy}>
-                            <SelectTrigger className="juego-panel__select juego-panel__select--goal" aria-label="Objetivo">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {GAME_GOALS.map((g) => (
-                                    <SelectItem key={g} value={g}>
-                                        {GOAL_LABELS[g]}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </label>
+                <div className="juego-status" role="group" aria-label="Estado">
+                    {GAME_STATUSES.map((s) => {
+                        const Icon = LIST_ICONS[s]
+                        return (
+                            <button
+                                key={s}
+                                type="button"
+                                className={`juego-status__opt st-${s}`}
+                                aria-pressed={game.status === s}
+                                disabled={busy}
+                                onClick={() => changeStatus(s)}
+                            >
+                                <Icon aria-hidden /> {STATUS_LABELS[s]}
+                            </button>
+                        )
+                    })}
                 </div>
-                <div className="juego-panel__actions">
-                    <Button asChild>
-                        <a href={`steam://run/${appid}`}>
-                            <Play aria-hidden /> Jugar
-                        </a>
-                    </Button>
-                    <Button variant="secondary" onClick={() => setCompleting(true)}>
-                        <Flag aria-hidden /> {game.status === 'completado' ? 'Editar nota' : 'Completar'}
-                    </Button>
+                <div className="juego-marks" role="group" aria-label="Marcas">
+                    {MARKS.map(({ mark, list, label }) => {
+                        const Icon = LIST_ICONS[list]
+                        const on = game[mark]
+                        return (
+                            <button
+                                key={mark}
+                                type="button"
+                                className={`juego-mark st-${list}`}
+                                aria-pressed={on}
+                                disabled={busy}
+                                onClick={() => save(() => setGameMark(appid, mark, !on), { [mark]: !on })}
+                            >
+                                <Icon aria-hidden /> {label}
+                            </button>
+                        )
+                    })}
                 </div>
             </div>
 
@@ -291,107 +211,392 @@ export default function GamePanel({ appid, name, duration }: Props) {
                 </p>
             )}
 
-            <dl className="juego-stats">
-                <div>
-                    <dt>Horas</dt>
-                    <dd>{formatHours(game.playtime_forever)}</dd>
-                    {game.playtime_2weeks > 0 && <dd className="juego-stats__note">{formatHours(game.playtime_2weeks)} en 2 semanas</dd>}
-                </div>
-                <div>
-                    <dt>Última partida</dt>
-                    <dd>{game.rtime_last_played ? SHORT_DATE.format(new Date(game.rtime_last_played)) : 'Nunca'}</dd>
-                    {game.started_at && game.status === 'jugando' && <dd className="juego-stats__note">Jugando desde el {formatDate(game.started_at)}</dd>}
-                </div>
-                <div>
-                    <dt>Tu nota</dt>
-                    <dd>{game.rating !== null ? String(game.rating).replace('.', ',') : '—'}</dd>
-                    {game.completed_at && <dd className="juego-stats__note">Completado el {formatDate(game.completed_at)}</dd>}
-                </div>
-                <div>
-                    <dt>Logros</dt>
+            <dl className="juego-tiles">
+                <Tile icon={<Clock aria-hidden />} tone="st-jugando" label="Horas">
+                    <dd className="juego-tile__value">{formatHours(game.playtime_forever)}</dd>
+                    {game.playtime_2weeks > 0 && <dd className="juego-tile__note">{formatHours(game.playtime_2weeks)} en 2 semanas</dd>}
+                </Tile>
+                <Tile icon={<CalendarClock aria-hidden />} tone="st-pendiente" label="Última partida">
+                    <dd className="juego-tile__value">{game.rtime_last_played ? SHORT_DATE.format(new Date(game.rtime_last_played)) : 'Nunca'}</dd>
+                    {game.started_at && game.status === 'jugando' && <dd className="juego-tile__note">Jugando desde el {formatDate(game.started_at)}</dd>}
+                </Tile>
+                <Tile icon={<Star aria-hidden />} tone={game.rating !== null ? `sc-${ratingTier(game.rating)}` : 'st-pausado'} label="Tu nota">
+                    <dd className={`juego-tile__value${game.rating !== null ? ' juego-tile__value--tinted' : ''}`}>
+                        {game.rating !== null ? String(game.rating).replace('.', ',') : '—'}
+                    </dd>
+                    <dd className="juego-tile__note">
+                        {game.completed_at ? `Completado el ${formatDate(game.completed_at)}` : game.rating === null ? 'Se pone al completarlo' : null}
+                    </dd>
+                </Tile>
+                <Tile icon={<Trophy aria-hidden />} tone="st-sin_final" label="Logros">
                     {pct === null ? (
-                        <dd>Sin logros</dd>
+                        <dd className="juego-tile__value">Sin logros</dd>
                     ) : (
                         <>
-                            <dd>
+                            <dd className="juego-tile__value">
                                 {game.achievements_unlocked ?? 0}
                                 <small>/{game.achievements_total}</small>
+                            </dd>
+                            <dd className="juego-tile__note">
                                 {isPerfect(game) ? (
-                                    <span className="badge-100" title="Todos los logros desbloqueados">
+                                    <span className="badge-100">
                                         <Trophy size={11} aria-hidden /> 100%
                                     </span>
                                 ) : (
-                                    <small className="juego-stats__pct">{pct} %</small>
+                                    `${pct} %`
                                 )}
-                            </dd>
-                            <dd className={`hg-bar${isPerfect(game) ? ' is-done' : ''}`} aria-hidden>
-                                <span style={{ width: `${pct}%` }} />
-                            </dd>
-                            <dd className="juego-stats__note">
-                                {game.last_unlock_at && `Último el ${formatDate(game.last_unlock_at)} · `}
-                                <Link href={`/juego/${appid}/logros`} className="juego-stats__link">
-                                    Ver logros
-                                </Link>
+                                {' · '}
+                                <a href="#juego-logros" className="juego-tile__link">
+                                    Ver abajo
+                                </a>
                             </dd>
                         </>
                     )}
-                </div>
+                </Tile>
             </dl>
 
-            <div className="juego-goal">
-                <div className="juego-goal__row">
-                    <span className="juego-goal__label">Objetivo: {GOAL_LABELS[progress.goal]}</span>
-                    <span className="juego-goal__value">
-                        {progress.goal === 'rejugable'
-                            ? 'Sin final: lo juegas por jugar'
-                            : progress.percent === null
-                              ? 'Sin duración para medirlo'
-                              : progress.basis === 'logros'
-                                ? `${progress.percent} % de logros`
-                                : `${progress.percent} % · ${formatHours(game.playtime_forever)} de ${formatHours(progress.targetMinutes!)}`}
-                    </span>
+            {game.endless ? (
+                <div className="juego-goal">
+                    <div className="juego-goal__row">
+                        <span className="juego-goal__label st-sin_final">
+                            <InfinityIcon size={15} aria-hidden /> Sin final
+                        </span>
+                        <span className="juego-goal__value">Lo juegas por jugar: no se mide por horas ni se espera terminarlo.</span>
+                    </div>
                 </div>
-                {progress.percent !== null && (
-                    <span className={`hg-bar${progress.done ? ' is-done' : ''}`} aria-hidden>
-                        <span style={{ width: `${progress.percent}%` }} />
-                    </span>
-                )}
-                {suggestComplete && (
-                    <p className="juego-goal__done" role="status">
-                        <Trophy size={14} aria-hidden /> ¡Objetivo cumplido: tienes todos los logros!{' '}
-                        <Button size="sm" onClick={() => setCompleting(true)}>
-                            <Flag aria-hidden /> Marcar como completado
-                        </Button>
-                    </p>
-                )}
-                {progress.basis === 'horas' && progress.targetMinutes !== null && duration.source && (
-                    <p className="juego-panel__note">
-                        {progress.targetMinutes - game.playtime_forever > 30
-                            ? `Te faltan unas ${formatHours(progress.targetMinutes - game.playtime_forever)} ${GOAL_TARGET_TEXT[progress.goal]} (${formatHours(progress.targetMinutes)}).`
-                            : `Ya has pasado la duración ${GOAL_DURATION_TEXT[progress.goal]} (${formatHours(progress.targetMinutes)}).`}{' '}
-                        <span className="juego-panel__source">Según {DURATION_SOURCE_LABEL[duration.source]}.</span>
-                    </p>
-                )}
-                {duration.source === 'hltb' && (duration.mainExtra !== null || duration.completionist !== null) && (
-                    <DurationNote duration={duration} />
-                )}
-            </div>
-
-            <CompleteDialog
-                game={completing ? { ...game, name } : null}
-                onOpenChange={(open) => !open && setCompleting(false)}
-                onSaved={(_, completion) => {
-                    setCompleting(false)
-                    update({
-                        status: 'completado',
-                        status_source: 'manual',
-                        suggestion: null,
-                        rating: completion.rating,
-                        completed_at: completion.completedAt,
-                        review: completion.review,
-                    })
-                }}
-            />
+            ) : (
+                <div className="juego-goal">
+                    <div className="juego-goal__row">
+                        <span className="juego-goal__label">
+                            <Target size={15} aria-hidden /> Objetivo
+                            <Select value={parseGoal(game.goal)} onValueChange={(v) => save(() => setGameGoal(appid, v as GameGoal), { goal: v })} disabled={busy}>
+                                <SelectTrigger className="juego-goal__select" aria-label="Objetivo">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {GAME_GOALS.map((g) => (
+                                        <SelectItem key={g} value={g}>
+                                            {GOAL_LABELS[g]}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </span>
+                        <span className="juego-goal__value">
+                            {progress.percent === null
+                                ? 'Sin duración para medirlo'
+                                : progress.basis === 'logros'
+                                  ? `${progress.percent} % de logros`
+                                  : `${formatHours(game.playtime_forever)} de ${formatHours(progress.targetMinutes!)} · ${progress.percent} %`}
+                        </span>
+                    </div>
+                    {progress.basis === 'horas' && progress.percent !== null ? (
+                        <DurationTrack played={game.playtime_forever} duration={duration} done={progress.done} />
+                    ) : (
+                        progress.percent !== null && (
+                            <span className={`hg-bar juego-goal__bar${progress.done ? ' is-done' : ''}`} aria-hidden>
+                                <span style={{ width: `${progress.percent}%` }} />
+                            </span>
+                        )
+                    )}
+                    {suggestComplete && (
+                        <p className="juego-goal__done" role="status">
+                            <Trophy size={14} aria-hidden /> ¡Objetivo cumplido: tienes todos los logros!{' '}
+                            <Button size="sm" onClick={openComplete}>
+                                <Flag aria-hidden /> Marcar como completado
+                            </Button>
+                        </p>
+                    )}
+                    {progress.basis === 'horas' && progress.targetMinutes !== null && duration.source && (
+                        <p className="juego-panel__note">
+                            {progress.targetMinutes - game.playtime_forever > 30
+                                ? `Te faltan unas ${formatHours(progress.targetMinutes - game.playtime_forever)} ${GOAL_TARGET_TEXT[progress.goal]}.`
+                                : `Ya has pasado la duración ${GOAL_DURATION_TEXT[progress.goal]} (${formatHours(progress.targetMinutes)}).`}{' '}
+                            <span className="juego-panel__source">Según {DURATION_SOURCE_LABEL[duration.source]}.</span>
+                        </p>
+                    )}
+                </div>
+            )}
         </section>
     )
 }
+
+function Tile({ icon, tone, label, children }: { icon: React.ReactNode; tone: string; label: string; children: React.ReactNode }) {
+    return (
+        <div className={`juego-tile ${tone}`}>
+            <dt>
+                <span className="juego-tile__icon hg-tint">{icon}</span>
+                {label}
+            </dt>
+            {children}
+        </div>
+    )
+}
+
+/** Tus horas sobre una barra con las tres metas de HowLongToBeat marcadas (historia, + extras, 100 %). */
+function DurationTrack({ played, duration, done }: { played: number; duration: GameDuration; done: boolean }) {
+    const marks = [
+        { label: 'Historia', minutes: duration.main },
+        { label: '+ extras', minutes: duration.mainExtra },
+        { label: '100 %', minutes: duration.completionist },
+    ].filter((m): m is { label: string; minutes: number } => m.minutes !== null)
+    const max = Math.max(played, ...marks.map((m) => m.minutes))
+    if (max <= 0) return null
+    const at = (minutes: number) => `${Math.min(100, (minutes / max) * 100)}%`
+    return (
+        <div className="juego-track" aria-hidden>
+            <span className={`juego-track__fill${done ? ' is-done' : ''}`} style={{ width: at(played) }} />
+            {marks.map((m, i) => (
+                <span
+                    key={m.label}
+                    className={`juego-track__mark${played >= m.minutes ? ' is-passed' : ''}${i === marks.length - 1 && m.minutes === max ? ' is-last' : ''}`}
+                    style={{ left: at(m.minutes) }}
+                >
+                    <span>
+                        {m.label} {formatHours(m.minutes)}
+                    </span>
+                </span>
+            ))}
+        </div>
+    )
+}
+
+// ─── No lo tienes ────────────────────────────────────────────────────────────
+
+const SHORT = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+const when = (iso: string | null) => (iso ? SHORT.format(new Date(iso)) : null)
+
+/** €/h de historia: barato en verde, caro en rojo. */
+function costPerHourTier(eurosPerHour: number): ScoreTier {
+    if (eurosPerHour <= 1) return 'top'
+    if (eurosPerHour <= 2) return 'good'
+    if (eurosPerHour <= 4) return 'mid'
+    return 'bad'
+}
+
+function BuyPanel({ duration, achievementsTotal, storeUrl }: Props) {
+    const { appid, state, reload } = useGame()
+    const [busy, setBusy] = useState(false)
+    const [error, setError] = useState('')
+    if (state.kind !== 'no_lo_tienes') return null
+    const { pending, wish, price } = state
+
+    async function run(action: () => Promise<void>) {
+        setBusy(true)
+        setError('')
+        try {
+            await action()
+            await reload()
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'No se pudo guardar')
+        } finally {
+            setBusy(false)
+        }
+    }
+
+    const story = duration.main
+    const euroPerHour = price?.price_final && story ? price.price_final / 100 / (story / 60) : null
+
+    return (
+        <div className="juego-buy">
+            <section className="juego-panel glass juego-buy__price" aria-label="Precio">
+                <div className="juego-buy__state">
+                    {pending && <StatusChip status="pendiente" />}
+                    <span className="lib-own lib-own--no">
+                        <ShoppingCart aria-hidden /> {pending ? 'Sin comprar' : 'No lo tienes'}
+                    </span>
+                    {wish && (
+                        <span className="juego-buy__wish">
+                            <Heart size={13} aria-hidden /> En tu wishlist{wish.source === 'steam' ? ' de Steam' : ''}
+                        </span>
+                    )}
+                </div>
+
+                {price ? <PriceBlock price={price} /> : <p className="juego-panel__note">Aún no hay datos de precio de este juego.</p>}
+
+                {error && (
+                    <p className="alert alert--error" role="alert">
+                        {error}
+                    </p>
+                )}
+
+                <div className="juego-panel__actions">
+                    <Button asChild>
+                        <a href={storeUrl} target="_blank" rel="noreferrer">
+                            <ShoppingCart aria-hidden /> Comprar en Steam
+                        </a>
+                    </Button>
+                    {pending ? (
+                        <>
+                            <button
+                                type="button"
+                                className="juego-mark st-favorito"
+                                aria-pressed={pending.favorite}
+                                disabled={busy}
+                                onClick={() => run(() => setGameMark(appid, 'favorite', !pending.favorite))}
+                            >
+                                <Heart aria-hidden /> Favorito
+                            </button>
+                            <Button variant="ghost" disabled={busy} onClick={() => run(() => removeFromPending(appid))}>
+                                <BookmarkX aria-hidden /> Quitar de Pendientes
+                            </Button>
+                        </>
+                    ) : (
+                        <Button variant="secondary" disabled={busy} onClick={() => run(() => addToPending(appid))}>
+                            <BookmarkPlus aria-hidden /> Añadir a Pendientes
+                        </Button>
+                    )}
+                    {wish?.source === 'steam' ? (
+                        <Button variant="ghost" asChild>
+                            <Link href="/wishlist">
+                                <Heart aria-hidden /> Ver la wishlist
+                            </Link>
+                        </Button>
+                    ) : (
+                        <Button variant="ghost" disabled={busy} onClick={() => run(() => (wish ? removeFromWishlist(appid) : addToWishlist(appid)))}>
+                            {wish ? <HeartOff aria-hidden /> : <Heart aria-hidden />} {wish ? 'Quitar de la wishlist' : 'Añadir a la wishlist'}
+                        </Button>
+                    )}
+                </div>
+            </section>
+
+            <section className="juego-panel glass juego-buy__duration" aria-labelledby="juego-dura">
+                <h2 id="juego-dura" className="juego__section-title">
+                    <Hourglass size={16} className="st-pendiente juego-buy__title-icon" aria-hidden /> Lo que dura
+                </h2>
+                {duration.source ? (
+                    <>
+                        <DurationBars duration={duration} />
+                        <p className="juego-panel__note">Según {DURATION_SOURCE_LABEL[duration.source]}.</p>
+                    </>
+                ) : (
+                    <p className="juego-panel__note">Sin datos de duración.</p>
+                )}
+                <dl className="juego-buy__mini">
+                    <div>
+                        <dt>Logros en Steam</dt>
+                        <dd>{achievementsTotal ?? '—'}</dd>
+                    </div>
+                    <div>
+                        <dt>Precio por hora de historia</dt>
+                        <dd className={euroPerHour !== null ? `sc-${costPerHourTier(euroPerHour)} juego-buy__tinted` : undefined}>
+                            {euroPerHour !== null ? `${euroPerHour.toFixed(2).replace('.', ',')} €/h` : '—'}
+                        </dd>
+                    </div>
+                </dl>
+            </section>
+        </div>
+    )
+}
+
+/** Precio de hoy en grande, veredicto (mínimo histórico en amarillo), regla de precios y mínimos de IsThereAnyDeal. */
+function PriceBlock({ price }: { price: PriceData }) {
+    if (price.price_final === null) {
+        return <p className="juego-buy__big">{price.is_free ? 'Gratis' : price.coming_soon ? 'Próximamente' : 'Sin precio'}</p>
+    }
+    const onSale = (price.discount_percent ?? 0) > 0
+    const verdict = priceVerdict(price)
+    const floor = price.all_low ?? price.steam_low
+    const regular = price.price_initial ?? price.price_final
+    const position = pricePosition(price.price_final, floor, regular)
+    const steamLowAt = floor !== null && price.steam_low !== null ? pricePosition(price.steam_low, floor, regular) : null
+
+    return (
+        <>
+            <div className="juego-buy__now">
+                {onSale && <span className="juego-buy__cut hg-tint sc-top">-{price.discount_percent} %</span>}
+                <span className="juego-buy__big">{formatPrice(price.price_final)}</span>
+                {onSale && <s className="juego-buy__was">{formatPrice(price.price_initial)}</s>}
+            </div>
+
+            {verdict === 'low' ? (
+                <p className="juego-verdict juego-verdict--deal">
+                    <TrendingDown aria-hidden /> En mínimo histórico en Steam <span>· nunca ha estado más barato aquí</span>
+                </p>
+            ) : verdict === 'sale' && price.steam_low !== null ? (
+                <p className="juego-verdict hg-tint sc-mid">
+                    <AlertTriangle aria-hidden /> Rebajado, pero ha estado más barato <span>· mínimo en Steam: {formatPrice(price.steam_low)}</span>
+                </p>
+            ) : price.steam_low !== null && price.steam_low < price.price_final ? (
+                <p className="juego-verdict juego-verdict--plain">
+                    Precio normal <span>· ha llegado a {formatPrice(price.steam_low)} en Steam</span>
+                </p>
+            ) : null}
+
+            {position !== null && (
+                <div className="juego-range" aria-label={`Precio de hoy entre el mínimo (${formatPrice(floor)}) y el precio normal (${formatPrice(regular)})`}>
+                    <div className="juego-range__track" style={{ '--low': `${steamLowAt ?? 0}%` } as CSSVars}>
+                        <span
+                            className={`juego-range__pt${position < 15 ? ' is-start' : position > 85 ? ' is-end' : ''}`}
+                            style={{ left: `${position}%` }}
+                        >
+                            <b>Hoy {formatPrice(price.price_final)}</b>
+                        </span>
+                    </div>
+                    <div className="juego-range__labels">
+                        <span>
+                            Mínimo
+                            <b>{formatPrice(floor)}</b>
+                        </span>
+                        <span>
+                            Precio normal
+                            <b>{formatPrice(regular)}</b>
+                        </span>
+                    </div>
+                </div>
+            )}
+
+            {(price.steam_low !== null || price.all_low !== null) && (
+                <dl className="juego-lows">
+                    {price.steam_low !== null && (
+                        <div className={verdict === 'low' ? 'is-hit' : undefined}>
+                            <dt>Mínimo en Steam</dt>
+                            <dd>{formatPrice(price.steam_low)}</dd>
+                            {price.steam_low_at && <dd className="juego-lows__when">{when(price.steam_low_at)}</dd>}
+                        </div>
+                    )}
+                    {price.all_low !== null && (
+                        <div>
+                            <dt>Mínimo en cualquier tienda</dt>
+                            <dd>{formatPrice(price.all_low)}</dd>
+                            <dd className="juego-lows__when">
+                                {[price.all_low_shop, when(price.all_low_at)].filter(Boolean).join(' · ')}
+                                {price.itad_id && (
+                                    <>
+                                        {' · '}
+                                        <a href={itadUrl(price.itad_id)} target="_blank" rel="noreferrer" title="Historial de precios en IsThereAnyDeal">
+                                            <LineChart size={12} aria-hidden /> Historial
+                                        </a>
+                                    </>
+                                )}
+                            </dd>
+                        </div>
+                    )}
+                </dl>
+            )}
+        </>
+    )
+}
+
+function DurationBars({ duration }: { duration: GameDuration }) {
+    const rows = [
+        { label: 'Historia', minutes: duration.main, tone: 'st-pendiente' },
+        { label: 'Historia + extras', minutes: duration.mainExtra, tone: 'st-jugando' },
+        { label: '100 %', minutes: duration.completionist, tone: 'st-sin_final' },
+    ].filter((r): r is { label: string; minutes: number; tone: string } => r.minutes !== null)
+    const max = Math.max(...rows.map((r) => r.minutes))
+    return (
+        <dl className="juego-dur">
+            {rows.map((r) => (
+                <div key={r.label} className={`juego-dur__row ${r.tone}`}>
+                    <dt>{r.label}</dt>
+                    <dd className="hg-bar" aria-hidden>
+                        <span style={{ width: `${(r.minutes / max) * 100}%` }} />
+                    </dd>
+                    <dd className="juego-dur__value">{formatHours(r.minutes)}</dd>
+                </div>
+            ))}
+        </dl>
+    )
+}
+

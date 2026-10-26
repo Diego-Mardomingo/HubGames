@@ -18,7 +18,7 @@ async function all<T>(page: (from: number, to: number) => PromiseLike<{ data: T[
 
 export async function loadStatsInput(supabase: Client, userId: string): Promise<StatsInput> {
     const [games, unlocks, daily, first] = await Promise.all([
-        all((from, to) => supabase.from('hubgames_library').select('*').eq('user_id', userId).order('appid').range(from, to)),
+        all((from, to) => supabase.from('hubgames_library').select('*').eq('user_id', userId).eq('owned', true).order('appid').range(from, to)),
         all((from, to) =>
             supabase
                 .from('hubgames_achievements')

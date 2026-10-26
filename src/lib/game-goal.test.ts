@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { goalMinutes, goalProgress, goalRemainingMinutes, isReplayable, parseGoal } from './game-goal'
+import { goalMinutes, goalProgress, goalRemainingMinutes, parseGoal } from './game-goal'
 import { libraryGame as game } from './test-utils'
 
 const hltb = { hltb_main: 600, hltb_main_extra: 900, hltb_completionist: 1800 }
@@ -31,9 +31,8 @@ describe('objetivo por juego (#24)', () => {
         assert.deepEqual([sinLogros.basis, sinLogros.percent], ['horas', 50])
     })
 
-    it('rejugable: sin meta ni progreso aunque haya duración', () => {
-        const g = game({ ...hltb, goal: 'rejugable', playtime_forever: 3000 })
-        assert.equal(isReplayable(g), true)
+    it('sin final: sin meta ni progreso aunque haya duración', () => {
+        const g = game({ ...hltb, endless: true, playtime_forever: 3000 })
         assert.equal(goalMinutes(g), null)
         assert.equal(goalProgress(g).percent, null)
         assert.equal(goalProgress(g).done, false)

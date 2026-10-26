@@ -157,8 +157,8 @@ describe('Sugerencia de Completado e insignia 100%', () => {
         assert.equal(evaluateGame(game({ ...base, goal: 'completo', goal_minutes: 800 }), NOW).suggestion, 'completado')
     })
 
-    it('rejugable: nunca se sugiere completado por horas, pero sí con el 100 % de logros', () => {
-        const base = { status: 'jugando' as const, rtime_last_played: daysAgo(1), playtime_forever: 9000, hltb_main_minutes: 600, goal: 'rejugable', goal_minutes: null }
+    it('sin final: nunca se sugiere completado por horas, pero sí con el 100 % de logros', () => {
+        const base = { status: 'jugando' as const, rtime_last_played: daysAgo(1), playtime_forever: 9000, hltb_main_minutes: 600, goal: 'historia', goal_minutes: null }
         assert.equal(evaluateGame(game(base), NOW).suggestion, null)
         const todos = { achievements_total: 10, achievements_unlocked: 10, last_unlock_at: daysAgo(1) }
         assert.equal(evaluateGame(game({ ...base, ...todos }), NOW).suggestion, 'completado')

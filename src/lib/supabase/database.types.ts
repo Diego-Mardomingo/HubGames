@@ -555,6 +555,21 @@ export type Database = {
           hltb_main: number | null
           hltb_main_extra: number | null
           hltb_completionist: number | null
+          favorite: boolean | null
+          endless: boolean | null
+          owned: boolean | null
+          metacritic_score: number | null
+          is_free: boolean | null
+          coming_soon: boolean | null
+          price_initial: number | null
+          price_final: number | null
+          discount_percent: number | null
+          itad_id: string | null
+          steam_low: number | null
+          steam_low_at: string | null
+          all_low: number | null
+          all_low_shop: string | null
+          all_low_at: string | null
         }
         Insert: {
           user_id?: string | null
@@ -587,6 +602,21 @@ export type Database = {
           hltb_main?: number | null
           hltb_main_extra?: number | null
           hltb_completionist?: number | null
+          favorite?: boolean | null
+          endless?: boolean | null
+          owned?: boolean | null
+          metacritic_score?: number | null
+          is_free?: boolean | null
+          coming_soon?: boolean | null
+          price_initial?: number | null
+          price_final?: number | null
+          discount_percent?: number | null
+          itad_id?: string | null
+          steam_low?: number | null
+          steam_low_at?: string | null
+          all_low?: number | null
+          all_low_shop?: string | null
+          all_low_at?: string | null
         }
         Update: {
           user_id?: string | null
@@ -619,6 +649,21 @@ export type Database = {
           hltb_main?: number | null
           hltb_main_extra?: number | null
           hltb_completionist?: number | null
+          favorite?: boolean | null
+          endless?: boolean | null
+          owned?: boolean | null
+          metacritic_score?: number | null
+          is_free?: boolean | null
+          coming_soon?: boolean | null
+          price_initial?: number | null
+          price_final?: number | null
+          discount_percent?: number | null
+          itad_id?: string | null
+          steam_low?: number | null
+          steam_low_at?: string | null
+          all_low?: number | null
+          all_low_shop?: string | null
+          all_low_at?: string | null
         }
         Relationships: []
       }
@@ -957,6 +1002,8 @@ export type Database = {
           status_changed_at: string
           suggestion: string | null
           suggestion_dismissed_at: string | null
+          favorite: boolean
+          endless: boolean
         }
         Insert: {
           user_id: string
@@ -974,6 +1021,8 @@ export type Database = {
           status_changed_at?: string
           suggestion?: string | null
           suggestion_dismissed_at?: string | null
+          favorite?: boolean
+          endless?: boolean
         }
         Update: {
           user_id?: string
@@ -991,6 +1040,8 @@ export type Database = {
           status_changed_at?: string
           suggestion?: string | null
           suggestion_dismissed_at?: string | null
+          favorite?: boolean
+          endless?: boolean
         }
         Relationships: []
       }
@@ -1098,6 +1149,7 @@ export type Database = {
           cuenta_google: boolean
           administrador: boolean
           playing_limit: number
+          library_home: Json | null
         }
         Insert: {
           id?: string
@@ -1109,6 +1161,7 @@ export type Database = {
           cuenta_google?: boolean
           administrador?: boolean
           playing_limit?: number
+          library_home?: Json | null
         }
         Update: {
           id?: string
@@ -1120,6 +1173,7 @@ export type Database = {
           cuenta_google?: boolean
           administrador?: boolean
           playing_limit?: number
+          library_home?: Json | null
         }
         Relationships: []
       }
