@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Buscador de juegos (Ctrl + K) · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-hover: #ad1b31; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --rar-comun: #8a8f98; --rar-poco: #2e9e5b; --rar-rara: #2f6fe0; --rar-epica: #8b4fd8; --rar-leg: #c98a0b; --rar-ink: 62%;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-completado: #1a7743;
+  --st-abandonado: #c7243b; --st-descartado: #6b7280; --st-favorito: #c2255c; --st-sinfinal: #6741d9;
+  --sc-top: #1a7743; --sc-good: #4d7c0f; --sc-mid: #8e5e18; --sc-bad: #c7243b;
+  --deal: #f5c400; --deal-foreground: #2b2100; --tint: 12%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --scrim: rgba(10, 12, 16, 0.55);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-hover: #ff8090; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --rar-comun: #9aa0aa; --rar-poco: #4cc97e; --rar-rara: #5b93ff; --rar-epica: #b07cff; --rar-leg: #f2b53a; --rar-ink: 100%;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e; --st-descartado: #8a919e; --st-favorito: #f783ac; --st-sinfinal: #b197fc;
+  --sc-top: #4cc97e; --sc-good: #a9d15b; --sc-mid: #f2b53a; --sc-bad: #f26b7e;
+  --deal: #ffd43b; --deal-foreground: #221a00; --tint: 14%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --scrim: rgba(0, 0, 0, 0.65);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; color: inherit; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.doc-btn kbd { font: inherit; font-size: .75rem; padding: 0 6px; border-radius: 4px; background: var(--surface-2); }
+.note { max-width: 1040px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul { margin: 0; padding-left: 20px; }
+.note li { margin: 3px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 100ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: hidden; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 60ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.vlabel { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.9375rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--surface-2); }
+.keys { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 0; color: var(--muted); font-size: .8125rem; }
+.gallery { display: grid; grid-template-columns: repeat(2, 760px); gap: 28px 24px; }
+.gallery > div > h3 { margin: 0 0 8px; font-size: .9375rem; }
+.gallery > div > p { margin: 8px 0 0; color: var(--muted); font-size: .8125rem; max-width: 70ch; }
+.stage { position: relative; padding: 20px; border-radius: 12px; border: 1px dashed var(--border-hover); background: var(--background); }
+.sim-toast { position: absolute; left: 50%; bottom: 24px; z-index: 40; translate: -50% 0; padding: 8px 14px; border: 1px dashed var(--border-hover); border-radius: var(--radius-sm); background: var(--surface); color: var(--muted); font-size: .8125rem; box-shadow: var(--shadow-lg); animation: fade .2s var(--ease-out); }
+
+/* ══ Navegación (implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; cursor: pointer; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; text-align: left; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nv-count { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px 0 6px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; line-height: 1; }
+.nv-count .i { font-size: 12px; stroke-width: 2.4; }
+.nv-count.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.nv-count--deal { background: var(--deal); color: var(--deal-foreground); }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.theme-btn { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 18px; }
+.nv-side:not(.is-compact) .theme-btn, .is-compact .theme-toggle { display: none; }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-3); color: var(--foreground); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.nv-side.is-compact { width: 72px; align-items: center; padding: 1.25rem 0.75rem 1rem; }
+.is-compact .hg-wordmark, .is-compact .nv-link__label, .is-compact .nv-search__label, .is-compact .nv-kbd,
+.is-compact .nv-account__text, .is-compact .nv-group__title { display: none; }
+.is-compact .nv-brand { padding: 0.25rem 0; }
+.is-compact .nv-menu { align-items: center; gap: 0; }
+.is-compact .nv-group { align-items: center; }
+.is-compact .nv-group + .nv-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.is-compact .nv-link, .is-compact .nv-search { width: 44px; height: 44px; padding: 0; justify-content: center; }
+.is-compact .nv-link > .nv-count { display: none; }
+.is-compact .nv-account { width: 44px; padding: 0; justify-content: center; }
+.is-compact .nv-foot { align-items: center; }
+.nv-dot { position: absolute; display: inline-flex; align-items: center; justify-content: center; gap: 2px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; font-size: 0.625rem; font-weight: 700; line-height: 1; box-shadow: 0 0 0 2px var(--ring-bg, var(--background)); }
+.nv-dot.hg-tint { background: color-mix(in srgb, var(--c) calc(var(--tint) + 6%), var(--ring-bg, var(--background))); }
+.nv-dot.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.nv-dot .i { font-size: 10px; stroke-width: 3; }
+.nv-dot--icon { padding: 0; width: 18px; }
+.is-compact .nv-dot { top: -3px; right: -7px; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); --ring-bg: var(--surface); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); background: var(--primary-glow); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+.m-tab .nv-dot { top: -8px; left: calc(50% + 7px); }
+
+/* ══ Página de fondo: biblioteca (resumen de biblioteca.css + lists.css) ══ */
+.page { position: absolute; inset: 0 0 0 232px; overflow: hidden; }
+.page.is-compact { left: 72px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
+.page-title { margin: 0.25rem 0 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.page-subtitle { margin: 0.375rem 0 0; color: var(--muted); font-size: 0.9375rem; }
+.lib-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+.lib-rail { display: grid; gap: 0.75rem; }
+.lib-rail__group { display: grid; gap: 2px; }
+.lib-rail__title { margin: 0; padding: 0 0.6rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.lib-rail__item { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 0.6rem; min-height: 38px; padding: 0 0.6rem 0 0.4rem; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 500; }
+.lib-rail__item[aria-current='page'] { border-color: var(--border); background: var(--surface); font-weight: 600; }
+.lib-rail__item--tray { border: 1px dashed var(--border-hover); }
+.lib-rail__icon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 7px; font-size: 15px; }
+.lib-rail__count { color: var(--muted); font-size: 0.8125rem; }
+.lib-rail__item[aria-current='page'] .lib-rail__count { color: var(--c); font-weight: 700; }
+.lib-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.875rem; }
+.lib-head__icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; font-size: 20px; }
+.lib-head h2 { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.lib-head p { margin: 0; color: var(--muted); font-size: 0.8125rem; }
+.bg-rows { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.bg-row { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) 190px auto; align-items: center; gap: 1rem; min-height: 68px; padding: 8px 12px 8px 8px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.bg-row::before { content: ''; position: absolute; left: -1px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--c); }
+.bg-row__cover { width: 112px; height: 52px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.bg-row__cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bg-row__name { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.bg-row__meta { color: var(--muted); font-size: 0.8125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bg-prog { display: grid; gap: 6px; font-size: 0.8125rem; }
+.bg-prog__label { display: flex; justify-content: space-between; color: var(--muted); }
+.bg-prog__label b { color: var(--foreground); font-weight: 600; }
+.bg-bar { display: block; height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.bg-bar span { display: block; height: 100%; border-radius: inherit; background: var(--primary); }
+.w-mid .bg-row { grid-template-columns: 112px minmax(0, 1fr) auto; }
+.w-mid .bg-prog { display: none; }
+.btn2 { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 0.875rem; font-weight: 600; }
+.m-page { padding: 1rem 1rem 120px; }
+.m-page .page-title { font-size: 1.625rem; }
+.m-rail { display: flex; gap: 6px; overflow: hidden; margin: 12px -1rem 12px 0; }
+.m-rail .lib-rail__item { grid-template-columns: 24px auto auto; min-height: 44px; border: 1px solid var(--border); background: var(--surface); white-space: nowrap; }
+.m-rail .lib-rail__icon { width: 24px; height: 24px; font-size: 13px; }
+.m-page .bg-row { grid-template-columns: 88px minmax(0, 1fr); gap: 0.75rem; min-height: 60px; }
+.m-page .bg-row__cover { width: 88px; height: 41px; }
+.m-page .bg-prog, .m-page .bg-row > .hg-chip { display: none; }
+
+/* ══ Piezas compartidas (copia de src/styles/lists.css y globals.css) ══ */
+.st-todos { --c: var(--primary); } .st-bandeja { --c: var(--st-bandeja); } .st-pendiente { --c: var(--st-pendiente); }
+.st-jugando { --c: var(--st-jugando); } .st-pausado { --c: var(--st-pausado); } .st-completado { --c: var(--st-completado); }
+.st-abandonado { --c: var(--st-abandonado); } .st-descartado { --c: var(--st-descartado); } .st-favorito { --c: var(--st-favorito); } .st-sin_final { --c: var(--st-sinfinal); }
+.sc-top { --c: var(--sc-top); } .sc-good { --c: var(--sc-good); } .sc-mid { --c: var(--sc-mid); } .sc-bad { --c: var(--sc-bad); }
+.ok { --c: var(--success); } .ko { --c: var(--danger); } .warn { --c: var(--warning); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.warn, .hg-tint.st-pausado, .hg-tint.sc-mid { color: var(--warn-ink); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; transition: background-color .2s var(--ease-out), border-color .2s var(--ease-out), color .2s var(--ease-out), transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn:disabled { cursor: default; }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { border-color: var(--border-hover); }
+.btn--ghost { background: transparent; color: var(--muted); }
+.btn--ghost:hover { background: var(--surface-2); color: var(--foreground); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.78125rem; font-weight: 600; white-space: nowrap; transition: background-color .25s, color .25s; }
+.hg-chip .i { font-size: 13px; }
+.hg-chip.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.hg-flag { display: inline-grid; flex: none; place-items: center; width: 20px; height: 20px; border-radius: 6px; font-size: 12px; }
+.hg-score { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 26px; height: 20px; padding: 0 5px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+.hg-score .i { font-size: 11px; }
+.hg-deal { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 6px; background: var(--deal); color: var(--deal-foreground); font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+.hg-deal .i { font-size: 12px; }
+.lib-own--no { display: inline-flex; align-items: center; gap: 4px; padding: 0 7px; border-radius: 5px; color: var(--st-pendiente); outline: 1px dashed var(--st-pendiente); outline-offset: -1px; font-size: 0.72rem; font-weight: 700; line-height: 1.6; white-space: nowrap; }
+.lib-own--no .i { font-size: 11px; }
+.hg-icon-btn { display: inline-grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted); font-size: 18px; transition: color .15s, background .15s; }
+.hg-icon-btn:hover { color: var(--foreground); background: var(--surface-2); }
+.hg-icon-btn[hidden] { display: none; }
+
+/* ══════════════════════════════════════════════════════════════════
+   Buscador (propuesta): tracker.css · .game-search*
+   ══════════════════════════════════════════════════════════════════ */
+.gs-scrim { position: absolute; inset: 0; z-index: 20; background: var(--scrim); }
+.gs { position: absolute; z-index: 21; top: 12%; left: 50%; width: min(760px, calc(100% - 24px)); max-height: 76%; translate: -50% 0; display: flex; flex-direction: column; overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); transform-origin: 50% 50%; }
+.stage .gs { position: relative; top: 0; left: 0; translate: none; width: 100%; max-height: none; }
+.gs[hidden], .gs-scrim[hidden] { display: none; }
+/* Abrir: escala desde el centro + fundido (200 ms) y velo (160 ms). Cerrar: 140 ms */
+.gs.is-opening { animation: gs-open .2s var(--ease-out); }
+.gs-scrim.is-opening { animation: fade .16s var(--ease-out); }
+.gs.is-closing { animation: gs-close .14s ease-in forwards; }
+.gs-scrim.is-closing { animation: fade-out .14s ease-in forwards; }
+@keyframes gs-open { from { opacity: 0; transform: scale(.96); } }
+@keyframes gs-close { to { opacity: 0; transform: scale(.97); } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+
+.gs-field { display: flex; align-items: center; gap: .7rem; height: 60px; padding: 0 .6rem 0 1.15rem; border-bottom: 1px solid var(--border); color: var(--muted); }
+.gs-field > .i { font-size: 20px; }
+.gs-field.is-loading > .i { color: var(--primary); animation: spin .8s linear infinite; }
+.gs-field input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; color: var(--foreground); font: inherit; font-size: 1.0625rem; }
+.gs-field input::placeholder { color: var(--muted); }
+.gs-clear { font-size: 16px; }
+.gs-field .hg-icon-btn[data-close] { font-size: 18px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.gs-body { position: relative; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.gs-group { display: flex; align-items: center; gap: .5rem; margin: 0; padding: .75rem 1.1rem .25rem; color: var(--muted); font-size: .8125rem; font-weight: 600; }
+.gs-group .i { font-size: 14px; }
+.gs-group__end { margin-left: auto; font-weight: 500; }
+.gs-group__end button { border: 0; background: none; color: var(--muted); font-size: .8125rem; padding: 4px 6px; border-radius: 6px; }
+.gs-group__end button:hover { color: var(--foreground); background: var(--surface-2); }
+.gs-group.is-deal .i { color: var(--warn-ink); }
+
+.gs-list { position: relative; display: grid; gap: 2px; margin: 0; padding: 6px 8px 8px; list-style: none; }
+/* Resaltado de la selección: un solo elemento que se desliza entre filas (↑/↓ o ratón) */
+.gs-cursor { position: absolute; top: 0; left: 8px; right: 8px; z-index: 0; border-radius: var(--radius); background: var(--surface-2); box-shadow: 0 0 0 3px var(--cursor); pointer-events: none; transition: transform .18s var(--ease-out), height .18s var(--ease-out), opacity .12s; }
+.gs-cursor.no-anim { transition: none; }
+.gs-item { position: relative; z-index: 1; display: grid; grid-template-columns: 104px minmax(0, 1fr) auto auto; align-items: center; gap: 12px; min-height: 60px; padding: 8px 10px 8px 14px; border-radius: var(--radius); cursor: pointer; }
+/* Franja de la lista a la que pertenece (como .lib-row) */
+.gs-item.has-st::before { content: ''; position: absolute; left: 4px; top: 12px; bottom: 12px; width: 3px; border-radius: 3px; background: var(--c); transform-origin: center; transition: background-color .25s var(--ease-out); }
+.gs-item.is-new-st::before { animation: strip-in .22s var(--ease-out); }
+@keyframes strip-in { from { transform: scaleY(0); } }
+.gs-cover { position: relative; display: block; width: 104px; height: 39px; border-radius: 5px; overflow: hidden; background: var(--surface-2); }
+.gs-cover img { display: block; width: 100%; height: 100%; object-fit: cover; transition: filter .2s var(--ease-out); }
+.is-unowned .gs-cover img { filter: saturate(0.35) brightness(0.85); }
+.is-unowned .gs-cover::before { content: ''; position: absolute; inset: 0; z-index: 2; border: 1.5px dashed var(--st-pendiente); border-radius: inherit; }
+.gs-main { display: grid; gap: 3px; min-width: 0; }
+.gs-name { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.gs-name b { overflow: hidden; font-size: .9375rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.gs-name mark { background: none; color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--primary) 55%, transparent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.gs-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; color: var(--muted); font-size: .78125rem; }
+.gs-meta .hg-chip { padding: 1px 8px 1px 6px; font-size: .71875rem; }
+.gs-meta .hg-chip .i { font-size: 12px; }
+.gs-meta .dot { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.gs-meta .dot .i { font-size: 12px; }
+.gs-none { color: var(--muted); }
+.gs-wish-chip { display: inline-flex; align-items: center; gap: 5px; padding: 1px 8px 1px 6px; border-radius: 999px; background: var(--surface-2); color: var(--foreground); font-size: .71875rem; font-weight: 600; white-space: nowrap; }
+.gs-wish-chip .i { font-size: 12px; fill: currentColor; }
+.gs-err { display: flex; align-items: center; gap: 5px; color: var(--danger); font-size: .78125rem; font-weight: 500; }
+.gs-err .i { font-size: 13px; }
+
+/* Precio con veredicto (PriceTag): descuento tintado, precio, tachado y mínimo */
+.gs-price { display: grid; justify-items: end; gap: 3px; font-size: .8125rem; white-space: nowrap; }
+.gs-price__now { display: inline-flex; align-items: baseline; gap: 6px; }
+.gs-price__now strong { font-weight: 700; }
+.gs-price__now s { color: var(--muted); font-size: .75rem; }
+.gs-price__cut { padding: 0 5px; border-radius: 5px; font-size: .75rem; font-weight: 700; }
+.gs-price__low--muted { color: var(--muted); font-size: .75rem; }
+.gs-price--none { color: var(--muted); }
+
+.gs-act { display: flex; align-items: center; gap: 4px; }
+.gs-act .btn { min-width: 0; }
+/* Columna de acciones de ancho fijo: precios y botones alineados entre filas */
+.gs-act, .gs-open { width: 214px; }
+.gs-open { justify-content: flex-end; }
+.gs-add .i:first-child { color: var(--st-pendiente); }
+.gs-add.is-done, .gs-add.is-done:hover { border-color: transparent; background: color-mix(in srgb, var(--st-pendiente) var(--tint), transparent); color: var(--st-pendiente); }
+.gs-wish.is-done, .gs-wish.is-done:hover { background: var(--surface-2); color: var(--foreground); }
+.gs-wish.is-done .i { fill: currentColor; }
+.gs-act .btn.is-saving { color: var(--muted); }
+.gs-act .btn.is-saving .i { animation: spin .8s linear infinite; color: var(--muted); }
+/* Confirmación: el botón cambia al color de la lista, salta y se dibuja el check */
+.pop { animation: count-pop .3s var(--ease-out); }
+@keyframes count-pop { 40% { transform: scale(1.12); } }
+.draw path, .draw polyline { stroke-dasharray: 30; animation: draw .3s var(--ease-out) backwards .05s; }
+@keyframes draw { from { stroke-dashoffset: 30; } }
+.beat { animation: beat .4s var(--ease-out); }
+@keyframes beat { 30% { transform: scale(1.3); } 60% { transform: scale(.92); } }
+.chip-in { animation: chip-in .26s var(--ease-out); }
+@keyframes chip-in { from { opacity: 0; transform: scale(.6); } }
+
+/* «Enter Abrir ficha» en la fila activa sin acciones */
+.gs-open { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: .75rem; white-space: nowrap; opacity: 0; transition: opacity .12s; }
+.gs-item.is-active .gs-open { opacity: 1; }
+kbd.k { display: inline-block; min-width: 1.35em; padding: 0 .35em; border-radius: 4px; background: var(--surface-2); color: var(--muted); font: inherit; font-size: .6875rem; line-height: 1.6; text-align: center; }
+.gs-item.is-active kbd.k { background: var(--surface); }
+
+/* Resultados que llegan: fundido + 4 px, 20 ms entre filas y solo los 8 primeros */
+.gs-list.is-new .gs-item { animation: gs-in .18s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 20ms); }
+@keyframes gs-in { from { opacity: 0; transform: translateY(4px); } }
+/* Afinando la búsqueda: los anteriores se quedan atenuados hasta que llegan los nuevos */
+.gs-list.is-stale .gs-item { opacity: .5; transition: opacity .15s; }
+.gs-list.is-stale .gs-cursor { opacity: .4; }
+
+/* Esqueleto con la forma real (primera búsqueda) */
+.gs-skel { display: grid; grid-template-columns: 104px minmax(0, 1fr) 90px; align-items: center; gap: 12px; min-height: 60px; padding: 8px 10px 8px 14px; }
+.gs-skel i { display: block; border-radius: 5px; background: var(--surface-2); animation: pulse 1.2s ease-in-out infinite; }
+.gs-skel i:nth-child(1) { height: 39px; }
+.gs-skel span { display: grid; gap: 6px; }
+.gs-skel span i:first-child { width: 60%; height: 12px; }
+.gs-skel span i:last-child { width: 38%; height: 10px; }
+.gs-skel > i:last-child { height: 14px; }
+@keyframes pulse { 50% { opacity: .45; } }
+
+/* Vacíos, sin resultados y error: icono con color, frase y una acción */
+.gs-state { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .25rem 1rem; align-items: start; padding: 1.5rem 1.25rem 1.5rem; animation: gs-in .2s var(--ease-out); }
+.gs-state__icon { grid-row: span 3; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; font-size: 21px; }
+.gs-state__icon.is-neutral { background: var(--surface-2); color: var(--muted); }
+.gs-state h3 { margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: -0.005em; }
+.gs-state p { margin: 0; color: var(--muted); font-size: .875rem; max-width: 56ch; }
+.gs-state .btn { justify-self: start; margin-top: .6rem; }
+.gs-state.is-error .gs-state__icon { background: var(--danger-glow); color: var(--danger); }
+.gs-tips { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: .6rem; color: var(--muted); font-size: .8125rem; }
+.gs-tips span { display: inline-flex; align-items: center; gap: 6px; }
+
+.gs-foot { display: flex; align-items: center; justify-content: space-between; gap: .5rem 1rem; flex-wrap: wrap; margin: 0; padding: .6rem 1.1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .75rem; }
+.gs-foot__keys { display: flex; flex-wrap: wrap; gap: .25rem 1rem; }
+
+/* Móvil (≤ 640 px): casi a pantalla completa, acciones en una segunda línea y objetivos de 44 px */
+.w-mob .gs { top: 8px; width: calc(100% - 16px); max-height: calc(100% - 16px); }
+.w-mob .gs-field { height: 56px; padding: 0 .25rem 0 1rem; }
+.w-mob .gs-field .hg-icon-btn { width: 44px; height: 44px; }
+.w-mob .gs-item { grid-template-columns: 72px minmax(0, 1fr); grid-template-areas: 'c m' 'p p' 'a a'; row-gap: 8px; column-gap: 10px; padding: 10px 8px 10px 14px; }
+.w-mob .gs-item > .gs-cover { grid-area: c; width: 72px; height: 27px; align-self: start; margin-top: 2px; }
+.w-mob .gs-item > .gs-main { grid-area: m; }
+.w-mob .gs-item > .gs-price { grid-area: p; justify-items: start; grid-auto-flow: column; justify-content: start; align-items: center; gap: 10px; }
+.w-mob .gs-item > .gs-act { grid-area: a; }
+.w-mob .gs-item > .gs-open { display: none; }
+.w-mob .gs-item:not(:has(.gs-price)) { grid-template-areas: 'c m' 'a a'; }
+.w-mob .gs-item:not(:has(.gs-act)) { grid-template-areas: 'c m' 'p p'; }
+.w-mob .gs-item.no-second { grid-template-areas: 'c m'; }
+.w-mob .gs-ph { display: none; }
+.w-mob .gs-act { width: auto; }
+.w-mob .gs-act .btn { flex: 1; }
+.w-mob .gs-act .btn { height: 44px; }
+.w-mob .gs-name b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.w-mob .gs-foot { display: none; }
+.w-mob .gs-state { padding: 1.25rem 1rem; }
+.w-mob .gs-skel { grid-template-columns: 72px minmax(0, 1fr); }
+.w-mob .gs-skel > i:last-child { display: none; }
+.w-mob .gs-skel i:nth-child(1) { height: 27px; }
+
+/* Interruptor de movimiento reducido (simula prefers-reduced-motion) */
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+html.rm .gs-skel i { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+}
+.anim-list li { margin: 3px 0; }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Buscador de juegos (Ctrl + K)</h1>
+  <div class="doc-bar__actions">
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p>Hoy el buscador ya marca con <code>StatusChip</code> lo que tienes, pero el resto es gris: no se ve si un juego merece la pena, si su precio es bueno ni qué pasará al pulsar «Añadir a pendientes». La propuesta le aplica el lenguaje de la biblioteca a cada resultado, sin cambiar cómo funciona (mismo atajo, misma API, mismas acciones).</p>
+  <ul>
+    <li><b>Cada resultado dice dónde está ese juego para ti</b>: franja y chip del color de su lista, <code>MarkFlags</code> (Favorito, Sin final), horas y logros si lo tienes, tu nota si lo completaste. Un pendiente que no tienes lleva «Sin comprar» y la cápsula apagada con borde discontinuo cian, como en la biblioteca. Si está en tu wishlist, «En tu wishlist»; si no, «No lo tienes».</li>
+    <li><b>Puntuaciones con color</b>: Metacritic con su nivel <code>--sc-*</code> en todos los resultados que lo tengan (ya viene en la búsqueda de Steam; hoy se descarta) y reseñas de Steam en los que sigues.</li>
+    <li><b>Precio con veredicto</b> (como <code>PriceTag</code>): descuento tintado, precio, tachado y, en lo que sigues, <b>mínimo histórico en amarillo</b> o «Mínimo: 14,99 €» en gris si ha estado más barato. Los que ya tienes no enseñan precio, sino horas.</li>
+    <li><b>Acciones solo donde tienen sentido</b>: «Pendientes» y «Wishlist» en lo que no sigues; «A Pendientes» en lo que está en la Bandeja. En el resto de listas (Jugando, Completado…) se quita el botón «Añadir a pendientes» de hoy, que pasaría un Completado a Pendiente de un clic: la fila activa enseña <kbd class="k">Enter</kbd> Abrir ficha, y el estado se cambia allí.</li>
+    <li><b>Antes de escribir</b>: tus <b>recientes</b> (los últimos 5 que abriste o añadiste desde aquí) con su lista, recorribles con ↑/↓. La primera vez, un bloque con icono que explica qué hace el buscador.</li>
+    <li><b>Sin resultados y error con presencia</b>: icono, frase y una acción («Buscar en la tienda de Steam», «Reintentar»), en vez de una línea gris. Si falla al añadir, el error sale en la propia fila.</li>
+    <li><b>Mientras buscas</b>: el icono de la lupa pasa a un indicador que gira; la primera vez, filas esqueleto con la forma real; al afinar, los resultados anteriores se quedan atenuados en su sitio (sin saltos de altura).</li>
+    <li>Diálogo algo más ancho (<b>760 px</b>, hoy 640) para que cápsula, nombre, precio y acciones quepan en una línea. Coincidencia del término subrayada en el nombre. Pie con los atajos y cuántos resultados hay; atajo escrito «Ctrl + K» (<code>SearchShortcut</code>).</li>
+  </ul>
+
+  <h3>Decisión que tienes que tomar: variante A o B (antes de escribir)</h3>
+  <ul>
+    <li><b>A · Solo recientes</b> (recomendada): los 5 últimos juegos que abriste o añadiste desde el buscador. Sale de <code>localStorage</code>; su lista se lee al abrir. Es lo que más se repite: volver a la ficha de lo que estás jugando o mirando.</li>
+    <li><b>B · Recientes + «En mínimo en tu wishlist»</b>: 3 recientes y debajo los juegos de tu wishlist en mínimo histórico ahora mismo, en amarillo. Útil para comprar, pero repite lo que ya avisa la navegación (indicador amarillo de la Wishlist) y añade una consulta al abrir. Se comparan en la sección «Variantes».</li>
+  </ul>
+
+  <h3>Datos</h3>
+  <ul>
+    <li><b>Ya disponibles</b>: estado de cada resultado (<code>hubgames_user_games</code>), si está en la wishlist (<code>hubgames_user_wishlist</code>), precio y descuento (búsqueda de la tienda de Steam).</li>
+    <li><b>Nuevo · Metacritic</b>: la respuesta de <code>storesearch</code> ya trae <code>metascore</code> (texto, vacío si no tiene). Basta con pasarlo en <code>SteamSearchResult</code>. <span class="t">Coste: ninguno.</span></li>
+    <li><b>Nuevo · marcas, horas, logros, tu nota, «Sin comprar», reseñas y mínimo histórico de lo que sigues</b>: cambiar las dos consultas de hoy por las vistas que ya existen: <code>hubgames_library</code> (<code>status, favorite, endless, owned, rating, playtime_forever, achievements_unlocked, achievements_total, steamspy_userscore, price_*, discount_percent, steam_low</code>) y <code>hubgames_wishlist</code> (<code>steamspy_userscore, price_*, discount_percent, steam_low</code>), con el mismo <code>.in('appid', ids)</code>. <span class="t">Coste: las mismas 2 consultas por búsqueda, ≤ 10 filas, unas columnas más.</span></li>
+    <li><b>No se propone</b>: reseñas y mínimo histórico de juegos que no sigues. Reseñas: se podrían leer de <code>hubgames_juegos_steam.steamspy_userscore</code> si el juego está en el catálogo (+1 consulta por búsqueda, sin APIs externas; si interesa, se añade). Mínimo: exigiría IsThereAnyDeal en cada búsqueda (lookup + historylow, 2 llamadas externas con cuota): no compensa.</li>
+    <li><b>Nuevo · recientes</b>: <code>localStorage</code> (<code>hg-search-recent</code>: appid, nombre e imagen, máx. 5). Su lista y precio se leen al abrir con la misma consulta a <code>hubgames_library</code>/<code>hubgames_wishlist</code> con ≤ 5 ids. <span class="t">Coste: 1–2 consultas pequeñas al abrir, solo si hay recientes.</span></li>
+    <li><b>Solo variante B</b>: la consulta de <code>countWishlistDeals</code> (<code>src/lib/nav-status.ts</code>) pidiendo además <code>appid, name, price_initial</code>. <span class="t">Coste: +1 consulta al abrir (o 0 si se comparte con el indicador de la navegación).</span></li>
+    <li>Tras añadir, <code>/api/pendientes</code> ya devuelve el estado; para pintar «Pendiente · Sin comprar» no hace falta nada más. El precio y el mínimo los trae <code>refreshPrices</code> como hoy.</li>
+  </ul>
+
+  <h3>Microanimaciones (prueba el primer marco: escribe, usa ↑/↓/Enter/Esc y Ctrl + K; «Repetir entrada» arriba)</h3>
+  <ul class="anim-list">
+    <li><b>Abrir</b>: el diálogo escala desde el centro (0,96 → 1) con fundido y el velo aparece. <span class="t">200 ms · <code>--ease-out</code>; velo 160 ms. Hoy: 140 ms y 0,98. <b>Cerrar</b> (Esc, clic fuera): 140 ms · ease-in, a 0,97.</span></li>
+    <li><b>Resultados que llegan</b>: fundido + 4 px escalonado mínimo. <span class="t">180 ms · <code>--ease-out</code> · 20 ms entre filas, solo las 8 primeras. Solo cuando llega un conjunto nuevo, no al moverte ni al añadir.</span></li>
+    <li><b>Resaltado que se desliza</b> entre filas con ↑/↓ o el ratón (fondo + cursor de selección). <span class="t">180 ms · <code>--ease-out</code>. En la app, un <code>motion.span</code> con <code>layoutId</code> dentro de la fila activa (como <code>.hg-seg--slide</code>).</span></li>
+    <li><b>«Enter Abrir ficha»</b> aparece en la fila activa que no tiene botones. <span class="t">120 ms de fundido.</span></li>
+    <li><b>Añadir a Pendientes</b>: el icono pasa a indicador mientras guarda; después el botón toma el color de Pendiente (fondo al <code>--tint</code> y texto), salta y <b>se dibuja un check</b>. A la vez, «No lo tienes» se convierte en el chip «Pendiente» + «Sin comprar» con un pop, crece la franja cian y la cápsula se apaga. <span class="t">color 200 ms · salto 300 ms (como <code>AnimatedCount</code>) · check 300 ms (<code>.hg-draw</code>) · chip 260 ms (<code>.hg-pop-in</code>) · franja 220 ms (<code>scaleY</code>).</span></li>
+    <li><b>Añadir a la wishlist</b>: el corazón se rellena y late; el botón pasa a «En la wishlist» en neutro (la wishlist no es una lista con color: no se inventa uno) y aparece el chip «En tu wishlist». <span class="t">latido 400 ms · chip 260 ms.</span></li>
+    <li><b>Cargando</b>: indicador que gira en el campo (como hoy) y esqueletos con pulso suave. <span class="t">giro 800 ms y pulso 1,2 s en bucle, solo mientras carga.</span></li>
+    <li>Con <b>movimiento reducido</b> todo pasa a instantáneo: el resaltado salta de fila, el diálogo aparece sin escalar y los esqueletos no laten.</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px · prueba en vivo</h2>
+  <p>Biblioteca de fondo con la navegación nueva. Al entrar se abre el diálogo y se escribe «souls». Prueba ↑/↓, Enter (abre la ficha), Esc (cierra; <b>Ctrl + K</b> o «Buscar juego» de la barra lo vuelve a abrir), «Pendientes» y «Wishlist». Otras búsquedas: «hollow», «elden», «zelda» (sin resultados), «error» (Steam no responde); vacía el campo para ver los recientes.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px;height:900px" id="f-desk"></div></div>
+  <div class="keys">Teclado simulado:
+    <button class="doc-btn" type="button" data-key="ArrowUp"><kbd>↑</kbd></button>
+    <button class="doc-btn" type="button" data-key="ArrowDown"><kbd>↓</kbd></button>
+    <button class="doc-btn" type="button" data-key="Enter"><kbd>Enter</kbd></button>
+    <button class="doc-btn" type="button" data-key="Escape"><kbd>Esc</kbd></button>
+    <button class="doc-btn" type="button" data-key="open"><kbd>Ctrl + K</kbd></button>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>~1000 px · barra plegada · después de añadir</h2>
+  <p>Mismos resultados, oscuro o claro según el botón de arriba. «BLEACH Rebirth of Souls» ya añadido a Pendientes (check cian, chip y franja) y «MARVEL Tōkon» añadido a la wishlist. También es interactivo.</p>
+  <div class="scroller"><div class="frame w-mid" style="width:1000px;height:820px" id="f-mid"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Se abre con la lupa de la barra superior. El diálogo ocupa casi toda la pantalla; precio y acciones bajan a una segunda línea con botones de 44 px; el nombre puede ocupar dos líneas; sin pie de atajos (no hay teclado físico).</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px;height:844px" id="f-mob"></div><p class="frame-cap">Resultados de «souls».</p></div>
+    <div><div class="frame w-mob" style="width:390px;height:844px" id="f-mob-empty"></div><p class="frame-cap">Antes de escribir: recientes (variante A).</p></div>
+    <div><div class="frame w-mob" style="width:390px;height:844px" id="f-mob-none"></div><p class="frame-cap">Sin resultados.</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Estados del diálogo</h2>
+  <p>Solo el diálogo, a su ancho real (760 px). Todos son interactivos.</p>
+  <div class="scroller"><div class="gallery">
+    <div><h3>Primera vez (sin recientes)</h3><div class="stage" id="g-first"></div><p>Icono con el acento, qué hace el buscador y la leyenda de colores en una frase.</p></div>
+    <div><h3>Escribiendo · primera búsqueda</h3><div class="stage" id="g-loading"></div><p>250 ms de espera tras la última tecla (como hoy) y esqueletos con la forma de las filas.</p></div>
+    <div><h3>Afinando («souls» → «dark souls»)</h3><div class="stage" id="g-stale"></div><p>Los resultados anteriores se quedan atenuados y en su sitio hasta que llegan los nuevos.</p></div>
+    <div><h3>Sin resultados</h3><div class="stage" id="g-none"></div><p>Zelda no está en Steam: se explica por qué puede pasar y se ofrece la tienda.</p></div>
+    <div><h3>Error de la tienda</h3><div class="stage" id="g-error"></div><p>Respuesta 502 de <code>/api/steam/search</code> («La tienda de Steam no responde»).</p></div>
+    <div><h3>Error al añadir</h3><div class="stage" id="g-adderr"></div><p>409 de <code>/api/wishlist</code>: el error va en la fila, no arriba del diálogo.</p></div>
+    <div><h3>Confirmación al añadir (en bucle para verla)</h3><div class="stage" id="g-confirm"></div><p>Pendientes: guardando → check cian; Wishlist: corazón que late. <button class="doc-btn" type="button" id="confirm-replay" style="height:30px;margin-left:6px">Repetir</button></p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · antes de escribir</h2>
+  <p>Diálogo recién abierto, sin texto.</p>
+  <div class="scroller"><div class="gallery">
+    <div><div class="vlabel"><b>A</b> Solo recientes (recomendada)</div><div class="stage" id="g-var-a"></div></div>
+    <div><div class="vlabel"><b>B</b> Recientes + en mínimo en tu wishlist</div><div class="stage" id="g-var-b"></div></div>
+  </div></div>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide, los mismos que usa la app) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  searchx: '<path d="m13.5 8.5-5 5"/><path d="m8.5 8.5 5 5"/><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+  bookmarkplus: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/><line x1="12" x2="12" y1="7" y2="13"/><line x1="15" x2="9" y1="10" y2="10"/>',
+  pause: '<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  circlex: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  xcircle: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  tdown: '<polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  ext: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3"/>',
+  star: '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  loader: '<path d="M21 12a9 9 0 1 1-6.219-8.56"/>',
+  infinity: '<path d="M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  thumb: '<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+  cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+  tag: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+  eyeoff: '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm');
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+
+/* ── Navegación y biblioteca de fondo ── */
+function sidebar(compact) {
+  const c = compact;
+  const link = (k, label, icon, extra = '') => `<a href="#" class="nv-link ${k === 'lib' ? 'active' : ''}" title="${label}">${ic(icon)}<span class="nv-link__label">${label}</span>${extra}</a>`;
+  const tray = c ? '<span class="nv-dot hg-tint st-bandeja">14</span>' : `<span class="nv-count hg-tint st-bandeja">${ic('inbox')}14</span>`;
+  const deals = c ? '<span class="nv-dot nv-count--deal">2</span>' : `<span class="nv-count nv-count--deal">${ic('tag')}2</span>`;
+  const judi = c ? `<span class="nv-dot nv-dot--icon hg-tint warn">${ic('clock')}</span>` : `<span class="nv-count hg-tint warn">${ic('clock')}Hoy</span>`;
+  return `<aside class="nv-side ${c ? 'is-compact' : ''}"><a href="#" class="nv-brand">${logo(22)}</a>
+    <span class="nv-search" data-open-search role="button" tabindex="0">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span>
+    <nav class="nv-menu"><div class="nv-group">${link('home', 'Inicio', 'home')}</div>
+    <div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('lib', 'Biblioteca', 'library', tray)}${link('ach', 'Logros', 'award')}${link('wish', 'Wishlist', 'heart', deals)}${link('stats', 'Estadísticas', 'chart')}</div>
+    <div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('judi', 'JUDI', 'gamepad', judi)}${link('rank', 'Ranking', 'trophy')}</div></nav>
+    <div class="nv-foot"><span class="theme-btn">${ic('sun')}</span><div class="theme-toggle"><span class="on">${ic('sun')}</span><span>${ic('moon')}</span><span>${ic('monitor')}</span></div>
+    <a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>diego</span><span class="nv-account__meta">Ver perfil</span></span></a></div></aside>`;
+}
+const HDR = (id) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`;
+const ST = { jugando: ['play', 'Jugando'], pendiente: ['bookmark', 'Pendiente'], pausado: ['pause', 'Pausado'], completado: ['flag', 'Completado'], abandonado: ['circlex', 'Abandonado'], descartado: ['eyeoff', 'Descartado'], bandeja: ['inbox', 'Bandeja'] };
+const chip = (s, cls = '') => `<span class="hg-chip hg-tint st-${s} ${cls}">${ic(ST[s][0])}${ST[s][1]}</span>`;
+const LIB = [
+  { id: 1145350, name: 'Hades II', meta: '38 h · ayer', st: 'jugando', ach: [21, 49] },
+  { id: 1245620, name: 'ELDEN RING', meta: '142 h · hace 2 días', st: 'jugando', ach: [31, 42] },
+  { id: 367520, name: 'Hollow Knight', meta: '47 h · hace 3 meses', st: 'completado', ach: [63, 63] },
+  { id: 620, name: 'Portal 2', meta: '22 h · hace 1 año', st: 'completado', ach: [48, 51] },
+  { id: 268910, name: 'Cuphead', meta: '18 h · hace 5 meses', st: 'pausado', ach: [31, 36] },
+  { id: 504230, name: 'Celeste', meta: '0 h · en tu cola', st: 'pendiente', ach: [0, 32] },
+  { id: 632470, name: 'Disco Elysium - The Final Cut', meta: '3 h · hace 8 meses', st: 'pendiente', ach: [4, 45] },
+  { id: 1092790, name: 'Inscryption', meta: '9 h · hace 2 años', st: 'abandonado', ach: [12, 19] },
+];
+function bgRow(g) {
+  const p = Math.round(g.ach[0] / g.ach[1] * 100);
+  return `<li class="bg-row st-${g.st}"><span class="bg-row__cover"><img src="${HDR(g.id)}" alt=""></span><span style="display:grid;gap:2px;min-width:0"><span class="bg-row__name">${g.name}</span><span class="bg-row__meta">${g.meta}</span></span><span class="bg-prog"><span class="bg-prog__label"><span><b>${g.ach[0]}</b> de ${g.ach[1]} logros</span><span>${p} %</span></span><span class="bg-bar"><span style="width:${p}%"></span></span></span>${chip(g.st)}</li>`;
+}
+const rail = (k, label, icon, n, cur) => `<span class="lib-rail__item st-${k} ${k === 'bandeja' ? 'lib-rail__item--tray' : ''}" ${cur ? 'aria-current="page"' : ''}><span class="lib-rail__icon hg-tint">${ic(icon)}</span><span>${label}</span><span class="lib-rail__count">${n}</span></span>`;
+function libPage(compact) {
+  return `<div class="page ${compact ? 'is-compact' : ''}"><div class="page-in">
+    <header class="page-head"><div><h1 class="page-title">Biblioteca</h1><p class="page-subtitle">124 juegos clasificados · 2 en curso · 6 pendientes sin comprar</p></div><span class="btn2">${ic('search')} Buscar juego</span></header>
+    <div class="lib-layout"><nav class="lib-rail">
+      <div class="lib-rail__group">${rail('todos', 'Todos', 'library', 124, true)}</div>
+      <div class="lib-rail__group"><p class="lib-rail__title">Estados</p>${rail('jugando', 'Jugando', 'play', 2)}${rail('pendiente', 'Pendiente', 'bookmark', 37)}${rail('pausado', 'Pausado', 'pause', 9)}${rail('completado', 'Completado', 'flag', 58)}${rail('abandonado', 'Abandonado', 'circlex', 12)}</div>
+      <div class="lib-rail__group"><p class="lib-rail__title">Marcas</p>${rail('favorito', 'Favorito', 'heart', 15)}${rail('sin_final', 'Sin final', 'infinity', 6)}</div>
+      <div class="lib-rail__group">${rail('bandeja', 'Bandeja', 'inbox', 14)}</div></nav>
+      <section class="st-todos"><div class="lib-head"><span class="lib-head__icon hg-tint">${ic('library')}</span><div><h2>Todos</h2><p>Todo lo que has clasificado, de más a menos reciente.</p></div></div><ul class="bg-rows">${LIB.map(bgRow).join('')}</ul></section>
+    </div></div></div>`;
+}
+function mobilePage() {
+  const tabs = [['home', 'Inicio', 'home'], ['lib', 'Biblioteca', 'library'], ['ach', 'Logros', 'award'], ['judi', 'JUDI', 'gamepad'], ['rank', 'Ranking', 'trophy'], ['perfil', 'Perfil', 'user']];
+  const dot = (k) => k === 'lib' ? '<span class="nv-dot hg-tint st-bandeja">14</span>' : k === 'judi' ? `<span class="nv-dot nv-dot--icon hg-tint warn">${ic('clock')}</span>` : '';
+  return `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon" data-open-search title="Buscar juego">${ic('search')}</span><span class="m-icon">${ic('sun')}</span><span class="m-icon"><span class="nv-avatar">D</span></span></div></header>
+    <div class="m-page"><h1 class="page-title">Biblioteca</h1><p class="page-subtitle" style="font-size:.875rem">124 juegos clasificados · 2 en curso</p>
+    <div class="m-rail">${rail('todos', 'Todos', 'library', 124, true)}${rail('jugando', 'Jugando', 'play', 2)}${rail('pendiente', 'Pendiente', 'bookmark', 37)}</div>
+    <ul class="bg-rows">${LIB.slice(0, 7).map(bgRow).join('')}</ul></div>
+    <nav class="m-tabbar">${tabs.map(([k, l, i]) => `<a href="#" class="m-tab ${k === 'lib' ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}${dot(k)}</span><span>${l}</span></a>`).join('')}</nav>`;
+}
+
+/* ── Datos de ejemplo: resultados reales de la tienda de Steam (ES) ── */
+const CAP = (p) => `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${p}`;
+const DB = [
+  // «souls»: uno en Jugando, uno en tu wishlist en mínimo, uno que no tienes, uno Completado y Favorito, uno rebajado que no tienes,
+  // un pendiente sin comprar, uno en la Bandeja, uno Abandonado y otro que no tienes.
+  { id: 374320, img: '374320/capsule_231x87.jpg', name: 'DARK SOULS™ III', st: 'jugando', owned: true, hours: 42, ach: [31, 43], mc: 89, rev: 94 },
+  { id: 335300, img: '335300/capsule_231x87.jpg', name: 'DARK SOULS™ II: Scholar of the First Sin', wish: true, mc: 79, rev: 87, price: { cut: 75, now: '9,99 €', was: '39,99 €', low: true } },
+  { id: 3787240, img: '3787240/59af95e2175fe017802e3fe79588197a52bef6c0/capsule_231x87.jpg', name: 'MARVEL Tōkon: Fighting Souls', price: { now: '69,99 €' } },
+  { id: 570940, img: '570940/capsule_231x87.jpg', name: 'DARK SOULS™: REMASTERED', st: 'completado', owned: true, fav: true, hours: 61, ach: [41, 41], mc: 84, rev: 90, rating: 9.5 },
+  { id: 1689620, img: '1689620/85d75afeb2c483a64d9503e9bd9ab13f1e68270b/capsule_231x87.jpg', name: 'BLEACH Rebirth of Souls', mc: 76, price: { cut: 60, now: '23,99 €', was: '59,99 €' } },
+  { id: 2464280, img: '2464280/88e19cf1b70125ed52c7ef964968599cbcf4cc4f/capsule_231x87.jpg', name: 'Tormented Souls 2', st: 'pendiente', owned: false, mc: 78, rev: 91, price: { cut: 40, now: '17,99 €', was: '29,99 €', steamLow: '14,99 €' } },
+  { id: 1367590, img: '1367590/capsule_231x87.jpg', name: 'Tormented Souls', st: 'bandeja', owned: true, hours: 6, ach: [9, 27], mc: 75, rev: 86 },
+  { id: 960990, img: '960990/capsule_231x87.jpg', name: 'Beyond: Two Souls', st: 'abandonado', owned: true, hours: 3, ach: [4, 34], mc: 76, rev: 83 },
+  { id: 3755860, img: '3755860/3b6c53bc00c8db566d34c4ed1af1602deb13431f/capsule_231x87.jpg', name: 'BLACK SOULS', price: { now: '13,79 €' } },
+  // Otras búsquedas y recientes
+  { id: 367520, img: '367520/fba7289f4c7e90ae9c0caa87e4225f3f9111d7dd/capsule_231x87.jpg', name: 'Hollow Knight', st: 'completado', owned: true, fav: true, hours: 47, ach: [63, 63], mc: 87, rev: 97, rating: 10 },
+  { id: 1030300, img: '1030300/b73ec03fbdb9e21e3c59eb7e59966949d0c17f29/capsule_231x87.jpg', name: 'Hollow Knight: Silksong', wish: true, mc: 90, rev: 86, price: { cut: 25, now: '14,62 €', was: '19,50 €', low: true } },
+  { id: 1245620, img: '1245620/capsule_231x87.jpg', name: 'ELDEN RING', st: 'jugando', owned: true, fav: true, hours: 142, ach: [31, 42], mc: 94, rev: 93 },
+  { id: 2379780, img: '2379780/554b5f66f60e80b43f910cba21d23af16ed897be/capsule_231x87.jpg', name: 'Balatro', st: 'jugando', owned: true, endless: true, hours: 64, ach: [18, 30], mc: 90, rev: 97 },
+  { id: 1086940, img: '1086940/3dd81008e9c385caf68152450c22353f6a8abec9/capsule_231x87.jpg', name: "Baldur's Gate 3", mc: 96, price: { now: '59,99 €' } },
+];
+const byName = (n) => DB.find((g) => g.name === n);
+const SOULS = DB.slice(0, 9);
+const RECENT = ['ELDEN RING', 'Hollow Knight: Silksong', 'Hollow Knight', "Baldur's Gate 3", 'Balatro'].map(byName);
+const RECENT_B = ['ELDEN RING', 'Hollow Knight', 'Balatro'].map(byName);
+const DEALS_B = ['Hollow Knight: Silksong', 'DARK SOULS™ II: Scholar of the First Sin'].map(byName);
+const clone = (list) => list.map((g) => ({ ...g, price: g.price && { ...g.price }, ach: g.ach && [...g.ach] }));
+const norm = (s) => s.toLowerCase().replace(/[™®]/g, '').normalize('NFD').replace(/[̀-ͯ]/g, '');
+function fakeSearch(q) {
+  const t = norm(q.trim());
+  if (t === 'error') return 'error';
+  if (t === 'souls' || t === 'soul') return clone(SOULS);
+  return clone(DB.filter((g) => norm(g.name).includes(t)));
+}
+
+/* ── Piezas de una fila ── */
+const num = (n) => String(n).replace('.', ',');
+const mc = (s) => { const t = s >= 75 ? 'top' : s >= 50 ? 'mid' : 'bad'; const l = s >= 90 ? 'Aclamado' : s >= 75 ? 'Favorable' : s >= 50 ? 'Variado' : 'Desfavorable'; return `<span class="hg-score hg-tint sc-${t}" title="Metacritic: ${l}">${s}</span>`; };
+const rev = (p) => { const t = p >= 80 ? 'top' : p >= 70 ? 'good' : p >= 40 ? 'mid' : 'bad'; const l = p >= 95 ? 'Extremadamente positivas' : p >= 80 ? 'Muy positivas' : p >= 70 ? 'Mayormente positivas' : 'Variadas'; return `<span class="hg-score hg-tint sc-${t}" title="Reseñas de Steam: ${l}">${ic('thumb')} ${p} %</span>`; };
+const nota = (n) => { const t = n >= 9 ? 'top' : n >= 7 ? 'good' : n >= 5 ? 'mid' : 'bad'; return `<span class="hg-score hg-tint sc-${t}" title="Tu nota">${ic('star')} ${num(n)}</span>`; };
+const flags = (g) => (g.fav ? `<span class="hg-flag hg-tint st-favorito" title="Favorito">${ic('heart')}</span>` : '') + (g.endless ? `<span class="hg-flag hg-tint st-sin_final" title="Sin final">${ic('infinity')}</span>` : '');
+const sinComprar = (cls = '') => `<span class="lib-own--no ${cls}">${ic('cart')}Sin comprar</span>`;
+const wishChip = (cls = '') => `<span class="gs-wish-chip ${cls}">${ic('heart')}En tu wishlist</span>`;
+function hl(name, term) {
+  const t = norm(term || '').trim(); if (!t) return name;
+  const i = norm(name).indexOf(t); if (i < 0) return name;
+  return `${name.slice(0, i)}<mark>${name.slice(i, i + t.length)}</mark>${name.slice(i + t.length)}`;
+}
+function statusPart(g) {
+  if (g.st) return `${chip(g.st)}${g.st === 'pendiente' && !g.owned ? sinComprar() : ''}`;
+  if (g.wish) return wishChip();
+  return '<span class="gs-none">No lo tienes</span>';
+}
+function metaPart(g) {
+  const out = [statusPart(g)];
+  if (g.owned) out.push(`<span class="dot">${ic('clock')}${g.hours} h</span>`);
+  if (g.owned && g.ach) out.push(`<span class="dot">${ic('trophy')}${g.ach[0]}/${g.ach[1]}</span>`);
+  if (g.rating) out.push(nota(g.rating));
+  if (g.mc) out.push(mc(g.mc));
+  if (g.rev && (g.st || g.wish)) out.push(rev(g.rev));
+  return out.join('');
+}
+function pricePart(g) {
+  if (g.owned || !g.price) return '';
+  const p = g.price;
+  const cut = p.cut ? `<span class="gs-price__cut hg-tint sc-top">-${p.cut} %</span>` : '';
+  const was = p.was ? `<s>${p.was}</s>` : '';
+  const low = p.low ? `<span class="hg-deal">${ic('tdown')}Mínimo histórico</span>` : p.steamLow ? `<span class="gs-price__low--muted">Mínimo: ${p.steamLow}</span>` : '';
+  return `<span class="gs-price"><span class="gs-price__now">${cut}<strong>${p.now}</strong>${was}</span>${low}</span>`;
+}
+function actPart(g) {
+  if (g.st === 'bandeja') return `<span class="gs-act"><button type="button" class="btn btn--secondary btn--sm gs-add" data-add="pend">${ic('bookmarkplus')}<span>A Pendientes</span></button></span>`;
+  if (g.st) return '';
+  const pend = `<button type="button" class="btn btn--secondary btn--sm gs-add" data-add="pend">${ic('bookmarkplus')}<span>Pendientes</span></button>`;
+  const wish = g.wish ? '' : `<button type="button" class="btn btn--ghost btn--sm gs-wish" data-add="wish">${ic('heart')}<span>Wishlist</span></button>`;
+  return `<span class="gs-act">${pend}${wish}</span>`;
+}
+function row(g, i, term, id) {
+  const cls = ['gs-item'];
+  if (g.st) cls.push('has-st', `st-${g.st}`);
+  if (g.st === 'pendiente' && !g.owned) cls.push('is-unowned');
+  const act = actPart(g); const price = pricePart(g);
+  if (!act && !price) cls.push('no-second');
+  const tail = act || `<span class="gs-open"><kbd class="k">Enter</kbd>Abrir ficha</span>`;
+  return `<li class="${cls.join(' ')}" role="option" id="${id}-${g.id}" aria-selected="false" data-i="${i}" style="--i:${i}">
+    <span class="gs-cover"><img src="${CAP(g.img)}" alt="" loading="lazy"></span>
+    <span class="gs-main"><span class="gs-name"><b>${hl(g.name, term)}</b>${flags(g)}</span><span class="gs-meta">${metaPart(g)}</span>${g.err ? `<span class="gs-err">${ic('alert')}${g.err}</span>` : ''}</span>
+    ${price || (act ? '<span class="gs-ph"></span>' : '')}${tail}</li>`;
+}
+
+/* ── Controlador de un diálogo ── */
+let uid = 0;
+class Search {
+  constructor(host, o = {}) {
+    this.host = host; this.o = o; this.id = 'gs' + (++uid);
+    this.term = o.term || ''; this.results = o.results || []; this.active = o.active || 0;
+    this.mode = o.mode || (this.term ? 'results' : 'empty');
+    this.recent = o.recent === undefined ? RECENT : o.recent; this.deals = o.deals || null;
+    this.timer = null; this.req = 0;
+    host.insertAdjacentHTML('beforeend', `${o.stage ? '' : '<div class="gs-scrim" data-scrim></div>'}<div class="gs" role="dialog" aria-modal="true" aria-label="Buscar un juego de Steam">
+      <label class="gs-field">${ic('search')}<input type="text" value="${this.term}" placeholder="Busca cualquier juego de Steam…" aria-label="Buscar un juego de Steam" aria-controls="${this.id}-list" enterkeyhint="search" autocomplete="off">
+        <button type="button" class="hg-icon-btn gs-clear" aria-label="Borrar" ${this.term ? '' : 'hidden'}>${ic('xcircle')}</button>
+        <button type="button" class="hg-icon-btn" data-close aria-label="Cerrar">${ic('x')}</button></label>
+      <div class="gs-body"></div>
+      <p class="gs-foot"><span class="gs-foot__keys"><span><kbd class="k">↑</kbd> <kbd class="k">↓</kbd> para moverte</span><span><kbd class="k">Enter</kbd> abre la ficha</span><span><kbd class="k">Esc</kbd> cierra</span></span><span class="gs-foot__count"></span></p>
+      <p class="sr-only" aria-live="polite" data-live></p></div>`);
+    this.el = host.querySelector('.gs'); this.scrim = host.querySelector('[data-scrim]');
+    this.input = this.el.querySelector('input'); this.body = this.el.querySelector('.gs-body');
+    this.bind(); this.render(false);
+  }
+  bind() {
+    this.input.addEventListener('input', () => this.onType());
+    this.input.addEventListener('keydown', (e) => this.key(e.key, e));
+    this.el.querySelector('.gs-clear').addEventListener('click', () => { this.input.value = ''; this.onType(); this.input.focus(); });
+    this.el.querySelector('[data-close]').addEventListener('click', () => this.close());
+    this.scrim && this.scrim.addEventListener('click', () => this.close());
+    this.body.addEventListener('mousemove', (e) => { const li = e.target.closest('.gs-item'); if (li && +li.dataset.i !== this.active) this.setActive(+li.dataset.i); });
+    this.body.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-add]'); if (b) { e.stopPropagation(); this.add(b); return; }
+      if (e.target.closest('[data-retry]')) { this.search(); return; }
+      if (e.target.closest('[data-clear-recent]')) { this.recent = []; this.render(false); return; }
+      const li = e.target.closest('.gs-item'); if (li) this.openGame(+li.dataset.i);
+    });
+  }
+  list() { return this.mode === 'results' || this.mode === 'stale' ? this.results : this.mode === 'empty' ? [...this.recent, ...(this.deals || [])] : []; }
+  onType() {
+    this.term = this.input.value; this.el.querySelector('.gs-clear').hidden = !this.term;
+    clearTimeout(this.timer);
+    if (this.term.trim().length < 2) { this.req++; this.setLoading(false); this.mode = 'empty'; this.active = 0; this.render(false); return; }
+    this.timer = setTimeout(() => this.search(), 250);
+  }
+  search() {
+    const n = ++this.req; const had = this.mode === 'results' && this.results.length;
+    this.mode = had ? 'stale' : 'loading'; this.setLoading(true); this.render(false);
+    setTimeout(() => {
+      if (n !== this.req) return;
+      const r = fakeSearch(this.term); this.setLoading(false);
+      if (r === 'error') { this.mode = 'error'; this.render(false); return; }
+      this.results = r; this.active = 0; this.mode = r.length ? 'results' : 'none'; this.render(true);
+    }, 450);
+  }
+  setLoading(on) { const f = this.el.querySelector('.gs-field'); f.classList.toggle('is-loading', on); f.firstElementChild.outerHTML = ic(on ? 'loader' : 'search'); }
+  render(fresh) {
+    const t = this.term; const m = this.mode; const id = this.id;
+    let html = ''; const count = this.el.querySelector('.gs-foot__count'); count.textContent = '';
+    if (m === 'empty') {
+      if (!this.recent.length && !this.deals) {
+        html = `<div class="gs-state"><span class="gs-state__icon hg-tint st-todos">${ic('search')}</span><h3>Busca cualquier juego de Steam</h3><p>Los que ya tienes salen con el color de su lista; los demás, con su precio. Añádelos a Pendientes o a tu wishlist sin salir de aquí.</p><span class="gs-tips"><span><kbd class="k">Ctrl + K</kbd> abre el buscador desde cualquier página</span></span></div>`;
+      } else {
+        let i = 0;
+        const rows = (list) => list.map((g) => row(g, i++, '', id)).join('');
+        html = `<p class="gs-group">${ic('history')}Recientes<span class="gs-group__end"><button type="button" data-clear-recent>Borrar</button></span></p><ul class="gs-list" role="listbox" id="${id}-list" aria-label="Recientes"><span class="gs-cursor no-anim"></span>${rows(this.recent)}</ul>`;
+        if (this.deals) html += `<p class="gs-group is-deal">${ic('tdown')}En mínimo en tu wishlist<span class="gs-group__end">${this.deals.length} de 9</span></p><ul class="gs-list" role="listbox" aria-label="En mínimo en tu wishlist"><span class="gs-cursor no-anim" style="opacity:0"></span>${rows(this.deals)}</ul>`;
+      }
+    } else if (m === 'loading') {
+      html = `<ul class="gs-list" aria-hidden="true">${'<li class="gs-skel"><i></i><span><i></i><i></i></span><i></i></li>'.repeat(4)}</ul>`;
+    } else if (m === 'results' || m === 'stale') {
+      html = `<ul class="gs-list ${fresh ? 'is-new' : ''} ${m === 'stale' ? 'is-stale' : ''}" role="listbox" id="${id}-list" aria-label="Resultados"><span class="gs-cursor no-anim"></span>${this.results.map((g, i) => row(g, i, t, id)).join('')}</ul>`;
+      count.textContent = `${this.results.length} resultados de la tienda de Steam`;
+    } else if (m === 'none') {
+      html = `<div class="gs-state"><span class="gs-state__icon is-neutral">${ic('searchx')}</span><h3>Ningún juego de Steam coincide con «${t.trim()}»</h3><p>Se busca por el nombre en la tienda de Steam. Prueba con menos palabras o con el nombre en inglés; algunos juegos, como los de consola, no están en Steam.</p><a href="#" class="btn btn--secondary btn--sm">${ic('ext')} Buscar en la tienda de Steam</a></div>`;
+    } else if (m === 'error') {
+      html = `<div class="gs-state is-error" role="alert"><span class="gs-state__icon">${ic('alert')}</span><h3>La tienda de Steam no responde</h3><p>No es cosa tuya: Steam tarda o está caído un momento. Tu búsqueda sigue ahí.</p><button type="button" class="btn btn--secondary btn--sm" data-retry>${ic('refresh')} Reintentar</button></div>`;
+    }
+    this.body.innerHTML = html;
+    this.input.setAttribute('aria-activedescendant', '');
+    requestAnimationFrame(() => this.placeCursor(false));
+  }
+  items() { return [...this.body.querySelectorAll('.gs-item')]; }
+  setActive(i) { this.active = i; this.placeCursor(true); }
+  placeCursor(animate) {
+    const items = this.items(); if (!items.length) return;
+    this.active = Math.max(0, Math.min(this.active, items.length - 1));
+    items.forEach((li, k) => { li.classList.toggle('is-active', k === this.active); li.setAttribute('aria-selected', String(k === this.active)); });
+    const li = items[this.active]; const ul = li.parentElement;
+    this.body.querySelectorAll('.gs-cursor').forEach((c) => { if (c.parentElement !== ul) c.style.opacity = 0; });
+    const cur = ul.querySelector('.gs-cursor'); if (!cur) return;
+    if (!animate || cur.style.opacity === '0') cur.classList.add('no-anim');
+    cur.style.opacity = ''; cur.style.height = li.offsetHeight + 'px'; cur.style.transform = `translateY(${li.offsetTop}px)`;
+    if (!animate) { void cur.offsetWidth; } requestAnimationFrame(() => cur.classList.remove('no-anim'));
+    this.input.setAttribute('aria-activedescendant', li.id);
+    if (animate) { const b = this.body; const top = li.offsetTop + ul.offsetTop; if (top < b.scrollTop) b.scrollTop = top - 8; else if (top + li.offsetHeight > b.scrollTop + b.clientHeight) b.scrollTop = top + li.offsetHeight - b.clientHeight + 8; }
+  }
+  key(k, e) {
+    const n = this.items().length;
+    if (k === 'Escape') { e && e.preventDefault(); this.close(); return; }
+    if (!n) return;
+    if (k === 'ArrowDown' || k === 'ArrowUp') { e && e.preventDefault(); this.setActive((this.active + (k === 'ArrowDown' ? 1 : -1) + n) % n); }
+    else if (k === 'Enter') { e && e.preventDefault(); this.openGame(this.active); }
+  }
+  openGame(i) {
+    const g = this.list()[i]; if (!g) return;
+    toast(this.host, `Abriría la ficha de ${g.name} (/juego/${g.id}) y lo guardaría en recientes`);
+    if (!this.o.stage) this.close();
+  }
+  add(btn) {
+    const li = btn.closest('.gs-item'); const g = this.list()[+li.dataset.i]; const kind = btn.dataset.add;
+    if (btn.classList.contains('is-done') || btn.disabled) return;
+    li.querySelectorAll('[data-add]').forEach((b) => (b.disabled = true));
+    btn.classList.add('is-saving'); btn.firstElementChild.outerHTML = ic('loader');
+    setTimeout(() => this.confirm(li, g, kind, btn), this.o.slowSave || 550);
+  }
+  confirm(li, g, kind, btn) {
+    li.querySelectorAll('[data-add]').forEach((b) => (b.disabled = false));
+    btn.classList.remove('is-saving'); btn.disabled = true;
+    const meta = li.querySelector('.gs-meta');
+    if (kind === 'pend') {
+      btn.classList.add('is-done', 'pop'); btn.innerHTML = `${ic('check', 'draw')}<span>En Pendientes</span>`;
+      const was = g.st; g.st = 'pendiente';
+      li.classList.add('has-st', 'st-pendiente', 'is-new-st'); li.classList.remove('st-bandeja');
+      if (!g.owned) li.classList.add('is-unowned');
+      const first = meta.firstElementChild;
+      const tmp = document.createElement('span'); tmp.innerHTML = chip('pendiente', 'chip-in') + (g.owned ? '' : sinComprar('chip-in'));
+      if (was === 'bandeja') first.replaceWith(...tmp.childNodes); else { first.replaceWith(...tmp.childNodes); }
+      this.live(`${g.name} añadido a Pendientes${g.owned ? '' : ' (sin comprar)'}`);
+    } else {
+      btn.classList.add('is-done'); btn.innerHTML = `${ic('heart', 'beat')}<span>En la wishlist</span>`; g.wish = true;
+      const none = meta.querySelector('.gs-none'); if (none) { const tmp = document.createElement('span'); tmp.innerHTML = wishChip('chip-in'); none.replaceWith(tmp.firstElementChild); }
+      this.live(`${g.name} añadido a tu wishlist`);
+    }
+    this.placeCursor(false);
+  }
+  live(t) { this.el.querySelector('[data-live]').textContent = t; }
+  open(typeTerm) {
+    if (this.o.stage) return;
+    this.el.hidden = false; this.scrim.hidden = false;
+    [this.el, this.scrim].forEach((x) => { x.classList.remove('is-closing', 'is-opening'); void x.offsetWidth; x.classList.add('is-opening'); });
+    this.input.value = ''; this.term = ''; this.mode = 'empty'; this.active = 0; this.el.querySelector('.gs-clear').hidden = true; this.render(false);
+    this.input.focus({ preventScroll: true });
+    if (typeTerm) this.type(typeTerm);
+  }
+  type(word) {
+    clearInterval(this.typing); let k = 0;
+    this.typing = setInterval(() => { this.input.value = word.slice(0, ++k); this.onType(); if (k >= word.length) clearInterval(this.typing); }, rm() ? 10 : 80);
+  }
+  close() {
+    if (this.o.stage || this.el.hidden) return;
+    clearInterval(this.typing); clearTimeout(this.timer); this.req++;
+    [this.el, this.scrim].forEach((x) => { x.classList.remove('is-opening'); x.classList.add('is-closing'); });
+    setTimeout(() => { this.el.hidden = true; this.scrim.hidden = true; this.el.classList.remove('is-closing'); this.scrim.classList.remove('is-closing'); }, rm() ? 0 : 140);
+  }
+}
+function toast(host, text) {
+  const frame = host.closest('.frame, .stage'); frame.querySelectorAll('.sim-toast').forEach((t) => t.remove());
+  const t = document.createElement('div'); t.className = 'sim-toast'; t.textContent = `Simulación: ${text}`; frame.appendChild(t);
+  setTimeout(() => t.remove(), 2400);
+}
+
+/* ── Montaje ── */
+const S = {};
+const desk = document.getElementById('f-desk');
+desk.innerHTML = sidebar(false) + libPage(false);
+S.desk = new Search(desk, { term: 'souls', results: clone(SOULS) });
+
+const mid = document.getElementById('f-mid');
+mid.innerHTML = sidebar(true) + libPage(true);
+S.mid = new Search(mid, { term: 'souls', results: clone(SOULS), active: 4 });
+
+const mob = document.getElementById('f-mob');
+mob.innerHTML = mobilePage();
+S.mob = new Search(mob, { term: 'souls', results: clone(SOULS), active: 1 });
+const mobE = document.getElementById('f-mob-empty');
+mobE.innerHTML = mobilePage();
+S.mobE = new Search(mobE, {});
+const mobN = document.getElementById('f-mob-none');
+mobN.innerHTML = mobilePage();
+S.mobN = new Search(mobN, { term: 'zelda tears', mode: 'none' });
+
+const stage = (id, o) => new Search(document.getElementById(id), { stage: true, ...o });
+stage('g-first', { recent: [] });
+stage('g-loading', { term: 'soul', mode: 'loading' }).setLoading(true);
+const st = stage('g-stale', { term: 'dark souls', results: clone(SOULS), mode: 'stale' });
+st.el.querySelector('.gs-field').classList.add('is-loading'); st.el.querySelector('.gs-field').firstElementChild.outerHTML = ic('loader');
+stage('g-none', { term: 'zelda tears', mode: 'none' });
+stage('g-error', { term: 'souls', mode: 'error' });
+const errRes = clone(['DARK SOULS™ III', 'Hollow Knight: Silksong', "Baldur's Gate 3"].map(byName));
+errRes[2].err = 'Ya lo tienes en tu biblioteca de Steam: sincroniza y aparecerá en la Bandeja';
+stage('g-adderr', { term: 'souls', results: errRes, active: 2 });
+stage('g-var-a', {});
+stage('g-var-b', { recent: RECENT_B, deals: DEALS_B });
+
+/* Confirmación en bucle */
+let conf;
+function confirmDemo() {
+  const host = document.getElementById('g-confirm'); host.innerHTML = '';
+  const res = clone(['BLEACH Rebirth of Souls', 'MARVEL Tōkon: Fighting Souls', 'Tormented Souls'].map(byName));
+  conf = new Search(host, { stage: true, term: 'souls', results: res, active: 0 });
+  const btns = () => host.querySelectorAll('[data-add]');
+  setTimeout(() => btns()[0].click(), 500);
+  setTimeout(() => { conf.setActive(1); }, 1500);
+  setTimeout(() => host.querySelectorAll('.gs-item')[1].querySelector('[data-add="wish"]').click(), 1900);
+  setTimeout(() => { conf.setActive(2); }, 2900);
+  setTimeout(() => host.querySelectorAll('.gs-item')[2].querySelector('[data-add]').click(), 3300);
+}
+document.getElementById('confirm-replay').addEventListener('click', confirmDemo);
+
+/* Estado «después de añadir» del marco de ~1000 px */
+function midAfter() {
+  const items = mid.querySelectorAll('.gs-item');
+  S.mid.o.slowSave = 1; items[4].querySelector('[data-add="pend"]').click();
+  setTimeout(() => items[2].querySelector('[data-add="wish"]').click(), 5);
+}
+
+/* ── Entrada ── */
+function entry() {
+  S.desk.close();
+  setTimeout(() => { S.desk.open(); setTimeout(() => S.desk.type('souls'), rm() ? 0 : 350); }, rm() ? 0 : 200);
+  [S.mid, S.mob, S.mobE, S.mobN].forEach((s) => { [s.el, s.scrim].forEach((x) => { x.classList.remove('is-opening'); void x.offsetWidth; x.classList.add('is-opening'); }); });
+  confirmDemo();
+}
+
+/* ── Controles del documento ── */
+document.getElementById('replay-btn').addEventListener('click', entry);
+document.querySelectorAll('[data-key]').forEach((b) => b.addEventListener('click', () => { const k = b.dataset.key; if (k === 'open') { if (S.desk.el.hidden) S.desk.open(); return; } if (!S.desk.el.hidden) S.desk.key(k); }));
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); S.desk.el.hidden ? S.desk.open() : S.desk.close(); }
+});
+document.addEventListener('click', (e) => { const o = e.target.closest('[data-open-search]'); if (!o) return; const f = o.closest('.frame'); const s = Object.values(S).find((x) => x.host === f); if (s && s.el.hidden) s.open(); });
+const rmBtn = document.getElementById('rm-btn');
+rmBtn.addEventListener('click', () => { const on = document.documentElement.classList.toggle('rm'); rmBtn.setAttribute('aria-pressed', String(on)); rmBtn.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`; });
+const themeBtn = document.getElementById('theme-btn');
+function setTheme(t) { document.documentElement.dataset.theme = t; themeBtn.setAttribute('aria-pressed', String(t === 'dark')); themeBtn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro'; }
+themeBtn.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+if (location.hash.includes('dark')) setTheme('dark');
+if (location.hash.includes('rm')) document.documentElement.classList.add('rm');
+
+/* Captura de un solo marco: #solo=<id> (para revisar el mockup) */
+const solo = /solo=([\w-]+)/.exec(location.hash);
+if (solo) { const f = document.getElementById(solo[1]); const box = f.classList.contains('stage') ? f.parentElement : f; document.body.innerHTML = ''; document.body.style.padding = '0'; document.body.appendChild(box); f.style.borderRadius = '0'; }
+
+midAfter();
+confirmDemo();
+document.fonts && document.fonts.ready.then(() => Object.values(S).forEach((s) => s.placeCursor(false)));
+if (!solo) entry(); else setTimeout(() => Object.values(S).forEach((s) => s.placeCursor(false)), 300);
+</script>
+</body>
+</html>
