@@ -33,9 +33,11 @@ describe('estadísticas por año (#32)', () => {
                 game({ appid: 1, status: 'completado', completed_at: '2025-02-10T10:00:00Z', rating: 8, genres: [{ description: 'Acción' }] }),
                 game({ appid: 2, status: 'completado', completed_at: '2025-06-10T10:00:00Z', rating: 7.5, genres: [{ description: 'Acción' }, { description: 'Indie' }] }),
                 game({ appid: 3, status: 'completado', completed_at: '2024-06-10T10:00:00Z', rating: 3 }),
-                // Ya jugado y Otros no son completados aunque tengan fecha (p. ej. tras pasar por Completado).
+                // Ya jugado, Otros y Rejugable no son completados aunque tengan fecha (p. ej. tras pasar por Completado).
                 game({ appid: 5, status: 'ya_jugado', completed_at: '2025-03-10T10:00:00Z', rating: 9 }),
                 game({ appid: 6, status: 'otros', completed_at: '2025-03-10T10:00:00Z', rating: 9 }),
+                // Pero sus horas sí cuentan, como las de cualquier juego.
+                game({ appid: 7, status: 'rejugable', completed_at: '2025-03-10T10:00:00Z', rating: 9, playtime_forever: 60, rtime_last_played: '2025-08-01T10:00:00Z' }),
                 game({ appid: 4, achievements_total: 2, achievements_unlocked: 2, last_unlock_at: '2025-07-01T10:00:00Z', playtime_forever: 90 }),
             ],
             unlocks: [unlock(4, '2025-07-01T10:00:00Z', 1.5), unlock(4, '2025-01-05T10:00:00Z', 30)],
@@ -53,8 +55,8 @@ describe('estadísticas por año (#32)', () => {
         assert.deepEqual(s.genres[0], { name: 'Acción', count: 2 })
         assert.equal(s.rarest?.global_percent, 1.5)
         assert.equal(s.hoursMeasured, false)
-        assert.equal(s.minutes, 90)
-        assert.deepEqual(s.topGames.map((g) => g.appid), [4])
+        assert.equal(s.minutes, 150)
+        assert.deepEqual(s.topGames.map((g) => g.appid), [4, 7])
     })
 
     it('horas medidas si el historial cubre el año entero; si no, aproximadas', () => {

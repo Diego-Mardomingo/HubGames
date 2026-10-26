@@ -20,6 +20,7 @@ describe('metas mensuales', () => {
                 game({ status: 'abandonado', completed_at: '2026-10-03T10:00:00Z' }),
                 game({ status: 'ya_jugado', completed_at: '2026-10-03T10:00:00Z' }),
                 game({ status: 'otros', completed_at: '2026-10-03T10:00:00Z' }),
+                game({ status: 'rejugable', completed_at: '2026-10-03T10:00:00Z' }),
                 game({ achievements_total: 4, achievements_unlocked: 4, last_unlock_at: '2026-10-10T10:00:00Z' }),
                 game({ achievements_total: 4, achievements_unlocked: 3, last_unlock_at: '2026-10-10T10:00:00Z' }),
             ],

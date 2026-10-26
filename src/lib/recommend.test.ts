@@ -19,6 +19,22 @@ describe('¿Qué juego hoy?', () => {
         assert.deepEqual(names(recommend(list, 'media', 'terminar', NOW)), ['Jugando'])
     })
 
+    it('rejugables: solo con menos de 1 h, como partida rápida, y nunca para terminar', () => {
+        const cs = game({ name: 'CS2', status: 'rejugable', playtime_forever: 5000, hltb_main: 120, rtime_last_played: daysAgo(20) })
+        const jugando = game({ name: 'Jugando', status: 'jugando', playtime_forever: 300 })
+        assert.deepEqual(names(recommend([cs, jugando], 'media', 'sorpresa', NOW)), ['Jugando'])
+        assert.deepEqual(names(recommend([cs, jugando], 'larga', 'sorpresa', NOW)), ['Jugando'])
+        assert.deepEqual(names(recommend([cs, jugando], 'corta', 'terminar', NOW)), ['Jugando'])
+        const corta = recommend([cs], 'corta', 'sorpresa', NOW)
+        assert.deepEqual(names(corta), ['CS2'])
+        assert.equal(corta[0].reasons[0], 'Para una partida rápida')
+        // Sin final que perseguir: ni "es corto" ni "te da tiempo a acabarlo".
+        assert.ok(!corta[0].reasons.some((r) => r.startsWith('Es corto') || r.startsWith('Te da tiempo')))
+        // Con logros por sacar, también entra al cazar logros.
+        const logros = game({ name: 'PoE 2', status: 'rejugable', playtime_forever: 900, achievements_total: 10, achievements_unlocked: 4 })
+        assert.deepEqual(names(recommend([logros], 'corta', 'logros', NOW)), ['PoE 2'])
+    })
+
     it('terminar: primero lo que menos falta, y avisa si da tiempo hoy', () => {
         const list = [
             game({ name: 'Largo', status: 'jugando', playtime_forever: 120, hltb_main: 40 * 60 }),

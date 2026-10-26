@@ -30,6 +30,11 @@ describe('pestañas y datos derivados', () => {
         assert.equal(inTab(game({ status: 'ya_jugado' }), 'ya_jugado'), true)
         assert.equal(inTab(game({ status: 'otros' }), 'otros'), true)
         assert.equal(inTab(game({ status: 'ya_jugado' }), 'completado'), false)
+        // Rejugable es una lista activa: sale en "Todos" y no cuenta como completado ni jugando.
+        assert.equal(inTab(game({ status: 'rejugable' }), 'todos'), true)
+        assert.equal(inTab(game({ status: 'rejugable' }), 'rejugable'), true)
+        assert.equal(inTab(game({ status: 'rejugable' }), 'completado'), false)
+        assert.equal(inTab(game({ status: 'rejugable' }), 'jugando'), false)
         assert.equal(inTab(game({ status: 'jugando' }), 'pendiente'), false)
         assert.equal(inTab(game({ status: 'bandeja' }), 'bandeja'), true)
         // Las marcas se suman al estado: un completado sin final está en las dos listas.
@@ -177,6 +182,9 @@ describe('lista de inicio', () => {
         assert.equal(parseLibraryHome({ tab: 'inventada' })?.tab, 'todos')
         assert.equal(parseLibraryHome({ tab: 'ya_jugado' })?.tab, 'ya_jugado')
         assert.equal(parseLibraryHome({ tab: 'otros' })?.tab, 'otros')
+        // Rejugables: por defecto, el jugado más recientemente; la nota no tiene sentido (se pone al completar).
+        assert.deepEqual(parseLibraryHome({ tab: 'rejugable' }), { tab: 'rejugable', sort: 'reciente', view: 'lista', filters: NO_FILTERS })
+        assert.equal(parseLibraryHome({ tab: 'rejugable', sort: 'nota' })?.sort, 'reciente')
         assert.equal(parseLibraryHome(null), null)
     })
 })
