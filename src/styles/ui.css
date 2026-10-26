@@ -3,12 +3,15 @@
    select, pestañas y tooltip. Superficies planas con los tokens.
    (Las utilidades de Tailwind con escala de tema no se generan en este
    proyecto, así que estas piezas se estilan aquí con CSS propio.)
+   Capas: todo lo que flota va a z-index 60, por encima de la navegación
+   (barra lateral y pestañas a 50, barra superior móvil a 51), que si no
+   tapa diálogos y menús en móvil.
    ══════════════════════════════════════════════════════════════════ */
 
 .hg-overlay {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 60;
   background: var(--scrim);
 }
 
@@ -17,7 +20,7 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  z-index: 50;
+  z-index: 60;
   display: grid;
   gap: 1rem;
   width: calc(100% - 24px);
@@ -97,7 +100,7 @@
 .hg-sheet {
   position: fixed;
   top: 0;
-  z-index: 50;
+  z-index: 60;
   width: 92%;
   max-width: 28rem;
   height: 100%;
@@ -122,7 +125,7 @@
 
 /* ── Popover ── */
 .hg-popover {
-  z-index: 50;
+  z-index: 60;
   width: 18rem;
   padding: 0.5rem;
   border: 1px solid var(--border);
@@ -179,7 +182,7 @@
 
 .hg-select__content {
   position: relative;
-  z-index: 50;
+  z-index: 60;
   min-width: max(8rem, var(--radix-select-trigger-width));
   max-height: min(20rem, var(--radix-select-content-available-height));
   overflow: hidden;
@@ -245,7 +248,7 @@
 
 /* ── Tooltip ── */
 .hg-tooltip {
-  z-index: 50;
+  z-index: 60;
   padding: 0.35rem 0.6rem;
   border-radius: 6px;
   background: var(--foreground);
