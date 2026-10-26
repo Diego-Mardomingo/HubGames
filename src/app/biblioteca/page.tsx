@@ -111,7 +111,7 @@ const TAB_LABELS: Record<LibraryTab, string> = {
 }
 
 const TAB_HINTS: Record<LibraryTab, string> = {
-    todos: 'Todos tus juegos clasificados',
+    todos: 'Todos tus juegos clasificados, menos los descartados',
     jugando: 'Lo que juegas ahora',
     pendiente: 'Para jugar más adelante, comprados o no',
     pausado: 'En pausa por un tiempo',
@@ -217,7 +217,8 @@ function Biblioteca() {
             for (const t of LIBRARY_TABS) if (inTab(g, t)) out[t]++
             if (!g.owned) unowned++
         }
-        return { ...out, unowned }
+        // "Todos" no enseña los descartados, pero también están clasificados.
+        return { ...out, unowned, classified: out.todos + out.descartado }
     }, [games])
 
     const inList = useMemo(() => (games ?? []).filter((g) => inTab(g, tab)), [games, tab])
@@ -305,7 +306,7 @@ function Biblioteca() {
                 <div>
                     <h1 className="page-title">Biblioteca</h1>
                     <p className="page-subtitle">
-                        {counts.todos} {counts.todos === 1 ? 'juego clasificado' : 'juegos clasificados'}
+                        {counts.classified} {counts.classified === 1 ? 'juego clasificado' : 'juegos clasificados'}
                         {counts.jugando > 0 && ` · ${counts.jugando} en curso`}
                         {counts.unowned > 0 && ` · ${counts.unowned} ${counts.unowned === 1 ? 'pendiente' : 'pendientes'} sin comprar`}
                     </p>
@@ -379,7 +380,8 @@ function Biblioteca() {
                                 variant="secondary"
                                 className={`lib-pin${isHomeTab ? ' is-pinned' : ''}`}
                                 onClick={saveHome}
-                                disabled={savingHome || (isHomeTab && !homeChanged)}
+                                loading={savingHome}
+                                disabled={isHomeTab && !homeChanged}
                                 title="La biblioteca se abrirá en esta lista, con este orden, filtros y vista"
                             >
                                 <Pin aria-hidden />
@@ -582,7 +584,7 @@ function Biblioteca() {
                                         Quitar filtros
                                     </Button>
                                 </>
-                            ) : counts.todos === 0 && tab !== 'bandeja' ? (
+                            ) : counts.classified === 0 && tab !== 'bandeja' ? (
                                 <>
                                     <p>Aún no has clasificado ningún juego.</p>
                                     <Button variant="secondary" asChild>

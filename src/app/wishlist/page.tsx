@@ -265,7 +265,7 @@ function WishlistItem({
                     </a>
                 </Button>
                 {game.source === 'manual' && (
-                    <Button size="icon" variant="ghost" onClick={onRemove} disabled={busy} aria-label={`Quitar ${name} de la wishlist`} title="Quitar de la wishlist">
+                    <Button size="icon" variant="ghost" onClick={onRemove} loading={busy} aria-label={`Quitar ${name} de la wishlist`} title="Quitar de la wishlist">
                         <Trash2 aria-hidden />
                     </Button>
                 )}

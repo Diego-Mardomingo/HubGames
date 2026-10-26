@@ -18,6 +18,8 @@ export default function SuggestionsPanel() {
     const [games, setGames] = useState<LibraryGame[]>([])
     const [completing, setCompleting] = useState<LibraryGame | null>(null)
     const [error, setError] = useState('')
+    /** Respuesta guardándose ("123:pausar", "123:descartar"): su botón gira y los de ese juego esperan. */
+    const [pending, setPending] = useState<string | null>(null)
 
     useEffect(() => {
         safeGetSession().then(async ({ data: { session } }) => {
@@ -35,13 +37,16 @@ export default function SuggestionsPanel() {
         setGames((list) => list.filter((g) => g.appid !== appid))
     }
 
-    async function run(appid: number, action: () => Promise<void>) {
+    async function run(appid: number, kind: 'pausar' | 'descartar', action: () => Promise<void>) {
+        setPending(`${appid}:${kind}`)
         setError('')
         try {
             await action()
             resolved(appid)
         } catch (e) {
             setError(e instanceof Error ? e.message : 'No se pudo guardar')
+        } finally {
+            setPending(null)
         }
     }
 
@@ -89,11 +94,17 @@ export default function SuggestionsPanel() {
                             </div>
                             <div className="suggestion__actions">
                                 {game.suggestion === 'completado' ? (
-                                    <Button type="button" size="sm" onClick={() => setCompleting(game)}>
+                                    <Button type="button" size="sm" disabled={pending?.startsWith(`${game.appid}:`)} onClick={() => setCompleting(game)}>
                                         <Flag aria-hidden /> Sí, completado
                                     </Button>
                                 ) : (
-                                    <Button type="button" size="sm" onClick={() => run(game.appid, () => setGamesStatus([game.appid], 'pausado'))}>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        loading={pending === `${game.appid}:pausar`}
+                                        disabled={pending?.startsWith(`${game.appid}:`)}
+                                        onClick={() => run(game.appid, 'pausar', () => setGamesStatus([game.appid], 'pausado'))}
+                                    >
                                         <Pause aria-hidden /> Pausar
                                     </Button>
                                 )}
@@ -101,7 +112,9 @@ export default function SuggestionsPanel() {
                                     type="button"
                                     size="sm"
                                     variant="secondary"
-                                    onClick={() => run(game.appid, () => dismissSuggestion(game.appid))}
+                                    loading={pending === `${game.appid}:descartar`}
+                                    disabled={pending?.startsWith(`${game.appid}:`)}
+                                    onClick={() => run(game.appid, 'descartar', () => dismissSuggestion(game.appid))}
                                 >
                                     {game.suggestion === 'completado' ? 'Todavía no' : 'Sigo con él'}
                                 </Button>

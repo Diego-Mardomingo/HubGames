@@ -15,6 +15,7 @@ import {
     type LibraryGame,
 } from '@/lib/tracker'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Spinner } from '@/components/ui/spinner'
 import { LIST_ICONS } from './status'
 import './tracker.css'
 
@@ -37,11 +38,13 @@ const MARKS: { mark: GameMark; list: 'favorito' | 'sin_final'; label: string }[]
  */
 export default function GameMenu({ game, onChange, onError }: Props) {
     const [open, setOpen] = useState(false)
-    const [busy, setBusy] = useState(false)
+    /** Opción guardándose ("status:jugando", "mark:favorite", "quitar"): enseña el spinner y el resto espera. */
+    const [pending, setPending] = useState<string | null>(null)
+    const busy = pending !== null
     const name = game.name ?? `App ${game.appid}`
 
-    async function run(action: () => Promise<void>, patch: Partial<LibraryGame> | null, close = true) {
-        setBusy(true)
+    async function run(key: string, action: () => Promise<void>, patch: Partial<LibraryGame> | null, close = true) {
+        setPending(key)
         try {
             await action()
             onChange(patch)
@@ -49,7 +52,7 @@ export default function GameMenu({ game, onChange, onError }: Props) {
         } catch (e) {
             onError(e instanceof Error ? e.message : 'No se pudo guardar')
         } finally {
-            setBusy(false)
+            setPending(null)
         }
     }
 
@@ -57,10 +60,10 @@ export default function GameMenu({ game, onChange, onError }: Props) {
         if (status === game.status) return
         const now = new Date().toISOString()
         if (status === 'completado') {
-            run(() => completeGames([game]), { status, status_source: 'manual', suggestion: null, completed_at: suggestedCompletionDate(game)?.date ?? now })
+            run(`status:${status}`, () => completeGames([game]), { status, status_source: 'manual', suggestion: null, completed_at: suggestedCompletionDate(game)?.date ?? now })
             return
         }
-        run(() => setGamesStatus([game.appid], status), {
+        run(`status:${status}`, () => setGamesStatus([game.appid], status), {
             status,
             status_source: 'manual',
             suggestion: null,
@@ -88,10 +91,12 @@ export default function GameMenu({ game, onChange, onError }: Props) {
                                     type="button"
                                     className={`game-menu__opt st-${s}`}
                                     aria-pressed={current}
+                                    aria-busy={pending === `status:${s}` || undefined}
                                     disabled={busy}
                                     onClick={() => changeStatus(s)}
                                 >
-                                    <Icon className="game-menu__icon" aria-hidden /> {STATUS_LABELS[s]}
+                                    {pending === `status:${s}` ? <Spinner className="game-menu__icon" /> : <Icon className="game-menu__icon" aria-hidden />}{' '}
+                                    {STATUS_LABELS[s]}
                                     {current && <Check className="game-menu__check" aria-hidden />}
                                 </button>
                             )
@@ -108,10 +113,11 @@ export default function GameMenu({ game, onChange, onError }: Props) {
                                 type="button"
                                 className={`game-menu__opt st-${list}`}
                                 aria-pressed={on}
+                                aria-busy={pending === `mark:${mark}` || undefined}
                                 disabled={busy}
-                                onClick={() => run(() => setGameMark(game.appid, mark, !on), { [mark]: !on }, false)}
+                                onClick={() => run(`mark:${mark}`, () => setGameMark(game.appid, mark, !on), { [mark]: !on }, false)}
                             >
-                                <Icon className="game-menu__icon" aria-hidden /> {label}
+                                {pending === `mark:${mark}` ? <Spinner className="game-menu__icon" /> : <Icon className="game-menu__icon" aria-hidden />} {label}
                                 {on && <Check className="game-menu__check" aria-hidden />}
                             </button>
                         )
@@ -119,8 +125,14 @@ export default function GameMenu({ game, onChange, onError }: Props) {
                 </div>
                 {!game.owned && (
                     <div className="game-menu__group">
-                        <button type="button" className="game-menu__opt" disabled={busy} onClick={() => run(() => removeFromPending(game.appid), null)}>
-                            <BookmarkX className="game-menu__icon" aria-hidden /> Quitar de Pendientes
+                        <button
+                            type="button"
+                            className="game-menu__opt"
+                            aria-busy={pending === 'quitar' || undefined}
+                            disabled={busy}
+                            onClick={() => run('quitar', () => removeFromPending(game.appid), null)}
+                        >
+                            {pending === 'quitar' ? <Spinner className="game-menu__icon" /> : <BookmarkX className="game-menu__icon" aria-hidden />} Quitar de Pendientes
                         </button>
                     </div>
                 )}

@@ -278,9 +278,34 @@
   }
 }
 
-/* ── Icono girando mientras algo carga (sincronizar, refrescar) ── */
+/* ── Icono girando mientras algo carga (sincronizar, guardar…) ── */
 .hg-spin {
   animation: spin 0.8s linear infinite;
+}
+
+/* Botón guardando: el spinner ocupa el sitio del icono y el botón no se apaga tanto como uno desactivado sin más. */
+.hg-button.is-loading > svg:not(.hg-spin) {
+  display: none;
+}
+.hg-button.is-loading:disabled {
+  opacity: 0.8;
+  cursor: progress;
+}
+
+/* Grupos de opciones (estado, marcas, menú de la biblioteca): mientras una se guarda, las demás se apagan un poco. */
+:is(.juego-status__opt, .juego-mark, .game-menu__opt):disabled:not([aria-busy='true']) {
+  opacity: 0.55;
+}
+:is(.juego-status__opt, .juego-mark, .game-menu__opt)[aria-busy='true'] {
+  cursor: progress;
+}
+
+/* Spinner suelto junto a un control que no es botón (interruptor, selector). */
+.pf-switch-spin,
+.juego-goal__spin {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
 }
 
 /* ── Badge: etiqueta de estado plana ── */

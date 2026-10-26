@@ -22,9 +22,9 @@ function game(overrides: Partial<LibraryGame> = {}): LibraryGame {
 const names = (games: LibraryGame[]) => games.map((g) => g.name)
 
 describe('pestañas y datos derivados', () => {
-    it('"todos" incluye todo menos la bandeja', () => {
+    it('"todos" incluye todo menos la bandeja y los descartados', () => {
         assert.equal(inTab(game({ status: 'bandeja' }), 'todos'), false)
-        assert.equal(inTab(game({ status: 'descartado' }), 'todos'), true)
+        assert.equal(inTab(game({ status: 'descartado' }), 'todos'), false)
         assert.equal(inTab(game({ status: 'jugando' }), 'pendiente'), false)
         assert.equal(inTab(game({ status: 'bandeja' }), 'bandeja'), true)
         // Las marcas se suman al estado: un completado sin final está en las dos listas.

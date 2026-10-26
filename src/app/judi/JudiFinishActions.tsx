@@ -93,7 +93,7 @@ export default function JudiFinishActions({
                         <Button
                             size="sm"
                             variant="secondary"
-                            disabled={saving}
+                            loading={saving}
                             onClick={() => run(() => setGamesStatus([appid], 'pendiente'), { status: 'pendiente' })}
                         >
                             <ListPlus aria-hidden /> Añadir a pendientes
@@ -103,7 +103,7 @@ export default function JudiFinishActions({
                             <Heart size={14} aria-hidden /> En tu wishlist
                         </span>
                     ) : (
-                        <Button size="sm" variant="secondary" disabled={saving} onClick={() => run(() => addToWishlist(appid), { wished: true })}>
+                        <Button size="sm" variant="secondary" loading={saving} onClick={() => run(() => addToWishlist(appid), { wished: true })}>
                             <Heart aria-hidden /> Añadir a la wishlist
                         </Button>
                     ))}
