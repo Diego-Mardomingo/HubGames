@@ -221,8 +221,8 @@ function Biblioteca() {
             for (const t of LIBRARY_TABS) if (inTab(g, t)) out[t]++
             if (!g.owned) unowned++
         }
-        // "Todos" no enseña los descartados, pero también están clasificados.
-        return { ...out, unowned, classified: out.todos + out.descartado }
+        // "Todos" no enseña los descartados ni "Otros", pero también están clasificados.
+        return { ...out, unowned, classified: out.todos + out.descartado + out.otros }
     }, [games])
 
     const inList = useMemo(() => (games ?? []).filter((g) => inTab(g, tab)), [games, tab])
