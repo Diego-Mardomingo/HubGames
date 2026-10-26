@@ -4,6 +4,7 @@
 import { remainingMinutes } from './dashboard'
 import { gameDuration } from './library'
 import { formatHours } from './format'
+import { isAtHistoricalLow } from './wishlist'
 import type { LibraryGame } from './tracker'
 
 export type SessionLength = 'corta' | 'media' | 'larga'
@@ -70,6 +71,8 @@ function noise(appid: number, seed: number): number {
 
 function signals(g: LibraryGame, session: SessionLength, mood: Mood, now: number, seed: number): Signal[] | null {
     const out: Signal[] = []
+    // Lo que no tienes no se puede jugar hoy: solo entra al buscar algo nuevo que empezar (y comprar).
+    if (!g.owned && mood !== 'nuevo') return null
     // Los juegos sin final no se terminan: ni "te falta poco", ni "cabe en tu sesión", ni "es corto".
     const replayable = g.endless
     const remaining = replayable ? null : remainingMinutes(g)
@@ -96,6 +99,7 @@ function signals(g: LibraryGame, session: SessionLength, mood: Mood, now: number
                     ? { points: 3 / (1 + pos / 3), reason: pos <= 3 ? `Es de los primeros de tu cola (#${pos})` : `Está en tu cola (#${pos})` }
                     : { points: 0.5, reason: 'Está en tus pendientes' },
             )
+            if (!g.owned && isAtHistoricalLow(g)) out.push({ points: 0.3, reason: 'Está en su mínimo histórico' })
             break
         }
         case 'logros': {

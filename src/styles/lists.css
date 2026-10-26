@@ -195,6 +195,11 @@
   color: var(--c);
 }
 
+/* Rareza (o cualquier --c de rareza) como texto o icono: en claro se mezcla con el texto para llegar a 4,5:1 */
+.rar-ink {
+  color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground));
+}
+
 /* Chip de estado: icono + nombre con el color de la lista. La bandeja, con borde discontinuo (sin clasificar). */
 .hg-chip.hg-tint {
   display: inline-flex;
@@ -271,6 +276,8 @@
 /* Comprado / sin comprar (Pendientes y ficha) */
 .lib-own {
   display: inline-flex;
+  flex: none;
+  white-space: nowrap;
   align-items: center;
   gap: 4px;
   padding: 0 7px;
@@ -412,6 +419,14 @@
   gap: 0.25rem;
 }
 
+.hg-ach.st-completado {
+  --c: var(--st-completado);
+}
+
+.hg-ach.st-completado .hg-ach__icon {
+  color: var(--c);
+}
+
 .hg-ach--completed .hg-ach__pct small {
   color: var(--muted);
 }
@@ -481,6 +496,32 @@
   color: var(--muted);
   font-size: 0.75rem;
   font-weight: 500;
+}
+
+/* Fondo activo que se desliza entre opciones (framer-motion `layoutId` en .hg-seg__thumb) */
+.hg-seg--slide .hg-seg__opt {
+  position: relative;
+}
+
+.hg-seg--slide .hg-seg__opt[aria-checked='true'],
+.hg-seg--slide .hg-seg__opt[aria-pressed='true'],
+.hg-seg--slide .hg-seg__opt[aria-current='page'] {
+  background: transparent;
+  box-shadow: none;
+}
+
+.hg-seg__thumb {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.hg-seg__text {
+  position: relative;
+  z-index: 1;
 }
 
 /* Pestañas que no caben: se desplazan en horizontal en vez de partir en dos líneas. */
@@ -686,6 +727,187 @@ kbd.hg-kbd,
   }
 }
 
+/* ── Cifras: baldosas (tiles) con un icono del color de lo que cuentan (ficha, Inicio…). Componente: Tile ── */
+.hg-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.hg-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.hg-tile dt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.hg-tile__icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+
+.hg-tile__icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+.hg-tile dd {
+  margin: 0;
+}
+
+.hg-tile__value {
+  font-size: 1.625rem;
+  font-weight: 700;
+  font-variant-numeric: proportional-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.hg-tile__value small {
+  color: var(--muted);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.hg-tile__value--tinted {
+  color: var(--c);
+}
+
+.hg-tile__note {
+  color: var(--muted);
+  font-size: 0.78125rem;
+}
+
+.hg-tile__note .badge-100 {
+  vertical-align: 1px;
+}
+
+.hg-tile__link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.hg-tile__link:hover {
+  text-decoration: underline;
+}
+
+
+@media (max-width: 860px) {
+  .hg-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ── Filas de juego de una lista (biblioteca, Inicio): franja con el color del estado (--c), nombre con marcas, datos con icono y portada apagada de los que no tienes ── */
+.lib-row::before,
+.lib-card::before {
+  content: '';
+  position: absolute;
+  background: var(--c);
+}
+
+.lib-row::before {
+  inset: -1px auto -1px -1px;
+  width: 4px;
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+
+.lib-card::before {
+  inset: -1px -1px auto;
+  height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.lib-row__name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.lib-row__name .hg-row__link,
+.lib-row__name .hg-card__link {
+  min-width: 0;
+}
+
+.hg-row__meta.lib-row__meta,
+.hg-card__meta.lib-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  white-space: normal;
+}
+
+.lib-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lib-meta svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Los que no tienes: portada apagada con borde discontinuo y etiqueta */
+.lib-cover-tag {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(10, 12, 16, 0.82);
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 700;
+}
+
+.lib-cover-tag svg {
+  width: 10px;
+  height: 10px;
+}
+
+.is-unowned .lib-cover img {
+  filter: saturate(0.35) brightness(0.85);
+}
+
+.is-unowned .lib-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1.5px dashed var(--st-pendiente);
+  border-radius: inherit;
+}
+
+.lib-perfect {
+  color: var(--success);
+  font-weight: 700;
+}
+
 /* ── Contador que salta (AnimatedCount): pop de la cápsula y cifra que entra desde abajo (sube) o desde arriba (baja) ── */
 .hg-count {
   display: inline-flex;
@@ -718,6 +940,59 @@ kbd.hg-kbd,
 
 @keyframes hg-count-down {
   from { transform: translateY(-70%); opacity: 0; }
+}
+
+/* ── Entrada con intención (compartida): bloques que aparecen escalonados, barras que se rellenan, destello de rareza ──
+   --i es la posición del elemento: 30 ms entre cada uno y solo los 8 primeros (el resto, a la vez que el 8.º). */
+.hg-enter {
+  animation: hg-enter 0.32s var(--ease-out) backwards;
+  animation-delay: calc(min(var(--i, 0), 8) * 30ms);
+}
+
+@keyframes hg-enter {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+/* Barra que se rellena al llegar (solo transform) */
+.hg-bar--fill > span {
+  transform-origin: left;
+  animation: hg-bar-fill 0.45s var(--ease-out) backwards;
+  animation-delay: calc(150ms + min(var(--i, 0), 8) * 30ms);
+}
+
+@keyframes hg-bar-fill {
+  from { transform: scaleX(0); }
+}
+
+/* Logro épico o legendario: el fondo se tiñe un instante de su rareza (--c) y vuelve */
+.hg-rar-flash {
+  animation: hg-rar-flash 0.9s var(--ease-out) backwards;
+  animation-delay: calc(350ms + min(var(--i, 0), 8) * 30ms);
+}
+
+@keyframes hg-rar-flash {
+  from { background-color: color-mix(in srgb, var(--c) 30%, var(--surface)); }
+}
+
+/* Elementos pequeños que aparecen con un pop (días de JUDI, insignias) */
+.hg-pop-in {
+  animation: hg-pop-in 0.26s var(--ease-out) backwards;
+  animation-delay: calc(250ms + min(var(--i, 0), 8) * 30ms);
+}
+
+@keyframes hg-pop-in {
+  from { opacity: 0; transform: scale(0.5); }
+}
+
+/* Icono que se dibuja (check de «Sincronizado», «¡Cumplida!») */
+.hg-draw path,
+.hg-draw polyline {
+  stroke-dasharray: 30;
+  animation: hg-draw 0.3s var(--ease-out) backwards;
+}
+
+@keyframes hg-draw {
+  from { stroke-dashoffset: 30; }
 }
 
 @media (prefers-reduced-motion: reduce) {

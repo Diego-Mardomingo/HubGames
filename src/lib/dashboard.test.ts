@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { isMissingRpc, judiStreak, judiTodayState, nearHundred, nextInQueue, playingNow, recentActivity, remainingMinutes, yearSummary } from './dashboard'
+import { isMissingRpc, judiStreak, judiWeek, listCounts, minutesInMonth, judiTodayState, nearHundred, nextInQueue, playingNow, recentActivity, remainingMinutes, yearSummary } from './dashboard'
 import { libraryGame as game } from './test-utils'
 
 const names = (list: { name: string | null }[]) => list.map((g) => g.name)
@@ -92,5 +92,29 @@ describe('dashboard', () => {
         assert.equal(isMissingRpc({ code: null, message: 'Could not find the function x without parameters in the schema cache' }), true)
         assert.equal(isMissingRpc({ code: '42501', message: 'permission denied' }), false)
         assert.equal(isMissingRpc(null), false)
+    })
+
+    it('atajos de listas: los sin comprar cuentan en Pendiente', () => {
+        const owned = [game({ status: 'jugando' }), game({ status: 'pendiente' }), game({ status: 'bandeja' }), game({ status: 'descartado' })]
+        const unowned = [game({ status: 'pendiente', owned: false })]
+        assert.deepEqual(listCounts(owned, unowned), { jugando: 1, pendiente: 2, pausado: 0, completado: 0, bandeja: 1 })
+    })
+
+    it('JUDI: los últimos 7 días, el último hoy', () => {
+        const days = [
+            { fecha: '20-10-2026', completado: false, perdido: true },
+            { fecha: '22-10-2026', completado: true, perdido: false },
+            { fecha: '23-10-2026', completado: false, perdido: false },
+            { fecha: '26-10-2026', completado: false, perdido: false },
+        ]
+        const week = judiWeek(days, '26-10-2026')
+        assert.deepEqual(week.map((d) => d.state), ['ko', 'sin_juego', 'ok', 'sin_jugar', 'sin_juego', 'sin_juego', 'hoy'])
+        assert.deepEqual(week.map((d) => d.label), ['M', 'X', 'J', 'V', 'S', 'D', 'Hoy'])
+        assert.equal(judiWeek([{ fecha: '26-10-2026', completado: true, perdido: false }], '26-10-2026')[6].state, 'ok')
+    })
+
+    it('minutos del mes', () => {
+        const rows = [{ date: '2026-09-30', minutes: 100 }, { date: '2026-10-01', minutes: 30 }, { date: '2026-10-26', minutes: 45 }]
+        assert.equal(minutesInMonth(rows, '2026-10-01'), 75)
     })
 })

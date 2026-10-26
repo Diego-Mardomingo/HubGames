@@ -1,12 +1,14 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Gamepad2, LogIn, Trophy } from 'lucide-react'
+import { Award, Clock, Flag, Gamepad2, LogIn, Star, Trophy } from 'lucide-react'
 import { createServerClient } from '@/lib/supabase/server'
 import { loadDashboard } from '@/lib/dashboard-db'
 import { buildHeatmap, heatmapStart, madridDate } from '@/lib/activity-heatmap'
 import { Button } from '@/components/ui/button'
 import Dashboard from '@/components/dashboard/Dashboard'
 import ActivityHeatmap from '@/components/dashboard/ActivityHeatmap'
+import LandingPreview from '@/components/dashboard/LandingPreview'
+import Tile from '@/components/Tile'
 import '@/components/dashboard/dashboard.css'
 
 export const metadata: Metadata = {
@@ -32,40 +34,54 @@ function sampleHeatmap(today: string) {
 
 function Landing() {
     return (
-        <div className="dash-landing">
-            <div className="dash-landing__intro">
-                <h1 className="page-title">Tu biblioteca de Steam, tus logros y a qué jugar hoy</h1>
-                <p className="page-subtitle">
-                    Conecta Steam y HubGames ordena solo lo que tienes en curso, lo que tienes pendiente y los logros que te faltan.
-                </p>
-                <div className="dash-landing__actions">
-                    <Button asChild>
-                        <Link href="/login">
-                            <LogIn aria-hidden /> Entrar
-                        </Link>
-                    </Button>
-                    <Button variant="secondary" asChild>
-                        <Link href="/judi">
-                            <Gamepad2 aria-hidden /> Jugar a JUDI
-                        </Link>
-                    </Button>
-                    <Button variant="secondary" asChild>
-                        <Link href="/ranking">
-                            <Trophy aria-hidden /> Ver el ranking
-                        </Link>
-                    </Button>
+        <div className="land">
+            <div className="land-top">
+                <div className="land-hero hg-enter">
+                    <h1 className="page-title">Tu biblioteca de Steam, tus logros y a qué jugar hoy</h1>
+                    <p className="page-subtitle">
+                        Conecta Steam y HubGames pone cada juego en su lista, te dice qué logros te faltan y cuándo algo de tu wishlist está más barato
+                        que nunca.
+                    </p>
+                    <div className="land-actions">
+                        <Button asChild>
+                            <Link href="/login">
+                                <LogIn aria-hidden /> Entrar
+                            </Link>
+                        </Button>
+                        <Button variant="secondary" asChild>
+                            <Link href="/judi">
+                                <Gamepad2 aria-hidden /> Jugar a JUDI
+                            </Link>
+                        </Button>
+                        <Button variant="ghost" asChild>
+                            <Link href="/ranking">
+                                <Trophy aria-hidden /> Ver el ranking
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
+                <LandingPreview />
             </div>
-            <figure className="dash-landing__preview">
+            <figure className="land-heat hg-enter" style={{ '--i': 6 } as React.CSSProperties}>
                 <ActivityHeatmap
                     preview
                     map={sampleHeatmap(madridDate(new Date()))}
-                    stats={[
-                        { value: '312 h', label: 'jugadas este año' },
-                        { value: '1284', label: 'logros' },
-                        { value: '18', label: 'completados' },
-                        { value: '4', label: 'en curso' },
-                    ]}
+                    header={
+                        <dl className="hg-tiles dash-tiles">
+                            <Tile icon={<Clock aria-hidden />} tone="st-jugando" label="Horas este año">
+                                <dd className="hg-tile__value">312 h</dd>
+                            </Tile>
+                            <Tile icon={<Award aria-hidden />} tone="st-sin_final" label="Logros">
+                                <dd className="hg-tile__value">1284</dd>
+                            </Tile>
+                            <Tile icon={<Flag aria-hidden />} tone="st-completado" label="Completados">
+                                <dd className="hg-tile__value">18</dd>
+                            </Tile>
+                            <Tile icon={<Star aria-hidden />} tone="sc-good" label="Nota media">
+                                <dd className="hg-tile__value hg-tile__value--tinted">8,2</dd>
+                            </Tile>
+                        </dl>
+                    }
                 />
                 <figcaption>Tu año de un vistazo: cada casilla es un día, más intensa cuanto más juegas.</figcaption>
             </figure>

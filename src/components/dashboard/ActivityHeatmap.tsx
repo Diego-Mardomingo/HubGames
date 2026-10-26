@@ -10,15 +10,10 @@ function rangeLabel(from: string, to: string) {
     return `${f(from)} – ${f(to)}`
 }
 
-export interface HeatStat {
-    value: string
-    label: string
-}
-
 interface Props {
     map: Heatmap
-    /** Cifras clave de la cabecera del mapa. */
-    stats: HeatStat[]
+    /** Encima del mapa: las cifras clave (tiles). */
+    header?: ReactNode
     /** Pie: a la derecha de la leyenda (notas, enlaces). */
     footer?: ReactNode
     /** Ilustración estática (portada sin sesión): sin tooltip ni teclado, oculta a lectores de pantalla. */
@@ -38,7 +33,7 @@ const LEVELS = [0, 1, 2, 3, 4] as const
  * enfocable que se recorre con las flechas (y anuncia el día), con un resumen textual para lectores de pantalla.
  * Con el ratón, tooltip al pasar por encima.
  */
-export default function ActivityHeatmap({ map, stats, footer, preview = false }: Props) {
+export default function ActivityHeatmap({ map, header, footer, preview = false }: Props) {
     const id = useId()
     const scrollRef = useRef<HTMLDivElement>(null)
     const gridRef = useRef<HTMLDivElement>(null)
@@ -128,20 +123,13 @@ export default function ActivityHeatmap({ map, stats, footer, preview = false }:
                     Actividad del último año
                 </h2>
             )}
-            <div className="heat__meta">
-                {stats.map((s) => (
-                    <p key={s.label}>
-                        <b>{s.value}</b> {s.label}
-                    </p>
-                ))}
-                <p className="heat__range">{rangeLabel(map.from, map.to)}</p>
-            </div>
+            {header}
 
             <div className="heat__scroll" ref={scrollRef}>
                 <div className="heat__body" style={style}>
                     <div
                         ref={gridRef}
-                        className="heat__grid"
+                        className="heat__grid heat__grid--paint"
                         {...(preview
                             ? {}
                             : {
@@ -166,7 +154,9 @@ export default function ActivityHeatmap({ map, stats, footer, preview = false }:
                                 data-i={i}
                                 data-l={d.level}
                                 aria-hidden
-                                className={d.future ? 'is-future' : i === active ? 'is-active' : undefined}
+                                // Semana de la casilla: el mapa se pinta de la más antigua a hoy al llegar.
+                                style={{ '--w': Math.floor(i / 7) } as CSSProperties}
+                                className={[d.future && 'is-future', i === active && 'is-active', i === lastDay && 'is-today'].filter(Boolean).join(' ') || undefined}
                             />
                         ))}
                     </div>
@@ -188,6 +178,7 @@ export default function ActivityHeatmap({ map, stats, footer, preview = false }:
                     ))}
                     más
                 </span>
+                <span>{rangeLabel(map.from, map.to)}</span>
                 {footer}
             </div>
 
