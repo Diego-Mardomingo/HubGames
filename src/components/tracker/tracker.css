@@ -243,12 +243,6 @@
   overflow: hidden;
 }
 
-/* Por encima de la barra superior móvil (z-index 51 en nav.css), que si no tapa el campo. */
-.hg-dialog.game-search,
-.hg-overlay:has(+ .game-search) {
-  z-index: 52;
-}
-
 /* Abrir: escala desde el centro (0,96 → 1) con fundido; el velo, 160 ms. Cerrar: 140 ms hacia 0,97. */
 .hg-dialog.game-search[data-state='open'] {
   animation: hg-search-open 0.2s var(--ease-out);
