@@ -93,7 +93,7 @@ Una sola familia: **Onest** (`--font-body`, cargada con `next/font`). Los númer
 | Diálogo, sheet, popover, select, pestañas, tooltip, badge, calendario | `src/styles/ui.css` + `src/components/ui/*` | Primitivas de Radix con CSS propio |
 | Lista navegable con ↑/↓ o j/k | `src/components/KeyboardList.tsx` | Las filas marcan su enlace con `data-row-link` |
 | Selector de tema | `src/components/ThemeToggle.tsx`, `src/lib/theme.ts` | Claro, oscuro o sistema (`hg-theme` en `localStorage`) |
-| Marca | `src/components/brand/Logo.tsx` (`LogoMark`, `Wordmark`, `Logo`) | Corchetes de selección alrededor de una gema |
+| Marca | `src/components/brand/Logo.tsx` (`LogoMark`, `Wordmark`, `Logo`) | H y G como barra (70 %) y anillo de progreso; se rellenan al entrar, en bucle en el loader y la barra se completa al pasar el ratón |
 | Mapa de actividad anual | `src/components/dashboard/ActivityHeatmap.tsx` | Escala del acento sobre `--surface-2`; un único tab-stop recorrible con flechas |
 | Rarezas | `src/lib/rarity.ts` | Nivel, nombre y color a partir del % global |
 

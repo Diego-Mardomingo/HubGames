@@ -1,14 +1,14 @@
 import { AbsoluteFill, useCurrentFrame } from 'remotion'
 import { C, F, ease, lerp, pop, rise } from '../theme'
 import { Background } from '../ui/Background'
-import { LogoMark } from '../ui/Logo'
+import { BRAND, LogoMark } from '../ui/Logo'
 
 export const Intro = () => {
     const f = useCurrentFrame()
     const draw = ease(f, 6, 40)
     const node = pop(f, 40, 18)
     const lift = ease(f, 58, 30)
-    const word = 'hubgames'
+    const word = 'HubGames'
     const flash = Math.max(0, 1 - Math.abs(f - 44) / 10)
     return (
         <AbsoluteFill style={{ fontFamily: F.body, color: C.fg }}>
@@ -39,7 +39,7 @@ export const Intro = () => {
                                     opacity: t,
                                     translate: `0 ${(1 - t) * 60}px`,
                                     filter: t < 1 ? `blur(${(1 - t) * 12}px)` : undefined,
-                                    ...(i >= 3 ? { background: C.grad, backgroundSize: '520px 100%', backgroundPosition: `${-(i - 3) * 104}px 0`, WebkitBackgroundClip: 'text', color: 'transparent' } : {}),
+                                    ...(i >= 3 ? { color: BRAND.accent } : {}),
                                 }}
                             >
                                 {ch}

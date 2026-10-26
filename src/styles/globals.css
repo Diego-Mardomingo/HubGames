@@ -258,7 +258,7 @@ a {
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   Marca: corchetes de selección alrededor de una gema
+   Marca: H y G como barra y anillo de progreso
    ══════════════════════════════════════════════════════════════════ */
 .hg-logo {
   display: inline-flex;
@@ -274,23 +274,71 @@ a {
   color: var(--foreground);
 }
 
-.hg-mark__brackets {
-  transform-origin: 32px 32px;
-  transform-box: view-box;
-  transition: transform 0.3s var(--ease-out);
+/* Trazos con pathLength=100: el hueco (110) es mayor que el trazo para que un offset > 100 no deje un punto del remate redondo. */
+.hg-mark__bar,
+.hg-mark__g {
+  stroke-dasharray: 100 110;
 }
 
-.hg-logo:hover .hg-mark__brackets,
-.nav-brand:hover .hg-mark__brackets {
-  transform: scale(0.9);
+.hg-mark__bar {
+  stroke-dashoffset: 30;
+  transition: stroke-dashoffset 0.3s var(--ease-out);
+}
+
+/* Al pasar el ratón, la barra de la H llega al 100 %. */
+.hg-logo:hover .hg-mark__bar,
+.nav-brand:hover .hg-mark__bar {
+  stroke-dashoffset: 0;
+}
+
+.hg-mark--intro .hg-mark__g {
+  animation: hg-fill-g 0.7s var(--ease-out) backwards;
+}
+
+.hg-mark--intro .hg-mark__bar {
+  animation: hg-fill-bar 0.5s var(--ease-out) 0.3s backwards;
+}
+
+.hg-mark--loop .hg-mark__g {
+  animation: hg-loop-g 2.4s var(--ease-out) infinite;
+}
+
+.hg-mark--loop .hg-mark__bar {
+  animation: hg-loop-bar 2.4s var(--ease-out) infinite;
+}
+
+@keyframes hg-fill-g {
+  from { stroke-dashoffset: 105; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes hg-fill-bar {
+  from { stroke-dashoffset: 105; }
+  to { stroke-dashoffset: 30; }
+}
+
+@keyframes hg-loop-g {
+  0% { stroke-dashoffset: 105; opacity: 1; }
+  55%, 85% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+@keyframes hg-loop-bar {
+  0%, 15% { stroke-dashoffset: 105; opacity: 1; }
+  55%, 85% { stroke-dashoffset: 30; opacity: 1; }
+  100% { stroke-dashoffset: 30; opacity: 0; }
 }
 
 .hg-wordmark {
-    font-weight: 700;
+  font-weight: 700;
   font-size: 1.0625rem;
   letter-spacing: -0.02em;
   color: inherit;
   line-height: 1;
+}
+
+.hg-wordmark__accent {
+  color: var(--primary);
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -760,5 +808,11 @@ a {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* El bucle del loader acaba en opacidad 0: sin movimiento, el logo se queda quieto y entero. */
+  .hg-mark--loop .hg-mark__g,
+  .hg-mark--loop .hg-mark__bar {
+    animation: none;
   }
 }

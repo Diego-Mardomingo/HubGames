@@ -20,8 +20,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body,
-    icon: '/img/HGLogo.webp',
-    badge: '/img/HGLogo.webp',
+    icon: '/icons/web-app-manifest-192x192.png',
+    badge: '/icons/badge-96x96.png',
     data: { url },
   };
   // Avisos de precio (#37): una notificación por juego; la nueva sustituye a la anterior del mismo juego.
