@@ -10,6 +10,7 @@ export const LIBRARY_TABS: LibraryTab[] = [
     'jugando',
     'pendiente',
     'pausado',
+    'rejugable',
     'completado',
     'abandonado',
     'ya_jugado',
@@ -42,6 +43,9 @@ export function sortsFor(tab: LibraryTab): SortKey[] {
             return ['manual', 'duracion', 'descuento', 'nombre', 'horas', 'cambio']
         case 'jugando':
             return ['reciente', 'horas', 'logros', 'nombre', 'cambio']
+        case 'rejugable':
+            // Sin final ni nota (se pone al completar): lo que importa es a cuál has vuelto hace poco y cuánto lo juegas.
+            return ['reciente', 'horas', 'nombre', 'logros', 'cambio']
         case 'completado':
             return ['completado', 'nota', 'horas', 'logros', 'nombre']
         default:

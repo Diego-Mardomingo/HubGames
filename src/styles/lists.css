@@ -185,6 +185,7 @@
 .st-descartado { --c: var(--st-descartado); }
 .st-ya_jugado { --c: var(--st-yajugado); }
 .st-otros { --c: var(--st-otros); }
+.st-rejugable { --c: var(--st-rejugable); }
 .st-favorito { --c: var(--st-favorito); }
 .st-sin_final { --c: var(--st-sinfinal); }
 .sc-top { --c: var(--sc-top); }

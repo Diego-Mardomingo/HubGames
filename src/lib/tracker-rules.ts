@@ -16,6 +16,11 @@ const AUTO_PLAYING_FROM: GameStatus[] = ['bandeja', 'pendiente', 'pausado']
  * firmes: volver a jugar uno no lo devuelve a "Jugando" ni le pregunta si lo has terminado.
  */
 const CLOSED: GameStatus[] = ['completado', 'abandonado', 'descartado', 'ya_jugado', 'otros']
+/**
+ * Estados estables: las reglas no los tocan. Los cerrados y "Rejugable", que no está cerrado (se sigue jugando) pero
+ * tampoco tiene final: echar una partida no lo pasa a "Jugando" ni pregunta si lo has terminado o lo pausas.
+ */
+const STABLE: GameStatus[] = [...CLOSED, 'rejugable']
 
 export interface RuleInput {
     status: GameStatus
@@ -68,7 +73,7 @@ export function evaluateGame(game: RuleInput, now: number = Date.now()): RuleOut
         }
     }
 
-    if (CLOSED.includes(status)) return { status, statusChanged, suggestion: null }
+    if (STABLE.includes(status)) return { status, statusChanged, suggestion: null }
 
     // Una sugerencia descartada no se repite por el mismo motivo: solo si pasa algo después del descarte.
     const dismissed = ms(game.suggestion_dismissed_at)

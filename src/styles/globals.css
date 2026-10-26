@@ -61,6 +61,7 @@
   --st-descartado: #6b7280;
   --st-yajugado: #5c5b06;
   --st-otros: #931f8f;
+  --st-rejugable: #9c3c08;
   --st-favorito: #c2255c;
   --st-sinfinal: #6741d9;
   /* Puntuaciones (Metacritic, reseñas, tu nota): de mejor a peor */
@@ -132,6 +133,7 @@
   --st-descartado: #8a919e;
   --st-yajugado: #d2cf5c;
   --st-otros: #eb84f8;
+  --st-rejugable: #ff9a5c;
   --st-favorito: #f783ac;
   --st-sinfinal: #b197fc;
   --sc-top: #4cc97e;

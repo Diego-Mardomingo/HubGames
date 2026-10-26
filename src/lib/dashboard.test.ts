@@ -103,9 +103,21 @@ describe('dashboard', () => {
             game({ status: 'ya_jugado' }),
             game({ status: 'ya_jugado' }),
             game({ status: 'otros' }),
+            game({ status: 'rejugable' }),
+            game({ status: 'rejugable' }),
+            game({ status: 'rejugable' }),
         ]
         const unowned = [game({ status: 'pendiente', owned: false })]
-        assert.deepEqual(listCounts(owned, unowned), { jugando: 1, pendiente: 2, pausado: 0, completado: 0, ya_jugado: 2, otros: 1, bandeja: 1 })
+        assert.deepEqual(listCounts(owned, unowned), {
+            jugando: 1,
+            pendiente: 2,
+            pausado: 0,
+            rejugable: 3,
+            completado: 0,
+            ya_jugado: 2,
+            otros: 1,
+            bandeja: 1,
+        })
     })
 
     it('JUDI: los últimos 7 días, el último hoy', () => {

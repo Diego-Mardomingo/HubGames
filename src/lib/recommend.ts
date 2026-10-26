@@ -1,4 +1,5 @@
 // "¿Qué juego hoy?" (#30): puntúa tus juegos en Jugando y Pendientes según el tiempo que tienes y lo que te apetece.
+// Con menos de 1 h entran también los Rejugables, como partida rápida.
 // Puro (con tests en recommend.test.ts): lo que falta según HowLongToBeat, la posición en la cola,
 // cuánto hace que no lo juegas y el % de logros.
 import { remainingMinutes } from './dashboard'
@@ -73,8 +74,8 @@ function signals(g: LibraryGame, session: SessionLength, mood: Mood, now: number
     const out: Signal[] = []
     // Lo que no tienes no se puede jugar hoy: solo entra al buscar algo nuevo que empezar (y comprar).
     if (!g.owned && mood !== 'nuevo') return null
-    // Los juegos sin final no se terminan: ni "te falta poco", ni "cabe en tu sesión", ni "es corto".
-    const replayable = g.endless
+    // Los juegos sin final y los rejugables no se terminan: ni "te falta poco", ni "cabe en tu sesión", ni "es corto".
+    const replayable = g.endless || g.status === 'rejugable'
     const remaining = replayable ? null : remainingMinutes(g)
     const main = replayable ? null : gameDuration(g).main
     const started = g.playtime_forever >= STARTED_MIN || g.status === 'jugando'
@@ -112,7 +113,8 @@ function signals(g: LibraryGame, session: SessionLength, mood: Mood, now: number
             break
     }
 
-    // El tiempo que tienes.
+    // El tiempo que tienes. Un rejugable solo entra con sesión corta (ver recommend): es justo para eso.
+    if (g.status === 'rejugable') out.push({ points: 0.6, reason: 'Para una partida rápida' })
     if (remaining !== null && remaining > 0 && remaining <= sessionMin && mood !== 'nuevo') {
         out.push({ points: 1.5, reason: 'Te da tiempo a acabarlo hoy' })
     }
@@ -142,14 +144,20 @@ function signals(g: LibraryGame, session: SessionLength, mood: Mood, now: number
     return out
 }
 
+/** Estados que se proponen según la sesión: los Rejugables (partidas sueltas sin final) solo cuando hay poco tiempo. */
+export function recommendedStatuses(session: SessionLength): LibraryGame['status'][] {
+    return session === 'corta' ? ['jugando', 'pendiente', 'rejugable'] : ['jugando', 'pendiente']
+}
+
 /**
- * Juegos en Jugando y Pendientes ordenados de mejor a peor propuesta. La UI enseña los 3 primeros
- * y "Otra" pasa a los siguientes. `seed` cambia el orden de "Sorpréndeme".
+ * Juegos en Jugando y Pendientes (y Rejugables con sesión corta) ordenados de mejor a peor propuesta. La UI enseña
+ * los 3 primeros y "Otra" pasa a los siguientes. `seed` cambia el orden de "Sorpréndeme".
  */
 export function recommend(games: LibraryGame[], session: SessionLength, mood: Mood, now: number = Date.now(), seed = 0): Recommendation[] {
     const out: Recommendation[] = []
+    const statuses = recommendedStatuses(session)
     for (const game of games) {
-        if (game.status !== 'jugando' && game.status !== 'pendiente') continue
+        if (!statuses.includes(game.status)) continue
         const s = signals(game, session, mood, now, seed)
         if (!s) continue
         const reasons = s

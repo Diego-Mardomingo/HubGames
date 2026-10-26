@@ -102,6 +102,7 @@ const TAB_LABELS: Record<LibraryTab, string> = {
     jugando: 'Jugando',
     pendiente: 'Pendientes',
     pausado: 'Pausados',
+    rejugable: 'Rejugables',
     completado: 'Completados',
     abandonado: 'Abandonados',
     ya_jugado: 'Ya jugados',
@@ -117,6 +118,7 @@ const TAB_HINTS: Record<LibraryTab, string> = {
     jugando: 'Lo que juegas ahora',
     pendiente: 'Para jugar más adelante, comprados o no',
     pausado: 'En pausa por un tiempo',
+    rejugable: 'Juegos vivos a los que vuelves de vez en cuando a echar una partida, sin un final que perseguir',
     completado: 'Terminados',
     abandonado: 'Empezados y dejados',
     ya_jugado: 'Jugados antes o sin seguimiento: ni completados ni abandonados',
@@ -130,7 +132,7 @@ const TAB_HINTS: Record<LibraryTab, string> = {
 /** Grupos del raíl de listas. La bandeja va aparte, al final. */
 const RAIL: { title: string | null; tabs: LibraryTab[] }[] = [
     { title: null, tabs: ['todos'] },
-    { title: 'Estados', tabs: ['jugando', 'pendiente', 'pausado', 'completado', 'abandonado', 'ya_jugado', 'descartado', 'otros'] },
+    { title: 'Estados', tabs: ['jugando', 'pendiente', 'pausado', 'rejugable', 'completado', 'abandonado', 'ya_jugado', 'descartado', 'otros'] },
     { title: 'Marcas', tabs: ['favorito', 'sin_final'] },
 ]
 

@@ -27,8 +27,9 @@ const SORTS: { key: SortKey; label: string }[] = [
 type Action = { status: GameStatus; label: string; icon: typeof Check }
 
 /**
- * El orden es el de los atajos: 1 pendiente, 2 jugando, 3 completado, 4 abandonado, 5 descartado, 6 ya jugado y 7 otros
- * (los dos últimos llegaron después: van al final para no cambiar las teclas de siempre). Icono y color de su lista.
+ * El orden es el de los atajos: 1 pendiente, 2 jugando, 3 completado, 4 abandonado, 5 descartado, 6 ya jugado, 7 otros
+ * y 8 rejugable (los tres últimos llegaron después: van al final para no cambiar las teclas de siempre). Icono y color
+ * de su lista.
  */
 const ACTIONS: Action[] = [
     { status: 'pendiente', label: 'Pendiente', icon: LIST_ICONS.pendiente },
@@ -38,6 +39,7 @@ const ACTIONS: Action[] = [
     { status: 'descartado', label: 'Descartado', icon: LIST_ICONS.descartado },
     { status: 'ya_jugado', label: 'Ya jugado', icon: LIST_ICONS.ya_jugado },
     { status: 'otros', label: 'Otros', icon: LIST_ICONS.otros },
+    { status: 'rejugable', label: 'Rejugable', icon: LIST_ICONS.rejugable },
 ]
 
 const PAGE = 60
@@ -146,7 +148,7 @@ export default function BandejaPage() {
         })
     }
 
-    /** Atajos sobre la fila con el foco: 1–7 la clasifican y x la selecciona. */
+    /** Atajos sobre la fila con el foco: 1–8 la clasifican y x la selecciona. */
     function onListKey(e: KeyboardEvent<HTMLElement>) {
         if (e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return
         const row = (e.target as HTMLElement).closest<HTMLElement>('li[data-appid]')

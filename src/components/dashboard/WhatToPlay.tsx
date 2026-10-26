@@ -61,7 +61,9 @@ function Facts({ game }: { game: LibraryGame }) {
                     <InfinityIcon aria-hidden /> Sin final
                 </span>
             ) : (
-                main !== null && (
+                // Un rejugable no tiene historia que acabar: su duración no dice nada.
+                main !== null &&
+                game.status !== 'rejugable' && (
                     <span className="lib-meta" title="Duración de la historia">
                         <Hourglass aria-hidden /> {formatHours(main)}
                     </span>
@@ -82,8 +84,9 @@ function Facts({ game }: { game: LibraryGame }) {
 }
 
 /**
- * "¿Qué juego hoy?" (#30): 3 propuestas de tus Jugando y Pendientes según el tiempo y las ganas. Los pendientes sin
- * comprar (`unowned`) solo entran en «Empezar algo nuevo», con su precio y «Ver en Steam».
+ * "¿Qué juego hoy?" (#30): 3 propuestas de tus Jugando y Pendientes según el tiempo y las ganas (con menos de 1 h, también
+ * de tus Rejugables, como partida rápida). Los pendientes sin comprar (`unowned`) solo entran en «Empezar algo nuevo»,
+ * con su precio y «Ver en Steam».
  * `now` y `initialSeed` vienen del servidor para que el primer render coincida al hidratar.
  */
 export default function WhatToPlay({ games, unowned = [], now, initialSeed }: { games: LibraryGame[]; unowned?: LibraryGame[]; now: number; initialSeed: number }) {
@@ -196,7 +199,7 @@ export default function WhatToPlay({ games, unowned = [], now, initialSeed }: { 
                 <h2 id="dash-wtp-title" className="dash-sec__title">
                     ¿Qué juego hoy?
                 </h2>
-                <span className="dash-sec__count wtp__from">De tus Jugando y Pendientes</span>
+                <span className="dash-sec__count wtp__from">{session === 'corta' ? 'De tus Jugando, Pendientes y Rejugables' : 'De tus Jugando y Pendientes'}</span>
                 {list.length > SHOWN && (
                     <span className="dash-sec__end">
                         <Button type="button" variant="ghost" size="sm" onClick={() => choose(() => setSeed((s) => s + 1), 'deal')} title="Otras propuestas">
