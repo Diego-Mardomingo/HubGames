@@ -5,6 +5,7 @@ import { Eye, Lock, MonitorPlay, Trophy } from 'lucide-react'
 import { formatPercent, youtubeSearchUrl, type Achievement } from '@/lib/achievements'
 import { RARITY_TIER_LABELS, rarityColor, rarityTier } from '@/lib/rarity'
 import './achievements.css'
+import { achievementIconUrl } from '@/lib/steam-icon'
 
 const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
 
@@ -27,7 +28,7 @@ export default function AchievementItem({ achievement: a, gameName, context, hid
     const [revealed, setRevealed] = useState(false)
     const secret = a.hidden && !a.achieved && !revealed
     const name = a.display_name ?? a.apiname
-    const icon = a.achieved ? a.icon : (a.icongray ?? a.icon)
+    const icon = achievementIconUrl(a.achieved ? a.icon : (a.icongray ?? a.icon))
     const tier = rarityTier(a.global_percent)
 
     return (

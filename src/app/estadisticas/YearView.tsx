@@ -5,6 +5,7 @@ import { formatHours } from '@/lib/format'
 import { formatPercent } from '@/lib/achievements'
 import { RARITY_TIER_LABELS, rarityColor, rarityTier } from '@/lib/rarity'
 import GameCover from '@/components/tracker/GameCover'
+import { achievementIconUrl } from '@/lib/steam-icon'
 
 const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', timeZone: 'Europe/Madrid' })
 const NUMBER = new Intl.NumberFormat('es-ES')
@@ -259,7 +260,7 @@ export default function YearView({ s, prev, rarestGame }: { s: YearStats; prev: 
                                 <span className="hg-ach__icon">
                                     {s.rarest.icon ? (
                                         // eslint-disable-next-line @next/next/no-img-element -- icono del CDN de Steam
-                                        <img src={s.rarest.icon} alt="" width={32} height={32} />
+                                        <img src={achievementIconUrl(s.rarest.icon) ?? undefined} alt="" width={32} height={32} />
                                     ) : (
                                         <Trophy size={18} aria-hidden />
                                     )}
