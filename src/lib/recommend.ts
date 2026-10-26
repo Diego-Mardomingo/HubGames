@@ -2,7 +2,6 @@
 // Puro (con tests en recommend.test.ts): lo que falta según HowLongToBeat, la posición en la cola,
 // cuánto hace que no lo juegas y el % de logros.
 import { remainingMinutes } from './dashboard'
-import { isReplayable } from './game-goal'
 import { gameDuration } from './library'
 import { formatHours } from './format'
 import type { LibraryGame } from './tracker'
@@ -71,8 +70,8 @@ function noise(appid: number, seed: number): number {
 
 function signals(g: LibraryGame, session: SessionLength, mood: Mood, now: number, seed: number): Signal[] | null {
     const out: Signal[] = []
-    // Los rejugables no tienen final: ni "te falta poco", ni "cabe en tu sesión", ni "es corto".
-    const replayable = isReplayable(g)
+    // Los juegos sin final no se terminan: ni "te falta poco", ni "cabe en tu sesión", ni "es corto".
+    const replayable = g.endless
     const remaining = replayable ? null : remainingMinutes(g)
     const main = replayable ? null : gameDuration(g).main
     const started = g.playtime_forever >= STARTED_MIN || g.status === 'jugando'

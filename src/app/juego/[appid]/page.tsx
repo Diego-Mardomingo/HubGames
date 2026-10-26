@@ -1,13 +1,18 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, ExternalLink, ThumbsUp } from 'lucide-react'
+import { ArrowLeft, CalendarDays, ExternalLink, Hourglass, ThumbsUp } from 'lucide-react'
 import { getCatalogGame, getHltb, parseAppid } from '@/lib/catalog'
 import { gameDuration } from '@/lib/library'
+import { formatHours } from '@/lib/format'
+import { metacriticScore, steamReviewScore } from '@/lib/scores'
 import { htmlToParagraphs, parseGenres, parseScreenshots, parseTrailers } from '@/lib/steam-text'
 import { Button } from '@/components/ui/button'
 import GamePanel from './GamePanel'
+import GameAchievementsSummary from './GameAchievementsSummary'
+import { GameHeaderActions, GameProvider, type StorePrice } from './GameContext'
 import { HeroImage, Screenshots, Trailers } from './Media'
+import '@/styles/lists.css'
 import './juego.css'
 
 interface Props {
@@ -19,6 +24,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const game = appid ? await getCatalogGame(appid) : null
     if (!game) return { title: 'Juego no encontrado' }
     return { title: game.name, description: game.short_description ?? undefined }
+}
+
+/** Precio de Steam guardado con la ficha (`price_overview`, en céntimos), o null. */
+function storePrice(raw: unknown): StorePrice | null {
+    const p = raw as { initial?: unknown; final?: unknown; discount_percent?: unknown } | null
+    if (!p || typeof p.final !== 'number') return null
+    return {
+        initial: typeof p.initial === 'number' ? p.initial : p.final,
+        final: p.final,
+        discount_percent: typeof p.discount_percent === 'number' ? p.discount_percent : 0,
+    }
 }
 
 /** Ficha de un juego (#22): datos de Steam en el servidor y, en el cliente, los tuyos (estado, horas, logros). */
@@ -40,104 +56,121 @@ export default async function JuegoPage({ params }: Props) {
     const about = htmlToParagraphs(game.about_the_game)
     const studios = [...new Set([...(game.developers ?? []), ...(game.publishers ?? [])])]
     const storeUrl = `https://store.steampowered.com/app/${appid}/`
+    const metacritic = game.metacritic_score !== null ? metacriticScore(game.metacritic_score) : null
+    const reviews = game.steamspy_userscore !== null ? steamReviewScore(game.steamspy_userscore) : null
 
     return (
-        <div className="juego">
-            <Link href="/biblioteca" className="juego__back">
-                <ArrowLeft size={14} aria-hidden /> Biblioteca
-            </Link>
+        <GameProvider appid={appid} name={game.name} store={storePrice(game.price_overview)} isFree={game.is_free ?? false} comingSoon={game.coming_soon ?? false}>
+            <div className="juego">
+                <Link href="/biblioteca" className="juego__back">
+                    <ArrowLeft size={14} aria-hidden /> Biblioteca
+                </Link>
 
-            <header className="juego__head">
-                <HeroImage appid={appid} headerImage={game.header_image} />
-                <div className="juego__heading">
-                    <div className="juego__title-row">
-                        <div className="juego__title">
-                            <h1 className="page-title">{game.name}</h1>
-                            {studios.length > 0 && <p className="juego__studios">{studios.join(' · ')}</p>}
-                        </div>
-                        <Button variant="secondary" asChild>
-                            <a href={storeUrl} target="_blank" rel="noreferrer">
-                                <ExternalLink aria-hidden /> Ver en Steam
-                            </a>
-                        </Button>
-                    </div>
-                    <ul className="juego__facts">
-                        {(game.release_date_text || game.release_date) && (
-                            <li>
-                                {game.coming_soon ? 'Próximamente: ' : ''}
-                                {game.release_date_text ?? game.release_date}
-                            </li>
-                        )}
-                        {game.metacritic_score !== null && (
-                            <li>
-                                {game.metacritic_url ? (
-                                    <a className="juego__metacritic" href={game.metacritic_url} target="_blank" rel="noreferrer">
-                                        Metacritic <b>{game.metacritic_score}</b>
+                <header className="juego__head">
+                    <HeroImage appid={appid} headerImage={game.header_image} />
+                    <div className="juego__heading">
+                        <div className="juego__title-row">
+                            <div className="juego__title">
+                                <h1 className="page-title">{game.name}</h1>
+                                {studios.length > 0 && <p className="juego__studios">{studios.join(' · ')}</p>}
+                            </div>
+                            <div className="juego__actions">
+                                <GameHeaderActions />
+                                <Button variant="secondary" asChild>
+                                    <a href={storeUrl} target="_blank" rel="noreferrer">
+                                        <ExternalLink aria-hidden /> Ver en Steam
                                     </a>
-                                ) : (
-                                    <span className="juego__metacritic">
-                                        Metacritic <b>{game.metacritic_score}</b>
+                                </Button>
+                            </div>
+                        </div>
+                        <ul className="juego__facts">
+                            {(game.release_date_text || game.release_date) && (
+                                <li className="juego-fact">
+                                    <CalendarDays size={14} aria-hidden />
+                                    {game.coming_soon ? 'Próximamente: ' : ''}
+                                    {game.release_date_text ?? game.release_date}
+                                </li>
+                            )}
+                            {metacritic && (
+                                <li className={`juego-fact juego-fact--score sc-${metacritic.tier}`}>
+                                    <span className="juego-fact__num hg-tint">{game.metacritic_score}</span>
+                                    {game.metacritic_url ? (
+                                        <a className="juego__metacritic" href={game.metacritic_url} target="_blank" rel="noreferrer">
+                                            <b>Metacritic</b> · {metacritic.label}
+                                        </a>
+                                    ) : (
+                                        <span>
+                                            <b>Metacritic</b> · {metacritic.label}
+                                        </span>
+                                    )}
+                                </li>
+                            )}
+                            {reviews && (
+                                <li className={`juego-fact juego-fact--score sc-${reviews.tier}`} title="Reseñas positivas en Steam (SteamSpy)">
+                                    <span className="juego-fact__num hg-tint">
+                                        <ThumbsUp size={14} aria-hidden />
                                     </span>
-                                )}
-                            </li>
-                        )}
-                        {game.steamspy_userscore !== null && (
-                            <li title="Reseñas positivas en Steam (SteamSpy)">
-                                <ThumbsUp size={13} aria-hidden /> {game.steamspy_userscore} % positivas
-                            </li>
-                        )}
-                        {game.is_free && <li>Gratis</li>}
-                    </ul>
-                    {genres.length > 0 && (
-                        <ul className="juego__genres" aria-label="Géneros">
-                            {genres.map((g) => (
-                                <li key={g}>{g}</li>
-                            ))}
+                                    <span>
+                                        <b>{game.steamspy_userscore} %</b> · {reviews.label}
+                                    </span>
+                                </li>
+                            )}
+                            {duration.main !== null && (
+                                <li className="juego-fact" title="Duración de la historia">
+                                    <Hourglass size={14} aria-hidden /> Historia <b>{formatHours(duration.main)}</b>
+                                </li>
+                            )}
+                            {game.is_free && <li className="juego-fact">Gratis</li>}
                         </ul>
-                    )}
-                </div>
-            </header>
+                        {genres.length > 0 && (
+                            <ul className="juego__genres" aria-label="Géneros">
+                                {genres.map((g) => (
+                                    <li key={g}>{g}</li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                </header>
 
-            <GamePanel
-                appid={appid}
-                name={game.name}
-                duration={duration}
-            />
+                <GamePanel duration={duration} achievementsTotal={game.achievements_total} storeUrl={storeUrl} />
 
-            {trailers.length > 0 && (
-                <section className="juego__section" aria-labelledby="juego-trailer">
-                    <h2 id="juego-trailer" className="juego__section-title">
-                        Tráiler
-                    </h2>
-                    <Trailers trailers={trailers.slice(0, 4)} storeUrl={storeUrl} />
-                </section>
-            )}
+                <GameAchievementsSummary />
 
-            {screenshots.length > 0 && (
-                <section className="juego__section" aria-labelledby="juego-capturas">
-                    <h2 id="juego-capturas" className="juego__section-title">
-                        Capturas
-                    </h2>
-                    <Screenshots screenshots={screenshots} name={game.name} />
-                </section>
-            )}
+                {trailers.length > 0 && (
+                    <section className="juego__section" aria-labelledby="juego-trailer">
+                        <h2 id="juego-trailer" className="juego__section-title">
+                            Tráiler
+                        </h2>
+                        <Trailers trailers={trailers.slice(0, 4)} storeUrl={storeUrl} />
+                    </section>
+                )}
 
-            {(game.short_description || about.length > 0) && (
-                <section className="juego__section juego__about glass" aria-labelledby="juego-about">
-                    <h2 id="juego-about" className="juego__section-title">
-                        Acerca del juego
-                    </h2>
-                    {game.short_description && <p className="juego__lead">{htmlToParagraphs(game.short_description).join(' ')}</p>}
-                    {about.length > 0 && (
-                        <details>
-                            <summary>Descripción completa</summary>
-                            {about.map((p, i) => (
-                                <p key={i}>{p}</p>
-                            ))}
-                        </details>
-                    )}
-                </section>
-            )}
-        </div>
+                {screenshots.length > 0 && (
+                    <section className="juego__section" aria-labelledby="juego-capturas">
+                        <h2 id="juego-capturas" className="juego__section-title">
+                            Capturas
+                        </h2>
+                        <Screenshots screenshots={screenshots} name={game.name} />
+                    </section>
+                )}
+
+                {(game.short_description || about.length > 0) && (
+                    <section className="juego__section juego__about glass" aria-labelledby="juego-about">
+                        <h2 id="juego-about" className="juego__section-title">
+                            Acerca del juego
+                        </h2>
+                        {game.short_description && <p className="juego__lead">{htmlToParagraphs(game.short_description).join(' ')}</p>}
+                        {about.length > 0 && (
+                            <details>
+                                <summary>Descripción completa</summary>
+                                {about.map((p, i) => (
+                                    <p key={i}>{p}</p>
+                                ))}
+                            </details>
+                        )}
+                    </section>
+                )}
+            </div>
+        </GameProvider>
     )
 }

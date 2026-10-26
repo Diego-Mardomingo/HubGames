@@ -5,7 +5,8 @@ Dirección «Panel de actividad»: una herramienta para consultar tu biblioteca 
 ## Principios
 
 - **Superficies planas.** Fondo, superficie y borde fino. Nada de cristal (`backdrop-filter`), degradados decorativos, brillos, auroras ni sombras de color.
-- **Un único acento** (`--primary`, cobalto) para acciones, selección y progreso. El resto del color con significado lo ponen **solo las rarezas de los logros** (y los estados `--success`/`--danger`/`--warning` en mensajes).
+- **Un acento para actuar, colores para entender.** El cobalto (`--primary`) es para acciones, selección y progreso. El resto del color siempre significa algo y se reconoce de un vistazo: **cada lista de la biblioteca** (estados y marcas), **las puntuaciones** (Metacritic, reseñas, tu nota), **el mínimo histórico** de un precio y **las rarezas** de los logros. Nada de color decorativo.
+- **Minimalismo con tinte.** El color va como texto o icono sobre su propio fondo al 12–14 % (`.hg-tint`), en franjas finas o en bordes; nunca en bloques saturados. La única excepción es el mínimo histórico, en amarillo sólido para que salte a la vista.
 - **Portadas pequeñas.** Cápsula de Steam (`header.jpg`) a ~112×52 px y radio pequeño en listas y rejillas. La imagen grande solo en la ficha de un juego (`/juego/[appid]`).
 - **Cursor de selección.** Las filas y tarjetas clicables muestran `box-shadow: 0 0 0 3px var(--cursor)` con el ratón o el foco de teclado. Es la firma de la interfaz.
 - **Movimiento solo como respuesta** a una acción (abrir, expandir, confirmar, seleccionar). Sin animaciones de entrada escalonadas ni hovers que salten o roten. `prefers-reduced-motion` lo anula todo (regla global al final de `globals.css`).
@@ -45,6 +46,41 @@ Contraste medido (WCAG): `--muted` ≥ 4,8:1 sobre `--background`, `--surface` y
 - Velos oscuros sobre capturas y texto `#fff` encima (JUDI: insignia y pista sobre la captura, zoom), y el fondo `#000` del vídeo del tráiler.
 - `#fff` sobre color sólido (bola del interruptor) y el logo de Google con sus colores de marca.
 - Colores de reserva del confeti de JUDI (lee las variables y solo usa el valor escrito si fallan).
+
+## Listas de la biblioteca
+
+Un juego tiene **un estado** y puede tener además **marcas**, que se suman al estado (un juego puede estar «Completado» y ser «Favorito» y «Sin final» a la vez). Cada lista tiene su icono (`LIST_ICONS` en `src/components/tracker/status.tsx`) y su color, iguales en el raíl, la franja de la fila, el chip, el selector de la ficha y la bandeja.
+
+| Lista | Tipo | Token | Claro | Oscuro | Icono |
+|---|---|---|---|---|---|
+| Bandeja | estado (sin clasificar) | `--st-bandeja` | `#5d6472` | `#9aa1ae` | bandeja, borde discontinuo |
+| Pendiente | estado | `--st-pendiente` | `#0b7285` | `#3bc9db` | marcador |
+| Jugando | estado | `--st-jugando` | `#2453ff` | `#7b9bff` | play |
+| Pausado | estado | `--st-pausado` | `#8e5e18` | `#f2b53a` | pausa |
+| Completado | estado | `--st-completado` | `#1a7743` | `#4cc97e` | bandera |
+| Abandonado | estado | `--st-abandonado` | `#c7243b` | `#f26b7e` | círculo con aspa |
+| Descartado | estado | `--st-descartado` | `#6b7280` | `#8a919e` | ojo tachado |
+| Favorito | marca | `--st-favorito` | `#c2255c` | `#f783ac` | corazón |
+| Sin final | marca | `--st-sinfinal` | `#6741d9` | `#b197fc` | infinito |
+
+- Clases: `st-<lista>` pone `--c` (`st-todos` usa el acento) y `.hg-tint` lo pinta como texto sobre su fondo tenue (`--tint`: 12 % en claro, 14 % en oscuro). Componentes: `StatusChip` y `MarkFlags`.
+- **Pendientes sin comprar** (añadidos desde el buscador o la ficha, `owned = false`): portada desaturada con borde discontinuo cian, etiqueta «Sin comprar» y precio en lugar de logros. Los comprados llevan «Comprado».
+- El estado nunca va solo con el color: siempre con su icono y su nombre.
+
+## Puntuaciones y precios
+
+`src/lib/scores.ts` decide el nivel; el texto («Aclamado», «Muy positivas») va siempre al lado.
+
+| Nivel | Token | Claro | Oscuro | Metacritic | Reseñas de Steam | Tu nota |
+|---|---|---|---|---|---|---|
+| Muy bien | `--sc-top` | `#1a7743` | `#4cc97e` | ≥ 75 | ≥ 80 % | ≥ 9 |
+| Bien | `--sc-good` | `#4d7c0f` | `#a9d15b` | — | 70–79 % | ≥ 7 |
+| Regular | `--sc-mid` | `#8e5e18` | `#f2b53a` | 50–74 | 40–69 % | ≥ 5 |
+| Mal | `--sc-bad` | `#c7243b` | `#f26b7e` | < 50 | < 40 % | < 5 |
+
+- **Descuento**: `-40 %` tintado en `--sc-top`.
+- **Mínimo histórico** (`.hg-deal`, `.juego-verdict--deal`): `--deal` amarillo sólido (`#f5c400` / `#ffd43b`) con `--deal-foreground` oscuro encima, en los dos temas. Es lo más llamativo de un precio.
+- **Rebajado pero ha estado más barato**: tinte `--sc-mid`. **Precio normal**: neutro.
 
 ## Rarezas de logros
 
@@ -103,7 +139,7 @@ Tailwind 4 está activo **sin preflight** (solo `theme.css` y `utilities.css` en
 
 1. Antes de crear una clase, busca si ya existe en `lists.css`, `ui.css` o `globals.css`.
 2. Portada grande solo en la ficha; en el resto, cápsula pequeña.
-3. Un solo acento: no introduzcas otro color de marca ni pintes con las rarezas cosas que no sean logros.
+3. Un solo acento para actuar. Todo color nuevo debe significar algo y salir de los tokens de arriba (listas, puntuaciones, precio, rarezas): no inventes colores ni pintes con las rarezas cosas que no sean logros.
 4. Filas y tarjetas clicables: enlace principal extendido a toda la fila (`::after`) y cursor de selección en hover y `:focus-visible`/`:focus-within`.
 5. Sin mayúsculas forzadas, degradados, cristal ni glows. Las sombras, neutras y solo para lo que flota (menús, diálogos, segmento activo).
 6. Movimiento solo como respuesta, corto (0,15–0,3 s, `--ease-out`) y anulado con `prefers-reduced-motion`.

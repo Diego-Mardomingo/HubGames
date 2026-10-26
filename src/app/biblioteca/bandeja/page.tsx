@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type KeyboardEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Ban, Check, CheckCheck, Flag, ListPlus, Play, X } from 'lucide-react'
+import { ArrowLeft, Check, CheckCheck } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { completeGames, formatHours, setGamesStatus, type GameStatus, type LibraryGame } from '@/lib/tracker'
 import { isPerfect } from '@/lib/tracker-rules'
@@ -12,6 +12,7 @@ import Loader from '@/components/Loader'
 import KeyboardList from '@/components/KeyboardList'
 import GameCover from '@/components/tracker/GameCover'
 import CompleteDialog from '@/components/tracker/CompleteDialog'
+import { LIST_ICONS } from '@/components/tracker/status'
 import '../biblioteca.css'
 
 type SortKey = 'horas' | 'verguenza' | 'valorados' | 'nombre'
@@ -25,13 +26,13 @@ const SORTS: { key: SortKey; label: string }[] = [
 
 type Action = { status: GameStatus; label: string; icon: typeof Check }
 
-/** El orden es el de los atajos: 1 pendiente, 2 jugando, 3 completado, 4 abandonado y 5 no me interesa. */
+/** El orden es el de los atajos: 1 pendiente, 2 jugando, 3 completado, 4 abandonado y 5 descartado. Icono y color de su lista. */
 const ACTIONS: Action[] = [
-    { status: 'pendiente', label: 'Pendiente', icon: ListPlus },
-    { status: 'jugando', label: 'Jugando', icon: Play },
-    { status: 'completado', label: 'Completado', icon: Flag },
-    { status: 'abandonado', label: 'Abandonado', icon: X },
-    { status: 'descartado', label: 'No me interesa', icon: Ban },
+    { status: 'pendiente', label: 'Pendiente', icon: LIST_ICONS.pendiente },
+    { status: 'jugando', label: 'Jugando', icon: LIST_ICONS.jugando },
+    { status: 'completado', label: 'Completado', icon: LIST_ICONS.completado },
+    { status: 'abandonado', label: 'Abandonado', icon: LIST_ICONS.abandonado },
+    { status: 'descartado', label: 'Descartado', icon: LIST_ICONS.descartado },
 ]
 
 const PAGE = 60
@@ -273,7 +274,7 @@ export default function BandejaPage() {
                                                 type="button"
                                                 size="sm"
                                                 variant="secondary"
-                                                className="tray-action"
+                                                className={`tray-action st-${a.status}`}
                                                 title={`${a.label} (${i + 1})`}
                                                 aria-label={a.label}
                                                 aria-keyshortcuts={String(i + 1)}
@@ -312,6 +313,7 @@ export default function BandejaPage() {
                                 size="sm"
                                 variant="secondary"
                                 disabled={busy}
+                                className={`tray-action st-${a.status}`}
                                 title={a.label}
                                 aria-label={a.label}
                                 onClick={() => classify(selectedGames, a.status)}

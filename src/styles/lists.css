@@ -173,6 +173,127 @@
   white-space: nowrap;
 }
 
+/* ── Color con significado ──
+   Cada clase pone --c (estado, marca, puntuación o rareza); .hg-tint lo usa como texto sobre su propio fondo tenue. */
+.st-todos { --c: var(--primary); }
+.st-bandeja { --c: var(--st-bandeja); }
+.st-pendiente { --c: var(--st-pendiente); }
+.st-jugando { --c: var(--st-jugando); }
+.st-pausado { --c: var(--st-pausado); }
+.st-completado { --c: var(--st-completado); }
+.st-abandonado { --c: var(--st-abandonado); }
+.st-descartado { --c: var(--st-descartado); }
+.st-favorito { --c: var(--st-favorito); }
+.st-sin_final { --c: var(--st-sinfinal); }
+.sc-top { --c: var(--sc-top); }
+.sc-good { --c: var(--sc-good); }
+.sc-mid { --c: var(--sc-mid); }
+.sc-bad { --c: var(--sc-bad); }
+
+.hg-tint {
+  background: color-mix(in srgb, var(--c) var(--tint), transparent);
+  color: var(--c);
+}
+
+/* Chip de estado: icono + nombre con el color de la lista. La bandeja, con borde discontinuo (sin clasificar). */
+.hg-chip.hg-tint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding-left: 8px;
+  font-weight: 600;
+}
+
+.hg-chip.hg-tint svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+}
+
+.hg-chip.st-bandeja {
+  outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent);
+  outline-offset: -1px;
+}
+
+/* Marca pequeña (favorito, sin final) junto al nombre */
+.hg-flag {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+}
+
+.hg-flag svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Cifra puntuada (Metacritic, tu nota) */
+.hg-score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 26px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.hg-score svg {
+  width: 11px;
+  height: 11px;
+}
+
+/* Mínimo histórico: amarillo sólido, lo único de la interfaz que no va tintado */
+.hg-deal {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: var(--deal);
+  color: var(--deal-foreground);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.hg-deal svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Comprado / sin comprar (Pendientes y ficha) */
+.lib-own {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 7px;
+  border-radius: 5px;
+  background: var(--surface-2);
+  color: var(--foreground);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.lib-own svg {
+  width: 11px;
+  height: 11px;
+}
+
+.lib-own--no {
+  background: transparent;
+  color: var(--st-pendiente);
+  outline: 1px dashed var(--st-pendiente);
+  outline-offset: -1px;
+}
+
 .hg-chip--playing {
   background: var(--primary-glow);
   color: var(--primary);

@@ -87,7 +87,7 @@ export default function LogrosPage() {
                 router.push('/login')
                 return
             }
-            // Pedimos de sobra: luego se quitan los juegos marcados como "No me interesa".
+            // Pedimos de sobra: luego se quitan los juegos marcados como "Descartado".
             Promise.all([loadLibrary(), loadUnlockedAchievements(), loadEasyMissing(EASY_PERCENT, 300)])
                 .then(([games, unlocked, easy]) => setData({ games, unlocked, easy }))
                 .catch((e: Error) => {

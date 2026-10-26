@@ -2,11 +2,23 @@
 import type { GameStatus, LibraryGame } from './tracker'
 import { parseGenres } from './steam-text'
 
-export type LibraryTab = 'todos' | Exclude<GameStatus, 'bandeja'>
+/** Listas de la biblioteca: todos los clasificados, cada estado y las dos marcas (favorito y sin final). */
+export type LibraryTab = 'todos' | GameStatus | 'favorito' | 'sin_final'
 
-export const LIBRARY_TABS: LibraryTab[] = ['todos', 'jugando', 'pendiente', 'pausado', 'completado', 'abandonado', 'descartado']
+export const LIBRARY_TABS: LibraryTab[] = [
+    'todos',
+    'jugando',
+    'pendiente',
+    'pausado',
+    'completado',
+    'abandonado',
+    'descartado',
+    'favorito',
+    'sin_final',
+    'bandeja',
+]
 
-export type SortKey = 'manual' | 'nombre' | 'horas' | 'reciente' | 'nota' | 'logros' | 'completado' | 'cambio' | 'duracion'
+export type SortKey = 'manual' | 'nombre' | 'horas' | 'reciente' | 'nota' | 'logros' | 'completado' | 'cambio' | 'duracion' | 'descuento'
 
 export const SORT_LABELS: Record<SortKey, string> = {
     manual: 'Mi orden',
@@ -18,13 +30,14 @@ export const SORT_LABELS: Record<SortKey, string> = {
     completado: 'Completado recientemente',
     cambio: 'Último cambio de estado',
     duracion: 'Más cortos primero',
+    descuento: 'Mayor descuento',
 }
 
 /** Ordenaciones que tienen sentido en cada pestaña; la primera es la de por defecto. */
 export function sortsFor(tab: LibraryTab): SortKey[] {
     switch (tab) {
         case 'pendiente':
-            return ['manual', 'duracion', 'nombre', 'horas', 'cambio']
+            return ['manual', 'duracion', 'descuento', 'nombre', 'horas', 'cambio']
         case 'jugando':
             return ['reciente', 'horas', 'logros', 'nombre', 'cambio']
         case 'completado':
@@ -36,7 +49,8 @@ export function sortsFor(tab: LibraryTab): SortKey[] {
 
 export type AchievementFilter = 'todos' | 'sin_logros' | 'empezados' | 'casi' | 'perfectos'
 export type DurationFilter = 'todas' | 'corto' | 'medio' | 'largo' | 'muy_largo' | 'sin_dato'
-export type ReplayableFilter = 'todos' | 'rejugables' | 'con_final'
+export type MarkFilter = 'todas' | 'favoritos' | 'sin_final' | 'con_final'
+export type OwnFilter = 'todos' | 'comprados' | 'sin_comprar'
 
 export const ACHIEVEMENT_FILTER_LABELS: Record<AchievementFilter, string> = {
     todos: 'Cualquier % de logros',
@@ -55,10 +69,17 @@ export const DURATION_FILTER_LABELS: Record<DurationFilter, string> = {
     sin_dato: 'Sin duración',
 }
 
-export const REPLAYABLE_FILTER_LABELS: Record<ReplayableFilter, string> = {
-    todos: 'Rejugables y con final',
-    rejugables: 'Solo rejugables',
+export const MARK_FILTER_LABELS: Record<MarkFilter, string> = {
+    todas: 'Cualquier marca',
+    favoritos: 'Solo favoritos',
+    sin_final: 'Solo sin final',
     con_final: 'Solo con final',
+}
+
+export const OWN_FILTER_LABELS: Record<OwnFilter, string> = {
+    todos: 'Todos',
+    comprados: 'Comprados',
+    sin_comprar: 'Sin comprar',
 }
 
 export interface LibraryFilters {
@@ -68,8 +89,10 @@ export interface LibraryFilters {
     minRating: number | null
     achievements: AchievementFilter
     duration: DurationFilter
-    /** Objetivo "rejugable" (sin final) o el resto. */
-    replayable: ReplayableFilter
+    /** Favoritos, sin final o con final. */
+    marks: MarkFilter
+    /** Comprados (en tu biblioteca de Steam) o pendientes sin comprar. */
+    own: OwnFilter
 }
 
 export const NO_FILTERS: LibraryFilters = {
@@ -78,11 +101,20 @@ export const NO_FILTERS: LibraryFilters = {
     minRating: null,
     achievements: 'todos',
     duration: 'todas',
-    replayable: 'todos',
+    marks: 'todas',
+    own: 'todos',
 }
 
 export function hasFilters(f: LibraryFilters): boolean {
-    return f.genre !== null || f.completedYear !== null || f.minRating !== null || f.achievements !== 'todos' || f.duration !== 'todas' || f.replayable !== 'todos'
+    return (
+        f.genre !== null ||
+        f.completedYear !== null ||
+        f.minRating !== null ||
+        f.achievements !== 'todos' ||
+        f.duration !== 'todas' ||
+        f.marks !== 'todas' ||
+        f.own !== 'todos'
+    )
 }
 
 /** Nombres de género de la ficha de Steam (`[{ id, description }]`). */
@@ -138,8 +170,11 @@ export function completedYear(game: Pick<LibraryGame, 'completed_at'>): number |
     return game.completed_at ? new Date(game.completed_at).getFullYear() : null
 }
 
-export function inTab(game: Pick<LibraryGame, 'status'>, tab: LibraryTab): boolean {
-    return tab === 'todos' ? game.status !== 'bandeja' : game.status === tab
+export function inTab(game: Pick<LibraryGame, 'status' | 'favorite' | 'endless'>, tab: LibraryTab): boolean {
+    if (tab === 'todos') return game.status !== 'bandeja'
+    if (tab === 'favorito') return game.favorite
+    if (tab === 'sin_final') return game.endless
+    return game.status === tab
 }
 
 export function matchesFilters(game: LibraryGame, f: LibraryFilters): boolean {
@@ -155,7 +190,10 @@ export function matchesFilters(game: LibraryGame, f: LibraryFilters): boolean {
         if (f.achievements === 'perfectos' && pct < 100) return false
     }
     if (f.duration !== 'todas' && durationBucket(estimatedMinutes(game)) !== f.duration) return false
-    if (f.replayable !== 'todos' && (game.goal === 'rejugable') !== (f.replayable === 'rejugables')) return false
+    if (f.marks === 'favoritos' && !game.favorite) return false
+    if (f.marks === 'sin_final' && !game.endless) return false
+    if (f.marks === 'con_final' && game.endless) return false
+    if (f.own !== 'todos' && game.owned !== (f.own === 'comprados')) return false
     return true
 }
 
@@ -184,6 +222,8 @@ export function sortGames(games: LibraryGame[], key: SortKey): LibraryGame[] {
         completado: (a, b) => byDateDesc(a.completed_at, b.completed_at),
         cambio: (a, b) => byDateDesc(a.status_changed_at, b.status_changed_at),
         duracion: (a, b) => byNumber(estimatedMinutes(a), estimatedMinutes(b), true),
+        // Solo tienen descuento los que no tienes; los comprados van detrás.
+        descuento: (a, b) => byNumber(a.owned ? null : (a.discount_percent ?? 0), b.owned ? null : (b.discount_percent ?? 0)),
     }
     return [...games].sort((a, b) => cmp[key](a, b) || byName(a, b))
 }
@@ -217,4 +257,48 @@ export function moveInOrder(order: number[], appid: number, overAppid: number): 
 /** Portada vertical de la biblioteca de Steam (600×900). Algunos juegos no la tienen: usar header_image de respaldo. */
 export function verticalCover(appid: number): string {
     return `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${appid}/library_600x900.jpg`
+}
+
+/** Lista de inicio (📌): la que abre /biblioteca, con su orden, filtros y vista. Se guarda en hubgames_usuarios.library_home. */
+export type LibraryView = 'lista' | 'cuadricula'
+
+export interface LibraryHome {
+    tab: LibraryTab
+    sort: SortKey
+    filters: LibraryFilters
+    view: LibraryView
+}
+
+export const DEFAULT_HOME: LibraryHome = { tab: 'todos', sort: sortsFor('todos')[0], filters: NO_FILTERS, view: 'lista' }
+
+function pick<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
+    return allowed.includes(value as T) ? (value as T) : fallback
+}
+
+const nullableNumber = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null)
+
+/** Lee la lista de inicio guardada (JSON de la base de datos). Lo que no se reconozca vuelve al valor por defecto. */
+export function parseLibraryHome(raw: unknown): LibraryHome | null {
+    if (!raw || typeof raw !== 'object') return null
+    const r = raw as Record<string, unknown>
+    const tab = pick(r.tab, LIBRARY_TABS, 'todos')
+    const f = (r.filters && typeof r.filters === 'object' ? r.filters : {}) as Record<string, unknown>
+    return {
+        tab,
+        sort: pick(r.sort, sortsFor(tab), sortsFor(tab)[0]),
+        view: pick(r.view, ['lista', 'cuadricula'] as const, 'lista'),
+        filters: {
+            genre: typeof f.genre === 'string' ? f.genre : null,
+            completedYear: nullableNumber(f.completedYear),
+            minRating: nullableNumber(f.minRating),
+            achievements: pick(f.achievements, Object.keys(ACHIEVEMENT_FILTER_LABELS) as AchievementFilter[], 'todos'),
+            duration: pick(f.duration, Object.keys(DURATION_FILTER_LABELS) as DurationFilter[], 'todas'),
+            marks: pick(f.marks, Object.keys(MARK_FILTER_LABELS) as MarkFilter[], 'todas'),
+            own: pick(f.own, Object.keys(OWN_FILTER_LABELS) as OwnFilter[], 'todos'),
+        },
+    }
+}
+
+export function sameHome(a: LibraryHome, b: LibraryHome): boolean {
+    return a.tab === b.tab && a.sort === b.sort && a.view === b.view && JSON.stringify(a.filters) === JSON.stringify(b.filters)
 }

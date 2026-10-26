@@ -382,6 +382,13 @@
   font-weight: 600;
 }
 
+.game-search__actions {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+}
+
 .game-search__done {
   display: inline-flex;
   align-items: center;
@@ -441,4 +448,87 @@
   .suggestion__actions > * {
     flex: 1;
   }
+}
+
+/* ── Menú de estado y marcas de una fila de la biblioteca ── */
+.game-menu {
+  display: grid;
+  gap: 6px;
+  width: 15rem;
+  padding: 6px;
+}
+
+.game-menu__group {
+  display: grid;
+  gap: 1px;
+}
+
+.game-menu__group + .game-menu__group {
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.game-menu__opt {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 34px;
+  padding: 0 0.6rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: left;
+}
+
+.game-menu__opt:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.game-menu__opt:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+.game-menu__opt[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--c, var(--primary)) var(--tint), transparent);
+  color: var(--c, var(--primary));
+  font-weight: 600;
+}
+
+.game-menu__icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  color: var(--c, var(--muted));
+}
+
+.game-menu__check {
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .game-menu__opt {
+    min-height: 44px;
+  }
+}
+
+.game-menu__trigger {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.game-menu__trigger svg {
+  width: 18px;
+  height: 18px;
+}
+
+.game-menu__trigger[data-state='open'] {
+  background: var(--surface-2);
+  color: var(--foreground);
 }

@@ -12,8 +12,8 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   Tokens — "Panel de actividad": neutro frío, acento cobalto,
-   el color con significado lo ponen las rarezas de los logros.
+   Tokens — "Panel de actividad": neutro frío, acento cobalto para
+   acciones y color con significado para listas, notas, precios y rarezas.
    Claro por defecto; oscuro con [data-theme='dark'] (ver ThemeScript).
    ══════════════════════════════════════════════════════════════════ */
 :root {
@@ -50,6 +50,27 @@
   --rar-leg: #c98a0b;
   /* Rareza usada como texto o icono: en claro se mezcla con --foreground para llegar a 4.5:1 */
   --rar-ink: 62%;
+
+  /* Listas de la biblioteca: un color por estado y por marca (texto ≥ 4,5:1; de fondo, al --tint) */
+  --st-bandeja: #5d6472;
+  --st-pendiente: #0b7285;
+  --st-jugando: #2453ff;
+  --st-pausado: #8e5e18;
+  --st-completado: #1a7743;
+  --st-abandonado: #c7243b;
+  --st-descartado: #6b7280;
+  --st-favorito: #c2255c;
+  --st-sinfinal: #6741d9;
+  /* Puntuaciones (Metacritic, reseñas, tu nota): de mejor a peor */
+  --sc-top: #1a7743;
+  --sc-good: #4d7c0f;
+  --sc-mid: #8e5e18;
+  --sc-bad: #c7243b;
+  /* Mínimo histórico: amarillo sólido con texto oscuro, lo más llamativo de un precio */
+  --deal: #f5c400;
+  --deal-foreground: #2b2100;
+  /* Opacidad de los fondos tintados (color-mix con --c) */
+  --tint: 12%;
 
   --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06);
   --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
@@ -99,6 +120,23 @@
   --rar-epica: #b07cff;
   --rar-leg: #f2b53a;
   --rar-ink: 100%;
+
+  --st-bandeja: #9aa1ae;
+  --st-pendiente: #3bc9db;
+  --st-jugando: #7b9bff;
+  --st-pausado: #f2b53a;
+  --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e;
+  --st-descartado: #8a919e;
+  --st-favorito: #f783ac;
+  --st-sinfinal: #b197fc;
+  --sc-top: #4cc97e;
+  --sc-good: #a9d15b;
+  --sc-mid: #f2b53a;
+  --sc-bad: #f26b7e;
+  --deal: #ffd43b;
+  --deal-foreground: #221a00;
+  --tint: 14%;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);

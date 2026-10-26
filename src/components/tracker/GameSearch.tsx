@@ -4,12 +4,12 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, Heart, ListPlus, Loader2, Search } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
-import { STATUS_LABELS, setGamesStatus, type GameStatus } from '@/lib/tracker'
+import { addToPending, setGamesStatus, type GameStatus } from '@/lib/tracker'
 import { addToWishlist } from '@/lib/wishlist'
 import type { SteamSearchResult } from '@/app/api/steam/search/route'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { statusChipClass } from './status'
+import { StatusChip } from './status'
 import './tracker.css'
 
 const DEBOUNCE_MS = 250
@@ -22,8 +22,8 @@ export function openGameSearch() {
 }
 
 /**
- * Buscador de juegos de Steam (#20), con Ctrl+K (o ⌘K). Marca los que ya tienes y los pasa a pendientes con un clic.
- * Los que no tienes se añaden a la wishlist (#35).
+ * Buscador de juegos de Steam (#20), con Ctrl+K (o ⌘K). Marca los que ya sigues y los pasa a Pendientes con un clic.
+ * Los que no tienes se añaden a Pendientes (sin comprar) o a la wishlist (#35).
  */
 export default function GameSearch() {
     const [open, setOpen] = useState(false)
@@ -114,7 +114,9 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
         setSaving(appid)
         setError('')
         try {
-            await setGamesStatus([appid], 'pendiente')
+            // Los que no sigues (no los tienes) entran como pendientes sin comprar, con su precio.
+            if (owned.has(appid)) await setGamesStatus([appid], 'pendiente')
+            else await addToPending(appid)
             setOwned((m) => new Map(m).set(appid, 'pendiente'))
         } catch (e) {
             setError(e instanceof Error ? e.message : 'No se pudo guardar')
@@ -198,7 +200,7 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
                                         <span className="game-search__name">{r.name}</span>
                                         <span className="game-search__meta">
                                             {status ? (
-                                                <span className={statusChipClass(status)}>{STATUS_LABELS[status]}</span>
+                                                <StatusChip status={status} />
                                             ) : (
                                                 <span>No lo tienes</span>
                                             )}
@@ -215,14 +217,21 @@ function SearchBody({ onNavigate }: { onNavigate: () => void }) {
                                     <Button size="sm" variant="secondary" disabled={saving === r.appid} onClick={() => toBacklog(r.appid)}>
                                         <ListPlus aria-hidden /> Añadir a pendientes
                                     </Button>
-                                ) : wished.has(r.appid) ? (
-                                    <span className="game-search__done">
-                                        <Heart size={14} aria-hidden /> En la wishlist
-                                    </span>
                                 ) : (
-                                    <Button size="sm" variant="ghost" disabled={saving === r.appid} onClick={() => toWishlist(r.appid)}>
-                                        <Heart aria-hidden /> Wishlist
-                                    </Button>
+                                    <span className="game-search__actions">
+                                        <Button size="sm" variant="secondary" disabled={saving === r.appid} onClick={() => toBacklog(r.appid)}>
+                                            <ListPlus aria-hidden /> Pendientes
+                                        </Button>
+                                        {wished.has(r.appid) ? (
+                                            <span className="game-search__done">
+                                                <Heart size={14} aria-hidden /> En la wishlist
+                                            </span>
+                                        ) : (
+                                            <Button size="sm" variant="ghost" disabled={saving === r.appid} onClick={() => toWishlist(r.appid)}>
+                                                <Heart aria-hidden /> Wishlist
+                                            </Button>
+                                        )}
+                                    </span>
                                 )}
                             </li>
                         )

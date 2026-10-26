@@ -6,49 +6,17 @@ import {
     gameDuration,
     genreNames,
     inTab,
+    parseLibraryHome,
     matchesFilters,
     moveInOrder,
     NO_FILTERS,
     sortGames,
 } from './library'
 import type { LibraryGame } from './tracker'
-
-let nextAppid = 1
+import { libraryGame } from './test-utils'
 
 function game(overrides: Partial<LibraryGame> = {}): LibraryGame {
-    return {
-        user_id: 'u',
-        appid: nextAppid++,
-        status: 'pendiente',
-        status_source: 'manual',
-        rating: null,
-        started_at: null,
-        completed_at: null,
-        review: null,
-        backlog_position: null,
-        goal: 'historia',
-        created_at: '2026-10-01T00:00:00Z',
-        updated_at: '2026-10-01T00:00:00Z',
-        playtime_forever: 0,
-        playtime_2weeks: 0,
-        rtime_last_played: null,
-        achievements_total: null,
-        achievements_unlocked: null,
-        last_unlock_at: null,
-        name: 'Juego',
-        header_image: null,
-        steamspy_userscore: null,
-        status_changed_at: '2026-10-01T00:00:00Z',
-        suggestion: null,
-        suggestion_dismissed_at: null,
-        genres: null,
-        release_date: null,
-        steamspy_median_forever: null,
-        hltb_main: null,
-        hltb_main_extra: null,
-        hltb_completionist: null,
-        ...overrides,
-    }
+    return libraryGame(overrides)
 }
 
 const names = (games: LibraryGame[]) => games.map((g) => g.name)
@@ -58,6 +26,13 @@ describe('pestañas y datos derivados', () => {
         assert.equal(inTab(game({ status: 'bandeja' }), 'todos'), false)
         assert.equal(inTab(game({ status: 'descartado' }), 'todos'), true)
         assert.equal(inTab(game({ status: 'jugando' }), 'pendiente'), false)
+        assert.equal(inTab(game({ status: 'bandeja' }), 'bandeja'), true)
+        // Las marcas se suman al estado: un completado sin final está en las dos listas.
+        const terraria = game({ status: 'completado', endless: true, favorite: true })
+        assert.equal(inTab(terraria, 'completado'), true)
+        assert.equal(inTab(terraria, 'sin_final'), true)
+        assert.equal(inTab(terraria, 'favorito'), true)
+        assert.equal(inTab(game({}), 'favorito'), false)
     })
 
     it('lee los géneros de la ficha de Steam e ignora lo que no encaja', () => {
@@ -121,13 +96,22 @@ describe('filtros', () => {
         assert.equal(matchesFilters(game({ hltb_main: 20 * 60, steamspy_median_forever: 60 }), { ...NO_FILTERS, duration: 'largo' }), true)
     })
 
-    it('rejugables: solo los marcados con ese objetivo, o solo los demás', () => {
-        const cs = game({ goal: 'rejugable' })
-        const story = game({ goal: 'historia' })
-        const pick = (replayable: typeof NO_FILTERS.replayable) => [cs, story].filter((g) => matchesFilters(g, { ...NO_FILTERS, replayable }))
-        assert.deepEqual(pick('todos'), [cs, story])
-        assert.deepEqual(pick('rejugables'), [cs])
-        assert.deepEqual(pick('con_final'), [story])
+    it('marcas: favoritos, sin final o con final', () => {
+        const cs = game({ endless: true })
+        const fav = game({ favorite: true })
+        const pick = (marks: typeof NO_FILTERS.marks) => [cs, fav].filter((g) => matchesFilters(g, { ...NO_FILTERS, marks }))
+        assert.deepEqual(pick('todas'), [cs, fav])
+        assert.deepEqual(pick('sin_final'), [cs])
+        assert.deepEqual(pick('con_final'), [fav])
+        assert.deepEqual(pick('favoritos'), [fav])
+    })
+
+    it('comprados o sin comprar', () => {
+        const mine = game({ owned: true })
+        const wanted = game({ owned: false })
+        const pick = (own: typeof NO_FILTERS.own) => [mine, wanted].filter((g) => matchesFilters(g, { ...NO_FILTERS, own }))
+        assert.deepEqual(pick('comprados'), [mine])
+        assert.deepEqual(pick('sin_comprar'), [wanted])
     })
 
     it('opciones de los desplegables sin repetidos y ordenadas', () => {
@@ -171,6 +155,22 @@ describe('ordenaciones', () => {
         const games = [game({ name: 'B' }), game({ name: 'A' })]
         sortGames(games, 'nombre')
         assert.deepEqual(names(games), ['B', 'A'])
+    })
+})
+
+describe('lista de inicio', () => {
+    it('lee lo guardado y corrige lo que no reconoce', () => {
+        const home = parseLibraryHome({ tab: 'pendiente', sort: 'descuento', view: 'cuadricula', filters: { own: 'sin_comprar', genre: 'RPG' } })
+        assert.deepEqual(home, {
+            tab: 'pendiente',
+            sort: 'descuento',
+            view: 'cuadricula',
+            filters: { ...NO_FILTERS, own: 'sin_comprar', genre: 'RPG' },
+        })
+        // Un orden que no existe en esa lista vuelve al de por defecto.
+        assert.equal(parseLibraryHome({ tab: 'completado', sort: 'manual' })?.sort, 'completado')
+        assert.equal(parseLibraryHome({ tab: 'inventada' })?.tab, 'todos')
+        assert.equal(parseLibraryHome(null), null)
     })
 })
 

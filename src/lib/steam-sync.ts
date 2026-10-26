@@ -323,11 +323,17 @@ export async function syncWishlist(supabase: Client, userId: string, options: St
     const appids = wished.map((w) => w.appid).filter((id) => !owned.has(id))
     const { fetched, pending } = await fillCatalog(supabase, appids.map((appid) => ({ appid })), options)
 
+    // Los pendientes sin comprar también llevan precio y mínimo (se añaden con su ficha desde /api/pendientes).
+    const unownedPending = await selectAll<{ appid: number | null }>((from, to) =>
+        supabase.from('hubgames_library').select('appid').eq('user_id', userId).eq('owned', false).order('appid').range(from, to),
+    )
+    const priced = [...new Set([...appids, ...unownedPending.flatMap((r) => (r.appid === null ? [] : [r.appid]))])]
+
     // Precios: un fallo (Steam o IsThereAnyDeal) deja la sincronización como parcial, pero no tumba el resto.
     let prices: PriceSyncResult | null = null
     let pricesError: string | null = null
     try {
-        prices = await refreshPrices(supabase, appids)
+        prices = await refreshPrices(supabase, priced)
         log(`Precios: ${prices.pricesUpdated}, fotos nuevas: ${prices.snapshots}, mínimos: ${prices.lowsUpdated}`)
         if (prices.itadSkipped) log(`IsThereAnyDeal: ${prices.itadSkipped}`)
     } catch (e) {
@@ -590,6 +596,7 @@ export async function applyTrackerRules(supabase: Client, userId: string, now: n
                 goal: game.goal,
                 goal_minutes: goalMinutes({
                     goal: game.goal,
+                    endless: game.endless ?? false,
                     playtime_forever: game.playtime_forever ?? 0,
                     achievements_total: game.achievements_total,
                     achievements_unlocked: game.achievements_unlocked,

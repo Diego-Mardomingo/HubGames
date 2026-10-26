@@ -18,7 +18,7 @@ import { formatPercent } from '@/lib/achievements'
 import { countsByMonth, monthElapsed, progressFor, suggestTargets } from '@/lib/goals'
 import { DURATION_SOURCE_LABEL, achievementPercent, gameDuration } from '@/lib/library'
 import { formatHours } from '@/lib/format'
-import { GOAL_LABELS, goalMinutes, goalRemainingMinutes, isReplayable, parseGoal } from '@/lib/game-goal'
+import { GOAL_LABELS, goalMinutes, goalRemainingMinutes, parseGoal } from '@/lib/game-goal'
 import { STATUS_LABELS, type LibraryGame } from '@/lib/tracker'
 import { isPerfect } from '@/lib/tracker-rules'
 import { Button } from '@/components/ui/button'
@@ -332,7 +332,7 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                                                 <Link href={`/juego/${g.appid}`} className="hg-row__link">
                                                     {name}
                                                 </Link>
-                                                <span className="hg-row__meta">{isReplayable(g) ? 'Rejugable' : d.main !== null ? `Historia: ${formatHours(d.main)}` : 'Sin duración'}</span>
+                                                <span className="hg-row__meta">{g.endless ? 'Sin final' : d.main !== null ? `Historia: ${formatHours(d.main)}` : 'Sin duración'}</span>
                                             </span>
                                             <a className="hg-icon-btn" href={steamRunUrl(g.appid)} aria-label={`Jugar a ${name}`} title="Jugar">
                                                 <Play size={16} aria-hidden />
