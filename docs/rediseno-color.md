@@ -95,13 +95,15 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
 
 ### 1. Marco común
 
-- 🎨 **Navegación (barra lateral, barra superior y pestañas móviles)** — en todas las páginas · `src/components/Nav.tsx`, `src/styles/nav.css`
+- [x] **Navegación (barra lateral, barra superior y pestañas móviles)** — en todas las páginas · `src/components/Nav.tsx`, `src/styles/nav.css`
   - Hoy: iconos y etiquetas neutros, activo en cobalto, contador de bandeja como badge.
   - Ideas: que el contador de la bandeja use el color de `--st-bandeja` como en el raíl; valorar indicadores pequeños con color (p. ej. nº de juegos «Jugando» junto a Biblioteca, logros nuevos, JUDI pendiente hoy). Mantener el cobalto solo para el elemento activo.
   - Animación: indicador del elemento activo que se desliza entre enlaces (barra lateral y pestañas móviles), iconos con un leve desplazamiento o rebote al pasar o pulsar, contador de bandeja que «salta» al cambiar, transición suave al pasar de barra ancha a compacta.
-  - Mockup: `docs/mockups/navegacion.html` (variantes A/B para Biblioteca en la barra ancha)
-- 🎨 **Pie de página** — `src/components/SiteFooter.tsx` · repaso ligero de coherencia, sin color nuevo salvo que aporte.
+  - Mockup: `docs/mockups/navegacion.html` (aprobada la variante A)
+  - Hecho en la rama `Diego-Mardomingo/rediseno-navegacion`, commit `e28a08a`. Incluye «Ctrl + K» en toda la interfaz y el botón para plegar la barra en pantallas anchas.
+- [x] **Pie de página** — `src/components/SiteFooter.tsx` · repaso ligero de coherencia, sin color nuevo salvo que aporte.
   - Mockup: `docs/mockups/navegacion.html` (sección «Pie de página»)
+  - Hecho en la rama `Diego-Mardomingo/rediseno-navegacion`, commit `e28a08a`.
 
 ### 2. Inicio
 
