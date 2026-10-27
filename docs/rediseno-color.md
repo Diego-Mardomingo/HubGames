@@ -215,3 +215,11 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
 - [ ] **Página 404 y página de error** — hoy **no existen** (`src/app/not-found.tsx`, `src/app/error.tsx`) · proponer un diseño coherente y crearlas.
   - Animación: un detalle con personalidad (el logo de HubGames con la barra que no termina de llenarse, un mando que se desconecta…), una sola vez.
 - [ ] **Transición entre páginas** — `src/app/template.tsx` (hoy: fundido + leve desplazamiento de 0,4 s) · revisar duración y estilo para que encaje con el resto de microanimaciones; valorar View Transitions para que la cápsula de un juego «vuele» de la fila de la biblioteca a la imagen grande de la ficha.
+
+### 11. Cierre: README, capturas y vídeo
+
+Va **al final**, cuando el rediseño esté terminado, y se hace poco a poco. No usa mockups: el agente principal pregunta a Diego por la finalidad del proyecto antes de escribir nada.
+
+- [ ] **README** — `README.md` · hoy cuenta un producto distinto al real (habla de «centro de control gamer», PWA, avisos push…). Reescribirlo desde cero a partir de una ronda de preguntas a Diego: para qué y para quién es HubGames, qué partes son las centrales (biblioteca, estados, logros, Inicio) y cuáles secundarias (JUDI), qué se queda fuera, tono.
+- [ ] **Capturas** — `docs/readme/hero.png`, `screens.png` · rehacerlas con el diseño nuevo, claro y oscuro, escritorio y móvil, con datos reales y sin información privada.
+- [ ] **Vídeo** — `docs/readme/hubgames-promo.mp4`, `video.png` (miniatura), proyecto Remotion en `promo/` · rehacer el recorrido con las páginas rediseñadas y sus microanimaciones, alineado con lo que cuente el README nuevo.
