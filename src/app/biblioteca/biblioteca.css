@@ -107,6 +107,7 @@
 
 .lib-rail__item--tray {
   border: 1px dashed var(--border-hover);
+  text-decoration: none;
 }
 
 .lib-rail__icon {
