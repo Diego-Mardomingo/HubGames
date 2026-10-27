@@ -115,18 +115,28 @@ export async function completeGames(games: Pick<LibraryGame, 'appid' | 'last_unl
     notifyChanged()
 }
 
-/** Lo que tocan clasificar y completar: basta para deshacerlo. */
+/** Lo que tocan clasificar y completar (también las marcas, que se eligen al completar): basta para deshacerlo. */
 export type StatusSnapshot = Pick<
     LibraryGame,
-    'appid' | 'status' | 'status_source' | 'status_changed_at' | 'started_at' | 'completed_at' | 'rating' | 'review' | 'suggestion'
+    | 'appid'
+    | 'status'
+    | 'status_source'
+    | 'status_changed_at'
+    | 'started_at'
+    | 'completed_at'
+    | 'rating'
+    | 'review'
+    | 'suggestion'
+    | 'favorite'
+    | 'endless'
 >
 
 export function statusSnapshot(game: LibraryGame): StatusSnapshot {
-    const { appid, status, status_source, status_changed_at, started_at, completed_at, rating, review, suggestion } = game
-    return { appid, status, status_source, status_changed_at, started_at, completed_at, rating, review, suggestion }
+    const { appid, status, status_source, status_changed_at, started_at, completed_at, rating, review, suggestion, favorite, endless } = game
+    return { appid, status, status_source, status_changed_at, started_at, completed_at, rating, review, suggestion, favorite, endless }
 }
 
-/** Deshacer (bandeja): devuelve cada juego a su estado anterior, con sus fechas, nota y reseña. */
+/** Deshacer (bandeja): devuelve cada juego a su estado anterior, con sus fechas, nota, reseña y marcas. */
 export async function restoreGames(snapshots: StatusSnapshot[]): Promise<void> {
     if (snapshots.length === 0) return
     const results = await Promise.all(
@@ -141,6 +151,8 @@ export async function restoreGames(snapshots: StatusSnapshot[]): Promise<void> {
                     rating: s.rating,
                     review: s.review,
                     suggestion: s.suggestion,
+                    favorite: s.favorite,
+                    endless: s.endless,
                 })
                 .eq('appid', s.appid)
             if (res.error || !s.status_changed_at) return res
@@ -159,9 +171,12 @@ export interface Completion {
     /** ISO. */
     completedAt: string
     review: string | null
+    /** Marcas, que se eligen en el mismo diálogo (las mismas columnas que `setGameMark`). */
+    favorite: boolean
+    endless: boolean
 }
 
-/** Guarda el diálogo de completar (#19). También sirve para editar la nota, la fecha o la reseña después. */
+/** Guarda el diálogo de completar (#19). También sirve para editar la nota, la fecha, la reseña o las marcas después. */
 export async function saveCompletion(appid: number, completion: Completion): Promise<void> {
     const { error } = await supabase
         .from('hubgames_user_games')
@@ -171,6 +186,8 @@ export async function saveCompletion(appid: number, completion: Completion): Pro
             rating: completion.rating,
             completed_at: completion.completedAt,
             review: completion.review,
+            favorite: completion.favorite,
+            endless: completion.endless,
         })
         .eq('appid', appid)
     if (error) throw new Error(error.message)

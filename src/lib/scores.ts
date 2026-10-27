@@ -36,6 +36,19 @@ export function ratingTier(rating: number): ScoreTier {
     return 'bad'
 }
 
+/** Palabra de cada nivel de tu nota: va siempre junto a la cifra y su color. */
+export const RATING_LABELS: Record<ScoreTier, string> = {
+    top: 'Imprescindible',
+    good: 'Muy bueno',
+    mid: 'Correcto',
+    bad: 'Flojo',
+}
+
+/** Tu nota en palabras: Flojo (< 5), Correcto (≥ 5), Muy bueno (≥ 7), Imprescindible (≥ 9). */
+export function ratingLabel(rating: number): string {
+    return RATING_LABELS[ratingTier(rating)]
+}
+
 /**
  * Cómo está el precio de hoy: en mínimo histórico de Steam (`low`, el más llamativo), rebajado pero ha estado más barato
  * (`sale`) o a precio normal (`normal`). null sin precio.

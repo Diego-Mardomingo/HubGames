@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { metacriticScore, pricePosition, priceVerdict, ratingTier, steamReviewScore } from './scores'
+import { metacriticScore, pricePosition, priceVerdict, ratingLabel, ratingTier, steamReviewScore } from './scores'
 
 const price = (p: Partial<Parameters<typeof priceVerdict>[0]>) => ({ price_final: 1000, discount_percent: 0, steam_low: null, all_low: null, ...p })
 
@@ -21,6 +21,19 @@ describe('puntuaciones', () => {
 
     it('tu nota', () => {
         assert.deepEqual([9.5, 7, 5, 3].map(ratingTier), ['top', 'good', 'mid', 'bad'])
+    })
+
+    it('tu nota en palabras, con los mismos umbrales que su color', () => {
+        assert.deepEqual([10, 9, 8.5, 7, 6.5, 5, 4.5, 0].map(ratingLabel), [
+            'Imprescindible',
+            'Imprescindible',
+            'Muy bueno',
+            'Muy bueno',
+            'Correcto',
+            'Correcto',
+            'Flojo',
+            'Flojo',
+        ])
     })
 })
 
