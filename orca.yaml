@@ -1,4 +1,3 @@
 # Orca ejecuta este script al crear un worktree. Copia los .env* (ignorados por git) desde el checkout principal.
 scripts:
-  setup: |
-    node -e "const fs=require('fs'),p=require('path');const r=process.env.ORCA_ROOT_PATH;if(r&&p.resolve(r)!==p.resolve('.'))for(const f of fs.readdirSync(r))if(/^\.env(\..+)?$/.test(f)&&!/\.example$/.test(f)&&!fs.existsSync(f)){fs.copyFileSync(p.join(r,f),f);console.log('copiado',f)}"
+  setup: node scripts/copy-env.mjs
