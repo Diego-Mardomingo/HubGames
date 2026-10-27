@@ -128,10 +128,12 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
   - Animación: el diálogo se abre escalando desde el centro, los resultados entran con un fundido escalonado mínimo al teclear, el resaltado de la selección con ↑/↓ se desliza entre filas, confirmación animada al añadir (el botón se convierte en un check con el color de la lista).
   - Mockup: `docs/mockups/buscador.html` (aprobada la variante B: 3 recientes + wishlist en mínimo; se mantiene «Añadir a pendientes» en los juegos de otras listas)
   - Hecho en la rama `Diego-Mardomingo/rediseno-buscador`, commit `bd01378`. Añade `.hg-beat` (corazón que late) y `loadWishlistDeals`, que comparten la navegación y el buscador.
-- [ ] **Bandeja (clasificar juegos nuevos)** — `/biblioteca/bandeja` · `src/app/biblioteca/bandeja/page.tsx`, `biblioteca.css` (clases `tray-*`)
+- [x] **Bandeja (clasificar juegos nuevos)** — `/biblioteca/bandeja` · `src/app/biblioteca/bandeja/page.tsx`, `biblioteca.css` (clases `tray-*`)
   - Hoy: filas con selección múltiple, orden, y acciones para clasificar a Pendiente / Jugando / Completado / Abandonado / Descartado; no usa los colores de lista.
   - Ideas: botones de clasificación con el color e icono de cada lista (como el selector de estado de la ficha); reseñas y horas con color; barra de acciones por lotes con los mismos colores; que el destino elegido se vea en la fila antes de confirmar.
   - Animación: al clasificar, la fila se tiñe del color de su lista y sale deslizándose (hacia el raíl o la Biblioteca en la barra lateral), el contador de la bandeja baja con un salto, la barra de lotes aparece desde abajo al seleccionar.
+  - Mockup: `docs/mockups/bandeja.html` (aprobada la variante A; teclas 1–9 en el orden de `GAME_STATUSES`; Completado en lote abre «Completar juego» juego a juego)
+  - Hecho en la rama `Diego-Mardomingo/rediseno-bandeja`, commit `728e4a8`. Añade `src/lib/tray.ts` (destinos, sugerido, reparto), `restoreGames` (Deshacer), la hoja inferior `SheetContent side="bottom"` y `SyncButton` con texto y `onSynced`.
 - [ ] **Diálogo «Completar juego»** — `src/components/tracker/CompleteDialog.tsx` (se abre desde la ficha y la bandeja)
   - Ideas: colores de `--st-completado`, tu nota con su color de `ratingTier` mientras la eliges, marcas Favorito / Sin final con sus colores.
   - Animación: la celebración principal de la web al confirmar (bandera de Completado que se planta, confeti breve o anillo que se cierra), estrellas o puntos de la nota que se encienden al elegirla.

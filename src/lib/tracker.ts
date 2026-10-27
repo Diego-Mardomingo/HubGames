@@ -115,6 +115,44 @@ export async function completeGames(games: Pick<LibraryGame, 'appid' | 'last_unl
     notifyChanged()
 }
 
+/** Lo que tocan clasificar y completar: basta para deshacerlo. */
+export type StatusSnapshot = Pick<
+    LibraryGame,
+    'appid' | 'status' | 'status_source' | 'status_changed_at' | 'started_at' | 'completed_at' | 'rating' | 'review' | 'suggestion'
+>
+
+export function statusSnapshot(game: LibraryGame): StatusSnapshot {
+    const { appid, status, status_source, status_changed_at, started_at, completed_at, rating, review, suggestion } = game
+    return { appid, status, status_source, status_changed_at, started_at, completed_at, rating, review, suggestion }
+}
+
+/** Deshacer (bandeja): devuelve cada juego a su estado anterior, con sus fechas, nota y reseña. */
+export async function restoreGames(snapshots: StatusSnapshot[]): Promise<void> {
+    if (snapshots.length === 0) return
+    const results = await Promise.all(
+        snapshots.map(async (s) => {
+            const res = await supabase
+                .from('hubgames_user_games')
+                .update({
+                    status: s.status,
+                    status_source: s.status_source ?? 'auto',
+                    started_at: s.started_at,
+                    completed_at: s.completed_at,
+                    rating: s.rating,
+                    review: s.review,
+                    suggestion: s.suggestion,
+                })
+                .eq('appid', s.appid)
+            if (res.error || !s.status_changed_at) return res
+            // El trigger pone status_changed_at a ahora al cambiar de estado: se le devuelve el de antes.
+            return supabase.from('hubgames_user_games').update({ status_changed_at: s.status_changed_at }).eq('appid', s.appid)
+        }),
+    )
+    const failed = results.find((r) => r.error)
+    if (failed?.error) throw new Error(failed.error.message)
+    notifyChanged()
+}
+
 export interface Completion {
     /** 0 a 10 en pasos de 0,5; null = sin nota. */
     rating: number | null
