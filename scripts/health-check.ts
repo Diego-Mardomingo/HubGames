@@ -6,6 +6,9 @@
 import { createServiceRoleClient, dateToLegacyJudi } from './steam-utils'
 
 const MAX_SYNC_AGE_H = 36
+// GitHub retrasa los cron hasta 4-5 h: si el check cae pasada la medianoche de Madrid, "mañana" sería un día
+// cuyo JUDI todavía no toca elegir (#87). Con 6 h de retraso, el check de madrugada cuenta como el día anterior.
+const DAY_OFFSET_MS = 6 * 3600000
 
 type Check = { name: string; ok: boolean; detail: string }
 
@@ -13,7 +16,7 @@ async function main() {
     const supabase = createServiceRoleClient()
     const checks: Check[] = []
 
-    const tomorrow = dateToLegacyJudi(new Date(Date.now() + 86400000))
+    const tomorrow = dateToLegacyJudi(new Date(Date.now() - DAY_OFFSET_MS + 86400000))
     const { data: judi, error: judiError } = await supabase
         .from('hubgames_lista_videojuegos_judi')
         .select('id, nombre')
