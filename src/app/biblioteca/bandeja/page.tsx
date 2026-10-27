@@ -390,11 +390,17 @@ export default function BandejaPage() {
         return () => document.removeEventListener('keydown', onKey)
     }, [])
 
-    /** Completar pide nota y fecha (diálogo); el resto de destinos se guarda al momento. */
+    /**
+     * Completar pide nota y fecha (diálogo); el resto de destinos se guarda al momento.
+     * El foco pasa a la fila siguiente también al clasificar con el ratón, para seguir con 1–9.
+     */
     function act(game: LibraryGame, status: TrayDestination) {
         setSheetIds(null)
         if (status === 'completado') setQueue([game])
-        else classify([game], status)
+        else {
+            setFocusIndex(shown.indexOf(game))
+            classify([game], status)
+        }
     }
 
     function actBatch(targets: LibraryGame[], status: TrayDestination) {
@@ -422,7 +428,6 @@ export default function BandejaPage() {
         const status = destinationForKey(e.key)
         if (status) {
             e.preventDefault()
-            if (status !== 'completado') setFocusIndex(shown.indexOf(game))
             act(game, status)
         } else if (e.key === 'x' || e.key === 'X') {
             e.preventDefault()
