@@ -133,7 +133,7 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
   - Ideas: botones de clasificación con el color e icono de cada lista (como el selector de estado de la ficha); reseñas y horas con color; barra de acciones por lotes con los mismos colores; que el destino elegido se vea en la fila antes de confirmar.
   - Animación: al clasificar, la fila se tiñe del color de su lista y sale deslizándose (hacia el raíl o la Biblioteca en la barra lateral), el contador de la bandeja baja con un salto, la barra de lotes aparece desde abajo al seleccionar.
   - Mockup: `docs/mockups/bandeja.html` (aprobada la variante A; teclas 1–9 en el orden de `GAME_STATUSES`; Completado en lote abre «Completar juego» juego a juego)
-  - Hecho en la rama `Diego-Mardomingo/rediseno-bandeja`, commit `COMMIT`. Añade `src/lib/tray.ts` (destinos, sugerido, reparto), `restoreGames` (Deshacer), la hoja inferior `SheetContent side="bottom"` y `SyncButton` con texto y `onSynced`.
+  - Hecho en la rama `Diego-Mardomingo/rediseno-bandeja`, commit `728e4a8`. Añade `src/lib/tray.ts` (destinos, sugerido, reparto), `restoreGames` (Deshacer), la hoja inferior `SheetContent side="bottom"` y `SyncButton` con texto y `onSynced`.
 - [ ] **Diálogo «Completar juego»** — `src/components/tracker/CompleteDialog.tsx` (se abre desde la ficha y la bandeja)
   - Ideas: colores de `--st-completado`, tu nota con su color de `ratingTier` mientras la eliges, marcas Favorito / Sin final con sus colores.
   - Animación: la celebración principal de la web al confirmar (bandera de Completado que se planta, confeti breve o anillo que se cierra), estrellas o puntos de la nota que se encienden al elegirla.
