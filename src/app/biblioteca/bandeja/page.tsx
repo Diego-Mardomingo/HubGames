@@ -187,8 +187,9 @@ export default function BandejaPage() {
     const [selected, setSelected] = useState<Set<number>>(new Set())
     const [visible, setVisible] = useState(PAGE)
     const [error, setError] = useState('')
-    // Cola de «Completar juego»: uno tras otro (también en lote).
+    // «Completar juego»: uno, o varios en lote que el diálogo recorre uno tras otro.
     const [queue, setQueue] = useState<LibraryGame[]>([])
+    const focusAfterComplete = useRef<number | null>(null)
     // Tras clasificar con el teclado, el foco pasa a la fila que ocupa el mismo sitio.
     const [focusIndex, setFocusIndex] = useState<number | null>(null)
     // Movimiento: entrada de las filas, destino que se previsualiza, filas que se van y las que vuelven al deshacer.
@@ -449,7 +450,6 @@ export default function BandejaPage() {
     const sheetGames = sheetIds ? sorted.filter((g) => sheetIds.includes(g.appid)) : []
     const sheetOne = sheetGames.length === 1 ? sheetGames[0] : null
     const sheetSuggestion = sheetOne ? suggestions.get(sheetOne.appid) : null
-    const completing = queue[0] ?? null
     const fade = reduce ? { duration: 0 } : undefined
 
     return (
@@ -845,14 +845,21 @@ export default function BandejaPage() {
             </Sheet>
 
             <CompleteDialog
-                game={completing}
-                onOpenChange={(open) => !open && setQueue([])}
-                onSaved={(appid) => {
-                    const game = queue.find((g) => g.appid === appid)
-                    const index = shown.findIndex((g) => g.appid === appid)
-                    setQueue((q) => q.filter((g) => g.appid !== appid))
-                    if (game) classify([game], 'completado', Promise.resolve())
-                    if (index !== -1 && queue.length <= 1) setFocusIndex(index)
+                games={queue.length ? queue : null}
+                onClose={() => setQueue([])}
+                onSaved={(saved) => {
+                    const ids = new Set(saved.map((s) => s.appid))
+                    const done = queue.filter((g) => ids.has(g.appid))
+                    // Uno suelto: al cerrar, el foco pasa a la fila que ocupa su sitio (en lote, los saltados siguen seleccionados).
+                    if (queue.length === 1) focusAfterComplete.current = shown.findIndex((g) => g.appid === queue[0].appid)
+                    classify(done, 'completado', Promise.resolve())
+                }}
+                onCloseAutoFocus={(e) => {
+                    const index = focusAfterComplete.current
+                    focusAfterComplete.current = null
+                    if (index === null || index === -1) return
+                    e.preventDefault()
+                    setFocusIndex(index)
                 }}
             />
         </div>

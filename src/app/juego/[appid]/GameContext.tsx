@@ -127,10 +127,10 @@ export function GameProvider({
         <Ctx.Provider value={{ appid, name, state, update, reload, openComplete: () => setCompleting(true) }}>
             {children}
             <CompleteDialog
-                game={completing && game ? { ...game, name } : null}
-                onOpenChange={(open) => !open && setCompleting(false)}
-                onSaved={(_, completion) => {
-                    setCompleting(false)
+                games={completing && game ? [{ ...game, name }] : null}
+                onClose={() => setCompleting(false)}
+                onSaved={([{ completion }]) => {
+                    // La ficha cambia detrás de la celebración; el diálogo se cierra al terminarla.
                     update({
                         status: 'completado',
                         status_source: 'manual',
@@ -138,6 +138,8 @@ export function GameProvider({
                         rating: completion.rating,
                         completed_at: completion.completedAt,
                         review: completion.review,
+                        favorite: completion.favorite,
+                        endless: completion.endless,
                     })
                 }}
             />

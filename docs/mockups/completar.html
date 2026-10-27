@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Diálogo «Completar juego» · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-completado: #1a7743;
+  --st-abandonado: #c7243b; --st-descartado: #6b7280; --st-yajugado: #5c5b06; --st-otros: #931f8f; --st-rejugable: #9c3c08;
+  --st-favorito: #c2255c; --st-sinfinal: #6741d9;
+  --sc-top: #1a7743; --sc-good: #4d7c0f; --sc-mid: #8e5e18; --sc-bad: #c7243b;
+  --deal: #f5c400; --deal-foreground: #2b2100; --tint: 12%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --scrim: rgba(10, 12, 16, 0.55);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --on-done: #ffffff;
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e; --st-descartado: #8a919e; --st-yajugado: #d2cf5c; --st-otros: #eb84f8; --st-rejugable: #ff9a5c;
+  --st-favorito: #f783ac; --st-sinfinal: #b197fc;
+  --sc-top: #4cc97e; --sc-good: #a9d15b; --sc-mid: #f2b53a; --sc-bad: #f26b7e;
+  --deal: #ffd43b; --deal-foreground: #221a00; --tint: 14%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --scrim: rgba(0, 0, 0, 0.65);
+  --on-done: #0b1f13;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; color: inherit; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 3px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 110ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: hidden; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 46ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.vlabel { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.9375rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--surface-2); }
+.keys { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 0; color: var(--muted); font-size: .8125rem; }
+.stage { position: relative; padding: 24px; border-radius: 12px; border: 1px dashed var(--border-hover); background: var(--background); }
+.stage-cap { margin: 0 0 8px; color: var(--muted); font-size: .8125rem; font-weight: 600; }
+.stage-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.stage-grid--3 { grid-template-columns: repeat(auto-fill, minmax(528px, 1fr)); }
+.verdict { margin: 12px 0 0; font-size: .875rem; }
+
+/* ══ Piezas compartidas (copia de src/styles/lists.css y globals.css) ══ */
+.st-bandeja { --c: var(--st-bandeja); } .st-pendiente { --c: var(--st-pendiente); } .st-jugando { --c: var(--st-jugando); }
+.st-pausado { --c: var(--st-pausado); } .st-rejugable { --c: var(--st-rejugable); } .st-completado { --c: var(--st-completado); }
+.st-abandonado { --c: var(--st-abandonado); } .st-ya_jugado { --c: var(--st-yajugado); } .st-descartado { --c: var(--st-descartado); }
+.st-otros { --c: var(--st-otros); } .st-favorito { --c: var(--st-favorito); } .st-sin_final { --c: var(--st-sinfinal); }
+.sc-top { --c: var(--sc-top); } .sc-good { --c: var(--sc-good); } .sc-mid { --c: var(--sc-mid); } .sc-bad { --c: var(--sc-bad); }
+.sc-none { --c: var(--muted); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; transition: background-color .2s var(--ease-out), border-color .2s var(--ease-out), color .2s var(--ease-out), transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { border-color: var(--border-hover); }
+.btn--ghost { background: transparent; color: var(--muted); }
+.btn--ghost:hover { background: var(--surface-2); color: var(--foreground); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px 2px 7px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 13px; }
+.hg-score { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 26px; height: 22px; padding: 0 6px; border-radius: 6px; font-size: 0.8125rem; font-weight: 700; }
+.hg-score .i { font-size: 12px; }
+kbd.k { display: inline-block; min-width: 1.35em; padding: 0 .35em; border-radius: 4px; background: var(--surface-2); color: var(--muted); font: inherit; font-size: .6875rem; font-weight: 600; line-height: 1.6; text-align: center; }
+.hg-input { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font: inherit; font-size: .875rem; }
+.hg-input:hover { border-color: var(--border-hover); }
+.hg-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+.alert--error { margin: 0; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--danger-glow); color: var(--danger); font-size: .8125rem; font-weight: 500; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes hg-count-up { from { transform: translateY(70%); opacity: 0; } }
+@keyframes hg-count-down { from { transform: translateY(-70%); opacity: 0; } }
+@keyframes hg-beat { 30% { transform: scale(1.3); } 60% { transform: scale(.92); } }
+@keyframes hg-draw { from { stroke-dashoffset: 30; } }
+.hg-draw path, .hg-draw polyline { stroke-dasharray: 30; animation: hg-draw .3s var(--ease-out) backwards; }
+
+/* ══ Fondo: ficha y bandeja simplificadas (detrás del velo) ══ */
+.bg { position: absolute; inset: 0; }
+.bg-side { position: absolute; inset: 0 auto 0 0; width: 232px; padding: 1.25rem .875rem; border-right: 1px solid var(--border); background: var(--background); display: flex; flex-direction: column; gap: 6px; }
+.bg-side.is-compact { width: 72px; align-items: center; }
+.bg-brand { margin: 0 0 14px 8px; font-weight: 700; font-size: 1.0625rem; letter-spacing: -.02em; }
+.bg-brand span { color: var(--primary); }
+.is-compact .bg-brand { margin-left: 0; font-size: .875rem; }
+.bg-link { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: var(--radius-sm); color: var(--muted); font-size: .9375rem; font-weight: 500; }
+.bg-link .i { font-size: 18px; }
+.bg-link.on { background: var(--surface); color: var(--foreground); font-weight: 600; box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.bg-link.on .i { color: var(--primary); }
+.is-compact .bg-link { width: 44px; height: 44px; padding: 0; justify-content: center; }
+.is-compact .bg-link span { display: none; }
+.bg-page { position: absolute; inset: 0 0 0 232px; overflow: hidden; padding: 28px 36px; }
+.bg-page.is-compact { left: 72px; padding: 24px; }
+.bg-hero { display: grid; grid-template-columns: 460px minmax(0, 1fr); gap: 28px; align-items: start; }
+.bg-hero img { display: block; width: 100%; border-radius: var(--radius-lg); }
+.bg-back { color: var(--muted); font-size: .8125rem; }
+.bg-title { margin: 4px 0 8px; font-size: 2rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+.bg-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; color: var(--muted); font-size: .875rem; }
+.bg-panel { margin-top: 20px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+.bg-status { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.bg-st { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--muted); font-size: .8125rem; font-weight: 600; transition: background-color .25s var(--ease-out), color .25s var(--ease-out), border-color .25s var(--ease-out); }
+.bg-st .i { color: var(--c); font-size: 15px; }
+.bg-st.on { background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); border-color: color-mix(in srgb, var(--c) 50%, var(--border)); color: var(--c); }
+.bg-st.is-new .i { animation: plant-sm .5s var(--ease-out); }
+@keyframes plant-sm { from { transform: translateY(-8px) rotate(-14deg); opacity: 0; } }
+.bg-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.bg-tile { display: grid; gap: 2px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.bg-tile__l { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: .8125rem; }
+.bg-tile__l .i { color: var(--c); }
+.bg-tile__v { font-size: 1.375rem; font-weight: 700; }
+.bg-tile__v.is-new { animation: hg-count-up .3s var(--ease-out); }
+.bg-rows { display: grid; gap: 6px; margin-top: 16px; }
+.bg-row { display: grid; grid-template-columns: 24px 112px minmax(0, 1fr) auto; align-items: center; gap: 14px; height: 70px; padding: 8px 12px 8px 8px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); transition: opacity .3s, background-color .3s; }
+.bg-row img { width: 112px; height: 52px; object-fit: cover; border-radius: 6px; }
+.bg-row.is-sel { background: color-mix(in srgb, var(--primary) 6%, var(--surface)); border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); }
+.bg-row.is-done { background: color-mix(in srgb, var(--st-completado) var(--tint), var(--surface)); border-color: color-mix(in srgb, var(--st-completado) 45%, var(--border)); opacity: .55; }
+.bg-check { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--border-hover); }
+.is-sel .bg-check { background: var(--primary); border-color: var(--primary); }
+.bg-row b { font-size: .9375rem; }
+.bg-row small { display: block; color: var(--muted); font-size: .8125rem; }
+.bg-mtop { position: absolute; inset: 0 0 auto 0; height: 56px; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--border); background: var(--background); }
+.bg-mpage { position: absolute; inset: 56px 0 0 0; padding: 14px 16px; overflow: hidden; }
+.bg-mpage img { width: 100%; border-radius: var(--radius); display: block; }
+.bg-mtabs { position: absolute; inset: auto 0 0 0; height: 78px; border-top: 1px solid var(--border); background: var(--surface); }
+
+/* ══════════════════════════════════════════════════════════════════
+   Propuesta: CompleteDialog · tracker.css (.complete-*; aquí .cp-*)
+   ══════════════════════════════════════════════════════════════════ */
+.cp-scrim { position: absolute; inset: 0; z-index: 20; background: var(--scrim); animation: fade .16s var(--ease-out); }
+.cp-scrim.is-out { animation: fade-out .18s ease-in forwards; }
+.cp-dlg { --c: var(--st-completado); position: absolute; top: 50%; left: 50%; z-index: 21; width: min(480px, calc(100% - 24px)); max-height: calc(100% - 32px); translate: -50% -50%; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); border-top: 3px solid var(--st-completado); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); animation: dlg-in .2s var(--ease-out); }
+.cp-dlg.is-inline { position: relative; top: auto; left: auto; translate: none; z-index: auto; width: 100%; max-width: 480px; max-height: none; margin: 0 auto; animation: none; }
+.cp-dlg.is-out { animation: dlg-out .18s ease-in forwards; }
+@keyframes dlg-in { from { opacity: 0; transform: scale(.96); } }
+@keyframes dlg-out { to { opacity: 0; transform: scale(.97); } }
+.cp-scroll { overflow-y: auto; }
+.cp-body { display: grid; gap: 18px; padding: 18px 20px 4px; }
+.cp-body.is-next { animation: next-in .26s var(--ease-out); }
+@keyframes next-in { from { opacity: 0; transform: translateX(24px); } }
+.cp-close { position: absolute; top: 8px; right: 8px; z-index: 3; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted); font-size: 16px; }
+.cp-close:hover { background: var(--surface-2); color: var(--foreground); }
+
+/* Lote: «2 de 5», puntos de la cadena y salida */
+.cp-batch { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 8px 12px 10px 20px; border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--st-completado) 5%, var(--surface)); }
+.cp-batch__top { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; font-size: .8125rem; color: var(--muted); }
+.cp-batch__top .i { color: var(--st-completado); font-size: 14px; }
+.cp-batch__top b { color: var(--foreground); font-weight: 700; }
+.cp-batch__stop { margin-left: auto; height: 28px; padding: 0 8px; font-size: .8125rem; }
+.cp-pips { display: flex; align-items: center; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.cp-pip { position: relative; width: 22px; height: 6px; border-radius: 999px; background: var(--surface-3); transition: background-color .25s var(--ease-out); }
+.cp-pip.is-done { background: var(--st-completado); }
+.cp-pip.is-done.is-new { animation: pip-pop .35s var(--ease-out); }
+.cp-pip.is-skip { background: transparent; box-shadow: inset 0 0 0 1.5px var(--border-hover); }
+.cp-pip.is-now { width: 34px; background: color-mix(in srgb, var(--st-completado) 35%, var(--surface-3)); }
+@keyframes pip-pop { 40% { transform: scaleY(1.9); } }
+.cp-batch__next { margin-left: auto; color: var(--muted); font-size: .75rem; }
+.cp-batch__next b { color: var(--foreground); font-weight: 600; }
+
+/* Cabecera: cápsula, «Completado», nombre y contexto */
+.cp-head { display: grid; grid-template-columns: 136px minmax(0, 1fr); gap: 14px; align-items: center; padding-right: 28px; }
+.cp-batch + .cp-scroll .cp-head { padding-right: 0; }
+.cp-batch__next.cp-link { color: var(--primary); }
+.cp-cover { position: relative; width: 136px; height: 64px; overflow: hidden; border-radius: 8px; background: var(--surface-2); }
+.cp-cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.cp-head__text { display: grid; gap: 3px; min-width: 0; }
+.cp-kicker { display: flex; align-items: center; gap: 6px; }
+.cp-kicker .hg-chip .i { transform-origin: 15% 90%; }
+.cp-kicker.is-plant .hg-chip .i { animation: plant-sm .45s var(--ease-out); }
+.cp-title { margin: 0; overflow: hidden; font-size: 1.0625rem; font-weight: 700; letter-spacing: -.01em; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.cp-ctx { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; color: var(--muted); font-size: .8125rem; }
+.cp-ctx > span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.cp-ctx b { color: var(--foreground); font-weight: 600; }
+.cp-ctx .i { font-size: 13px; }
+.cp-mini { position: relative; display: inline-block; width: 36px; height: 5px; overflow: hidden; border-radius: 999px; background: var(--surface-2); }
+.cp-mini > span { position: absolute; inset: 0; transform-origin: left; background: var(--primary); }
+.cp-mini.is-over > span { background: var(--st-completado); }
+.cp-ring { width: 15px; height: 15px; rotate: -90deg; }
+.cp-ring circle { fill: none; stroke-width: 3.5; }
+.cp-ring .tr { stroke: var(--surface-3); }
+.cp-ring .pr { stroke: var(--primary); stroke-linecap: round; }
+.cp-ring.is-full .pr { stroke: var(--st-completado); }
+
+/* Campos */
+.cp-field { display: grid; gap: 8px; }
+.cp-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 22px; }
+.cp-label > label, .cp-label > span:first-child { font-size: .875rem; font-weight: 600; }
+.cp-link { padding: 0; border: 0; background: none; color: var(--primary); font-size: .8125rem; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.cp-hint { margin: 0; color: var(--muted); font-size: .75rem; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.cp-hint > span { display: inline-flex; align-items: center; gap: 4px; }
+
+/* Nota: cifra con su color de ratingTier y su palabra */
+.cp-rate { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 14px; align-items: center; }
+.cp-val { display: grid; justify-items: start; gap: 0; min-width: 0; color: var(--c); transition: color .2s var(--ease-out); }
+.cp-val__n { display: block; overflow: hidden; height: 2.1rem; font-size: 1.875rem; font-weight: 700; letter-spacing: -.02em; line-height: 2.1rem; }
+.cp-val__n > span { display: inline-block; }
+.cp-val__n > span.up { animation: hg-count-up .2s var(--ease-out); }
+.cp-val__n > span.down { animation: hg-count-down .2s var(--ease-out); }
+.cp-val__w { color: var(--c); font-size: .75rem; font-weight: 600; white-space: nowrap; transition: color .2s var(--ease-out); }
+.cp-rate.sc-none .cp-val__n { color: var(--muted); }
+
+/* Variante A · diez puntos con medios (role="slider") */
+.cp-dots { position: relative; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); align-items: start; height: 50px; padding: 6px 2px 0; border-radius: var(--radius-sm); cursor: pointer; touch-action: none; user-select: none; }
+.cp-dots:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.cp-dot { position: relative; justify-self: center; width: 24px; height: 24px; border-radius: 50%; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--border); pointer-events: none; }
+.cp-dot::after { content: attr(data-n); position: absolute; top: 100%; left: 50%; translate: -50% 2px; color: var(--muted); font-size: .625rem; font-weight: 600; opacity: 0; transition: opacity .15s; }
+.cp-dots:hover .cp-dot::after, .cp-dots:focus-visible .cp-dot::after { opacity: .8; }
+.cp-dot__f { position: absolute; inset: 0; border-radius: 50%; background: var(--c); transform: scale(0); transition: transform .16s var(--ease-out), background-color .2s var(--ease-out), opacity .15s; }
+.cp-dot.is-on .cp-dot__f, .cp-dot.is-half .cp-dot__f { transform: scale(1); }
+.cp-dot.is-half .cp-dot__f { clip-path: inset(0 50% 0 0); }
+.cp-dot.is-pop .cp-dot__f { animation: dot-pop .3s var(--ease-out) backwards; animation-delay: var(--d, 0ms); }
+@keyframes dot-pop { 0% { transform: scale(0); } 60% { transform: scale(1.22); } 100% { transform: scale(1); } }
+.cp-dot.is-ghost .cp-dot__f { transform: scale(1); opacity: .32; }
+.cp-dot.is-ghost.is-half .cp-dot__f { clip-path: inset(0 50% 0 0); }
+.cp-dots.is-empty .cp-dot { box-shadow: inset 0 0 0 1px var(--border), 0 0 0 0 transparent; }
+
+/* Variante B · deslizador coloreado */
+.cp-slider { position: relative; height: 44px; cursor: pointer; touch-action: none; user-select: none; border-radius: var(--radius-sm); }
+.cp-slider:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.cp-slider__rail { position: absolute; left: 11px; right: 11px; top: 15px; height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.cp-slider__fill { position: absolute; inset: 0; transform-origin: left; background: var(--c); transform: scaleX(var(--f, 0)); transition: transform .14s var(--ease-out), background-color .2s var(--ease-out); }
+.cp-slider__ticks { position: absolute; left: 11px; right: 11px; top: 15px; height: 8px; display: flex; justify-content: space-between; pointer-events: none; }
+.cp-slider__ticks i { width: 2px; height: 8px; background: color-mix(in srgb, var(--surface) 70%, transparent); }
+.cp-slider__ticks i:first-child, .cp-slider__ticks i:last-child { opacity: 0; }
+.cp-slider__thumb { position: absolute; top: 8px; left: calc(11px + (100% - 22px) * var(--f, .5)); width: 22px; height: 22px; translate: -50% 0; border-radius: 50%; background: var(--surface); box-shadow: inset 0 0 0 4px var(--c), var(--shadow-sm); transition: left .14s var(--ease-out), box-shadow .2s var(--ease-out), scale .12s; }
+.cp-slider:active .cp-slider__thumb { scale: 1.12; }
+.cp-slider__scale { position: absolute; left: 11px; right: 11px; bottom: -2px; display: flex; justify-content: space-between; color: var(--muted); font-size: .625rem; font-weight: 600; pointer-events: none; }
+.cp-slider__scale span { width: 0; display: flex; justify-content: center; }
+.cp-slider.is-empty .cp-slider__thumb { box-shadow: inset 0 0 0 2px var(--border-hover); opacity: .7; }
+.cp-slider.is-empty .cp-slider__fill { transform: scaleX(0); }
+
+/* Marcas: Favorito (y Sin final solo si el juego ya la tiene) */
+.cp-marks { display: flex; flex-wrap: wrap; gap: 8px; }
+.cp-mark { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 12px 0 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--foreground); font-size: .8125rem; font-weight: 600; transition: background-color .18s var(--ease-out), border-color .18s var(--ease-out), color .18s; }
+.cp-mark .i { color: var(--c); font-size: 15px; }
+.cp-mark:hover { border-color: color-mix(in srgb, var(--c) 50%, var(--border)); }
+.cp-mark[aria-pressed='true'] { background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); border-color: color-mix(in srgb, var(--c) 45%, var(--border)); color: var(--c); }
+.cp-mark[aria-pressed='true'].st-favorito .i { fill: currentColor; }
+.cp-mark .i.hg-beat { animation: hg-beat .4s var(--ease-out); }
+.cp-mark__x { margin-left: 2px; color: var(--muted); font-size: .75rem; font-weight: 500; }
+
+/* Fecha con sugerencias */
+.cp-date { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.cp-date .hg-input { width: 150px; }
+.cp-sug { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); font-size: .8125rem; font-weight: 500; transition: background-color .15s, color .15s, border-color .15s; }
+.cp-sug .i { font-size: 13px; }
+.cp-sug b { color: var(--foreground); font-weight: 600; }
+.cp-sug:hover { border-color: var(--border-hover); color: var(--foreground); }
+.cp-sug[aria-pressed='true'] { border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); background: var(--primary-glow); color: var(--primary); }
+.cp-sug[aria-pressed='true'] b { color: var(--primary); }
+
+/* Reseña plegada */
+.cp-review-btn { justify-self: start; margin-left: -10px; }
+.cp-review { min-height: 76px; padding: 10px 12px; resize: vertical; height: auto; line-height: 1.45; animation: fade .2s var(--ease-out); }
+
+/* Pie */
+.cp-foot { display: flex; align-items: center; gap: 8px; padding: 14px 20px 16px; }
+.cp-foot__hint { margin-right: auto; color: var(--muted); font-size: .75rem; display: inline-flex; align-items: center; gap: 4px; }
+.cp-foot .cp-skip { margin-right: auto; }
+.btn--done { background: var(--st-completado); color: var(--on-done); }
+.btn--done:hover { background: color-mix(in srgb, var(--st-completado) 86%, var(--foreground)); }
+.btn--done .i { transform-origin: 15% 90%; }
+.btn--done:hover .i { animation: wave .5s var(--ease-out); }
+@keyframes wave { 40% { transform: rotate(-12deg); } }
+.btn.is-loading { pointer-events: none; }
+.spin { width: 15px; height: 15px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══ Celebración · variante 1: bandera que se planta + anillo que se cierra + chispas ══ */
+.cp-cel { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; align-content: center; gap: 10px; padding: 24px; background: var(--surface); text-align: center; animation: fade .16s var(--ease-out); }
+.cp-cel[hidden] { display: none; }
+.cp-cel__mark { position: relative; width: 96px; height: 96px; }
+.cp-cel__ring { position: absolute; inset: 0; rotate: -90deg; }
+.cp-cel__ring circle { fill: none; stroke-width: 5; }
+.cp-cel__ring .tr { stroke: color-mix(in srgb, var(--st-completado) 18%, var(--surface)); }
+.cp-cel__ring .pr { stroke: var(--st-completado); stroke-linecap: round; stroke-dasharray: 264; stroke-dashoffset: 0; animation: ring .5s var(--ease-out) backwards; }
+@keyframes ring { from { stroke-dashoffset: 264; } }
+.cp-cel__flag { position: absolute; inset: 14px; display: grid; place-items: center; border-radius: 50%; color: var(--st-completado); font-size: 34px; background: color-mix(in srgb, var(--st-completado) var(--tint), var(--surface)); }
+.cp-cel__flag .i { transform-origin: 18% 95%; animation: plant .46s var(--ease-out) .18s backwards; }
+@keyframes plant { 0% { opacity: 0; transform: translateY(-30px) rotate(-16deg); } 55% { opacity: 1; transform: translateY(3px) rotate(4deg); } 78% { transform: translateY(0) rotate(-2deg); } 100% { transform: none; } }
+.cp-cel__burst { position: absolute; inset: 0; pointer-events: none; }
+.cp-cel__burst i { position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px; border-radius: 50%; background: var(--c); opacity: 0; animation: burst .7s var(--ease-out) .5s; }
+.cp-cel__burst i:nth-child(odd) { width: 5px; height: 9px; margin: -4.5px -2.5px; border-radius: 2px; }
+@keyframes burst { 0% { opacity: 1; transform: rotate(var(--a)) translateY(-40px) scale(.4); } 70% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--a)) translateY(-74px) scale(1); } }
+.cp-cel h3 { margin: 4px 0 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; animation: rise .3s var(--ease-out) .3s backwards; }
+.cp-cel__sub { margin: 0; max-width: 34ch; color: var(--muted); font-size: .875rem; animation: rise .3s var(--ease-out) .36s backwards; }
+.cp-cel__chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; animation: rise .3s var(--ease-out) .42s backwards; }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+.cp-cel__next { margin: 4px 0 0; color: var(--muted); font-size: .8125rem; animation: rise .3s var(--ease-out) .3s backwards; }
+.cp-cel__next b { color: var(--foreground); }
+/* En lote: versión corta (anillo + bandera, sin chispas ni chips) */
+.cp-cel.is-quick .cp-cel__ring .pr { animation-duration: .32s; }
+.cp-cel.is-quick .cp-cel__flag .i { animation-duration: .32s; animation-delay: .08s; }
+.cp-cel.is-quick .cp-cel__burst, .cp-cel.is-quick .cp-cel__chips { display: none; }
+.cp-cel.is-quick h3, .cp-cel.is-quick .cp-cel__sub, .cp-cel.is-quick .cp-cel__next { animation-delay: .12s; }
+.cp-cel.is-quick .cp-cel__mark { width: 72px; height: 72px; }
+.cp-cel.is-quick .cp-cel__flag { inset: 10px; font-size: 26px; }
+
+/* ══ Celebración · variante 2: confeti breve (el de JUDI) ══ */
+.cp-confetti { position: absolute; inset: 0; z-index: 30; pointer-events: none; overflow: hidden; }
+.cp-confetti i { position: absolute; top: 0; left: 0; width: 7px; height: 11px; border-radius: 2px; background: var(--c); opacity: 0; animation: confetti 1s cubic-bezier(.2,.7,.4,1) var(--dl) forwards; }
+@keyframes confetti { 0% { opacity: 1; transform: translate(var(--x0), var(--y0)) rotate(0); } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x1), var(--y1)) rotate(var(--r)); } }
+.cp-dlg.is-confetti .cp-kicker .hg-chip { animation: chip-done .4s var(--ease-out); }
+@keyframes chip-done { 40% { transform: scale(1.15); } }
+
+/* ══ Móvil: hoja inferior ══ */
+.cp-dlg.is-sheet { top: auto; left: 0; right: 0; bottom: 0; width: 100%; max-height: calc(100% - 40px); translate: none; border-width: 3px 0 0; border-radius: 18px 18px 0 0; animation: sheet-in .28s var(--ease-out); }
+.cp-dlg.is-sheet.is-out { animation: sheet-out .2s ease-in forwards; }
+@keyframes sheet-in { from { transform: translateY(100%); } }
+@keyframes sheet-out { to { transform: translateY(100%); } }
+.cp-handle { display: block; width: 36px; height: 4px; margin: 8px auto 0; border-radius: 999px; background: var(--surface-3); flex: none; }
+.is-sheet .cp-close { top: 10px; right: 6px; width: 44px; height: 44px; }
+.is-sheet .cp-batch { padding: 8px 8px 10px 16px; }
+.is-sheet .cp-batch__stop { height: 44px; margin: -8px 0; }
+.is-sheet .cp-body { gap: 16px; padding: 12px 16px 4px; }
+.is-sheet .cp-head { grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding-right: 36px; }
+.is-sheet .cp-batch + .cp-scroll .cp-head { padding-right: 0; }
+.cp-batch__next.cp-link { color: var(--primary); }
+.is-sheet .cp-cover { width: 96px; height: 45px; }
+.is-sheet .cp-rate { grid-template-columns: 1fr; gap: 6px; }
+.is-sheet .cp-val { grid-auto-flow: column; justify-content: start; align-items: baseline; gap: 8px; }
+.is-sheet .cp-dot { width: 26px; height: 26px; }
+.is-sheet .cp-dots { height: 52px; }
+.is-sheet .cp-mark { height: 44px; padding: 0 14px 0 12px; }
+.is-sheet .cp-date .hg-input { width: 100%; height: 44px; }
+.is-sheet .cp-sug { height: 44px; flex: 1; justify-content: center; }
+.is-sheet .cp-review-btn { height: 44px; }
+.is-sheet .cp-foot { display: grid; grid-template-columns: 1fr 1fr; padding: 12px 16px 26px; border-top: 1px solid var(--border); }
+.is-sheet .cp-foot .btn { height: 48px; }
+.is-sheet .cp-foot__hint { display: none; }
+.is-sheet .cp-foot .cp-skip { margin: 0; }
+.is-sheet .cp-hint--keys { display: none; }
+
+/* Interruptor de movimiento reducido (simula prefers-reduced-motion): anula también los retrasos */
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+html.rm .cp-cel__burst, html.rm .cp-confetti { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+  .cp-cel__burst, .cp-confetti { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Diálogo «Completar juego»</h1>
+  <div class="doc-bar__actions">
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p>Hoy «Completar» es un formulario gris: una bandera verde en el título y el resto neutro (deslizador del navegador en cobalto, la nota en negro, sin el juego a la vista). Es el momento más satisfactorio de la web y no se celebra: al guardar, el diálogo se cierra sin más. En lote, desde la bandeja, se abre juego tras juego sin decir cuántos quedan, y «Cancelar» corta la cadena sin avisar. La propuesta mantiene los mismos campos y atajos y le pone el lenguaje de la ficha:</p>
+  <ul>
+    <li><b>El juego a la vista</b>: cápsula, chip «Completado» (<code>StatusChip</code>) y una línea de contexto: <b>horas frente a la historia</b> (mini barra, en verde si ya la has pasado) y <b>logros</b> con un anillo pequeño (verde al 100 %). Solo lo que ayuda a decidir la nota y la fecha; sin Metacritic ni precio.</li>
+    <li><b>Tu nota con su color mientras la eliges</b>: la cifra grande, su palabra y el control toman el color de <code>ratingTier</code> (<code>--sc-bad/mid/good/top</code>) y cambian en cuanto cruzas un umbral. Sin nota se ve «—» en gris. Propongo poner palabra a cada nivel (hoy tu nota no tiene): <i>Flojo</i> &lt; 5, <i>Correcto</i> ≥ 5, <i>Muy bueno</i> ≥ 7, <i>Imprescindible</i> ≥ 9.</li>
+    <li><b>Favorito</b> (corazón, <code>--st-favorito</code>) como interruptor: completar es justo cuando sabes si un juego es de tus favoritos. <b>Sin final</b> no se ofrece: es para juegos que «se juegan por jugar» y la ficha ya no propone completarlos; marcarlo justo al terminar no tiene sentido. Solo aparece, ya activado, si el juego <i>ya</i> la tenía (Hades en el lote), para que veas que la conserva y puedas quitarla.</li>
+    <li><b>Fecha con las dos sugerencias como chips</b> («Último logro · 14 oct 2026» y «Hoy»), marcada la que coincide. La reseña se pliega en «Añadir reseña» si está vacía: el diálogo es más corto y en lote no estorba.</li>
+    <li><b>Botón con verbo y color</b>: «Completar» con la bandera, en <code>--st-completado</code> (como el destino en la bandeja). Si el juego ya estaba completado, el diálogo es «Editar» y el botón «Guardar cambios», sin celebración.</li>
+    <li><b>Lote desde la bandeja</b>: franja arriba con «Completando 2 de 5», una pastilla por juego (hecho, saltado, actual, por hacer). Tres salidas claras: <b>Completar y seguir</b>, <b>Saltar este</b> (se queda en la bandeja, seleccionado) y <b>Cancelar el resto</b> (igual que hoy: corta la cadena y deja seleccionados los que faltan; también con <kbd class="k">Esc</kbd>; en lote no hay ✕ para que no haya dos botones que hacen lo mismo). Atajo para lotes grandes: «Completar los 3 restantes sin nota».</li>
+    <li><b>Móvil</b>: hoja inferior (<code>SheetContent side="bottom"</code>, la de la bandeja) con el pie fijo y todo a 44 px. La nota se elige arrastrando por la fila de puntos o tocando: un toque pone la cifra entera y otro toque en el mismo punto le quita medio.</li>
+  </ul>
+
+  <h3>Atajos (los de hoy, más uno)</h3>
+  <p>Con el foco en la nota (lo tiene al abrir): <kbd class="k">←</kbd> <kbd class="k">→</kbd> (y <kbd class="k">↑</kbd> <kbd class="k">↓</kbd>, <kbd class="k">+</kbd> <kbd class="k">-</kbd>) ±0,5 · <kbd class="k">0</kbd>–<kbd class="k">9</kbd> esa nota · <kbd class="k">Intro</kbd> completar · <b>nuevo</b>: <kbd class="k">Supr</kbd> sin nota. En lote, <kbd class="k">Esc</kbd> cancela el resto.</p>
+
+  <h3>Variantes</h3>
+  <ul>
+    <li><b>Control de nota</b>: <b>A · diez puntos con medios</b> (recomendada) o <b>B · deslizador coloreado</b>. A se lee de un vistazo como una nota («ocho puntos y medio»), los puntos se encienden uno a uno y en móvil es un objetivo grande; B es el control de hoy con color, más compacto y más fino arrastrando.</li>
+    <li><b>Celebración</b>: <b>1 · bandera que se planta y anillo que se cierra</b> (recomendada) o <b>2 · confeti</b>. La 1 es de HubGames (la bandera es el icono de Completado y el anillo el de la marca y los logros) y deja el confeti para JUDI; la 2 es más festiva pero repite el gesto de JUDI y en lote cansa.</li>
+  </ul>
+
+  <h3>Microanimaciones (pruébalas en el primer marco; «Repetir entrada» arriba)</h3>
+  <ul>
+    <li><b>Abrir</b>: el diálogo escala desde el centro (como el buscador); en móvil la hoja sube. <span class="t">200 ms · 280 ms.</span></li>
+    <li><b>Elegir nota</b> (A): los puntos nuevos se encienden en cadena con un pop; al bajar se apagan de golpe. Con el ratón encima, vista previa tenue de la nota que pondrías. La cifra entra desde abajo si sube y desde arriba si baja, y el color cambia con un fundido al cruzar un nivel. <span class="t">pop 300 ms · 22 ms entre puntos · cifra 200 ms · color 200 ms.</span></li>
+    <li><b>Favorito</b>: el corazón se rellena y late (<code>.hg-beat</code>). <span class="t">400 ms.</span></li>
+    <li><b>Completar</b> (1): el contenido deja paso a la celebración: el anillo verde se cierra, la bandera cae y se planta con un pequeño vaivén, salen doce chispas con los colores de lo que has puesto (Completado, el de tu nota y Favorito si lo marcaste) y debajo «¡Completado!» con tu nota y tus horas. Luego el diálogo se cierra y en la ficha el selector pasa a Completado con la bandera que se planta en pequeño y el tile de tu nota cuenta. <span class="t">≈ 1,1 s; un clic o una tecla la cortan.</span></li>
+    <li><b>En lote</b>: versión corta (anillo y bandera, sin chispas) y el siguiente juego entra deslizándose desde la derecha; su pastilla se llena con un pop. El último del lote sí lleva la celebración completa. <span class="t">≈ 0,65 s por juego · entrada 260 ms.</span></li>
+    <li><b>Botón «Completar»</b>: la bandera ondea al pasar el ratón. <span class="t">500 ms.</span></li>
+    <li>Con <b>movimiento reducido</b> no hay celebración ni chispas: el diálogo se cierra (o pasa al siguiente) al instante y la ficha cambia sin animar.</li>
+  </ul>
+
+  <h3>Preguntas para aprobarlo</h3>
+  <ol>
+    <li>Control de nota: ¿<b>A · diez puntos con medios</b> (recomendada) o <b>B · deslizador coloreado</b>?</li>
+    <li>Celebración: ¿<b>1 · bandera + anillo + chispas</b> (recomendada) o <b>2 · confeti</b>?</li>
+    <li>¿Te valen las palabras de la nota (<i>Flojo</i>, <i>Correcto</i>, <i>Muy bueno</i>, <i>Imprescindible</i>)? Se usarían también en la ficha, la biblioteca y las estadísticas.</li>
+    <li>Marcas: ¿solo <b>Favorito</b>, y <b>Sin final</b> solo si el juego ya la tenía? ¿O las dos siempre?</li>
+    <li>Lote: ¿«Saltar este» deja el juego <b>seleccionado</b> en la bandeja (para mandarlo luego a otra lista con los demás) o lo deselecciona?</li>
+    <li>¿Añadimos el atajo «Completar los N restantes sin nota» en lote?</li>
+    <li>¿Reseña plegada en «Añadir reseña» cuando está vacía?</li>
+    <li>¿Contexto en la cabecera (horas frente a la historia y logros)? ¿Falta o sobra algo?</li>
+  </ol>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px · desde la ficha · A + 1 (recomendadas) · prueba en vivo</h2>
+  <p>Hollow Knight: 46 h de 27 h de historia, 48 de 63 logros, último logro el 14 oct. Prueba la nota con el ratón (pasa por encima para la vista previa; mitad izquierda de un punto = ,5) o con el teclado (<kbd class="k">←</kbd> <kbd class="k">→</kbd>, <kbd class="k">0</kbd>–<kbd class="k">9</kbd>, <kbd class="k">Supr</kbd>, <kbd class="k">Intro</kbd>). Marca Favorito y pulsa «Completar» para ver la celebración y cómo cambia la ficha.</p>
+  <div class="scroller"><div class="frame" style="width:1440px;height:860px" id="f-desk"></div></div>
+  <div class="keys"><button class="doc-btn" type="button" id="reopen-desk">Volver a abrir</button></div>
+</section>
+
+<section class="sec">
+  <h2>~1000 px · en lote desde la bandeja · 2 de 5</h2>
+  <p>Cinco seleccionados en la bandeja y «Completado». Celeste ya está hecho; vas por Portal 2. Prueba «Completar y seguir» (celebración corta y entra el siguiente), «Saltar este», «Cancelar el resto» o <kbd class="k">Esc</kbd>. Hades (el cuarto) ya tenía la marca Sin final. El último del lote lleva la celebración completa y un resumen.</p>
+  <div class="scroller"><div class="frame" style="width:1000px;height:780px" id="f-mid"></div></div>
+  <div class="keys"><button class="doc-btn" type="button" id="reopen-mid">Reiniciar el lote</button></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · control de nota</h2>
+  <p>Las dos con la misma lógica, colores y atajos. Interactivas: haz clic, arrastra o usa el teclado. Empiezan en 8,5 (Muy bueno, <code>--sc-good</code>) y la segunda fila de cada una, sin nota.</p>
+  <div class="stage-grid">
+    <div><div class="vlabel"><b>A</b> Diez puntos con medios (recomendada)</div><div class="stage" id="v-dots"></div>
+      <p class="verdict"><b>A.</b> Se lee como una nota sin mirar la cifra, la mitad de un punto es inequívoca, los puntos que se encienden son la animación de «elegir» que pide el punto de la checklist, y en móvil la fila entera es el objetivo. Pega: ocupa un poco más de alto con los números al pasar.</p></div>
+    <div><div class="vlabel"><b>B</b> Deslizador coloreado</div><div class="stage" id="v-slider"></div>
+      <p class="verdict"><b>B.</b> El control de hoy con el riel y el tirador del color de la nota y marcas en cada entero. Más compacto y familiar; arrastrar es fino. Pega: de un vistazo se ve «mucho» o «poco» pero no «8,5», y sin nota el tirador tiene que quedarse en algún sitio (en medio, apagado), que confunde.</p></div>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · celebración al completar</h2>
+  <p>Pulsa «Completar» en cada una. El diálogo de la izquierda es el de la variante 1 (la del primer marco); el de la derecha, confeti con los colores de lo que has puesto y el chip «Completado» que da un salto.</p>
+  <div class="stage-grid">
+    <div><div class="vlabel"><b>1</b> Bandera + anillo + chispas (recomendada)</div><div class="stage" id="v-cel1" style="min-height:560px"></div></div>
+    <div><div class="vlabel"><b>2</b> Confeti</div><div class="stage" id="v-cel2" style="min-height:560px;overflow:hidden"></div></div>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px · hoja inferior</h2>
+  <p>Pie fijo con los dos botones a 48 px; marcas, sugerencias de fecha y «Añadir reseña» a 44 px. La fila de puntos mide 52 px de alto y se puede arrastrar. Sin la línea de atajos (no hay teclado).</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame" style="width:390px;height:844px" id="f-mob"></div><p class="frame-cap">Desde la ficha. Interactiva: toca o arrastra los puntos y completa.</p></div>
+    <div><div class="frame" style="width:390px;height:844px" id="f-mob-batch"></div><p class="frame-cap">Lote 2 de 5: «Cancelar el resto» arriba, «Saltar este» y «Completar y seguir» abajo.</p></div>
+    <div><div class="frame" style="width:390px;height:844px" id="f-mob-cel"></div><p class="frame-cap">La celebración en la hoja (se repite con «Repetir entrada»).</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Estados</h2>
+  <p>Editar uno ya completado (sin celebración: el botón dibuja un check) · sin nota, sin historia ni logros y nombre largo · error al guardar.</p>
+  <div class="stage-grid stage-grid--3">
+    <div><p class="stage-cap">Editar (ya completado)</p><div class="stage" id="s-edit"></div></div>
+    <div><p class="stage-cap">Sin nota, sin datos, nombre largo</p><div class="stage" id="s-bare"></div></div>
+    <div><p class="stage-cap">Error al guardar</p><div class="stage" id="s-err"></div></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide, los mismos que usa la app) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  pause: '<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
+  repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  circlex: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  eyeoff: '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+  shapes: '<path d="M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1Z"/><rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17.5" cy="17.5" r="3.5"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  calendar: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+  star: '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+  infinity: '<path d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4Zm0 0c2 2.67 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.33-6 4Z"/>',
+  pencil: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+  skip: '<polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  arrowleft: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm');
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const HDR = (id) => `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${id}/header.jpg`;
+
+/* ── Datos de ejemplo ── */
+const HK = { id: 367520, name: 'Hollow Knight', h: 46.2, story: 27, ach: [48, 63], last: '2026-10-14', src: 'logro', mc: 87, rating: null, fav: false, endless: false };
+const LOTE = [
+  { id: 504230, name: 'Celeste', h: 14.1, story: 8, ach: [22, 32], last: '2026-09-02', src: 'logro', rating: 9.5, fav: true, endless: false },
+  { id: 620, name: 'Portal 2', h: 22.4, story: 8.5, ach: [48, 51], last: '2026-10-21', src: 'logro', rating: null, fav: false, endless: false },
+  { id: 304430, name: 'INSIDE', h: 4.3, story: 3.5, ach: [14, 14], last: '2026-08-11', src: 'partida', rating: null, fav: false, endless: false },
+  { id: 1145360, name: 'Hades', h: 92, story: 22, ach: [41, 49], last: '2026-10-25', src: 'logro', rating: null, fav: false, endless: true },
+  { id: 753640, name: 'Outer Wilds', h: 21, story: 17, ach: [27, 31], last: '2026-10-03', src: 'partida', rating: null, fav: false, endless: false },
+];
+const LONG = { id: 2183900, name: 'Warhammer 40,000: Space Marine 2 - Ultramarines Edition', h: 0, story: null, ach: null, last: null, src: null, rating: null, fav: false, endless: false };
+const TODAY = '2026-10-28';
+
+const fmtH = (h) => (h < 10 && h % 1 ? `${h.toFixed(1).replace('.', ',')} h` : `${Math.round(h)} h`);
+const fmtN = (v) => v.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const SHORT = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+const SHORTNY = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short" });
+const fmtDs = (iso) => SHORTNY.format(new Date(`${iso}T12:00:00`)).replace(".", "");
+const fmtD = (iso) => SHORT.format(new Date(`${iso}T12:00:00`)).replace('.', '');
+/** ratingTier de src/lib/scores.ts + palabra propuesta */
+const tier = (r) => (r === null ? 'none' : r >= 9 ? 'top' : r >= 7 ? 'good' : r >= 5 ? 'mid' : 'bad');
+const WORD = { none: 'Sin nota', top: 'Imprescindible', good: 'Muy bueno', mid: 'Correcto', bad: 'Flojo' };
+
+/* ── Control de nota (A puntos / B deslizador): role="slider", mismos atajos que hoy ── */
+class Rating {
+  constructor(el, { kind = 'dots', value = null, onChange = () => {}, onSubmit = () => {} } = {}) {
+    Object.assign(this, { el, kind, value, onChange, onSubmit });
+    this.render();
+  }
+  render() {
+    const k = this.kind;
+    this.el.innerHTML = `<div class="cp-rate sc-${tier(this.value)}">
+      <div class="cp-val" aria-hidden="true"><span class="cp-val__n"><span>${this.value === null ? '—' : fmtN(this.value)}</span></span><span class="cp-val__w">${WORD[tier(this.value)]}</span></div>
+      ${k === 'dots'
+        ? `<div class="cp-dots" role="slider" tabindex="0" aria-label="Tu nota" aria-valuemin="0" aria-valuemax="10">${Array.from({ length: 10 }, (_, i) => `<span class="cp-dot" data-n="${i + 1}"><span class="cp-dot__f"></span></span>`).join('')}</div>`
+        : `<div class="cp-slider" role="slider" tabindex="0" aria-label="Tu nota" aria-valuemin="0" aria-valuemax="10"><span class="cp-slider__rail"><span class="cp-slider__fill"></span></span><span class="cp-slider__ticks">${'<i></i>'.repeat(11)}</span><span class="cp-slider__thumb"></span><span class="cp-slider__scale"><span>0</span><span>5</span><span>10</span></span></div>`}
+    </div>`;
+    this.box = this.el.querySelector('.cp-rate');
+    this.ctrl = this.el.querySelector('[role="slider"]');
+    this.paint(this.value, null);
+    this.bind();
+  }
+  paint(v, old) {
+    const t = tier(v);
+    this.box.className = `cp-rate sc-${t}`;
+    this.ctrl.setAttribute('aria-valuenow', v ?? 5);
+    this.ctrl.setAttribute('aria-valuetext', v === null ? 'Sin nota' : `${fmtN(v)} de 10, ${WORD[t]}`);
+    this.box.querySelector('.cp-val__w').textContent = WORD[t];
+    const n = this.box.querySelector('.cp-val__n > span');
+    const txt = v === null ? '—' : fmtN(v);
+    if (n.textContent !== txt) {
+      n.textContent = txt; n.className = '';
+      if (old !== undefined && old !== null && v !== null && !rm()) { void n.offsetWidth; n.className = v > old ? 'up' : 'down'; }
+    }
+    if (this.kind === 'dots') {
+      this.ctrl.classList.toggle('is-empty', v === null);
+      const from = old ?? 0;
+      this.ctrl.querySelectorAll('.cp-dot').forEach((d, i) => {
+        const pos = i + 1;
+        const on = v !== null && v >= pos, half = v !== null && v === pos - 0.5;
+        const was = from >= pos - 0.5 && old !== null;
+        d.classList.toggle('is-on', on); d.classList.toggle('is-half', half);
+        d.classList.remove('is-pop', 'is-ghost', 'is-ghost-half');
+        if ((on || half) && (!was || old === undefined) && old !== undefined && !rm()) {
+          d.style.setProperty('--d', `${Math.max(0, pos - Math.ceil(from) - 1) * 22}ms`);
+          void d.offsetWidth; d.classList.add('is-pop');
+        }
+      });
+    } else {
+      this.ctrl.classList.toggle('is-empty', v === null);
+      this.ctrl.style.setProperty('--f', v === null ? 0.5 : v / 10);
+    }
+  }
+  set(v, fromUser = true) {
+    if (v !== null) v = Math.max(0, Math.min(10, Math.round(v * 2) / 2));
+    if (v === this.value) return;
+    const old = this.value; this.value = v; this.paint(v, old);
+    if (fromUser) this.onChange(v);
+  }
+  ghost(v) {
+    if (this.kind !== 'dots') return;
+    this.ctrl.querySelectorAll('.cp-dot').forEach((d, i) => {
+      const pos = i + 1; const lit = this.value !== null && this.value >= pos - 0.5;
+      const g = v !== null && !lit && v >= pos - 0.5;
+      d.classList.toggle('is-ghost', g);
+      if (g) d.classList.toggle('is-half', v === pos - 0.5);
+      else if (!lit) d.classList.remove('is-half');
+    });
+  }
+  fromX(x) {
+    const r = this.ctrl.getBoundingClientRect();
+    if (this.kind === 'dots') { const f = (x - r.left - 2) / (r.width - 4); return Math.max(0.5, Math.min(10, Math.ceil(f * 20) / 2)); }
+    const f = (x - r.left - 11) / (r.width - 22); return Math.round(Math.max(0, Math.min(1, f)) * 20) / 2;
+  }
+  bind() {
+    const c = this.ctrl; let down = false, moved = false, startV = null;
+    c.addEventListener('pointerdown', (e) => { down = true; moved = false; startV = this.value; c.setPointerCapture(e.pointerId); c.focus({ preventScroll: true }); });
+    c.addEventListener('pointermove', (e) => {
+      const v = this.fromX(e.clientX);
+      if (down) { if (v !== this.value) moved = true; if (moved) this.set(v); } else this.ghost(v);
+    });
+    c.addEventListener('pointerup', (e) => {
+      if (!down) return; down = false;
+      if (!moved) {
+        let v = this.fromX(e.clientX);
+        // En táctil: tocar otra vez el mismo punto entero le quita medio (8 → 7,5)
+        if (e.pointerType !== 'mouse' && this.kind === 'dots') { v = Math.ceil(v); if (startV === v) v -= 0.5; }
+        this.set(v);
+      }
+      this.ghost(null);
+    });
+    c.addEventListener('pointerleave', () => { if (!down) this.ghost(null); });
+    c.addEventListener('keydown', (e) => {
+      const cur = this.value ?? 5;
+      if (/^[0-9]$/.test(e.key)) { e.preventDefault(); this.set(Number(e.key)); }
+      else if (['ArrowRight', 'ArrowUp', '+'].includes(e.key)) { e.preventDefault(); this.set(this.value === null ? 5 : cur + 0.5); }
+      else if (['ArrowLeft', 'ArrowDown', '-'].includes(e.key)) { e.preventDefault(); this.set(this.value === null ? 5 : cur - 0.5); }
+      else if (e.key === 'Home') { e.preventDefault(); this.set(0); }
+      else if (e.key === 'End') { e.preventDefault(); this.set(10); }
+      else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); this.set(null); }
+      else if (e.key === 'Enter') { e.preventDefault(); this.onSubmit(); }
+    });
+  }
+}
+
+/* ── Diálogo ── */
+let uid = 0;
+class CompleteDialog {
+  /**
+   * host: elemento donde se monta (marco o escenario).
+   * o: { games, index, kind: 'dots'|'slider', cel: 'flag'|'confetti', sheet, inline, edit, error, autofocus, onClose(result), onSaved(game) }
+   */
+  constructor(host, o) {
+    this.host = host; this.o = Object.assign({ index: 0, kind: 'dots', cel: 'flag' }, o);
+    this.games = o.games.map((g) => ({ ...g }));
+    this.i = this.o.index; this.batch = this.games.length > 1;
+    this.done = this.games.map((_, j) => (j < this.i ? 'done' : 'todo'));
+    this.id = `cp${++uid}`;
+    this.open();
+  }
+  get g() { return this.games[this.i]; }
+  open() {
+    const o = this.o;
+    if (!o.inline) { this.scrim = document.createElement('div'); this.scrim.className = 'cp-scrim'; this.host.append(this.scrim); this.scrim.addEventListener('click', () => this.cancel()); }
+    this.el = document.createElement('div');
+    this.el.className = `cp-dlg${o.sheet ? ' is-sheet' : ''}${o.inline ? ' is-inline' : ''}`;
+    this.el.setAttribute('role', 'dialog'); this.el.setAttribute('aria-modal', 'true'); this.el.setAttribute('aria-labelledby', `${this.id}-t`);
+    this.host.append(this.el);
+    this.el.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); this.cancel(); } });
+    this.el.addEventListener('pointerdown', () => { if (this.celebrating) this.finish(); });
+    this.el.addEventListener('keydown', () => { if (this.celebrating) this.finish(); }, true);
+    this.render(false);
+  }
+  batchHTML() {
+    if (!this.batch) return '';
+    const left = this.games.length - this.i - 1;
+    const next = this.games[this.i + 1];
+    return `<div class="cp-batch">
+      <div class="cp-batch__top">${ic('flag')}<span>Completando <b>${this.i + 1} de ${this.games.length}</b> de la bandeja</span>
+        <button type="button" class="btn btn--ghost btn--sm cp-batch__stop" data-act="stop">Cancelar el resto</button></div>
+      <div class="cp-batch__top"><ol class="cp-pips" aria-hidden="true">${this.done.map((s, j) => `<li class="cp-pip ${j === this.i ? 'is-now' : s === 'done' ? 'is-done' : s === 'skip' ? 'is-skip' : ''}" data-j="${j}"></li>`).join('')}</ol>
+        ${left > 1 ? `<button type="button" class="cp-link cp-batch__next" data-act="rest">Completar los ${left} restantes sin nota</button>` : `<span class="cp-batch__next">${left ? `Queda <b>${esc(next.name)}</b>` : 'Es el último'}</span>`}</div>
+    </div>`;
+  }
+  ctxHTML(g) {
+    const out = [];
+    if (g.h) out.push(`<span title="Horas jugadas">${ic('clock')}<b>${fmtH(g.h)}</b>${g.story ? ` <span class="cp-mini ${g.h >= g.story ? 'is-over' : ''}"><span style="transform:scaleX(${Math.min(g.h / g.story, 1).toFixed(2)})"></span></span> de ${fmtH(g.story)} de historia` : ''}</span>`);
+    else out.push(`<span>${ic('clock')}Sin horas registradas</span>`);
+    if (g.ach) {
+      const f = g.ach[0] / g.ach[1]; const C = 2 * Math.PI * 5.5;
+      out.push(`<span title="Logros conseguidos"><svg class="cp-ring ${f === 1 ? 'is-full' : ''}" viewBox="0 0 15 15"><circle class="tr" cx="7.5" cy="7.5" r="5.5"/><circle class="pr" cx="7.5" cy="7.5" r="5.5" stroke-dasharray="${(f * C).toFixed(2)} ${C.toFixed(2)}"/></svg><b>${g.ach[0]}</b> de ${g.ach[1]} logros${f === 1 ? ' · 100 %' : ''}</span>`);
+    }
+    return out.join('');
+  }
+  bodyHTML() {
+    const g = this.g, o = this.o, id = this.id;
+    const sug = g.last;
+    return `<div class="cp-body">
+      <header class="cp-head">
+        <div class="cp-cover"><img src="${HDR(g.id)}" alt=""></div>
+        <div class="cp-head__text">
+          <div class="cp-kicker"><span class="hg-chip hg-tint st-completado">${ic('flag')}${o.edit ? `Completado el ${fmtD(o.edit)}` : 'Completado'}</span></div>
+          <h3 class="cp-title" id="${id}-t"><span class="sr-only">${o.edit ? 'Editar' : 'Completar'}: </span>${esc(g.name)}</h3>
+          <div class="cp-ctx">${this.ctxHTML(g)}</div>
+        </div>
+      </header>
+      <div class="cp-field">
+        <div class="cp-label"><span id="${id}-r">Tu nota</span><button type="button" class="cp-link" data-act="nonote" ${g.rating === null ? 'hidden' : ''}>Sin nota</button></div>
+        <div data-rating></div>
+        <p class="cp-hint cp-hint--keys"><span><kbd class="k">←</kbd><kbd class="k">→</kbd> ±0,5</span><span><kbd class="k">0</kbd>–<kbd class="k">9</kbd> esa nota</span><span><kbd class="k">Supr</kbd> sin nota</span><span><kbd class="k">Intro</kbd> ${o.edit ? 'guardar' : 'completar'}</span></p>
+      </div>
+      <div class="cp-marks" role="group" aria-label="Marcas">
+        <button type="button" class="cp-mark st-favorito" data-mark="fav" aria-pressed="${g.fav}">${ic('heart')}Favorito</button>
+        ${g.endless ? `<button type="button" class="cp-mark st-sin_final" data-mark="endless" aria-pressed="true" title="Ya tenía la marca Sin final">${ic('infinity')}Sin final</button>` : ''}
+      </div>
+      <div class="cp-field">
+        <div class="cp-label"><label for="${id}-d">Fecha</label></div>
+        <div class="cp-date">
+          <input id="${id}-d" type="date" class="hg-input" max="${TODAY}" value="${o.edit || sug || TODAY}">
+          ${sug ? `<button type="button" class="cp-sug" data-date="${sug}">${ic(g.src === 'logro' ? 'trophy' : 'gamepad')}${g.src === 'logro' ? 'Último logro' : 'Última partida'} · <b>${fmtDs(sug)}</b></button>` : ''}
+          <button type="button" class="cp-sug" data-date="${TODAY}">${ic('calendar')}<b>Hoy</b></button>
+        </div>
+      </div>
+      <div class="cp-field" data-review>
+        ${g.review ? `<label for="${id}-v" class="cp-label"><span>Reseña</span></label><textarea id="${id}-v" class="hg-input cp-review" rows="3">${esc(g.review)}</textarea>`
+          : `<button type="button" class="btn btn--ghost btn--sm cp-review-btn" data-act="review">${ic('pencil')}Añadir reseña</button>`}
+      </div>
+      ${o.error ? `<p class="alert--error" role="alert">No se pudo guardar: sin conexión con el servidor. Vuelve a intentarlo.</p>` : ''}
+    </div>`;
+  }
+  footHTML() {
+    const o = this.o; const last = this.i === this.games.length - 1;
+    if (this.batch) return `<div class="cp-foot"><button type="button" class="btn btn--ghost cp-skip" data-act="skip">${ic('skip')}Saltar este</button>
+      <button type="button" class="btn btn--done" data-act="save">${ic('flag')}${last ? 'Completar' : 'Completar y seguir'}</button></div>`;
+    return `<div class="cp-foot"><span class="cp-foot__hint"><kbd class="k">Esc</kbd> cancelar</span>
+      <button type="button" class="btn btn--secondary" data-act="cancel">Cancelar</button>
+      <button type="button" class="btn btn--done" data-act="save">${o.edit ? `${ic('check')}Guardar cambios` : `${ic('flag')}Completar`}</button></div>`;
+  }
+  render(next) {
+    const o = this.o;
+    this.el.innerHTML = `${o.sheet ? '<span class="cp-handle" aria-hidden="true"></span>' : ''}
+      ${this.batch ? '' : `<button type="button" class="cp-close" aria-label="Cerrar" data-act="stop">${ic('x')}</button>`}
+      ${this.batchHTML()}<div class="cp-scroll">${this.bodyHTML()}</div>${this.footHTML()}<div class="cp-cel" hidden aria-live="polite"></div>`;
+    if (next && !rm()) this.el.querySelector('.cp-body').classList.add('is-next');
+    const g = this.g;
+    this.rating = new Rating(this.el.querySelector('[data-rating]'), {
+      kind: o.kind, value: g.rating,
+      onChange: (v) => { g.rating = v; this.el.querySelector('[data-act="nonote"]').hidden = v === null; },
+      onSubmit: () => this.save(),
+    });
+    this.rating.ctrl.setAttribute('aria-labelledby', `${this.id}-r`);
+    this.syncDate();
+    this.el.querySelector('input[type="date"]').addEventListener('input', () => this.syncDate());
+    this.el.querySelectorAll('[data-date]').forEach((b) => b.addEventListener('click', () => { this.el.querySelector('input[type="date"]').value = b.dataset.date; this.syncDate(); }));
+    this.el.querySelectorAll('[data-mark]').forEach((b) => b.addEventListener('click', () => {
+      const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', String(on));
+      if (b.dataset.mark === 'fav') g.fav = on; else g.endless = on;
+      const i = b.querySelector('.i'); i.classList.remove('hg-beat'); if (on && !rm()) { void i.offsetWidth; i.classList.add('hg-beat'); }
+    }));
+    this.el.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', (e) => this.act(b.dataset.act, e)));
+    if (o.autofocus) this.rating.ctrl.focus({ preventScroll: true });
+  }
+  syncDate() {
+    const v = this.el.querySelector('input[type="date"]').value;
+    this.el.querySelectorAll('[data-date]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.date === v)));
+  }
+  act(a) {
+    if (a === 'save') this.save();
+    else if (a === 'cancel' || a === 'stop') this.cancel();
+    else if (a === 'skip') { this.done[this.i] = 'skip'; this.advance(); }
+    else if (a === 'nonote') { this.rating.set(null); this.rating.ctrl.focus({ preventScroll: true }); }
+    else if (a === 'review') {
+      const box = this.el.querySelector('[data-review]');
+      box.innerHTML = `<label for="${this.id}-v" class="cp-label"><span>Reseña</span></label><textarea id="${this.id}-v" class="hg-input cp-review" rows="3" placeholder="¿Qué te ha parecido?"></textarea>`;
+      box.querySelector('textarea').focus();
+    } else if (a === 'rest') {
+      for (let j = this.i; j < this.games.length; j++) { this.done[j] = 'done'; this.o.onSaved?.(this.games[j]); }
+      this.i = this.games.length - 1; this.celebrate(true);
+    }
+  }
+  save() {
+    if (this.celebrating) return;
+    if (this.o.edit) {
+      const b = this.el.querySelector('[data-act="save"]');
+      b.innerHTML = `${ic('check', 'hg-draw')}Guardado`; setTimeout(() => this.close('saved'), rm() ? 0 : 650);
+      return;
+    }
+    if (this.o.error) return;
+    this.done[this.i] = 'done';
+    this.o.onSaved?.(this.g);
+    this.celebrate(this.i === this.games.length - 1);
+  }
+  celebrate(final) {
+    const g = this.g;
+    if (rm()) return this.afterCelebrate(final);
+    this.celebrating = true; this.final = final;
+    if (this.o.cel === 'confetti') {
+      this.el.classList.add('is-confetti');
+      this.confetti(g);
+      this.timer = setTimeout(() => this.finish(), final ? 1050 : 650);
+      return;
+    }
+    const quick = this.batch && !final;
+    const cols = ['st-completado', g.rating !== null ? `sc-${tier(g.rating)}` : 'st-completado', g.fav ? 'st-favorito' : 'st-completado'];
+    const cel = this.el.querySelector('.cp-cel');
+    const doneN = this.done.filter((s) => s === 'done').length, skipN = this.done.filter((s) => s === 'skip').length;
+    const next = this.games[this.i + 1];
+    cel.className = `cp-cel${quick ? ' is-quick' : ''}`;
+    cel.innerHTML = `<div class="cp-cel__mark">
+        <svg class="cp-cel__ring" viewBox="0 0 96 96"><circle class="tr" cx="48" cy="48" r="42"/><circle class="pr" cx="48" cy="48" r="42"/></svg>
+        <span class="cp-cel__flag">${ic('flag')}</span>
+        <span class="cp-cel__burst">${Array.from({ length: 12 }, (_, k) => `<i class="${cols[k % 3]}" style="--a:${k * 30 + 8}deg"></i>`).join('')}</span>
+      </div>
+      <h3>${this.batch && final ? `${doneN} ${doneN === 1 ? 'completado' : 'completados'}` : '¡Completado!'}</h3>
+      <p class="cp-cel__sub">${this.batch && final ? `${skipN ? `${skipN} saltado${skipN > 1 ? 's' : ''}, sigue${skipN > 1 ? 'n' : ''} en la bandeja. ` : ''}Ya están en tu lista de Completados.` : esc(g.name)}</p>
+      ${quick && next ? `<p class="cp-cel__next">Siguiente: <b>${esc(next.name)}</b></p>` : ''}
+      ${!this.batch || !final ? `<div class="cp-cel__chips">${g.rating !== null ? `<span class="hg-score hg-tint sc-${tier(g.rating)}">${ic('star')}${fmtN(g.rating)}</span>` : ''}${g.h ? `<span class="hg-chip hg-tint st-completado">${ic('clock')}${fmtH(g.h)}</span>` : ''}${g.fav ? `<span class="hg-chip hg-tint st-favorito">${ic('heart')}Favorito</span>` : ''}</div>` : ''}`;
+    cel.hidden = false;
+    this.timer = setTimeout(() => this.finish(), quick ? 680 : 1250);
+  }
+  confetti(g) {
+    const layer = document.createElement('div'); layer.className = 'cp-confetti';
+    const hr = this.host.getBoundingClientRect(), dr = this.el.getBoundingClientRect();
+    const cx = dr.left - hr.left + dr.width / 2, cy = dr.top - hr.top + 40;
+    const cols = ['st-completado', g.rating !== null ? `sc-${tier(g.rating)}` : 'st-completado', g.fav ? 'st-favorito' : 'st-jugando', 'st-pendiente', 'st-pausado'];
+    let html = '';
+    for (let k = 0; k < 34; k++) {
+      const a = (Math.random() - 0.5) * Math.PI * 0.95, sp = 140 + Math.random() * 180;
+      const x0 = cx + (Math.random() - 0.5) * 60, y0 = cy;
+      const x1 = x0 + Math.sin(a) * sp * 1.4, y1 = y0 - Math.cos(a) * sp * 0.6 + 260 + Math.random() * 160;
+      html += `<i class="${cols[k % cols.length]}" style="--x0:${x0}px;--y0:${y0}px;--x1:${x1}px;--y1:${y1}px;--r:${(Math.random() * 900 - 450) | 0}deg;--dl:${(Math.random() * 120) | 0}ms"></i>`;
+    }
+    layer.innerHTML = html; this.host.append(layer);
+    setTimeout(() => layer.remove(), 1400);
+  }
+  finish() { if (!this.celebrating) return; clearTimeout(this.timer); this.celebrating = false; this.el.classList.remove('is-confetti'); this.afterCelebrate(this.final); }
+  afterCelebrate(final) {
+    if (this.batch && !final) return this.advance(true);
+    this.close('saved');
+  }
+  advance(afterSave) {
+    if (this.i >= this.games.length - 1) {
+      if (this.done.some((s) => s === 'done')) { this.i = this.games.length - 1; if (!afterSave) return this.celebrate(true); }
+      return this.close('end');
+    }
+    this.i++;
+    this.render(true);
+    const prev = this.el.querySelector(`.cp-pip[data-j="${this.i - 1}"]`);
+    if (prev && this.done[this.i - 1] === 'done' && !rm()) prev.classList.add('is-new');
+    this.rating.ctrl.focus({ preventScroll: true });
+  }
+  cancel() {
+    if (this.celebrating) return this.finish();
+    this.close('cancel');
+  }
+  close(result) {
+    const out = () => { this.el.remove(); this.scrim?.remove(); this.o.onClose?.(result, this); };
+    if (this.o.inline) { if (!this.o.keepInline) out(); else this.o.onClose?.(result, this); return; }
+    if (rm()) return out();
+    this.el.classList.add('is-out'); this.scrim?.classList.add('is-out');
+    setTimeout(out, 200);
+  }
+}
+
+/* ── Fondos ── */
+const STATUSES = [['pendiente', 'Pendiente', 'bookmark'], ['jugando', 'Jugando', 'play'], ['pausado', 'Pausado', 'pause'], ['rejugable', 'Rejugable', 'repeat'], ['completado', 'Completado', 'flag'], ['abandonado', 'Abandonado', 'circlex'], ['ya_jugado', 'Ya jugado', 'history'], ['descartado', 'Descartado', 'eyeoff'], ['otros', 'Otros', 'shapes']];
+function side(compact, active) {
+  const links = [['home', 'Inicio'], ['library', 'Biblioteca'], ['award', 'Logros'], ['heart', 'Wishlist'], ['chart', 'Estadísticas'], ['gamepad', 'JUDI']];
+  return `<aside class="bg-side ${compact ? 'is-compact' : ''}"><div class="bg-brand">${compact ? 'H<span>G</span>' : 'Hub<span>Games</span>'}</div>
+    ${links.map(([i, l]) => `<a class="bg-link ${l === active ? 'on' : ''}">${ic(i)}<span>${l}</span></a>`).join('')}</aside>`;
+}
+function fichaBG(g, status = 'jugando') {
+  return `<div class="bg">${side(false, 'Biblioteca')}<div class="bg-page"><div class="bg-hero"><img src="${HDR(g.id)}" alt="">
+    <div><span class="bg-back">← Biblioteca</span><h1 class="bg-title">${esc(g.name)}</h1>
+    <div class="bg-meta"><span class="hg-score hg-tint sc-top">${g.mc}</span>Favorable · Team Cherry · 2017</div>
+    <div class="bg-panel"><div class="bg-status">${STATUSES.slice(0, 5).concat(STATUSES.slice(5, 9)).map(([k, l, i]) => `<span class="bg-st st-${k} ${k === status ? 'on' : ''}" data-st="${k}">${ic(i)}${l}</span>`).join('')}</div></div></div></div>
+    <div class="bg-tiles">
+      <div class="bg-tile st-jugando"><span class="bg-tile__l">${ic('clock')}Jugado</span><span class="bg-tile__v">${fmtH(g.h)}</span></div>
+      <div class="bg-tile st-pendiente"><span class="bg-tile__l">${ic('flag')}Historia</span><span class="bg-tile__v">${fmtH(g.story)}</span></div>
+      <div class="bg-tile st-completado"><span class="bg-tile__l">${ic('trophy')}Logros</span><span class="bg-tile__v">${g.ach[0]} / ${g.ach[1]}</span></div>
+      <div class="bg-tile sc-none" data-tile="nota"><span class="bg-tile__l">${ic('star')}Tu nota</span><span class="bg-tile__v">—</span></div>
+    </div></div></div>`;
+}
+function trayBG() {
+  return `<div class="bg">${side(true, 'Biblioteca')}<div class="bg-page is-compact"><span class="bg-back">← Biblioteca</span><h1 class="bg-title">Bandeja</h1>
+    <div class="bg-rows">${LOTE.map((g) => `<div class="bg-row is-sel" data-row="${g.id}"><span class="bg-check"></span><img src="${HDR(g.id)}" alt=""><span><b>${esc(g.name)}</b><small>${fmtH(g.h)} · de ${fmtH(g.story)} de historia</small></span><span></span></div>`).join('')}
+    ${[[1091500, 'Cyberpunk 2077'], [632470, 'Disco Elysium - The Final Cut']].map(([id, n]) => `<div class="bg-row"><span class="bg-check"></span><img src="${HDR(id)}" alt=""><span><b>${n}</b><small>Sin estrenar</small></span><span></span></div>`).join('')}</div></div></div>`;
+}
+function mobBG(g) {
+  return `<div class="bg"><div class="bg-mtop"><b>Hub<span style="color:var(--primary)">Games</span></b></div>
+    <div class="bg-mpage"><img src="${HDR(g.id)}" alt=""><h1 class="bg-title" style="font-size:1.5rem">${esc(g.name)}</h1><div class="bg-meta"><span class="hg-chip hg-tint st-jugando">${ic('play')}Jugando</span>${fmtH(g.h)}</div></div><div class="bg-mtabs"></div></div>`;
+}
+
+/* ── Montaje ── */
+const S = {};
+function deskFrame() {
+  const f = document.getElementById('f-desk'); const g = { ...HK };
+  f.innerHTML = fichaBG(g);
+  S.desk = new CompleteDialog(f, { games: [g], autofocus: false, onSaved: (gg) => {
+    setTimeout(() => {
+      f.querySelectorAll('.bg-st').forEach((s) => s.classList.toggle('on', s.dataset.st === 'completado'));
+      const st = f.querySelector('.bg-st[data-st="completado"]'); st.classList.remove('is-new'); if (!rm()) { void st.offsetWidth; st.classList.add('is-new'); }
+      const t = f.querySelector('[data-tile="nota"]'); t.className = `bg-tile sc-${tier(gg.rating)}`;
+      const v = t.querySelector('.bg-tile__v'); v.textContent = gg.rating === null ? '—' : fmtN(gg.rating); v.classList.remove('is-new'); if (!rm()) { void v.offsetWidth; v.classList.add('is-new'); }
+    }, rm() ? 0 : 1300);
+  } });
+}
+function midFrame() {
+  const f = document.getElementById('f-mid');
+  f.innerHTML = trayBG();
+  f.querySelector(`[data-row="${LOTE[0].id}"]`).classList.add('is-done');
+  S.mid = new CompleteDialog(f, { games: LOTE, index: 1, onSaved: (g) => f.querySelector(`[data-row="${g.id}"]`)?.classList.add('is-done') });
+}
+function mobFrames() {
+  const a = document.getElementById('f-mob'); a.innerHTML = mobBG(HK);
+  new CompleteDialog(a, { games: [{ ...HK, rating: 8.5 }], sheet: true });
+  const b = document.getElementById('f-mob-batch'); b.innerHTML = mobBG(LOTE[1]);
+  new CompleteDialog(b, { games: LOTE, index: 1, sheet: true });
+  const c = document.getElementById('f-mob-cel'); c.innerHTML = mobBG(HK);
+  const d = new CompleteDialog(c, { games: [{ ...HK, rating: 9, fav: true }], sheet: true });
+  d.close = () => {}; // se queda en la celebración para verla
+  d.done[0] = 'done'; setTimeout(() => { d.celebrate(true); clearTimeout(d.timer); d.celebrating = false; }, rm() ? 0 : 350);
+  if (rm()) { d.celebrating = false; }
+}
+function variants() {
+  const mk = (id, kind) => {
+    const el = document.getElementById(id); el.innerHTML = '<div style="display:grid;gap:22px;max-width:440px;margin:0 auto"><div class="cp-field"><span class="stage-cap">Tu nota · 8,5</span><div data-a></div></div><div class="cp-field"><span class="stage-cap">Sin nota</span><div data-b></div></div></div>';
+    new Rating(el.querySelector('[data-a]'), { kind, value: 8.5 });
+    new Rating(el.querySelector('[data-b]'), { kind, value: null });
+  };
+  mk('v-dots', 'dots'); mk('v-slider', 'slider');
+  const cel = (id, kind) => {
+    const el = document.getElementById(id); el.innerHTML = '';
+    const reopen = () => { el.innerHTML = ''; new CompleteDialog(el, { games: [{ ...LOTE[4], rating: 9.5, fav: true }], inline: true, keepInline: true, cel: kind, onClose: (r, d) => { if (r === 'cancel') return; setTimeout(reopen, rm() ? 300 : 900); } }); };
+    reopen();
+  };
+  cel('v-cel1', 'flag'); cel('v-cel2', 'confetti');
+}
+function states() {
+  const inl = (id, o) => { const el = document.getElementById(id); el.innerHTML = ''; new CompleteDialog(el, Object.assign({ inline: true, keepInline: true }, o)); };
+  inl('s-edit', { games: [{ ...LOTE[0], review: 'Precioso y exigente. El capítulo 7 es de lo mejor que he jugado en un plataformas.' }], edit: '2026-09-02' });
+  inl('s-bare', { games: [LONG] });
+  inl('s-err', { games: [{ ...LOTE[2], rating: 6.5 }], error: true });
+}
+function build() { deskFrame(); midFrame(); mobFrames(); variants(); states(); }
+
+document.getElementById('replay-btn').addEventListener('click', build);
+document.getElementById('reopen-desk').addEventListener('click', deskFrame);
+document.getElementById('reopen-mid').addEventListener('click', midFrame);
+const rmBtn = document.getElementById('rm-btn');
+rmBtn.addEventListener('click', () => { const on = document.documentElement.classList.toggle('rm'); rmBtn.setAttribute('aria-pressed', String(on)); rmBtn.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`; });
+const themeBtn = document.getElementById('theme-btn');
+function setTheme(t) { document.documentElement.dataset.theme = t; themeBtn.setAttribute('aria-pressed', String(t === 'dark')); themeBtn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro'; }
+themeBtn.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+if (location.hash.includes('dark')) setTheme('dark');
+if (location.hash.includes('rm')) { document.documentElement.classList.add('rm'); rmBtn.setAttribute('aria-pressed', 'true'); rmBtn.textContent = 'Movimiento reducido: sí'; }
+build();
+</script>
+</body>
+</html>

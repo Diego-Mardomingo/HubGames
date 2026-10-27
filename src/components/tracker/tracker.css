@@ -1,103 +1,959 @@
-/* ── Tracker: diálogo de completar (#19) ── */
+/* ── Tracker: diálogo «Completar juego» (#19) ──
+   Color de Completado (franja, botón, celebración), tu nota con el color de ratingTier, marcas con el suyo.
+   En móvil (≤ 640 px), hoja inferior con el pie fijo. Mockup: docs/mockups/completar.html */
 
-.complete-dialog {
-  max-width: 440px;
-  width: calc(100% - 24px);
-}
-
-.complete-form {
-  display: grid;
-  gap: 1.1rem;
-}
-
-.complete-form__title {
+.hg-dialog.complete-dialog {
+  --c: var(--st-completado);
   display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: min(480px, calc(100% - 24px));
+  max-width: none;
+  padding: 0;
+  overflow: hidden;
+  border-top: 3px solid var(--st-completado);
+}
+
+.complete-dialog.is-batch .hg-dialog__close {
+  display: none;
+}
+
+.complete-dialog .hg-dialog__close {
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+}
+
+.complete-handle {
+  display: none;
+}
+
+/* Lote: «2 de 5», una pastilla por juego y salidas */
+.complete-batch {
+  display: grid;
+  gap: 6px;
+  padding: 8px 12px 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--st-completado) 5%, var(--surface));
+}
+
+.complete-batch__row {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-}
-
-.complete-form__title svg {
-  color: var(--success);
-}
-
-.complete-form__game {
-  margin: 0;
+  gap: 4px 8px;
+  min-width: 0;
   color: var(--muted);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
 }
 
-.complete-form__field {
-  display: grid;
-  gap: 0.4rem;
+.complete-batch__row b {
+  color: var(--foreground);
+  font-weight: 700;
 }
 
-.complete-form__label-row {
+.complete-batch__flag {
+  width: 14px;
+  height: 14px;
+  color: var(--st-completado);
+}
+
+.hg-button.complete-batch__stop {
+  height: 28px;
+  margin-left: auto;
+  padding: 0 8px;
+  color: var(--muted);
+}
+
+.hg-button.complete-batch__stop:hover {
+  color: var(--foreground);
+}
+
+.complete-pips {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.complete-form__hint {
-  margin: 0;
+.complete-pip {
+  width: 22px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  transition: background-color 0.25s var(--ease-out), width 0.25s var(--ease-out);
+}
+
+.complete-pip.is-done {
+  background: var(--st-completado);
+}
+
+.complete-pip.is-new {
+  animation: complete-pip-pop 0.35s var(--ease-out);
+}
+
+.complete-pip.is-skip {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--border-hover);
+}
+
+.complete-pip.is-now {
+  width: 34px;
+  background: color-mix(in srgb, var(--st-completado) 35%, var(--surface-3));
+}
+
+@keyframes complete-pip-pop {
+  40% { transform: scaleY(1.9); }
+}
+
+.complete-batch__next {
+  margin-left: auto;
   color: var(--muted);
   font-size: 0.75rem;
 }
 
-.complete-form__link {
+.complete-batch__next b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+/* Formulario: cuerpo con scroll y pie fijo */
+.complete-form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.complete-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.complete-body {
+  display: grid;
+  gap: 18px;
+  padding: 18px 20px 4px;
+}
+
+.complete-body.is-next {
+  animation: complete-next-in 0.26s var(--ease-out);
+}
+
+@keyframes complete-next-in {
+  from { opacity: 0; transform: translateX(24px); }
+}
+
+/* Cabecera: cápsula, «Completado», nombre y contexto */
+.complete-head {
+  display: grid;
+  grid-template-columns: 136px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding-right: 28px;
+}
+
+.is-batch .complete-head {
+  padding-right: 0;
+}
+
+.complete-cover.hg-row__cover {
+  width: 136px;
+  height: 64px;
+  border-radius: 8px;
+}
+
+.complete-cover .game-cover--empty span {
+  display: none;
+}
+
+.complete-head__text {
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+  min-width: 0;
+}
+
+.hg-chip.complete-kicker {
+  justify-self: start;
+}
+
+.hg-dialog__title.complete-title {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 1.0625rem;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.complete-ctx {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 12px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.complete-ctx > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.complete-ctx b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.complete-ctx > span > svg:not(.complete-ring) {
+  width: 13px;
+  height: 13px;
+}
+
+.complete-mini {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.complete-mini > span {
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  background: var(--primary);
+}
+
+.complete-mini.is-over > span {
+  background: var(--st-completado);
+}
+
+.complete-ring {
+  width: 15px;
+  height: 15px;
+  rotate: -90deg;
+}
+
+.complete-ring circle {
+  fill: none;
+  stroke-width: 3.5;
+}
+
+.complete-ring .tr {
+  stroke: var(--surface-3);
+}
+
+.complete-ring .pr {
+  stroke: var(--primary);
+  stroke-linecap: round;
+}
+
+.complete-ring.is-full .pr {
+  stroke: var(--st-completado);
+}
+
+/* Campos */
+.complete-field {
+  display: grid;
+  gap: 8px;
+}
+
+.complete-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 22px;
+}
+
+.complete-label > label,
+.complete-label > span:first-child {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.complete-link {
   padding: 0;
   border: 0;
   background: none;
   color: var(--primary);
   font: inherit;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 2px;
+  cursor: pointer;
 }
 
-.complete-form__review {
+.complete-link:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.complete-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.complete-hint > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.complete-dialog kbd {
+  display: inline-block;
+  min-width: 1.35em;
+  padding: 0 0.35em;
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* Nota: cifra con el color de ratingTier y su palabra */
+.complete-rate {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.complete-rate.sc-none {
+  --c: var(--muted);
+}
+
+.complete-val {
+  display: grid;
+  justify-items: start;
+  min-width: 0;
+}
+
+.complete-val__n {
+  display: block;
+  height: 2.1rem;
+  overflow: hidden;
+  color: var(--c);
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 2.1rem;
+  transition: color 0.2s var(--ease-out);
+}
+
+.complete-val__n > span {
+  display: inline-block;
+}
+
+.complete-val__n > .up {
+  animation: hg-count-up 0.2s var(--ease-out);
+}
+
+.complete-val__n > .down {
+  animation: hg-count-down 0.2s var(--ease-out);
+}
+
+.complete-val__w {
+  color: var(--c);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 0.2s var(--ease-out);
+}
+
+/* Diez puntos con medios (role="slider") */
+.complete-dots {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  align-items: start;
+  height: 50px;
+  padding: 6px 2px 0;
+  border-radius: var(--radius-sm);
+  outline: none;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.complete-dots:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.complete-dot {
+  position: relative;
+  justify-self: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--border);
+  pointer-events: none;
+}
+
+.complete-dot::after {
+  content: attr(data-n);
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  translate: -50% 2px;
+  color: var(--muted);
+  font-size: 0.625rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.complete-dots:hover .complete-dot::after,
+.complete-dots:focus-visible .complete-dot::after {
+  opacity: 0.8;
+}
+
+.complete-dot__f {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--c);
+  transform: scale(0);
+  transition: transform 0.16s var(--ease-out), background-color 0.2s var(--ease-out), opacity 0.15s;
+}
+
+.complete-dot.is-on .complete-dot__f,
+.complete-dot.is-half .complete-dot__f {
+  transform: scale(1);
+}
+
+.complete-dot.is-half .complete-dot__f {
+  clip-path: inset(0 50% 0 0);
+}
+
+.complete-dot.is-pop .complete-dot__f {
+  animation: complete-dot-pop 0.3s var(--ease-out) backwards;
+  animation-delay: var(--d, 0ms);
+}
+
+@keyframes complete-dot-pop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.22); }
+  100% { transform: scale(1); }
+}
+
+.complete-dot.is-ghost .complete-dot__f {
+  transform: scale(1);
+  opacity: 0.32;
+}
+
+/* Marcas: Favorito y Sin final, con su color */
+.complete-marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.complete-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 12px 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.18s var(--ease-out), border-color 0.18s var(--ease-out), color 0.18s;
+}
+
+.complete-mark svg {
+  width: 15px;
+  height: 15px;
+  color: var(--c);
+}
+
+.complete-mark:hover {
+  border-color: color-mix(in srgb, var(--c) 50%, var(--border));
+}
+
+.complete-mark[aria-pressed='true'] {
+  border-color: color-mix(in srgb, var(--c) 45%, var(--border));
+  background: color-mix(in srgb, var(--c) var(--tint), var(--surface));
+  color: var(--c);
+}
+
+.complete-mark[aria-pressed='true'].st-favorito svg {
+  fill: currentColor;
+}
+
+.complete-mark:focus-visible,
+.complete-sug:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Fecha con sugerencias */
+.complete-date {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.complete-date .hg-input {
+  width: 150px;
+}
+
+.complete-sug {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.complete-sug svg {
+  width: 13px;
+  height: 13px;
+}
+
+.complete-sug b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.complete-sug:hover {
+  border-color: var(--border-hover);
+  color: var(--foreground);
+}
+
+.complete-sug[aria-pressed='true'] {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  background: var(--primary-glow);
+  color: var(--primary);
+}
+
+.complete-sug[aria-pressed='true'] b {
+  color: var(--primary);
+}
+
+/* Reseña plegada */
+.hg-button.complete-review-btn {
+  justify-self: start;
+  margin-left: -10px;
+  color: var(--muted);
+}
+
+.hg-button.complete-review-btn:hover {
+  color: var(--foreground);
+}
+
+.complete-review {
   height: auto;
-  padding: 0.7rem 1rem;
+  min-height: 76px;
+  padding: 10px 12px;
+  line-height: 1.45;
   resize: vertical;
 }
 
-.complete-form__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-.complete-rating {
+/* Pie */
+.complete-foot {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 8px;
+  padding: 14px 20px 16px;
 }
 
-.complete-rating__value {
+.complete-foot__hint {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  min-width: 4.5rem;
+  gap: 4px;
+  margin-right: auto;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.hg-button.complete-skip {
+  margin-right: auto;
+  color: var(--muted);
+}
+
+.hg-button.complete-skip:hover {
   color: var(--foreground);
-  font-size: 1.5rem;
+}
+
+.hg-button.complete-done {
+  border: 1px solid transparent;
+  background: var(--st-completado);
+  color: var(--on-done);
+}
+
+.hg-button.complete-done:hover {
+  background: color-mix(in srgb, var(--st-completado) 86%, var(--foreground));
+}
+
+.complete-done__flag {
+  transform-origin: 15% 90%;
+}
+
+.hg-button.complete-done:hover .complete-done__flag {
+  animation: complete-wave 0.5s var(--ease-out);
+}
+
+@keyframes complete-wave {
+  40% { transform: rotate(-12deg); }
+}
+
+/* Celebración: el anillo se cierra, la bandera cae y se planta, doce chispas */
+.complete-cel {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  padding: 24px;
+  background: var(--surface);
+  text-align: center;
+  animation: hg-fade-in 0.16s var(--ease-out);
+}
+
+.complete-cel__mark {
+  position: relative;
+  width: 96px;
+  height: 96px;
+}
+
+.complete-cel__ring {
+  position: absolute;
+  inset: 0;
+  rotate: -90deg;
+}
+
+.complete-cel__ring circle {
+  fill: none;
+  stroke-width: 5;
+}
+
+.complete-cel__ring .tr {
+  stroke: color-mix(in srgb, var(--st-completado) 18%, var(--surface));
+}
+
+.complete-cel__ring .pr {
+  stroke: var(--st-completado);
+  stroke-dasharray: 264;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  animation: complete-ring 0.5s var(--ease-out) backwards;
+}
+
+@keyframes complete-ring {
+  from { stroke-dashoffset: 264; }
+}
+
+.complete-cel__flag {
+  position: absolute;
+  inset: 14px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--st-completado) var(--tint), var(--surface));
+  color: var(--st-completado);
+}
+
+.complete-cel__flag svg {
+  width: 34px;
+  height: 34px;
+  transform-origin: 18% 95%;
+  animation: complete-plant 0.46s var(--ease-out) 0.18s backwards;
+}
+
+@keyframes complete-plant {
+  0% { opacity: 0; transform: translateY(-30px) rotate(-16deg); }
+  55% { opacity: 1; transform: translateY(3px) rotate(4deg); }
+  78% { transform: translateY(0) rotate(-2deg); }
+  100% { transform: none; }
+}
+
+.complete-cel__burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.complete-cel__burst i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px;
+  border-radius: 50%;
+  background: var(--c);
+  opacity: 0;
+  animation: complete-burst 0.7s var(--ease-out) 0.5s;
+}
+
+.complete-cel__burst i:nth-child(odd) {
+  width: 5px;
+  height: 9px;
+  margin: -4.5px -2.5px;
+  border-radius: 2px;
+}
+
+@keyframes complete-burst {
+  0% { opacity: 1; transform: rotate(var(--a)) translateY(-40px) scale(0.4); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--a)) translateY(-74px) scale(1); }
+}
+
+.complete-cel__title {
+  margin: 4px 0 0;
+  font-size: 1.25rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
+  animation: complete-rise 0.3s var(--ease-out) 0.3s backwards;
 }
 
-.complete-rating__value svg {
+.complete-cel__sub {
+  max-width: 34ch;
+  margin: 0;
   color: var(--muted);
+  font-size: 0.875rem;
+  animation: complete-rise 0.3s var(--ease-out) 0.36s backwards;
 }
 
-.complete-rating__value.is-empty {
+.complete-cel__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  animation: complete-rise 0.3s var(--ease-out) 0.42s backwards;
+}
+
+.complete-cel__next {
+  margin: 4px 0 0;
   color: var(--muted);
+  font-size: 0.8125rem;
+  animation: complete-rise 0.3s var(--ease-out) 0.3s backwards;
 }
 
-.complete-rating__slider {
-  flex: 1;
-  accent-color: var(--primary);
+.complete-cel__next b {
+  color: var(--foreground);
 }
 
-.complete-rating__slider.is-empty {
-  opacity: 0.45;
+@keyframes complete-rise {
+  from { opacity: 0; transform: translateY(6px); }
+}
+
+/* En lote: versión corta (anillo y bandera, sin chispas ni chips) */
+.complete-cel.is-quick .complete-cel__mark {
+  width: 72px;
+  height: 72px;
+}
+
+.complete-cel.is-quick .complete-cel__ring .pr {
+  animation-duration: 0.32s;
+}
+
+.complete-cel.is-quick .complete-cel__flag {
+  inset: 10px;
+}
+
+.complete-cel.is-quick .complete-cel__flag svg {
+  width: 26px;
+  height: 26px;
+  animation-duration: 0.32s;
+  animation-delay: 0.08s;
+}
+
+.complete-cel.is-quick .complete-cel__title,
+.complete-cel.is-quick .complete-cel__sub,
+.complete-cel.is-quick .complete-cel__next {
+  animation-delay: 0.12s;
+}
+
+/* Móvil: hoja inferior con el pie fijo; todo lo que se toca, a 44 px (botones del pie, 48) */
+@media (max-width: 640px) {
+  .hg-dialog.complete-dialog {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-height: calc(100dvh - 40px);
+    translate: none;
+    border-width: 3px 0 0;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .hg-dialog.complete-dialog[data-state='open'] {
+    animation: hg-sheet-up 0.28s var(--ease-out);
+  }
+
+  .hg-dialog.complete-dialog[data-state='closed'] {
+    animation: hg-sheet-down 0.2s ease-in forwards;
+  }
+
+  .complete-handle {
+    display: block;
+    flex: none;
+    width: 36px;
+    height: 4px;
+    margin: 8px auto 0;
+    border-radius: 999px;
+    background: var(--surface-3);
+  }
+
+  .complete-dialog .hg-dialog__close {
+    top: 10px;
+    right: 6px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .complete-batch {
+    padding: 8px 8px 10px 16px;
+  }
+
+  .hg-button.complete-batch__stop {
+    height: 44px;
+    margin: -8px 0 -8px auto;
+  }
+
+  .complete-body {
+    gap: 16px;
+    padding: 12px 16px 4px;
+  }
+
+  .complete-head {
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 12px;
+    padding-right: 36px;
+  }
+
+  .complete-cover.hg-row__cover {
+    width: 96px;
+    height: 45px;
+  }
+
+  .complete-rate {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .complete-val {
+    grid-auto-flow: column;
+    justify-content: start;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .complete-dots {
+    height: 52px;
+  }
+
+  .complete-dot {
+    width: 26px;
+    height: 26px;
+  }
+
+  .complete-mark {
+    height: 44px;
+    padding: 0 14px 0 12px;
+  }
+
+  .complete-date .hg-input {
+    width: 100%;
+    height: 44px;
+  }
+
+  .complete-sug {
+    flex: 1 1 auto;
+    justify-content: center;
+    height: 44px;
+  }
+
+  .hg-button.complete-review-btn {
+    height: 44px;
+  }
+
+  .complete-batch__next.complete-link {
+    min-height: 44px;
+  }
+
+  .complete-foot {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+  }
+
+  .complete-foot .hg-button {
+    height: 48px;
+  }
+
+  .complete-foot__hint,
+  .complete-hint--keys {
+    display: none;
+  }
+
+  .hg-button.complete-skip {
+    margin: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .complete-batch__from {
+    display: none;
+  }
+}
+
+/* Sin teclado no hay atajos que enseñar */
+@media (pointer: coarse) {
+  .complete-hint--keys,
+  .complete-foot__hint {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hg-dialog.complete-dialog[data-state='open'],
+  .hg-dialog.complete-dialog[data-state='closed'] {
+    animation: none;
+  }
+
+  .complete-cel__burst {
+    display: none;
+  }
 }
 
 /* ── Sugerencias de la sincronización (#18), en el Inicio ── */

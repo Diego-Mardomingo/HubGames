@@ -134,9 +134,11 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
   - Animación: al clasificar, la fila se tiñe del color de su lista y sale deslizándose (hacia el raíl o la Biblioteca en la barra lateral), el contador de la bandeja baja con un salto, la barra de lotes aparece desde abajo al seleccionar.
   - Mockup: `docs/mockups/bandeja.html` (aprobada la variante A; teclas 1–9 en el orden de `GAME_STATUSES`; Completado en lote abre «Completar juego» juego a juego)
   - Hecho en la rama `Diego-Mardomingo/rediseno-bandeja`, commit `728e4a8`. Añade `src/lib/tray.ts` (destinos, sugerido, reparto), `restoreGames` (Deshacer), la hoja inferior `SheetContent side="bottom"` y `SyncButton` con texto y `onSynced`.
-- [ ] **Diálogo «Completar juego»** — `src/components/tracker/CompleteDialog.tsx` (se abre desde la ficha y la bandeja)
+- [x] **Diálogo «Completar juego»** — `src/components/tracker/CompleteDialog.tsx` (se abre desde la ficha y la bandeja)
   - Ideas: colores de `--st-completado`, tu nota con su color de `ratingTier` mientras la eliges, marcas Favorito / Sin final con sus colores.
   - Animación: la celebración principal de la web al confirmar (bandera de Completado que se planta, confeti breve o anillo que se cierra), estrellas o puntos de la nota que se encienden al elegirla.
+  - Mockup: `docs/mockups/completar.html` (aprobadas la nota A · diez puntos con medios y la celebración 1 · bandera + anillo + chispas; a diferencia del mockup, Favorito y Sin final se muestran siempre; «Saltar este» deja el juego seleccionado en la bandeja)
+  - Hecho en la rama `Diego-Mardomingo/rediseno-completar`, commit `9c846fd`. Añade `ratingLabel` / `RATING_LABELS` junto a `ratingTier` (palabra de tu nota), `src/lib/completion.ts` (teclas y puntero de la nota, avance del lote), el token `--on-done` y las marcas en `saveCompletion` y en Deshacer (`restoreGames`).
 - [ ] **Panel de sugerencias** — `src/components/tracker/SuggestionsPanel.tsx`
   - Ideas: puntuaciones y precios con color, lista de destino con su color.
 

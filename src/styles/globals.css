@@ -64,6 +64,8 @@
   --st-rejugable: #9c3c08;
   --st-favorito: #c2255c;
   --st-sinfinal: #6741d9;
+  /* Texto sobre --st-completado sólido (botón «Completar») */
+  --on-done: #ffffff;
   /* Puntuaciones (Metacritic, reseñas, tu nota): de mejor a peor */
   --sc-top: #1a7743;
   --sc-good: #4d7c0f;
@@ -136,6 +138,7 @@
   --st-rejugable: #ff9a5c;
   --st-favorito: #f783ac;
   --st-sinfinal: #b197fc;
+  --on-done: #0b1f13;
   --sc-top: #4cc97e;
   --sc-good: #a9d15b;
   --sc-mid: #f2b53a;

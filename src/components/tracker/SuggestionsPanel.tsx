@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Flag, Pause, Trophy } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
@@ -20,6 +20,8 @@ export default function SuggestionsPanel() {
     const [error, setError] = useState('')
     /** Respuesta guardándose ("123:pausar", "123:descartar"): su botón gira y los de ese juego esperan. */
     const [pending, setPending] = useState<string | null>(null)
+    /** Completado en el diálogo, que se quita de la lista al cerrarlo. */
+    const completedRef = useRef<number | null>(null)
 
     useEffect(() => {
         safeGetSession().then(async ({ data: { session } }) => {
@@ -124,11 +126,15 @@ export default function SuggestionsPanel() {
                 </AnimatePresence>
             </ul>
             <CompleteDialog
-                game={completing}
-                onOpenChange={(open) => !open && setCompleting(null)}
-                onSaved={(appid) => {
+                games={completing ? [completing] : null}
+                onClose={() => {
+                    // Se quita de la lista al cerrar, tras la celebración: si era la última, el panel desaparece con el diálogo.
+                    if (completedRef.current !== null) resolved(completedRef.current)
+                    completedRef.current = null
                     setCompleting(null)
-                    resolved(appid)
+                }}
+                onSaved={([s]) => {
+                    completedRef.current = s.appid
                 }}
             />
         </section>
