@@ -198,8 +198,14 @@ function Biblioteca() {
         })
     }, [router])
 
-    // Sin ?estado= se abre la lista de inicio (📌) o, si no hay, "Todos".
-    const tab: LibraryTab = param ?? home?.tab ?? 'todos'
+    // La bandeja tiene su propia página (/biblioteca/bandeja): ?estado=bandeja lleva allí.
+    useEffect(() => {
+        if (param === 'bandeja') router.replace('/biblioteca/bandeja')
+    }, [param, router])
+
+    // Sin ?estado= se abre la lista de inicio (📌) o, si no hay, "Todos". La bandeja no puede ser lista de inicio.
+    const homeTab = home?.tab === 'bandeja' ? null : home?.tab
+    const tab: LibraryTab = (param === 'bandeja' ? null : param) ?? homeTab ?? 'todos'
 
     // Al cambiar de lista (también con atrás/adelante): la de inicio abre con su orden, filtros y vista; el resto, con
     // su orden por defecto y sin filtros.
@@ -346,7 +352,11 @@ function Biblioteca() {
                         </div>
                     ))}
                     <div className="lib-rail__group lib-rail__group--tray">
-                        <RailItem tab="bandeja" count={counts.bandeja} current={tab === 'bandeja'} pinned={home?.tab === 'bandeja'} onSelect={changeTab} />
+                        <Link href="/biblioteca/bandeja" className={`lib-rail__item ${listClass('bandeja')} lib-rail__item--tray`}>
+                            <TabIcon tab="bandeja" />
+                            <span className="lib-rail__label">{TAB_LABELS.bandeja}</span>
+                            <span className="lib-rail__count">{counts.bandeja}</span>
+                        </Link>
                     </div>
                 </nav>
 
@@ -360,11 +370,6 @@ function Biblioteca() {
                             <p>{TAB_HINTS[tab]}</p>
                         </div>
                         <div className="lib-listhead__actions">
-                            {tab === 'bandeja' && counts.bandeja > 0 && (
-                                <Button size="sm" asChild>
-                                    <Link href="/biblioteca/bandeja">Clasificar uno a uno</Link>
-                                </Button>
-                            )}
                             <div className="hg-seg" role="group" aria-label="Vista">
                                 <button type="button" className="hg-seg__opt" aria-pressed={view === 'lista'} onClick={() => changeView('lista')} title="Lista">
                                     <List aria-hidden />
@@ -590,7 +595,7 @@ function Biblioteca() {
                                         Quitar filtros
                                     </Button>
                                 </>
-                            ) : counts.classified === 0 && tab !== 'bandeja' ? (
+                            ) : counts.classified === 0 ? (
                                 <>
                                     <p>Aún no has clasificado ningún juego.</p>
                                     <Button variant="secondary" asChild>
@@ -599,8 +604,6 @@ function Biblioteca() {
                                         </Link>
                                     </Button>
                                 </>
-                            ) : tab === 'bandeja' ? (
-                                <p>No queda nada en la bandeja: todo está clasificado.</p>
                             ) : (
                                 <p>No tienes juegos en {TAB_LABELS[tab].toLowerCase()}.</p>
                             )}
@@ -661,7 +664,7 @@ function RailItem({
     return (
         <button
             type="button"
-            className={`lib-rail__item ${listClass(tab)}${tab === 'bandeja' ? ' lib-rail__item--tray' : ''}`}
+            className={`lib-rail__item ${listClass(tab)}`}
             aria-current={current ? 'page' : undefined}
             onClick={() => onSelect(tab)}
         >
