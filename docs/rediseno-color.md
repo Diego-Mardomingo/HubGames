@@ -176,14 +176,17 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
 
 ### 6. Estadísticas
 
-- [ ] **Estadísticas del año** — `/estadisticas` · `src/app/estadisticas/page.tsx`, `YearView.tsx`, `stats.css`
+- [x] **Estadísticas del año** — `/estadisticas` · `src/app/estadisticas/page.tsx`, `YearView.tsx`, `stats.css`
   - Hoy: horas jugadas, logros por mes, completados, tu nota, notas, lo que más jugaste, géneros, juegos al 100 %.
   - Ideas: gráficas con la paleta de listas (juegos por estado), notas con la escala `--sc-*`, logros por mes apilados por rareza, tiles de cifras como la ficha. Seguir el skill `dataviz` para los gráficos.
   - Animación: barras y donuts que crecen al entrar en pantalla, cifras que cuentan, transición entre años con fundido cruzado, tooltips que aparecen sin salto.
-- [ ] **Resumen anual (Wrapped)** — `/estadisticas/resumen` · `resumen/page.tsx`, `Wrapped.tsx`, y la imagen para compartir `src/app/api/estadisticas/resumen/imagen/route.tsx`
+  - Mockup: `docs/mockups/estadisticas.html` (aprobados los logros por mes B · columnas en cobalto con el reparto del año por rareza como la barra de `/logros`, y el de cada mes en el tooltip y la tabla, y las listas B · barra apilada fina y una fila por lista con icono y nombre que enlaza a su lista; «Tus listas» es la lista de hoy de los juegos con actividad ese año, sin historial; diferencias con el año anterior en gris con flecha; histograma de notas con `Math.floor`; año sin actividad = un solo vacío con acción y sin selector si solo hay un año; sin «Horas por mes» ni tile de «Mejor racha»)
+  - Hecho en la rama `Diego-Mardomingo/rediseno-estadisticas`, commit `d23dee9`. Lógica en `src/lib/stats-year.ts` (`yearView`, `unlocksByMonthRarity`, `sumSplits`, `monthsElapsed`, `listsOfYear`, `ratingTierCounts`, `yearSummary`, `summaryDiff`) con tests; en `src/lib/stats.ts`, solo añadidos: `ratingBucket` (el histograma agrupa por abajo), `YearStats.active` (los appid con actividad) y `StatsUnlock.description` opcional (`loadStatsInput` lo carga). La vista es `YearView.tsx` (cliente) con el gráfico de columnas y su tooltip en `Columns.tsx`; reutiliza `Tile`, `CountUp` (acepta `from` para contar desde la cifra del año anterior), `Segmented`, `StatusChip`/`MarkFlags`, `AchievementItem`, `SyncButton`, la barra `.lg-stack` de `/logros`, `.hg-bar--fill`, `.hg-pop-in` y los paneles y vacíos del Inicio (`.dash-panel`, `.dash-sec__*`, `.dash-empty`). Diferencias con el mockup: el servidor manda todos los años a la vez, así que cambiar de año es inmediato (pushState de `?year=`, atrás y adelante también cambian) y no hay fase «a media opacidad mientras carga»: sale el año en 120 ms y entra el nuevo en 220 ms; los tiles no vuelven a subir al cambiar de año (solo cuentan); los paneles vacíos usan una frase simple dentro del panel; la neutra de «Tus listas» y «Géneros» es el icono gris del Inicio; los logros sin % global cuentan en el total y salen como «Sin dato» en el tooltip y la tabla (no en la barra).
+- 🎨 **Resumen anual (Wrapped)** — `/estadisticas/resumen` · `resumen/page.tsx`, `Wrapped.tsx`, y la imagen para compartir `src/app/api/estadisticas/resumen/imagen/route.tsx`
   - Hoy: horas, juego del año, top 5, logro más raro, mejor racha, en números, compartir.
   - Ideas: es la página más «de celebración»: aquí cabe más presencia del color (logro más raro con su rareza a lo grande, juego del año con imagen grande como la ficha, top 5 con su nota en color). La imagen OG debe seguir el mismo diseño (solo valores escritos, sin variables).
   - Animación: la página con más movimiento de la web: bloques que se revelan uno a uno al hacer scroll, horas que cuentan, el logro más raro con su destello de rareza, top 5 que aparece en orden inverso (del 5 al 1).
+  - Mockup: `docs/mockups/resumen-anual.html` (pendiente de visto bueno)
 
 ### 7. Cuenta
 
