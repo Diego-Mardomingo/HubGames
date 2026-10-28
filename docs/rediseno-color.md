@@ -156,10 +156,12 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
   - Hoy: progreso, puntos por rareza, conseguidos por rareza y filtros; ya usa rarezas.
   - Ideas: alinearla con la sección de logros de la ficha (anillo, columnas por rareza), cabecera con la cápsula, el estado del juego y vuelta a la ficha; filtros con el color de cada rareza.
   - Animación: anillo de progreso que se rellena, filtros con fondo activo deslizante y la lista que se reordena (no salta) al filtrar.
-- [ ] **Historial de logros** — `/logros/historial` · `src/app/logros/historial/page.tsx`
+- [x] **Historial de logros** — `/logros/historial` · `src/app/logros/historial/page.tsx`
   - Hoy: mapa de desbloqueos por día, rachas, línea temporal por mes y día.
   - Ideas: cada desbloqueo de la línea temporal con su rareza (punto o franja), resumen por mes con reparto de rareza, racha actual y mejor racha como tiles.
   - Animación: mapa que se pinta, racha con una llama o indicador que se enciende, meses que se despliegan al hacer scroll o al pulsar.
+  - Mockup: `docs/mockups/historial-logros.html` (aprobados los meses B · tarjetas plegables con su resumen, abierto el más reciente y de 6 en 6 con «Ver meses anteriores», y el día A · detalle con `AchievementItem` y la hora en vez de la fecha; racha actual en cobalto con su llama y el aviso ámbar «Consigue uno hoy para no perderla» si viene de ayer; hitos y sello del 100 % en la línea; mapa con el patrón de `ActivityHeatmap` en modo año, pulsable y con el selector de año; «Ver N más» a partir de 5 logros de un juego en un día)
+  - Hecho en la rama `Diego-Mardomingo/rediseno-historial-logros`, commit `ffa0458`. La vista pasa a `src/app/logros/historial/HistorialView.tsx` con su `historial.css` (`.hi-*`); se añaden `byMonth`, `tallyRarity`, `daySummary`, `monthSummary`, `notableRarities`, `busiestDay`, `yearSummary`, `streakAtRisk`, `streakIndex`, `perfectDays`, `milestonesByDay` y `yearHeatmap` en `src/lib/achievement-history.ts`. `ActivityHeatmap` acepta un modo «año» (casillas pulsables con `onPick`, `decorate`, tooltip propio, letras de los días, `out`/`hasToday` en el mapa); `AchievementItem` acepta `showTime` y `Milestones.tsx` exporta `seriesOf`. Sale de `achievements.css` el CSS viejo del historial (`.heatmap*`, `.timeline*`, `.tl-*`).
 
 ### 5. Wishlist y precios
 
