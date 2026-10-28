@@ -197,3 +197,187 @@ export function nextOption(tried: readonly boolean[], from: number, dir: 1 | -1)
     }
     return -1
 }
+
+// ── Tus estadísticas e historial (portada de /judi) ──
+
+/** Cómo quedó un día: acertado, fallado, empezado sin terminar o sin jugar. */
+export type JudiDayStatus = 'won' | 'lost' | 'progress' | 'new'
+
+/** Filtros del historial: todos o un estado (Pendientes se parte en «En curso» y «Sin jugar»). */
+export type JudiFilter = 'all' | JudiDayStatus
+export const JUDI_FILTERS: readonly JudiFilter[] = ['all', 'won', 'lost', 'progress', 'new']
+export const JUDI_FILTER_LABELS: Record<JudiFilter, string> = {
+    all: 'Todos',
+    won: 'Acertados',
+    lost: 'Fallados',
+    progress: 'En curso',
+    new: 'Sin jugar',
+}
+
+/** Lo mínimo de un día para las cifras: su fecha (AAAA-MM-DD), cómo quedó y cuántos intentos gastaste (fase1..fase6). */
+export type JudiStatDay = { date: string; status: JudiDayStatus; failed: number }
+
+export function judiDayStatus(p: { completado?: boolean | null; fase6?: boolean | null }, failed: number): JudiDayStatus {
+    if (p.completado) return 'won'
+    if (p.fase6) return 'lost'
+    return failed > 0 ? 'progress' : 'new'
+}
+
+/** `fecha` de la lista (DD-MM-AAAA) a AAAA-MM-DD; null si no se entiende. */
+export function judiIsoDate(fecha: string): string | null {
+    const m = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(fecha.trim())
+    if (!m) return null
+    return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`
+}
+
+/** Puntos de un día: 6 menos los intentos gastados (mínimo 1) si lo acertaste; 0 si no (como `getPointsForRecord`). */
+export function judiDayPoints(day: Pick<JudiStatDay, 'status' | 'failed'>): number {
+    return day.status === 'won' ? pointsAtStake(day.failed) : 0
+}
+
+export type JudiStats = {
+    wins: number
+    losses: number
+    progress: number
+    unplayed: number
+    /** Terminados (acertados + fallados). */
+    played: number
+    points: number
+    /** % de acierto sobre los terminados, redondeado. */
+    accuracy: number
+    /** Intento medio en el que aciertas (1–6); null sin aciertos. */
+    avgAttempt: number | null
+    /** Aciertos en el intento 1..6. */
+    dist: number[]
+    streak: number
+    /** Días de la racha actual, del más reciente al más antiguo. */
+    streakDates: string[]
+    streakFrom: string | null
+    best: number
+    bestDates: string[]
+    bestFrom: string | null
+    bestTo: string | null
+    /** La mejor racha es la actual. */
+    bestIsCurrent: boolean
+    /** Hay racha y el de hoy está sin terminar: si no lo aciertas, se pierde. */
+    atRisk: boolean
+}
+
+/**
+ * Cifras de tu JUDI. La racha cuenta días de JUDI seguidos acertados (por la fecha del JUDI, juegues cuando juegues):
+ * un día pasado en curso o sin jugar la corta; el de hoy sin terminar no (pero la pone en riesgo). Los días que no
+ * hubo JUDI no están en la lista y no cortan nada.
+ */
+export function judiStats(days: readonly JudiStatDay[], today: string): JudiStats {
+    const asc = [...days].sort((a, b) => a.date.localeCompare(b.date))
+    let wins = 0
+    let losses = 0
+    let progress = 0
+    let unplayed = 0
+    let points = 0
+    let attemptsSum = 0
+    const dist = [0, 0, 0, 0, 0, 0]
+    for (const d of asc) {
+        if (d.status === 'won') {
+            wins++
+            points += judiDayPoints(d)
+            const i = Math.min(Math.max(0, d.failed), JUDI_ATTEMPTS - 1)
+            attemptsSum += i + 1
+            dist[i]++
+        } else if (d.status === 'lost') losses++
+        else if (d.status === 'progress') progress++
+        else unplayed++
+    }
+
+    const last = asc[asc.length - 1]
+    const todayOpen = Boolean(last && last.date === today && (last.status === 'new' || last.status === 'progress'))
+    const streakDates: string[] = []
+    for (let i = asc.length - 1; i >= 0; i--) {
+        const d = asc[i]
+        if (d.date === today && todayOpen) continue
+        if (d.status !== 'won') break
+        streakDates.push(d.date)
+    }
+
+    let run: string[] = []
+    let bestDates: string[] = []
+    for (const d of asc) {
+        run = d.status === 'won' ? [...run, d.date] : []
+        if (run.length > bestDates.length) bestDates = run
+    }
+    const streak = streakDates.length
+    const best = bestDates.length
+    const played = wins + losses
+    return {
+        wins,
+        losses,
+        progress,
+        unplayed,
+        played,
+        points,
+        accuracy: played ? Math.round((wins / played) * 100) : 0,
+        avgAttempt: wins ? attemptsSum / wins : null,
+        dist,
+        streak,
+        streakDates,
+        streakFrom: streak ? streakDates[streak - 1] : null,
+        best,
+        bestDates,
+        bestFrom: best ? bestDates[0] : null,
+        bestTo: best ? bestDates[best - 1] : null,
+        bestIsCurrent: streak > 0 && streak === best && bestDates[best - 1] === streakDates[0],
+        atRisk: streak > 0 && todayOpen,
+    }
+}
+
+export function matchesJudiFilter(day: Pick<JudiStatDay, 'status'>, filter: JudiFilter): boolean {
+    return filter === 'all' || day.status === filter
+}
+
+export function judiFilterCounts(days: readonly Pick<JudiStatDay, 'status'>[]): Record<JudiFilter, number> {
+    const counts: Record<JudiFilter, number> = { all: days.length, won: 0, lost: 0, progress: 0, new: 0 }
+    for (const d of days) counts[d.status]++
+    return counts
+}
+
+export type JudiMonth<T extends JudiStatDay> = {
+    /** AAAA-MM */
+    key: string
+    /** Todos los días del mes (para su barra), del más reciente al más antiguo. */
+    all: T[]
+    /** Los que pasan el filtro. */
+    shown: T[]
+    won: number
+    lost: number
+    progress: number
+}
+
+/** Meses del historial, del más reciente al más antiguo; solo los que tienen algún día con el filtro. */
+export function judiMonths<T extends JudiStatDay>(days: readonly T[], filter: JudiFilter): JudiMonth<T>[] {
+    const desc = [...days].sort((a, b) => b.date.localeCompare(a.date))
+    const byKey = new Map<string, JudiMonth<T>>()
+    for (const d of desc) {
+        const key = d.date.slice(0, 7)
+        let m = byKey.get(key)
+        if (!m) {
+            m = { key, all: [], shown: [], won: 0, lost: 0, progress: 0 }
+            byKey.set(key, m)
+        }
+        m.all.push(d)
+        if (d.status === 'won') m.won++
+        else if (d.status === 'lost') m.lost++
+        else if (d.status === 'progress') m.progress++
+        if (matchesJudiFilter(d, filter)) m.shown.push(d)
+    }
+    return [...byKey.values()].filter((m) => m.shown.length > 0)
+}
+
+/**
+ * Intentos de un día del listado. `attempts` es la lista del servidor (texto = fallo, null = salto) o de localStorage;
+ * undefined = el servidor aún no la manda (sin la migración `hubgames_judi_list_intentos`). Sin orden conocido, cada
+ * no acierto es un fallo sin nombre (`exact: false`), como en la partida. Sin intentos gastados siempre es exacto.
+ */
+export function dayAttempts(attempts: readonly (string | null)[] | null | undefined, failed: number): { attempts: JudiAttempt[]; names: string[]; exact: boolean } {
+    const h = attemptHistory({ attempts: attempts ?? null, failed })
+    return h.attempts.length === 0 ? { ...h, exact: true } : h
+}

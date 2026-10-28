@@ -1340,6 +1340,8 @@ export type Database = {
           header_image: string | null
           id: number
           nombre: string | null
+          /** Migración hubgames_judi_list_intentos (texto = fallo, null = salto). Sin ella, no llega. */
+          attempts?: Json
         }[]
       }
       hubgames_judi_today: {

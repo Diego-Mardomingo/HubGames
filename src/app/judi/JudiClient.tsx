@@ -6,11 +6,16 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase, safeGetUser } from '@/lib/supabase/client'
 import Loader from '@/components/Loader'
-import { getFailedAttempts, getPointsForRecord, type JudiProgressRecord } from '@/lib/judi-ranking'
+import { buildRanking, getFailedAttempts, getPointsForRecord, type JudiProgressRecord } from '@/lib/judi-ranking'
 import {
     attemptHistory,
     attemptSlots,
+    dayAttempts,
     findJudiLocalKey,
+    JUDI_FILTERS,
+    judiDayPoints,
+    judiDayStatus,
+    judiIsoDate,
     JUDI_CHANGED_EVENT,
     judiCaptureUrl,
     parseJudiDay,
@@ -19,6 +24,7 @@ import {
     type JudiAttempt,
     type JudiDay,
     type JudiDayState,
+    type JudiFilter,
     type JudiHints,
     type JudiSlot,
 } from '@/lib/judi'
@@ -26,6 +32,8 @@ import { AttemptPips, JudiStrip, type JudiFx } from './JudiAttempts'
 import JudiGuess, { normalizeGameName } from './JudiGuess'
 import JudiHintList, { hintFor } from './JudiHints'
 import JudiResult from './JudiResult'
+import JudiHome, { type JudiRank } from './JudiHistory'
+import type { JudiHistoryDay } from './JudiDayRow'
 import AnimatedCount from '@/components/AnimatedCount'
 import {
     JUDI_HOME_SCROLL_Y_KEY,
@@ -35,7 +43,7 @@ import {
 } from '@/lib/judi-home-scroll'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import confetti from 'canvas-confetti'
-import { AlertCircle, ArrowLeft, ArrowRight, CalendarX2, Check, ChevronDown, Clock, ImageOff, Maximize2, RefreshCw, X } from 'lucide-react'
+import { AlertCircle, ArrowLeft, ArrowRight, CalendarX2, Clock, ImageOff, Maximize2, RefreshCw } from 'lucide-react'
 import { Dialog } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { formatHmsCountdown } from '@/lib/judi-maintenance'
@@ -56,6 +64,8 @@ type GameRecord = {
     fase5?: boolean
     header_image?: string | null
     puntos?: number
+    /** Intentos de la lista en orden (texto = fallo, null = salto); undefined = el servidor aún no los manda. */
+    attempts?: (string | null)[]
 }
 
 type GameData = {
@@ -71,18 +81,6 @@ type JudiProgress = JudiProgressRecord & {
     nombre?: string | null
     header_image?: string | null
     appid?: number | null
-}
-
-type MonthGroup = {
-    key: string
-    label: string
-    games: GameRecord[]
-}
-
-type YearGroup = {
-    year: string
-    label: string
-    months: MonthGroup[]
 }
 
 const JUDI_ACCORDION_SESSION_KEY = 'judi_list_accordion'
@@ -134,65 +132,6 @@ function writeAccordionSession(state: AccordionSession) {
     sessionStorage.setItem(JUDI_ACCORDION_SESSION_KEY, JSON.stringify(state))
 }
 
-function getCurrentMonthKey(): string {
-    const d = new Date()
-    const y = d.getFullYear()
-    const m = String(d.getMonth() + 1).padStart(2, '0')
-    return `${y}-${m}`
-}
-
-function getMonthLabelOnly(monthKey: string) {
-    if (monthKey === 'sin-fecha') return 'Sin fecha'
-    const parts = monthKey.split('-')
-    if (parts.length !== 2) return monthKey
-    const [yyyy, mm] = parts
-    const monthDate = new Date(Number(yyyy), Number(mm) - 1, 1)
-    return monthDate.toLocaleDateString('es-ES', { month: 'long' })
-}
-
-function buildYearGroups(games: GameRecord[]): { singleYear: boolean; yearGroups: YearGroup[] } {
-    const byYear = new Map<string, Map<string, GameRecord[]>>()
-
-    for (const game of games) {
-        const parsed = parseLegacyDate(game.fecha)
-        if (!parsed) {
-            if (!byYear.has('sin-fecha')) byYear.set('sin-fecha', new Map())
-            const months = byYear.get('sin-fecha')!
-            if (!months.has('sin-fecha')) months.set('sin-fecha', [])
-            months.get('sin-fecha')!.push(game)
-            continue
-        }
-        const y = String(parsed.getFullYear())
-        const mk = getMonthKey(game.fecha)
-        if (!byYear.has(y)) byYear.set(y, new Map())
-        const months = byYear.get(y)!
-        if (!months.has(mk)) months.set(mk, [])
-        months.get(mk)!.push(game)
-    }
-
-    const yearKeys = [...byYear.keys()].sort((a, b) => {
-        if (a === 'sin-fecha') return 1
-        if (b === 'sin-fecha') return -1
-        return b.localeCompare(a)
-    })
-
-    const singleYear = yearKeys.length <= 1
-
-    const yearGroups: YearGroup[] = yearKeys.map((year) => {
-        const monthMap = byYear.get(year)!
-        const monthKeys = [...monthMap.keys()].sort((a, b) => b.localeCompare(a))
-        const months: MonthGroup[] = monthKeys.map((key) => ({
-            key,
-            label: getMonthLabelOnly(key),
-            games: monthMap.get(key)!.sort((a, b) => b.id - a.id),
-        }))
-        const label = year === 'sin-fecha' ? 'Sin fecha' : year
-        return { year, label, months }
-    })
-
-    return { singleYear, yearGroups }
-}
-
 function parseLegacyDate(date: string) {
     const parts = date.split('-')
     if (parts.length !== 3) return null
@@ -200,20 +139,6 @@ function parseLegacyDate(date: string) {
     const dateObj = new Date(Number(yyyy), Number(mm) - 1, Number(dd))
     if (Number.isNaN(dateObj.getTime())) return null
     return dateObj
-}
-
-function getMonthKey(date: string) {
-    const parsed = parseLegacyDate(date)
-    if (!parsed) return 'sin-fecha'
-    const yyyy = parsed.getFullYear()
-    const mm = String(parsed.getMonth() + 1).padStart(2, '0')
-    return `${yyyy}-${mm}`
-}
-
-function formatShortDate(date: string) {
-    const parsed = parseLegacyDate(date)
-    if (!parsed) return date
-    return parsed.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
 }
 
 /** Calendario del juego del día: medianoche en España (península, Canarias incluidas en la misma zona). */
@@ -324,12 +249,32 @@ const JUDI_ATTEMPT_SLOTS = 6
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const
 
-/** Intentos de un día del listado: solo sabemos cuántos fallaste (fase1..fase6), sin orden ni saltos. */
+/** Intentos de un día del listado: en orden si la lista los trae; si no, tantos fallos sin orden como fases marcadas. */
 function recordSlots(game: GameRecord): JudiSlot[] {
     const failed = getFailedAttempts(game as JudiProgressRecord)
     const state: JudiDayState = game.completado ? 'won' : game.fase6 ? 'lost' : 'playing'
-    const attempts: JudiAttempt[] = Array.from({ length: failed }, () => ({ kind: 'miss', name: null }))
-    return attemptSlots(state, attempts)
+    return attemptSlots(state, dayAttempts(game.attempts, failed).attempts)
+}
+
+/** Un día de la lista con lo que necesitan las cifras y la fila del historial. */
+function historyDay(game: GameRecord): JudiHistoryDay | null {
+    const date = judiIsoDate(game.fecha)
+    if (!date) return null
+    const failed = getFailedAttempts(game as JudiProgressRecord)
+    const status = judiDayStatus(game, failed)
+    const h = dayAttempts(game.attempts, failed)
+    return {
+        id: game.id,
+        date,
+        status,
+        failed,
+        nombre: game.nombre ?? null,
+        headerImage: game.header_image ?? null,
+        points: judiDayPoints({ status, failed }),
+        attempts: h.attempts,
+        names: h.names,
+        exact: h.exact,
+    }
 }
 
 /** Historial de intentos de la partida abierta. */
@@ -357,51 +302,6 @@ function MysteryArt({ big = false }: { big?: boolean }) {
         <div className={`jd-mystery${big ? ' jd-mystery--big' : ''}`} aria-hidden>
             <span>?</span>
         </div>
-    )
-}
-
-function GameTile({ game, onPlay }: { game: GameRecord; onPlay: (game: GameRecord) => void }) {
-    const status = getTileStatus(game)
-    const finished = status === 'won' || status === 'lost'
-    const isToday = isJudiGameForCurrentDailyDate(game)
-    const title = finished ? game.nombre ?? STATUS_LABEL[status] : STATUS_LABEL[status]
-
-    return (
-        <li>
-            <button
-                type="button"
-                data-game-row
-                className={`jd-tile jd-tile--${status}${isToday ? ' is-today' : ''}`}
-                onClick={() => onPlay(game)}
-                aria-label={`JUDI #${game.id}, ${formatShortDate(game.fecha)}: ${title}${finished && game.nombre ? ` (${STATUS_LABEL[status].toLowerCase()})` : ''}`}
-            >
-                <span className="jd-tile__art">
-                    {finished && game.header_image ? (
-                        <img src={game.header_image} alt="" loading="lazy" draggable={false} />
-                    ) : (
-                        <MysteryArt />
-                    )}
-                </span>
-                <span className="jd-tile__body">
-                    <span className="jd-tile__meta">
-                        {isToday ? <b>Hoy</b> : formatShortDate(game.fecha)} · #{game.id}
-                    </span>
-                    <span className="jd-tile__title">{title}</span>
-                    <span className="jd-tile__foot">
-                        {finished ? (
-                            <span className={`jd-tile__state jd-tile__state--${status}`}>
-                                {status === 'won' ? <Check size={13} strokeWidth={2.75} aria-hidden /> : <X size={13} strokeWidth={2.75} aria-hidden />}
-                                {status === 'won' ? `+${game.puntos ?? 0} pts` : '0 pts'}
-                            </span>
-                        ) : status === 'progress' ? (
-                            <AttemptPips slots={recordSlots(game)} size="sm" />
-                        ) : (
-                            <span className="jd-tile__play">Jugar</span>
-                        )}
-                    </span>
-                </span>
-            </button>
-        </li>
     )
 }
 
@@ -535,28 +435,31 @@ function TodayCard({
     )
 }
 
-type ListFilter = 'all' | 'pending' | 'won' | 'lost'
-
-const LIST_FILTERS: { id: ListFilter; label: string }[] = [
-    { id: 'all', label: 'Todos' },
-    { id: 'pending', label: 'Pendientes' },
-    { id: 'won', label: 'Acertados' },
-    { id: 'lost', label: 'Fallados' },
-]
-
 const JUDI_FILTER_SESSION_KEY = 'judi_list_filter'
 
-function readFilterSession(): ListFilter {
+function readFilterSession(): JudiFilter {
     if (typeof window === 'undefined') return 'all'
     const raw = sessionStorage.getItem(JUDI_FILTER_SESSION_KEY)
-    return raw === 'pending' || raw === 'won' || raw === 'lost' ? raw : 'all'
+    return (JUDI_FILTERS as readonly string[]).includes(raw ?? '') ? (raw as JudiFilter) : 'all'
 }
 
-function matchesFilter(game: GameRecord, filter: ListFilter) {
-    if (filter === 'all') return true
-    if (filter === 'won') return Boolean(game.completado)
-    if (filter === 'lost') return Boolean(game.fase6 && !game.completado)
-    return !game.completado && !game.fase6
+/** Hoy en Madrid (AAAA-MM-DD), el día del JUDI. */
+function judiTodayIso(): string {
+    return formatYmdInTimeZone(new Date(), JUDI_DAILY_TZ)
+}
+
+/** Tu puesto en el ranking (las mismas filas y la misma cuenta que /ranking). */
+async function loadRank(userId: string): Promise<JudiRank> {
+    const rows: JudiProgressRecord[] = []
+    for (let from = 0; ; from += 1000) {
+        const { data, error } = await supabase.rpc('hubgames_judi_ranking_rows').range(from, from + 999)
+        if (error) return null
+        rows.push(...((data ?? []) as JudiProgressRecord[]))
+        if (!data || data.length < 1000) break
+    }
+    const ranking = buildRanking(rows)
+    const i = ranking.findIndex((r) => r.userId === userId)
+    return i < 0 ? null : { position: i + 1, total: ranking.length }
 }
 
 function formatLongDate(date: string) {
@@ -613,11 +516,10 @@ export default function JudiClient() {
     /** El listener de scroll solo depende de [view]; estos refs evitan pisar la Y al mostrar el Loader de startJuego. */
     const loadingRef = useRef(loading)
     const selectedGameRef = useRef(selectedGame)
-    const [accordion, setAccordion] = useState<{ openYears: string[]; openMonths: string[] }>({
-        openYears: [],
-        openMonths: [],
-    })
-    const [listFilter, setListFilter] = useState<ListFilter>(() => readFilterSession())
+    /** Meses abiertos del historial (AAAA-MM). */
+    const [openMonths, setOpenMonths] = useState<string[]>([])
+    const [listFilter, setListFilter] = useState<JudiFilter>(() => readFilterSession())
+    const [rank, setRank] = useState<JudiRank>(undefined)
     /** Contador para el destello rojo de la captura al fallar. */
     const [flashKey, setFlashKey] = useState(0)
     const fxCounter = useRef(0)
@@ -627,34 +529,18 @@ export default function JudiClient() {
 
     const dailyCountdownMs = useNextDailyCountdown()
 
-    const visibleGames = useMemo(() => games.filter((g) => matchesFilter(g, listFilter)), [games, listFilter])
-    const { singleYear, yearGroups } = useMemo(() => buildYearGroups(visibleGames), [visibleGames])
+    const historyDays = useMemo(() => games.map(historyDay).filter((d): d is JudiHistoryDay => d !== null), [games])
+    const todayIso = judiTodayIso()
 
-    const stats = useMemo(() => {
-        let points = 0
-        let wins = 0
-        let losses = 0
-        for (const g of games) {
-            if (g.completado) {
-                wins++
-                points += g.puntos ?? 0
-            } else if (g.fase6) {
-                losses++
-            }
-        }
-        // Racha: días consecutivos acertados hacia atrás (el de hoy sin jugar no la rompe).
-        const byDateDesc = [...games].sort(
-            (a, b) => (parseLegacyDate(b.fecha)?.getTime() ?? 0) - (parseLegacyDate(a.fecha)?.getTime() ?? 0)
-        )
-        let streak = 0
-        for (const g of byDateDesc) {
-            if (isJudiGameForCurrentDailyDate(g) && !g.completado && !g.fase6) continue
-            if (!g.completado) break
-            streak++
-        }
-        const played = wins + losses
-        return { points, wins, losses, streak, accuracy: played > 0 ? Math.round((wins / played) * 100) : 0 }
-    }, [games])
+    /** Abre o cierra un mes; lo que abras se recuerda durante la sesión. */
+    const toggleMonth = useCallback((key: string, open: boolean) => {
+        setOpenMonths((prev) => {
+            if (prev.includes(key) === open) return prev
+            const next = open ? [...prev, key] : prev.filter((k) => k !== key)
+            writeAccordionSession({ openYears: [], openMonths: next, userModified: true })
+            return next
+        })
+    }, [])
 
     useEffect(() => {
         void loadUserAndGames()
@@ -674,55 +560,18 @@ export default function JudiClient() {
         return () => clearTimeout(timer)
     }, [])
 
-    /** useLayoutEffect: el listado depende de meses/años abiertos; si esto corre después del paint, restore scroll usa altura errónea. */
+    /** useLayoutEffect: el listado depende de los meses abiertos; si esto corre después del paint, restore scroll usa altura errónea. */
     useLayoutEffect(() => {
         if (games.length === 0) return
-        const { singleYear: oneYear, yearGroups: groups } = buildYearGroups(games)
-        const validMonthKeys = new Set(groups.flatMap((y) => y.months.map((m) => m.key)))
-        const validYearKeys = new Set(groups.map((y) => y.year))
-
+        const valid = new Set(games.map((g) => judiIsoDate(g.fecha)?.slice(0, 7)).filter(Boolean))
         const stored = readAccordionSession()
         if (stored?.userModified) {
-            setAccordion({
-                openYears: (stored.openYears ?? []).filter((y) => validYearKeys.has(y)),
-                openMonths: (stored.openMonths ?? []).filter((m) => validMonthKeys.has(m)),
-            })
+            setOpenMonths(stored.openMonths.filter((m) => valid.has(m)))
             return
         }
-
-        const currentMonth = getCurrentMonthKey()
-        const currentYearStr = String(new Date().getFullYear())
-
-        let defaultMonths: string[] = []
-        if (validMonthKeys.has(currentMonth)) {
-            defaultMonths = [currentMonth]
-        } else {
-            const inCurrentYear = [...validMonthKeys]
-                .filter((k) => k !== 'sin-fecha' && k.startsWith(`${currentYearStr}-`))
-                .sort((a, b) => b.localeCompare(a))
-            if (inCurrentYear[0]) {
-                defaultMonths = [inCurrentYear[0]]
-            } else {
-                const sorted = [...validMonthKeys].sort((a, b) => b.localeCompare(a))
-                if (sorted[0]) defaultMonths = [sorted[0]]
-            }
-        }
-
-        let defaultYears: string[] = []
-        if (!oneYear) {
-            if (validYearKeys.has(currentYearStr)) {
-                defaultYears = [currentYearStr]
-            } else if (defaultMonths.length > 0) {
-                defaultYears = [...new Set(defaultMonths.map((m) => m.split('-')[0]!))].filter((y) =>
-                    validYearKeys.has(y)
-                )
-            }
-        }
-
-        setAccordion({
-            openYears: defaultYears,
-            openMonths: defaultMonths,
-        })
+        const current = judiTodayIso().slice(0, 7)
+        const latest = [...valid].sort().pop()
+        setOpenMonths(valid.has(current) ? [current] : latest ? [latest] : [])
     }, [games])
 
     const loadUserAndGames = async () => {
@@ -734,6 +583,7 @@ export default function JudiClient() {
         const { data: rows, error: listErr } = await supabase.rpc('hubgames_judi_list')
         setListError(Boolean(listErr))
         const rawLocal = authUser ? {} : getLocalProgressRaw()
+        const rawGuesses = authUser ? {} : getLocalGuessesRaw()
 
         setGames((rows ?? []).map((row) => {
             // Invitados: el servidor no sabe nada; el progreso, el nombre y la portada salen de localStorage.
@@ -753,9 +603,17 @@ export default function JudiClient() {
                 fase5: Boolean(progress.fase5),
                 fase6: Boolean(progress.fase6),
                 puntos: points ?? undefined,
+                // Con la migración hubgames_judi_list_intentos la lista trae los intentos; invitados, los de localStorage.
+                attempts: authUser
+                    ? Array.isArray(row.attempts)
+                        ? row.attempts.map((a) => (typeof a === 'string' && a.trim() ? a : null))
+                        : undefined
+                    : readLocalGuessesForGame(row, rawGuesses),
             }
         }))
         setLoading(false)
+        if (authUser) void loadRank(authUser.id).then(setRank)
+        else setRank(null)
     }
 
     const startJuego = async (game: GameRecord) => {
@@ -1051,7 +909,7 @@ export default function JudiClient() {
 
     // Restaurar scroll una sola vez cuando el listado ya tiene layout (datos + acordeón).
     // useEffect + rAF: al volver de otra ruta Next puede resetear scroll tras el layout; además esperamos a que maxY > 0.
-    const accordionLayoutKey = `${singleYear ? '1' : '0'}|${accordion.openYears.join('\u0001')}|${accordion.openMonths.join('\u0001')}`
+    const accordionLayoutKey = openMonths.join('\u0001')
     useEffect(() => {
         if (view !== 'start' || loading || games.length === 0) return
         if (homeScrollRestoreDoneRef.current) return
@@ -1063,7 +921,7 @@ export default function JudiClient() {
         }
 
         const maxYInitial = getMaxScrollY()
-        if (maxYInitial < 1 && accordion.openMonths.length === 0) {
+        if (maxYInitial < 1 && openMonths.length === 0) {
             return
         }
 
@@ -1113,36 +971,6 @@ export default function JudiClient() {
 
     const todayGame = games.find((g) => isJudiGameForCurrentDailyDate(g)) ?? null
 
-    const toggleYear = (year: string) => {
-        setAccordion((prev) => {
-            const openYears = prev.openYears.includes(year)
-                ? prev.openYears.filter((y) => y !== year)
-                : [...prev.openYears, year]
-            const next = { ...prev, openYears }
-            writeAccordionSession({
-                openYears: next.openYears,
-                openMonths: next.openMonths,
-                userModified: true,
-            })
-            return next
-        })
-    }
-
-    const toggleMonth = (monthKey: string) => {
-        setAccordion((prev) => {
-            const openMonths = prev.openMonths.includes(monthKey)
-                ? prev.openMonths.filter((k) => k !== monthKey)
-                : [...prev.openMonths, monthKey]
-            const next = { ...prev, openMonths }
-            writeAccordionSession({
-                openYears: next.openYears,
-                openMonths: next.openMonths,
-                userModified: true,
-            })
-            return next
-        })
-    }
-
     const goBack = () => {
         setCaptureZoomOpen(false)
         setView('start')
@@ -1164,14 +992,7 @@ export default function JudiClient() {
         selectedGame && selectedGame.captureCount > 0 ? `${judiCaptureUrl(selectedGame.juego.id, phase)}${captureRetry ? `?r=${captureRetry}` : ''}` : undefined
     const currentCapture = captureUrl(activeViewedPhase)
 
-    const filterCounts: Record<ListFilter, number> = {
-        all: games.length,
-        pending: games.filter((g) => matchesFilter(g, 'pending')).length,
-        won: stats.wins,
-        lost: stats.losses,
-    }
-
-    const changeFilter = (next: ListFilter) => {
+    const changeFilter = (next: JudiFilter) => {
         setListFilter(next)
         sessionStorage.setItem(JUDI_FILTER_SESSION_KEY, next)
     }
@@ -1180,13 +1001,6 @@ export default function JudiClient() {
         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
         void startJuego(game)
     }
-
-    const statTiles = [
-        { label: 'puntos', value: stats.points.toLocaleString('es-ES') },
-        { label: 'acertados', value: stats.wins.toLocaleString('es-ES') },
-        { label: stats.streak === 1 ? 'día de racha' : 'días de racha', value: stats.streak.toLocaleString('es-ES') },
-        { label: 'de precisión', value: `${stats.accuracy} %` },
-    ]
 
     return (
         <div className="jd">
@@ -1213,149 +1027,38 @@ export default function JudiClient() {
                         <NoTodayCard last={games[0] ?? null} onPlay={(g) => void startJuego(g)} />
                     ) : null}
 
-                    <dl className="jd-kpis" aria-label="Tus estadísticas">
-                        {statTiles.map((tile) => (
-                            <div key={tile.label} className="jd-kpi">
-                                <dt>{tile.label}</dt>
-                                <dd>{tile.value}</dd>
-                            </div>
-                        ))}
-                    </dl>
-
-                    {!user && (
-                        <div className="jd-nudge">
-                            <p>
-                                <strong>Guarda tu progreso y compite.</strong> Tus partidas se guardan solo en este dispositivo hasta que inicies sesión.
-                            </p>
-                            <Button asChild size="sm" variant="secondary">
-                                <Link
-                                    href="/login"
-                                    onPointerDownCapture={() => persistJudiHomeScrollYFromWindow()}
-                                    onClick={() => persistJudiHomeScrollYFromWindow()}
-                                >
-                                    Iniciar sesión
-                                </Link>
-                            </Button>
-                        </div>
-                    )}
-
-                    <section className="hg-section jd-history" aria-labelledby="jd-history-title">
-                        <div className="jd-history__head">
-                            <div className="hg-section__head">
-                                <h2 id="jd-history-title" className="hg-section__title">
-                                    Historial <span className="hg-section__count">{games.length} juegos</span>
-                                </h2>
-                                <p className="hg-section__hint">Puedes jugar cualquier día pasado.</p>
-                            </div>
-                            <div className="hg-seg hg-seg--scroll" role="group" aria-label="Filtrar juegos">
-                                {LIST_FILTERS.map((f) => (
-                                    <button
-                                        key={f.id}
-                                        type="button"
-                                        aria-pressed={listFilter === f.id}
-                                        className="hg-seg__opt"
-                                        onClick={() => changeFilter(f.id)}
-                                    >
-                                        {f.label}
-                                        <span className="hg-seg__count">{filterCounts[f.id]}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {yearGroups.length === 0 && (
-                            <div className="hg-empty">
-                                <p>Nada por aquí con este filtro.</p>
-                            </div>
-                        )}
-
-                        {yearGroups.map((yg) => {
-                            const yearOpen = singleYear || accordion.openYears.includes(yg.year)
-                            const yearGames = yg.months.flatMap((m) => m.games)
-                            const yearWon = yearGames.filter((g) => g.completado).length
-                            const monthBlocks = yg.months.map((group) => {
-                                const isOpen = accordion.openMonths.includes(group.key)
-                                const won = group.games.filter((g) => g.completado).length
-                                const lost = group.games.filter((g) => g.fase6 && !g.completado).length
-                                const total = group.games.length
-                                return (
-                                    <div key={group.key} className="jd-month">
-                                        <button
-                                            type="button"
-                                            className={`jd-month__head${isOpen ? ' is-open' : ''}`}
-                                            onClick={() => toggleMonth(group.key)}
-                                            aria-expanded={isOpen}
+                    <JudiHome
+                        days={historyDays}
+                        today={todayIso}
+                        rank={rank}
+                        guest={!user}
+                        filter={listFilter}
+                        onFilter={changeFilter}
+                        openMonths={openMonths}
+                        onToggleMonth={toggleMonth}
+                        onPlay={(id) => {
+                            const g = games.find((x) => x.id === id)
+                            if (g) void startJuego(g)
+                        }}
+                        nudge={
+                            !user && (
+                                <div className="jd-nudge">
+                                    <p>
+                                        <strong>Guarda tu progreso y compite.</strong> Tus partidas se guardan solo en este dispositivo hasta que inicies sesión.
+                                    </p>
+                                    <Button asChild size="sm" variant="secondary">
+                                        <Link
+                                            href="/login"
+                                            onPointerDownCapture={() => persistJudiHomeScrollYFromWindow()}
+                                            onClick={() => persistJudiHomeScrollYFromWindow()}
                                         >
-                                            <ChevronDown size={16} className="jd-chev" aria-hidden />
-                                            <span className="jd-month__label">{group.label}</span>
-                                            <span className="jd-month__bar" aria-hidden>
-                                                <span className="jd-month__bar-won" style={{ width: `${total ? (won / total) * 100 : 0}%` }} />
-                                                <span className="jd-month__bar-lost" style={{ width: `${total ? (lost / total) * 100 : 0}%` }} />
-                                            </span>
-                                            <span className="jd-month__count">
-                                                <b>{won}</b> de {total} acertados
-                                            </span>
-                                        </button>
-                                        <AnimatePresence initial={false}>
-                                            {isOpen && (
-                                                <motion.div
-                                                    key="content"
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    transition={{ height: { duration: 0.25, ease: EASE_OUT }, opacity: { duration: 0.15 } }}
-                                                    style={{ overflow: 'hidden' }}
-                                                >
-                                                    <ul className="jd-tiles">
-                                                        {group.games.map((game) => (
-                                                            <GameTile key={game.id} game={game} onPlay={(g) => void startJuego(g)} />
-                                                        ))}
-                                                    </ul>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </div>
-                                )
-                            })
-                            return (
-                                <div key={yg.year} className="jd-year">
-                                    {!singleYear && (
-                                        <button
-                                            type="button"
-                                            className={`jd-year__head${yearOpen ? ' is-open' : ''}`}
-                                            onClick={() => toggleYear(yg.year)}
-                                            aria-expanded={yearOpen}
-                                        >
-                                            <ChevronDown size={18} className="jd-chev" aria-hidden />
-                                            <span className="jd-year__label">{yg.label}</span>
-                                            <span className="jd-year__meta">
-                                                {yearWon} de {yearGames.length} acertados
-                                            </span>
-                                        </button>
-                                    )}
-                                    {singleYear ? (
-                                        <div className="jd-months">{monthBlocks}</div>
-                                    ) : (
-                                        <AnimatePresence initial={false}>
-                                            {yearOpen && (
-                                                <motion.div
-                                                    key={`y-${yg.year}`}
-                                                    className="jd-months"
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    transition={{ height: { duration: 0.25, ease: EASE_OUT }, opacity: { duration: 0.15 } }}
-                                                    style={{ overflow: 'hidden' }}
-                                                >
-                                                    {monthBlocks}
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    )}
+                                            Iniciar sesión
+                                        </Link>
+                                    </Button>
                                 </div>
                             )
-                        })}
-                    </section>
+                        }
+                    />
                 </>
             ) : (
                 gameLoadError ? (
