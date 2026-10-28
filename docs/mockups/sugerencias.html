@@ -1,0 +1,988 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Panel de sugerencias · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-completado: #1a7743;
+  --st-abandonado: #c7243b; --st-descartado: #6b7280; --st-yajugado: #5c5b06; --st-otros: #931f8f; --st-rejugable: #9c3c08;
+  --st-favorito: #c2255c; --st-sinfinal: #6741d9;
+  --sc-top: #1a7743; --sc-good: #4d7c0f; --sc-mid: #8e5e18; --sc-bad: #c7243b;
+  --deal: #f5c400; --deal-foreground: #2b2100; --tint: 12%;
+  --on-done: #ffffff;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --scrim: rgba(10, 12, 16, 0.55);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* El ámbar como texto se oscurece en claro (como en dashboard.css) */
+  --pause-ink: color-mix(in srgb, var(--st-pausado) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e; --st-descartado: #8a919e; --st-yajugado: #d2cf5c; --st-otros: #eb84f8; --st-rejugable: #ff9a5c;
+  --st-favorito: #f783ac; --st-sinfinal: #b197fc;
+  --sc-top: #4cc97e; --sc-good: #a9d15b; --sc-mid: #f2b53a; --sc-bad: #f26b7e;
+  --deal: #ffd43b; --deal-foreground: #221a00; --tint: 14%;
+  --on-done: #0b1f13;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --scrim: rgba(0, 0, 0, 0.65);
+  --pause-ink: var(--st-pausado);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; color: inherit; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 3px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.note table { border-collapse: collapse; margin: 6px 0 4px; font-size: .875rem; }
+.note th, .note td { padding: 4px 12px 4px 0; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+.note th { color: var(--muted); font-weight: 600; font-size: .8125rem; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 110ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: hidden; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 46ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.vlabel { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.9375rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--surface-2); }
+.keys { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 0; color: var(--muted); font-size: .8125rem; }
+.stage { position: relative; padding: 20px; border-radius: 12px; border: 1px dashed var(--border-hover); background: var(--background); }
+.stage-cap { margin: 0 0 6px; color: var(--muted); font-size: .8125rem; font-weight: 600; }
+.anim-list li { margin: 3px 0; }
+.ph { border-radius: var(--radius-lg); border: 1px dashed var(--border-hover); color: var(--muted); font-size: .8125rem; display: grid; place-items: center; }
+
+/* ══ Navegación (implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; text-align: left; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nv-count { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px 0 6px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; line-height: 1; }
+.nv-count .i { font-size: 12px; stroke-width: 2.4; }
+.nv-count.st-bandeja, .nv-dot.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.nv-count--deal { background: var(--deal); color: var(--deal-foreground); }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-3); color: var(--foreground); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.nv-dot { position: absolute; display: inline-flex; align-items: center; justify-content: center; gap: 2px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; font-size: 0.625rem; font-weight: 700; line-height: 1; box-shadow: 0 0 0 2px var(--ring-bg, var(--background)); }
+.nv-dot.hg-tint { background: color-mix(in srgb, var(--c) calc(var(--tint) + 6%), var(--ring-bg, var(--background))); }
+.nv-dot .i { font-size: 10px; stroke-width: 3; }
+.nv-dot--icon { padding: 0; width: 18px; }
+.m-top { position: absolute; inset: 0 0 auto 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 25; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); --ring-bg: var(--surface); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); background: var(--primary-glow); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+.m-tab .nv-dot { top: -8px; left: calc(50% + 7px); }
+
+/* ══ Piezas compartidas (copia de src/styles/lists.css y globals.css) ══ */
+.st-bandeja { --c: var(--st-bandeja); } .st-pendiente { --c: var(--st-pendiente); } .st-jugando { --c: var(--st-jugando); }
+.st-pausado { --c: var(--st-pausado); } .st-rejugable { --c: var(--st-rejugable); } .st-completado { --c: var(--st-completado); }
+.st-abandonado { --c: var(--st-abandonado); } .st-ya_jugado { --c: var(--st-yajugado); } .st-descartado { --c: var(--st-descartado); }
+.st-otros { --c: var(--st-otros); } .st-favorito { --c: var(--st-favorito); } .st-sin_final { --c: var(--st-sinfinal); }
+.sc-top { --c: var(--sc-top); } .sc-good { --c: var(--sc-good); } .sc-mid { --c: var(--sc-mid); } .sc-bad { --c: var(--sc-bad); }
+.warn { --c: var(--warning); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+:root:not([data-theme='dark']) .hg-tint.st-pausado, :root:not([data-theme='dark']) .hg-tint.warn, :root:not([data-theme='dark']) .hg-tint.sc-mid { color: var(--pause-ink); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; transition: background-color .2s var(--ease-out), border-color .2s var(--ease-out), color .2s var(--ease-out), transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { border-color: var(--border-hover); }
+.btn--ghost { background: transparent; color: var(--muted); }
+.btn--ghost:hover { background: var(--surface-2); color: var(--foreground); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.btn--done { background: var(--st-completado); color: var(--on-done); }
+.btn--done:hover { background: color-mix(in srgb, var(--st-completado) 86%, var(--foreground)); }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px 2px 7px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 13px; }
+.hg-flag { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 999px; font-size: 11px; flex: none; }
+.hg-score { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 26px; height: 20px; padding: 0 5px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+
+/* Contador que salta (AnimatedCount, .hg-count*) */
+.hg-count { display: inline-flex; align-items: center; }
+.hg-count .n { display: inline-block; }
+.hg-count--pop { animation: hg-count-pop .3s var(--ease-out); }
+.hg-count .n.up { animation: hg-count-up .22s var(--ease-out); }
+.hg-count .n.down { animation: hg-count-down .22s var(--ease-out); }
+@keyframes hg-count-pop { 40% { transform: scale(1.18); } }
+@keyframes hg-count-up { from { transform: translateY(70%); opacity: 0; } }
+@keyframes hg-count-down { from { transform: translateY(-70%); opacity: 0; } }
+.hg-enter { animation: hg-enter .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+@keyframes hg-enter { from { opacity: 0; transform: translateY(8px); } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+@keyframes pop-in { from { opacity: 0; transform: scale(.7); } }
+.spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══ Inicio (implementado: dashboard.css) ══ */
+.page { position: absolute; inset: 0 0 0 232px; overflow-y: auto; overflow-x: hidden; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 6rem; }
+.w-mob .page { inset: 56px 0 0 0; }
+.w-mob .page-in { padding: 1.25rem 1rem 7rem; }
+.dash { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.75rem; }
+.w-mob .dash { gap: 1.5rem; }
+.dash-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.page-title { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .page-title { font-size: 1.625rem; }
+.dash-status { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: .4rem 0 0; color: var(--muted); font-size: 0.875rem; }
+.dash-status > span { display: inline-flex; align-items: center; gap: 6px; }
+.dash-status .i { font-size: 15px; color: var(--success); }
+.dash-lists { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1rem; }
+.w-mob .dash-lists { flex-wrap: nowrap; overflow-x: auto; margin: 1rem -1rem 0; padding: 3px 1rem; scrollbar-width: none; }
+.dash-list { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px 0 5px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-size: .8125rem; font-weight: 500; white-space: nowrap; transition: box-shadow .15s, border-color .15s; }
+.w-mob .dash-list { height: 44px; }
+.dash-list:hover { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.dash-list__icon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; font-size: 13px; transition: transform .16s var(--ease-out); }
+.dash-list b { font-weight: 700; color: color-mix(in srgb, var(--c) 85%, var(--foreground)); }
+[data-theme='dark'] .dash-list b { color: var(--c); }
+.dash-list b small { color: var(--muted); font-weight: 500; font-size: .75rem; }
+.dash-list.st-bandeja { border-style: dashed; border-color: color-mix(in srgb, var(--c) 55%, transparent); }
+/* La ficha llega: el atajo de destino se ilumina un instante */
+.dash-list.is-hit { animation: hit .5s var(--ease-out); }
+@keyframes hit { 0% { box-shadow: 0 0 0 0 var(--c); } 30% { box-shadow: 0 0 0 3px var(--c); } 100% { box-shadow: 0 0 0 3px transparent; } }
+.dash-list.is-hit .dash-list__icon { animation: hg-count-pop .3s var(--ease-out); }
+.btn-sync .i { font-size: 15px; }
+
+/* ══════════════════════════════════════════════════════════════════
+   Panel de sugerencias (propuesta): tracker.css · .suggestions / .suggestion*  (aquí .sg-*)
+   ══════════════════════════════════════════════════════════════════ */
+.sg { display: grid; gap: .875rem; min-width: 0; padding: 1.1rem 1.25rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); transform-origin: top; }
+.w-mob .sg { padding: 1rem; gap: .75rem; }
+.sg.is-closing { animation: sg-close .3s var(--ease-out) forwards; }
+@keyframes sg-close { to { opacity: 0; transform: translateY(-6px) scale(.985); } }
+.sg-head { display: flex; align-items: center; gap: .625rem; min-height: 2rem; flex-wrap: wrap; }
+.sg-head__icon { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 8px; background: var(--surface-2); font-size: 16px; }
+.sg-head h2 { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
+.sg-head__count { color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.sg-head__end { margin-left: auto; display: flex; gap: 6px; }
+.w-mob .sg-head__end { display: none; }
+.sg-sum { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px 0 7px; border-radius: 999px; font-size: .75rem; font-weight: 600; white-space: nowrap; }
+.sg-sum .i { font-size: 12px; }
+
+/* Grupo: la pregunta con el icono y el color de la lista de destino */
+.sg-group { display: grid; gap: 6px; }
+.sg-group + .sg-group { margin-top: .5rem; }
+.sg-group[hidden] { display: none; }
+.sg-group__head { display: flex; align-items: center; gap: 8px; margin: 0 0 2px; font-size: .875rem; font-weight: 600; }
+.sg-group__icon { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; font-size: 12px; }
+.sg-group__n { color: var(--muted); font-weight: 500; }
+.sg-group__rule { color: var(--muted); font-size: .75rem; font-weight: 400; margin-left: auto; }
+.w-mob .sg-group__rule { display: none; }
+.sg-list { position: relative; display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+
+/* Fila: franja del color de la lista de destino, cápsula, nombre, prueba con color y contexto */
+.sg-row { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: center; gap: 14px; min-height: 76px; padding: 9px 12px 9px 10px; border: 1px solid transparent; border-radius: var(--radius); background: var(--background); transition: background-color .2s var(--ease-out), border-color .2s var(--ease-out), box-shadow .15s, opacity .2s; }
+.sg-row::before { content: ''; position: absolute; left: -1px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--c); }
+.sg-row:hover, .sg-row:focus-within { box-shadow: 0 0 0 3px var(--cursor); }
+.sg-row.is-going { background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); border-color: color-mix(in srgb, var(--c) 45%, var(--border)); box-shadow: none; pointer-events: none; }
+.sg-row.is-dismissing { pointer-events: none; }
+.sg-row.is-back { animation: hg-enter .32s var(--ease-out) backwards, back-flash 1.2s var(--ease-out); }
+@keyframes back-flash { from { box-shadow: 0 0 0 3px var(--cursor); } }
+.sg-cover { position: relative; width: 112px; height: 52px; overflow: hidden; border-radius: 6px; background: var(--surface-2); }
+.sg-cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sg-main { display: grid; gap: 3px; min-width: 0; }
+.sg-name { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.sg-link { overflow: hidden; font-size: .9375rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; border-radius: 4px; }
+.sg-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+/* La prueba: por qué te lo preguntamos, con el color de lo que demuestra */
+.sg-ev { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-width: 0; font-size: .8125rem; }
+.ev { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.ev b { font-weight: 700; }
+.ev .i { font-size: 14px; }
+.ev--done { color: var(--st-completado); }
+.ev--idle { color: var(--pause-ink); }
+.ev__txt { color: var(--foreground); }
+.ev__txt b { color: inherit; }
+.ev--done .ev__txt b { color: var(--st-completado); }
+.ev--idle .ev__txt b { color: var(--pause-ink); }
+.ev-sub { color: var(--muted); white-space: nowrap; }
+.ev-plus { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; font-size: .75rem; font-weight: 700; }
+/* Anillo de logros (el de la ficha, en pequeño) */
+.ev-ring { width: 18px; height: 18px; rotate: -90deg; flex: none; }
+.ev-ring circle { fill: none; stroke-width: 3.2; }
+.ev-ring .tr { stroke: color-mix(in srgb, var(--c, var(--st-completado)) 20%, transparent); }
+.ev-ring .pr { stroke: var(--c, var(--st-completado)); stroke-linecap: round; stroke-dasharray: 44; }
+.is-entering .ev-ring .pr { animation: ring-in .5s var(--ease-out) backwards; animation-delay: calc(120ms + min(var(--i, 0), 8) * 30ms); }
+@keyframes ring-in { from { stroke-dashoffset: 44; } }
+/* Barra frente a la meta: cobalto hasta llegar, verde al pasarla; la marca es la meta */
+.ev-bar { position: relative; display: inline-block; width: 52px; height: 6px; border-radius: 999px; background: var(--surface-2); flex: none; }
+.ev-bar > span { position: absolute; inset: 0; transform-origin: left; border-radius: inherit; background: var(--primary); transform: scaleX(var(--f)); }
+.ev-bar.is-over > span { background: var(--st-completado); }
+.ev-bar > i { position: absolute; top: -3px; bottom: -3px; width: 2px; border-radius: 1px; background: var(--foreground); opacity: .55; left: calc(var(--m) * 100% - 1px); }
+.is-entering .ev-bar > span { animation: bar-in .45s var(--ease-out) backwards; animation-delay: calc(120ms + min(var(--i, 0), 8) * 30ms); }
+@keyframes bar-in { from { transform: scaleX(0); } }
+/* Contexto: dónde está ahora, horas, puntuaciones con color */
+.sg-ctx { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-width: 0; color: var(--muted); font-size: .75rem; }
+.sg-ctx .hg-chip { padding: 1px 8px 1px 6px; font-size: .6875rem; }
+.sg-ctx .hg-chip .i { font-size: 11px; }
+.sg-m { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.sg-m .i { font-size: 12px; }
+.sg-m b { color: var(--foreground); font-weight: 600; }
+.sg-rev { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px; border-radius: 6px; font-size: .75rem; font-weight: 500; white-space: nowrap; }
+.sg-rev b { font-weight: 700; }
+.sg-rev .i { font-size: 12px; }
+.sg-now { display: inline-flex; align-items: center; gap: 4px; }
+.sg-now > .i { font-size: 12px; }
+
+/* Acciones: la respuesta «sí» con el color y el icono de la lista de destino */
+.sg-acts { display: flex; align-items: center; gap: 6px; }
+.sg-yes { border: 0; }
+.sg-yes:hover { background: color-mix(in srgb, var(--c) calc(var(--tint) + 9%), transparent); }
+.sg-yes .i { transition: transform .18s var(--ease-out); }
+.sg-yes.st-completado .i { transform-origin: 15% 90%; }
+.sg-yes.st-completado:hover .i { animation: wave .5s var(--ease-out); }
+@keyframes wave { 40% { transform: rotate(-12deg); } }
+.sg-yes.st-pausado:hover .i { transform: scale(1.12); }
+.sg-yes.is-loading { pointer-events: none; }
+
+/* Ficha que vuela a su lista */
+.sg-token { position: absolute; z-index: 40; left: 0; top: 0; display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px 0 7px; border-radius: 999px; font-size: .75rem; font-weight: 700; pointer-events: none; background: color-mix(in srgb, var(--c) 22%, var(--surface)); color: var(--c); box-shadow: var(--shadow-lg); transition: transform .44s cubic-bezier(.5, 0, .2, 1), opacity .44s; }
+:root:not([data-theme='dark']) .sg-token.st-pausado { color: var(--pause-ink); }
+.sg-token .i { font-size: 13px; }
+
+/* Aviso con Deshacer */
+.sg-toast { position: absolute; left: 50%; bottom: 24px; z-index: 45; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 32px); padding: 8px 8px 8px 14px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); font-size: .8125rem; translate: -50% 0; animation: toast-in .22s var(--ease-out); }
+.w-desk .sg-toast { left: calc(232px + (100% - 232px) / 2); }
+.w-mob .sg-toast { bottom: 92px; width: calc(100% - 24px); }
+.sg-toast.is-out { animation: toast-out .16s ease-in forwards; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(8px); } }
+.sg-toast__txt { min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.sg-toast__txt .hg-chip { padding: 1px 8px 1px 6px; }
+.sg-toast__txt small { display: block; width: 100%; color: var(--muted); font-size: .75rem; }
+.sg-toast .btn { flex: none; }
+
+/* Todo al día: check que se dibuja antes de que el panel se pliegue */
+.sg-done { display: flex; align-items: center; gap: 10px; padding: 6px 2px; color: var(--muted); font-size: .875rem; animation: fade .2s var(--ease-out); }
+.sg-done__icon { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; font-size: 16px; animation: pop-in .26s var(--ease-out); }
+.sg-done__icon path { stroke-dasharray: 30; animation: draw .3s var(--ease-out) .12s backwards; }
+@keyframes draw { from { stroke-dashoffset: 30; } }
+.sg-done b { color: var(--foreground); }
+
+/* ── Variante B: una a una, en una tarjeta con la pila detrás ── */
+.sb { display: grid; gap: .875rem; padding: 1.1rem 1.25rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.w-mob .sb { padding: 1rem; }
+.sb-stage { position: relative; padding-bottom: 12px; }
+.sb-stage::before, .sb-stage::after { content: ''; position: absolute; left: 14px; right: 14px; bottom: 6px; height: 20px; border-radius: 0 0 var(--radius) var(--radius); background: var(--background); border: 1px solid var(--border); border-top: 0; opacity: .9; }
+.sb-stage::after { left: 28px; right: 28px; bottom: 0; opacity: .6; }
+.sb-stage.is-last::before, .sb-stage.is-last::after { display: none; }
+.sb-stage.is-two::after { display: none; }
+.sb-card { position: relative; z-index: 1; display: grid; grid-template-columns: 184px minmax(0, 1fr); gap: 18px; padding: 14px 16px 14px 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--background); }
+.sb-card::before { content: ''; position: absolute; left: -1px; top: 14px; bottom: 14px; width: 3px; border-radius: 0 3px 3px 0; background: var(--c); }
+.w-mob .sb-card { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 12px; }
+.sb-card.is-in { animation: sb-in .3s var(--ease-out); }
+@keyframes sb-in { from { transform: translateY(14px) scale(.97); opacity: .4; } }
+.sb-card.is-out { transition: transform .32s var(--ease-out), opacity .32s; transform: translateX(110%) rotate(3deg); opacity: 0; }
+.sb-card.is-out-left { transition: transform .26s var(--ease-out), opacity .26s; transform: translateX(-30px); opacity: 0; }
+.sb-card.is-going { background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); border-color: color-mix(in srgb, var(--c) 45%, var(--border)); }
+.sb-cover { width: 184px; height: 86px; overflow: hidden; border-radius: 8px; background: var(--surface-2); }
+.sb-cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.w-mob .sb-top { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; align-items: center; }
+.w-mob .sb-cover { width: 112px; height: 52px; border-radius: 6px; }
+.sb-body { display: grid; gap: 10px; min-width: 0; }
+.sb-q { margin: 0; color: var(--muted); font-size: .8125rem; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.sb-q .i { font-size: 13px; color: var(--c); }
+:root:not([data-theme='dark']) .st-pausado .sb-q .i { color: var(--pause-ink); }
+.sb-name { margin: 0; font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.sb-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.w-mob .sb-name { font-size: 1rem; }
+.sb-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.w-mob .sb-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.w-mob .sb-tiles .sb-tile:nth-child(3) { display: none; }
+.sb-tile { display: grid; gap: 2px; min-width: 0; padding: 9px 11px; border-radius: 10px; background: var(--surface-2); }
+.sb-tile.is-key { background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 35%, transparent); }
+.sb-tile dt { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: .75rem; font-weight: 500; }
+.sb-tile dt .i { font-size: 12px; }
+.sb-tile dd { margin: 0; display: flex; align-items: center; gap: 7px; font-size: 1.125rem; font-weight: 700; }
+.sb-tile.is-key dd { color: var(--c); }
+:root:not([data-theme='dark']) .sb-tile.is-key.st-pausado dd { color: var(--pause-ink); }
+.sb-tile dd small { color: var(--muted); font-size: .75rem; font-weight: 500; }
+.sb-tile .ev-ring { width: 20px; height: 20px; }
+.sb-ctx { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; color: var(--muted); font-size: .75rem; }
+.sb-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.w-mob .sb-acts { display: grid; grid-template-columns: 1fr 1fr; }
+.w-mob .sb-acts .btn { height: 44px; }
+.sb-foot { display: flex; align-items: center; gap: 10px; }
+.sb-dots { display: flex; gap: 6px; }
+.sb-dot { width: 8px; height: 8px; border-radius: 50%; background: color-mix(in srgb, var(--c) 35%, transparent); transition: transform .2s var(--ease-out), background-color .2s; }
+.sb-dot.on { background: var(--c); transform: scale(1.35); }
+.sb-pos { color: var(--muted); font-size: .8125rem; }
+.sb-nav { margin-left: auto; display: flex; gap: 4px; }
+.sb-nav .btn { width: 36px; padding: 0; }
+.w-mob .sb-nav .btn { width: 44px; height: 44px; }
+
+/* ── Móvil ── */
+.w-mob .sg-row { grid-template-columns: 72px minmax(0, 1fr); gap: 4px 12px; align-items: start; padding: 10px; }
+.w-mob .sg-cover { width: 72px; height: 34px; margin-top: 2px; }
+.w-mob .sg-acts { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; margin-top: 8px; }
+.w-mob .sg-acts .btn { height: 44px; }
+.w-mob .sg-ev { gap: 3px 8px; }
+.w-mob .ev { white-space: normal; min-width: 0; }
+.w-mob .sg-ctx .sg-rev span, .w-mob .sg-m--last { display: none; }
+
+/* Diálogo «Completar juego» (aprobado; aquí, resumido) */
+.cd-scrim { position: absolute; inset: 0; z-index: 50; background: var(--scrim); animation: fade .18s var(--ease-out); }
+.cd { position: absolute; z-index: 51; left: 50%; top: 50%; width: 460px; translate: -50% -50%; overflow: hidden; border-top: 3px solid var(--st-completado); border-radius: var(--radius-xl); background: var(--surface); box-shadow: var(--shadow-lg); animation: cd-in .2s var(--ease-out); }
+.w-mob .cd { top: auto; bottom: 0; left: 0; width: 100%; translate: none; border-radius: 18px 18px 0 0; animation: sheet-in .28s var(--ease-out); }
+@keyframes cd-in { from { opacity: 0; transform: scale(.96); } }
+@keyframes sheet-in { from { transform: translateY(100%); } }
+.cd-body { display: grid; gap: 14px; padding: 18px 20px; }
+.cd-top { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; align-items: center; }
+.cd-top h3 { margin: 4px 0 0; font-size: 1.0625rem; }
+.cd-note { margin: 0; padding: 12px; border-radius: 10px; background: var(--surface-2); color: var(--muted); font-size: .8125rem; }
+.cd-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 0 20px 18px; }
+.w-mob .cd-foot .btn { flex: 1; height: 48px; }
+.cd-cel { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 8px; background: var(--surface); text-align: center; animation: fade .16s var(--ease-out); }
+.cd-cel__mark { position: relative; width: 84px; height: 84px; }
+.cd-cel__ring { position: absolute; inset: 0; rotate: -90deg; }
+.cd-cel__ring circle { fill: none; stroke-width: 5; }
+.cd-cel__ring .tr { stroke: color-mix(in srgb, var(--st-completado) 18%, var(--surface)); }
+.cd-cel__ring .pr { stroke: var(--st-completado); stroke-linecap: round; stroke-dasharray: 233; animation: ring .5s var(--ease-out) backwards; }
+@keyframes ring { from { stroke-dashoffset: 233; } }
+.cd-cel__flag { position: absolute; inset: 12px; display: grid; place-items: center; border-radius: 50%; color: var(--st-completado); font-size: 30px; background: color-mix(in srgb, var(--st-completado) var(--tint), var(--surface)); }
+.cd-cel__flag .i { transform-origin: 18% 95%; animation: plant .46s var(--ease-out) .18s backwards; }
+@keyframes plant { 0% { opacity: 0; transform: translateY(-30px) rotate(-16deg); } 55% { opacity: 1; transform: translateY(3px) rotate(4deg); } 78% { transform: translateY(0) rotate(-2deg); } 100% { transform: none; } }
+.cd-cel h3 { margin: 4px 0 0; font-size: 1.25rem; animation: rise .3s var(--ease-out) .3s backwards; }
+.cd-cel p { margin: 0; color: var(--muted); font-size: .875rem; animation: rise .3s var(--ease-out) .36s backwards; }
+
+/* Estados de una fila (galería) */
+.gal { display: grid; gap: 14px; }
+.gal__cap { margin: 0 0 4px; color: var(--muted); font-size: .75rem; font-weight: 600; }
+.gal .sg-row.is-hover { box-shadow: 0 0 0 3px var(--cursor); }
+
+/* Interruptor de movimiento reducido (simula prefers-reduced-motion): anula también los retrasos */
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Panel de sugerencias</h1>
+  <div class="doc-bar__actions">
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p>Hoy el panel «¿Cómo van tus juegos?» del Inicio es una lista gris: cada fila dice «¿Lo has terminado?» o «¿Lo dejas en pausa?», el nombre, las horas y la fecha de la última partida, y dos botones en cobalto y gris. <b>No explica por qué pregunta</b> (¿100 % de logros? ¿has pasado la historia? ¿llevas un mes sin jugar?) y nada indica a qué lista va a ir el juego. La propuesta mantiene exactamente lo que hace (las dos preguntas, «Sí, completado» abre «Completar juego», «Pausar» y «Todavía no» / «Sigo con él» descartan la sugerencia) y le pone el lenguaje de la bandeja y la ficha.</p>
+  <ul>
+    <li><b>Agrupado por lista de destino</b>, con la pregunta como cabecera de grupo y el icono y color de la lista: <i>¿Lo has terminado?</i> en verde Completado (bandera) y <i>¿Lo dejas en pausa?</i> en ámbar Pausado. Cada fila lleva la franja de ese color y el botón «sí» tintado con él (como el sugerido de la bandeja). En la cabecera del panel, un resumen «3 por completar · 2 por pausar».</li>
+    <li><b>La prueba, con color, en una línea</b>: es lo que hace que la pregunta se entienda sin pensar. Sale de las mismas reglas que la generan (<code>evaluateGame</code> en <code>tracker-rules.ts</code>):
+      <table>
+        <tr><th>Regla</th><th>Prueba que se enseña</th></tr>
+        <tr><td>100 % de logros</td><td>anillo cerrado + «<b>49 de 49 logros</b>» en verde · «el último, hace 2 días»</td></tr>
+        <tr><td>Más horas que tu objetivo (HowLongToBeat)</td><td>barra que pasa la marca + «<b>31,5 h</b> de 27 h de historia» y «+4,5 h» en verde; con objetivo «Historia + extras» o «Completo» se nombra el objetivo</td></tr>
+        <tr><td>Jugando y +30 días sin jugar</td><td>reloj + «<b>46 días</b> sin jugar» en ámbar · «desde el 12 sep» y dónde lo dejaste: «64 h de 75 h de historia» con su barra en cobalto</td></tr>
+      </table>
+    </li>
+    <li><b>Contexto con color</b>: dónde está ahora (<code>StatusChip</code> pequeño: «Ahora en ▶ Jugando»; Sea of Stars viene de Pausado), marcas (<code>MarkFlags</code>), horas, Metacritic y reseñas de Steam con su <code>--sc-*</code>. <b>Precios no</b>: las sugerencias solo salen en juegos con horas, es decir, comprados; no hay precio que enseñar.</li>
+    <li><b>Responder tiene respuesta</b>: la fila se tiñe del color de su destino, una ficha «⏸ Pausado» vuela hasta el atajo de esa lista en la cabecera del Inicio y su contador sube (y baja el de la lista de origen). «Todavía no» se va en neutro, sin ficha.</li>
+    <li><b>Aviso con Deshacer</b> (5 s) al pausar y al descartar, que además explica <b>cuándo volverá a preguntar</b> (sale de las reglas): «hasta que consigas otro logro», «hasta que cambies su estado» o «si vuelves a jugarlo y lo dejas otro mes». Hoy un descarte equivocado no tiene vuelta atrás.</li>
+    <li><b>Completado</b> sigue abriendo «Completar juego» (aquí un resumen del diálogo aprobado, con su celebración); al cerrarlo, la fila vuela a Completados.</li>
+    <li><b>Al responder la última</b>, «Todo al día» con un check que se dibuja y el panel se pliega (hoy desaparece de golpe).</li>
+    <li><b>Móvil</b>: cápsula pequeña, la prueba debajo del nombre y los dos botones a 44 px en una fila propia.</li>
+  </ul>
+
+  <h3>Preguntas para aprobarlo</h3>
+  <ol>
+    <li>¿Variante <b>A</b> (lista agrupada por destino, recomendada) o <b>B</b> (una a una, en tarjeta con la pila detrás)?</li>
+    <li>¿Te valen las tres pruebas (anillo de logros, horas frente a la meta, días sin jugar + dónde lo dejaste) y sus textos?</li>
+    <li>¿Añadimos <b>Deshacer</b> con la explicación de cuándo vuelve a preguntar? Para pausar se reutiliza <code>restoreGames</code>; para descartar hace falta devolver <code>suggestion</code> y <code>suggestion_dismissed_at</code>.</li>
+    <li>¿La ficha que vuela al atajo de la lista en la cabecera del Inicio, o basta con que la fila se tiña y se vaya?</li>
+    <li>En «¿Lo dejas en pausa?», ¿añadimos una tercera respuesta «Lo dejo» (Abandonado), en un menú «Más» para no recargar la fila? Hoy solo hay Pausar o Sigo con él.</li>
+    <li>Con muchas sugerencias (p. ej. después de la primera sincronización), ¿mostramos las 4 primeras y «Ver 3 más», o todas?</li>
+    <li>Orden: ¿primero los «por completar» (lo más gratificante) y luego las pausas, cada grupo por última partida? Hoy van mezclados por última partida.</li>
+  </ol>
+
+  <h3>Microanimaciones (pruébalas en los marcos; «Repetir entrada» arriba)</h3>
+  <ul class="anim-list">
+    <li><b>Entrada</b>: el panel con <code>.hg-enter</code> (justo después de la cabecera) y sus filas escalonadas; los anillos de logros se cierran y las barras de horas se rellenan (<code>.hg-bar--fill</code>); los días sin jugar cuentan hasta su valor (<code>CountUp</code>). <span class="t">320 ms · 30 ms entre filas · anillo y barra 450–500 ms.</span></li>
+    <li><b>Hover y foco</b>: cursor de selección en la fila; la bandera del botón «Sí, completado» ondea y la pausa crece un poco. <span class="t">150–500 ms.</span></li>
+    <li><b>Pausar</b>: el botón pasa a cargando, la fila se tiñe de ámbar, sale deslizándose a la derecha y la ficha «⏸ Pausado» vuela hasta su atajo, que se ilumina y salta; el de Jugando baja. Las filas de debajo suben a ocupar el hueco (FLIP, solo <code>transform</code>). <span class="t">tinte 200 ms · salida 240 ms · vuelo 440 ms · hueco 240 ms.</span></li>
+    <li><b>Sí, completado</b>: abre el diálogo (escala desde el centro; hoja en móvil), su celebración (anillo + bandera) y, al cerrarse, lo mismo que pausar pero en verde hacia «Completados». <span class="t">diálogo 200 ms · celebración ≈ 1,1 s.</span></li>
+    <li><b>Todavía no / Sigo con él</b>: la fila se apaga y encoge un poco, sin color ni ficha (no va a ninguna lista); el aviso explica cuándo volverá. <span class="t">200 ms · aviso 220 ms.</span></li>
+    <li><b>Deshacer</b>: la fila vuelve a su sitio con <code>.hg-enter</code> y un cursor que se apaga; los contadores bajan. <span class="t">320 ms · 1,2 s el resalte.</span></li>
+    <li><b>Contadores</b> de la cabecera del panel y de cada grupo con <code>AnimatedCount</code>; el grupo vacío se va con un fundido. <span class="t">300 ms.</span></li>
+    <li><b>Última respuesta</b>: «Todo al día» con check que se dibuja; a los 1,2 s el panel se desvanece y el resto del Inicio sube. <span class="t">pop 260 ms · trazo 300 ms · cierre 300 ms.</span></li>
+    <li><b>Variante B</b>: la tarjeta respondida sale volando a la derecha (o hacia su lista) y la siguiente sube desde la pila; los puntos de abajo (uno por sugerencia, con el color de su destino) marcan dónde vas. <span class="t">salida 320 ms · entrada 300 ms.</span></li>
+    <li>Con <b>movimiento reducido</b> no hay vuelo, ni deslizamiento, ni recuento: la fila desaparece, los números cambian sin saltar y el panel se quita sin pliegue.</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px · variante A (recomendada) · prueba en vivo</h2>
+  <p>Cinco sugerencias de la última sincronización: tres por completar (100 % de logros; más horas que la historia; más horas que «Historia + extras», desde Pausado) y dos por pausar (una con nombre largo). Prueba «Pausar» y mira el atajo «Pausado» de la cabecera; «Sí, completado» abre el diálogo; «Todavía no» enseña el aviso con Deshacer.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px;height:900px" id="f-desk"></div></div>
+  <div class="keys">
+    <button class="doc-btn" type="button" id="demo-btn">Ver pausar en acción</button>
+    <button class="doc-btn" type="button" id="all-btn">Responder todas (hasta «Todo al día»)</button>
+    <button class="doc-btn" type="button" id="reset-btn">Restablecer</button>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · cómo se presentan las sugerencias</h2>
+  <p><b>A · Lista agrupada</b> (el marco de arriba): todas a la vista, agrupadas por destino, una línea de prueba por fila. <b>B · Una a una</b>: una tarjeta con la cápsula más grande, la pregunta como titular y la prueba en tres tiles (la clave tintada del color del destino); detrás, la pila con las que quedan, y abajo un punto por sugerencia con el color de su destino. «‹ ›» pasan a otra sin responder.</p>
+  <div class="vlabel"><b>B</b> Una a una</div>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px;height:760px" id="f-b"></div></div>
+  <ul class="note" style="margin-top:16px;list-style:none;font-size:.875rem">
+    <li><b>A (recomendada).</b> Se responde rápido y se ve de un vistazo cuánto hay y de qué tipo; ocupa poco cuando hay 1–3 (lo normal tras una sincronización) y no esconde nada. Es el mismo dibujo que las filas de la bandeja y la biblioteca. Pega: con muchas crece mucho (pregunta 6).</li>
+    <li style="margin-top:6px"><b>B.</b> Más protagonismo y más espacio para la prueba (tres cifras grandes), altura fija con 1 o con 10, y una sensación de «ir despachando» muy clara. Pega: esconde las demás detrás de la pila, cuesta un clic más ver qué queda, y la cápsula de 184 px roza la regla de «portada grande solo en la ficha».</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>A: la prueba baja bajo el nombre, el contexto se queda con lo esencial (reseñas solo con el %) y los dos botones van a 44 px en su propia fila. El diálogo de completar es la hoja inferior aprobada. Interactivos.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px;height:844px" id="f-mob"></div><p class="frame-cap">Variante A. Prueba «Pausar» o «Sí, completado».</p></div>
+    <div><div class="frame w-mob" style="width:390px;height:844px" id="f-mob-b"></div><p class="frame-cap">Variante B en móvil: dos tiles y botones a 44 px.</p></div>
+    <div><div class="frame w-mob" style="width:390px;height:844px" id="f-mob-one"></div><p class="frame-cap">Una sola sugerencia (sin grupos): la pregunta pasa al título del panel.</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Estados de una fila (variante A)</h2>
+  <p>Reposo · hover o foco · pausando (botón cargando) · saliendo hacia su lista (tinte) · aviso tras descartar · todo al día.</p>
+  <div class="scroller"><div class="stage" style="width:1000px" id="g-states"></div></div>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide, los mismos que usa la app) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  pause: '<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  circlex: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  hourglass: '<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
+  thumb: '<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+  infinity: '<path d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4Zm0 0c2 2.67 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.33-6 4Z"/>',
+  chevleft: '<path d="m15 18-6-6 6-6"/>',
+  chevright: '<path d="m9 18 6-6-6-6"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  tag: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const wait = (ms) => new Promise((r) => setTimeout(r, rm() ? 0 : ms));
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+
+/* ── Listas ── */
+const ST = { bandeja: ['Bandeja', 'inbox'], pendiente: ['Pendiente', 'bookmark'], jugando: ['Jugando', 'play'], pausado: ['Pausado', 'pause'], completado: ['Completado', 'flag'], abandonado: ['Abandonado', 'circlex'] };
+const chip = (k) => `<span class="hg-chip hg-tint st-${k}">${ic(ST[k][1])}${ST[k][0]}</span>`;
+const KIND = {
+  completado: { q: '¿Lo has terminado?', yes: 'Sí, completado', no: 'Todavía no', icon: 'flag', sum: 'por completar', rule: 'Has llegado al 100 % de logros o a tu meta de horas' },
+  pausado: { q: '¿Lo dejas en pausa?', yes: 'Pausar', no: 'Sigo con él', icon: 'pause', sum: 'por pausar', rule: 'En Jugando y más de 30 días sin jugar' },
+};
+
+/* ── Datos: hoy es 28 de octubre de 2026 ── */
+const TODAY = Date.UTC(2026, 9, 28);
+const HDR = (id) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`;
+const SUG = [
+  { id: 1145350, name: 'Hades II', kind: 'completado', why: 'logros', from: 'jugando', h: 58.2, ach: [49, 49], lastAch: '2026-10-26', story: 30, mc: 95, rev: 95, fav: true },
+  { id: 367520, name: 'Hollow Knight', kind: 'completado', why: 'horas', from: 'jugando', h: 31.5, target: 27, goal: 'historia', ach: [41, 63], last: '2026-10-20', mc: 87, rev: 97 },
+  { id: 1244090, name: 'Sea of Stars', kind: 'completado', why: 'horas', from: 'pausado', h: 38, target: 35, goal: 'extras', ach: [29, 43], last: '2026-09-30', mc: 88, rev: 90 },
+  { id: 1086940, name: "Baldur's Gate 3", kind: 'pausado', from: 'jugando', h: 64, story: 75, last: '2026-09-12', ach: [31, 54], mc: 96, rev: 96, fav: true },
+  { id: 2186680, name: 'Warhammer 40,000: Rogue Trader', kind: 'pausado', from: 'jugando', h: 18.5, story: 57, last: '2026-08-03', ach: [12, 106], mc: 83, rev: 84, endless: false },
+];
+const COUNTS = { bandeja: 3, jugando: 4, pendiente: 23, pausado: 6, completado: 87, abandonado: 12 };
+
+const fmtN = (n) => String(n).replace('.', ',');
+const fmtH = (h) => (h % 1 ? `${fmtN(h.toFixed(1))} h` : `${h} h`);
+const days = (iso) => Math.round((TODAY - Date.parse(iso + 'T00:00:00Z')) / 864e5);
+const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const fmtD = (iso) => { const d = new Date(iso + 'T00:00:00Z'); return `${d.getUTCDate()} ${MES[d.getUTCMonth()]}`; };
+const ago = (iso) => { const n = days(iso); return n === 0 ? 'hoy' : n === 1 ? 'ayer' : `hace ${n} días`; };
+const GOAL = { historia: 'de historia', extras: 'de historia + extras, tu objetivo', completo: 'para completarlo todo, tu objetivo' };
+function mcScore(s) { return s >= 90 ? ['top', 'Aclamado'] : s >= 75 ? ['top', 'Favorable'] : s >= 50 ? ['mid', 'Variado'] : ['bad', 'Desfavorable']; }
+function revScore(p) { return p >= 95 ? ['top', 'Extremadamente positivas'] : p >= 80 ? ['top', 'Muy positivas'] : p >= 70 ? ['good', 'Mayormente positivas'] : p >= 40 ? ['mid', 'Variadas'] : ['bad', 'Negativas']; }
+const ring = (f, cls = '') => `<svg class="ev-ring ${cls}" viewBox="0 0 18 18" aria-hidden="true"><circle class="tr" cx="9" cy="9" r="7"/><circle class="pr" cx="9" cy="9" r="7" style="stroke-dashoffset:${(44 * (1 - f)).toFixed(1)}"/></svg>`;
+const bar = (h, target, mark = true) => { const over = h >= target; const max = over ? h : target; return `<span class="ev-bar ${over ? 'is-over' : ''}" style="--f:${(Math.min(h, max) / max).toFixed(3)};--m:${(target / max).toFixed(3)}" aria-hidden="true"><span></span>${mark && over ? '<i></i>' : ''}</span>`; };
+const countN = (n) => `<span class="cu" data-to="${n}">${n}</span>`;
+
+/** Cuándo vuelve a preguntar tras «Todavía no» / «Sigo con él» (de evaluateGame). */
+function reask(g) {
+  if (g.kind === 'pausado') return 'Volveremos a preguntar si lo juegas y lo dejas otro mes.';
+  if (g.why === 'logros') return 'No volveremos a preguntar hasta que consigas otro logro.';
+  return 'No volveremos a preguntar hasta que cambies su estado.';
+}
+
+/** La prueba: por qué preguntamos, con el color de lo que demuestra. */
+function evidence(g, mob) {
+  if (g.why === 'logros') return `<span class="ev ev--done">${ring(1)}<span class="ev__txt"><b>${g.ach[0]} de ${g.ach[1]} logros</b></span></span><span class="ev-sub">el último, ${ago(g.lastAch)}</span>`;
+  if (g.why === 'horas') {
+    const plus = g.h - g.target;
+    return `<span class="ev ev--done" title="Duración según HowLongToBeat">${bar(g.h, g.target)}<span class="ev__txt"><b>${fmtH(g.h)}</b> de ${fmtH(g.target)} ${mob && g.goal === 'extras' ? 'de historia + extras' : GOAL[g.goal]}</span></span><span class="ev-plus hg-tint st-completado">+${fmtH(plus)}</span>`;
+  }
+  const d = days(g.last);
+  return `<span class="ev ev--idle">${ic('clock')}<span class="ev__txt"><b>${countN(d)} días</b> sin jugar</span></span><span class="ev-sub">desde el ${fmtD(g.last)}</span>
+    <span class="ev" title="Dónde lo dejaste (HowLongToBeat)">${bar(g.h, g.story, false)}<span class="ev-sub">${fmtH(g.h)} de ${fmtH(g.story)} de historia</span></span>`;
+}
+function context(g, mob) {
+  const out = [`<span class="sg-now">Ahora en ${chip(g.from)}</span>`];
+  if (g.why !== 'horas' && g.kind !== 'pausado') out.push(`<span class="sg-m">${ic('clock')}<b>${fmtH(g.h)}</b></span>`);
+  if (g.why === 'horas' || g.kind === 'pausado') out.push(`<span class="sg-m">${ic('award')}${g.ach[0]} / ${g.ach[1]}</span>`);
+  if (g.why === 'horas') out.push(`<span class="sg-m sg-m--last">Última partida ${ago(g.last)}</span>`);
+  if (g.mc != null && !mob) { const [t, l] = mcScore(g.mc); out.push(`<span class="hg-score hg-tint sc-${t}" title="Metacritic: ${l}">${g.mc}</span>`); }
+  if (g.rev != null) { const [t, l] = revScore(g.rev); out.push(`<span class="sg-rev hg-tint sc-${t}" title="Reseñas de Steam: ${l}">${ic('thumb')}<b>${g.rev} %</b><span>${l}</span></span>`); }
+  return out.join('');
+}
+const flags = (g) => (g.fav ? `<span class="hg-flag hg-tint st-favorito" title="Favorito">${ic('heart')}</span>` : '') + (g.endless ? `<span class="hg-flag hg-tint st-sin_final" title="Sin final">${ic('infinity')}</span>` : '');
+
+function rowHTML(g, i, mob, extra = '') {
+  const k = KIND[g.kind];
+  return `<li class="sg-row st-${g.kind} ${extra}" data-id="${g.id}" style="--i:${i}">
+    <span class="sg-cover"><img src="${HDR(g.id)}" alt="" loading="lazy"></span>
+    <span class="sg-main">
+      <span class="sg-name"><a href="#" class="sg-link">${esc(g.name)}</a>${flags(g)}</span>
+      <span class="sg-ev">${evidence(g, mob)}</span>
+      <span class="sg-ctx">${context(g, mob)}</span>
+    </span>
+    <span class="sg-acts">
+      <button type="button" class="btn btn--sm hg-tint sg-yes st-${g.kind}" data-yes>${ic(k.icon)}${k.yes}</button>
+      <button type="button" class="btn btn--sm btn--secondary" data-no>${k.no}</button>
+    </span>
+  </li>`;
+}
+
+/* ── Marco: navegación, cabecera del Inicio y atajos de listas ── */
+function sidebar() {
+  const link = (k, label, icon, extra = '') => `<a href="#" class="nv-link ${k === 'home' ? 'active' : ''}">${ic(icon)}<span class="nv-link__label">${label}</span>${extra}</a>`;
+  return `<aside class="nv-side"><a href="#" class="nv-brand">${logo(22)}</a>
+    <span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span>
+    <nav class="nv-menu"><div class="nv-group">${link('home', 'Inicio', 'home')}</div>
+    <div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('lib', 'Biblioteca', 'library', `<span class="nv-count hg-tint st-bandeja">${ic('inbox')}3</span>`)}${link('ach', 'Logros', 'award')}${link('wish', 'Wishlist', 'heart', `<span class="nv-count nv-count--deal">${ic('tag')}2</span>`)}${link('stats', 'Estadísticas', 'chart')}</div>
+    <div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('judi', 'JUDI', 'gamepad', `<span class="nv-count hg-tint warn">${ic('clock')}Hoy</span>`)}${link('rank', 'Ranking', 'trophy')}</div></nav>
+    <div class="nv-foot"><div class="theme-toggle"><span class="on">${ic('sun')}</span><span>${ic('moon')}</span><span>${ic('monitor')}</span></div>
+    <a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>diego</span><span class="nv-account__meta">Ver perfil</span></span></a></div></aside>`;
+}
+function mobChrome() {
+  const tabs = [['home', 'Inicio', 'home'], ['lib', 'Biblioteca', 'library'], ['ach', 'Logros', 'award'], ['judi', 'JUDI', 'gamepad'], ['rank', 'Ranking', 'trophy'], ['perfil', 'Perfil', 'user']];
+  const dot = (k) => k === 'lib' ? `<span class="nv-dot hg-tint st-bandeja">3</span>` : k === 'judi' ? `<span class="nv-dot nv-dot--icon hg-tint warn">${ic('clock')}</span>` : '';
+  return `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon">${ic('sun')}</span><span class="m-icon"><span class="nv-avatar">D</span></span></div></header>
+    <nav class="m-tabbar">${tabs.map(([k, l, i]) => `<a href="#" class="m-tab ${k === 'home' ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}${dot(k)}</span><span>${l}</span></a>`).join('')}</nav>`;
+}
+function head(counts, mob) {
+  const order = ['bandeja', 'jugando', 'pendiente', 'pausado', 'completado', 'abandonado'];
+  return `<header class="hg-enter" style="--i:0"><div class="dash-head"><div><h1 class="page-title">Hola, diego</h1>
+      <p class="dash-status"><span>${ic('check')}Sincronizado con Steam hace 4 min</span></p></div>
+      ${mob ? '' : `<button class="btn btn--secondary btn-sync" type="button">${ic('refresh')}Sincronizar</button>`}</div>
+    <nav class="dash-lists hg-enter" style="--i:1" aria-label="Tus listas">${order.map((k) => `<a href="#" class="dash-list st-${k}" data-list="${k}"><span class="dash-list__icon hg-tint">${ic(ST[k][1])}</span>${ST[k][0]}<b class="hg-count"><span class="n">${counts[k]}</span>${k === 'jugando' ? '<small>/5</small>' : ''}</b></a>`).join('')}</nav></header>`;
+}
+const rest = (mob) => `<div class="ph hg-enter" style="--i:3;height:${mob ? 220 : 260}px">Resto del Inicio: actividad, en curso, logros recientes…</div>`;
+
+function bump(el, dir) {
+  if (!el) return;
+  const num = el.querySelector('.n'); const n = Number(num.textContent) + dir;
+  num.textContent = n;
+  if (rm()) return;
+  el.classList.remove('hg-count--pop'); num.classList.remove('up', 'down'); void el.offsetWidth;
+  el.classList.add('hg-count--pop'); num.classList.add(dir > 0 ? 'up' : 'down');
+}
+function countUp(root) {
+  root.querySelectorAll('.cu').forEach((el) => {
+    const to = Number(el.dataset.to); if (rm()) { el.textContent = to; return; }
+    const t0 = performance.now(), D = 450;
+    const step = (t) => { const p = Math.min(1, (t - t0) / D); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); };
+    el.textContent = 0; requestAnimationFrame(step);
+  });
+}
+
+/* ── Variante A ── */
+class PanelA {
+  constructor(frame, { mob = false, games = SUG, chrome = true } = {}) {
+    this.frame = frame; this.mob = mob; this.all = games; this.chrome = chrome;
+    this.build();
+  }
+  build() {
+    this.games = [...this.all];
+    this.counts = { ...COUNTS };
+    clearTimeout(this.toastT);
+    const f = this.frame;
+    f.innerHTML = `${this.mob ? mobChrome() : sidebar()}<div class="page"><div class="page-in"><div class="dash">${head(this.counts, this.mob)}<div class="sg-slot"></div>${rest(this.mob)}</div></div></div>`;
+    this.slot = f.querySelector('.sg-slot');
+    this.renderPanel(true);
+  }
+  renderPanel(entering) {
+    const gs = this.games;
+    const groups = ['completado', 'pausado'].map((k) => [k, gs.filter((g) => g.kind === k)]);
+    const one = gs.length === 1;
+    const sum = groups.filter(([, l]) => l.length).map(([k, l]) => `<span class="sg-sum hg-tint st-${k}" data-sum="${k}">${ic(KIND[k].icon)}<span class="hg-count"><span class="n">${l.length}</span></span> ${KIND[k].sum}</span>`).join('');
+    let i = 1;
+    this.slot.innerHTML = `<section class="sg hg-enter ${entering ? 'is-entering' : ''}" style="--i:2" aria-label="Sugerencias">
+      <div class="sg-head"><span class="sg-head__icon" aria-hidden="true">${ic('help')}</span>
+        <h2>${one ? KIND[gs[0].kind].q : '¿Cómo van tus juegos?'}</h2>
+        <span class="sg-head__count">${one ? 'De la última sincronización' : `<span class="hg-count" data-total><span class="n">${gs.length}</span></span> sugerencias de la última sincronización`}</span>
+        ${one ? '' : `<span class="sg-head__end">${sum}</span>`}</div>
+      ${groups.map(([k, l]) => `<div class="sg-group" data-group="${k}" ${l.length ? '' : 'hidden'}>
+        ${one ? '' : `<p class="sg-group__head"><span class="sg-group__icon hg-tint st-${k}">${ic(KIND[k].icon)}</span>${KIND[k].q} <span class="sg-group__n hg-count"><span class="n">${l.length}</span></span><span class="sg-group__rule">${KIND[k].rule}</span></p>`}
+        <ul class="sg-list">${l.map((g) => rowHTML(g, i++, this.mob, entering ? 'hg-enter' : '')).join('')}</ul></div>`).join('')}
+    </section>`;
+    const sec = this.slot.querySelector('.sg');
+    sec.querySelectorAll('.sg-row').forEach((r) => r.classList.toggle('is-entering', entering));
+    if (entering) countUp(sec);
+    sec.addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      const row = b.closest('.sg-row'); if (!row) return;
+      const g = this.games.find((x) => x.id === Number(row.dataset.id));
+      if (b.hasAttribute('data-yes')) this.yes(g, row, b);
+      if (b.hasAttribute('data-no')) this.no(g, row);
+    });
+    sec.addEventListener('click', (e) => { if (e.target.closest('a')) e.preventDefault(); });
+  }
+  async yes(g, row, btn) {
+    if (g.kind === 'completado') {
+      const ok = await openComplete(this.frame, g, this.mob);
+      if (!ok) return;
+      return this.leave(g, row, true);
+    }
+    btn.classList.add('is-loading'); btn.innerHTML = `<span class="spin"></span>${KIND.pausado.yes}`;
+    await wait(380);
+    this.leave(g, row, true);
+  }
+  async no(g, row) {
+    row.classList.add('is-dismissing');
+    if (!rm()) row.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.97)' }], { duration: 200, easing: 'ease-in', fill: 'forwards' });
+    await wait(200);
+    this.remove(g, row);
+    this.toast(g, false);
+  }
+  async leave(g, row, undoable) {
+    row.classList.add('is-going');
+    await wait(200);
+    const target = this.frame.querySelector(`.dash-list[data-list="${g.kind}"]`);
+    this.fly(row, g.kind, target, g.from);
+    if (!rm()) row.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(48px)' }], { duration: 240, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' });
+    await wait(240);
+    this.remove(g, row);
+    if (undoable && g.kind === 'pausado') this.toast(g, true);
+  }
+  fly(row, kind, target, from) {
+    const fr = this.frame.getBoundingClientRect();
+    const done = () => { if (target) { bump(target.querySelector('.hg-count'), 1); if (!rm()) { target.classList.remove('is-hit'); void target.offsetWidth; target.classList.add('is-hit'); } } bump(this.frame.querySelector(`.dash-list[data-list="${from}"] .hg-count`), -1); };
+    const tr = target && target.getBoundingClientRect();
+    const visible = tr && tr.right > fr.left && tr.left < fr.right && tr.bottom > fr.top && tr.top < fr.bottom;
+    if (rm() || !visible) return done();
+    const src = row.querySelector('.sg-yes').getBoundingClientRect();
+    const tok = document.createElement('span');
+    tok.className = `sg-token st-${kind}`; tok.innerHTML = `${ic(ST[kind][1])}${ST[kind][0]}`;
+    this.frame.append(tok);
+    const x0 = src.left - fr.left, y0 = src.top - fr.top;
+    const x1 = tr.left - fr.left + tr.width / 2 - tok.offsetWidth / 2, y1 = tr.top - fr.top + tr.height / 2 - 13;
+    tok.style.transform = `translate(${x0}px, ${y0}px)`;
+    void tok.offsetWidth;
+    tok.style.transform = `translate(${x1}px, ${y1}px) scale(.7)`;
+    setTimeout(() => { tok.style.opacity = '0'; }, 300);
+    setTimeout(() => { tok.remove(); done(); }, 440);
+  }
+  /** Quita la fila y sube las de debajo (FLIP) */
+  remove(g, row) {
+    const sec = this.slot.querySelector('.sg');
+    const rows = [...sec.querySelectorAll('.sg-row, .sg-group__head')].filter((r) => r !== row);
+    const before = new Map(rows.map((r) => [r, r.getBoundingClientRect().top]));
+    this.games = this.games.filter((x) => x.id !== g.id);
+    row.remove();
+    const grp = sec.querySelector(`[data-group="${g.kind}"]`);
+    const left = this.games.filter((x) => x.kind === g.kind).length;
+    bump(grp.querySelector('.sg-group__n'), -1);
+    bump(sec.querySelector(`[data-sum="${g.kind}"] .hg-count`), -1);
+    bump(sec.querySelector('[data-total]'), -1);
+    if (!left) { grp.hidden = true; const s = sec.querySelector(`[data-sum="${g.kind}"]`); if (s) s.remove(); }
+    if (!rm()) rows.forEach((r) => { const dy = before.get(r) - r.getBoundingClientRect().top; if (dy) r.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 240, easing: 'cubic-bezier(.22,1,.36,1)' }); });
+    if (!this.games.length) this.allDone();
+  }
+  async allDone() {
+    const sec = this.slot.querySelector('.sg');
+    sec.querySelectorAll('.sg-group').forEach((x) => x.remove());
+    sec.querySelector('.sg-head__count').textContent = '';
+    sec.insertAdjacentHTML('beforeend', `<p class="sg-done"><span class="sg-done__icon hg-tint st-completado"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><span><b>Todo al día.</b> Te avisaremos tras la próxima sincronización.</span></p>`);
+    await wait(1400);
+    if (this.games.length) return;
+    const restEl = this.frame.querySelector('.ph');
+    const top0 = restEl.getBoundingClientRect().top;
+    sec.classList.add('is-closing');
+    await wait(300);
+    if (this.games.length) return;
+    this.slot.innerHTML = '';
+    const dy = top0 - restEl.getBoundingClientRect().top;
+    if (!rm() && dy) restEl.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 300, easing: 'cubic-bezier(.22,1,.36,1)' });
+  }
+  toast(g, paused) {
+    this.frame.querySelectorAll('.sg-toast').forEach((t) => t.remove());
+    clearTimeout(this.toastT);
+    const t = document.createElement('div');
+    t.className = 'sg-toast'; t.setAttribute('role', 'status');
+    t.innerHTML = paused
+      ? `<span class="sg-toast__txt"><b>${esc(g.name)}</b> ${ic('chevright')} ${chip('pausado')}</span><button class="btn btn--sm btn--ghost" type="button">${ic('undo')}Deshacer</button>`
+      : `<span class="sg-toast__txt"><span>Vale, sigue en ${chip(g.from)}</span><small>${reask(g)}</small></span><button class="btn btn--sm btn--ghost" type="button">${ic('undo')}Deshacer</button>`;
+    this.frame.append(t);
+    t.querySelector('button').onclick = () => { t.remove(); clearTimeout(this.toastT); this.undo(g, paused); };
+    this.toastT = setTimeout(() => { t.classList.add('is-out'); setTimeout(() => t.remove(), 180); }, 5000);
+  }
+  undo(g, paused) {
+    if (paused) { bump(this.frame.querySelector('.dash-list[data-list="pausado"] .hg-count'), -1); bump(this.frame.querySelector(`.dash-list[data-list="${g.from}"] .hg-count`), 1); }
+    const order = this.all.map((x) => x.id);
+    this.games.push(g); this.games.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+    this.renderPanel(false);
+    const row = this.slot.querySelector(`.sg-row[data-id="${g.id}"]`);
+    if (row && !rm()) row.classList.add('is-back');
+  }
+}
+
+/* ── Diálogo «Completar juego» (resumen del aprobado) ── */
+function openComplete(frame, g, mob) {
+  return new Promise((resolve) => {
+    const scrim = document.createElement('div'); scrim.className = 'cd-scrim';
+    const d = document.createElement('div'); d.className = 'cd'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Completar juego');
+    d.innerHTML = `<div class="cd-body"><div class="cd-top"><span class="sg-cover"><img src="${HDR(g.id)}" alt=""></span><div>${chip('completado')}<h3>${esc(g.name)}</h3></div></div>
+      <p class="cd-note">Aquí va el diálogo «Completar juego» ya aprobado: nota con diez puntos, Favorito y Sin final, fecha (sugerida: ${g.why === 'logros' ? `último logro, ${fmtD(g.lastAch)}` : `última partida, ${fmtD(g.last)}`}) y reseña.</p></div>
+      <div class="cd-foot"><button class="btn btn--secondary" type="button" data-c>Cancelar</button><button class="btn btn--done" type="button" data-ok>${ic('flag')}Completar</button></div>`;
+    frame.append(scrim, d);
+    d.querySelector('[data-ok]').focus();
+    const close = (ok) => { scrim.remove(); d.remove(); resolve(ok); };
+    scrim.onclick = () => close(false);
+    d.querySelector('[data-c]').onclick = () => close(false);
+    d.querySelector('[data-ok]').onclick = async () => {
+      if (rm()) return close(true);
+      const cel = document.createElement('div'); cel.className = 'cd-cel';
+      cel.innerHTML = `<div class="cd-cel__mark"><svg class="cd-cel__ring" viewBox="0 0 84 84"><circle class="tr" cx="42" cy="42" r="37"/><circle class="pr" cx="42" cy="42" r="37"/></svg><span class="cd-cel__flag">${ic('flag')}</span></div><h3>¡Completado!</h3><p>${esc(g.name)}</p>`;
+      d.append(cel);
+      cel.onclick = () => close(true);
+      await wait(1150); if (d.isConnected) close(true);
+    };
+  });
+}
+
+/* ── Variante B: una a una ── */
+class PanelB {
+  constructor(frame, { mob = false } = {}) { this.frame = frame; this.mob = mob; this.build(); }
+  build() {
+    this.games = [...SUG]; this.i = 0; this.counts = { ...COUNTS };
+    const f = this.frame;
+    f.innerHTML = `${this.mob ? mobChrome() : sidebar()}<div class="page"><div class="page-in"><div class="dash">${head(this.counts, this.mob)}<div class="sb-slot"></div>${rest(this.mob)}</div></div></div>`;
+    this.slot = f.querySelector('.sb-slot');
+    this.slot.innerHTML = `<section class="sb hg-enter" style="--i:2" aria-label="Sugerencias"><div class="sg-head"><span class="sg-head__icon" aria-hidden="true">${ic('help')}</span><h2>¿Cómo van tus juegos?</h2><span class="sg-head__count"></span></div>
+      <div class="sb-stage"></div><div class="sb-foot"><span class="sb-dots"></span><span class="sb-pos"></span><span class="sb-nav"><button class="btn btn--secondary" type="button" data-prev aria-label="Anterior">${ic('chevleft')}</button><button class="btn btn--secondary" type="button" data-next aria-label="Siguiente">${ic('chevright')}</button></span></div></section>`;
+    this.sec = this.slot.querySelector('.sb');
+    this.sec.querySelector('[data-prev]').onclick = () => this.go(-1);
+    this.sec.querySelector('[data-next]').onclick = () => this.go(1);
+    this.card(true);
+  }
+  tiles(g) {
+    const d = g.last ? days(g.last) : null;
+    if (g.why === 'logros') return [
+      ['is-key st-completado', 'award', 'Logros', `${ring(1)}${g.ach[0]}<small>/ ${g.ach[1]}</small>`],
+      ['', 'clock', 'Horas', fmtH(g.h)],
+      ['', 'trophy', 'Último logro', `<span style="font-size:1rem">${ago(g.lastAch)}</span>`]];
+    if (g.why === 'horas') return [
+      ['is-key st-completado', 'hourglass', g.goal === 'extras' ? 'Horas · historia + extras' : 'Horas · historia', `${fmtH(g.h)}<small>de ${fmtH(g.target)}</small>`],
+      ['', 'award', 'Logros', `${g.ach[0]}<small>/ ${g.ach[1]}</small>`],
+      ['', 'clock', 'Última partida', `<span style="font-size:1rem">${ago(g.last)}</span>`]];
+    return [
+      ['is-key st-pausado', 'clock', 'Sin jugar', `${countN(d)}<small>días · desde el ${fmtD(g.last)}</small>`],
+      ['', 'hourglass', 'Historia', `${bar(g.h, g.story, false)}${fmtH(g.h)}<small>de ${fmtH(g.story)}</small>`],
+      ['', 'award', 'Logros', `${g.ach[0]}<small>/ ${g.ach[1]}</small>`]];
+  }
+  card(entering) {
+    const stage = this.sec.querySelector('.sb-stage');
+    const n = this.games.length;
+    stage.classList.toggle('is-last', n <= 1); stage.classList.toggle('is-two', n === 2);
+    this.sec.querySelector('.sg-head__count').textContent = n ? `${n} ${n === 1 ? 'sugerencia' : 'sugerencias'} de la última sincronización` : '';
+    this.sec.querySelector('.sb-dots').innerHTML = this.games.map((g, j) => `<span class="sb-dot st-${g.kind} ${j === this.i ? 'on' : ''}" title="${esc(g.name)}"></span>`).join('');
+    this.sec.querySelector('.sb-pos').textContent = n ? `${this.i + 1} de ${n}` : '';
+    this.sec.querySelector('.sb-nav').style.visibility = n > 1 ? '' : 'hidden';
+    if (!n) {
+      stage.classList.add('is-last');
+      stage.innerHTML = `<p class="sg-done"><span class="sg-done__icon hg-tint st-completado"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><span><b>Todo al día.</b> Te avisaremos tras la próxima sincronización.</span></p>`;
+      this.sec.querySelector('.sb-foot').hidden = true;
+      return;
+    }
+    const g = this.games[this.i]; const k = KIND[g.kind];
+    const [t, l] = revScore(g.rev); const [mt, ml] = mcScore(g.mc);
+    stage.innerHTML = `<article class="sb-card st-${g.kind} ${entering ? 'is-in is-entering' : ''}">
+      ${this.mob ? `<div class="sb-top"><span class="sb-cover"><img src="${HDR(g.id)}" alt=""></span><div><p class="sb-q">${ic(k.icon)}${k.q}</p><p class="sb-name"><span>${esc(g.name)}</span>${flags(g)}</p></div></div>` : `<span class="sb-cover"><img src="${HDR(g.id)}" alt=""></span>`}
+      <div class="sb-body">
+        ${this.mob ? '' : `<div><p class="sb-q">${ic(k.icon)}${k.q}</p><p class="sb-name"><span>${esc(g.name)}</span>${flags(g)}</p></div>`}
+        <dl class="sb-tiles">${this.tiles(g).map(([c, i2, lab, v]) => `<div class="sb-tile ${c}"><dt>${ic(i2)}${lab}</dt><dd>${v}</dd></div>`).join('')}</dl>
+        <div class="sb-ctx"><span class="sg-now">Ahora en ${chip(g.from)}</span>${this.mob ? '' : `<span class="hg-score hg-tint sc-${mt}" title="Metacritic: ${ml}">${g.mc}</span>`}<span class="sg-rev hg-tint sc-${t}">${ic('thumb')}<b>${g.rev} %</b>${this.mob ? '' : `<span>${l}</span>`}</span></div>
+        <div class="sb-acts"><button type="button" class="btn hg-tint sg-yes st-${g.kind}" data-yes>${ic(k.icon)}${k.yes}</button><button type="button" class="btn btn--secondary" data-no>${k.no}</button></div>
+      </div></article>`;
+    const c = stage.querySelector('.sb-card');
+    countUp(c);
+    c.querySelector('[data-yes]').onclick = () => this.answer(g, c, true);
+    c.querySelector('[data-no]').onclick = () => this.answer(g, c, false);
+  }
+  async answer(g, c, yes) {
+    if (yes && g.kind === 'completado') { const ok = await openComplete(this.frame, g, this.mob); if (!ok) return; }
+    if (yes) {
+      c.classList.add('is-going'); await wait(180);
+      const tgt = this.frame.querySelector(`.dash-list[data-list="${g.kind}"]`);
+      if (tgt) { bump(tgt.querySelector('.hg-count'), 1); bump(this.frame.querySelector(`.dash-list[data-list="${g.from}"] .hg-count`), -1); if (!rm()) { tgt.classList.remove('is-hit'); void tgt.offsetWidth; tgt.classList.add('is-hit'); } }
+      c.classList.add('is-out');
+    } else c.classList.add('is-out-left');
+    await wait(yes ? 320 : 260);
+    this.games = this.games.filter((x) => x.id !== g.id);
+    if (this.i >= this.games.length) this.i = 0;
+    this.card(true);
+  }
+  go(d) { const n = this.games.length; if (n < 2) return; this.i = (this.i + d + n) % n; this.card(true); }
+}
+
+/* ── Galería de estados ── */
+function states() {
+  const box = document.getElementById('g-states');
+  const g = SUG[3], h = SUG[0];
+  box.innerHTML = `<div class="gal">
+    <div><p class="gal__cap">Reposo</p><ul class="sg-list">${rowHTML(h, 0, false)}</ul></div>
+    <div><p class="gal__cap">Hover o foco: cursor de selección</p><ul class="sg-list">${rowHTML(g, 0, false, 'is-hover')}</ul></div>
+    <div><p class="gal__cap">Pausando: el botón espera</p><ul class="sg-list" id="gs-load">${rowHTML(g, 0, false)}</ul></div>
+    <div><p class="gal__cap">Saliendo hacia Pausado: se tiñe de su lista</p><ul class="sg-list">${rowHTML(g, 0, false, 'is-going')}</ul></div>
+    <div style="position:relative;height:72px"><p class="gal__cap">Aviso tras «Sigo con él»</p><div class="sg-toast" style="position:static;translate:none;display:inline-flex;animation:none"><span class="sg-toast__txt"><span>Vale, sigue en ${chip('jugando')}</span><small>${reask(g)}</small></span><button class="btn btn--sm btn--ghost" type="button">${ic('undo')}Deshacer</button></div></div>
+    <div><p class="gal__cap">Todo al día (antes de plegarse)</p><section class="sg"><div class="sg-head"><span class="sg-head__icon">${ic('help')}</span><h2>¿Cómo van tus juegos?</h2></div><p class="sg-done"><span class="sg-done__icon hg-tint st-completado">${ic('check')}</span><span><b>Todo al día.</b> Te avisaremos tras la próxima sincronización.</span></p></section></div>
+  </div>`;
+  const b = box.querySelector('#gs-load [data-yes]'); b.classList.add('is-loading'); b.innerHTML = `<span class="spin"></span>Pausar`;
+}
+
+/* ── Montaje ── */
+let A, B, M, MB, M1;
+function build() {
+  A = new PanelA(document.getElementById('f-desk'));
+  B = new PanelB(document.getElementById('f-b'));
+  M = new PanelA(document.getElementById('f-mob'), { mob: true });
+  MB = new PanelB(document.getElementById('f-mob-b'), { mob: true });
+  M1 = new PanelA(document.getElementById('f-mob-one'), { mob: true, games: [SUG[1]] });
+  states();
+  document.querySelectorAll('.frame a').forEach((a) => a.addEventListener('click', (e) => e.preventDefault()));
+}
+build();
+
+document.getElementById('replay-btn').onclick = build;
+document.getElementById('reset-btn').onclick = () => { A.build(); };
+document.getElementById('demo-btn').onclick = () => { A.build(); setTimeout(() => { const r = A.frame.querySelector(`.sg-row[data-id="1086940"]`); r && r.querySelector('[data-yes]').click(); }, rm() ? 0 : 600); };
+document.getElementById('all-btn').onclick = async () => {
+  A.build(); await wait(500);
+  for (const id of [1086940, 2186680, 367520, 1244090, 1145350]) {
+    const r = A.frame.querySelector(`.sg-row[data-id="${id}"]`); if (!r) continue;
+    const g = A.games.find((x) => x.id === id);
+    if (g.kind === 'pausado') A.leave(g, r, false); else A.no(g, r);
+    await wait(650);
+  }
+};
+const rmBtn = document.getElementById('rm-btn');
+rmBtn.onclick = () => { const on = document.documentElement.classList.toggle('rm'); rmBtn.setAttribute('aria-pressed', String(on)); rmBtn.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`; };
+const themeBtn = document.getElementById('theme-btn');
+function setTheme(t) { document.documentElement.dataset.theme = t; themeBtn.setAttribute('aria-pressed', String(t === 'dark')); themeBtn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro'; }
+themeBtn.onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+</script>
+</body>
+</html>
