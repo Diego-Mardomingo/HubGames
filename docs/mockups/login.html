@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Login · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-hover: #ad1b31; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --rar-comun: #8a8f98; --rar-poco: #2e9e5b; --rar-rara: #2f6fe0; --rar-epica: #8b4fd8; --rar-leg: #c98a0b; --rar-ink: 62%;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-completado: #1a7743;
+  --st-abandonado: #c7243b; --st-favorito: #c2255c; --st-sinfinal: #6741d9;
+  --sc-top: #1a7743; --sc-good: #4d7c0f; --sc-mid: #8e5e18; --sc-bad: #c7243b;
+  --deal: #f5c400; --deal-foreground: #2b2100; --tint: 12%;
+  --on-done: #ffffff;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Texto ámbar en claro: se oscurece para llegar a 4,5:1 (como en el perfil) */
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-hover: #ff8090; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --rar-comun: #9aa0aa; --rar-poco: #4cc97e; --rar-rara: #5b93ff; --rar-epica: #b07cff; --rar-leg: #f2b53a; --rar-ink: 100%;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e; --st-favorito: #f783ac; --st-sinfinal: #b197fc;
+  --sc-top: #4cc97e; --sc-good: #a9d15b; --sc-mid: #f2b53a; --sc-bad: #f26b7e;
+  --deal: #ffd43b; --deal-foreground: #221a00; --tint: 14%;
+  --on-done: #0b1f13;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button, input { font-family: inherit; color: inherit; }
+button { cursor: pointer; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+[hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* Cambio de tema con fundido de colores (html.hg-theme-anim de la app) */
+html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after, html.theme-anim body {
+  transition: background-color .3s var(--ease-out), color .3s var(--ease-out), border-color .3s var(--ease-out), fill .3s, stroke .3s, box-shadow .3s var(--ease-out) !important;
+}
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.doc-group { display: inline-flex; align-items: center; gap: 4px; padding-right: 8px; margin-right: 4px; border-right: 1px solid var(--border); }
+.doc-group > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.doc-btn--sm { height: 32px; padding: 0 10px; font-size: .8125rem; }
+.doc-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: .71875rem; font-weight: 700; vertical-align: 2px; }
+.doc-tag--new { background: var(--primary-glow); color: var(--primary); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.note table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: .8125rem; }
+.note th, .note td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.note th { color: var(--muted); font-weight: 600; }
+.note .sw { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; vertical-align: -6px; font-size: 13px; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 110ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: clip; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 46ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.grid-frames { display: grid; grid-template-columns: repeat(2, 580px); gap: 24px; align-items: start; }
+.grid-frames.three { grid-template-columns: repeat(3, 420px); }
+.vlabel { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.875rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 7px; background: var(--surface-2); }
+.tests { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 0; }
+.tests > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+
+/* ══ Navegación sin sesión (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nav-ind { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px 0 5px; border-radius: 999px; font-size: .71875rem; font-weight: 700; }
+.nav-ind .i { font-size: 11px; }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.nav-cta-hint { margin: 0; padding: 0 .25rem; color: var(--muted); font-size: .8125rem; line-height: 1.4; }
+.nav-cta { display: flex; align-items: center; justify-content: center; gap: .5rem; height: 40px; padding: 0 1rem; border-radius: var(--radius-sm); color: var(--primary-foreground); background: var(--primary); font-size: .875rem; font-weight: 600; }
+.nav-cta .i { font-size: 16px; }
+/* Barra plegada (72 px): solo iconos */
+.nv-side.is-compact { width: 72px; align-items: center; padding-inline: .625rem; }
+.is-compact .hg-wordmark, .is-compact .nv-link__label, .is-compact .nv-group__title, .is-compact .nav-cta-hint, .is-compact .nav-cta span, .is-compact .theme-toggle, .is-compact .nav-ind { display: none; }
+.is-compact .nv-link { justify-content: center; padding: 0; width: 44px; }
+.is-compact .nav-cta { width: 44px; padding: 0; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); }
+.m-tab.active::before { content: ''; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--cursor); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.w-mid .page { margin-left: 72px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.m-page { padding: 1rem 1rem 110px; }
+
+/* ══ Piezas compartidas (copia de lists.css y globals.css) ══ */
+.st-todos { --c: var(--primary); } .st-bandeja { --c: var(--st-bandeja); } .st-pendiente { --c: var(--st-pendiente); }
+.st-jugando { --c: var(--st-jugando); } .st-completado { --c: var(--st-completado); } .st-favorito { --c: var(--st-favorito); }
+.sc-top { --c: var(--sc-top); }
+.rar-comun { --c: var(--rar-comun); } .rar-poco { --c: var(--rar-poco); } .rar-rara { --c: var(--rar-rara); } .rar-epica { --c: var(--rar-epica); } .rar-leg { --c: var(--rar-leg); }
+.ok { --c: var(--success); } .ko { --c: var(--danger); } .warn { --c: var(--warning); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.warn { color: var(--warn-ink); }
+.rar-ink { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; transition: background-color .2s var(--ease-out), border-color .15s, color .2s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active:not(:disabled) { transform: scale(.97); }
+.btn:disabled { cursor: not-allowed; opacity: .55; }
+.btn.is-busy:disabled, .btn.is-done:disabled { opacity: 1; cursor: default; }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover:not(:disabled) { background: var(--surface-2); border-color: var(--border-hover); }
+.btn--block { width: 100%; height: 44px; font-size: .9375rem; }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.btn--primary.is-done { background: var(--success); color: var(--on-done); }
+.w-mob .btn--sm { height: 44px; }
+.spin-ring { width: 15px; height: 15px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; flex: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.hg-draw path, .hg-draw polyline { stroke-dasharray: 30; animation: hg-draw .3s var(--ease-out) backwards; }
+@keyframes hg-draw { from { stroke-dashoffset: 30; } }
+.link { color: var(--primary); font-weight: 600; }
+.link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.link--sm { font-size: .8125rem; }
+
+/* Campos: transición de foco (borde y anillo cambian de color; el icono se tiñe y crece un poco) */
+.field { display: grid; gap: .375rem; }
+.field__top { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
+.field__label { font-size: .8125rem; font-weight: 600; }
+.field__control { position: relative; }
+.field__icon { position: absolute; left: 12px; top: 50%; display: grid; font-size: 16px; color: var(--muted); pointer-events: none; transform: translateY(-50%); transition: color .18s var(--ease-out), transform .18s var(--ease-out); }
+.hg-input { width: 100%; min-width: 0; height: 42px; padding: 0 .875rem 0 2.4rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: .9375rem; outline: none; box-shadow: 0 0 0 3px transparent; transition: border-color .18s var(--ease-out), box-shadow .18s var(--ease-out), background-color .18s; text-overflow: ellipsis; }
+.w-mob .hg-input { height: 44px; }
+.hg-input::placeholder { color: var(--muted); }
+.hg-input:hover:not(:disabled) { border-color: var(--border-hover); }
+.hg-input:focus, .field.is-focus .hg-input { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+.field__control:focus-within .field__icon, .field.is-focus .field__icon { color: var(--primary); transform: translateY(-50%) scale(1.08); }
+.hg-input:disabled { background: var(--surface-2); color: var(--muted); cursor: not-allowed; }
+.hg-input.has-toggle { padding-right: 2.75rem; }
+.field__toggle { position: absolute; right: 4px; top: 50%; display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 6px; background: none; color: var(--muted); font-size: 16px; transform: translateY(-50%); transition: color .15s, background-color .15s; }
+.field__toggle:hover { color: var(--foreground); background: var(--surface-2); }
+.field__toggle::before { content: ''; position: absolute; inset: -5px; }
+.w-mob .field__toggle { right: 2px; width: 40px; height: 40px; }
+.field__toggle .i { transition: transform .2s var(--ease-out); }
+.field__toggle[aria-pressed='true'] { color: var(--primary); }
+.field__toggle.is-flip .i { animation: eye-flip .22s var(--ease-out); }
+@keyframes eye-flip { 50% { transform: scaleY(.2); } }
+/* Campo con error: borde, icono y anillo en --danger (con el aviso al lado: nunca solo color) */
+.field.is-bad .hg-input { border-color: var(--danger); }
+.field.is-bad .hg-input:focus, .field.is-bad.is-focus .hg-input { box-shadow: 0 0 0 3px var(--danger-glow); }
+.field.is-bad .field__icon { color: var(--danger); }
+.divider-text { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .8125rem; }
+.divider-text::before, .divider-text::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* Avisos: icono + texto, en su tinte */
+.alert { display: flex; align-items: flex-start; gap: .625rem; margin: 0; padding: .625rem .875rem; border-radius: var(--radius-sm); font-size: .875rem; font-weight: 500; }
+.alert > .i { margin-top: 2px; font-size: 16px; }
+.alert p { margin: 0; }
+.alert__body { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.alert__sub { color: var(--foreground); font-weight: 400; font-size: .8125rem; }
+.alert__sub b { font-weight: 600; }
+.alert__act { justify-self: start; margin-top: 4px; }
+.alert--error { color: var(--danger); background: var(--danger-glow); }
+.alert--ok { color: var(--success); background: var(--success-glow); }
+.alert--warn { color: var(--warn-ink); background: color-mix(in srgb, var(--warning) var(--tint), transparent); }
+.alert__act.btn { height: 30px; padding: 0 10px; font-size: .8125rem; color: inherit; background: var(--surface); border-color: color-mix(in srgb, currentColor 35%, var(--border)); }
+.w-mob .alert__act.btn { height: 40px; }
+.au-hint { display: flex; align-items: center; gap: 6px; margin: -2px 0 0; color: var(--warn-ink); font-size: .8125rem; font-weight: 600; }
+.au-hint .i { font-size: 14px; }
+
+/* Filas de biblioteca, chips, puntuaciones, precio, logros (lists.css) */
+.hg-rows { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.hg-row { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: center; gap: .875rem; min-height: 64px; padding: 8px 12px 8px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.hg-row.lib-row::before { content: ''; position: absolute; inset: -1px auto -1px -1px; width: 4px; border-radius: var(--radius) 0 0 var(--radius); background: var(--c); transition: background-color .25s var(--ease-out); }
+.hg-row__cover { position: relative; display: block; width: 112px; height: 52px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.hg-row__cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hg-row.is-unowned .hg-row__cover { outline: 1px dashed var(--st-pendiente); outline-offset: -1px; }
+.hg-row.is-unowned .hg-row__cover img { filter: saturate(.35); opacity: .85; }
+.hg-row__main { display: grid; gap: 3px; min-width: 0; }
+.hg-row__name { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.hg-row__link { overflow: hidden; color: var(--foreground); font-weight: 600; font-size: .875rem; text-overflow: ellipsis; white-space: nowrap; }
+.hg-row__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; color: var(--muted); font-size: 0.78125rem; min-width: 0; }
+.lib-meta { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.lib-meta .i { font-size: 12px; }
+.hg-bar { position: relative; display: block; height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.hg-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--primary); transform-origin: left; }
+.hg-bar.is-done > span { background: var(--success); }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; justify-self: end; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; transition: background-color .25s, color .25s; }
+.hg-chip .i { font-size: 12px; }
+.hg-flag { display: inline-grid; flex: none; place-items: center; width: 18px; height: 18px; border-radius: 5px; font-size: 11px; }
+.hg-score { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 24px; height: 19px; padding: 0 5px; border-radius: 6px; font-size: 0.71875rem; font-weight: 700; }
+.hg-score .i { font-size: 10px; }
+.hg-deal { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 6px; background: var(--deal); color: var(--deal-foreground); font-size: 0.71875rem; font-weight: 700; white-space: nowrap; }
+.hg-deal .i { font-size: 12px; }
+.lib-own--no { display: inline-flex; align-items: center; gap: 4px; padding: 0 6px; border-radius: 5px; color: var(--st-pendiente); outline: 1px dashed var(--st-pendiente); outline-offset: -1px; font-size: 0.6875rem; font-weight: 700; line-height: 1.6; white-space: nowrap; }
+.lib-own--no .i { font-size: 10px; }
+.hg-keyhint { color: var(--muted); font-size: 0.75rem; white-space: nowrap; }
+.hg-achs { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.hg-ach { --c: var(--muted); position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: .7rem; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: inset 3px 0 0 var(--c); overflow: hidden; transition: box-shadow .3s; }
+.hg-ach__icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--c) 16%, transparent); color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: 16px; transition: background-color .3s, color .3s; }
+.hg-ach__body { display: grid; min-width: 0; }
+.hg-ach__name { overflow: hidden; font-size: 0.8125rem; font-weight: 600; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.hg-ach__game { overflow: hidden; color: var(--muted); font-size: 0.75rem; text-overflow: ellipsis; white-space: nowrap; }
+.hg-ach__pct { display: grid; justify-items: end; font-size: 0.78125rem; font-weight: 600; white-space: nowrap; }
+.hg-ach__pct small { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: 0.6875rem; font-weight: 600; }
+.hg-ach.rar-epica { --c: var(--rar-epica); } .hg-ach.rar-leg { --c: var(--rar-leg); }
+.hg-ach.is-locked { --c: var(--border-hover); }
+.hg-ach.is-locked .hg-ach__icon { background: var(--surface-2); color: var(--muted); }
+.hg-ach.is-locked .hg-ach__name { color: var(--muted); }
+.mini-pill { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px 0 3px; border: 1px solid var(--border); border-radius: 999px; background: var(--background); font-size: .75rem; font-weight: 500; white-space: nowrap; }
+.mini-pill.st-bandeja { border-style: dashed; border-color: color-mix(in srgb, var(--c) 55%, transparent); }
+.mini-pill b { display: inline-block; font-weight: 700; color: color-mix(in srgb, var(--c) 85%, var(--foreground)); }
+.dash-list__icon { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 999px; font-size: 11px; }
+.rar-stack { display: flex; gap: 2px; height: 8px; border-radius: 999px; overflow: hidden; }
+.rar-stack span { background: var(--c); transition: flex-grow .45s var(--ease-out); }
+.rar-legend { display: flex; flex-wrap: wrap; gap: 2px 10px; margin: 0; padding: 0; list-style: none; color: var(--muted); font-size: .71875rem; }
+.rar-legend li { display: inline-flex; align-items: center; gap: 5px; }
+.rar-legend li::before { content: ''; width: 8px; height: 8px; border-radius: 2px; background: var(--c); }
+.verdict { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin: 0; padding: 8px 10px; border-radius: var(--radius); background: var(--deal); color: var(--deal-foreground); font-size: .78125rem; font-weight: 700; }
+.verdict .i { font-size: 15px; }
+.verdict span { font-weight: 500; }
+.verdict .verdict__price { margin-left: auto; font-size: .9375rem; font-weight: 700; }
+
+/* ══ AuthShell ══ */
+.auth { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 640px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--surface); overflow: hidden; }
+.auth__brand { display: flex; flex-direction: column; gap: 1.5rem; min-width: 0; padding: 2.25rem; background: var(--background); border-right: 1px solid var(--border); }
+.w-mid .auth__brand { padding: 1.75rem; gap: 1.25rem; }
+.auth__pitch { display: grid; gap: .5rem; }
+.auth__tagline { margin: 0; font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; max-width: 20ch; }
+.w-mid .auth__tagline { font-size: 1.375rem; }
+.auth__tagline-sub { margin: 0; color: var(--muted); font-size: .9375rem; max-width: 42ch; }
+.w-mid .auth__tagline-sub { font-size: .875rem; }
+.auth__preview { display: grid; gap: .75rem; margin-top: auto; pointer-events: none; user-select: none; }
+.auth__form-wrap { display: flex; align-items: center; justify-content: center; padding: 2.5rem 2rem; min-width: 0; }
+.w-mid .auth__form-wrap { padding: 2rem 1.75rem; }
+.au-form { width: 100%; max-width: 380px; display: grid; gap: 1.25rem; }
+.au-head h1 { margin: 0; font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+.au-head p { margin: .25rem 0 0; color: var(--muted); font-size: .9375rem; }
+.w-mob .au-head h1 { font-size: 1.5rem; }
+.au-fields { display: grid; gap: 1rem; }
+.au-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.au-msg:empty { display: none; }
+.au-switch { margin: .25rem 0 0; text-align: center; font-size: .875rem; color: var(--muted); }
+.au-submit__lbl { display: inline-flex; align-items: center; gap: 8px; }
+.au-submit .i-go { transition: transform .16s var(--ease-out); }
+.au-submit:hover:not(:disabled) .i-go { transform: translateX(3px); }
+.au-google .g { width: 16px; height: 16px; flex: none; }
+
+/* Vista previa A · ventana de biblioteca (la de la portada, más estrecha) */
+.au-win { display: grid; gap: .625rem; padding: .875rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.au-win__head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.au-win__head b { font-size: .9375rem; }
+.au-rail { display: flex; flex-wrap: wrap; gap: 6px; }
+.au-win .hg-row, .au-peek .hg-row { grid-template-columns: 88px minmax(0, 1fr) auto; background: var(--background); gap: .75rem; padding: 7px 10px 7px 12px; min-height: 0; }
+.au-win .hg-row__cover, .au-peek .hg-row__cover { width: 88px; height: 41px; }
+.w-mid .au-win .hg-row { grid-template-columns: 64px minmax(0, 1fr) auto; gap: .625rem; }
+.w-mid .au-win .hg-row__cover { width: 64px; height: 30px; }
+.w-mid .au-rail .mini-pill:nth-child(4) { display: none; }
+.au-prog { display: flex; align-items: center; gap: 8px; margin-top: 2px; color: var(--muted); font-size: .71875rem; }
+.au-prog .hg-bar { flex: 1; max-width: 140px; height: 5px; }
+.au-prog b { color: var(--foreground); font-weight: 600; }
+.au-prog .is-full { color: var(--success); font-weight: 700; }
+.au-price { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 2px; font-size: .78125rem; }
+.au-price b { font-size: .8125rem; }
+
+/* Vista previa B · tres pruebas */
+.au-cards { display: grid; gap: .625rem; }
+.au-card { display: grid; gap: .625rem; padding: .875rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.au-card__head { display: flex; align-items: center; gap: .625rem; }
+.au-card__head .sec-icon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; font-size: 14px; flex: none; }
+.au-card__head b { font-size: .875rem; }
+.au-card__head span:last-child { margin-left: auto; color: var(--muted); font-size: .75rem; }
+.au-ficha { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: .75rem; align-items: center; }
+.w-mid .au-ficha { grid-template-columns: 76px minmax(0, 1fr); }
+.au-ficha__img { aspect-ratio: 460 / 215; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.au-ficha__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.au-ficha__txt { display: grid; gap: 4px; min-width: 0; font-size: .78125rem; color: var(--muted); }
+.au-ficha__txt > b { color: var(--foreground); font-size: .875rem; }
+.au-ficha__txt > span { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+/* Móvil: el formulario en su tarjeta; la vista previa reducida, debajo */
+.au-mcard { padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.au-mcard .au-form { max-width: none; }
+.au-peek { display: grid; grid-template-columns: minmax(0, 1fr); gap: .625rem; margin-top: 1.25rem; padding: 0 .25rem; pointer-events: none; user-select: none; }
+.au-peek__t { margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
+.au-peek__s { margin: -4px 0 0; color: var(--muted); font-size: .8125rem; }
+.au-peek .au-rail { flex-wrap: nowrap; overflow: hidden; }
+.au-tagline-only { margin: 1.25rem .25rem 0; color: var(--muted); font-size: .8125rem; text-align: center; }
+
+/* Teclado simulado (solo para el marco) */
+.kb { position: absolute; inset: auto 0 0 0; z-index: 8; height: 290px; padding: 8px 4px 30px; background: var(--surface-3); display: grid; grid-template-rows: 36px repeat(4, 1fr); gap: 9px; }
+.kb__bar { display: flex; align-items: center; justify-content: center; gap: 24px; color: var(--muted); font-size: .8125rem; font-weight: 600; }
+.kb__row { display: flex; gap: 5px; justify-content: center; }
+.kb__row i { flex: 1; max-width: 33px; border-radius: 5px; background: var(--surface); box-shadow: 0 1px 0 var(--border-hover); }
+.kb__row i.w { max-width: 60px; } .kb__row i.sp { max-width: 180px; } .kb__row i.go { max-width: 80px; background: var(--primary); }
+
+/* ══ Microanimaciones ══ */
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes count-pop { 40% { transform: scale(1.18); } }
+@keyframes bar-fill { from { transform: scaleX(0); } }
+@keyframes deal-flash { 0% { box-shadow: 0 0 0 0 var(--deal); } 40% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--deal) 50%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
+@keyframes shake { 20% { transform: translateX(-6px); } 45% { transform: translateX(5px); } 70% { transform: translateX(-3px); } 90% { transform: translateX(1px); } }
+@keyframes msg-in { from { opacity: 0; transform: translateY(-4px); } }
+@keyframes msg-out { to { opacity: 0; transform: translateY(-4px); } }
+@keyframes lbl-in { from { opacity: 0; transform: translateY(5px); } }
+@keyframes form-out { to { opacity: 0; transform: translateY(4px); } }
+/* Entrada con intención: .hg-enter (30 ms entre elementos, solo los 8 primeros) */
+.anim .hg-enter { animation: in-up .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+.anim .hg-bar--fill > span { animation: bar-fill .45s var(--ease-out) backwards; animation-delay: .25s; }
+.pop { animation: count-pop .3s var(--ease-out); }
+.flash-deal { animation: count-pop .3s var(--ease-out), deal-flash .7s var(--ease-out); }
+.au-shake { animation: shake .32s var(--ease-out); }
+.au-msg > .alert { animation: msg-in .2s var(--ease-out); }
+.au-msg > .alert.is-out { animation: msg-out .16s ease-in forwards; }
+.lbl-in { animation: lbl-in .18s var(--ease-out); }
+.is-form-out { animation: form-out .12s ease-in forwards; }
+.is-form-in { animation: in-up .22s var(--ease-out); }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+html.rm .spin-ring { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+  .spin-ring { animation: none !important; }
+}
+.anim-list li { margin: 3px 0; }
+.qs li { margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Login</h1>
+  <div class="doc-bar__actions">
+    <div class="doc-group" role="group" aria-label="Variante del lateral"><span>Lateral</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="side" data-val="A" aria-pressed="true">A · Ventana (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="side" data-val="B" aria-pressed="false">B · Tres pruebas</button>
+    </div>
+    <div class="doc-group" role="group" aria-label="Variante en móvil"><span>Móvil</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="mob" data-val="A" aria-pressed="true">A · Reducida (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="mob" data-val="B" aria-pressed="false">B · Fuera</button>
+    </div>
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p><b>Hoy</b> el login ya tiene <code>AuthShell</code> con un lateral de marca y dos filas de ejemplo estáticas; el formulario es correcto, pero los errores son una franja roja sin icono que tiembla entera, todo lo que no sea «credenciales» cae en un genérico, no hay estado de éxito (el botón dice «Entrando...» y la página cambia) y en móvil el lateral se queda como cabecera con el logo repetido encima del formulario.</p>
+  <ul>
+    <li><b>El lateral enseña el producto «en acción»</b>, con las mismas piezas que la portada sin sesión (ya aprobada): la ventana de biblioteca con el raíl de listas y sus contadores, Hades II que pasa de Pendiente a Jugando, Disco Elysium sin comprar con Metacritic y el <b>mínimo histórico en amarillo</b> que destella, y un logro épico que se desbloquea. Una sola vez al cargar. Sin texto de más: el formulario manda.</li>
+    <li><b>Errores y estados con color, icono y texto</b>: rojo <code>--danger</code> para lo que falla, ámbar <code>--warning</code> para lo que no es culpa tuya o se arregla esperando, verde <code>--success</code> al entrar. Los campos implicados se marcan en rojo y se desmarcan en cuanto los corriges. La sacudida pasa al formulario (no solo a la franja).</li>
+    <li><b>Botón que cuenta lo que pasa</b>: «Entrar» → spinner «Entrando…» → verde con un check que se dibuja y «Dentro», y un aviso «Hola de nuevo, diego» mientras se abre el Inicio.</li>
+    <li><b>Placeholder de la contraseña</b>: «Tu contraseña» en vez de «••••••••», que parece un campo ya relleno (se ve en el estado «Falta la contraseña»).</li>
+    <li><b>Móvil</b>: el formulario arriba, sin repetir el logo (ya está en la barra superior); la vista previa, reducida y debajo (variante A) o fuera (B). Con el teclado abierto se ven el campo activo y el botón.</li>
+    <li><b>Marco compartido con el Registro</b>: el lateral es el mismo y no se vuelve a animar al pasar de uno a otro; solo cambia el formulario con un fundido (pruébalo con «Regístrate gratis» en el marco en vivo). El formulario del registro es un boceto: su validación con color va en el siguiente PR.</li>
+  </ul>
+
+  <h3>Mensajes: los de hoy y los propuestos</h3>
+  <table>
+    <thead><tr><th>Caso</th><th>Hoy</th><th>Propuesta</th><th>Color e icono</th></tr></thead>
+    <tbody>
+      <tr><td>Falta un campo</td><td>«Por favor completa todos los campos»</td><td>«Te falta la contraseña.» / «Te falta el email.» / «Escribe tu email y tu contraseña.» y el campo vacío en rojo</td><td><span class="sw hg-tint ko">!</span> <code>--danger</code>, círculo con «!»</td></tr>
+      <tr><td>Credenciales (<code>invalid_credentials</code>)</td><td>«Email o contraseña incorrectos»</td><td>Igual, con los dos campos en rojo y la contraseña seleccionada para reescribirla</td><td><span class="sw hg-tint ko">!</span> <code>--danger</code></td></tr>
+      <tr><td>Email sin confirmar (<code>email_not_confirmed</code>)</td><td>cae en «Error al iniciar sesión. Inténtalo de nuevo.»</td><td><span class="doc-tag doc-tag--new">Propuesta</span> «Confirma tu email para entrar. Te enviamos un enlace a …» + «Reenviar el enlace» (<code>auth.resend</code>)</td><td><span class="sw hg-tint warn">✉</span> <code>--warning</code>, sobre</td></tr>
+      <tr><td>Sin conexión (<code>AuthRetryableFetchError</code>, estado 0)</td><td>genérico</td><td><span class="doc-tag doc-tag--new">Propuesta</span> «Sin conexión. Comprueba tu red y vuelve a probar.»</td><td><span class="sw hg-tint ko">!</span> <code>--danger</code>, wifi tachado</td></tr>
+      <tr><td>Demasiados intentos (429, <code>over_request_rate_limit</code>)</td><td>genérico</td><td><span class="doc-tag doc-tag--new">Propuesta</span> «Demasiados intentos. Espera un minuto y vuelve a probar.»</td><td><span class="sw hg-tint warn">◷</span> <code>--warning</code>, reloj</td></tr>
+      <tr><td>Cualquier otro error</td><td>«Error al iniciar sesión. Inténtalo de nuevo.» (o «Error al iniciar sesión» si lanza)</td><td>«No se pudo iniciar sesión. Inténtalo de nuevo.» (un solo texto para los dos)</td><td><span class="sw hg-tint ko">!</span> <code>--danger</code></td></tr>
+      <tr><td>Vuelta de Google con <code>?error=oauth</code></td><td>«No se pudo completar el inicio de sesión con Google. Inténtalo de nuevo.»</td><td>Igual, sin sacudida (no lo has provocado tú en esta pantalla)</td><td><span class="sw hg-tint ko">!</span> <code>--danger</code></td></tr>
+      <tr><td>Google no arranca</td><td>«Error al iniciar sesión con Google»</td><td>«No se pudo abrir Google. Inténtalo de nuevo.» y, mientras redirige, el botón con spinner «Abriendo Google…»</td><td><span class="sw hg-tint ko">!</span> <code>--danger</code></td></tr>
+      <tr><td>Entra bien</td><td>sin mensaje; «Entrando...» hasta que cambia la página</td><td>Botón verde «Dentro» con check y «Hola de nuevo, <b>diego</b>. Abriendo tu Inicio…» (<code>user_metadata.username</code>, ya se lee)</td><td><span class="sw hg-tint ok">✓</span> <code>--success</code></td></tr>
+      <tr><td>Bloq Mayús activado</td><td>—</td><td><span class="doc-tag doc-tag--new">Propuesta</span> «Bloq Mayús está activado» bajo la contraseña (<code>getModifierState</code>)</td><td><span class="sw hg-tint warn">⇧</span> <code>--warning</code></td></tr>
+      <tr><td>Ver la contraseña</td><td>—</td><td><span class="doc-tag doc-tag--new">Propuesta</span> botón-ojo en el campo, con <code>aria-pressed</code></td><td>neutro; cobalto cuando está visible</td></tr>
+      <tr><td>«¿Has olvidado la contraseña?»</td><td><b>no existe</b> (ni la página para crear una nueva)</td><td><span class="doc-tag doc-tag--new">Propuesta</span> enlace junto a «Contraseña» y aviso verde «Revisa tu correo» (<code>resetPasswordForEmail</code> + una página nueva). Solo en el marco de estados; ver preguntas</td><td><span class="sw hg-tint ok">✓</span> <code>--success</code></td></tr>
+    </tbody>
+  </table>
+  <p class="t">Sin tokens nuevos: <code>--danger</code>, <code>--warning</code> (texto con <code>--warn-ink</code> en claro, como en el perfil), <code>--success</code> y <code>--on-done</code> sobre su tinte o su sólido, todos ya medidos ≥ 4,5:1 en <code>design-system.md</code>. La vista previa usa los colores de listas, notas, mínimo histórico y rarezas de siempre.</p>
+
+  <h3>Microanimaciones (pruébalas en los marcos en vivo; «Repetir entrada» arriba)</h3>
+  <ul class="anim-list">
+    <li><b>Vista previa «en acción», una vez</b>: los bloques del lateral entran escalonados (<code>.hg-enter</code>), la barra de ELDEN RING se rellena, a los 700 ms Hades II cambia a Jugando (franja y chip con fundido, contadores del raíl que saltan 37 → 36 y 1 → 2), a los 1200 ms se desbloquea «Paz en el Abismo» con el destello épico y a los 1600 ms destella el mínimo histórico. <span class="t">320 ms · 30 ms entre bloques; saltos 300 ms; destellos 700–900 ms.</span></li>
+    <li><b>Entrada del formulario</b>: título, Google, separador y campos con el mismo escalonado corto. <span class="t">320 ms.</span></li>
+    <li><b>Foco de los campos</b>: el borde y el anillo pasan a cobalto (o a rojo si el campo tiene error) y el icono se tiñe y crece un 8 %. <span class="t">180 ms, solo color y <code>transform</code>.</span></li>
+    <li><b>Error</b>: el formulario tiembla, el aviso baja con un fundido y los campos implicados se ponen en rojo; al escribir en ellos se desmarcan y el aviso se va. <span class="t">sacudida 320 ms; aviso 200 ms / 160 ms.</span></li>
+    <li><b>Botón</b>: «Entrar» → spinner «Entrando…» → fondo verde con un check que se dibuja («Dentro»); el texto cambia subiendo con un fundido. La flecha de «Entrar» avanza al pasar el ratón. <span class="t">color 200 ms; texto 180 ms; trazo 300 ms.</span></li>
+    <li><b>Ojo de la contraseña</b> que parpadea al pulsarlo. <span class="t">220 ms.</span></li>
+    <li><b>Login ↔ Registro</b>: el formulario sale y entra con un fundido; el lateral se queda quieto. <span class="t">120 + 220 ms.</span></li>
+    <li>Con <b>movimiento reducido</b> la vista previa aparece ya en su estado final, nada tiembla y los spinners no giran.</li>
+  </ul>
+
+  <h3>Piezas que se reutilizan</h3>
+  <ul>
+    <li>De la <b>portada sin sesión</b> (<code>LandingPreview.tsx</code>, <code>dashboard.css</code>): la ventana de biblioteca con el raíl (<code>.dash-list--mini</code>, <code>AnimatedCount</code>), las filas (<code>.lib-row</code>, <code>StatusChip</code>, <code>MarkFlags</code>, <code>GameCover</code>, <code>.hg-score</code>, <code>.price-tag</code> con <code>.hg-deal</code>), el logro que se desbloquea (<code>.land-unlock</code> + <code>.hg-rar-flash</code>), <code>.land-swap</code>, <code>.land-flash</code> y los pasos con temporizador (los mismos 700 / 1200 / 1600 ms). Propongo sacar los pasos a un hook (<code>usePreviewSteps</code>) para no copiarlos.</li>
+    <li>En la variante B, la tarjeta de ficha (<code>.land-ficha__*</code>, <code>.land-verdict</code>) y la barra por rareza (<code>.land-stack</code>) de las tarjetas de la portada.</li>
+    <li>De <code>AuthShell</code> y <code>globals.css</code>: <code>.auth*</code>, <code>.field*</code>, <code>.hg-input</code>, <code>.divider-text</code>, <code>.alert--error/ok</code> (más <code>.alert--warn</code>, que ya se pinta así en el perfil) y <code>FormError</code>, que pasa a recibir el tono y el icono.</li>
+    <li>Del <b>perfil</b>: <code>SaveButton</code> (spinner y check que se dibuja con <code>.hg-draw</code>) para el botón «Entrar», y la sacudida de sus formularios.</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px · en vivo</h2>
+  <p>Sin sesión: barra lateral con Inicio, JUDI y Ranking, y «Entrar» al pie. Escribe lo que quieras: la contraseña <b>hubgames</b> entra; cualquier otra da «credenciales»; empieza el email por <b>sinconfirmar</b>, <b>sinred</b> o <b>muchos</b> para los otros errores. O usa los atajos de debajo. Prueba también el ojo, Bloq Mayús y «Regístrate gratis».</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px;height:820px" id="f-desk"></div></div>
+  <div class="tests" data-tests="f-desk"><span>Probar:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="ok">Entrar bien</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="cred">Contraseña mal</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="empty">Falta la contraseña</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="unconf">Email sin confirmar</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="offline">Sin conexión</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="rate">Demasiados intentos</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="oauth">Vuelta de Google con error</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="reset">Reiniciar</button>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Lateral · A y B lado a lado</h2>
+  <p>El mismo panel a su tamaño real en 1440 px. <b>A · Ventana</b>: una sola pieza, la ventana de la portada, con las tres cosas (listas, puntuación y mínimo, rareza). <b>B · Tres pruebas</b>: tres tarjetas pequeñas con título, más explícito pero más texto. Recomiendo <b>A</b>: se lee de un vistazo sin competir con el formulario, y es literalmente lo que verás al entrar.</p>
+  <div class="scroller"><div class="grid-frames" id="side-compare"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Estados del formulario</h2>
+  <p>Solo la columna del formulario (igual en escritorio y móvil). Cada uno marca si el mensaje es el de hoy o una propuesta.</p>
+  <div class="scroller"><div class="grid-frames three" id="states"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Formulario arriba en su tarjeta; debajo, según la variante de móvil de la barra, la vista previa reducida (A: raíl y la fila de Hades II que cambia a Jugando) o nada más que una frase (B). En la barra inferior, «Entrar» es la pestaña activa.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px;height:844px" id="f-mob"></div><p class="frame-cap">En vivo (los mismos casos que en escritorio).</p></div>
+    <div><div class="frame w-mob" style="width:390px;height:844px" id="f-mob-kb"></div><p class="frame-cap"><b>Con el teclado abierto</b>, escribiendo la contraseña: título, Google, los dos campos y «Entrar» quedan por encima del teclado. El email usa <code>inputmode="email"</code> y <code>enterkeyhint="next"</code>; la contraseña, <code>enterkeyhint="go"</code> para entrar desde el teclado.</p></div>
+    <div><div class="frame w-mob" style="width:390px;height:844px" id="f-mob-err"></div><p class="frame-cap"><b>Email largo y sin confirmar</b> (propuesta): el campo recorta con puntos suspensivos y el aviso parte la dirección donde haga falta, sin desbordar.</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Registro con el mismo marco · ~1000 px</h2>
+  <p>Para el siguiente PR: el lateral es el mismo componente; a 1000 px (barra plegada) las cápsulas se encogen y el raíl enseña tres listas. El formulario es un <b>boceto</b> (los requisitos de la contraseña en verde se diseñan en su mockup).</p>
+  <div class="scroller"><div class="frame w-mid" style="width:1000px;height:900px" id="f-mid-reg"></div></div>
+</section>
+
+<section class="sec note" id="questions">
+  <h2>Preguntas</h2>
+  <ol class="qs">
+    <li><b>Lateral A o B.</b> Recomiendo <b>A · Ventana</b>: una pieza, ya aprobada en la portada, y deja que mande el formulario.</li>
+    <li><b>Móvil: vista previa reducida (A) o fuera (B).</b> Recomiendo <b>A</b>: va debajo del formulario, así que no estorba ni con el teclado, y a quien llega desde un enlace le dice qué es HubGames.</li>
+    <li><b>«¿Has olvidado la contraseña?»</b> Hoy no hay forma de recuperarla. Hace falta <code>resetPasswordForEmail</code> y una página nueva para escribir la contraseña (la vuelta del enlace). ¿Lo metemos en este PR, en uno aparte o no hace falta (casi todos entráis con Google)? Recomiendo <b>un PR aparte justo después</b>; el diseño ya queda en el marco de estados.</li>
+    <li><b>¿Está activada la confirmación por email</b> en Supabase? El registro hace <code>router.push('/')</code> tras crear la cuenta, como si no lo estuviera, pero el comentario de <code>identities</code> dice que sí. Si está, recomiendo el aviso ámbar con «Reenviar el enlace»; si no, sobra.</li>
+    <li><b>Errores separados</b> (sin conexión, demasiados intentos) en vez del genérico: recomiendo <b>sí</b>, cuestan un <code>if</code> sobre <code>error.code</code> / <code>error.status</code>.</li>
+    <li><b>Ojo para ver la contraseña y aviso de Bloq Mayús</b>: recomiendo <b>sí a los dos</b> (solo cliente, sin coste), y que el registro los herede.</li>
+    <li><b>«Hola de nuevo, diego»</b> al entrar: es un instante antes de cambiar de página. ¿Te gusta o prefieres solo el botón verde? Recomiendo <b>dejarlo</b>: confirma con quién has entrado.</li>
+    <li><b>«Bienvenido de nuevo»</b> como título: ¿lo cambiamos por «Hola de nuevo» (sin género) o lo dejamos? No lo he tocado.</li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  hourglass: '<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
+  cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+  trenddown: '<polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>',
+  tag: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+  thumbs: '<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+  eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+  eyeoff: '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+  arrowr: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  checkc: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+  alertc: '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+  wifioff: '<path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/>',
+  caps: '<path d="M9 18v-6H5l7-7 7 7h-4v6H9z"/>',
+  send: '<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.112z"/><path d="m21.854 2.147-10.94 10.939"/>',
+  userround: '<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',
+  userplus: '<path d="M2 21a8 8 0 0 1 13.292-6"/><circle cx="10" cy="8" r="5"/><path d="M19 16v6"/><path d="M22 19h-6"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const GOOGLE = `<svg class="g" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>`;
+const IMG = (id) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`;
+const rm = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const VAR = { side: 'A', mob: 'A' };
+const THEME = { pref: 'light' };
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+function sidebar(compact) {
+  const link = (label, icon, ind = '') => `<a href="#" class="nv-link" title="${label}">${ic(icon)}<span class="nv-link__label">${label}</span>${ind}</a>`;
+  const theme = `<div class="theme-toggle">${['light', 'dark', 'system'].map((v, i) => `<span class="${v === THEME.pref ? 'on' : ''}">${ic(['sun', 'moon', 'monitor'][i])}</span>`).join('')}</div>`;
+  return `<aside class="nv-side ${compact ? 'is-compact' : ''}"><a href="#" class="nv-brand">${logo(22)}</a><nav class="nv-menu"><div class="nv-group">${link('Inicio', 'home')}</div><div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('JUDI', 'gamepad', `<span class="nav-ind hg-tint warn">${ic('clock')}Hoy</span>`)}${link('Ranking', 'trophy')}</div></nav><div class="nv-foot">${theme}<p class="nav-cta-hint">Entra para tener tu biblioteca de Steam y tus logros.</p><a href="#" class="nav-cta" title="Entrar">${ic('login')}<span>Entrar</span></a></div></aside>`;
+}
+function mobileChrome(body, kb = false) {
+  const tabs = [['Inicio', 'home'], ['JUDI', 'gamepad'], ['Ranking', 'trophy'], ['Entrar', 'login']];
+  const thIcon = THEME.pref === 'dark' ? 'moon' : 'sun';
+  return `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><span class="m-icon">${ic(thIcon)}</span></header><div class="m-page">${body}</div>${kb ? keyboard() : `<nav class="m-tabbar">${tabs.map(([l, i]) => `<a href="#" class="m-tab ${l === 'Entrar' ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}</span><span>${l}</span></a>`).join('')}</nav>`}`;
+}
+function keyboard() {
+  const row = (n, extra = '') => `<div class="kb__row">${extra}${'<i></i>'.repeat(n)}</div>`;
+  return `<div class="kb" aria-hidden="true"><div class="kb__bar"><span>Contraseñas</span><span>·</span><span>Usar contraseña segura</span></div>${row(10)}${row(9)}<div class="kb__row"><i class="w"></i>${'<i></i>'.repeat(7)}<i class="w"></i></div><div class="kb__row"><i class="w"></i><i class="sp"></i><i class="go"></i></div></div>`;
+}
+
+/* ── Vista previa del producto ── */
+const ST = { jugando: ['play', 'Jugando'], pendiente: ['bookmark', 'Pendiente'], completado: ['flag', 'Completado'], bandeja: ['inbox', 'Bandeja'] };
+const chip = (s) => `<span class="hg-chip hg-tint st-${s}">${ic(ST[s][0])}${ST[s][1]}</span>`;
+const mc = (v) => `<span class="hg-score hg-tint sc-top" title="Metacritic">${v}</span>`;
+const pills = (keys) => `<div class="au-rail">${keys.map(([k, n]) => `<span class="mini-pill st-${k}"><span class="dash-list__icon hg-tint">${ic(ST[k][0])}</span>${ST[k][1]} <b data-pill="${k}">${n}</b></span>`).join('')}</div>`;
+function prog(done, total) {
+  const p = Math.round(done / total * 100);
+  return `<span class="au-prog"><span class="hg-bar hg-bar--fill ${p === 100 ? 'is-done' : ''}"><span style="width:${p}%"></span></span><span><b>${done}</b> / ${total}</span><span class="${p === 100 ? 'is-full' : ''}">${p} %</span></span>`;
+}
+const rowElden = () => `<li class="hg-row lib-row st-jugando"><span class="hg-row__cover"><img src="${IMG(1245620)}" alt=""></span><span class="hg-row__main"><span class="hg-row__name"><span class="hg-row__link">ELDEN RING</span><span class="hg-flag hg-tint st-favorito" title="Favorito">${ic('heart')}</span></span><span class="hg-row__meta"><span class="lib-meta">${ic('clock')} 142 h</span>${mc(96)}</span>${prog(31, 42)}</span>${chip('jugando')}</li>`;
+const rowHades = (barless = false) => `<li class="hg-row lib-row st-pendiente" data-swap><span class="hg-row__cover"><img src="${IMG(1145350)}" alt=""></span><span class="hg-row__main"><span class="hg-row__name"><span class="hg-row__link">Hades II</span></span><span class="hg-row__meta"><span class="lib-meta">${ic('hourglass')} Historia 22 h</span>${mc(95)}</span>${barless ? '' : prog(0, 49)}</span>${chip('pendiente')}</li>`;
+const rowOuter = () => `<li class="hg-row lib-row st-completado"><span class="hg-row__cover"><img src="${IMG(753640)}" alt=""></span><span class="hg-row__main"><span class="hg-row__name"><span class="hg-row__link">Outer Wilds</span></span><span class="hg-row__meta"><span class="lib-meta">${ic('clock')} 24 h</span><span class="hg-score hg-tint sc-top">★ 9,5</span></span>${prog(31, 31)}</span>${chip('completado')}</li>`;
+const rowDisco = () => `<li class="hg-row lib-row st-pendiente is-unowned"><span class="hg-row__cover"><img src="${IMG(632470)}" alt=""></span><span class="hg-row__main"><span class="hg-row__name"><span class="hg-row__link">Disco Elysium - The Final Cut</span></span><span class="hg-row__meta"><span class="lib-own--no">${ic('cart')} Sin comprar</span>${mc(97)}</span><span class="au-price"><span class="hg-deal" data-deal>${ic('trenddown')} Mínimo histórico</span><b>9,99 €</b><span class="hg-score hg-tint sc-top">-75 %</span></span></span>${chip('pendiente')}</li>`;
+const achLeg = () => `<li class="hg-ach rar-leg"><span class="hg-ach__icon">${ic('trophy')}</span><span class="hg-ach__body"><span class="hg-ach__name">Hollow Knight puro</span><span class="hg-ach__game">Hollow Knight · hace 2 días</span></span><span class="hg-ach__pct"><span>0,9 %</span><small>Legendaria</small></span></li>`;
+const achUnlock = () => `<li class="hg-ach is-locked" data-unlock><span class="hg-ach__icon">${ic('lock')}</span><span class="hg-ach__body"><span class="hg-ach__name">Paz en el Abismo</span><span class="hg-ach__game">Hollow Knight · Te falta</span></span><span class="hg-ach__pct"><span>3,1 %</span><small>Épica</small></span></li>`;
+
+function previewA() {
+  return `<div class="auth__preview" data-preview role="img" aria-label="Ejemplo de HubGames: tu biblioteca por listas, un juego en mínimo histórico y un logro épico que se desbloquea">
+    <div class="au-win hg-enter" style="--i:2" aria-hidden="true"><div class="au-win__head"><b>Biblioteca</b><span class="hg-keyhint">Ejemplo</span></div>${pills([['jugando', 1], ['pendiente', 37], ['completado', 58], ['bandeja', 14]])}<ul class="hg-rows">${rowElden()}${rowHades()}${rowDisco()}</ul></div>
+    <ul class="hg-achs hg-enter" style="--i:3" aria-hidden="true">${achUnlock()}</ul>
+  </div>`;
+}
+function previewB() {
+  return `<div class="auth__preview" data-preview role="img" aria-label="Ejemplo de HubGames: listas con color, precios con veredicto y logros por rareza">
+    <div class="au-cards" aria-hidden="true">
+      <article class="au-card hg-enter" style="--i:2"><div class="au-card__head"><span class="sec-icon hg-tint st-jugando">${ic('play')}</span><b>Cada juego en su lista</b>${pills([['jugando', 1], ['pendiente', 37]]).replace('au-rail', 'au-rail" style="margin-left:auto')}</div><ul class="hg-rows">${rowHades(true)}</ul></article>
+      <article class="au-card hg-enter" style="--i:3"><div class="au-card__head"><span class="sec-icon hg-tint sc-top">${ic('tag')}</span><b>Cada precio, con veredicto</b></div><div class="au-ficha"><span class="au-ficha__img"><img src="${IMG(1086940)}" alt=""></span><span class="au-ficha__txt"><b>Baldur's Gate 3</b><span>${mc(96)} Aclamado <span class="hg-score hg-tint sc-top">${ic('thumbs')} 96 %</span> Extremadamente positivas</span></span></div><p class="verdict" data-deal>${ic('trenddown')} Mínimo histórico <span>nunca ha estado más barato</span><span class="verdict__price">47,99 €</span></p></article>
+      <article class="au-card hg-enter" style="--i:4"><div class="au-card__head"><span class="sec-icon hg-tint rar-epica rar-ink">${ic('trophy')}</span><b>Logros por rareza</b><span><b style="color:var(--foreground)" data-achn>43</b> / 63 · Hollow Knight</span></div><div class="rar-stack"><span class="rar-comun" style="flex-grow:14"></span><span class="rar-poco" style="flex-grow:12"></span><span class="rar-rara" style="flex-grow:10"></span><span class="rar-epica" style="flex-grow:6" data-epic></span><span class="rar-leg" style="flex-grow:1"></span><span style="flex-grow:20;background:var(--surface-2)" data-rest></span></div><ul class="hg-achs">${achUnlock()}</ul></article>
+    </div>
+  </div>`;
+}
+function brandHTML(variant) {
+  return `<aside class="auth__brand"><a href="#" class="nv-brand hg-enter" style="--i:0;padding:0;align-self:flex-start">${logo(26)}</a><div class="auth__pitch hg-enter" style="--i:1"><p class="auth__tagline">Tu biblioteca de Steam y tus logros, en orden.</p><p class="auth__tagline-sub">Lo que juegas, lo que tienes pendiente y los logros que te faltan, sincronizado con Steam. Y cada día, un juego que adivinar en JUDI.</p></div>${variant === 'B' ? previewB() : previewA()}</aside>`;
+}
+function peekHTML(variant) {
+  if (variant === 'B') return `<p class="au-tagline-only hg-enter" style="--i:6">Tu biblioteca de Steam y tus logros, en orden.</p>`;
+  return `<section class="au-peek hg-enter" style="--i:6" data-preview role="img" aria-label="Ejemplo de tu biblioteca en HubGames"><p class="au-peek__t">Tu biblioteca de Steam y tus logros, en orden.</p><p class="au-peek__s">Cada juego en su lista, sincronizado con Steam.</p><div aria-hidden="true">${pills([['jugando', 1], ['pendiente', 37], ['completado', 58]])}</div><ul class="hg-rows" aria-hidden="true">${rowHades(true)}</ul></section>`;
+}
+
+/* ── Formulario ── */
+function fieldHTML(o) {
+  const t = o.toggle ? (o.show ? 'text' : 'password') : o.type;
+  return `<div class="field ${o.bad ? 'is-bad' : ''} ${o.focus ? 'is-focus' : ''}" data-field="${o.key}">
+    <div class="field__top"><label class="field__label" for="${o.id}">${o.label}</label>${o.forgot ? '<a href="#" class="link link--sm">¿Has olvidado la contraseña?</a>' : ''}</div>
+    <div class="field__control"><span class="field__icon">${ic(o.icon)}</span><input id="${o.id}" name="${o.key}" class="hg-input ${o.toggle ? 'has-toggle' : ''}" type="${t}" value="${esc(o.value || '')}" placeholder="${o.ph}" autocomplete="${o.ac}" ${o.im ? `inputmode="${o.im}"` : ''} enterkeyhint="${o.ekh || 'next'}" ${o.disabled ? 'disabled' : ''} ${o.bad ? 'aria-invalid="true"' : ''} aria-describedby="${o.uid}-msg">${o.toggle ? `<button type="button" class="field__toggle" data-act="toggle" aria-label="${o.show ? 'Ocultar' : 'Mostrar'} contraseña" aria-pressed="${!!o.show}" ${o.disabled ? 'disabled' : ''}>${ic(o.show ? 'eyeoff' : 'eye')}</button>` : ''}</div>
+  </div>`;
+}
+const USER = 'diego';
+function msgData(key, st) {
+  const email = esc(st.email || 'tu@email.com');
+  const missing = !st.email && !st.pass ? 'Escribe tu email y tu contraseña.' : !st.email ? 'Te falta el email.' : 'Te falta la contraseña.';
+  return {
+    empty: { tone: 'error', icon: 'alertc', text: missing },
+    cred: { tone: 'error', icon: 'alertc', text: 'Email o contraseña incorrectos.' },
+    generic: { tone: 'error', icon: 'alertc', text: 'No se pudo iniciar sesión. Inténtalo de nuevo.' },
+    oauth: { tone: 'error', icon: 'alertc', text: 'No se pudo completar el inicio de sesión con Google. Inténtalo de nuevo.' },
+    unconf: { tone: 'warn', icon: 'mail', text: 'Confirma tu email para entrar.', sub: `Te enviamos un enlace a <b>${email}</b>.`, act: 'resend' },
+    offline: { tone: 'error', icon: 'wifioff', text: 'Sin conexión.', sub: 'Comprueba tu red y vuelve a probar.' },
+    rate: { tone: 'warn', icon: 'clock', text: 'Demasiados intentos.', sub: 'Espera un minuto y vuelve a probar.' },
+    welcome: { tone: 'ok', icon: 'checkc', text: `Hola de nuevo, ${USER}.`, sub: 'Abriendo tu Inicio…' },
+    reset: { tone: 'ok', icon: 'checkc', text: 'Revisa tu correo.', sub: `Te hemos enviado un enlace a <b>${email}</b> para crear una contraseña nueva.` },
+  }[key];
+}
+function alertHTML(key, st) {
+  const m = msgData(key, st);
+  const act = m.act === 'resend' ? (st.resent ? `<button type="button" class="btn alert__act" disabled>${ic('check', 'hg-draw')}Enviado</button>` : `<button type="button" class="btn alert__act" data-act="resend">${ic('send')}Reenviar el enlace</button>`) : '';
+  return `<div class="alert alert--${m.tone}" role="${m.tone === 'ok' ? 'status' : 'alert'}">${ic(m.icon)}<div class="alert__body"><p>${m.text}</p>${m.sub ? `<p class="alert__sub">${m.sub}</p>` : ''}${act}</div></div>`;
+}
+function submitInner(state, page) {
+  const reg = page === 'registro';
+  if (state === 'loading') return `<span class="au-submit__lbl"><span class="spin-ring"></span>${reg ? 'Creando cuenta…' : 'Entrando…'}</span>`;
+  if (state === 'success') return `<span class="au-submit__lbl">${ic('check', 'hg-draw')}Dentro</span>`;
+  return reg ? `<span class="au-submit__lbl">${ic('userplus')}Crear cuenta</span>` : `<span class="au-submit__lbl">Entrar${ic('arrowr', 'i-go')}</span>`;
+}
+function submitHTML(state, page) {
+  const cls = state === 'loading' ? 'is-busy' : state === 'success' ? 'is-done' : '';
+  return `<button type="submit" class="btn btn--primary btn--block au-submit ${cls}" ${state !== 'idle' ? 'disabled' : ''} ${state === 'loading' ? 'aria-busy="true"' : ''}>${submitInner(state, page)}</button>`;
+}
+function loginForm(st) {
+  const busy = st.state !== 'idle';
+  const g = st.google ? `<span class="au-submit__lbl"><span class="spin-ring"></span>Abriendo Google…</span>` : `${GOOGLE}Continuar con Google`;
+  return `<div class="au-form">
+    <div class="au-head hg-enter" style="--i:0"><h1>Bienvenido de nuevo</h1><p>Entra para ver tu biblioteca, tus logros y tu progreso en JUDI.</p></div>
+    <button type="button" class="btn btn--secondary btn--block au-google hg-enter ${st.google ? 'is-busy' : ''}" style="--i:1" data-act="google" ${busy || st.google ? 'disabled' : ''}>${g}</button>
+    <div class="divider-text hg-enter" style="--i:2">o con tu email</div>
+    <form class="au-fields hg-enter" style="--i:3" novalidate data-login>
+      ${fieldHTML({ key: 'email', uid: st.id, id: `${st.id}-email`, label: 'Email', icon: 'mail', type: 'email', value: st.email, ph: 'tu@email.com', ac: 'email', im: 'email', bad: st.bad?.email, focus: st.focus === 'email', disabled: busy })}
+      ${fieldHTML({ key: 'pass', uid: st.id, id: `${st.id}-pass`, label: 'Contraseña', icon: 'lock', type: 'password', value: st.pass, ph: 'Tu contraseña', ac: 'current-password', ekh: 'go', toggle: true, show: st.show, bad: st.bad?.pass, focus: st.focus === 'pass', disabled: busy, forgot: st.forgot })}
+      <p class="au-hint" data-caps ${st.caps ? '' : 'hidden'}>${ic('caps')}Bloq Mayús está activado</p>
+      <div class="au-msg" id="${st.id}-msg" data-msg aria-live="polite">${st.msg ? alertHTML(st.msg, st) : ''}</div>
+      ${submitHTML(st.state, 'login')}
+    </form>
+    <p class="au-switch hg-enter" style="--i:4">¿No tienes cuenta? <a href="#" class="link" data-act="to-reg">Regístrate gratis</a></p>
+  </div>`;
+}
+function regForm(st) {
+  return `<div class="au-form">
+    <div class="au-head hg-enter" style="--i:0"><h1>Crea tu cuenta</h1><p>Crea la cuenta y después conecta Steam para traer tus juegos y logros.</p></div>
+    <button type="button" class="btn btn--secondary btn--block au-google hg-enter" style="--i:1">${GOOGLE}Registrarse con Google</button>
+    <div class="divider-text hg-enter" style="--i:2">o con tu email</div>
+    <form class="au-fields hg-enter" style="--i:3" novalidate>
+      ${fieldHTML({ key: 'user', uid: st.id, id: `${st.id}-ru`, label: 'Nombre de usuario', icon: 'userround', type: 'text', ph: 'Tu alias', ac: 'username' })}
+      ${fieldHTML({ key: 'email', uid: st.id, id: `${st.id}-re`, label: 'Email', icon: 'mail', type: 'email', ph: 'tu@email.com', ac: 'email', im: 'email' })}
+      <div class="au-row">${fieldHTML({ key: 'pass', uid: st.id, id: `${st.id}-rp`, label: 'Contraseña', icon: 'lock', type: 'password', ph: '••••••••', ac: 'new-password' })}${fieldHTML({ key: 'pass2', uid: st.id, id: `${st.id}-rc`, label: 'Confirmar', icon: 'lock', type: 'password', ph: '••••••••', ac: 'new-password' })}</div>
+      ${submitHTML('idle', 'registro')}
+    </form>
+    <p class="au-switch hg-enter" style="--i:4">¿Ya tienes cuenta? <a href="#" class="link" data-act="to-login">Inicia sesión</a></p>
+  </div>`;
+}
+const formFor = (st) => (st.page === 'registro' ? regForm(st) : loginForm(st));
+
+/* ── Marcos ── */
+function authDesk(st) {
+  return `<div class="auth">${brandHTML(VAR.side)}<div class="auth__form-wrap" data-formwrap>${formFor(st)}</div></div>`;
+}
+function frameHTML(st) {
+  if (st.mob) {
+    const body = `<div class="au-mcard" data-formwrap>${formFor(st)}</div>${peekHTML(VAR.mob)}`;
+    return mobileChrome(body, st.kb);
+  }
+  return `${sidebar(st.mid)}<div class="page"><div class="page-in">${authDesk(st)}</div></div>`;
+}
+const FR = {};
+function mk(id, o) { FR[id] = { id, mob: false, mid: false, page: 'login', state: 'idle', msg: null, email: '', pass: '', bad: {}, focus: null, show: false, caps: false, live: false, ...o }; FR[id].init = JSON.parse(JSON.stringify(FR[id])); }
+mk('f-desk', { live: true });
+mk('f-mob', { mob: true, live: true });
+mk('f-mob-kb', { mob: true, kb: true, email: 'diego@hubgames.es', pass: 'hubgam', focus: 'pass' });
+mk('f-mob-err', { mob: true, email: 'diego.mardomingo.lopez.cuenta.antigua@correo-universidad.example.es', pass: 'hubgames', msg: 'unconf' });
+mk('f-mid-reg', { mid: true, page: 'registro' });
+
+function renderFrame(id) {
+  const st = FR[id]; const el = document.getElementById(id);
+  el.innerHTML = frameHTML(st);
+  enter(el);
+}
+function enter(el) {
+  el.classList.remove('anim'); void el.offsetWidth;
+  if (!rm()) el.classList.add('anim');
+  el.querySelectorAll('[data-preview]').forEach(action);
+}
+
+/* Comparación de laterales y estados */
+function renderCompare() {
+  const box = document.getElementById('side-compare');
+  box.innerHTML = ['A', 'B'].map((v) => `<div><p class="vlabel"><b>${v}</b>${v === 'A' ? 'Ventana de biblioteca · recomendada' : 'Tres pruebas'}</p><div class="frame w-desk" style="width:580px;height:770px;border-radius:18px"><div class="auth" style="grid-template-columns:1fr;min-height:100%;border:0;border-radius:0">${brandHTML(v).replace('auth__brand', 'auth__brand" style="border-right:0')}</div></div></div>`).join('');
+  box.querySelectorAll('.frame').forEach(enter);
+}
+const STATES = [
+  ['Inicial', 'Hoy', {}],
+  ['Foco en el email', 'Transición', { focus: 'email', email: 'diego@' }],
+  ['Falta la contraseña', 'Texto nuevo', { email: 'diego@hubgames.es', bad: { pass: true }, focus: 'pass', msg: 'empty' }],
+  ['Credenciales incorrectas', 'Hoy + campos', { email: 'diego@hubgames.es', pass: 'hubgamez', bad: { email: true, pass: true }, msg: 'cred' }],
+  ['Cargando', 'Hoy', { email: 'diego@hubgames.es', pass: 'hubgames', state: 'loading' }],
+  ['Éxito', 'Propuesta', { email: 'diego@hubgames.es', pass: 'hubgames', state: 'success', msg: 'welcome' }],
+  ['Email sin confirmar', 'Propuesta', { email: 'laura.g@gmail.com', pass: 'hubgames', msg: 'unconf' }],
+  ['Sin conexión', 'Propuesta', { email: 'diego@hubgames.es', pass: 'hubgames', msg: 'offline' }],
+  ['Demasiados intentos', 'Propuesta', { email: 'diego@hubgames.es', pass: 'hubgamez', msg: 'rate' }],
+  ['Vuelta de Google con error', 'Hoy', { msg: 'oauth' }],
+  ['Bloq Mayús y contraseña visible', 'Propuesta', { email: 'diego@hubgames.es', pass: 'HUBGAMES', show: true, caps: true, focus: 'pass' }],
+  ['¿Has olvidado la contraseña?', 'Propuesta', { email: 'diego@hubgames.es', forgot: true, msg: 'reset' }],
+];
+function renderStates() {
+  const box = document.getElementById('states');
+  box.innerHTML = STATES.map(([t, tag, o], i) => {
+    const st = { id: `s${i}`, page: 'login', state: 'idle', msg: null, email: '', pass: '', bad: {}, focus: null, show: false, caps: false, ...o };
+    return `<div><p class="vlabel"><b>${i + 1}</b>${t} <span class="doc-tag ${/Propuesta|nuevo/.test(tag) ? 'doc-tag--new' : ''}">${tag}</span></p><div class="frame w-desk" style="width:420px;background:var(--surface);border-radius:18px"><div class="auth__form-wrap" style="padding:1.75rem">${loginForm(st)}</div></div></div>`;
+  }).join('');
+  box.querySelectorAll('.frame').forEach((f) => { f.querySelectorAll('input').forEach((x) => (x.tabIndex = -1)); enter(f); });
+}
+
+/* ── Vista previa «en acción» (una vez al entrar) ── */
+const timers = [];
+function replayCls(el, cls) { if (!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+function action(root) {
+  const go = (ms, fn) => timers.push(setTimeout(fn, rm() ? 0 : ms));
+  const row = root.querySelector('[data-swap]');
+  const un = root.querySelector('[data-unlock]');
+  go(700, () => {
+    if (row) {
+      row.classList.replace('st-pendiente', 'st-jugando');
+      const c = row.querySelector('.hg-chip'); c.className = 'hg-chip hg-tint st-jugando'; c.innerHTML = `${ic('play')}Jugando`; replayCls(c, 'pop');
+    }
+    const pp = root.querySelector('[data-pill="pendiente"]'); if (pp) { pp.textContent = '36'; replayCls(pp, 'pop'); }
+    const pj = root.querySelector('[data-pill="jugando"]'); if (pj) { pj.textContent = '2'; replayCls(pj, 'pop'); }
+  });
+  go(1200, () => {
+    if (!un) return;
+    un.className = 'hg-ach rar-epica'; un.querySelector('.hg-ach__icon').innerHTML = ic('trophy');
+    un.querySelector('.hg-ach__game').textContent = 'Hollow Knight · ahora mismo';
+    if (!rm()) un.animate([{ backgroundColor: 'color-mix(in srgb, var(--rar-epica) 30%, var(--surface))' }, { backgroundColor: 'var(--surface)' }], { duration: 900, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+    const n = root.querySelector('[data-achn]'); if (n) { n.textContent = '44'; replayCls(n, 'pop'); }
+    const e = root.querySelector('[data-epic]'); if (e) { e.style.flexGrow = 7; root.querySelector('[data-rest]').style.flexGrow = 19; }
+  });
+  go(1600, () => root.querySelectorAll('[data-deal]').forEach((d) => replayCls(d, 'flash-deal')));
+}
+
+/* ── Interacción del formulario en vivo ── */
+const wait = (ms) => new Promise((r) => setTimeout(r, rm() ? Math.min(ms, 60) : ms));
+const q = (root, s) => root.querySelector(s);
+function setMsg(root, st, key) {
+  st.msg = key;
+  const slot = q(root, '[data-msg]'); if (!slot) return;
+  slot.innerHTML = key ? alertHTML(key, st) : '';
+}
+function clearMsg(root, st) {
+  if (!st.msg) return;
+  st.msg = null;
+  const a = q(root, '[data-msg] > .alert'); if (!a) return;
+  if (rm()) { a.remove(); return; }
+  a.classList.add('is-out'); setTimeout(() => a.remove(), 160);
+}
+function markBad(root, st, key, on) {
+  st.bad[key] = on;
+  const f = q(root, `[data-field="${key}"]`); if (!f) return;
+  f.classList.toggle('is-bad', on);
+  const inp = f.querySelector('input'); on ? inp.setAttribute('aria-invalid', 'true') : inp.removeAttribute('aria-invalid');
+}
+function setBusy(root, st, state) {
+  st.state = state;
+  const b = q(root, '.au-submit');
+  b.className = `btn btn--primary btn--block au-submit ${state === 'loading' ? 'is-busy' : state === 'success' ? 'is-done' : ''}`;
+  b.disabled = state !== 'idle'; state === 'loading' ? b.setAttribute('aria-busy', 'true') : b.removeAttribute('aria-busy');
+  b.innerHTML = submitInner(state, 'login'); replayCls(b.firstElementChild, 'lbl-in');
+  root.querySelectorAll('[data-login] input, [data-login] .field__toggle, .au-google').forEach((x) => (x.disabled = state !== 'idle'));
+}
+function shake(root) { replayCls(q(root, '[data-login]'), 'au-shake'); }
+async function submit(root, st) {
+  if (st.state !== 'idle') return;
+  st.email = q(root, 'input[name=email]').value.trim(); st.pass = q(root, 'input[name=pass]').value;
+  clearMsg(root, st);
+  if (!st.email || !st.pass) {
+    markBad(root, st, 'email', !st.email); markBad(root, st, 'pass', !st.pass);
+    setMsg(root, st, 'empty'); shake(root);
+    q(root, `input[name=${!st.email ? 'email' : 'pass'}]`).focus();
+    return;
+  }
+  setBusy(root, st, 'loading');
+  await wait(1000);
+  const e = st.email.toLowerCase();
+  if (st.pass === 'hubgames' && !/^(sinconfirmar|sinred|muchos)/.test(e)) {
+    setBusy(root, st, 'success'); setMsg(root, st, 'welcome');
+    return;
+  }
+  setBusy(root, st, 'idle');
+  const key = e.startsWith('sinconfirmar') ? 'unconf' : e.startsWith('sinred') ? 'offline' : e.startsWith('muchos') ? 'rate' : 'cred';
+  if (key === 'cred') { markBad(root, st, 'email', true); markBad(root, st, 'pass', true); }
+  setMsg(root, st, key); shake(root);
+  if (key === 'cred') { const p = q(root, 'input[name=pass]'); p.focus(); p.select(); }
+}
+function swapForm(root, st, page) {
+  const wrap = q(root, '[data-formwrap]');
+  const done = () => {
+    st.page = page; st.state = 'idle'; st.msg = null; st.bad = {};
+    wrap.classList.remove('is-form-out'); wrap.innerHTML = formFor(st);
+    if (!rm()) replayCls(wrap, 'is-form-in');
+  };
+  if (rm()) return done();
+  wrap.classList.add('is-form-out'); setTimeout(done, 120);
+}
+function bindLive(id) {
+  const root = document.getElementById(id); const st = FR[id];
+  if (root.dataset.bound) return; root.dataset.bound = '1';
+  root.addEventListener('submit', (e) => { e.preventDefault(); if (st.page === 'login') submit(root, st); });
+  root.addEventListener('click', async (e) => {
+    const a = e.target.closest('[data-act]'); if (!a) { if (e.target.closest('a[href="#"]')) e.preventDefault(); return; }
+    e.preventDefault();
+    const act = a.dataset.act;
+    if (act === 'toggle') {
+      st.show = !st.show; const inp = q(root, 'input[name=pass]');
+      inp.type = st.show ? 'text' : 'password';
+      a.setAttribute('aria-pressed', st.show); a.setAttribute('aria-label', `${st.show ? 'Ocultar' : 'Mostrar'} contraseña`);
+      a.innerHTML = ic(st.show ? 'eyeoff' : 'eye'); replayCls(a, 'is-flip'); inp.focus();
+    }
+    if (act === 'google') {
+      a.disabled = true; a.innerHTML = `<span class="au-submit__lbl lbl-in"><span class="spin-ring"></span>Abriendo Google…</span>`;
+      await wait(1400); a.disabled = false; a.innerHTML = `${GOOGLE}Continuar con Google`;
+    }
+    if (act === 'resend') {
+      a.disabled = true; a.innerHTML = `<span class="spin-ring"></span>Enviando…`;
+      await wait(900); st.resent = true; a.innerHTML = `${ic('check', 'hg-draw')}Enviado`;
+    }
+    if (act === 'to-reg') swapForm(root, st, 'registro');
+    if (act === 'to-login') swapForm(root, st, 'login');
+  });
+  root.addEventListener('input', (e) => {
+    const f = e.target.closest('[data-field]'); if (!f || st.page !== 'login') return;
+    if (st.bad[f.dataset.field]) markBad(root, st, f.dataset.field, false);
+    if (st.msg && st.msg !== 'welcome') clearMsg(root, st);
+  });
+  const caps = (e) => {
+    if (e.target.name !== 'pass' || !e.getModifierState) return;
+    const on = e.getModifierState('CapsLock'); const h = q(root, '[data-caps]'); if (h) h.hidden = !on;
+  };
+  root.addEventListener('keyup', caps); root.addEventListener('keydown', caps);
+}
+function runTest(id, kind) {
+  const root = document.getElementById(id); const st = FR[id];
+  if (kind === 'reset' || st.page !== 'login' || st.state !== 'idle') {
+    FR[id] = JSON.parse(JSON.stringify(st.init)); FR[id].init = st.init;
+    renderFrame(id); if (kind === 'reset') return;
+  }
+  const r = document.getElementById(id); const s = FR[id];
+  if (kind === 'oauth') {
+    FR[id] = { ...JSON.parse(JSON.stringify(s.init)), init: s.init, msg: 'oauth' };
+    renderFrame(id); return;
+  }
+  const data = { ok: ['diego@hubgames.es', 'hubgames'], cred: ['diego@hubgames.es', 'hubgamez'], empty: ['diego@hubgames.es', ''], unconf: ['sinconfirmar.laura@gmail.com', 'hubgames'], offline: ['sinred@hubgames.es', 'hubgames'], rate: ['muchos@hubgames.es', 'hubgamez'] }[kind];
+  q(r, 'input[name=email]').value = data[0]; q(r, 'input[name=pass]').value = data[1];
+  r.querySelectorAll('[data-field]').forEach((f) => markBad(r, s, f.dataset.field, false));
+  submit(r, s);
+}
+
+/* ── Montaje ── */
+function renderAll() {
+  timers.splice(0).forEach(clearTimeout);
+  Object.keys(FR).forEach((id) => {
+    const init = FR[id].init; FR[id] = { ...JSON.parse(JSON.stringify(init)), init };
+    renderFrame(id);
+  });
+  renderCompare(); renderStates();
+  bindLive('f-desk'); bindLive('f-mob');
+}
+renderAll();
+
+document.querySelectorAll('[data-tests] [data-test]').forEach((b) => b.addEventListener('click', () => runTest(b.closest('[data-tests]').dataset.tests, b.dataset.test)));
+document.querySelectorAll('[data-var]').forEach((b) => b.addEventListener('click', () => {
+  VAR[b.dataset.var] = b.dataset.val;
+  document.querySelectorAll(`[data-var="${b.dataset.var}"]`).forEach((x) => x.setAttribute('aria-pressed', x === b));
+  renderAll();
+}));
+document.getElementById('replay-btn').addEventListener('click', renderAll);
+document.getElementById('rm-btn').addEventListener('click', (e) => {
+  const on = document.documentElement.classList.toggle('rm');
+  e.currentTarget.setAttribute('aria-pressed', on); e.currentTarget.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`;
+  renderAll();
+});
+document.getElementById('theme-btn').addEventListener('click', (e) => {
+  const html = document.documentElement; const dark = html.dataset.theme !== 'dark';
+  if (!rm()) { html.classList.add('theme-anim'); clearTimeout(window.__th); window.__th = setTimeout(() => html.classList.remove('theme-anim'), 340); }
+  html.dataset.theme = dark ? 'dark' : 'light'; THEME.pref = dark ? 'dark' : 'light';
+  e.currentTarget.setAttribute('aria-pressed', dark);
+  document.querySelectorAll('.theme-toggle span').forEach((s, i) => s.classList.toggle('on', ['light', 'dark', 'system'][i % 3] === THEME.pref));
+  document.querySelectorAll('.m-top .m-icon').forEach((m) => (m.innerHTML = ic(dark ? 'moon' : 'sun')));
+});
+</script>
+</body>
+</html>

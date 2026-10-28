@@ -1,6 +1,4 @@
 import type { CSSProperties, ReactNode } from 'react'
-import { Check } from 'lucide-react'
-import { Button, type ButtonProps } from '@/components/ui/button'
 
 export type Notify = (kind: 'ok' | 'error', text: string) => void
 
@@ -43,28 +41,5 @@ export function PfSection({
             </header>
             {children}
         </section>
-    )
-}
-
-export type SaveState = 'idle' | 'saving' | 'done'
-
-/** Botón que guarda: spinner mientras guarda y luego un check que se dibuja (`.hg-draw`) con `done` en verde. */
-export function SaveButton({ state, done, children, disabled, className, ...props }: ButtonProps & { state: SaveState; done: string }) {
-    return (
-        <Button
-            {...props}
-            loading={state === 'saving'}
-            disabled={disabled || state !== 'idle'}
-            className={[className, state === 'done' && 'is-done'].filter(Boolean).join(' ')}
-        >
-            {state === 'done' ? (
-                <>
-                    <Check className="hg-draw" data-icon="inline-start" aria-hidden />
-                    {done}
-                </>
-            ) : (
-                children
-            )}
-        </Button>
     )
 }

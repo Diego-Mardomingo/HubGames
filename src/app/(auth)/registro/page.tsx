@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Lock, Mail, UserRound, UserRoundPlus } from 'lucide-react'
-import AuthShell, { FormError } from '@/components/AuthShell'
+import { AuthForm, FormError, authEnter, useShake } from '@/components/AuthShell'
 
 function GoogleIcon() {
     return (
@@ -27,7 +27,13 @@ export default function RegistroPage() {
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
+    const [error, setErrorText] = useState('')
+    const [formRef, shake] = useShake<HTMLFormElement>()
+    /** Error del formulario: se enseña y el formulario tiembla (el rediseño de la validación va en su PR). */
+    const setError = (text: string) => {
+        setErrorText(text)
+        if (text) shake()
+    }
 
     const handleRegister = async (event: React.FormEvent) => {
         event.preventDefault()
@@ -110,15 +116,15 @@ export default function RegistroPage() {
     }
 
     return (
-        <AuthShell title="Crea tu cuenta" subtitle="Crea la cuenta y después conecta Steam para traer tus juegos y logros.">
-            <Button variant="secondary" onClick={handleGoogleRegister} className="btn-block">
+        <AuthForm title="Crea tu cuenta" subtitle="Crea la cuenta y después conecta Steam para traer tus juegos y logros.">
+            <Button variant="secondary" onClick={handleGoogleRegister} className="btn-block hg-enter" style={authEnter(1)}>
                 <GoogleIcon />
                 Registrarse con Google
             </Button>
 
-            <div className="divider-text">o con tu email</div>
+            <div className="divider-text hg-enter" style={authEnter(2)}>o con tu email</div>
 
-            <form onSubmit={handleRegister} className="auth__fields">
+            <form ref={formRef} onSubmit={handleRegister} className="auth__fields hg-enter" style={authEnter(3)} noValidate>
                 <div className="field">
                     <label className="field__label" htmlFor="reg-username">Nombre de usuario</label>
                     <div className="field__control">
@@ -160,10 +166,10 @@ export default function RegistroPage() {
                 </Button>
             </form>
 
-            <p className="auth__switch">
+            <p className="auth__switch hg-enter" style={authEnter(4)}>
                 ¿Ya tienes cuenta?{' '}
                 <Link href="/login" className="link">Inicia sesión</Link>
             </p>
-        </AuthShell>
+        </AuthForm>
     )
 }

@@ -328,20 +328,6 @@
   min-width: 172px;
 }
 
-/* Guardado: el botón pasa a verde con el check que se dibuja */
-.pf .hg-button.is-done {
-  border-color: color-mix(in srgb, var(--success) 45%, var(--border));
-  background: var(--surface);
-  color: var(--success);
-  opacity: 1;
-}
-
-.pf .hg-btn--primary.is-done {
-  border-color: transparent;
-  background: var(--success);
-  color: var(--on-done);
-}
-
 /* ── Pistas en vivo bajo los campos (color + icono) ── */
 .pf-hint-row {
   grid-column: 1 / -1;
@@ -423,16 +409,6 @@
 
 .pf-rules li.is-bad {
   color: var(--danger);
-}
-
-.pf-shake {
-  animation: pf-shake 0.32s var(--ease-out);
-}
-
-@keyframes pf-shake {
-  20% { transform: translateX(-5px); }
-  45% { transform: translateX(4px); }
-  70% { transform: translateX(-2px); }
 }
 
 /* ── Steam ── */
@@ -548,15 +524,6 @@
   flex: none;
   width: 15px;
   height: 15px;
-}
-
-.alert--warn {
-  color: color-mix(in srgb, var(--warning) 80%, var(--foreground));
-  background: color-mix(in srgb, var(--warning) var(--tint), transparent);
-}
-
-[data-theme='dark'] .alert--warn {
-  color: var(--warning);
 }
 
 /* ── Preferencias ── */

@@ -488,6 +488,30 @@ a {
 .hg-button.hg-button--icon-only { width: 40px; padding: 0; column-gap: 0; }
 .hg-button svg { width: 1em; height: 1em; flex-shrink: 0; }
 
+/* Contenido de SaveButton: entra con un fundido al cambiar de estado (reposo → guardando → hecho) */
+.hg-button__swap {
+  display: inline-flex;
+  align-items: center;
+  column-gap: inherit;
+  animation: hg-swap-in 0.18s var(--ease-out);
+}
+@keyframes hg-swap-in {
+  from { opacity: 0; transform: translateY(5px); }
+}
+
+/* Hecho (SaveButton): verde con el check que se dibuja; sólido si es el primario */
+.hg-button.is-done {
+  border-color: color-mix(in srgb, var(--success) 45%, var(--border));
+  background: var(--surface);
+  color: var(--success);
+  opacity: 1;
+}
+.hg-button.hg-btn--primary.is-done {
+  border-color: transparent;
+  background: var(--success);
+  color: var(--on-done);
+}
+
 /* En móvil, área táctil de al menos 44 px aunque el botón se vea más pequeño */
 @media (max-width: 768px) {
   .hg-button::before {
@@ -625,6 +649,25 @@ a {
   color: var(--success);
   background: var(--success-glow);
 }
+/* Aviso (no es culpa tuya o se arregla esperando): ámbar oscurecido en claro para llegar a 4,5:1 */
+.alert--warn {
+  color: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  background: color-mix(in srgb, var(--warning) var(--tint), transparent);
+}
+[data-theme='dark'] .alert--warn {
+  color: var(--warning);
+}
+
+/* Sacudida de un formulario o bloque con error (perfil, login, registro) */
+.hg-shake {
+  animation: hg-shake 0.32s var(--ease-out);
+}
+@keyframes hg-shake {
+  20% { transform: translateX(-6px); }
+  45% { transform: translateX(5px); }
+  70% { transform: translateX(-3px); }
+  90% { transform: translateX(1px); }
+}
 
 .divider-text {
   display: flex;
@@ -700,9 +743,11 @@ a {
 /* ══════════════════════════════════════════════════════════════════
    Auth (login / registro / mantenimiento)
    ══════════════════════════════════════════════════════════════════ */
+/* Marco común del login y el registro (AuthShell, en src/app/(auth)/layout.tsx: el lateral no se vuelve a montar al pasar de uno a otro).
+   Escritorio: lateral con el producto «en acción» + formulario. Móvil (≤ 860 px): el formulario en su tarjeta y, debajo, la vista previa reducida. */
 .auth {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   min-height: min(640px, calc(100dvh - 160px));
   border-radius: var(--radius-xl);
   overflow: hidden;
@@ -713,8 +758,7 @@ a {
 .auth__brand {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 2rem;
+  gap: 1.5rem;
   min-width: 0;
   padding: 2.25rem;
   background: var(--background);
@@ -724,58 +768,126 @@ a {
 
 .auth__pitch {
   display: grid;
-  gap: 0.625rem;
-}
-
-/* Vista previa estática del producto (filas de biblioteca y un logro) */
-.auth__preview {
-  display: grid;
-  gap: 8px;
-  pointer-events: none;
-  user-select: none;
-}
-
-.auth__preview .hg-row {
-  grid-template-columns: 112px minmax(0, 1fr) auto;
-}
-
-.auth__preview .hg-row__cover img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.auth__sample-name {
-  overflow: hidden;
-  font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.auth__preview .hg-row__prog {
-  margin-top: 4px;
+  gap: 0.5rem;
 }
 
 .auth__tagline {
   margin: 0;
-    font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-size: clamp(1.375rem, 2.2vw, 1.75rem);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.15;
+  max-width: 20ch;
 }
 
 .auth__tagline-sub {
   margin: 0;
   color: var(--muted);
   font-size: 0.9375rem;
-  max-width: 36ch;
+  max-width: 42ch;
 }
 
+/* Vista previa del producto (LibraryPreview + logro que se desbloquea), abajo del lateral */
+.auth__preview {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.auth__preview .pv-win {
+  padding: 0.875rem;
+  border-radius: var(--radius-lg);
+  box-shadow: none;
+}
+
+.auth__preview .pv-win__rail {
+  margin-bottom: 0.625rem;
+}
+
+/* Lateral estrecho: la barra o el precio bajan bajo el nombre y el chip se queda a la derecha */
+.auth__preview .pv-win .hg-row {
+  grid-template-columns: 88px minmax(0, 1fr) auto;
+  grid-template-areas: 'cover main chip' 'cover extra chip';
+  gap: 4px 0.75rem;
+  min-height: 0;
+  padding: 7px 10px 7px 12px;
+}
+
+.auth__preview .pv-win .hg-row__cover {
+  grid-area: cover;
+  width: 88px;
+  height: 41px;
+}
+
+.auth__preview .pv-win .hg-row__main {
+  grid-area: main;
+}
+
+.auth__preview .pv-win .hg-row > .hg-row__prog {
+  grid-area: extra;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+}
+
+.auth__preview .pv-win .hg-row > .hg-row__prog .hg-bar {
+  flex: 1;
+  max-width: 140px;
+}
+
+.auth__preview .pv-win .hg-row > .price-tag {
+  grid-area: extra;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+
+.auth__preview .pv-win .price-tag > * {
+  grid-row: auto;
+  grid-column: auto;
+}
+
+.auth__preview .pv-win .price-tag__low {
+  order: -1;
+}
+
+.auth__preview .pv-win .price-tag__now strong {
+  font-size: 0.8125rem;
+}
+
+.auth__preview .pv-win .price-tag__cut {
+  order: 2;
+  padding: 1px 5px;
+  font-size: 0.71875rem;
+}
+
+.auth__preview .pv-win .hg-row > :last-child {
+  grid-area: chip;
+}
+
+.auth__preview .hg-ach {
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  padding: 8px 12px;
+}
+
+.auth__preview .hg-ach__icon {
+  width: 36px;
+  height: 36px;
+}
+
+/* Columna del formulario */
 .auth__form-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0;
   padding: 2.5rem 2rem;
 }
 
@@ -823,6 +935,142 @@ a {
   color: var(--muted);
 }
 
+/* «Entrar»: la flecha avanza al pasar el ratón */
+.auth__submit svg[data-icon='inline-end'] {
+  transition: transform 0.16s var(--ease-out);
+}
+.auth__submit:hover:not(:disabled) svg[data-icon='inline-end'] {
+  transform: translateX(3px);
+}
+
+/* Hueco del aviso: sin aviso no ocupa sitio (ni deja doble separación en la rejilla) */
+.auth-msg-slot:empty {
+  display: none;
+}
+
+/* Aviso del formulario (FormError): icono + texto y, si hace falta, una segunda línea más suave */
+.auth-msg {
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.auth-msg > svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+
+.auth-msg__body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.auth-msg p {
+  margin: 0;
+}
+
+.auth-msg__sub {
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+/* Campo con error: borde, icono y anillo en rojo (el aviso va al lado: nunca solo color) */
+.field.is-bad .hg-input {
+  border-color: var(--danger);
+}
+
+.field.is-bad .hg-input:focus {
+  box-shadow: 0 0 0 3px var(--danger-glow);
+}
+
+.field.is-bad .field__icon,
+.field.is-bad .field__control:focus-within .field__icon {
+  color: var(--danger);
+}
+
+/* Contraseña: botón para verla (parpadea al pulsarlo) y aviso de Bloq Mayús */
+.field__control .hg-input.has-toggle {
+  padding-right: 2.75rem;
+}
+
+.field__toggle {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.field__toggle::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+}
+
+.field__toggle:hover {
+  color: var(--foreground);
+  background: var(--surface-2);
+}
+
+.field__toggle[aria-pressed='true'] {
+  color: var(--primary);
+}
+
+.field__toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+.field__toggle.is-flip svg {
+  animation: field-eye 0.22s var(--ease-out);
+}
+
+@keyframes field-eye {
+  50% { transform: scaleY(0.2); }
+}
+
+.field__hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.field__hint svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.field__hint--warn {
+  color: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+}
+
+[data-theme='dark'] .field__hint--warn {
+  color: var(--warning);
+}
+
+/* Vista previa reducida del móvil: debajo del formulario */
+.auth__peek {
+  display: none;
+}
+
 .link {
   color: var(--primary);
   font-weight: 600;
@@ -839,21 +1087,70 @@ a {
   font-size: 0.9375rem !important;
 }
 
+@media (max-width: 1240px) {
+  .auth__brand {
+    padding: 1.75rem;
+    gap: 1.25rem;
+  }
+  .auth__preview .pv-win .hg-row {
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    gap: 4px 0.625rem;
+  }
+  .auth__preview .pv-win .hg-row__cover {
+    width: 64px;
+    height: 30px;
+  }
+  .auth__preview .dash-list--mini.st-bandeja {
+    display: none;
+  }
+  .auth__form-wrap {
+    padding: 2rem 1.75rem;
+  }
+}
+
 @media (max-width: 860px) {
   .auth {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     min-height: 0;
+    border-radius: var(--radius-lg);
   }
-  .auth__brand {
-    padding: 1.5rem;
-    gap: 1rem;
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
+  .auth__brand { display: none; }
+  .auth__form-wrap { padding: 1.25rem; }
+  .auth__form { max-width: none; }
+  .auth__title { font-size: 1.5rem; }
+  .auth__peek {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.625rem;
+    margin-top: 1.25rem;
+    padding: 0 0.25rem;
+    pointer-events: none;
+    user-select: none;
   }
-  .auth__tagline { font-size: 1.375rem; }
-  .auth__tagline-sub { display: none; }
-  .auth__preview { display: none; }
-  .auth__form-wrap { padding: 1.75rem 1.25rem 2rem; }
+  .auth__peek-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .auth__peek-sub {
+    margin: -4px 0 0;
+    color: var(--muted);
+    font-size: 0.8125rem;
+  }
+  .auth__peek .pv-win__rail {
+    flex-wrap: nowrap;
+    overflow: hidden;
+    margin-bottom: 0.625rem;
+  }
+  .auth__peek .hg-row > .hg-row__prog {
+    display: none;
+  }
+  .field__toggle {
+    right: 2px;
+    width: 40px;
+    height: 40px;
+  }
 }
 
 .maint {
