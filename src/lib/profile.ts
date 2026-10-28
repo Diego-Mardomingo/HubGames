@@ -56,23 +56,6 @@ export function timeAgo(iso: string, now: number = Date.now()): string {
     return 'hace un momento'
 }
 
-// ── Nombre de usuario ──
-
-export const USERNAME_MIN = 3
-
-/** Qué impide guardar un nombre antes de preguntar si está libre: igual que el actual o demasiado corto. */
-export function usernameIssue(value: string, current: string): 'same' | 'short' | null {
-    const v = value.trim()
-    if (v === current.trim()) return 'same'
-    if (v.length < USERNAME_MIN) return 'short'
-    return null
-}
-
-/** Reglas de la contraseña nueva que se marcan mientras escribes. `eq` es null mientras no hay confirmación que comparar. */
-export function passwordRules(password: string, confirm: string): { len: boolean; eq: boolean | null } {
-    return { len: password.length >= 6, eq: confirm ? password === confirm : null }
-}
-
 // ── JUDI ──
 
 export type JudiStats = { aciertos: number; fallos: number; total: number; precision: number; puntos: number }

@@ -1,13 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Lock, Mail, UserRound, UserRoundPlus } from 'lucide-react'
-import { AuthForm, FormError, authEnter, useShake } from '@/components/AuthShell'
+import { SaveButton, type SaveState } from '@/components/SaveButton'
+import { FieldRules, FieldStatus, useUsernameCheck } from '@/components/AccountFields'
+import { Mail, UserRound, UserRoundPlus } from 'lucide-react'
+import { AuthForm, FormError, PasswordField, authEnter, useShake } from '@/components/AuthShell'
+import { PASSWORD_MIN, USERNAME_MIN, emailLooksValid, passwordMismatch, passwordRules } from '@/lib/account'
+import {
+    OAUTH_START_MESSAGE,
+    emailTakenMessage,
+    registerIssues,
+    registerIssuesMessage,
+    signUpErrorMessage,
+    signUpWelcomeMessage,
+    type AuthErrorLike,
+    type AuthField,
+    type AuthMessage,
+} from '@/lib/auth-messages'
 
 function GoogleIcon() {
     return (
@@ -20,150 +34,251 @@ function GoogleIcon() {
     )
 }
 
+const NO_FIELDS: Record<AuthField, boolean> = { username: false, email: false, password: false, confirm: false }
+
 export default function RegistroPage() {
     const router = useRouter()
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = useState('')
-    const [loading, setLoading] = useState(false)
-    const [error, setErrorText] = useState('')
+    const [confirm, setConfirm] = useState('')
+    const [state, setState] = useState<SaveState>('idle')
+    const [googleBusy, setGoogleBusy] = useState(false)
+    const [message, setMessage] = useState<AuthMessage | null>(null)
+    /** Campos marcados por el último envío (o por el servidor); se desmarcan al escribir en ellos. */
+    const [invalid, setInvalid] = useState(NO_FIELDS)
+    /** Has intentado enviar: los requisitos que faltan pasan a rojo. */
+    const [submitted, setSubmitted] = useState(false)
+    /** El email se comprueba al salir del campo, no a la primera letra. */
+    const [emailBlurred, setEmailBlurred] = useState(false)
+    const { avail, onChange: checkName, checkNow } = useUsernameCheck()
     const [formRef, shake] = useShake<HTMLFormElement>()
-    /** Error del formulario: se enseña y el formulario tiembla (el rediseño de la validación va en su PR). */
-    const setError = (text: string) => {
-        setErrorText(text)
-        if (text) shake()
+    const usernameRef = useRef<HTMLInputElement>(null)
+    const emailRef = useRef<HTMLInputElement>(null)
+    const passwordRef = useRef<HTMLInputElement>(null)
+    const confirmRef = useRef<HTMLInputElement>(null)
+    const busy = state !== 'idle' || googleBusy
+
+    const rules = passwordRules(password, confirm)
+    const mismatch = passwordMismatch(password, confirm)
+    const emailBad = emailBlurred && !!email.trim() && !emailLooksValid(email)
+    const marked = {
+        username: invalid.username || avail === 'taken',
+        email: invalid.email || emailBad,
+        password: invalid.password,
+        confirm: invalid.confirm || mismatch,
+    }
+
+    /** Muestra un error: marca sus campos, sacude el formulario y lleva el foco al primero. */
+    const fail = (msg: AuthMessage, select = false) => {
+        setMessage(msg)
+        const next = { ...NO_FIELDS }
+        msg.fields?.forEach((f) => (next[f] = true))
+        setInvalid(next)
+        shake()
+        const first = msg.fields?.[0]
+        // Tras «Creando cuenta…» los campos aún están desactivados en este render: el foco, en el siguiente fotograma
+        requestAnimationFrame(() => {
+            const el = { username: usernameRef, email: emailRef, password: passwordRef, confirm: confirmRef }[first ?? 'username'].current
+            if (!first) return
+            el?.focus()
+            if (select) el?.select()
+        })
+    }
+
+    /** Al escribir en un campo marcado se desmarca, y el aviso se va. */
+    const edit = (field: AuthField, value: string) => {
+        if (field === 'username') {
+            setUsername(value)
+            checkName(value)
+        }
+        if (field === 'email') {
+            setEmail(value)
+            setEmailBlurred(false)
+        }
+        if (field === 'password') setPassword(value)
+        if (field === 'confirm') setConfirm(value)
+        if (invalid[field]) setInvalid((prev) => ({ ...prev, [field]: false }))
+        if (message && message.tone !== 'ok') setMessage(null)
     }
 
     const handleRegister = async (event: React.FormEvent) => {
         event.preventDefault()
-        setLoading(true)
-        setError('')
-
-        if (!username || !email || !password || !confirmPassword) {
-            setError('Por favor completa todos los campos')
-            setLoading(false)
+        if (busy) return
+        // El nombre se comprueba ya (sin esperar a los 400 ms) para no enviar uno en uso
+        const availability = avail === 'free' || avail === 'taken' ? avail : await checkNow(username)
+        const issues = registerIssues({ username, email, password, confirm, availability })
+        const problem = registerIssuesMessage(issues)
+        if (problem) {
+            setSubmitted(true)
+            setEmailBlurred(true)
+            fail(problem)
             return
         }
-        if (username.length < 3) {
-            setError('El username debe tener al menos 3 caracteres')
-            setLoading(false)
-            return
-        }
-        if (password !== confirmPassword) {
-            setError('Las contraseñas no coinciden')
-            setLoading(false)
-            return
-        }
-        if (password.length < 6) {
-            setError('La contraseña debe tener al menos 6 caracteres')
-            setLoading(false)
-            return
-        }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        if (!emailRegex.test(email)) {
-            setError('Por favor ingresa un email válido')
-            setLoading(false)
-            return
-        }
-
+        setSubmitted(false)
+        setMessage(null)
+        setInvalid(NO_FIELDS)
+        setState('saving')
+        const name = username.trim()
+        const cleanEmail = email.trim()
         try {
-            // El email repetido no se comprueba antes (#63): lo detecta signUp.
-            const { data: usernameAvailable } = await supabase.rpc('hubgames_username_available', {
-                p_username: username,
-            })
-            if (usernameAvailable === false) {
-                setError('Este username ya está en uso')
-                setLoading(false)
-                return
-            }
-
-            const { data: authData, error: signUpError } = await supabase.auth.signUp({
-                email,
+            const { data, error } = await supabase.auth.signUp({
+                email: cleanEmail,
                 password,
-                options: {
-                    emailRedirectTo: undefined,
-                    data: { username },
-                },
+                options: { data: { username: name } },
             })
-            // Con confirmación por email, Supabase devuelve un usuario sin identidades en vez del error.
-            if (signUpError?.code === 'user_already_exists' || authData.user?.identities?.length === 0) {
-                setError('Este email ya está registrado')
-                setLoading(false)
+            // Con la confirmación por email activada, un email repetido llega como usuario sin identidades en vez de error
+            if (!error && data.user?.identities?.length === 0) {
+                setState('idle')
+                fail(emailTakenMessage(cleanEmail))
                 return
             }
-            if (signUpError || !authData.user) {
-                setError(signUpError?.message || 'Error al crear la cuenta')
-                setLoading(false)
+            if (error || !data.user) {
+                setState('idle')
+                const msg = signUpErrorMessage(error, cleanEmail, navigator.onLine)
+                fail(msg, msg.fields?.[0] === 'password')
                 return
             }
-
+            setState('done')
+            setMessage(signUpWelcomeMessage(name))
             router.push('/')
-        } catch (err: any) {
+        } catch (err) {
             console.error(err)
-            setError(err.message || 'Error al crear la cuenta')
-        } finally {
-            setLoading(false)
+            setState('idle')
+            fail(signUpErrorMessage(err as AuthErrorLike, cleanEmail, navigator.onLine))
         }
     }
 
     const handleGoogleRegister = async () => {
+        setMessage(null)
+        setGoogleBusy(true)
         const { error: oauthError } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: { redirectTo: `${window.location.origin}/auth/callback` },
         })
-        if (oauthError) setError('Error al registrarse con Google')
+        if (oauthError) {
+            setGoogleBusy(false)
+            setMessage(OAUTH_START_MESSAGE)
+        }
     }
+
+    const nameShown = username.trim()
+    const usernameStatus =
+        avail === 'short' ? (
+            <FieldStatus tone={submitted || invalid.username ? 'bad' : 'neutral'}>Al menos {USERNAME_MIN} caracteres</FieldStatus>
+        ) : avail === 'checking' ? (
+            <FieldStatus tone="checking">Comprobando…</FieldStatus>
+        ) : avail === 'taken' ? (
+            <FieldStatus tone="bad">
+                <b>{nameShown}</b> ya está en uso
+            </FieldStatus>
+        ) : avail === 'free' ? (
+            <FieldStatus tone="ok">
+                <b>{nameShown}</b> está libre
+            </FieldStatus>
+        ) : nameShown ? null : (
+            <FieldStatus>Es el nombre que sale en el ranking.</FieldStatus>
+        )
 
     return (
         <AuthForm title="Crea tu cuenta" subtitle="Crea la cuenta y después conecta Steam para traer tus juegos y logros.">
-            <Button variant="secondary" onClick={handleGoogleRegister} className="btn-block hg-enter" style={authEnter(1)}>
-                <GoogleIcon />
-                Registrarse con Google
+            <Button variant="secondary" onClick={handleGoogleRegister} loading={googleBusy} disabled={busy} className="btn-block hg-enter" style={authEnter(1)}>
+                {googleBusy ? 'Abriendo Google…' : (
+                    <>
+                        <GoogleIcon />
+                        Registrarse con Google
+                    </>
+                )}
             </Button>
 
             <div className="divider-text hg-enter" style={authEnter(2)}>o con tu email</div>
 
             <form ref={formRef} onSubmit={handleRegister} className="auth__fields hg-enter" style={authEnter(3)} noValidate>
-                <div className="field">
+                <div className={`field${marked.username ? ' is-bad' : avail === 'free' ? ' is-ok' : ''}`}>
                     <label className="field__label" htmlFor="reg-username">Nombre de usuario</label>
                     <div className="field__control">
-                        <UserRound size={16} className="field__icon" />
-                        <Input id="reg-username" value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Tu alias" autoComplete="username" />
+                        <UserRound size={16} className="field__icon" aria-hidden />
+                        <Input
+                            ref={usernameRef}
+                            id="reg-username"
+                            value={username}
+                            onChange={(event) => edit('username', event.target.value)}
+                            placeholder="Tu alias"
+                            autoComplete="username"
+                            autoCapitalize="none"
+                            spellCheck={false}
+                            enterKeyHint="next"
+                            disabled={busy}
+                            aria-invalid={marked.username || undefined}
+                            aria-describedby="reg-username-status reg-msg"
+                        />
                     </div>
+                    <p id="reg-username-status" className="field__status-row" aria-live="polite">
+                        {usernameStatus}
+                    </p>
                 </div>
-                <div className="field">
+                <div className={`field${marked.email ? ' is-bad' : ''}`}>
                     <label className="field__label" htmlFor="reg-email">Email</label>
                     <div className="field__control">
-                        <Mail size={16} className="field__icon" />
-                        <Input id="reg-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="tu@email.com" autoComplete="email" />
+                        <Mail size={16} className="field__icon" aria-hidden />
+                        <Input
+                            ref={emailRef}
+                            id="reg-email"
+                            type="email"
+                            inputMode="email"
+                            enterKeyHint="next"
+                            value={email}
+                            onChange={(event) => edit('email', event.target.value)}
+                            onBlur={() => setEmailBlurred(true)}
+                            placeholder="tu@email.com"
+                            autoComplete="email"
+                            disabled={busy}
+                            aria-invalid={marked.email || undefined}
+                            aria-describedby="reg-email-status reg-msg"
+                        />
                     </div>
+                    <p id="reg-email-status" className="field__status-row" aria-live="polite">
+                        {emailBad && <FieldStatus tone="bad">Revisa el email: falta algo como nombre@dominio.es</FieldStatus>}
+                    </p>
                 </div>
-                <div className="auth__row">
-                    <div className="field">
-                        <label className="field__label" htmlFor="reg-password">Contraseña</label>
-                        <div className="field__control">
-                            <Lock size={16} className="field__icon" />
-                            <Input id="reg-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="••••••••" autoComplete="new-password" />
-                        </div>
-                    </div>
-                    <div className="field">
-                        <label className="field__label" htmlFor="reg-confirm">Confirmar</label>
-                        <div className="field__control">
-                            <Lock size={16} className="field__icon" />
-                            <Input id="reg-confirm" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="••••••••" autoComplete="new-password" />
-                        </div>
-                    </div>
-                </div>
-                <FormError message={error} />
-                <Button type="submit" loading={loading} className="btn-block">
-                    {loading ? 'Creando cuenta...' : (
-                        <>
-                            <UserRoundPlus size={16} data-icon="inline-start" aria-hidden />
-                            Crear cuenta
-                        </>
-                    )}
-                </Button>
+                <PasswordField
+                    id="reg-password"
+                    label="Contraseña"
+                    value={password}
+                    onChange={(value) => edit('password', value)}
+                    autoComplete="new-password"
+                    enterKeyHint="next"
+                    placeholder={`Mínimo ${PASSWORD_MIN} caracteres`}
+                    invalid={marked.password}
+                    disabled={busy}
+                    describedBy="reg-rules reg-msg"
+                    inputRef={passwordRef}
+                />
+                <PasswordField
+                    id="reg-confirm"
+                    label="Repite la contraseña"
+                    value={confirm}
+                    onChange={(value) => edit('confirm', value)}
+                    autoComplete="new-password"
+                    enterKeyHint="go"
+                    placeholder="La misma otra vez"
+                    invalid={marked.confirm}
+                    disabled={busy}
+                    describedBy="reg-rules reg-msg"
+                    inputRef={confirmRef}
+                />
+                <FieldRules
+                    id="reg-rules"
+                    rules={[
+                        { label: `Mínimo ${PASSWORD_MIN} caracteres`, ok: rules.len, bad: (submitted || invalid.password) && !rules.len },
+                        { label: mismatch ? 'No coinciden' : 'Coinciden', ok: rules.eq === true, bad: mismatch || (submitted && rules.eq !== true) },
+                    ]}
+                />
+                <FormError id="reg-msg" message={message} />
+                <SaveButton type="submit" state={state} done="Cuenta creada" saving="Creando cuenta…" disabled={googleBusy} className="btn-block">
+                    <UserRoundPlus size={16} data-icon="inline-start" aria-hidden />
+                    Crear cuenta
+                </SaveButton>
             </form>
 
             <p className="auth__switch hg-enter" style={authEnter(4)}>

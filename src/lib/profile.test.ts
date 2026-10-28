@@ -8,14 +8,12 @@ import {
     judiDay,
     judiStats,
     memberSince,
-    passwordRules,
     scheduledDaysLeft,
     scheduledTone,
     steamNeedsFix,
     steamState,
     timeAgo,
     topWithSelf,
-    usernameIssue,
 } from './profile'
 
 describe('perfil', () => {
@@ -45,20 +43,6 @@ describe('perfil', () => {
         assert.equal(timeAgo('2026-10-28T10:00:00Z', now), 'hace 2 horas')
         assert.equal(timeAgo('2026-10-27T12:00:00Z', now), 'ayer')
         assert.equal(timeAgo('2026-10-28T12:05:00Z', now), 'hace un momento')
-    })
-
-    it('nombre de usuario: igual, corto o comprobable', () => {
-        assert.equal(usernameIssue('diego', 'diego'), 'same')
-        assert.equal(usernameIssue(' diego ', 'diego'), 'same')
-        assert.equal(usernameIssue('di', 'diego'), 'short')
-        assert.equal(usernameIssue('diego2', 'diego'), null)
-    })
-
-    it('reglas de la contraseña', () => {
-        assert.deepEqual(passwordRules('', ''), { len: false, eq: null })
-        assert.deepEqual(passwordRules('secreto', ''), { len: true, eq: null })
-        assert.deepEqual(passwordRules('secreto', 'secret'), { len: true, eq: false })
-        assert.deepEqual(passwordRules('secreto', 'secreto'), { len: true, eq: true })
     })
 
     it('cifras de JUDI: aciertos, fallos, precisión y puntos', () => {

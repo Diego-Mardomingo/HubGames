@@ -5,11 +5,17 @@ import {
     GENERIC_SIGN_IN_MESSAGE,
     OFFLINE_MESSAGE,
     RATE_LIMIT_MESSAGE,
+    GENERIC_SIGN_UP_MESSAGE,
+    emailTakenMessage,
     errorText,
     isNetworkError,
     isRateLimited,
     missingFieldsMessage,
+    registerIssues,
+    registerIssuesMessage,
     signInErrorMessage,
+    signUpErrorMessage,
+    signUpWelcomeMessage,
     welcomeMessage,
 } from './auth-messages'
 
@@ -69,5 +75,67 @@ describe('mensajes del login', () => {
 
     it('texto suelto → error con alerta', () => {
         assert.deepEqual(errorText('Las contraseñas no coinciden'), { tone: 'error', icon: 'alert', text: 'Las contraseñas no coinciden' })
+    })
+})
+
+describe('mensajes del registro', () => {
+    const ok = { username: 'laurita', email: 'laura@gmail.com', password: 'hubgames', confirm: 'hubgames', availability: 'free' as const }
+
+    it('sin problemas, nada que decir', () => {
+        assert.deepEqual(registerIssues(ok), [])
+        assert.equal(registerIssuesMessage([]), null)
+    })
+
+    it('cada campo con su problema, en el orden del formulario', () => {
+        const issues = registerIssues({ username: 'la', email: 'laura@gmail', password: 'hub', confirm: '', availability: 'short' })
+        assert.deepEqual(issues.map((i) => i.field), ['username', 'email', 'password', 'confirm'])
+        const msg = registerIssuesMessage(issues)
+        assert.equal(msg?.text, 'Revisa los campos marcados.')
+        assert.deepEqual(msg?.fields, ['username', 'email', 'password', 'confirm'])
+    })
+
+    it('un solo problema: su texto', () => {
+        assert.equal(registerIssuesMessage(registerIssues({ ...ok, email: '' }))?.text, 'Te falta el email.')
+        assert.equal(registerIssuesMessage(registerIssues({ ...ok, confirm: 'hubgamez' }))?.text, 'Las contraseñas no coinciden.')
+        assert.equal(registerIssuesMessage(registerIssues({ ...ok, password: '12345', confirm: '12345' }))?.text, 'La contraseña necesita al menos 6 caracteres.')
+        const taken = registerIssuesMessage(registerIssues({ ...ok, username: ' laura_g ', availability: 'taken' }))
+        assert.equal(taken?.text, '«laura_g» ya está en uso.')
+        assert.equal(taken?.sub, 'Prueba con otro.')
+        assert.deepEqual(taken?.fields, ['username'])
+    })
+
+    it('email ya registrado: por código, con «Iniciar sesión» que lleva el email', () => {
+        for (const code of ['user_already_exists', 'email_exists']) {
+            const msg = signUpErrorMessage({ name: 'AuthApiError', status: 422, code }, ' laura+hub@gmail.com ')
+            assert.equal(msg.text, 'Ya hay una cuenta con este email.')
+            assert.deepEqual(msg.fields, ['email'])
+            assert.equal(msg.action?.href, '/login?email=laura%2Bhub%40gmail.com')
+        }
+        assert.equal(emailTakenMessage('a@b.es').sub, 'a@b.es ya tiene cuenta en HubGames. ¿Es tuya? Entra con ella.')
+    })
+
+    it('contraseña débil: el motivo del servidor', () => {
+        const pwned = signUpErrorMessage({ name: 'AuthWeakPasswordError', status: 422, code: 'weak_password', reasons: ['pwned'] }, 'a@b.es')
+        assert.equal(pwned.text, 'La contraseña no vale.')
+        assert.equal(pwned.sub, 'Aparece en filtraciones conocidas: elige otra.')
+        assert.deepEqual(pwned.fields, ['password'])
+        assert.equal(signUpErrorMessage({ code: 'weak_password', reasons: ['length'] }, 'a@b.es').sub, 'Necesita al menos 6 caracteres.')
+        assert.equal(signUpErrorMessage({ code: 'weak_password' }, 'a@b.es').sub, undefined)
+    })
+
+    it('email que el servidor no acepta, red, límite y genérico', () => {
+        assert.deepEqual(signUpErrorMessage({ code: 'email_address_invalid', status: 400 }, 'x@y.z').fields, ['email'])
+        assert.equal(signUpErrorMessage({ code: 'validation_failed', status: 400 }, 'x@y.z').text, 'Ese email no es válido.')
+        assert.equal(signUpErrorMessage({ name: 'AuthRetryableFetchError', status: 0 }, 'x@y.z'), OFFLINE_MESSAGE)
+        assert.equal(signUpErrorMessage({ status: 500 }, 'x@y.z', false), OFFLINE_MESSAGE)
+        assert.equal(signUpErrorMessage({ status: 429, code: 'over_request_rate_limit' }, 'x@y.z'), RATE_LIMIT_MESSAGE)
+        assert.equal(signUpErrorMessage({ code: 'signup_disabled', status: 422 }, 'x@y.z'), GENERIC_SIGN_UP_MESSAGE)
+        assert.equal(signUpErrorMessage(null, 'x@y.z'), GENERIC_SIGN_UP_MESSAGE)
+    })
+
+    it('cuenta creada: sin género', () => {
+        assert.equal(signUpWelcomeMessage('laurita').text, 'Ya estás dentro, laurita.')
+        assert.equal(signUpWelcomeMessage('').text, 'Ya estás dentro.')
+        assert.equal(signUpWelcomeMessage('laurita').sub, 'Abriendo tu Inicio para conectar Steam…')
     })
 })

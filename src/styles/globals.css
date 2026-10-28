@@ -978,6 +978,141 @@ a {
   font-weight: 400;
 }
 
+/* Pista bajo un campo (FieldStatus: registro y perfil): neutra, comprobando, bien o mal; entra con un fundido */
+.field-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.78125rem;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  animation: field-status-in 0.18s var(--ease-out);
+}
+.field-status svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+}
+.field-status.is-ok {
+  color: color-mix(in srgb, var(--success) 85%, var(--foreground));
+}
+.field-status.is-bad {
+  color: color-mix(in srgb, var(--danger) 85%, var(--foreground));
+}
+[data-theme='dark'] .field-status.is-ok { color: var(--success); }
+[data-theme='dark'] .field-status.is-bad { color: var(--danger); }
+.field-status b {
+  font-weight: 600;
+}
+@keyframes field-status-in {
+  from { opacity: 0; }
+}
+
+/* Requisitos que se van marcando (FieldRules: contraseña del registro y del perfil): el punto se rellena de verde con un pop */
+.field-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.78125rem;
+  font-weight: 500;
+  list-style: none;
+}
+.field-rules li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.2s;
+}
+.field-rules__dot {
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.field-rules__dot svg {
+  width: 9px;
+  height: 9px;
+  stroke-width: 3;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.field-rules li.is-ok {
+  color: var(--success);
+}
+.field-rules li.is-ok .field-rules__dot {
+  border-color: var(--success);
+  background: var(--success);
+  color: var(--on-done);
+  animation: hg-count-pop 0.3s var(--ease-out);
+}
+.field-rules li.is-ok svg {
+  opacity: 1;
+}
+.field-rules li.is-bad {
+  color: var(--danger);
+}
+
+/* Nombre libre (registro): el icono del campo en verde y el borde tintado (con la pista al lado) */
+.field.is-ok .field__icon {
+  color: var(--success);
+}
+.field.is-ok .hg-input:not(:focus) {
+  border-color: color-mix(in srgb, var(--success) 55%, var(--border));
+}
+
+/* Requisitos justo debajo de la confirmación (sin el hueco entero de la rejilla) */
+.auth__fields > .field-rules {
+  margin-top: -0.5rem;
+}
+
+/* Fila de la pista bajo un campo del registro (sin pista no ocupa sitio) */
+.field__status-row {
+  min-height: 18px;
+  margin: 0;
+}
+.field__status-row:empty {
+  display: none;
+}
+
+/* Acción bajo el aviso («Iniciar sesión» desde «Ya hay una cuenta con este email») */
+.auth-msg__act {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: start;
+  height: 30px;
+  margin-top: 4px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, currentColor 35%, var(--border));
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.auth-msg__act:hover {
+  border-color: currentColor;
+}
+.auth-msg__act svg {
+  width: 14px;
+  height: 14px;
+}
+@media (max-width: 768px) {
+  .auth-msg__act {
+    height: 40px;
+  }
+}
+
 /* Campo con error: borde, icono y anillo en rojo (el aviso va al lado: nunca solo color) */
 .field.is-bad .hg-input {
   border-color: var(--danger);
