@@ -1,0 +1,1102 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Wishlist · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --success: #1a7743; --warning: #8e5e18;
+  --rar-comun: #8a8f98; --rar-poco: #2e9e5b; --rar-rara: #2f6fe0; --rar-epica: #8b4fd8; --rar-leg: #c98a0b; --rar-ink: 62%;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-rejugable: #9c3c08; --st-completado: #1a7743;
+  --st-abandonado: #c7243b; --st-yajugado: #5c5b06; --st-descartado: #6b7280; --st-otros: #931f8f; --st-favorito: #c2255c; --st-sinfinal: #6741d9;
+  --tint: 12%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --success: #4cc97e; --warning: #f2b53a;
+  --rar-comun: #9aa0aa; --rar-poco: #4cc97e; --rar-rara: #5b93ff; --rar-epica: #b07cff; --rar-leg: #f2b53a; --rar-ink: 100%;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-rejugable: #ff9a5c; --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e; --st-yajugado: #d2cf5c; --st-descartado: #8a919e; --st-otros: #eb84f8; --st-favorito: #f783ac; --st-sinfinal: #b197fc;
+  --tint: 14%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; color: inherit; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul { margin: 0; padding-left: 20px; }
+.note li { margin: 3px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 100ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: hidden; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 60ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.vlabel { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.9375rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--surface-2); }
+.vlabel em { color: var(--success); font-style: normal; font-size: .8125rem; font-weight: 600; }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; text-align: left; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nv-count { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px 0 6px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; line-height: 1; }
+.nv-count .i { font-size: 12px; stroke-width: 2.4; }
+.nv-count.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.theme-btn { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 18px; }
+.nv-side:not(.is-compact) .theme-btn, .is-compact .theme-toggle { display: none; }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-3); color: var(--foreground); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.nv-side.is-compact { width: 72px; align-items: center; padding: 1.25rem 0.75rem 1rem; }
+.is-compact .hg-wordmark, .is-compact .nv-link__label, .is-compact .nv-search__label, .is-compact .nv-kbd,
+.is-compact .nv-account__text, .is-compact .nv-group__title { display: none; }
+.is-compact .nv-brand { padding: 0.25rem 0; }
+.is-compact .nv-menu { align-items: center; gap: 0; }
+.is-compact .nv-group { align-items: center; }
+.is-compact .nv-group + .nv-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.is-compact .nv-link, .is-compact .nv-search { width: 44px; height: 44px; padding: 0; justify-content: center; }
+.is-compact .nv-link > .nv-count { display: none; }
+.is-compact .nv-account { width: 44px; padding: 0; justify-content: center; }
+.is-compact .nv-foot { align-items: center; }
+.nv-dot { position: absolute; display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; font-size: 0.625rem; font-weight: 700; line-height: 1; box-shadow: 0 0 0 2px var(--ring-bg, var(--background)); }
+.nv-dot.hg-tint { background: color-mix(in srgb, var(--c) calc(var(--tint) + 6%), var(--ring-bg, var(--background))); }
+.nv-dot.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.is-compact .nv-dot { top: -3px; right: -7px; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); --ring-bg: var(--surface); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); background: var(--primary-glow); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+.m-tab .nv-dot { top: -8px; left: calc(50% + 7px); }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.page.is-compact { margin-left: 72px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.w-mid .page-in { padding: 1.75rem 1.75rem 2.5rem; }
+.m-page { padding: 1.25rem 1rem 110px; }
+.page-title { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .page-title { font-size: 1.625rem; }
+.page-subtitle { margin: .35rem 0 0; color: var(--muted); font-size: .9375rem; }
+
+/* ══ Piezas compartidas (copia de src/styles/lists.css) ══ */
+.st-todos { --c: var(--primary); } .st-bandeja { --c: var(--st-bandeja); } .st-pendiente { --c: var(--st-pendiente); }
+.st-jugando { --c: var(--st-jugando); } .st-pausado { --c: var(--st-pausado); } .st-rejugable { --c: var(--st-rejugable); } .st-completado { --c: var(--st-completado); }
+.st-abandonado { --c: var(--st-abandonado); } .st-yajugado { --c: var(--st-yajugado); } .st-otros { --c: var(--st-otros); }
+.st-favorito { --c: var(--st-favorito); } .st-sin_final { --c: var(--st-sinfinal); }
+.rar-comun { --c: var(--rar-comun); } .rar-poco { --c: var(--rar-poco); } .rar-rara { --c: var(--rar-rara); } .rar-epica { --c: var(--rar-epica); } .rar-leg { --c: var(--rar-leg); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.st-pausado { color: var(--warn-ink); }
+.hg-tint[class*='rar-'] { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+.rar-ink { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; transition: background .15s, border-color .15s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { border-color: var(--border-hover); }
+.btn--ghost { background: transparent; color: var(--muted); }
+.btn--ghost:hover { background: var(--surface-2); color: var(--foreground); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.w-mob .btn, .w-mob .btn--sm { height: 44px; }
+
+.hg-rows { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.hg-row { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: center; gap: 1rem; min-height: 68px; padding: 8px 12px 8px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: box-shadow .15s ease, border-color .15s ease; }
+.hg-row:hover, .hg-row:has(:focus-visible) { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.hg-row.lib-row::before { content: ''; position: absolute; inset: -1px auto -1px -1px; width: 4px; border-radius: var(--radius) 0 0 var(--radius); background: var(--c); }
+.hg-row__cover { position: relative; display: block; width: 112px; height: 52px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.hg-row__cover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s var(--ease-out); }
+.hg-row:hover .hg-row__cover img { transform: scale(1.05); }
+.hg-row__main { display: grid; gap: 4px; min-width: 0; }
+.hg-row__link { overflow: hidden; color: var(--foreground); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.hg-row__link::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.hg-row__link:focus-visible { outline: none; }
+.hg-row a:not(.hg-row__link), .hg-row button { position: relative; z-index: 1; }
+.hg-row__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; color: var(--muted); font-size: 0.8125rem; min-width: 0; }
+.lib-meta { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.lib-meta .i { font-size: 13px; }
+.hg-row__prog { display: grid; gap: 6px; font-size: 0.8125rem; }
+.hg-row__prog-label { display: flex; justify-content: space-between; gap: 0.5rem; color: var(--muted); white-space: nowrap; }
+.hg-row__prog-label b { color: var(--foreground); font-weight: 600; }
+.hg-bar { position: relative; display: block; height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.hg-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--c, var(--primary)); transform-origin: left; }
+.hg-row .hg-bar > span { background: var(--primary); }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.78125rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 13px; }
+.hg-chip--sm { padding: 1px 8px 1px 6px; font-size: .71875rem; gap: 4px; }
+.hg-chip--sm .i { font-size: 11px; }
+.hg-flag { display: inline-grid; flex: none; place-items: center; width: 20px; height: 20px; border-radius: 6px; font-size: 12px; }
+.hg-flag .i { font-size: 12px; }
+.hg-score { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 26px; height: 20px; padding: 0 5px; border-radius: 6px; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+.hg-score .i { font-size: 11px; }
+.hg-deal { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 6px; background: var(--deal); color: var(--deal-foreground); font-size: .75rem; font-weight: 700; white-space: nowrap; }
+.hg-deal .i { font-size: 12px; }
+
+/* ══ Tokens de puntuación y precio (globals.css) ══ */
+:root { --sc-top: #1a7743; --sc-good: #4d7c0f; --sc-mid: #8e5e18; --sc-bad: #c7243b; --deal: #f5c400; --deal-foreground: #2b2100; }
+[data-theme='dark'] { --sc-top: #4cc97e; --sc-good: #a9d15b; --sc-mid: #f2b53a; --sc-bad: #f26b7e; --deal: #ffd43b; --deal-foreground: #221a00; }
+.sc-top { --c: var(--sc-top); } .sc-good { --c: var(--sc-good); } .sc-mid { --c: var(--sc-mid); } .sc-bad { --c: var(--sc-bad); }
+.hg-tint.sc-mid { color: var(--warn-ink); }
+.ac-on { --c: var(--primary); }
+.nv-count--deal { background: var(--deal); color: var(--deal-foreground); }
+.nv-dot.nv-count--deal { background: var(--deal); }
+
+.doc-seg { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); font-size: .8125rem; }
+.doc-seg > span { padding: 0 8px; color: var(--muted); font-weight: 600; }
+.doc-seg button { height: 32px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-weight: 600; }
+.doc-seg button[aria-pressed='true'] { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.note table { border-collapse: collapse; margin: 6px 0; font-size: .8125rem; }
+.note td, .note th { padding: 4px 10px; border: 1px solid var(--border); text-align: left; }
+
+/* ══ Cabecera de la página ══ */
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.page-subtitle b { color: var(--foreground); font-weight: 600; }
+.wl-sub-deal { display: inline-flex; vertical-align: 1px; }
+
+/* ══ Barra: filtros (A) y orden ══ */
+.wl-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: 12px; }
+.hg-seg { position: relative; display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.hg-seg__opt { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 32px; padding: 0 .7rem; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; transition: color .15s; }
+.hg-seg__opt:hover { color: var(--foreground); }
+.hg-seg__opt[aria-pressed='true'] { color: var(--foreground); font-weight: 600; }
+.hg-seg__opt > * { position: relative; z-index: 1; }
+.hg-seg__opt .i { font-size: 14px; }
+.hg-seg__thumb { position: absolute; z-index: 0; top: 3px; left: 0; height: calc(100% - 6px); border-radius: 6px; background: var(--surface); box-shadow: var(--shadow-sm); transition: transform .22s var(--ease-out), width .22s var(--ease-out); }
+.wl-cnt { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; font-size: .71875rem; font-weight: 700; color: var(--muted); background: color-mix(in srgb, var(--muted) 12%, transparent); }
+.wl-cnt.is-deal { background: var(--deal); color: var(--deal-foreground); }
+.wl-cnt.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); }
+.wl-cnt.is-zero { opacity: .55; }
+.wl-f-ic { display: inline-flex; }
+.wl-f-ic.deal { color: var(--warn-ink); }
+.wl-f-ic.sale { color: var(--sc-top); }
+.wl-f-ic.ac { color: var(--primary); }
+.wl-sort { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.wl-sort select { height: 38px; min-width: 210px; padding: 0 32px 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235d6472' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center; color: var(--foreground); font: inherit; font-size: .875rem; font-weight: 500; appearance: none; }
+.wl-sort select:hover { border-color: var(--border-hover); }
+
+/* ══ Filtros como tiles (variante B) ══ */
+.wl-tiles > li { display: grid; min-width: 0; }
+.wl-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 0 12px; padding: 0; list-style: none; }
+.wl-tile { position: relative; display: grid; gap: 2px; min-width: 0; padding: 12px 14px; border: 0; border-radius: 12px; background: var(--surface-2); text-align: left; transition: box-shadow .15s, background .15s; }
+.wl-tile:hover { box-shadow: 0 0 0 3px var(--cursor); }
+.wl-tile[aria-pressed='true'] { background: var(--surface); box-shadow: inset 0 0 0 2px var(--c, var(--primary)); }
+.wl-tile[aria-pressed='true'].is-deal { box-shadow: inset 0 0 0 2px var(--deal); }
+.wl-tile__top { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.wl-tile__ic { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; font-size: 13px; }
+.wl-tile__ic.is-deal { background: var(--deal); color: var(--deal-foreground); }
+.wl-tile__ic.is-muted { background: color-mix(in srgb, var(--muted) 14%, transparent); color: var(--muted); }
+.wl-tile__val { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
+.wl-tile__note { overflow: hidden; color: var(--muted); font-size: .75rem; text-overflow: ellipsis; white-space: nowrap; }
+.wl-tile__x { position: absolute; top: 10px; right: 10px; color: var(--muted); font-size: 14px; display: none; }
+.wl-tile[aria-pressed='true'] .wl-tile__x { display: block; }
+.wl-active-filter { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .8125rem; }
+
+/* ══ Filas ══ */
+.wl-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.wl-item { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .24s var(--ease-out), margin .24s var(--ease-out); }
+.wl-item > .hg-row { min-height: 0; }
+.wl-item.is-collapsing { grid-template-rows: 0fr; margin-bottom: -6px; }
+.wl-item.is-collapsing > .hg-row { overflow: hidden; padding-top: 0; padding-bottom: 0; border-width: 0; }
+.hg-row.wl-row { grid-template-columns: 112px minmax(0, 1fr) 236px auto; gap: 1.1rem; min-height: 84px; padding: 10px 10px 10px 16px; transition: box-shadow .15s ease, border-color .15s ease, opacity .2s var(--ease-out), transform .2s var(--ease-out); }
+.vp-B .hg-row.wl-row { grid-template-columns: 112px minmax(0, 1fr) 210px auto; }
+.hg-row.wl-row::before { content: ''; position: absolute; inset: -1px auto -1px -1px; width: 4px; border-radius: var(--radius) 0 0 var(--radius); background: var(--stripe, transparent); }
+.wl-row.v-low { --stripe: var(--deal); }
+.wl-row.v-sale { --stripe: var(--sc-mid); }
+.wl-row.is-leaving { opacity: 0; transform: translateX(28px); }
+.wl-row.is-back { animation: back-hl 1.2s var(--ease-out); }
+@keyframes back-hl { from { box-shadow: 0 0 0 3px var(--cursor); } }
+.wl-cover { position: relative; }
+.wl-cover img { width: 100%; height: 100%; object-fit: cover; }
+.wl-cover__ph { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-weight: 700; font-size: .8125rem; padding: 4px; text-align: center; line-height: 1.15; }
+.wl-cover img + .wl-cover__ph { display: none; }
+.wl-cover.is-broken img { display: none; }
+.wl-cover.is-broken .wl-cover__ph { display: grid; }
+.wl-cover-tag { position: absolute; left: 4px; bottom: 4px; z-index: 1; display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 4px; background: rgba(10, 12, 16, .78); color: #fff; font-size: .625rem; font-weight: 600; }
+.wl-main { display: grid; gap: 5px; min-width: 0; }
+.wl-name { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.wl-name .hg-row__link { min-width: 0; font-size: .9375rem; }
+.wl-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-width: 0; color: var(--muted); font-size: .8125rem; }
+.wl-meta--sub { font-size: .75rem; }
+.wl-rev { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.wl-rev__label { color: var(--muted); }
+.wl-mc { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.wl-mc__lbl { font-size: .6875rem; font-weight: 700; color: var(--muted); letter-spacing: .01em; }
+.wl-eph { font-weight: 600; white-space: nowrap; }
+.wl-eph.hg-tint { padding: 0 5px; border-radius: 6px; height: 20px; display: inline-flex; align-items: center; font-size: .75rem; }
+.wl-alert { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px; border-radius: 6px; font-size: .71875rem; font-weight: 600; white-space: nowrap; }
+.wl-alert .i { font-size: 12px; }
+.wl-alert.is-off { padding: 0; color: var(--muted); font-weight: 500; }
+.wl-soon { display: inline-flex; align-items: center; gap: 4px; color: var(--foreground); font-weight: 600; }
+.wl-soon .i { font-size: 13px; color: var(--muted); }
+
+/* ══ Precio (A: con regla · B: con veredicto en texto) ══ */
+.wl-price { display: grid; gap: 5px; min-width: 0; }
+.wl-price__now { display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; white-space: nowrap; }
+.wl-cut { align-self: center; padding: 2px 6px; border-radius: 6px; font-size: .78125rem; font-weight: 700; }
+.wl-big { font-size: 1.0625rem; font-weight: 700; letter-spacing: -.01em; }
+.wl-was { color: var(--muted); font-size: .75rem; }
+.wl-verdict { display: flex; justify-content: flex-end; }
+.wl-verdict .hg-tint, .wl-verdict .wl-plain { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 6px; font-size: .75rem; font-weight: 600; white-space: nowrap; }
+.wl-verdict .i { font-size: 12px; }
+.wl-plain { color: var(--muted); background: var(--surface-2); }
+.wl-price--none { justify-items: end; color: var(--muted); font-size: .8125rem; }
+.wl-price--none b { color: var(--foreground); font-size: .9375rem; }
+.wl-lows { justify-self: end; color: var(--muted); font-size: .71875rem; text-align: right; line-height: 1.35; }
+.wl-lows b { color: var(--foreground); font-weight: 600; }
+
+/* Regla mini: de lo más barato que ha estado (izq.) al precio normal (der.) */
+.wl-rule { display: grid; gap: 3px; padding-top: 3px; }
+.wl-rule__track { position: relative; height: 6px; margin: 0 5px; border-radius: 999px; background: var(--surface-3); overflow: clip; overflow-clip-margin: 9px; }
+.wl-rule__low { position: absolute; inset: 0 auto 0 0; width: var(--lw); border-radius: 999px 0 0 999px; background: var(--deal); transform-origin: left; }
+.wl-rule__pos { position: absolute; inset: 0; transform: translateX(var(--p)); pointer-events: none; }
+.wl-rule__dot { position: absolute; top: 50%; left: 0; width: 13px; height: 13px; border: 2.5px solid var(--surface); border-radius: 50%; background: var(--foreground); translate: -50% -50%; box-shadow: 0 0 0 1px var(--border-hover); }
+.wl-rule.is-low .wl-rule__dot { background: var(--deal); box-shadow: 0 0 0 1px color-mix(in srgb, var(--deal-foreground) 45%, transparent); }
+.wl-rule__labels { display: flex; justify-content: space-between; gap: 6px; color: var(--muted); font-size: .6875rem; line-height: 1.2; white-space: nowrap; }
+.wl-rule__labels b { color: var(--foreground); font-weight: 600; }
+.wl-rule--none { color: var(--muted); font-size: .6875rem; text-align: right; }
+
+/* Acciones */
+.wl-actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+.icon-btn { position: relative; z-index: 1; display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted); font-size: 17px; transition: background .15s, color .15s, transform .1s; }
+.icon-btn:hover { background: var(--surface-2); color: var(--foreground); }
+.icon-btn:active { transform: scale(.92); }
+.icon-btn.is-set { color: var(--primary); }
+.icon-btn.is-met { color: var(--sc-top); }
+.icon-btn.is-placeholder { visibility: hidden; }
+.icon-btn .wl-bell-dot { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 2px var(--surface); }
+.w-mob .icon-btn { width: 44px; height: 44px; }
+
+/* Popover del aviso (el de hoy, con el color de las piezas nuevas) */
+.wl-pop { position: absolute; z-index: 30; width: 300px; display: grid; gap: .6rem; padding: .75rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); animation: pop-scale .16s var(--ease-out); transform-origin: top right; }
+@keyframes pop-scale { from { opacity: 0; transform: scale(.96) translateY(-4px); } }
+.wl-pop__title { margin: 0; overflow: hidden; font-size: .875rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.wl-pop__now { margin: -4px 0 0; color: var(--muted); font-size: .75rem; }
+.wl-pop__modes { display: grid; gap: 2px; }
+.wl-pop__mode { display: grid; grid-template-columns: 18px 1fr; gap: 1px 8px; padding: .5rem .65rem; border: 0; border-radius: var(--radius-sm); background: transparent; text-align: left; }
+.wl-pop__mode .i { grid-row: span 2; margin-top: 2px; font-size: 15px; color: var(--muted); }
+.wl-pop__mode:hover { background: var(--surface-2); }
+.wl-pop__mode[aria-checked='true'] { background: var(--primary-glow); box-shadow: inset 3px 0 0 var(--primary); }
+.wl-pop__mode[aria-checked='true'] .i, .wl-pop__mode[aria-checked='true'] b { color: var(--primary); }
+.wl-pop__mode b { font-size: .8125rem; }
+.wl-pop__mode span { color: var(--muted); font-size: .75rem; }
+.wl-pop__field { display: flex; align-items: center; gap: .4rem; color: var(--muted); font-size: .8125rem; }
+.wl-pop__field input { flex: 1; min-width: 0; height: 36px; padding: 0 .65rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font: inherit; font-size: .875rem; }
+.wl-pop__field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); outline: none; }
+.wl-pop__hit { margin: 0; font-size: .75rem; font-weight: 600; }
+.wl-pop__hit.yes { color: var(--sc-top); }
+.wl-pop__hit.no { color: var(--muted); font-weight: 500; }
+.wl-pop__actions { display: flex; justify-content: flex-end; gap: .4rem; }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover { background: var(--primary-hover); }
+
+/* Vacíos, sin resultados y cargando */
+.wl-empty { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .6rem 1rem; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.wl-empty__ic { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; font-size: 20px; }
+.wl-empty__ic.is-deal { background: var(--deal); color: var(--deal-foreground); }
+.wl-empty__ic.is-muted { background: var(--surface-2); color: var(--muted); }
+.wl-empty p { margin: 0; color: var(--muted); font-size: .875rem; }
+.wl-empty p b { display: block; color: var(--foreground); font-size: .9375rem; font-weight: 600; }
+.wl-empty__acts { grid-column: 2; display: flex; flex-wrap: wrap; gap: 8px; }
+.w-mob .wl-empty { grid-template-columns: 1fr; }
+.w-mob .wl-empty__acts { grid-column: 1; }
+.wl-hint { display: flex; align-items: center; gap: 6px; margin: 4px 0 0; color: var(--muted); font-size: .75rem; }
+.skel { display: block; border-radius: 6px; background: var(--surface-2); animation: skel 1.2s ease-in-out infinite alternate; }
+@keyframes skel { to { opacity: .45; } }
+.wl-skel-row { display: grid; grid-template-columns: 112px minmax(0, 1fr) 200px; gap: 1.1rem; align-items: center; min-height: 84px; padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.w-mob .wl-skel-row { grid-template-columns: 96px minmax(0, 1fr); }
+.w-mob .wl-skel-row > :last-child { display: none !important; }
+
+.wl-more { display: flex; justify-content: center; margin-top: 12px; }
+.wl-attr { margin: 14px 0 0; color: var(--muted); font-size: .75rem; text-align: center; }
+.wl-attr a { text-decoration: underline; }
+
+/* Aviso con Deshacer */
+.wl-toast { position: fixed; left: 50%; bottom: 24px; z-index: 200; display: flex; align-items: center; gap: 12px; padding: 6px 6px 6px 14px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); font-size: .8125rem; translate: -50% 0; animation: toast-in .22s var(--ease-out); }
+.wl-toast b { font-weight: 600; }
+.wl-toast.is-out { animation: toast-out .16s ease-in forwards; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(8px); } }
+
+/* ══ Móvil ══ */
+.w-mob .page-head { margin-bottom: 1rem; }
+.w-mob .wl-toolbar { gap: 8px; }
+.w-mob .hg-seg { flex-wrap: nowrap; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.w-mob .hg-seg__opt { min-height: 38px; }
+.w-mob .wl-sort { width: 100%; }
+.w-mob .wl-sort select { flex: 1; height: 44px; min-width: 0; }
+.w-mob .wl-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.w-mob .hg-row.wl-row { grid-template-columns: 96px minmax(0, 1fr) auto; grid-template-areas: 'cover main main' 'price price act'; gap: 10px 12px; padding: 10px 8px 8px 14px; align-items: start; }
+.w-mob .hg-row__cover { width: 96px; height: 45px; grid-area: cover; }
+.w-mob .wl-main { grid-area: main; gap: 4px; }
+.w-mob .wl-price { grid-area: price; align-self: center; }
+.w-mob .wl-actions { grid-area: act; align-self: end; }
+.w-mob .wl-price__now, .w-mob .wl-verdict { justify-content: flex-start; }
+.w-mob .wl-price__top { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.w-mob .wl-lows { justify-self: start; text-align: left; }
+.w-mob .wl-price--none { justify-items: start; }
+.w-mob .wl-rev__label, .w-mob .wl-mc__lbl { display: none; }
+.w-mob .wl-name .hg-row__link { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: .875rem; line-height: 1.3; }
+.w-mob .wl-rule--none { text-align: left; }
+.w-mob .wl-pop { width: calc(100% - 24px); }
+
+/* ══ Microanimaciones ══ */
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes pop-in { from { opacity: 0; transform: scale(.5); } }
+.entering .wl-item { animation: in-up .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+.entering .wl-tile, .entering .hg-seg .wl-cnt { animation: pop-in .26s var(--ease-out) backwards; animation-delay: calc(120ms + var(--i, 0) * 40ms); }
+/* Mínimo histórico: la fila destella en amarillo y el sello hace un pop */
+.entering .wl-row.v-low { animation: deal-flash 1s var(--ease-out) backwards; animation-delay: calc(380ms + min(var(--i, 0), 8) * 30ms); }
+.entering .wl-row.v-low .hg-deal { animation: deal-pop .5s var(--ease-out) backwards; animation-delay: calc(380ms + min(var(--i, 0), 8) * 30ms); }
+@keyframes deal-flash { from { background-color: color-mix(in srgb, var(--deal) 38%, var(--surface)); } }
+@keyframes deal-pop { 0% { transform: scale(.6); opacity: 0; } 55% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+/* Regla: el tramo amarillo crece y el punto se desliza desde el precio normal hasta hoy */
+.entering .wl-rule__low { animation: grow-x .4s var(--ease-out) backwards; animation-delay: calc(150ms + min(var(--i, 0), 8) * 30ms); }
+.entering .wl-rule__pos { animation: dot-slide .6s var(--ease-out) backwards; animation-delay: calc(200ms + min(var(--i, 0), 8) * 30ms); }
+@keyframes grow-x { from { transform: scaleX(0); } }
+@keyframes dot-slide { from { transform: translateX(100%); } }
+.swap { animation: fade-in .2s var(--ease-out); }
+.swap .wl-rule__pos { animation: dot-slide .45s var(--ease-out) backwards; }
+/* Campana que se balancea al activar un aviso */
+.icon-btn.is-swing .i { transform-origin: 50% 3px; animation: bell-swing .7s var(--ease-out); }
+@keyframes bell-swing { 15% { transform: rotate(16deg); } 35% { transform: rotate(-12deg); } 55% { transform: rotate(7deg); } 75% { transform: rotate(-3deg); } 100% { transform: rotate(0); } }
+.icon-btn.is-swing .wl-bell-dot { animation: pop-in .26s var(--ease-out) backwards .15s; }
+.wl-alert.is-new { animation: pop-in .26s var(--ease-out) backwards .1s; }
+/* Contador que salta (AnimatedCount) */
+.wl-cnt.is-bump, .nv-count.is-bump { animation: cnt-pop .3s var(--ease-out); }
+@keyframes cnt-pop { 40% { transform: scale(1.18); } }
+.icon-btn.is-trash:hover { color: var(--danger); }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+}
+.anim-list li { margin: 3px 0; }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Wishlist</h1>
+  <div class="doc-bar__actions">
+    <span class="doc-seg" role="group" aria-label="Variante de filtros"><span>Filtros</span><button type="button" data-vf="A" aria-pressed="true">A · barra</button><button type="button" data-vf="B" aria-pressed="false">B · tiles</button></span>
+    <span class="doc-seg" role="group" aria-label="Variante del precio"><span>Precio</span><button type="button" data-vp="A" aria-pressed="true">A · regla</button><button type="button" data-vp="B" aria-pressed="false">B · texto</button></span>
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p>Hoy la wishlist ya tiene filtros (Todos · En oferta · En mínimo histórico), orden, el sello amarillo de mínimo histórico, los mínimos de IsThereAnyDeal en texto y el aviso de precio en un popover. Pero la fila no se parece a la de un pendiente sin comprar de la Biblioteca: no dice si el juego es bueno ni cuánto dura, el precio de hoy no se compara de un vistazo con lo barato que ha llegado a estar, y el aviso solo se ve si es distinto del de por defecto. La propuesta:</p>
+  <ul>
+    <li><b>La fila de un pendiente sin comprar</b>: cápsula, nombre, <b>duración de la historia</b> (HowLongToBeat, o la mediana de SteamSpy si no hay), <b>Metacritic</b> y <b>reseñas de Steam</b> con su color y su palabra (<code>metacriticScore</code>, <code>steamReviewScore</code>) y <b>€ por hora de historia</b> con el color de la ficha (≤ 1 € verde … &gt; 4 € rojo). Si el juego también está en tu Biblioteca como pendiente sin comprar, su <code>StatusChip</code>.</li>
+    <li><b>Precio con veredicto</b> (<code>priceVerdict</code>): descuento tintado en verde, precio de hoy y el de antes tachado, y debajo el veredicto: <b>«Mínimo histórico» en amarillo sólido</b>, «Ha estado a 7,99 €» en ámbar o «Precio normal» en gris. La franja izquierda de la fila repite el veredicto (amarillo / ámbar / nada) para escanear la lista.</li>
+    <li><b>Regla de precio</b> (variante A, la de la ficha en pequeño, con <code>pricePosition</code>): de lo más barato que ha estado en cualquier tienda a su precio normal, con el tramo amarillo hasta el mínimo de Steam y un punto en el precio de hoy. Se lee «está cerca de su mínimo» sin hacer cuentas.</li>
+    <li><b>Aviso de precio visible</b>: la campana en cobalto con un punto si tienes un aviso propio, una etiqueta «Aviso si baja de 15,00 €» en la fila y, si el precio de hoy ya lo cumple, en verde: «Cumple tu aviso». «Sin avisos», en gris con la campana tachada. El popover es el de hoy, con una línea que dice si el precio de hoy cumpliría el aviso que estás escribiendo.</li>
+    <li><b>Filtros con color y contador</b>: Todos · <b>En mínimo histórico</b> (contador amarillo) · <b>En oferta</b> (verde) · <b>Con aviso</b> (cobalto) · <b>Próximamente</b> (gris). El fondo activo se desliza. Orden con dos opciones nuevas: <b>«Más cerca de su mínimo»</b> y <b>«Mejor valorados»</b>.</li>
+    <li><b>Estados</b>: cargando con esqueleto de filas (en vez del loader a pantalla completa), wishlist vacía con dos acciones, sin resultados de un filtro con «Ver todos» y, al quitar un juego añadido desde HubGames, <b>Deshacer</b> 5 s. Los que vienen de Steam siguen sin papelera (la sincronización los volvería a traer).</li>
+  </ul>
+
+  <h3>Datos</h3>
+  <ul>
+    <li><b>Ya en <code>hubgames_wishlist</code></b>: precio, descuento, mínimos de Steam y de cualquier tienda (con tienda y fecha), <code>itad_id</code>, <code>coming_soon</code> y <code>release_date_text</code>, <code>source</code>, <code>priority</code>, <code>date_added</code> y las reseñas (<code>steamspy_userscore</code>, la misma columna que usan la Bandeja y la ficha). Avisos de <code>hubgames_price_alerts</code>, como hoy.</li>
+    <li><b>Hay que añadir a la vista</b> (migración solo sobre <code>hubgames_wishlist</code>): <code>metacritic_score</code> y <code>steamspy_median_forever</code> de <code>hubgames_juegos_steam</code>, y <code>main</code> / <code>main_extra</code> / <code>completionist</code> de <code>hubgames_game_duration</code> (como hace <code>hubgames_library</code>). Con eso, <code>gameDuration</code> da la historia igual que en la Biblioteca.</li>
+    <li><b>Estado en la Biblioteca</b>: un juego puede estar en la wishlist y a la vez como pendiente sin comprar. Basta con pedir <code>appid, status, favorite, endless</code> de <code>hubgames_library</code> para los appid de la wishlist (una consulta pequeña).</li>
+    <li><b>Derivados sin consultas</b>: veredicto, posición en la regla, €/h (<code>price_final</code> / historia), si cumple el aviso (<code>meetsAlert</code>, que ya existe) y los contadores de los filtros.</li>
+    <li>En el mockup los precios, mínimos y notas son verosímiles pero inventados; hoy es miércoles 28 de octubre de 2026.</li>
+  </ul>
+
+  <h3>Decisiones que tienes que tomar (los interruptores de arriba cambian los marcos de 1440, 1000 y 390 px)</h3>
+  <ul>
+    <li><b>Filtros · A barra</b> (recomendada): el segmentado de hoy con icono, color y contador por filtro; ocupa una línea. <b>B tiles</b>: cuatro tiles pulsables con la cifra grande y una nota («ahorras 132 € sobre su precio normal», «hasta -80 %»); más vistosos pero empujan la lista unos 90 px hacia abajo en cada visita, y la wishlist es una lista para recorrer, no un panel.</li>
+    <li><b>Precio · A regla</b> (recomendada): la regla mini de la ficha bajo el veredicto; ves cuánto le queda para su mínimo sin leer cifras. <b>B texto</b>: sin regla, el veredicto y debajo «Mín. en Steam 7,99 € · 6,79 € en GOG», como hoy pero con color; más compacta, pero hay que comparar cifras.</li>
+  </ul>
+
+  <h3>Microanimaciones (pruébalas en el marco de 1440 px; «Repetir entrada» arriba)</h3>
+  <ul class="anim-list">
+    <li><b>Entrada</b>: filas con <code>.hg-enter</code> y contadores de los filtros con un pop. <span class="t">320 ms · 30 ms entre filas, solo las 8 primeras · pop 260 ms.</span></li>
+    <li><b>Mínimo histórico que destella</b>: al llegar, la fila se tiñe un instante de amarillo y vuelve a su fondo, y el sello «Mínimo histórico» salta (como <code>.hg-rar-flash</code> + <code>.hg-pop-in</code>, con <code>--deal</code>). Solo al entrar en la página, no al filtrar. <span class="t">1 s el destello · 500 ms el sello · tras la entrada de la fila.</span></li>
+    <li><b>Punto que se desliza</b> en la regla: el tramo amarillo crece desde la izquierda y el punto sale del precio normal (derecha) y se para en el de hoy; cuanto más rebajado, más recorrido. Al filtrar u ordenar, solo el punto, más corto. <span class="t">tramo 400 ms · punto 600 ms (450 ms al filtrar) · solo <code>transform</code>.</span></li>
+    <li><b>Campana que se balancea</b> al guardar un aviso (no al ponerlo en «Sin avisos»): oscila y se para, aparece el punto cobalto y la etiqueta de la fila hace un pop. <span class="t">700 ms · punto y etiqueta 260 ms.</span></li>
+    <li><b>Fila que se pliega</b> al quitarla: se desliza 28 px a la derecha mientras se desvanece y luego el hueco se cierra; las de debajo suben. Aviso «Quitado de la wishlist · Deshacer»; al deshacer vuelve a su sitio con el cursor de selección que se apaga. Los contadores saltan (<code>AnimatedCount</code>). <span class="t">200 ms salida · 240 ms hueco · aviso 5 s.</span></li>
+    <li><b>Filtros y orden</b>: el fondo activo del segmentado se desliza (<code>.hg-seg--slide</code>), la lista hace un fundido cruzado al filtrar y <b>se reordena deslizando</b> las filas al cambiar el orden (como la lista de logros de un juego, <code>layout="position"</code>). <span class="t">220 ms · 200 ms · 320 ms.</span></li>
+    <li><b>Hover</b>: cursor de selección y la cápsula que crece un 5 %, como en la Biblioteca. Popover que escala desde la campana. <span class="t">150 / 200 / 160 ms.</span></li>
+    <li>Con <b>movimiento reducido</b> todo es instantáneo y sin retrasos (el punto ya está en su sitio, sin destello ni balanceo; la fila desaparece sin plegarse). El esqueleto de carga deja de latir.</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px (prueba en vivo)</h2>
+  <p>13 juegos: 4 en mínimo histórico, 8 en oferta, 3 con aviso propio (uno ya cumplido: Inscryption), uno sin precio todavía (Subnautica 2) y uno sin historial de precios (Animal Well). Prueba: los filtros, el orden («Más cerca de su mínimo» y «Mejor valorados» son nuevos), la campana de cualquier fila (pon un aviso y guarda), la papelera de Lies of P, Sea of Stars o Animal Well (añadidos desde HubGames) y Deshacer.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="f-desk"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Una columna: cápsula y nombre (hasta dos líneas) arriba; precio, veredicto y regla a todo el ancho debajo, con la campana y la papelera a 44 px. Los filtros se desplazan en horizontal y el orden ocupa su propia línea. Las palabras de Metacritic y reseñas se quedan en el título (al tocar), la cifra con color se ve siempre.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px" id="f-mob"></div><p class="frame-cap">En vivo, con los mismos datos.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-none"></div><p class="frame-cap">Sin resultados: filtro «En mínimo histórico» sin ninguno hoy. Dice cuál es el más cerca y ofrece verlos todos.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-empty"></div><p class="frame-cap">Wishlist vacía: cómo se llena (Steam, cada día, con el perfil público) y dos acciones.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-load"></div><p class="frame-cap">Cargando: esqueleto con la forma de las filas en vez del loader a pantalla completa.</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Casos límite · ~1000 px, barra plegada</h2>
+  <p>Filtro «En oferta» ordenado por «Más cerca de su mínimo». Nombre largo con ™ (<i>STAR WARS Jedi: Survivor™</i>) en su mínimo, un mínimo con solo -10 % (<i>Clair Obscur</i>, primera rebaja: también cuenta como mínimo histórico) y un aviso cumplido.</p>
+  <div class="scroller"><div class="frame w-mid" style="width:1000px" id="f-edge"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes lado a lado</h2>
+  <p>Las mismas tres filas con la regla (A) y con el veredicto en texto (B); y los filtros como barra (A) o como tiles (B).</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="vlabel"><b>A</b> Precio con regla <em>recomendada</em></div><div class="frame w-desk vframe" style="width:820px" id="f-p-a"></div></div>
+    <div><div class="vlabel"><b>B</b> Precio en texto</div><div class="frame w-desk vframe" style="width:820px" id="f-p-b"></div></div>
+  </div></div>
+  <div class="scroller" style="margin-top:24px"><div class="row-frames">
+    <div><div class="vlabel"><b>A</b> Filtros en barra <em>recomendada</em></div><div class="frame w-desk vframe" style="width:820px" id="f-f-a"></div></div>
+    <div><div class="vlabel"><b>B</b> Filtros en tiles</div><div class="frame w-desk vframe" style="width:820px" id="f-f-b"></div></div>
+  </div></div>
+</section>
+
+<section class="sec note" style="max-width:1080px">
+  <h2>Preguntas para aprobarlo</h2>
+  <ol>
+    <li>¿Filtros <b>A · barra</b> (recomendada) o <b>B · tiles</b>?</li>
+    <li>¿Precio <b>A · con regla</b> (recomendada) o <b>B · en texto</b>?</li>
+    <li>El filtro «Con aviso»: ¿los juegos con <b>aviso propio</b> (precio objetivo o descuento; recomendado, sirve para revisar lo que configuraste) o los que <b>cumplen su aviso hoy</b>? Con el aviso por defecto (mínimo histórico), «cumplen hoy» sería casi lo mismo que «En mínimo histórico».</li>
+    <li>¿Ampliamos la vista <code>hubgames_wishlist</code> con Metacritic, la mediana de SteamSpy y la duración de HowLongToBeat? (Recomendado: es una migración pequeña que solo toca la vista.)</li>
+    <li>¿Mostramos el <code>StatusChip</code> «Pendiente» cuando el juego también está en tu Biblioteca como pendiente sin comprar? (Recomendado: sí.)</li>
+    <li>¿El <b>€ por hora de historia</b> en la fila? (Recomendado: sí, con el mismo color que en la ficha; no sale si no hay duración o precio.)</li>
+    <li>¿Los dos órdenes nuevos («Más cerca de su mínimo» y «Mejor valorados»), manteniendo «Mayor descuento» por defecto? (Recomendado: sí. «Más cortos» también sería posible, pero son ya 7 opciones.)</li>
+    <li>¿La <b>franja izquierda</b> con el veredicto (amarillo en mínimo, ámbar si ha estado más barato), o sin franja porque el sello ya lo dice? (Recomendado: con franja; es lo que permite escanear 40 juegos.)</li>
+    <li>¿Quitar con <b>Deshacer</b> (5 s) en vez de quitar sin más? Los de Steam siguen sin papelera. (Recomendado: sí.)</li>
+    <li>¿Esqueleto de filas al cargar en vez del loader a pantalla completa? (Recomendado: sí; la cabecera y los filtros se ven desde el principio.)</li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide, los mismos que usa la app) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+  pause: '<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
+  repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  circlex: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  hourglass: '<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
+  target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+  video: '<path d="M10 7.75a.75.75 0 0 1 1.142-.638l3.664 2.249a.75.75 0 0 1 0 1.278l-3.664 2.25a.75.75 0 0 1-1.142-.64z"/><path d="M12 17v4"/><path d="M8 21h8"/><rect x="2" y="3" width="20" height="14" rx="2"/>',
+  gem: '<path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/>',
+  zap: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+  up: '<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',
+  infinity: '<path d="M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8"/>',
+  sparkles: '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm');
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+
+/* ── Navegación (resumen de la implementada), con Logros activo ── */
+function sidebar(o) {
+  const c = o.compact;
+  const pill = (k) => k === 'lib' && o.tray ? (c ? `<span class="nv-dot hg-tint st-bandeja">${o.tray}</span>` : `<span class="nv-count hg-tint st-bandeja">${ic('inbox')}${o.tray}</span>`) : '';
+  const link = (k, label, icon) => `<a href="#" class="nv-link ${k === 'ach' ? 'active' : ''}" title="${label}">${ic(icon)}<span class="nv-link__label">${label}</span>${pill(k)}</a>`;
+  const groups = [`<div class="nv-group">${link('home', 'Inicio', 'home')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('lib', 'Biblioteca', 'library')}${link('ach', 'Logros', 'award')}${link('wish', 'Wishlist', 'heart')}${link('stats', 'Estadísticas', 'chart')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('judi', 'JUDI', 'gamepad')}${link('rank', 'Ranking', 'trophy')}</div>`];
+  const theme = `<span class="theme-btn">${ic('sun')}</span><div class="theme-toggle"><span class="on">${ic('sun')}</span><span>${ic('moon')}</span><span>${ic('monitor')}</span></div>`;
+  const account = `<a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>diego</span><span class="nv-account__meta">Ver perfil</span></span></a>`;
+  return `<aside class="nv-side ${c ? 'is-compact' : ''}"><a href="#" class="nv-brand">${logo(22)}</a><span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span><nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}${account}</div></aside>`;
+}
+function mobileChrome(o, body) {
+  const tabs = [['home', 'Inicio', 'home'], ['lib', 'Biblioteca', 'library'], ['ach', 'Logros', 'award'], ['judi', 'JUDI', 'gamepad'], ['rank', 'Ranking', 'trophy'], ['perfil', 'Perfil', 'user']];
+  const dot = (k) => k === 'lib' && o.tray ? `<span class="nv-dot hg-tint st-bandeja">${o.tray}</span>` : '';
+  const tabbar = tabs.map(([k, l, i]) => `<a href="#" class="m-tab ${k === 'ach' ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}${dot(k)}</span><span class="m-tab__label">${l}</span></a>`).join('');
+  const top = `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon">${ic('sun')}</span><span class="m-icon"><span class="nv-avatar">D</span></span></div></header>`;
+  return `${top}<div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+function desktopChrome(o, body) {
+  return sidebar(o) + `<div class="page ${o.compact ? 'is-compact' : ''}"><div class="page-in">${body}</div></div>`;
+}
+
+Object.assign(P, {
+  bell: '<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>',
+  belloff: '<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742"/><path d="m2 2 20 20"/><path d="M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05"/>',
+  trash: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+  ext: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  tdown: '<polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  thumb: '<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+  thumbdown: '<path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"/>',
+  tag: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+  percent: '<line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+  undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',
+  calendar: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  linechart: '<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  heartfill: '<path fill="currentColor" d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+});
+
+/* ── Navegación (resumen de la implementada), con Wishlist activa y sus mínimos en amarillo ── */
+function sidebar(o) {
+  const c = o.compact;
+  const pill = (k) => {
+    if (k === 'lib') return c ? `<span class="nv-dot hg-tint st-bandeja">3</span>` : `<span class="nv-count hg-tint st-bandeja">${ic('inbox')}3</span>`;
+    if (k === 'wish' && o.deals) return c ? `<span class="nv-dot nv-count--deal">${o.deals}</span>` : `<span class="nv-count nv-count--deal js-navdeal">${ic('tag')}<span>${o.deals}</span></span>`;
+    return '';
+  };
+  const link = (k, label, icon) => `<a href="#" class="nv-link ${k === 'wish' ? 'active' : ''}" title="${label}">${ic(icon)}<span class="nv-link__label">${label}</span>${pill(k)}</a>`;
+  const groups = [`<div class="nv-group">${link('home', 'Inicio', 'home')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('lib', 'Biblioteca', 'library')}${link('ach', 'Logros', 'award')}${link('wish', 'Wishlist', 'heart')}${link('stats', 'Estadísticas', 'chart')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('judi', 'JUDI', 'gamepad')}${link('rank', 'Ranking', 'trophy')}</div>`];
+  const theme = `<span class="theme-btn">${ic('sun')}</span><div class="theme-toggle"><span class="on">${ic('sun')}</span><span>${ic('moon')}</span><span>${ic('monitor')}</span></div>`;
+  const account = `<a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>diego</span><span class="nv-account__meta">Ver perfil</span></span></a>`;
+  return `<aside class="nv-side ${c ? 'is-compact' : ''}"><a href="#" class="nv-brand">${logo(22)}</a><span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span><nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}${account}</div></aside>`;
+}
+function mobileChrome(o, body) {
+  const tabs = [['home', 'Inicio', 'home'], ['lib', 'Biblioteca', 'library'], ['ach', 'Logros', 'award'], ['judi', 'JUDI', 'gamepad'], ['rank', 'Ranking', 'trophy'], ['perfil', 'Perfil', 'user']];
+  const dot = (k) => k === 'lib' ? `<span class="nv-dot hg-tint st-bandeja">3</span>` : '';
+  const tabbar = tabs.map(([k, l, i]) => `<a href="#" class="m-tab"><span class="m-tab__icon">${ic(i)}${dot(k)}</span><span class="m-tab__label">${l}</span></a>`).join('');
+  const top = `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon">${ic('sun')}</span><span class="m-icon"><span class="nv-avatar">D</span></span></div></header>`;
+  return `${top}<div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+
+/* ── Formato (como src/lib/wishlist.ts y scores.ts) ── */
+const EUR = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
+const euro = (c) => (c === null || c === undefined ? null : c === 0 ? 'Gratis' : EUR.format(c / 100));
+const F_SHORTY = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+const dshort = (iso) => F_SHORTY.format(new Date(`${iso}T12:00:00`)).replace('.', '');
+const fmtH = (h) => (h < 1 ? `${Math.round(h * 60)} min` : `${Math.round(h)} h`);
+const n = (v) => v.toLocaleString('es-ES');
+const IMG = (id) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`;
+
+function mcScore(s) { return s >= 90 ? ['top', 'Aclamado'] : s >= 75 ? ['top', 'Favorable'] : s >= 50 ? ['mid', 'Variado'] : ['bad', 'Desfavorable']; }
+function revScore(p) { return p >= 95 ? ['top', 'Extremadamente positivas'] : p >= 80 ? ['top', 'Muy positivas'] : p >= 70 ? ['good', 'Mayormente positivas'] : p >= 40 ? ['mid', 'Variadas'] : p >= 20 ? ['bad', 'Mayormente negativas'] : ['bad', 'Muy negativas']; }
+const ephTier = (e) => (e <= 1 ? 'top' : e <= 2 ? 'good' : e <= 4 ? 'mid' : 'bad');
+const onSale = (g) => (g.disc ?? 0) > 0;
+const isLow = (g) => onSale(g) && g.fin !== null && g.sLow !== null && g.fin <= g.sLow;
+const verdict = (g) => (g.fin === null ? null : isLow(g) ? 'low' : onSale(g) ? 'sale' : 'normal');
+function pricePosition(now, low, reg) { if (now === null || low === null || reg === null || reg <= low) return null; return Math.round(Math.min(100, Math.max(0, ((now - low) / (reg - low)) * 100))); }
+const floorOf = (g) => g.aLow ?? g.sLow;
+const posOf = (g) => pricePosition(g.fin, floorOf(g), g.ini ?? g.fin);
+const mode = (g) => g.alert?.mode ?? 'minimo';
+const isCustom = (g) => mode(g) === 'precio' || mode(g) === 'descuento';
+function meets(g, a = g.alert) {
+  const m = a?.mode ?? 'minimo';
+  if (g.fin === null) return false;
+  if (m === 'minimo') return isLow(g);
+  if (m === 'precio') return a.price !== null && g.fin <= a.price;
+  if (m === 'descuento') return a.disc !== null && (g.disc ?? 0) >= a.disc;
+  return false;
+}
+function alertLabel(a) {
+  const m = a?.mode ?? 'minimo';
+  if (m === 'precio') return `Aviso si baja de ${euro(a.price)}`;
+  if (m === 'descuento') return `Aviso con -${a.disc} % o más`;
+  if (m === 'off') return 'Sin avisos';
+  return 'Aviso en mínimo histórico';
+}
+
+/* ── Wishlist de ejemplo (céntimos; h = historia en horas) ── */
+const W0 = [
+  { id: 1091500, name: 'Cyberpunk 2077', src: 'steam', prio: 1, added: '2024-11-02', ini: 5999, fin: 2099, disc: 65, sLow: 2099, aLow: 1799, aShop: 'Fanatical', mc: 86, rev: 82, h: 25 },
+  { id: 1174180, name: 'Red Dead Redemption 2', src: 'steam', prio: 2, added: '2023-12-20', ini: 5999, fin: 1499, disc: 75, sLow: 1499, aLow: 1379, aShop: 'Gamesplanet', mc: 93, rev: 92, h: 50 },
+  { id: 1627720, name: 'Lies of P', src: 'manual', prio: 0, added: '2026-09-30', ini: 5999, fin: 2999, disc: 50, sLow: 2999, aLow: 2999, aShop: 'Steam', mc: 80, rev: 89, h: 34 },
+  { id: 1903340, name: 'Clair Obscur: Expedition 33', src: 'steam', prio: 3, added: '2025-05-02', ini: 4999, fin: 4499, disc: 10, sLow: 4499, aLow: 3949, aShop: 'Gamesplanet', mc: 92, rev: 95, h: 32 },
+  { id: 632470, name: 'Disco Elysium - The Final Cut', src: 'steam', prio: 5, added: '2022-03-14', ini: 3999, fin: 999, disc: 75, sLow: 799, aLow: 679, aShop: 'GOG', mc: 91, rev: 92, h: 21, lib: 'pendiente' },
+  { id: 1092790, name: 'Inscryption', src: 'steam', prio: 4, added: '2023-01-08', ini: 1950, fin: 390, disc: 80, sLow: 319, aLow: 299, aShop: 'GOG', mc: 85, rev: 96, h: 12, alert: { mode: 'precio', price: 400, disc: null } },
+  { id: 1244090, name: 'Sea of Stars', src: 'manual', prio: 0, added: '2026-10-20', ini: 3399, fin: 2379, disc: 30, sLow: 1699, aLow: 1529, aShop: 'Humble', mc: 88, rev: 89, h: 30, alert: { mode: 'precio', price: 1500, disc: null } },
+  { id: 2677660, name: 'Indiana Jones and the Great Circle', src: 'steam', prio: 6, added: '2024-12-09', ini: 6999, fin: 3499, disc: 50, sLow: 2799, aLow: 2519, aShop: 'Fanatical', mc: 86, rev: 87, h: 15 },
+  { id: 1086940, name: "Baldur's Gate 3", src: 'steam', prio: 7, added: '2023-08-03', ini: 5999, fin: 5999, disc: 0, sLow: 4799, aLow: 4139, aShop: 'GOG', mc: 96, rev: 96, h: 75, alert: { mode: 'descuento', price: null, disc: 30 } },
+  { id: 1205520, name: 'Pentiment', src: 'steam', prio: 8, added: '2024-02-11', ini: 1999, fin: 1999, disc: 0, sLow: 999, aLow: 899, aShop: 'Humble', mc: 86, rev: 91, h: 17, lib: 'pendiente' },
+  { id: 1850570, name: "DEATH STRANDING DIRECTOR'S CUT", src: 'steam', prio: 9, added: '2022-04-01', ini: 3999, fin: 3999, disc: 0, sLow: 1599, aLow: 1399, aShop: 'Epic Games Store', mc: 85, rev: 90, h: 41, alert: { mode: 'off', price: null, disc: null } },
+  { id: 813230, name: 'ANIMAL WELL', src: 'manual', prio: 0, added: '2026-10-02', ini: 2299, fin: 2299, disc: 0, sLow: null, aLow: null, mc: 91, rev: 94, h: 6, hSrc: 'steamspy' },
+  { id: 1962700, name: 'Subnautica 2', src: 'steam', prio: 10, added: '2025-01-15', ini: null, fin: null, disc: null, sLow: null, aLow: null, mc: null, rev: null, h: null, soon: '2027' },
+];
+const JEDI = { id: 1774580, name: 'STAR WARS Jedi: Survivor™', src: 'steam', prio: 11, added: '2023-04-28', ini: 6999, fin: 1399, disc: 80, sLow: 1399, aLow: 1259, aShop: 'Fanatical', mc: 85, rev: 78, h: 22 };
+const clone = (a) => a.map((g) => ({ ...g, alert: g.alert ? { ...g.alert } : null }));
+
+/* ── Filtros y orden ── */
+const FILTERS = [
+  { k: 'todos', label: 'Todos', test: () => true },
+  { k: 'minimo', label: 'En mínimo histórico', icon: 'tdown', cls: 'deal', test: isLow },
+  { k: 'oferta', label: 'En oferta', icon: 'percent', cls: 'sale', test: onSale },
+  { k: 'aviso', label: 'Con aviso', icon: 'bell', cls: 'ac', test: isCustom },
+  { k: 'pronto', label: 'Próximamente', icon: 'calendar', cls: 'soon', test: (g) => g.fin === null && !!g.soon },
+];
+const SORTS = [
+  ['descuento', 'Mayor descuento'], ['cerca', 'Más cerca de su mínimo'], ['precio', 'Precio más bajo'], ['valorados', 'Mejor valorados'],
+  ['prioridad', 'Prioridad de Steam'], ['recientes', 'Añadidos recientemente'], ['nombre', 'Nombre'],
+];
+const NEW_SORTS = new Set(['cerca', 'valorados']);
+const byName = (a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
+const INF = Infinity;
+function cmp(a, b, s) {
+  switch (s) {
+    case 'descuento': return (b.disc ?? -1) - (a.disc ?? -1) || (a.fin ?? INF) - (b.fin ?? INF);
+    case 'cerca': return (posOf(a) ?? INF) - (posOf(b) ?? INF) || (b.disc ?? -1) - (a.disc ?? -1);
+    case 'precio': return (a.fin ?? INF) - (b.fin ?? INF);
+    case 'valorados': return (b.rev ?? -1) - (a.rev ?? -1) || (b.mc ?? -1) - (a.mc ?? -1);
+    case 'prioridad': return (a.prio || INF) - (b.prio || INF) || b.added.localeCompare(a.added);
+    case 'recientes': return b.added.localeCompare(a.added);
+    default: return 0;
+  }
+}
+const sorted = (gs, s) => [...gs].sort((a, b) => cmp(a, b, s) || byName(a, b));
+const counts = (gs) => Object.fromEntries(FILTERS.map((f) => [f.k, gs.filter(f.test).length]));
+const visible = (st) => sorted(st.games.filter(FILTERS.find((f) => f.k === st.filter).test), st.sort);
+
+/* ── Fila ── */
+function metaHTML(g) {
+  const out = [];
+  if (g.h !== null) out.push(`<span class="lib-meta" title="Historia (${g.hSrc === 'steamspy' ? 'mediana de SteamSpy' : 'HowLongToBeat'})">${ic('hourglass')}${fmtH(g.h)}</span>`);
+  if (g.mc !== null) { const [t, l] = mcScore(g.mc); out.push(`<span class="wl-mc" title="Metacritic: ${l}"><span class="wl-mc__lbl">Metacritic</span><span class="hg-score hg-tint sc-${t}">${g.mc}</span></span>`); }
+  if (g.rev !== null) { const [t, l] = revScore(g.rev); out.push(`<span class="wl-rev" title="Reseñas de Steam: ${l} (${g.rev} %)"><span class="hg-score hg-tint sc-${t}">${ic(t === 'bad' ? 'thumbdown' : 'thumb')}${g.rev} %</span><span class="wl-rev__label">${l}</span></span>`); }
+  if (g.fin && g.h) { const e = g.fin / 100 / g.h; out.push(`<span class="wl-eph hg-tint sc-${ephTier(e)}" title="Precio por hora de historia">${e.toFixed(2).replace('.', ',')} €/h</span>`); }
+  if (!out.length) out.push('<span>Sin datos de duración ni notas todavía</span>');
+  return out.join('');
+}
+function alertChip(g, isNew) {
+  const m = mode(g);
+  if (m === 'off') return `<span class="wl-alert is-off ${isNew ? 'is-new' : ''}">${ic('belloff')}Sin avisos</span>`;
+  if (!isCustom(g)) return '';
+  const target = m === 'precio' ? `≤ ${euro(g.alert.price)}` : `-${g.alert.disc} % o más`;
+  if (meets(g)) return `<span class="wl-alert hg-tint sc-top ${isNew ? 'is-new' : ''}" title="El precio de hoy cumple tu aviso">${ic('check')}Cumple tu aviso · ${target}</span>`;
+  return `<span class="wl-alert hg-tint ac-on ${isNew ? 'is-new' : ''}">${ic('bell')}${alertLabel(g.alert)}</span>`;
+}
+function verdictHTML(g) {
+  const v = verdict(g);
+  if (v === 'low') return `<span class="hg-deal" title="El precio de hoy es el más bajo que ha tenido en Steam">${ic('tdown')}Mínimo histórico</span>`;
+  if (v === 'sale' && g.sLow !== null) return `<span class="hg-tint sc-mid" title="Rebajado, pero ha estado más barato en Steam">${ic('alert')}Ha estado a ${euro(g.sLow)}</span>`;
+  if (v === 'sale') return `<span class="wl-plain">Rebajado</span>`;
+  return `<span class="wl-plain">Precio normal</span>`;
+}
+function ruleHTML(g) {
+  const floor = floorOf(g), reg = g.ini ?? g.fin, p = posOf(g);
+  if (p === null) return g.sLow === null && g.aLow === null ? `<div class="wl-rule--none">Sin historial de precios</div>` : '';
+  const lw = g.sLow !== null ? pricePosition(g.sLow, floor, reg) ?? 0 : 0;
+  const tip = `Hoy ${euro(g.fin)} · lo más barato: ${euro(floor)}${g.aShop ? ` en ${g.aShop}` : ''} · precio normal ${euro(reg)}`;
+  return `<div class="wl-rule ${isLow(g) ? 'is-low' : ''}" title="${tip}" aria-label="${tip}"><div class="wl-rule__track" style="--lw:${lw}%"><span class="wl-rule__low"></span><span class="wl-rule__pos" style="--p:${p}%"><span class="wl-rule__dot"></span></span></div>
+    <div class="wl-rule__labels"><span>Mín. <b>${euro(floor)}</b></span><span>Normal <b>${euro(reg)}</b></span></div></div>`;
+}
+function lowsHTML(g) {
+  if (g.sLow === null && g.aLow === null) return `<div class="wl-lows">Sin historial de precios</div>`;
+  const parts = [];
+  if (g.sLow !== null) parts.push(`Mín. en Steam <b>${euro(g.sLow)}</b>`);
+  if (g.aLow !== null && g.aLow !== g.sLow) parts.push(`<b>${euro(g.aLow)}</b> en ${g.aShop}`);
+  return `<div class="wl-lows">${parts.join(' · ')}</div>`;
+}
+function priceHTML(g, vp) {
+  if (g.fin === null) return `<div class="wl-price wl-price--none"><b>${g.soon ? 'Próximamente' : 'Sin precio'}</b>${g.soon ? `<span>Sale en ${g.soon}</span>` : ''}</div>`;
+  const sale = onSale(g);
+  const top = `<div class="wl-price__top"><div class="wl-price__now">${sale ? `<span class="wl-cut hg-tint sc-top">-${g.disc} %</span>` : ''}<span class="wl-big">${euro(g.fin)}</span>${sale ? `<s class="wl-was">${euro(g.ini)}</s>` : ''}</div><div class="wl-verdict">${verdictHTML(g)}</div></div>`;
+  return `<div class="wl-price">${top}${vp === 'B' ? lowsHTML(g) : ruleHTML(g)}</div>`;
+}
+const CHIP_LIB = { pendiente: ['bookmark', 'Pendiente'] };
+function rowHTML(g, i, st, opts = {}) {
+  const v = verdict(g);
+  const m = mode(g);
+  const bellCls = m === 'off' ? '' : isCustom(g) ? (meets(g) ? 'is-met' : 'is-set') : '';
+  const bell = `<button type="button" class="icon-btn wl-bell ${bellCls}" data-bell="${g.id}" aria-label="Aviso de precio de ${g.name}: ${alertLabel(g.alert)}" title="${alertLabel(g.alert)}">${ic(m === 'off' ? 'belloff' : 'bell')}${isCustom(g) ? '<span class="wl-bell-dot"></span>' : ''}</button>`;
+  const trash = g.src === 'manual'
+    ? `<button type="button" class="icon-btn is-trash" data-rm="${g.id}" aria-label="Quitar ${g.name} de la wishlist" title="Quitar de la wishlist">${ic('trash')}</button>`
+    : `<span class="icon-btn is-placeholder" aria-hidden="true"></span>`;
+  const lib = g.lib ? `<span class="hg-chip hg-chip--sm hg-tint st-${g.lib}" title="También en tu Biblioteca, sin comprar">${ic(CHIP_LIB[g.lib][0])}${CHIP_LIB[g.lib][1]}</span>` : '';
+  const src = g.src === 'steam' ? `Wishlist de Steam · ${dshort(g.added)}` : `Añadido en HubGames · ${dshort(g.added)}`;
+  const soon = g.soon ? `<span class="wl-soon">${ic('calendar')}Sale en ${g.soon}</span>` : '';
+  return `<li class="wl-item" data-appid="${g.id}" style="--i:${i}"><div class="hg-row wl-row v-${v ?? 'none'}">
+    <span class="hg-row__cover wl-cover"><img src="${IMG(g.id)}" alt="" loading="lazy" onerror="this.parentNode.classList.add('is-broken')"><span class="wl-cover__ph">${g.name.split(/[\s:]+/).slice(0, 2).join(' ')}</span></span>
+    <div class="wl-main">
+      <div class="wl-name"><a href="#" class="hg-row__link" data-row-link>${g.name}</a>${lib}</div>
+      <div class="wl-meta">${metaHTML(g)}</div>
+      <div class="wl-meta wl-meta--sub"><span>${src}</span>${soon}${alertChip(g, opts.newAlert)}</div>
+    </div>
+    ${priceHTML(g, st.vp)}
+    <div class="wl-actions">${bell}<a href="#" class="icon-btn" aria-label="${g.name} en la tienda de Steam" title="Ver en la tienda de Steam">${ic('ext')}</a>${trash}</div>
+  </div></li>`;
+}
+
+/* ── Bloques de la página ── */
+function headHTML(st) {
+  const c = counts(st.games);
+  const sub = st.kind === 'load' ? 'Cargando tu wishlist…'
+    : c.todos === 0 ? 'Aún no hay juegos.'
+    : `${c.todos} ${c.todos === 1 ? 'juego' : 'juegos'}${c.minimo ? ` · <b>${c.minimo} en mínimo histórico</b>` : ''}${c.oferta ? ` · ${c.oferta} en oferta` : ''}. Precios del 28 oct 2026.`;
+  return `<header class="page-head"><div><h1 class="page-title">Wishlist</h1><p class="page-subtitle js-sub">${sub}</p></div>
+    <a href="#" class="btn btn--secondary">${ic('search')}Añadir un juego</a></header>`;
+}
+function segHTML(st) {
+  const c = counts(st.games);
+  return `<div class="hg-seg hg-seg--slide" role="group" aria-label="Filtrar"><span class="hg-seg__thumb" aria-hidden="true"></span>${FILTERS.map((f, i) => {
+    const cntCls = f.k === 'minimo' && c[f.k] ? 'is-deal' : f.k === 'oferta' ? 'hg-tint sc-top' : f.k === 'aviso' ? 'hg-tint ac-on' : '';
+    return `<button type="button" class="hg-seg__opt" data-filter="${f.k}" aria-pressed="${st.filter === f.k}">${f.icon ? `<span class="wl-f-ic ${f.cls}">${ic(f.icon)}</span>` : ''}<span>${f.label}</span><span class="wl-cnt ${cntCls} ${c[f.k] ? '' : 'is-zero'}" data-cnt="${f.k}" style="--i:${i}">${c[f.k]}</span></button>`;
+  }).join('')}</div>`;
+}
+function tilesHTML(st) {
+  const c = counts(st.games);
+  const lows = st.games.filter(isLow);
+  const saved = lows.reduce((s, g) => s + (g.ini - g.fin), 0);
+  const maxCut = Math.max(0, ...st.games.map((g) => g.disc ?? 0));
+  const custom = st.games.filter(isCustom), met = custom.filter((g) => meets(g));
+  const t = [
+    ['minimo', 'En mínimo histórico', `<span class="wl-tile__ic is-deal">${ic('tdown')}</span>`, lows.length ? `ahorras ${euro(saved)} sobre su precio normal` : 'ninguno hoy', 'is-deal'],
+    ['oferta', 'En oferta', `<span class="wl-tile__ic hg-tint sc-top">${ic('percent')}</span>`, c.oferta ? `hasta -${maxCut} %` : 'ninguno hoy', 'sc-top'],
+    ['aviso', 'Con aviso', `<span class="wl-tile__ic hg-tint ac-on">${ic('bell')}</span>`, met.length ? `${met.length} cumple${met.length > 1 ? 'n' : ''} hoy` : 'ninguno se cumple hoy', 'ac-on'],
+    ['pronto', 'Próximamente', `<span class="wl-tile__ic is-muted">${ic('calendar')}</span>`, c.pronto ? 'sin precio aún' : '—', ''],
+  ];
+  return `<ul class="wl-tiles">${t.map(([k, l, icon, note, cls], i) => `<li><button type="button" class="wl-tile ${cls}" data-filter="${st.filter === k ? 'todos' : k}" data-tile="${k}" aria-pressed="${st.filter === k}" style="--i:${i}"><span class="wl-tile__top">${icon}${l}</span><span class="wl-tile__val" data-cnt="${k}">${c[k]}</span><span class="wl-tile__note">${note}</span><span class="wl-tile__x">${ic('x')}</span></button></li>`).join('')}</ul>`;
+}
+function sortHTML(st) {
+  return `<label class="wl-sort"><span>Ordenar</span><select data-sort aria-label="Ordenar">${SORTS.map(([k, l]) => `<option value="${k}" ${st.sort === k ? 'selected' : ''}>${l}${NEW_SORTS.has(k) ? ' (nuevo)' : ''}</option>`).join('')}</select></label>`;
+}
+function toolbarHTML(st) {
+  if (st.vf === 'B') {
+    const f = FILTERS.find((x) => x.k === st.filter);
+    const left = st.filter === 'todos' ? `<span class="wl-active-filter">Todos los juegos</span>` : `<span class="wl-active-filter">Filtrando: <b style="color:var(--foreground)">${f.label}</b><button type="button" class="btn btn--ghost btn--sm" data-filter="todos">${ic('x')}Ver todos</button></span>`;
+    return `<div class="js-tools">${tilesHTML(st)}<div class="wl-toolbar">${left}${sortHTML(st)}</div></div>`;
+  }
+  return `<div class="js-tools"><div class="wl-toolbar">${segHTML(st)}${sortHTML(st)}</div></div>`;
+}
+function emptyHTML(st) {
+  const c = counts(st.games);
+  if (c.todos === 0) return `<div class="wl-empty"><span class="wl-empty__ic is-muted">${ic('heart')}</span><p><b>Tu wishlist está vacía</b>Se importa sola de tu wishlist de Steam cada día (con el perfil público) y también puedes añadir juegos desde el buscador o la ficha de un juego.</p>
+    <div class="wl-empty__acts"><a href="#" class="btn btn--secondary">${ic('search')}Buscar un juego</a><a href="#" class="btn btn--ghost">${ic('refresh')}Sincronizar con Steam</a></div></div>`;
+  const f = FILTERS.find((x) => x.k === st.filter);
+  const near = sorted(st.games.filter((g) => posOf(g) !== null), 'cerca')[0];
+  const msg = {
+    minimo: ['Ninguno en su mínimo histórico hoy', near ? `El más cerca es ${near.name}: ${euro(near.fin)}, ha llegado a ${euro(floorOf(near))}. Te avisamos cuando alguno llegue.` : 'Te avisamos cuando alguno llegue.'],
+    oferta: ['Ninguno en oferta ahora mismo', 'Steam suele hacer rebajas grandes en otoño e invierno.'],
+    aviso: ['Ningún juego con aviso propio', 'Por defecto te avisamos cuando un juego llega a su mínimo histórico. Pulsa la campana de un juego para poner un precio o un descuento.'],
+    pronto: ['Ningún juego por salir', 'Aquí salen los que aún no tienen precio en Steam.'],
+  }[st.filter];
+  return `<div class="wl-empty"><span class="wl-empty__ic ${st.filter === 'minimo' ? 'is-deal' : 'is-muted'}">${ic(f.icon)}</span><p><b>${msg[0]}</b>${msg[1]}</p><div class="wl-empty__acts"><button type="button" class="btn btn--secondary" data-filter="todos">Ver todos (${c.todos})</button></div></div>`;
+}
+function listHTML(st) {
+  if (st.kind === 'load') return `<ul class="wl-list">${Array.from({ length: st.w === 'mob' ? 4 : 6 }, () => `<li class="wl-skel-row"><span class="skel" style="height:${st.w === 'mob' ? 45 : 52}px"></span><span style="display:grid;gap:8px"><span class="skel" style="height:14px;width:70%"></span><span class="skel" style="height:11px;width:45%"></span></span><span style="display:grid;gap:8px;justify-items:end"><span class="skel" style="height:14px;width:60%"></span><span class="skel" style="height:6px;width:100%"></span></span></li>`).join('')}</ul>`;
+  const list = visible(st);
+  if (!list.length) return emptyHTML(st);
+  const shown = st.limit ? list.slice(0, st.limit) : list;
+  return `<ul class="wl-list" aria-label="Juegos de tu wishlist">${shown.map((g, i) => rowHTML(g, i, st)).join('')}</ul>`;
+}
+function pageHTML(st) {
+  if (st.kind === 'mini') return `<div class="page-in" style="padding:16px"><ul class="wl-list">${st.games.map((g, i) => rowHTML(g, i, st)).join('')}</ul></div>`;
+  const attr = st.kind === 'live' || st.kind === 'edge' ? `<p class="wl-attr">Precios de la tienda de Steam (España). Mínimos históricos de <a href="#">IsThereAnyDeal</a>.</p>` : '';
+  const tools = st.kind === 'load' ? `<div class="js-tools"><div class="wl-toolbar"><span class="skel" style="height:38px;width:${st.w === 'mob' ? '100%' : '560px'}"></span></div></div>` : (counts(st.games).todos === 0 ? '' : toolbarHTML(st));
+  return `${headHTML(st)}${tools}<div class="js-list">${listHTML(st)}</div>${attr}`;
+}
+
+/* ── Marcos ── */
+const FR = {};
+function mk(id, o) { FR[id] = { id, w: 'desk', kind: 'live', filter: 'todos', sort: 'descuento', vf: 'A', vp: 'A', live: true, ...o }; }
+mk('f-desk', { games: clone(W0) });
+mk('f-mob', { w: 'mob', games: clone(W0) });
+mk('f-mob-none', { w: 'mob', kind: 'none', live: false, filter: 'minimo', games: clone(W0).filter((g) => !isLow(g)) });
+mk('f-mob-empty', { w: 'mob', kind: 'empty', live: false, games: [] });
+mk('f-mob-load', { w: 'mob', kind: 'load', live: false, games: [] });
+mk('f-edge', { w: 'mid', kind: 'edge', compact: true, filter: 'oferta', sort: 'cerca', games: clone([...W0, JEDI]) });
+const pick = (ids) => clone(W0.filter((g) => ids.includes(g.id)));
+mk('f-p-a', { kind: 'mini', live: false, vp: 'A', games: pick([632470, 1174180, 1086940]) });
+mk('f-p-b', { kind: 'mini', live: false, vp: 'B', games: pick([632470, 1174180, 1086940]) });
+mk('f-f-a', { kind: 'live', bare: true, live: false, vf: 'A', limit: 2, games: clone(W0) });
+mk('f-f-b', { kind: 'live', bare: true, live: false, vf: 'B', limit: 2, games: clone(W0) });
+FR['f-p-a'].games.sort((a, b) => cmp(a, b, 'descuento')); FR['f-p-b'].games.sort((a, b) => cmp(a, b, 'descuento'));
+
+function renderFrame(id) {
+  const st = FR[id]; const f = document.getElementById(id);
+  const deals = counts(st.games).minimo;
+  f.classList.toggle('vp-B', st.vp === 'B');
+  const body = pageHTML(st);
+  if (st.kind === 'mini') f.innerHTML = body;
+  else if (st.bare) f.innerHTML = `<div class="page-in" style="padding:20px">${body}</div>`;
+  else f.innerHTML = st.w === 'mob' ? mobileChrome({}, body) : desktopChrome({ compact: st.compact, deals }, body);
+  placeThumb(f, false);
+}
+function placeThumb(scope, animate = true) {
+  scope.querySelectorAll('.hg-seg--slide').forEach((seg) => {
+    const on = seg.querySelector('[aria-pressed="true"]'); const th = seg.querySelector('.hg-seg__thumb'); if (!on || !th) return;
+    if (!animate) th.style.transition = 'none';
+    th.style.width = `${on.offsetWidth}px`; th.style.transform = `translateX(${on.offsetLeft}px)`;
+    if (!animate) { void th.offsetWidth; th.style.transition = ''; }
+  });
+}
+const timers = {};
+function entry(id) {
+  const f = document.getElementById(id);
+  f.classList.remove('entering'); void f.offsetWidth; f.classList.add('entering');
+  clearTimeout(timers[id]); timers[id] = setTimeout(() => f.classList.remove('entering'), 2200);
+}
+function entryAll() { Object.keys(FR).forEach((id) => { renderFrame(id); entry(id); }); }
+
+/* ── Interacciones ── */
+const stOf = (el) => FR[el.closest('.frame')?.id];
+function refreshTools(st, old) {
+  const f = document.getElementById(st.id);
+  f.querySelector('.js-sub').outerHTML = headHTML(st).match(/<p class="page-subtitle js-sub">[\s\S]*?<\/p>/)[0];
+  const tools = f.querySelector('.js-tools'); if (tools) { tools.outerHTML = toolbarHTML(st); placeThumb(f, false); }
+  const c = counts(st.games);
+  if (old) Object.keys(c).forEach((k) => { if (c[k] !== old[k]) f.querySelectorAll(`[data-cnt="${k}"]`).forEach((el) => { el.classList.remove('is-bump'); void el.offsetWidth; el.classList.add('is-bump'); }); });
+  const nav = f.querySelector('.js-navdeal span'); if (nav && old && c.minimo !== old.minimo) { nav.textContent = c.minimo; const p = nav.parentNode; p.classList.remove('is-bump'); void p.offsetWidth; p.classList.add('is-bump'); }
+}
+function rerenderList(st, how) {
+  const f = document.getElementById(st.id); const box = f.querySelector('.js-list');
+  const before = new Map(); if (how === 'flip') box.querySelectorAll('.wl-item').forEach((li) => before.set(li.dataset.appid, li.getBoundingClientRect().top));
+  box.innerHTML = listHTML(st);
+  if (how === 'swap') { box.classList.remove('swap'); void box.offsetWidth; box.classList.add('swap'); }
+  if (how === 'flip' && !rm()) {
+    box.querySelectorAll('.wl-item').forEach((li) => {
+      const was = before.get(li.dataset.appid); const now = li.getBoundingClientRect().top;
+      if (was === undefined) { li.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: 'ease-out' }); return; }
+      if (Math.abs(was - now) < 1) return;
+      li.animate([{ transform: `translateY(${was - now}px)` }, { transform: 'none' }], { duration: 320, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+    });
+  }
+}
+function setFilter(st, k) {
+  if (st.filter === k && st.vf === 'A') return;
+  st.filter = k;
+  const f = document.getElementById(st.id);
+  if (st.vf === 'B') { f.querySelector('.js-tools').outerHTML = toolbarHTML(st); }
+  else { f.querySelectorAll('[data-filter]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === k))); placeThumb(f, true); }
+  rerenderList(st, 'swap');
+}
+
+/* Popover del aviso */
+let POP = null;
+function closePop() { POP?.el.remove(); POP = null; }
+const HINTS = { minimo: 'Cuando iguale o mejore su precio más bajo en Steam.', precio: 'Cuando el precio baje de la cantidad que pongas.', descuento: 'Cuando tenga al menos este descuento.', off: 'No avisar de este juego.' };
+const MODES = [['minimo', 'Mínimo histórico', 'tdown'], ['precio', 'Precio objetivo', 'tag'], ['descuento', 'Descuento mínimo', 'percent'], ['off', 'Sin avisos', 'belloff']];
+function parseEuros(s) { const c = s.trim().replace('€', '').trim().replace(',', '.'); return /^\d+(\.\d{1,2})?$/.test(c) ? Math.round(Number(c) * 100) : null; }
+function popDraft() {
+  const m = POP.mode; const inp = POP.el.querySelector('input');
+  return { mode: m, price: m === 'precio' ? parseEuros(inp?.value ?? '') : null, disc: m === 'descuento' ? Number(inp?.value) || null : null };
+}
+function popBody() {
+  const g = POP.g; const m = POP.mode;
+  const field = m === 'precio' ? `<label class="wl-pop__field">Precio máximo <input inputmode="decimal" value="${POP.price}" placeholder="9,99"> €</label>`
+    : m === 'descuento' ? `<label class="wl-pop__field">Descuento mínimo <input inputmode="numeric" value="${POP.disc}" placeholder="75"> %</label>` : '';
+  return `<p class="wl-pop__title">Avisarme de ${g.name}</p>
+    <p class="wl-pop__now">${g.fin === null ? 'Aún sin precio en Steam' : `Hoy ${euro(g.fin)}${onSale(g) ? ` (-${g.disc} %)` : ''}${g.sLow !== null ? ` · mínimo en Steam ${euro(g.sLow)}` : ''}`}</p>
+    <div class="wl-pop__modes" role="radiogroup" aria-label="Cuándo avisar">${MODES.map(([k, l, icn]) => `<button type="button" role="radio" class="wl-pop__mode" data-mode="${k}" aria-checked="${m === k}">${ic(icn)}<b>${l}</b><span>${HINTS[k]}</span></button>`).join('')}</div>
+    ${field}<p class="wl-pop__hit"></p>
+    <div class="wl-pop__actions"><button type="button" class="btn btn--secondary btn--sm" data-pop="cancel">Cancelar</button><button type="button" class="btn btn--primary btn--sm" data-pop="save">Guardar</button></div>`;
+}
+function popHit() {
+  const el = POP.el.querySelector('.wl-pop__hit'); const d = popDraft(); const g = POP.g;
+  if (d.mode === 'off' || g.fin === null || (d.mode === 'precio' && d.price === null) || (d.mode === 'descuento' && !d.disc)) { el.textContent = ''; el.className = 'wl-pop__hit'; return; }
+  const yes = meets(g, d);
+  el.className = `wl-pop__hit ${yes ? 'yes' : 'no'}`;
+  el.textContent = yes ? 'El precio de hoy ya lo cumple: te avisaremos hoy mismo.' : 'Hoy no lo cumple.';
+}
+function openPop(btn, st, g) {
+  closePop();
+  const f = btn.closest('.frame'); const el = document.createElement('div'); el.className = 'wl-pop'; el.setAttribute('role', 'dialog');
+  POP = { el, st, g, btn, mode: mode(g), price: g.alert?.price != null ? (g.alert.price / 100).toFixed(2).replace('.', ',') : '', disc: g.alert?.disc ?? '' };
+  el.innerHTML = popBody(); f.appendChild(el); popHit();
+  const r = btn.getBoundingClientRect(), fr = f.getBoundingClientRect();
+  const w = el.offsetWidth; const left = Math.max(12, Math.min(r.right - fr.left - w, fr.width - w - 12));
+  const below = r.bottom - fr.top + 6, h = el.offsetHeight;
+  const top = below + h > fr.height - 8 ? Math.max(8, r.top - fr.top - h - 6) : below;
+  if (top !== below) el.style.transformOrigin = "bottom right";
+  el.style.left = `${left}px`; el.style.top = `${top}px`;
+  el.querySelector('[aria-checked="true"]')?.focus();
+}
+function savePop() {
+  const { st, g } = POP; const d = popDraft();
+  if (d.mode === 'precio' && d.price === null) { const h = POP.el.querySelector('.wl-pop__hit'); h.className = 'wl-pop__hit'; h.style.color = 'var(--danger)'; h.textContent = 'Escribe un precio, por ejemplo 9,99'; return; }
+  if (d.mode === 'descuento' && !(d.disc >= 1 && d.disc <= 100)) { const h = POP.el.querySelector('.wl-pop__hit'); h.className = 'wl-pop__hit'; h.style.color = 'var(--danger)'; h.textContent = 'El descuento va de 1 a 100'; return; }
+  const old = counts(st.games);
+  g.alert = d.mode === 'minimo' ? null : d;
+  closePop();
+  const f = document.getElementById(st.id);
+  const li = f.querySelector(`.wl-item[data-appid="${g.id}"]`);
+  const idx = Number(li.style.getPropertyValue('--i')) || 0;
+  const tmp = document.createElement('ul'); tmp.innerHTML = rowHTML(g, idx, st, { newAlert: true }); li.replaceWith(tmp.firstElementChild);
+  if (d.mode !== 'off') { const b = f.querySelector(`[data-bell="${g.id}"]`); b.classList.add('is-swing'); setTimeout(() => b.classList.remove('is-swing'), 800); }
+  refreshTools(st, old);
+}
+
+/* Quitar con Deshacer */
+let TOAST = null;
+function removeGame(st, id) {
+  const f = document.getElementById(st.id); const li = f.querySelector(`.wl-item[data-appid="${id}"]`); if (!li) return;
+  const idx = st.games.findIndex((g) => g.id === id); const g = st.games[idx];
+  const done = () => { const old = counts(st.games); st.games.splice(st.games.indexOf(g), 1); li.remove(); refreshTools(st, old); if (!f.querySelector('.wl-item')) rerenderList(st, 'swap'); };
+  if (rm()) done();
+  else {
+    li.querySelector('.wl-row').classList.add('is-leaving');
+    setTimeout(() => { li.classList.add('is-collapsing'); setTimeout(done, 250); }, 200);
+  }
+  showToast(st, g, idx);
+}
+function showToast(st, g, idx) {
+  TOAST?.el.remove(); clearTimeout(TOAST?.t);
+  const el = document.createElement('div'); el.className = 'wl-toast'; el.setAttribute('role', 'status');
+  el.innerHTML = `<span>Quitado de la wishlist: <b>${g.name}</b></span><button type="button" class="btn btn--ghost btn--sm" data-undo>${ic('undo')}Deshacer</button>`;
+  document.body.appendChild(el);
+  TOAST = { el, st, g, idx, t: setTimeout(hideToast, 5000) };
+}
+function hideToast() { if (!TOAST) return; const el = TOAST.el; el.classList.add('is-out'); setTimeout(() => el.remove(), 170); TOAST = null; }
+function undo() {
+  const { st, g, idx } = TOAST; clearTimeout(TOAST.t); hideToast();
+  setTimeout(() => {
+    if (st.games.includes(g)) return;
+    const old = counts(st.games); st.games.splice(Math.min(idx, st.games.length), 0, g);
+    rerenderList(st); refreshTools(st, old);
+    const li = document.getElementById(st.id).querySelector(`.wl-item[data-appid="${g.id}"]`);
+    if (li) { li.style.animation = rm() ? 'none' : 'in-up .32s var(--ease-out)'; li.querySelector('.wl-row').classList.add('is-back'); li.scrollIntoView({ block: 'nearest', behavior: rm() ? 'auto' : 'smooth' }); }
+  }, 260);
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-undo]')) return undo();
+  if (POP && !e.target.closest('.wl-pop') && !e.target.closest('[data-bell]')) closePop();
+  const st = stOf(e.target); if (!st) return;
+  const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault();
+  if (POP) {
+    const mb = e.target.closest('[data-mode]');
+    if (mb) { const inp = POP.el.querySelector('input'); if (inp) POP[POP.mode === 'precio' ? 'price' : 'disc'] = inp.value; POP.mode = mb.dataset.mode; POP.el.innerHTML = popBody(); popHit(); POP.el.querySelector(`[data-mode="${POP.mode}"]`).focus(); POP.el.querySelector('input')?.focus(); return; }
+    const pa = e.target.closest('[data-pop]'); if (pa) return pa.dataset.pop === 'save' ? savePop() : closePop();
+  }
+  if (st.kind === 'mini') return;
+  const fb = e.target.closest('[data-filter]'); if (fb) return setFilter(st, fb.dataset.filter);
+  const bell = e.target.closest('[data-bell]');
+  if (bell) { if (POP?.btn === bell) return closePop(); return openPop(bell, st, st.games.find((g) => g.id === +bell.dataset.bell)); }
+  const rmb = e.target.closest('[data-rm]'); if (rmb) return removeGame(st, +rmb.dataset.rm);
+});
+document.addEventListener('input', (e) => { if (POP && e.target.closest('.wl-pop input')) { const h = POP.el.querySelector('.wl-pop__hit'); h.style.color = ''; popHit(); } });
+document.addEventListener('keydown', (e) => {
+  if (!POP) return;
+  if (e.key === 'Escape') { const b = POP.btn; closePop(); b.focus(); }
+  if (e.key === 'Enter' && e.target.closest('.wl-pop input')) savePop();
+});
+document.addEventListener('change', (e) => {
+  const s = e.target.closest('[data-sort]'); if (!s) return; const st = stOf(s);
+  st.sort = s.value; rerenderList(st, 'flip');
+});
+
+/* ── Controles del documento ── */
+document.querySelectorAll('[data-vf]').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('[data-vf]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); Object.values(FR).filter((s) => s.live).forEach((s) => { s.vf = b.dataset.vf; renderFrame(s.id); }); }));
+document.querySelectorAll('[data-vp]').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('[data-vp]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); Object.values(FR).filter((s) => s.live).forEach((s) => { s.vp = b.dataset.vp; renderFrame(s.id); }); }));
+document.getElementById('replay-btn').addEventListener('click', () => { closePop(); entryAll(); });
+const rmBtn = document.getElementById('rm-btn');
+rmBtn.addEventListener('click', () => { const on = document.documentElement.classList.toggle('rm'); rmBtn.setAttribute('aria-pressed', String(on)); rmBtn.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`; });
+const themeBtn = document.getElementById('theme-btn');
+function setTheme(t) { document.documentElement.dataset.theme = t; themeBtn.setAttribute('aria-pressed', String(t === 'dark')); themeBtn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro'; }
+themeBtn.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+if (location.hash.includes('dark')) setTheme('dark');
+if (location.hash.includes('rm')) { document.documentElement.classList.add('rm'); rmBtn.setAttribute('aria-pressed', 'true'); rmBtn.textContent = 'Movimiento reducido: sí'; }
+window.addEventListener('resize', () => placeThumb(document, false));
+document.fonts?.ready.then(() => placeThumb(document, false));
+const solo = /solo=([\w-]+)/.exec(location.hash);
+entryAll();
+if (solo) { const f = document.getElementById(solo[1]); document.body.innerHTML = ''; document.body.style.padding = '0'; document.body.appendChild(f); f.style.borderRadius = '0'; placeThumb(f, false); }
+</script>
+</body>
+</html>

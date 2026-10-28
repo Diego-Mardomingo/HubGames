@@ -167,10 +167,11 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
 
 ### 5. Wishlist y precios
 
-- [ ] **Wishlist** — `/wishlist` · `src/app/wishlist/page.tsx`, `src/components/wishlist/*`, `wishlist.css`
+- 🎨 **Wishlist** — `/wishlist` · `src/app/wishlist/page.tsx`, `src/components/wishlist/*`, `wishlist.css`
   - Hoy: filtros, orden, filas con precio (`PriceInfo` ya pinta el mínimo histórico en amarillo) y alerta de precio.
   - Ideas: que la fila sea como la de un pendiente sin comprar de la biblioteca: Metacritic/reseñas con color, veredicto de precio, posición del precio entre mínimo y normal (`pricePosition`, como en la ficha), duración de HowLongToBeat; filtros con contador y color (en oferta, mínimo histórico, con alerta).
   - Animación: el sello de mínimo histórico con un destello amarillo al cargar, punto del precio que se desliza a su posición en la regla, campana de alerta que se balancea al activarla, fila que se pliega al quitarla de la wishlist.
+  - Mockup: `docs/mockups/wishlist.html` (pendiente de visto bueno: filtros A barra / B tiles, recomendada A; precio A con regla / B en texto, recomendada A)
 
 ### 6. Estadísticas
 
