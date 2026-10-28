@@ -101,6 +101,7 @@ npm run dev          # http://localhost:3000
 | `NEXT_PUBLIC_WEB_PUSH_VAPID_PUBLIC_KEY` | Suscripción a notificaciones en el navegador |
 | `WEB_PUSH_VAPID_PUBLIC_KEY`, `WEB_PUSH_VAPID_PRIVATE_KEY` | Envío de avisos push (mismo par de claves) |
 | `NEXT_PUBLIC_JUDI_MAINTENANCE` | Opcional: `true` pone JUDI en mantenimiento |
+| `NEXT_PUBLIC_JUDI_MAINTENANCE_UNTIL` | Opcional, con el mantenimiento activo: cuándo vuelve JUDI, en ISO (`2026-10-29T18:30:00+01:00`). Cuenta atrás si falta menos de un día, la fecha si es otro día y «Está tardando más de lo previsto» si ya ha pasado |
 
 ### Comandos
 

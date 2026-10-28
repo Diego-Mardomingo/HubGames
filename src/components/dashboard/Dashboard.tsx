@@ -19,6 +19,7 @@ import {
     Star,
     ThumbsUp,
     Trophy,
+    Wrench,
     X,
 } from 'lucide-react'
 import {
@@ -46,6 +47,7 @@ import { GOAL_LABELS, goalMinutes, goalRemainingMinutes, parseGoal } from '@/lib
 import { metacriticScore, ratingTier, steamReviewScore } from '@/lib/scores'
 import type { LibraryGame } from '@/lib/tracker'
 import { isPerfect } from '@/lib/tracker-rules'
+import { isJudiMaintenance, maintenanceReturn, maintenanceReturnLine, maintenanceUntilRaw, parseMaintenanceUntil } from '@/lib/judi-maintenance'
 import { Button } from '@/components/ui/button'
 import GameCover from '@/components/tracker/GameCover'
 import SuggestionsPanel from '@/components/tracker/SuggestionsPanel'
@@ -281,13 +283,18 @@ const WEEK_STATE: Record<ReturnType<typeof judiWeek>[number]['state'], string> =
     sin_juego: 'sin JUDI',
 }
 
-function JudiPanel({ data, index }: { data: DashboardData; index: number }) {
+/** JUDI en mantenimiento (NEXT_PUBLIC_JUDI_MAINTENANCE): neutro con la llave, sin invitar a jugar. */
+const JUDI_MAINTENANCE_STATE = { tone: 'st-bandeja', icon: <Wrench aria-hidden />, label: 'Pausa', text: 'JUDI está en mantenimiento. Tus partidas y tus puntos están guardados.' }
+
+function JudiPanel({ data, index, now }: { data: DashboardData; index: number; now: number }) {
+    const maintenance = isJudiMaintenance()
     const state = data.judi.state
-    const s = JUDI_STATE[state]
+    const s = maintenance ? JUDI_MAINTENANCE_STATE : JUDI_STATE[state]
     const streak = judiStreak(data.judi.days, data.judi.today)
     const week = judiWeek(data.judi.days, data.judi.today)
     const done = state === 'acertado' || state === 'fallado'
-    const lives = state === 'en_curso' ? data.judi.failedToday : null
+    const lives = !maintenance && state === 'en_curso' ? data.judi.failedToday : null
+    const maintenanceLine = maintenance ? maintenanceReturnLine(maintenanceReturn(parseMaintenanceUntil(maintenanceUntilRaw()), now)) : null
     return (
         <section className="dash-panel dash-judi hg-enter" style={enter(index)} aria-labelledby="dash-judi">
             <SectionHead id="dash-judi" tone="" icon={<Gamepad2 />} title="JUDI de hoy">
@@ -297,7 +304,7 @@ function JudiPanel({ data, index }: { data: DashboardData; index: number }) {
                 </span>
             </SectionHead>
             <p className="dash-judi__msg">
-                {state === 'en_curso' && lives !== null ? `Lo tienes a medias: te quedan ${6 - lives} ${6 - lives === 1 ? 'vida' : 'vidas'}.` : s.text}
+                {lives !== null ? `Lo tienes a medias: te quedan ${6 - lives} ${6 - lives === 1 ? 'vida' : 'vidas'}.` : s.text}
             </p>
             <div className="dash-judi__row">
                 <span className="dash-judi__streak">
@@ -332,9 +339,11 @@ function JudiPanel({ data, index }: { data: DashboardData; index: number }) {
                         {lives} de 6 intentos
                     </span>
                 ) : (
-                    <span className="dash-judi__lives">{done ? 'Nuevo juego a las 00:00 (hora de Madrid).' : 'Seis capturas, seis intentos.'}</span>
+                    <span className="dash-judi__lives">
+                        {maintenanceLine ?? (done ? 'Nuevo juego a las 00:00 (hora de Madrid).' : 'Seis capturas, seis intentos.')}
+                    </span>
                 )}
-                {data.judi.todayId !== null && (
+                {!maintenance && data.judi.todayId !== null && (
                     <Button asChild size="sm" variant={done ? 'secondary' : 'default'}>
                         <Link href="/judi">
                             {!done && <Play aria-hidden />}
@@ -451,7 +460,7 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                 {head}
                 <ConnectCard />
                 <div className="dash-grid">
-                    <JudiPanel data={data} index={2} />
+                    <JudiPanel data={data} index={2} now={now} />
                 </div>
             </div>
         )
@@ -697,7 +706,7 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                 </div>
 
                 <div className="dash-col">
-                    <JudiPanel data={data} index={6} />
+                    <JudiPanel data={data} index={6} now={now} />
                     <div className="hg-enter" style={enter(7)}>
                         <MonthlyGoals
                             userId={data.userId}

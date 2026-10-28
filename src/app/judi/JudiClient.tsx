@@ -38,6 +38,7 @@ import confetti from 'canvas-confetti'
 import { AlertCircle, ArrowLeft, ArrowRight, CalendarX2, Check, ChevronDown, Clock, ImageOff, Maximize2, RefreshCw, X } from 'lucide-react'
 import { Dialog } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { formatHmsCountdown } from '@/lib/judi-maintenance'
 import './judi.css'
 
 /** Un día de JUDI. El nombre y la portada solo llegan cuando lo has terminado (#39). */
@@ -263,14 +264,6 @@ function getMsUntilNextMadridMidnight(): number {
     const tomorrowMadrid = addOneCivilDayYmd(todayMadrid)
     const nextMidnight = madridStartOfDayUtcMs(tomorrowMadrid)
     return Math.max(0, nextMidnight - now)
-}
-
-function formatHmsCountdown(ms: number): string {
-    const totalSec = Math.floor(ms / 1000)
-    const h = Math.floor(totalSec / 3600)
-    const m = Math.floor((totalSec % 3600) / 60)
-    const s = totalSec % 60
-    return [h, m, s].map((n) => String(n).padStart(2, '0')).join(':')
 }
 
 function useNextDailyCountdown() {

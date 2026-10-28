@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
+import { isJudiMaintenance } from '@/lib/judi-maintenance'
 
 export async function generateMetadata(): Promise<Metadata> {
-    const maintenance = process.env.NEXT_PUBLIC_JUDI_MAINTENANCE === 'true'
-    if (maintenance) {
+    if (isJudiMaintenance()) {
         return {
             title: 'JUDI — Mantenimiento',
             description: 'El Juego del día está en mantenimiento. Volvemos pronto.',

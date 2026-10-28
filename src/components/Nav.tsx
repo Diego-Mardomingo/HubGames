@@ -24,6 +24,7 @@ import {
     Clock,
     Check,
     X,
+    Wrench,
     PanelLeftClose,
     PanelLeftOpen,
     type LucideIcon,
@@ -31,6 +32,7 @@ import {
 import { countTray, TRACKER_CHANGED_EVENT } from '@/lib/tracker'
 import { JUDI_CHANGED_EVENT } from '@/lib/judi'
 import type { JudiTodayState } from '@/lib/dashboard'
+import { isJudiMaintenance } from '@/lib/judi-maintenance'
 import { WISHLIST_CHANGED_EVENT, loadJudiToday, loadWishlistDeals, type WishlistDeal } from '@/lib/nav-status'
 import { isSidebarCollapsed, setSidebarCollapsed, subscribeSidebar } from '@/lib/sidebar'
 import GameSearch, { openGameSearch } from '@/components/tracker/GameSearch'
@@ -49,6 +51,10 @@ const JUDI_INDICATOR: Partial<Record<JudiTodayState, { tone: string; icon: Lucid
     acertado: { tone: 'nav-ind--ok', icon: Check, text: 'Acertado', label: 'JUDI de hoy acertado' },
     fallado: { tone: 'nav-ind--ko', icon: X, text: 'Fallado', label: 'JUDI de hoy fallado' },
 }
+
+/** JUDI en mantenimiento: «Pausa» en neutro con la llave (no ámbar, para no confundirlo con «Hoy»). */
+const JUDI_MAINTENANCE_INDICATOR = { tone: 'nav-ind--neutral nav-ind--maint', icon: Wrench, text: 'Pausa', label: 'JUDI está en mantenimiento' }
+const JUDI_MAINTENANCE = isJudiMaintenance()
 
 const upTo99 = (n: number) => (n > 99 ? '99+' : String(n))
 
@@ -148,7 +154,7 @@ export default function Nav() {
 
     // JUDI de hoy: con o sin sesión, al navegar y tras cada intento.
     useEffect(() => {
-        if (isLoading) return
+        if (isLoading || JUDI_MAINTENANCE) return
         let cancelled = false
         const refresh = () => loadJudiToday(Boolean(user)).then((s) => { if (!cancelled) setJudiState(s) })
         refresh()
@@ -170,7 +176,7 @@ export default function Nav() {
     const isAdmin = !isLoading && isAdminUser
     const tray = signedIn ? trayCount : 0
     const deals = signedIn ? dealGames.length : 0
-    const judi = JUDI_INDICATOR[judiState]
+    const judi = JUDI_MAINTENANCE ? JUDI_MAINTENANCE_INDICATOR : JUDI_INDICATOR[judiState]
     const username: string | null = !isLoading && user ? user.user_metadata?.username || null : null
     const initial = (username || user?.email || '?')[0]?.toUpperCase()
 
@@ -227,7 +233,7 @@ export default function Nav() {
         if (key === 'judi' && judi) {
             const Icon = judi.icon
             return (
-                <span key={judiState} className={`nav-ind nav-ind--state hg-tint ${judi.tone}`} aria-label={judi.label}>
+                <span key={JUDI_MAINTENANCE ? 'maint' : judiState} className={`nav-ind nav-ind--state hg-tint ${judi.tone}`} aria-label={judi.label}>
                     <Icon className="nav-ind__icon" aria-hidden />
                     <span className="nav-ind__text" aria-hidden>{judi.text}</span>
                 </span>
