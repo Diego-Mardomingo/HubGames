@@ -33,6 +33,7 @@ const buttonVariants = cva(
                 outline:
                     'border border-[var(--border)] bg-[var(--surface)]/80 text-[var(--foreground)] shadow-none hover:bg-[var(--surface-2)] hover:border-[var(--border-hover)]',
                 danger: 'hg-btn--danger',
+                dangerSoft: 'hg-btn--danger-soft',
             },
             size: {
                 sm: 'hg-button--sm h-8 px-3 text-xs [&_svg]:size-3.5 [&_i]:text-sm',

@@ -529,6 +529,17 @@ a {
   background: var(--danger-hover);
 }
 
+/* Acción destructiva o de salida que no es la confirmación (Cerrar sesión, Desvincular Steam): texto rojo sobre su tinte.
+   El rojo sólido (.hg-btn--danger) queda para el botón que confirma. --danger sobre --danger-glow ≥ 4,5:1 en los dos temas. */
+.hg-btn--danger-soft {
+  color: var(--danger);
+  background: var(--danger-glow);
+  border: 1px solid transparent;
+}
+.hg-btn--danger-soft:hover {
+  background: color-mix(in srgb, var(--danger) 20%, transparent);
+}
+
 /* ══════════════════════════════════════════════════════════════════
    Formularios
    ══════════════════════════════════════════════════════════════════ */
@@ -893,6 +904,18 @@ a {
 /* ══════════════════════════════════════════════════════════════════
    Accesibilidad: movimiento reducido
    ══════════════════════════════════════════════════════════════════ */
+/* Cambio de tema: los colores pasan con un fundido en vez de saltar. setThemePref (lib/theme.ts) pone la clase 320 ms;
+   con movimiento reducido no se pone. No toca transform: lo que se desliza a la vez (segmentado, interruptor) sigue igual. */
+html.hg-theme-anim,
+html.hg-theme-anim *,
+html.hg-theme-anim *::before,
+html.hg-theme-anim *::after {
+  transition-property: background-color, color, border-color, fill, stroke, box-shadow, outline-color !important;
+  transition-duration: 0.3s !important;
+  transition-timing-function: var(--ease-out) !important;
+  transition-delay: 0s !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

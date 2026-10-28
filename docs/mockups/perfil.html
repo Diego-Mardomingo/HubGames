@@ -1,0 +1,1098 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Perfil (v2) · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-foreground: #ffffff; --success: #1a7743; --warning: #8e5e18;
+  --success-glow: rgba(26, 119, 67, 0.1); --danger-glow: rgba(199, 36, 59, 0.1);
+  --rar-comun: #8a8f98; --rar-leg: #c98a0b; --rar-ink: 62%;
+  --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-completado: #1a7743; --st-sinfinal: #6741d9; --st-bandeja: #5d6472;
+  --on-done: #ffffff;
+  --tint: 12%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-foreground: #1b0a0d; --success: #4cc97e; --warning: #f2b53a;
+  --success-glow: rgba(76, 201, 126, 0.14); --danger-glow: rgba(242, 107, 126, 0.14);
+  --rar-comun: #9aa0aa; --rar-leg: #f2b53a; --rar-ink: 100%;
+  --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-completado: #4cc97e; --st-sinfinal: #b197fc; --st-bandeja: #9aa1ae;
+  --on-done: #0b1f13;
+  --tint: 14%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button, input { font-family: inherit; color: inherit; }
+button { cursor: pointer; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* Cambio de tema con fundido de colores (clase temporal que pone setTheme) */
+html.theme-anim *:not(.hg-seg__thumb):not(.switch__thumb), html.theme-anim *::before, html.theme-anim *::after, html.theme-anim body {
+  transition: background-color .3s var(--ease-out), color .3s var(--ease-out), border-color .3s var(--ease-out), fill .3s, stroke .3s, box-shadow .3s var(--ease-out) !important;
+}
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.note table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: .8125rem; }
+.note th, .note td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.note th { color: var(--muted); font-weight: 600; }
+.note .sw { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; vertical-align: -6px; font-size: 13px; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 100ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: clip; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 46ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.grid-frames { display: grid; grid-template-columns: repeat(2, 560px); gap: 24px; }
+.grid-frames.three { grid-template-columns: repeat(3, 420px); }
+.vlabel { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.9375rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 7px; background: var(--surface-2); }
+.vframe { padding: 20px; }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; text-align: left; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); font-size: 0.875rem; font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--primary-glow); color: var(--primary); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__text > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); }
+.m-tab.active::before { content: ''; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--cursor); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.m-page { padding: 1.25rem 1rem 110px; }
+.page-title { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .page-title { font-size: 1.5rem; }
+
+/* ══ Piezas compartidas (copia de lists.css y globals.css) ══ */
+.st-todos { --c: var(--primary); } .st-sin_final { --c: var(--st-sinfinal); }
+.rar-leg { --c: var(--rar-leg); }
+.ok { --c: var(--success); } .ko { --c: var(--danger); } .warn { --c: var(--warning); }
+.neutral { --c: var(--muted); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.warn { color: var(--warn-ink); }
+.hg-tint.rar-leg { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+.ink { color: color-mix(in srgb, var(--c) 85%, var(--foreground)); }
+[data-theme='dark'] .ink { color: var(--c); }
+.ink.warn { color: var(--warn-ink); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; transition: background .15s, border-color .15s, color .15s, transform .1s, opacity .15s; }
+.btn .i { font-size: 16px; }
+.btn:active:not(:disabled) { transform: scale(.97); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.is-busy:disabled, .btn.is-done:disabled { opacity: 1; cursor: default; }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover:not(:disabled) { border-color: var(--border-hover); }
+.btn--ghost { background: transparent; color: var(--muted); }
+.btn--ghost:hover { background: var(--surface-2); color: var(--foreground); }
+.btn--danger { background: var(--danger); color: var(--danger-foreground); }
+/* Destructiva o de salida: texto rojo sobre su tinte (no bloque sólido; el sólido es solo para confirmar) */
+.btn--danger-soft { background: var(--danger-glow); color: var(--danger); }
+.btn--danger-soft:hover:not(:disabled) { background: color-mix(in srgb, var(--danger) 20%, transparent); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.btn.is-done { color: var(--success); border-color: color-mix(in srgb, var(--success) 45%, var(--border)); }
+.btn--primary.is-done { background: var(--success); color: var(--on-done); border-color: transparent; }
+.btn--danger-soft.is-done { background: var(--danger-glow); color: var(--danger); }
+.w-mob .btn, .w-mob .btn--sm { height: 44px; }
+.spin-ring { width: 15px; height: 15px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; flex: none; }
+.spin { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.hg-draw path, .hg-draw polyline { stroke-dasharray: 30; animation: hg-draw .3s var(--ease-out) backwards; }
+@keyframes hg-draw { from { stroke-dashoffset: 30; } }
+
+.hg-input { width: 100%; min-width: 0; height: 40px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: .9375rem; transition: border-color .15s, box-shadow .15s; }
+.hg-input:hover { border-color: var(--border-hover); }
+.hg-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+.hg-input.is-bad { border-color: var(--danger); }
+.w-mob .hg-input { height: 44px; }
+
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.78125rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 13px; }
+.hg-chip--sm { padding: 1px 8px 1px 6px; font-size: .71875rem; gap: 4px; }
+
+.alert { display: flex; align-items: flex-start; gap: 0.5rem; margin: 0; padding: 0.625rem 0.875rem; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 500; }
+.alert > .i { margin-top: 3px; font-size: 15px; }
+.alert--error { color: var(--danger); background: var(--danger-glow); }
+.alert--ok { color: var(--success); background: var(--success-glow); }
+.alert--warn { color: var(--warn-ink); background: color-mix(in srgb, var(--warning) var(--tint), transparent); }
+
+/* Interruptor: bola que se desliza; encendido en el color de lo que activa (--c) */
+.switch { --c: var(--primary); position: relative; width: 44px; height: 26px; flex-shrink: 0; border-radius: 999px; border: 0; padding: 0; background: var(--surface-3); transition: background .2s; }
+.switch::before { content: ''; position: absolute; inset: -9px 0; }
+.switch[aria-checked='true'] { background: var(--c); }
+.switch.ok { --c: var(--success); }
+.switch:disabled { cursor: default; }
+.switch__thumb { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); transition: transform .25s var(--ease-out), width .12s var(--ease-out); pointer-events: none; }
+.switch:active:not(:disabled) .switch__thumb { width: 24px; }
+.switch[aria-checked='true'] .switch__thumb { transform: translateX(18px); }
+.switch[aria-checked='true']:active:not(:disabled) .switch__thumb { transform: translateX(14px); }
+
+/* Segmentado con fondo deslizante */
+.hg-seg { position: relative; display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); max-width: 100%; }
+.hg-seg__opt { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: none; color: var(--muted); font-size: .875rem; font-weight: 600; transition: color .15s; }
+.hg-seg__opt .i { font-size: 15px; transition: transform .22s var(--ease-out), color .15s; }
+.hg-seg__opt:hover { color: var(--foreground); }
+.hg-seg__opt[aria-checked='true'] { color: var(--foreground); }
+.hg-seg__opt[aria-checked='true'] .i { color: var(--ic, currentColor); transform: rotate(-12deg) scale(1.1); }
+.hg-seg__thumb { position: absolute; top: 3px; bottom: 3px; left: 0; width: 0; border-radius: 6px; background: var(--surface); box-shadow: var(--shadow-sm); transition: transform .22s var(--ease-out), width .22s var(--ease-out); }
+.w-mob .hg-seg { display: flex; width: 100%; }
+.w-mob .hg-seg__opt { flex: 1; height: 40px; }
+/* Color del icono de cada tema: sol ámbar, luna cobalto, sistema neutro */
+.th-light { --ic: var(--warn-ink); } .th-dark { --ic: var(--primary); } .th-system { --ic: var(--muted); }
+
+/* Cabeceras de sección con icono tintado y paneles */
+.sec-head { display: flex; align-items: center; gap: .625rem; min-height: 2rem; flex-wrap: wrap; }
+.sec-head__icon { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 8px; font-size: 16px; transition: transform .2s var(--ease-out); }
+.sec-head h2 { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
+.sec-head__end { margin-left: auto; display: flex; align-items: center; gap: .5rem; }
+.sec-link { display: inline-flex; align-items: center; gap: 2px; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.sec-link:hover { color: var(--foreground); text-decoration: underline; text-underline-offset: 3px; }
+.panel { position: relative; min-width: 0; padding: 1.1rem 1.25rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.w-mob .panel { padding: 1rem; }
+.panel > .sec-head { margin-bottom: .75rem; }
+.p-empty { margin: 0; color: var(--muted); font-size: .875rem; }
+.icon-pop { animation: pop .3s var(--ease-out); }
+
+/* ══ /perfil ══ */
+.pf { display: grid; gap: 1.25rem; }
+
+/* Tarjeta de usuario: identidad + Steam, sin cifras de juegos */
+.pf-card { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 300px); align-items: center; gap: 1.25rem 1.5rem; padding: 1.25rem 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); }
+.w-mob .pf-card { grid-template-columns: auto minmax(0, 1fr); gap: 1rem .875rem; padding: 1rem; border-radius: var(--radius-lg); }
+.pf-avatar { position: relative; display: grid; place-items: center; flex: none; width: 80px; height: 80px; border-radius: 50%; overflow: hidden; background: var(--primary-glow); color: var(--primary); font-size: 2rem; font-weight: 700; box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--primary); }
+.w-mob .pf-avatar { width: 60px; height: 60px; font-size: 1.5rem; }
+.pf-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.pf-who { display: grid; gap: 4px; min-width: 0; }
+.pf-who__name { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .625rem; overflow-wrap: anywhere; }
+.pf-who__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 14px; margin: 0; color: var(--muted); font-size: .875rem; min-width: 0; }
+.pf-who__meta span { display: inline-flex; align-items: center; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
+.pf-who__meta .i { font-size: 14px; flex: none; }
+.pf-name-swap { animation: fade-in .25s var(--ease-out); }
+.pf-steamid { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: .75rem; padding: .75rem .875rem; border-radius: var(--radius); background: color-mix(in srgb, var(--c) var(--tint), transparent); box-shadow: inset 3px 0 0 var(--c); transition: background .25s, box-shadow .25s; }
+.pf-steamid.neutral { background: var(--surface-2); box-shadow: none; }
+.w-mob .pf-steamid { grid-column: 1 / -1; }
+.pf-steamid__av { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 10px; overflow: hidden; background: var(--surface); color: var(--muted); font-size: 18px; font-weight: 700; }
+.pf-steamid__av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.pf-steamid__text { display: grid; gap: 1px; min-width: 0; }
+.pf-steamid__label { color: var(--muted); font-size: .75rem; font-weight: 500; }
+.pf-steamid__name { overflow: hidden; font-size: .9375rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.w-mob .pf-steamid__name { white-space: normal; overflow-wrap: anywhere; }
+.pf-steamid__state { display: inline-flex; align-items: center; gap: 4px; font-size: .78125rem; font-weight: 700; }
+.pf-steamid__state .i { font-size: 13px; stroke-width: 2.4; }
+
+/* Rejilla principal */
+.pf-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 1.25rem; align-items: start; }
+.w-mob .pf-grid { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+.pf-main, .pf-aside { display: grid; gap: 1.25rem; min-width: 0; }
+.w-mob .pf-main { gap: 1rem; }
+
+/* Secciones de ajustes: panel con cabecera y filas «etiqueta — control» */
+.pf-sec { padding: 0; overflow: clip; }
+.pf-sec > .sec-head { margin: 0; padding: 1rem 1.25rem .25rem; }
+.w-mob .pf-sec > .sec-head { padding: .875rem 1rem .25rem; }
+.pf-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: start; gap: .75rem 1.5rem; margin: 0; padding: 1rem 1.25rem; }
+.pf-row + .pf-row { border-top: 1px solid var(--border); }
+.pf-row--inline { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.pf-row__text { display: grid; gap: 2px; min-width: 0; }
+.pf-row__label { display: flex; align-items: center; gap: 8px; font-size: .9375rem; font-weight: 600; }
+.pf-row__label .i { font-size: 16px; }
+.pf-row__desc { margin: 0; color: var(--muted); font-size: .8125rem; }
+.pf-row__control { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .5rem; min-width: 0; }
+.pf-row__control--form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px .5rem; justify-content: stretch; }
+.pf-row__control--stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; }
+.pf-row__control--stack .btn { justify-self: end; }
+.w-mob .pf-row { grid-template-columns: minmax(0, 1fr); padding: .875rem 1rem; }
+.w-mob .pf-row--inline { grid-template-columns: minmax(0, 1fr) auto; }
+.w-mob .pf-row--stack-mob { grid-template-columns: minmax(0, 1fr); }
+.w-mob .pf-row__control { justify-content: flex-start; }
+.w-mob .pf-row--inline .pf-row__control { justify-content: flex-end; }
+.w-mob .pf-row--stack-mob .pf-row__control { justify-content: stretch; }
+.w-mob .pf-row--stack-mob .pf-row__control > .btn { flex: 1; }
+.w-mob .pf-row__control--stack .btn { justify-self: stretch; }
+
+/* Pistas en vivo (color + icono) */
+.pf-hint { grid-column: 1 / -1; display: flex; align-items: center; gap: 5px; min-height: 18px; margin: 0; color: var(--muted); font-size: .78125rem; font-weight: 500; }
+.pf-hint .i { font-size: 13px; }
+.pf-hint.ok { color: var(--success); } .pf-hint.ko { color: var(--danger); }
+.pf-hint.is-new { animation: fade-in .18s var(--ease-out); }
+.pf-rules { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; padding: 0; list-style: none; font-size: .78125rem; font-weight: 500; color: var(--muted); }
+.pf-rules li { display: inline-flex; align-items: center; gap: 5px; transition: color .2s; }
+.pf-rules .dot { display: grid; place-items: center; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid currentColor; font-size: 9px; transition: background .2s, border-color .2s; }
+.pf-rules li.ok { color: var(--success); }
+.pf-rules li.ok .dot { background: var(--success); border-color: var(--success); color: var(--on-done); }
+.pf-rules li.ko { color: var(--danger); }
+.shake { animation: shake .32s var(--ease-out); }
+@keyframes shake { 20% { transform: translateX(-5px); } 45% { transform: translateX(4px); } 70% { transform: translateX(-2px); } }
+
+/* Steam: estado con color (franja + chip) */
+.pf-steam { box-shadow: inset 3px 0 0 var(--c, transparent); transition: box-shadow .25s; }
+.pf-steam.neutral { box-shadow: none; }
+.pf-state { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px 0 8px; border-radius: 999px; font-size: .8125rem; font-weight: 700; white-space: nowrap; }
+.pf-state .i { font-size: 14px; stroke-width: 2.4; }
+.pf-state.is-new { animation: pop .3s var(--ease-out); }
+.pf-time { display: inline-block; }
+.pf-time.is-new { animation: time-in .3s var(--ease-out); }
+@keyframes time-in { from { opacity: 0; transform: translateY(4px); } }
+.pf-fix { display: grid; gap: .625rem; padding: .875rem 1rem; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--warning) var(--tint), transparent); }
+.pf-fix__title { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--warn-ink); font-size: .875rem; font-weight: 700; }
+.pf-fix__title .i { font-size: 15px; }
+.pf-fix ol { display: grid; gap: 4px; margin: 0; padding-left: 1.25rem; font-size: .8125rem; }
+.pf-fix ol li::marker { color: var(--warn-ink); font-weight: 700; }
+.pf-fix__acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.w-mob .pf-fix__acts .btn { flex: 1; }
+.pf-connect { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: .875rem; grid-column: 1 / -1; }
+.w-mob .pf-connect { grid-template-columns: 44px minmax(0, 1fr); }
+.w-mob .pf-connect .btn { grid-column: 1 / -1; }
+.pf-connect__icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 10px; font-size: 20px; }
+.pf-notes { display: grid; gap: .5rem; padding: 0 1.25rem 1rem; }
+.w-mob .pf-notes { padding: 0 1rem .875rem; }
+.pf-notes:empty { display: none; }
+.pf-notes .alert { animation: in-up .25s var(--ease-out); }
+
+/* Notificaciones: estado en palabras + color */
+.pf-onoff { display: inline-flex; align-items: center; gap: 4px; font-size: .78125rem; font-weight: 700; }
+.pf-onoff.ok { color: var(--success); } .pf-onoff.neutral { color: var(--muted); }
+.pf-onoff.is-new { animation: fade-in .2s var(--ease-out); }
+
+/* Exportar: cada descarga con el color de lo que exporta */
+.pf-export { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; grid-column: 1 / -1; }
+.w-mob .pf-export { grid-template-columns: minmax(0, 1fr); }
+.pf-dl { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: .625rem; min-height: 56px; padding: .5rem .75rem .5rem .5rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); transition: box-shadow .15s, border-color .15s; }
+.pf-dl:hover, .pf-dl:focus-visible { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); outline: none; }
+.pf-dl__icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 9px; font-size: 18px; }
+.pf-dl__text { display: grid; min-width: 0; line-height: 1.3; }
+.pf-dl__text b { font-size: .875rem; font-weight: 600; }
+.pf-dl__text small { color: var(--muted); font-size: .75rem; }
+.pf-dl__go { color: var(--muted); font-size: 16px; transition: transform .18s var(--ease-out), color .15s; }
+.pf-dl:hover .pf-dl__go { transform: translateY(2px); color: var(--foreground); }
+
+/* Zona de salida */
+.pf-exit { box-shadow: inset 3px 0 0 var(--danger); }
+.pf-exit .pf-row__control .btn { min-width: 168px; }
+.w-mob .pf-exit .pf-row__control .btn { min-width: 0; }
+.pf-confirm { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s var(--ease-out); }
+.pf-confirm.is-open { grid-template-rows: 1fr; }
+.pf-confirm > div { overflow: hidden; }
+.pf-confirm__box { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem 1rem; margin: 0 1.25rem 1rem; padding: .75rem .875rem; border-radius: var(--radius-sm); background: var(--danger-glow); }
+.w-mob .pf-confirm__box { margin: 0 1rem .875rem; }
+.pf-confirm__box p { margin: 0; font-size: .8125rem; }
+.pf-confirm__box p b { color: var(--danger); }
+.pf-confirm__box .acts { display: flex; gap: 6px; }
+.w-mob .pf-confirm__box .acts { width: 100%; }
+.w-mob .pf-confirm__box .acts .btn { flex: 1; }
+
+/* Administración (solo admins) */
+.pf-admin__list { display: grid; gap: 2px; margin: 0 0 1rem; padding: 0; list-style: none; }
+.pf-admin__item { display: grid; grid-template-columns: 26px minmax(0, 1fr); align-items: start; gap: .625rem; padding: .5rem 0; }
+.pf-admin__item + .pf-admin__item { border-top: 1px solid var(--border); }
+.pf-admin__dot { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; font-size: 14px; }
+.pf-admin__dot .i { stroke-width: 2.4; }
+.pf-admin__item b { display: block; font-size: .8125rem; font-weight: 600; }
+.pf-admin__item span { color: var(--muted); font-size: .78125rem; }
+.pf-admin__item .ink { font-weight: 600; }
+.pf-admin .btn { width: 100%; }
+
+/* JUDI: tus cifras + top 5 en un solo panel */
+.pf-judi__big { display: flex; align-items: flex-end; justify-content: space-between; gap: .75rem; flex-wrap: wrap; }
+.pf-judi__pts { display: grid; }
+.pf-judi__pts b { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; font-variant-numeric: proportional-nums; color: var(--primary); }
+.pf-judi__pts small { color: var(--muted); font-size: .8125rem; }
+.pf-rank { display: inline-flex; align-items: baseline; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: .8125rem; font-weight: 600; }
+.pf-rank b { font-size: .9375rem; font-weight: 700; }
+.pf-split { display: flex; gap: 2px; height: 10px; margin: 1rem 0 .625rem; border-radius: 999px; overflow: hidden; background: var(--surface-2); clip-path: inset(0 100% 0 0 round 999px); transition: clip-path .6s var(--ease-out) .1s; }
+.is-in .pf-split { clip-path: inset(0 0 0 0 round 999px); }
+.pf-split i { flex: var(--v) 1 0; min-width: 3px; background: var(--c); }
+.pf-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin: 0; }
+.pf-kpi { display: flex; flex-direction: column; min-width: 0; }
+.pf-kpi dt { order: 2; display: flex; align-items: center; gap: 4px; color: var(--muted); font-size: .78125rem; }
+.pf-kpi dt .i { font-size: 13px; stroke-width: 2.6; color: var(--c, var(--muted)); }
+.pf-kpi dd { order: 1; margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+.pf-kpi.ok dd { color: var(--success); } .pf-kpi.ko dd { color: var(--danger); }
+.pf-judi__beat { display: flex; align-items: center; gap: 6px; margin: .875rem 0 0; color: var(--muted); font-size: .8125rem; }
+.pf-judi__beat .i { font-size: 14px; color: var(--primary); }
+.pf-judi__beat b { color: var(--foreground); }
+.pf-judi__sub { display: flex; align-items: center; gap: 6px; margin: 1rem 0 .375rem; padding-top: .875rem; border-top: 1px solid var(--border); font-size: .8125rem; font-weight: 700; }
+.pf-judi__sub .i { font-size: 14px; color: color-mix(in srgb, var(--rar-leg) var(--rar-ink), var(--foreground)); }
+.pf { --pf-rank-1: var(--rar-leg); --pf-rank-2: var(--rar-comun); --pf-rank-3: color-mix(in srgb, var(--rar-leg) 55%, var(--danger)); }
+.pf-top { margin: 0 -.5rem; padding: 0; list-style: none; }
+.pf-top__row { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: .75rem; min-height: 40px; padding: 0 .5rem; border-radius: var(--radius-sm); }
+.w-mob .pf-top__row { min-height: 44px; }
+.pf-top__row + .pf-top__row { margin-top: 2px; }
+.pf-top__row.is-self { background: var(--primary-glow); box-shadow: inset 3px 0 0 var(--cursor); }
+.anim .pf-top__row.is-self { animation: self-flash .9s var(--ease-out) .5s backwards; }
+@keyframes self-flash { 0% { box-shadow: inset 3px 0 0 var(--cursor), 0 0 0 0 var(--cursor); } 35% { box-shadow: inset 3px 0 0 var(--cursor), 0 0 0 3px var(--cursor); } 100% { box-shadow: inset 3px 0 0 var(--cursor), 0 0 0 3px transparent; } }
+.pf-top__gap { display: grid; place-items: center; height: 18px; color: var(--muted); font-size: .75rem; letter-spacing: 2px; }
+.pf-top__rank { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; color: var(--muted); font-size: .8125rem; font-weight: 700; }
+.pf-top__rank.m1, .pf-top__rank.m2, .pf-top__rank.m3 { background: color-mix(in srgb, var(--medal) 18%, transparent); color: color-mix(in srgb, var(--medal) 62%, var(--foreground)); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--medal) 55%, transparent); }
+[data-theme='dark'] .pf-top__rank.m1, [data-theme='dark'] .pf-top__rank.m2, [data-theme='dark'] .pf-top__rank.m3 { color: var(--medal); }
+.pf-top__rank.m1 { --medal: var(--pf-rank-1); } .pf-top__rank.m2 { --medal: var(--pf-rank-2); } .pf-top__rank.m3 { --medal: var(--pf-rank-3); }
+.pf-top__name { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: .875rem; font-weight: 600; }
+.pf-top__name > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pf-top__row.is-self .pf-top__name > span:first-child { color: var(--primary); }
+.pf-you { padding: 0 7px; border-radius: 999px; background: var(--primary); color: var(--primary-foreground); font-size: .6875rem; font-weight: 700; line-height: 18px; }
+.pf-top__pts { font-size: .875rem; font-weight: 600; white-space: nowrap; }
+.pf-top__pts small { color: var(--muted); font-size: .75rem; font-weight: 500; }
+
+/* Avisos flotantes */
+.pf-toasts { position: fixed; left: 50%; bottom: 24px; z-index: 200; display: grid; gap: .5rem; justify-items: center; translate: -50% 0; pointer-events: none; width: max-content; max-width: calc(100% - 32px); }
+.pf-toast { display: flex; align-items: center; gap: .5rem; padding: .625rem .875rem; border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); font-size: .875rem; font-weight: 500; animation: toast-in .22s var(--ease-out); }
+.pf-toast .i { font-size: 15px; flex: none; }
+.pf-toast.alert--error { background: color-mix(in srgb, var(--danger) 10%, var(--surface)); color: var(--danger); }
+.pf-toast.alert--ok { background: color-mix(in srgb, var(--success) 10%, var(--surface)); color: var(--success); }
+.pf-toast.is-out { animation: toast-out .16s ease-in forwards; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(8px); } }
+
+/* ══ Entrada con intención (.hg-enter de lists.css) ══ */
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes ring-in { from { box-shadow: 0 0 0 3px var(--surface), 0 0 0 3px var(--primary); } }
+.anim .hg-enter { animation: in-up .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+.anim .pf-avatar { animation: ring-in .45s var(--ease-out) .15s backwards; }
+.anim .pf-top__rank.m1, .anim .pf-top__rank.m2, .anim .pf-top__rank.m3 { animation: pop .3s var(--ease-out) backwards; animation-delay: calc(.3s + var(--r) * 60ms); }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+html.rm .spin, html.rm .spin-ring { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+  .spin, .spin-ring { animation: none !important; }
+}
+.anim-list li { margin: 3px 0; }
+.qs li { margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Perfil (v2)</h1>
+  <div class="doc-bar__actions">
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p><b>Respecto a hoy</b>, el perfil es una lista de ajustes gris: no se ve tu cuenta de Steam, el perfil privado sale como error rojo aunque es un aviso, «Cerrar sesión» y «Desvincular» son botones grises iguales que «Guardar», y JUDI está partido en dos bloques. <b>Respecto a la v1</b> (lo que pediste):</p>
+  <ul>
+    <li><b>El perfil es solo tu perfil.</b> Fuera la actividad de juegos (listas, barra apilada, completados, horas, logros, 100 %) y sus variantes: ya están en Biblioteca, Logros y Estadísticas. La cabecera es una <b>tarjeta de usuario</b>: avatar grande (Steam o tu inicial) con anillo cobalto, nombre, chip «Admin», email, «En HubGames desde…» y, a la derecha, tu <b>cuenta de Steam</b> (avatar, <code>persona_name</code> y estado con su color). Ninguna cifra de juegos.</li>
+    <li><b>Color con significado en cada sección y acción</b> (tabla abajo). Las acciones de salida van juntas en una <b>zona de salida</b> al final, en rojo: «Cerrar sesión» y «Desvincular Steam» (tinte rojo; el rojo sólido solo en el botón que confirma).</li>
+    <li><b>JUDI en un solo panel</b>: puntos, puesto, aciertos en verde, fallos en rojo, precisión, «Superas al N %» y, debajo de un filete, el top 5 con tu fila resaltada (o tu puesto tras «···»), con «Ver el ranking». Va <b>en la columna lateral</b> (ver por qué en las preguntas); sin variantes.</li>
+    <li><b>Administración</b> (solo admins): tarjeta en la columna lateral, encima de JUDI, con tres líneas de estado de lo que ya mira <code>/admin</code> y «Abrir administración». Los no admins no la ven (ni el chip).</li>
+    <li>Steam se queda como sección propia para lo que se hace con él (sincronizar, arreglar la privacidad, conectar); su avatar y nombre suben a la tarjeta.</li>
+  </ul>
+
+  <h3>Color de cada sección y acción</h3>
+  <table>
+    <thead><tr><th>Dónde</th><th>Color</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td>Tarjeta · avatar y anillo, Cuenta</td><td><span class="sw hg-tint st-todos">●</span> cobalto <code>--primary</code></td><td>El cobalto ya es «tú»: tu avatar en la navegación cuando estás en el perfil, tu fila del ranking y «Tú». Cuenta es tu identidad, así que hereda ese color.</td></tr>
+      <tr><td>Steam (sección y bloque de la tarjeta)</td><td><span class="sw hg-tint ok">●</span> <code>--success</code> · <span class="sw hg-tint warn">●</span> <code>--warning</code> · <span class="sw hg-tint neutral">●</span> neutro</td><td>El color es su estado: conectada, perfil o detalles privados, sin conectar. Igual que el «JUDI de hoy» de la navegación.</td></tr>
+      <tr><td>Preferencias · Tema</td><td>sol <span class="ink warn">ámbar</span> · luna <span class="ink st-todos">cobalto</span> · sistema neutro</td><td>El icono de la sección es el de tu tema y lleva su color; en el segmentado, el icono activo se colorea igual. El ámbar es el del sol (no un aviso) y el cobalto el del tema oscuro de la marca. Se reutilizan <code>--warning</code> y <code>--primary</code>, sin token nuevo.</td></tr>
+      <tr><td>Notificaciones</td><td><span class="sw hg-tint ok">●</span> <code>--success</code> si están activas, neutro si no</td><td>Campana, palabra «Activadas / Desactivadas» y el interruptor encendido en verde (lo pediste así; el resto de interruptores de la web siguen en cobalto).</td></tr>
+      <tr><td>Tus datos · Biblioteca / Logros / Todo</td><td><span class="sw hg-tint st-todos">●</span> cobalto · <span class="sw hg-tint st-sin_final">●</span> Sin final · neutro</td><td>Cada descarga con el color de lo que exporta: la Biblioteca usa el cobalto de «Todos» en su raíl; los Logros, el violeta de los tiles de logros de <code>/logros</code> y <code>/estadisticas</code>; «Todo» es neutro porque mezcla los dos. El icono de la sección va en cobalto (exportar es una acción).</td></tr>
+      <tr><td>Administración</td><td><span class="sw hg-tint warn">●</span> ámbar <code>--warning</code> (y el chip «Admin»)</td><td>Zona con permisos sobre todos los usuarios: el ámbar dice «cuidado» sin decir «error». Sus líneas de estado usan verde/rojo/ámbar según el dato.</td></tr>
+      <tr><td>JUDI</td><td><span class="sw hg-tint rar-leg">●</span> legendaria (icono) · cobalto (puntos) · verde / rojo</td><td>El trofeo y las medallas usan la legendaria, que ya es el color del ranking; los puntos son tuyos (cobalto); aciertos <code>--success</code> y fallos <code>--danger</code>.</td></tr>
+      <tr><td>Zona de salida</td><td><span class="sw hg-tint ko">●</span> <code>--danger</code></td><td>Acciones de salida o destructivas. Franja roja en el panel, botones con texto rojo sobre su tinte (<code>--danger-glow</code>, ≥ 4,5:1 medido en <code>design-system.md</code>) y rojo sólido solo para confirmar.</td></tr>
+    </tbody>
+  </table>
+  <p class="t">Sin tokens nuevos: todo sale de <code>--primary</code>, <code>--success</code>, <code>--warning</code>, <code>--danger</code>, <code>--st-sinfinal</code> y <code>--rar-leg</code>, como texto o icono sobre su tinte al 12–14 %. Clase nueva propuesta: <code>.hg-btn--danger-soft</code> (botón destructivo tintado).</p>
+
+  <h3>De dónde sale cada dato</h3>
+  <table>
+    <thead><tr><th>Dato</th><th>Fuente</th><th>Coste</th></tr></thead>
+    <tbody>
+      <tr><td>Nombre, email, admin</td><td>sesión (<code>user_metadata.username</code>, <code>email</code>, <code>administrador</code>), como hoy</td><td>Ya está</td></tr>
+      <tr><td>«En HubGames desde»</td><td><code>session.user.created_at</code></td><td>Ya está en la sesión</td></tr>
+      <tr><td>Avatar, nombre y estado de Steam; vinculada el; última sincronización</td><td><code>hubgames_user_steam</code> (<code>avatar</code>, <code>persona_name</code>, <code>visibility</code>, <code>linked_at</code>, <code>last_sync_at</code>)</td><td>Ya se carga en <code>SteamSetting</code>; hoy no se usa <code>avatar</code>. Hay que subir la carga a la página para que la tarjeta la use</td></tr>
+      <tr><td>Nombre libre / en uso</td><td>RPC <code>hubgames_username_available</code> (la del registro)</td><td>Una llamada tras 400 ms sin teclear</td></tr>
+      <tr><td>JUDI y top 5</td><td><code>hubgames_judi_fases_usuario</code> + RPC <code>hubgames_judi_ranking_rows</code> con <code>buildRanking</code>, como hoy (se guarda también tu entrada para la fila fuera del top)</td><td>Ya se carga</td></tr>
+      <tr><td>Admin · último JUDI generado</td><td><code>hubgames_judi_generacion_logs</code> → <code>exito</code>, <code>fecha_ejecucion</code>, <code>nombre_juego</code>, <code>order(fecha_ejecucion desc).limit(1)</code></td><td>1 fila; RLS solo admins</td></tr>
+      <tr><td>Admin · JUDI programados hasta</td><td><code>hubgames_lista_videojuegos_judi</code> → <code>fecha</code> del último (<code>order(id desc).limit(1)</code>, como la pestaña «Juegos programados»), días que quedan con <code>parseLegacyDate</code></td><td>1 fila</td></tr>
+      <tr><td>Admin · sincronizaciones con error (24 h)</td><td><code>hubgames_sync_logs</code> con <code>status = 'error'</code> y <code>started_at</code> ≥ hace 24 h, <code>count: 'exact', head: true</code></td><td>Solo cuenta; RLS deja ver todas a los admins</td></tr>
+    </tbody>
+  </table>
+  <p class="t">Las tres consultas de admin solo se hacen si <code>is_admin</code> es verdadero. Umbrales propuestos: programados con ≥ 3 días en verde, 1–2 en ámbar, 0 en rojo; errores de sincronización 0 en verde, alguno en rojo. Cifras del mockup inventadas pero coherentes (29 + 9 = 38 partidas; 3.º de 14 → «Superas al 85 %»).</p>
+
+  <h3>Microanimaciones (pruébalas en el marco de 1440 px; «Repetir entrada» arriba)</h3>
+  <ul class="anim-list">
+    <li><b>Entrada escalonada</b> de la tarjeta y las secciones (<code>.hg-enter</code>) y el anillo del avatar que se cierra. <span class="t">320 ms · 30 ms entre elementos, solo los 8 primeros; anillo 450 ms.</span></li>
+    <li><b>Cifras que cuentan</b> (<code>CountUp</code>) en puntos, aciertos y fallos, y <b>barra aciertos/fallos</b> que se descubre (<code>clip-path</code>). <span class="t">450 / 600 ms.</span></li>
+    <li><b>Cambio de tema</b>: el segmentado de «Tema» cambia el tema de verdad (también «Sistema»), desliza su fondo y el icono activo gira y toma su color; el icono de la sección cambia con un pop; los colores de la página pasan con un fundido. <span class="t">220 ms el fondo, 300 ms los colores.</span></li>
+    <li><b>Interruptor</b> de notificaciones: la bola se desliza (y se estira al pulsar), la pista pasa a verde, spinner mientras guarda, «Activadas» con fundido y aviso. <span class="t">250 ms.</span></li>
+    <li><b>Guardar → spinner → check que se dibuja</b> («Guardado»; el nombre de la tarjeta y de la navegación cambia con un fundido). Igual en «Cambiar contraseña»; con error, el bloque tiembla. <span class="t">trazo 300 ms; sacudida 320 ms.</span></li>
+    <li><b>Sincronizar ahora</b>: icono que gira, check verde que se dibuja y «hace un momento» que sube; segunda vez antes de 5 min, aviso ámbar (el 429 real). <span class="t">giro solo mientras carga.</span></li>
+    <li><b>Estado de Steam que cambia</b> (Volver a comprobar, Conectar, Desvincular): franja, bloque de la tarjeta y chip cambian de color con fundido y el chip hace pop; la confirmación de «Desvincular» se despliega en la zona de salida. <span class="t">250–300 ms.</span></li>
+    <li><b>Medallas</b> con pop en orden y <b>tu fila</b> con un destello del cursor. <span class="t">300 ms + 60 ms; destello 900 ms, una vez.</span></li>
+    <li><b>Avisos</b> que suben con fundido y se van solos. <span class="t">220 / 160 ms.</span></li>
+    <li>Con <b>movimiento reducido</b> todo aparece hecho y los spinners no giran.</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px · admin (prueba en vivo)</h2>
+  <p>Diego, admin, Steam conectado. Prueba: el tema, el interruptor, un nombre («laura_g» y «pablo.r» están cogidos) y «Guardar», la contraseña, «Sincronizar ahora» dos veces, «Desvincular Steam» y luego «Conectar con Steam».</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="f-desk"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px · no admin</h2>
+  <p>Sin chip ni tarjeta de Administración: la columna lateral es solo JUDI. Fuera del top 5 (8.º): tu fila sale tras «···».</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="f-desk-noadmin"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Una columna: tarjeta, ajustes, Administración (si eres admin), JUDI y la zona de salida al final. Todo lo pulsable mide 44 px.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px" id="f-mob"></div><p class="frame-cap">Admin, en vivo.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-empty"></div><p class="frame-cap"><b>Sin Steam</b> (y por tanto biblioteca vacía), no admin: la tarjeta lo dice en neutro y Steam sube a la primera sección con «Conectar con Steam». En la zona de salida solo queda «Cerrar sesión». JUDI funciona sin Steam: 1 partida, 12.º.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-private"></div><p class="frame-cap"><b>Perfil de Steam privado</b>, no admin: ámbar en la tarjeta y la sección, pasos y «Volver a comprobar» (pruébalo).</p></div>
+  </div></div>
+  <div class="scroller" style="margin-top:24px"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-long"></div><p class="frame-cap"><b>Nombre, email y nombre de Steam muy largos</b>, admin, Steam con <b>detalles de juego privados</b> y sin avatar (inicial). Administración con problemas: el JUDI de hoy falló y hay errores de sincronización.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-norank"></div><p class="frame-cap"><b>Sin ranking</b> (nadie ha terminado un JUDI) y sin partidas tuyas; no admin; notificaciones desactivadas.</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Administración · estados</h2>
+  <p>La tarjeta de la columna lateral (solo admins) con los tres datos en sus casos.</p>
+  <div class="scroller"><div class="grid-frames three" id="admin-states"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Steam · todos los estados</h2>
+  <p>La sección de Steam (el avatar y el nombre están en la tarjeta de usuario). Incluye las vueltas de Steam (<code>?steam=ok</code>, <code>en_uso</code>), el 429 y la sincronización parcial.</p>
+  <div class="scroller"><div class="grid-frames" id="steam-states"></div></div>
+</section>
+
+<section class="sec note" id="questions">
+  <h2>Preguntas</h2>
+  <ol class="qs">
+    <li><b>JUDI en la columna lateral</b> (y no abajo): con la actividad fuera, la columna principal son solo ajustes, y JUDI a la derecha llena los 1440 px sin estirar las filas; además queda a la vista sin bajar. En móvil va después de los ajustes. ¿Te vale? Recomiendo <b>sí</b>; la alternativa sería un panel ancho al final, antes de la zona de salida.</li>
+    <li><b>Administración en ámbar.</b> ¿Te encaja el ámbar como «zona con permisos», o lo prefieres neutro con solo las líneas de estado en color? Recomiendo <b>ámbar</b> (también en el chip «Admin», para que se reconozcan juntos).</li>
+    <li><b>Interruptor de notificaciones en verde</b> y el resto de interruptores de la web en cobalto. ¿Lo dejamos solo aquí o pasamos a «encendido = verde» en toda la web? Recomiendo <b>solo aquí por ahora</b>: en el diálogo de completar, los interruptores ya llevan el color de su marca (Favorito, Sin final).</li>
+    <li><b>Zona de salida</b> con «Cerrar sesión» y «Desvincular Steam» al final, y «Desvincular» fuera de la sección de Steam. Recomiendo <b>sí</b>: lo que te saca o borra está en un solo sitio y en rojo.</li>
+    <li><b>Medallas del top</b>: las de hoy (legendaria, común y la mezcla del 3.º) hasta el rediseño del Ranking. Recomiendo <b>sí</b>.</li>
+    <li><b>Comprobar el nombre mientras escribes</b> con <code>hubgames_username_available</code>. Recomiendo <b>sí</b>.</li>
+    <li><b>Umbrales de «programados»</b> (≥ 3 días verde, 1–2 ámbar, 0 rojo). ¿Te valen o el generador va con otro margen?</li>
+  </ol>
+</section>
+
+</main>
+
+<div class="pf-toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+/* ── Iconos (lucide) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  eyeoff: '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  checkc: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+  logout: '<path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>',
+  shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+  download: '<path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/>',
+  json: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1"/><path d="M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1"/>',
+  link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  unlink: '<path d="m18.84 12.25 1.72-1.71h-.02a5.004 5.004 0 0 0-.12-7.07 5.006 5.006 0 0 0-6.95 0l-1.72 1.71"/><path d="m5.17 11.75-1.71 1.71a5.004 5.004 0 0 0 .12 7.07 5.006 5.006 0 0 0 6.95 0l1.71-1.71"/><line x1="8" x2="8" y1="2" y2="5"/><line x1="2" x2="5" y1="8" y2="8"/><line x1="16" x2="16" y1="19" y2="22"/><line x1="19" x2="22" y1="16" y2="16"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+  cal: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+  trend: '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+  chevr: '<path d="m9 18 6-6-6-6"/>',
+  key: '<path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>',
+  bell: '<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>',
+  belloff: '<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742"/><path d="m2 2 20 20"/><path d="M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05"/>',
+  sparkles: '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',
+  door: '<path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4.562v16.157a1 1 0 0 1-1.242.97L5 20V5.562a2 2 0 0 1 1.515-1.94l4-1A2 2 0 0 1 13 4.561Z"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wait = (ms) => new Promise((r) => setTimeout(r, rm() ? Math.min(ms, 60) : ms));
+const n = (v) => v.toLocaleString('es-ES');
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const plural = (v, one, many) => `${n(v)} ${v === 1 ? one : many}`;
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+function sidebar(st) {
+  const link = (label, icon) => `<a href="#" class="nv-link">${ic(icon)}<span class="nv-link__label">${label}</span></a>`;
+  const groups = [`<div class="nv-group">${link('Inicio', 'home')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('Biblioteca', 'library')}${link('Logros', 'award')}${link('Wishlist', 'heart')}${link('Estadísticas', 'chart')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('JUDI', 'gamepad')}${link('Ranking', 'trophy')}</div>`];
+  if (st.user.admin) groups.push(`<div class="nv-group"><p class="nv-group__title">Administración</p>${link('Admin', 'shield')}</div>`);
+  const theme = `<div class="theme-toggle js-nav-theme">${['light', 'dark', 'system'].map((v, i) => `<span class="${v === THEME.pref ? 'on' : ''}">${ic(['sun', 'moon', 'monitor'][i])}</span>`).join('')}</div>`;
+  const account = `<a href="#" class="nv-account"><span class="nv-avatar js-nav-av">${esc(st.user.name[0].toUpperCase())}</span><span class="nv-account__text"><span class="js-nav-name">${esc(st.user.name)}</span><span class="nv-account__meta">Ver perfil</span></span></a>`;
+  return `<aside class="nv-side"><a href="#" class="nv-brand">${logo(22)}</a><span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span><nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}${account}</div></aside>`;
+}
+function mobileChrome(st, body) {
+  const tabs = [['Inicio', 'home'], ['Biblioteca', 'library'], ['Logros', 'award'], ['JUDI', 'gamepad'], ['Ranking', 'trophy'], ['Perfil', 'user']];
+  const tabbar = tabs.map(([l, i]) => `<a href="#" class="m-tab ${l === 'Perfil' ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}</span><span>${l}</span></a>`).join('');
+  const thIcon = THEME.pref === 'dark' ? 'moon' : THEME.pref === 'system' ? 'monitor' : 'sun';
+  return `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span>${st.user.admin ? `<span class="m-icon" title="Admin">${ic('shield')}</span>` : ''}<span class="m-icon js-m-theme">${ic(thIcon)}</span><span class="m-icon"><span class="nv-avatar js-nav-av">${esc(st.user.name[0].toUpperCase())}</span></span></div></header><div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+function count(to) { return `<span class="cu" data-to="${to}" aria-label="${n(to)}">${n(to)}</span>`; }
+function secHead(cls, icon, title, end = '', id = '') {
+  return `<div class="sec-head"><span class="sec-head__icon hg-tint ${cls}">${ic(icon)}</span><h2 ${id ? `id="${id}"` : ''}>${title}</h2>${end ? `<div class="sec-head__end">${end}</div>` : ''}</div>`;
+}
+
+/* ── Datos de ejemplo ── */
+const AV = 'https://cdn.akamai.steamstatic.com/steam/apps/367520/header.jpg'; // imagen de ejemplo en lugar de un avatar real
+const TOP = [['laura_g', 162], ['pablo.r', 141], ['diego', 116], ['marta', 98], ['Jugador #8f2a', 77]];
+const ME = { name: 'diego', email: 'diego@example.com', admin: true, since: 'marzo de 2025' };
+const STEAM_OK = { state: 'ok', persona: 'dmardomingo', avatar: AV, linked: '14 de marzo de 2025', last: 'hace 2 horas', lastFull: '28/10/2026, 9:41' };
+const JUDI = { pts: 116, rank: 3, of: 14, games: 38, wins: 29, losses: 9 };
+const ADMIN_OK = { gen: { ok: true, when: 'hoy, 06:00', game: 'Hollow Knight' }, until: { date: '3 de noviembre', days: 6 }, syncErr: 0 };
+const ADMIN_BAD = { gen: { ok: false, when: 'hoy, 06:00', err: 'Sin juegos elegibles en el pool' }, until: { date: '30 de octubre', days: 2 }, syncErr: 3 };
+const ADMIN_EMPTY = { gen: { ok: true, when: 'ayer, 06:00', game: 'Celeste' }, until: { date: 'hoy', days: 0 }, syncErr: 1 };
+const TAKEN = new Set(['laura_g', 'pablo.r', 'marta', 'admin']);
+
+/* ── Tarjeta de usuario ── */
+const STEAM_STATE = {
+  ok: ['ok', 'checkc', 'Conectada'],
+  privado: ['warn', 'lock', 'Perfil privado'],
+  detalles: ['warn', 'eyeoff', 'Detalles de juego privados'],
+  none: ['neutral', 'unlink', 'Sin conectar'],
+};
+function cardHTML(st) {
+  const u = st.user; const s = st.steam; const [cls, icon, label] = STEAM_STATE[s.state];
+  const av = s.state !== 'none' && s.avatar;
+  const steam = s.state === 'none'
+    ? `<div class="pf-steamid neutral"><span class="pf-steamid__av">${ic('unlink')}</span><span class="pf-steamid__text"><span class="pf-steamid__label">Steam</span><span class="pf-steamid__name">Sin cuenta vinculada</span><span class="pf-steamid__state ink neutral">${ic(icon)}${label}</span></span></div>`
+    : `<div class="pf-steamid ${cls}"><span class="pf-steamid__av" aria-hidden="true">${esc((s.persona || '?')[0].toUpperCase())}${s.avatar ? `<img src="${s.avatar}" alt="" onerror="this.remove()">` : ''}</span><span class="pf-steamid__text"><span class="pf-steamid__label">Cuenta de Steam</span><span class="pf-steamid__name">${esc(s.persona)}</span><span class="pf-steamid__state ink ${cls}">${ic(icon)}${label}</span></span></div>`;
+  return `<header class="pf-card hg-enter" style="--i:0">
+    <span class="pf-avatar" aria-hidden="true">${esc(u.name[0].toUpperCase())}${av ? `<img src="${av}" alt="" onerror="this.remove()">` : ''}</span>
+    <div class="pf-who">
+      <h1 class="page-title pf-who__name"><span class="js-name">${esc(u.name)}</span>${u.admin ? `<span class="hg-chip hg-chip--sm hg-tint warn">${ic('shield')}Admin</span>` : ''}</h1>
+      <p class="pf-who__meta"><span>${ic('mail')}${esc(u.email)}</span><span>${ic('cal')}En HubGames desde ${u.since}</span></p>
+    </div>
+    ${steam}
+  </header>`;
+}
+
+/* ── Cuenta ── */
+function accountHTML(st, i) {
+  return `<section class="panel pf-sec hg-enter" style="--i:${i}" aria-labelledby="${st.id}-acc">${secHead('st-todos', 'user', 'Cuenta', '', `${st.id}-acc`)}
+    <form class="pf-row js-user-form" novalidate>
+      <div class="pf-row__text"><label class="pf-row__label" for="${st.id}-user">Nombre de usuario</label><p class="pf-row__desc">Es el nombre que aparece en el ranking.</p></div>
+      <div class="pf-row__control pf-row__control--form">
+        <input class="hg-input js-user" id="${st.id}-user" value="${esc(st.user.name)}" autocomplete="username" spellcheck="false" aria-describedby="${st.id}-user-hint">
+        <button type="submit" class="btn btn--primary js-save" disabled>Guardar</button>
+        <p class="pf-hint js-user-hint" id="${st.id}-user-hint" aria-live="polite"></p>
+      </div>
+    </form>
+    <form class="pf-row js-pass-form" novalidate>
+      <div class="pf-row__text"><span class="pf-row__label" id="${st.id}-pass">Contraseña</span><ul class="pf-rules js-rules" aria-live="polite"><li data-r="len"><span class="dot">${ic('check')}</span>Mínimo 6 caracteres</li><li data-r="eq"><span class="dot">${ic('check')}</span><span>Coinciden</span></li></ul></div>
+      <div class="pf-row__control pf-row__control--stack js-pass-box" role="group" aria-labelledby="${st.id}-pass">
+        <label class="sr-only" for="${st.id}-p1">Nueva contraseña</label><input class="hg-input js-p1" id="${st.id}-p1" type="password" placeholder="Nueva contraseña" autocomplete="new-password">
+        <label class="sr-only" for="${st.id}-p2">Confirmar contraseña</label><input class="hg-input js-p2" id="${st.id}-p2" type="password" placeholder="Confirmar contraseña" autocomplete="new-password">
+        <button type="submit" class="btn btn--secondary js-pass-save">${ic('key')}Cambiar contraseña</button>
+      </div>
+    </form>
+  </section>`;
+}
+
+/* ── Steam ── */
+const MSG = {
+  ok: ['ok', 'Steam vinculado correctamente.'],
+  en_uso: ['error', 'Esa cuenta de Steam ya está vinculada a otro usuario.'],
+  cooldown: ['warn', 'Ya se sincronizó hace poco. Vuelve a intentarlo en 5 min.'],
+  parcial: ['ok', 'Sincronizado. Queda algo pendiente: se completará en la próxima sincronización.'],
+};
+function msgHTML(key) {
+  const [k, t] = MSG[key];
+  const icon = k === 'ok' ? ic('checkc', 'hg-draw') : k === 'warn' ? ic('clock') : ic('alert');
+  return `<p class="alert alert--${k}" role="status">${icon}<span>${t}</span></p>`;
+}
+function steamHTML(st, i) {
+  const s = st.steam; const [cls, icon, label] = STEAM_STATE[s.state];
+  const chip = `<span class="pf-state hg-tint ${cls} ${st.stateNew ? 'is-new' : ''}">${ic(icon)}${label}</span>`;
+  const head = secHead(cls, 'link', 'Steam', chip, `${st.id}-steam`);
+  let body;
+  if (s.state === 'none') {
+    body = `<div class="pf-row"><div class="pf-connect">
+      <span class="pf-connect__icon hg-tint st-todos">${ic('link')}</span>
+      <div class="pf-row__text"><span class="pf-row__label">Conecta tu cuenta de Steam</span><p class="pf-row__desc">Para traer tus juegos, horas y logros. Solo lectura: no publica nada en tu nombre.</p></div>
+      <button type="button" class="btn btn--primary" data-act="connect">${ic('link')}Conectar con Steam</button>
+    </div></div>`;
+  } else {
+    const fix = s.state !== 'ok';
+    const steps = s.state === 'privado'
+      ? ['En Steam, abre <b>Editar perfil</b> → <b>Configuración de privacidad</b>.', 'Pon <b>Mi perfil</b> y <b>Detalles de juego</b> en «Público».', 'Desmarca «Mantener siempre privado mi tiempo de juego total».', 'Vuelve aquí y pulsa «Volver a comprobar».']
+      : ['En Steam, <b>Editar perfil</b> → <b>Configuración de privacidad</b>: pon <b>Detalles de juego</b> en «Público».', 'Desmarca «Mantener siempre privado mi tiempo de juego total».', 'Vuelve aquí y pulsa «Volver a comprobar».'];
+    const fixBox = fix ? `<div class="pf-row"><div class="pf-fix" style="grid-column:1/-1" role="alert">
+      <p class="pf-fix__title">${ic('alert')}${s.state === 'privado' ? 'Tu perfil de Steam es privado: no podemos leer tus juegos.' : 'Tus detalles de juego son privados: no vemos tus juegos ni tus horas.'}</p>
+      <ol>${steps.map((t) => `<li>${t}</li>`).join('')}</ol>
+      <div class="pf-fix__acts"><button type="button" class="btn btn--primary" data-act="recheck">${ic('refresh')}Volver a comprobar</button></div>
+    </div></div>` : '';
+    const sync = `<div class="pf-row pf-row--inline ${fix ? '' : 'pf-row--stack-mob'}">
+      <div class="pf-row__text"><span class="pf-row__label">Última sincronización</span><p class="pf-row__desc"><time class="pf-time js-last" title="${s.lastFull}">${s.last}</time>${fix ? ' · sin datos nuevos hasta que lo arregles' : ` · vinculada el ${s.linked}`}</p></div>
+      ${fix ? '' : `<div class="pf-row__control"><button type="button" class="btn btn--primary js-sync" data-act="sync">${ic('refresh')}<span>Sincronizar ahora</span></button></div>`}
+    </div>`;
+    body = fixBox + sync;
+  }
+  const notes = `<div class="pf-notes js-notes">${(st.msgs || []).map(msgHTML).join('')}</div>`;
+  return `<section class="panel pf-sec pf-steam ${cls} hg-enter" style="--i:${i}" aria-labelledby="${st.id}-steam">${head}${body}${notes}</section>`;
+}
+
+/* ── Preferencias ── */
+const TH = { light: ['sun', 'Claro', 'th-light', 'warn'], dark: ['moon', 'Oscuro', 'th-dark', 'st-todos'], system: ['monitor', 'Sistema', 'th-system', 'neutral'] };
+function prefsHTML(st, i) {
+  const [tIcon, , , tCls] = TH[THEME.pref];
+  const on = st.notif;
+  return `<section class="panel pf-sec hg-enter" style="--i:${i}" aria-labelledby="${st.id}-prefs"><div class="sec-head"><span class="sec-head__icon hg-tint ${tCls} js-prefs-icon">${ic(tIcon)}</span><h2 id="${st.id}-prefs">Preferencias</h2></div>
+    <div class="pf-row pf-row--inline pf-row--stack-mob">
+      <div class="pf-row__text"><span class="pf-row__label">Tema</span><p class="pf-row__desc">Claro, oscuro o el que use tu sistema.</p></div>
+      <div class="pf-row__control"><div class="hg-seg js-theme" role="radiogroup" aria-label="Tema"><span class="hg-seg__thumb" aria-hidden="true"></span>${Object.entries(TH).map(([v, [icon, l, c]]) => `<button type="button" role="radio" class="hg-seg__opt ${c}" data-theme-opt="${v}" aria-checked="${THEME.pref === v}">${ic(icon)}${l}</button>`).join('')}</div></div>
+    </div>
+    <div class="pf-row pf-row--inline">
+      <div class="pf-row__text"><span class="pf-row__label" id="${st.id}-notif"><span class="ink ${on ? 'ok' : 'neutral'} js-bell">${ic(on ? 'bell' : 'belloff')}</span>Notificaciones <span class="pf-onoff ${on ? 'ok' : 'neutral'} js-onoff">${on ? 'Activadas' : 'Desactivadas'}</span></span><p class="pf-row__desc js-notif-desc">Nuevo JUDI cada día y bajadas de precio de tu wishlist.</p></div>
+      <div class="pf-row__control"><span class="js-notif-spin"></span><button type="button" role="switch" class="switch ok" aria-checked="${on ? 'true' : 'false'}" aria-labelledby="${st.id}-notif" data-act="notif"><span class="switch__thumb" aria-hidden="true"></span></button></div>
+    </div>
+  </section>`;
+}
+
+/* ── Tus datos ── */
+function dataHTML(st, i) {
+  return `<section class="panel pf-sec hg-enter" style="--i:${i}" aria-labelledby="${st.id}-data">${secHead('st-todos', 'download', 'Tus datos', '', `${st.id}-data`)}
+    <div class="pf-row">
+      <div class="pf-row__text" style="grid-column:1/-1"><p class="pf-row__desc">Descarga tu biblioteca (estados, notas, reseñas y fechas) y tus logros. El CSV usa «;» y decimales con coma, para abrirlo directamente en Excel en español.</p></div>
+      <div class="pf-export">
+        <a href="#" class="pf-dl" download><span class="pf-dl__icon hg-tint st-todos">${ic('library')}</span><span class="pf-dl__text"><b>Biblioteca</b><small>CSV</small></span>${ic('download', 'pf-dl__go')}</a>
+        <a href="#" class="pf-dl" download><span class="pf-dl__icon hg-tint st-sin_final">${ic('award')}</span><span class="pf-dl__text"><b>Logros</b><small>CSV</small></span>${ic('download', 'pf-dl__go')}</a>
+        <a href="#" class="pf-dl" download><span class="pf-dl__icon hg-tint neutral">${ic('json')}</span><span class="pf-dl__text"><b>Todo</b><small>JSON</small></span>${ic('download', 'pf-dl__go')}</a>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ── Zona de salida ── */
+function exitHTML(st, i) {
+  const linked = st.steam.state !== 'none';
+  return `<section class="panel pf-sec pf-exit hg-enter" style="--i:${i}" aria-labelledby="${st.id}-exit">${secHead('ko', 'door', 'Salir', '', `${st.id}-exit`)}
+    <div class="pf-row pf-row--inline pf-row--stack-mob">
+      <div class="pf-row__text"><span class="pf-row__label">Cerrar sesión</span><p class="pf-row__desc">En este dispositivo. Tus datos se quedan como están.</p></div>
+      <div class="pf-row__control"><button type="button" class="btn btn--danger-soft" data-act="logout">${ic('logout')}Cerrar sesión</button></div>
+    </div>
+    ${linked ? `<div class="pf-row pf-row--inline pf-row--stack-mob">
+      <div class="pf-row__text"><span class="pf-row__label">Desvincular Steam</span><p class="pf-row__desc">Se borrarán tus datos de Steam en HubGames.</p></div>
+      <div class="pf-row__control"><button type="button" class="btn btn--danger-soft" data-act="unlink">${ic('unlink')}Desvincular Steam</button></div>
+    </div>
+    <div class="pf-confirm js-confirm"><div><div class="pf-confirm__box"><p><b>¿Desvincular Steam?</b> Se borrarán tus datos de Steam en HubGames.</p><div class="acts"><button type="button" class="btn btn--ghost btn--sm" data-act="unlink-cancel">Cancelar</button><button type="button" class="btn btn--danger btn--sm" data-act="unlink-yes">${ic('unlink')}Desvincular</button></div></div></div></div>` : ''}
+  </section>`;
+}
+
+/* ── Administración ── */
+function adminHTML(st, i) {
+  const A = st.admin;
+  const gen = A.gen.ok
+    ? `<li class="pf-admin__item"><span class="pf-admin__dot hg-tint ok">${ic('check')}</span><span><b>Último JUDI generado</b><span><span class="ink ok">Correcto</span> · ${A.gen.when} · ${esc(A.gen.game)}</span></span></li>`
+    : `<li class="pf-admin__item"><span class="pf-admin__dot hg-tint ko">${ic('x')}</span><span><b>Último JUDI generado</b><span><span class="ink ko">Fallido</span> · ${A.gen.when} · ${esc(A.gen.err)}</span></span></li>`;
+  const uc = A.until.days >= 3 ? 'ok' : A.until.days >= 1 ? 'warn' : 'ko';
+  const uIcon = uc === 'ok' ? 'cal' : 'alert';
+  const until = `<li class="pf-admin__item"><span class="pf-admin__dot hg-tint ${uc}">${ic(uIcon)}</span><span><b>JUDI programados</b><span>${A.until.days ? `Hasta el ${A.until.date} · <span class="ink ${uc}">${plural(A.until.days, 'día', 'días')}</span>` : '<span class="ink ko">Ninguno después de hoy</span>'}</span></span></li>`;
+  const sc = A.syncErr ? 'ko' : 'ok';
+  const sync = `<li class="pf-admin__item"><span class="pf-admin__dot hg-tint ${sc}">${ic(A.syncErr ? 'alert' : 'refresh')}</span><span><b>Sincronizaciones con Steam (24 h)</b><span>${A.syncErr ? `<span class="ink ko">${plural(A.syncErr, 'con error', 'con error')}</span>` : '<span class="ink ok">Ninguna con error</span>'}</span></span></li>`;
+  return `<section class="panel pf-admin hg-enter" style="--i:${i}" aria-labelledby="${st.id}-admin">${secHead('warn', 'shield', 'Administración', '', `${st.id}-admin`)}
+    <ul class="pf-admin__list">${gen}${until}${sync}</ul>
+    <a href="#" class="btn btn--secondary">${ic('shield')}Abrir administración${ic('chevr')}</a>
+  </section>`;
+}
+
+/* ── JUDI (un solo panel) ── */
+function judiHTML(st, i) {
+  const J = st.judi;
+  let mine;
+  if (!J || !J.games) {
+    mine = `<p class="p-empty">Aún no has terminado ningún JUDI. Adivina el juego del día por su captura.</p><div style="margin-top:.75rem"><a href="#" class="btn btn--primary btn--sm">${ic('play')}Jugar al de hoy</a></div>`;
+  } else {
+    const acc = Math.round((J.wins / J.games) * 100);
+    const beat = J.rank && J.of > 1 ? Math.round(((J.of - J.rank) / (J.of - 1)) * 100) : null;
+    mine = `<div class="pf-judi__big"><div class="pf-judi__pts"><b>${count(J.pts)}</b><small>puntos</small></div>${J.rank ? `<span class="pf-rank hg-tint st-todos"><b>${J.rank}.º</b>de ${J.of}</span>` : ''}</div>
+      <div class="pf-split" role="img" aria-label="${J.wins} aciertos y ${J.losses} fallos">${J.wins ? `<i class="ok" style="--v:${J.wins}"></i>` : ''}${J.losses ? `<i class="ko" style="--v:${J.losses}"></i>` : ''}</div>
+      <dl class="pf-kpis">
+        <div class="pf-kpi ok"><dt>${ic('check')}aciertos</dt><dd>${count(J.wins)}</dd></div>
+        <div class="pf-kpi ko"><dt>${ic('x')}fallos</dt><dd>${count(J.losses)}</dd></div>
+        <div class="pf-kpi"><dt>de ${plural(J.games, 'partida', 'partidas')}</dt><dd>${acc} %</dd></div>
+      </dl>
+      <p class="pf-judi__beat">${ic('trend')}${beat !== null ? `<span>Superas al <b>${beat} %</b> de los jugadores de JUDI.</span>` : '<span>Termina partidas para aparecer en el ranking.</span>'}</p>`;
+  }
+  let top;
+  if (!st.top.length) top = `<p class="p-empty">Aún no hay clasificación: nadie ha terminado un JUDI.</p>`;
+  else {
+    const me = st.user.name;
+    const row = (name, pts, pos) => { const self = name === me; return `<li class="pf-top__row ${self ? 'is-self' : ''}"><span class="pf-top__rank ${pos <= 3 ? `m${pos}` : ''}" style="--r:${pos}">${pos}</span><span class="pf-top__name"><span>${esc(name)}</span>${self ? '<span class="pf-you">Tú</span>' : ''}</span><span class="pf-top__pts">${n(pts)} <small>pts</small></span></li>`; };
+    let html = st.top.slice(0, 5).map(([nm, p], k) => row(nm, p, k + 1)).join('');
+    if (J?.rank > 5) html += `<li class="pf-top__gap" aria-hidden="true">···</li>${row(me, J.pts, J.rank)}`;
+    top = `<ol class="pf-top">${html}</ol>`;
+  }
+  return `<section class="panel hg-enter" style="--i:${i}" aria-labelledby="${st.id}-judi">${secHead('rar-leg', 'trophy', 'JUDI', '<a href="#" class="sec-link">Ver el ranking' + ic('chevr') + '</a>', `${st.id}-judi`)}
+    ${mine}<p class="pf-judi__sub">${ic('trophy')}Mejores jugadores</p>${top}</section>`;
+}
+
+/* ── Página ── */
+function pageHTML(st) {
+  const noSteam = st.steam.state === 'none';
+  let i = 1;
+  const main = noSteam ? [steamHTML(st, i++), accountHTML(st, i++)] : [accountHTML(st, i++), steamHTML(st, i++)];
+  main.push(prefsHTML(st, i++), dataHTML(st, i++));
+  const side = [];
+  if (st.user.admin) side.push(adminHTML(st, st.mob ? i++ : 2));
+  side.push(judiHTML(st, st.mob ? i++ : st.user.admin ? 3 : 2));
+  if (st.mob) return `<div class="pf">${cardHTML(st)}<div class="pf-grid"><div class="pf-main">${main.join('')}${side.join('')}${exitHTML(st, i++)}</div></div></div>`;
+  main.push(exitHTML(st, i++));
+  return `<div class="pf">${cardHTML(st)}<div class="pf-grid"><div class="pf-main">${main.join('')}</div><aside class="pf-aside">${side.join('')}</aside></div></div>`;
+}
+
+/* ── Marcos ── */
+const FR = {};
+const THEME = { pref: 'light' };
+function mk(id, o) { FR[id] = { id, mob: false, kind: 'page', user: { ...ME }, steam: { ...STEAM_OK }, judi: JUDI, top: TOP, admin: ADMIN_OK, notif: true, msgs: [], ...o }; FR[id].init = JSON.parse(JSON.stringify(FR[id])); }
+mk('f-desk', {});
+mk('f-desk-noadmin', { user: { name: 'pablo', email: 'pablo.g@example.com', admin: false, since: 'mayo de 2025' }, steam: { ...STEAM_OK, persona: 'pablog', linked: '7 de mayo de 2025', last: 'hace 20 minutos', lastFull: '28/10/2026, 11:21' }, judi: { pts: 64, rank: 8, of: 14, games: 22, wins: 15, losses: 7 } });
+mk('f-mob', { mob: true });
+mk('f-mob-empty', { mob: true, user: { name: 'nuria', email: 'nuria.s@example.com', admin: false, since: 'octubre de 2026' }, steam: { state: 'none' }, notif: false, judi: { pts: 5, rank: 12, of: 14, games: 1, wins: 1, losses: 0 } });
+mk('f-mob-private', { mob: true, user: { name: 'marta', email: 'marta.v@example.com', admin: false, since: 'junio de 2025' }, steam: { state: 'privado', persona: 'martav', avatar: AV, linked: '2 de junio de 2025', last: 'hace 3 días', lastFull: '25/10/2026, 18:02' }, judi: { pts: 98, rank: 4, of: 14, games: 31, wins: 22, losses: 9 } });
+mk('f-mob-long', { mob: true, user: { name: 'maximiliano_fernandez_de_la_cruz', email: 'maximiliano.fernandez.delacruz.trabajo@empresa-de-ejemplo-muy-larga.com', admin: true, since: 'enero de 2026' }, steam: { state: 'detalles', persona: 'xX_El_Cazador_De_Logros_Legendarios_Xx', avatar: null, linked: '9 de enero de 2026', last: 'hace 5 minutos', lastFull: '28/10/2026, 11:36' }, admin: ADMIN_BAD, judi: { pts: 41, rank: 9, of: 14, games: 14, wins: 9, losses: 5 } });
+mk('f-mob-norank', { mob: true, user: { name: 'alex', email: 'alex@example.com', admin: false, since: 'septiembre de 2026' }, judi: null, top: [], notif: false, steam: { ...STEAM_OK, persona: 'alexplays', linked: '3 de septiembre de 2026', last: 'ayer', lastFull: '27/10/2026, 22:10' } });
+const ADMIN_CASES = [['Todo en orden', ADMIN_OK], ['Sin programados y 1 error', ADMIN_EMPTY], ['El JUDI de hoy falló', ADMIN_BAD]];
+ADMIN_CASES.forEach(([, a], k) => mk(`f-ad-${k}`, { kind: 'admin', admin: a }));
+document.getElementById('admin-states').innerHTML = ADMIN_CASES.map(([t], k) => `<div><div class="vlabel"><b>${k + 1}</b> ${t}</div><div class="frame w-desk vframe" style="width:420px" id="f-ad-${k}"></div></div>`).join('');
+const STEAM_CASES = [
+  ['Conectada + vuelta de Steam (?steam=ok)', { steam: { ...STEAM_OK, last: 'hace un momento' }, msgs: ['ok'] }],
+  ['Perfil privado', { steam: { ...STEAM_OK, state: 'privado', last: 'hace 3 días' } }],
+  ['Detalles de juego privados', { steam: { ...STEAM_OK, state: 'detalles', last: 'hace 3 días' } }],
+  ['Sin conectar', { steam: { state: 'none' } }],
+  ['Sin conectar + cuenta ya en uso (?steam=en_uso)', { steam: { state: 'none' }, msgs: ['en_uso'] }],
+  ['Sincronizar dos veces (429) y sincronización parcial', { steam: { ...STEAM_OK, last: 'hace 1 minuto' }, msgs: ['cooldown', 'parcial'] }],
+];
+STEAM_CASES.forEach(([, o], k) => mk(`f-st-${k}`, { kind: 'steam', ...o }));
+document.getElementById('steam-states').innerHTML = STEAM_CASES.map(([t], k) => `<div><div class="vlabel"><b>${k + 1}</b> ${t}</div><div class="frame w-desk vframe" style="width:560px" id="f-st-${k}"></div></div>`).join('');
+
+function frameHTML(st) {
+  if (st.kind === 'steam') return `<div class="pf">${steamHTML(st, 0)}</div>`;
+  if (st.kind === 'admin') return `<div class="pf">${adminHTML(st, 0)}</div>`;
+  return st.mob ? mobileChrome(st, pageHTML(st)) : sidebar(st) + `<div class="page"><div class="page-in">${pageHTML(st)}</div></div>`;
+}
+function renderFrame(id, anim = true) {
+  const st = FR[id]; const el = document.getElementById(id);
+  el.innerHTML = frameHTML(st);
+  if (st.mob) el.style.minHeight = '844px';
+  el.classList.toggle('anim', anim);
+  el.classList.remove('is-in');
+  placeThumbs(el, false);
+  st.stateNew = false;
+  if (anim && !rm()) { el.offsetWidth; requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('is-in'))); }
+  else el.classList.add('is-in');
+  if (anim) countUp(el);
+}
+function rerender(st, fr) {
+  const y = window.scrollY;
+  st.stateNew = true;
+  fr.innerHTML = frameHTML(st); fr.classList.remove('anim'); fr.classList.add('is-in');
+  placeThumbs(fr, false);
+  st.stateNew = false;
+  window.scrollTo(0, y);
+}
+function placeThumbs(root, animate = true) {
+  root.querySelectorAll('.hg-seg').forEach((seg) => {
+    const th = seg.querySelector('.hg-seg__thumb'); const cur = seg.querySelector('[aria-checked="true"]');
+    if (!th) return;
+    if (!cur) { th.style.width = '0px'; return; }
+    if (!animate) th.style.transition = 'none';
+    th.style.left = '3px'; th.style.width = `${cur.offsetWidth}px`; th.style.transform = `translateX(${cur.offsetLeft - 3}px)`;
+    if (!animate) { th.offsetWidth; th.style.transition = ''; }
+  });
+}
+function countUp(root) {
+  root.querySelectorAll('.cu').forEach((el) => {
+    const to = +el.dataset.to;
+    if (rm() || !to) { el.textContent = n(to); return; }
+    const t0 = performance.now(), dur = 450;
+    el.textContent = '0';
+    const step = (t) => { const k = Math.min(1, (t - t0) / dur); el.textContent = n(Math.round(to * (1 - (1 - k) ** 3))); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
+}
+
+/* ── Tema: el segmentado cambia el tema de verdad, con fundido de colores ── */
+const mqDark = matchMedia('(prefers-color-scheme: dark)');
+function setTheme(pref) {
+  THEME.pref = pref;
+  const dark = pref === 'dark' || (pref === 'system' && mqDark.matches);
+  const html = document.documentElement;
+  if (!rm()) { html.classList.add('theme-anim'); clearTimeout(setTheme.t); setTheme.t = setTimeout(() => html.classList.remove('theme-anim'), 340); }
+  html.dataset.theme = dark ? 'dark' : 'light';
+  const [icon, , , cls] = TH[pref];
+  document.querySelectorAll('[data-theme-opt]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.themeOpt === pref)));
+  document.querySelectorAll('.js-prefs-icon').forEach((s) => { s.className = `sec-head__icon hg-tint ${cls} js-prefs-icon`; s.innerHTML = ic(icon); if (!rm()) { s.classList.remove('icon-pop'); s.offsetWidth; s.classList.add('icon-pop'); } });
+  document.querySelectorAll('.js-m-theme').forEach((s) => { s.innerHTML = ic(icon); });
+  document.querySelectorAll('.js-nav-theme span').forEach((s, k) => s.classList.toggle('on', ['light', 'dark', 'system'][k] === pref));
+  document.querySelectorAll('.frame').forEach((f) => placeThumbs(f));
+  const tb = document.getElementById('theme-btn');
+  tb.setAttribute('aria-pressed', String(dark)); tb.textContent = dark ? 'Tema claro' : 'Tema oscuro';
+}
+mqDark.addEventListener('change', () => { if (THEME.pref === 'system') setTheme('system'); });
+
+/* ── Avisos ── */
+function toast(kind, text) {
+  const box = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = `pf-toast alert--${kind === 'ok' ? 'ok' : 'error'}`;
+  el.innerHTML = `${kind === 'ok' ? ic('checkc') : ic('alert')}<span>${text}</span>`;
+  box.appendChild(el);
+  setTimeout(() => { el.classList.add('is-out'); setTimeout(() => el.remove(), rm() ? 0 : 170); }, kind === 'ok' ? 3500 : 5000);
+}
+
+/* ── Botón: spinner → check que se dibuja ── */
+async function busyDone(btn, busyText, doneText, ms = 700) {
+  const orig = btn.innerHTML;
+  btn.style.minWidth = `${btn.offsetWidth}px`;
+  btn.disabled = true; btn.classList.add('is-busy');
+  btn.innerHTML = `<span class="spin-ring" aria-hidden="true"></span>${busyText ? `<span>${busyText}</span>` : '<span class="sr-only">Guardando</span>'}`;
+  await wait(ms);
+  btn.classList.remove('is-busy'); btn.classList.add('is-done');
+  btn.innerHTML = `${ic('check', 'hg-draw')}<span>${doneText}</span>`;
+  return () => { btn.classList.remove('is-done'); btn.innerHTML = orig; btn.disabled = false; btn.style.minWidth = ''; };
+}
+
+/* ── Formularios ── */
+function userHint(form, st) {
+  const v = form.querySelector('.js-user').value.trim();
+  const hint = form.querySelector('.js-user-hint'); const save = form.querySelector('.js-save');
+  const set = (cls, html) => { if (hint.dataset.s !== cls + html) { hint.className = `pf-hint js-user-hint ${cls} is-new`; hint.innerHTML = html; hint.dataset.s = cls + html; } };
+  clearTimeout(form._t);
+  if (v === st.user.name) { set('', ''); save.disabled = true; return; }
+  if (v.length < 3) { set('ko', `${ic('x')}Al menos 3 caracteres`); save.disabled = true; return; }
+  set('', `<span class="spin-ring" style="width:11px;height:11px;border-width:1.5px" aria-hidden="true"></span>Comprobando…`); save.disabled = true;
+  form._t = setTimeout(() => {
+    if (TAKEN.has(v.toLowerCase())) { set('ko', `${ic('x')}«${esc(v)}» ya está en uso`); save.disabled = true; }
+    else { set('ok', `${ic('check')}Disponible`); save.disabled = false; }
+  }, rm() ? 0 : 400);
+}
+function passRules(form, final = false) {
+  const p1 = form.querySelector('.js-p1').value, p2 = form.querySelector('.js-p2').value;
+  const len = form.querySelector('[data-r="len"]'), eq = form.querySelector('[data-r="eq"]');
+  len.className = p1.length >= 6 ? 'ok' : final ? 'ko' : '';
+  const eqOk = Boolean(p2) && p1 === p2; const eqBad = Boolean(p2) && p1 !== p2 && (p2.length >= p1.length || final);
+  eq.className = eqOk ? 'ok' : eqBad || (final && !p2) ? 'ko' : '';
+  eq.lastChild.textContent = eqBad ? 'No coinciden' : 'Coinciden';
+  form.querySelector('.js-p2').classList.toggle('is-bad', eqBad);
+  return { ok: p1.length >= 6 && eqOk, err: p1.length < 6 ? 'La contraseña debe tener al menos 6 caracteres' : !eqOk ? 'Las contraseñas no coinciden' : '' };
+}
+document.addEventListener('input', (e) => {
+  const fr = e.target.closest('.frame'); if (!fr) return; const st = FR[fr.id];
+  if (e.target.matches('.js-user')) userHint(e.target.form, st);
+  if (e.target.matches('.js-p1, .js-p2')) passRules(e.target.form);
+});
+document.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target; const fr = form.closest('.frame'); const st = FR[fr.id];
+  if (form.matches('.js-user-form')) {
+    const btn = form.querySelector('.js-save'); if (btn.disabled) return;
+    const v = form.querySelector('.js-user').value.trim();
+    const back = await busyDone(btn, '', 'Guardado');
+    st.user.name = v;
+    fr.querySelectorAll('.js-name, .js-nav-name').forEach((x) => { x.textContent = v; x.classList.remove('pf-name-swap'); x.offsetWidth; x.classList.add('pf-name-swap'); });
+    fr.querySelectorAll('.js-nav-av').forEach((x) => { x.textContent = v[0].toUpperCase(); });
+    const hint = form.querySelector('.js-user-hint'); hint.className = 'pf-hint js-user-hint'; hint.innerHTML = ''; hint.dataset.s = '';
+    toast('ok', 'Nombre de usuario actualizado');
+    await wait(1600); back(); btn.disabled = true;
+  }
+  if (form.matches('.js-pass-form')) {
+    const r = passRules(form, true);
+    if (!r.ok) { const box = form.querySelector('.js-pass-box'); box.classList.remove('shake'); box.offsetWidth; box.classList.add('shake'); toast('error', r.err); return; }
+    const btn = form.querySelector('.js-pass-save');
+    const back = await busyDone(btn, 'Cambiando…', 'Contraseña cambiada', 800);
+    toast('ok', 'Contraseña actualizada');
+    form.querySelector('.js-p1').value = ''; form.querySelector('.js-p2').value = ''; passRules(form);
+    await wait(1600); back();
+  }
+});
+
+/* ── Clics ── */
+document.addEventListener('click', async (e) => {
+  const opt = e.target.closest('[data-theme-opt]');
+  if (opt) { setTheme(opt.dataset.themeOpt); return; }
+  const a = e.target.closest('[data-act]');
+  if (!a) { if (e.target.closest('a[href="#"]')) e.preventDefault(); return; }
+  e.preventDefault();
+  const fr = a.closest('.frame'); const st = FR[fr.id]; const act = a.dataset.act;
+  if (act === 'notif') {
+    if (a.disabled) return;
+    const on = a.getAttribute('aria-checked') !== 'true';
+    a.setAttribute('aria-checked', String(on)); a.disabled = true;
+    const row = a.closest('.pf-row');
+    const desc = row.querySelector('.js-notif-desc'); const spin = row.querySelector('.js-notif-spin');
+    spin.innerHTML = '<span class="spin-ring" style="display:block;color:var(--muted)" aria-hidden="true"></span>'; desc.textContent = 'Actualizando…';
+    await wait(600);
+    spin.innerHTML = ''; desc.textContent = 'Nuevo JUDI cada día y bajadas de precio de tu wishlist.'; a.disabled = false; st.notif = on;
+    const bell = row.querySelector('.js-bell'); bell.className = `ink ${on ? 'ok' : 'neutral'} js-bell`; bell.innerHTML = ic(on ? 'bell' : 'belloff');
+    const oo = row.querySelector('.js-onoff'); oo.className = `pf-onoff ${on ? 'ok' : 'neutral'} js-onoff is-new`; oo.textContent = on ? 'Activadas' : 'Desactivadas';
+    toast('ok', on ? 'Notificaciones activadas' : 'Notificaciones desactivadas');
+  }
+  if (act === 'logout') {
+    const back = await busyDone(a, 'Cerrando sesión…', 'Hasta pronto', 700);
+    await wait(1200); back();
+  }
+  if (act === 'sync') {
+    if (a.disabled) return;
+    const notes = fr.querySelector('.js-notes');
+    if (st.synced) { notes.innerHTML = msgHTML('cooldown'); return; }
+    a.disabled = true; a.classList.add('is-busy'); a.style.minWidth = `${a.offsetWidth}px`;
+    a.innerHTML = `${ic('refresh', 'spin')}<span>Sincronizando…</span>`; notes.innerHTML = '';
+    await wait(1500);
+    a.classList.remove('is-busy'); a.classList.add('is-done');
+    a.innerHTML = `${ic('check', 'hg-draw')}<span>Sincronizado</span>`;
+    const t = fr.querySelector('.js-last'); t.textContent = 'hace un momento'; t.classList.remove('is-new'); t.offsetWidth; t.classList.add('is-new');
+    st.steam.last = 'hace un momento'; st.synced = true;
+    await wait(1800);
+    a.classList.remove('is-done'); a.disabled = false; a.style.minWidth = ''; a.innerHTML = `${ic('refresh')}<span>Sincronizar ahora</span>`;
+  }
+  if (act === 'unlink') { fr.querySelector('.js-confirm')?.classList.add('is-open'); fr.querySelector('[data-act="unlink-yes"]')?.focus({ preventScroll: true }); }
+  if (act === 'unlink-cancel') fr.querySelector('.js-confirm')?.classList.remove('is-open');
+  if (act === 'unlink-yes') {
+    await busyDone(a, 'Desvinculando…', 'Desvinculada', 700);
+    await wait(400);
+    st.steam = { state: 'none' }; st.msgs = []; st.synced = false;
+    rerender(st, fr);
+  }
+  if (act === 'connect') {
+    a.disabled = true; a.classList.add('is-busy'); a.innerHTML = `<span class="spin-ring" aria-hidden="true"></span><span>Abriendo Steam…</span>`;
+    await wait(1100);
+    st.steam = { ...STEAM_OK, persona: st.user.name === 'diego' ? 'dmardomingo' : `${st.user.name}_steam`, linked: '28 de octubre de 2026', last: 'hace un momento' };
+    st.msgs = ['ok'];
+    rerender(st, fr);
+  }
+  if (act === 'recheck') {
+    a.disabled = true; a.classList.add('is-busy'); a.innerHTML = `${ic('refresh', 'spin')}<span>Comprobando…</span>`;
+    await wait(1200);
+    st.steam = { ...st.steam, state: 'ok', last: 'hace un momento' }; st.msgs = ['ok'];
+    rerender(st, fr);
+  }
+});
+
+/* ── Controles del documento ── */
+function resetAll() { Object.values(FR).forEach((st) => { Object.assign(st, JSON.parse(JSON.stringify(st.init))); st.synced = false; }); }
+function renderAll(anim = true) { Object.keys(FR).forEach((id) => renderFrame(id, anim)); }
+document.getElementById('theme-btn').addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+document.getElementById('rm-btn').addEventListener('click', (e) => {
+  const on = document.documentElement.classList.toggle('rm');
+  e.currentTarget.setAttribute('aria-pressed', String(on));
+  e.currentTarget.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`;
+  renderAll();
+});
+document.getElementById('replay-btn').addEventListener('click', () => { resetAll(); renderAll(); });
+
+renderAll();
+document.fonts?.ready.then(() => document.querySelectorAll('.frame').forEach((f) => placeThumbs(f, false)));
+</script>
+</body>
+</html>

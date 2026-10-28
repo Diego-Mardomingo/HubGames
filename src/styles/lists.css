@@ -527,6 +527,33 @@
   z-index: 1;
 }
 
+/* Selector de tema (ThemeToggle labeled): el icono activo gira un poco y toma el color de su tema
+   (sol ámbar, luna cobalto, sistema neutro). */
+.theme-opt .hg-seg__icon {
+  display: inline-grid;
+  transition: transform 0.22s var(--ease-out), color 0.15s;
+}
+
+.theme-opt[aria-checked='true'] .hg-seg__icon {
+  transform: rotate(-12deg) scale(1.08);
+}
+
+.theme-opt--light[aria-checked='true'] .hg-seg__icon {
+  color: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+}
+
+[data-theme='dark'] .theme-opt--light[aria-checked='true'] .hg-seg__icon {
+  color: var(--warning);
+}
+
+.theme-opt--dark[aria-checked='true'] .hg-seg__icon {
+  color: var(--primary);
+}
+
+.theme-opt--system[aria-checked='true'] .hg-seg__icon {
+  color: var(--muted);
+}
+
 /* Pestañas que no caben: se desplazan en horizontal en vez de partir en dos líneas. */
 .hg-seg--scroll {
   flex-wrap: nowrap;

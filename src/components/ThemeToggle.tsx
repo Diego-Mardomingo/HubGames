@@ -1,6 +1,7 @@
 'use client'
 
-import { useSyncExternalStore } from 'react'
+import { useId, useSyncExternalStore } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { Monitor, Moon, Sun } from 'lucide-react'
 import { getThemePref, setThemePref, THEME_CHANGED_EVENT, type ThemePref } from '@/lib/theme'
 
@@ -19,9 +20,15 @@ function subscribe(onChange: () => void) {
     }
 }
 
+/** Preferencia de tema guardada (null en el servidor, que no la conoce). */
+export function useThemePref(): ThemePref | null {
+    return useSyncExternalStore<ThemePref | null>(subscribe, getThemePref, () => null)
+}
+
 /**
  * `compact`: un solo botón que rota claro → oscuro → sistema (barra móvil y barra lateral plegada).
- * `labeled`: control segmentado con icono y texto (fila "Tema" del perfil).
+ * `labeled`: control segmentado con icono y texto (fila "Tema" del perfil), con el fondo activo que se desliza y el icono
+ *   activo con el color de su tema (`.theme-opt--*` en styles/lists.css: sol ámbar, luna cobalto, sistema neutro).
  * Por defecto: control segmentado con las tres opciones, solo iconos.
  */
 export default function ThemeToggle({
@@ -34,8 +41,10 @@ export default function ThemeToggle({
     className?: string
 }) {
     // null en el servidor: no conoce la preferencia guardada.
-    const pref = useSyncExternalStore<ThemePref | null>(subscribe, getThemePref, () => null)
+    const pref = useThemePref()
     const choose = setThemePref
+    const id = useId()
+    const reduce = useReducedMotion()
 
     if (compact) {
         const current = OPTIONS.find((o) => o.value === (pref ?? 'system'))!
@@ -56,11 +65,23 @@ export default function ThemeToggle({
 
     if (labeled) {
         return (
-            <div className={['hg-seg', className].filter(Boolean).join(' ')} role="radiogroup" aria-label="Tema">
+            <div className={['hg-seg hg-seg--slide', className].filter(Boolean).join(' ')} role="radiogroup" aria-label="Tema">
                 {OPTIONS.map(({ value, short, icon: Icon }) => (
-                    <button key={value} type="button" role="radio" aria-checked={pref === value} className="hg-seg__opt" onClick={() => choose(value)}>
-                        <Icon aria-hidden />
-                        {short}
+                    <button
+                        key={value}
+                        type="button"
+                        role="radio"
+                        aria-checked={pref === value}
+                        className={`hg-seg__opt theme-opt theme-opt--${value}`}
+                        onClick={() => choose(value)}
+                    >
+                        {pref === value && (
+                            <motion.span layoutId={`${id}-thumb`} className="hg-seg__thumb" transition={{ duration: reduce ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }} />
+                        )}
+                        <span className="hg-seg__text hg-seg__icon">
+                            <Icon aria-hidden />
+                        </span>
+                        <span className="hg-seg__text">{short}</span>
                     </button>
                 ))}
             </div>

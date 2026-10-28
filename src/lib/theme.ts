@@ -22,7 +22,19 @@ export function getThemePref(): ThemePref {
     }
 }
 
+let fadeTimer: ReturnType<typeof setTimeout> | undefined
+
+/** Colores que pasan con un fundido al cambiar de tema (`html.hg-theme-anim` en globals.css), salvo con movimiento reducido. */
+function fadeThemeColors() {
+    if (typeof window === 'undefined' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const root = document.documentElement
+    root.classList.add('hg-theme-anim')
+    clearTimeout(fadeTimer)
+    fadeTimer = setTimeout(() => root.classList.remove('hg-theme-anim'), 320)
+}
+
 export function setThemePref(pref: ThemePref) {
+    fadeThemeColors()
     try {
         if (pref === 'system') localStorage.removeItem(THEME_STORAGE_KEY)
         else localStorage.setItem(THEME_STORAGE_KEY, pref)
