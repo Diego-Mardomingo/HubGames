@@ -191,6 +191,8 @@
 .nav-ind--ok { --c: var(--success); }
 .nav-ind--ko { --c: var(--danger); }
 .nav-ind--warn { --c: var(--warning); }
+/* JUDI en mantenimiento: «Pausa» en neutro (no ámbar, para no confundirlo con «Hoy») */
+.nav-ind--neutral { --c: var(--muted); }
 
 /* El ámbar de aviso, en claro, se oscurece un poco para llegar a 4,5:1 sobre su tinte. */
 :root:not([data-theme='dark']) .nav-ind--warn {
@@ -205,6 +207,16 @@
 
 @keyframes nav-ind-draw {
   from { stroke-dashoffset: 64; }
+}
+
+/* La llave de «Pausa» es un trazo más largo: se dibuja entera, sin cortes */
+.nav-ind--maint .nav-ind__icon :is(path, polyline, circle, line) {
+  stroke-dasharray: 80;
+  animation-name: nav-ind-draw-long;
+}
+
+@keyframes nav-ind-draw-long {
+  from { stroke-dashoffset: 80; }
 }
 
 /* Buscador de juegos (#20) */

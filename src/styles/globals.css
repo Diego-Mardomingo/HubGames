@@ -1288,51 +1288,6 @@ a {
   }
 }
 
-.maint {
-  display: grid;
-  place-items: center;
-  min-height: calc(100dvh - 200px);
-}
-
-.maint__card {
-  width: 100%;
-  max-width: 460px;
-  padding: 2.25rem 2rem;
-  text-align: center;
-}
-
-.maint__icon {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  margin: 0 auto 1rem;
-  border-radius: var(--radius);
-  background: var(--surface-2);
-  color: var(--warning);
-}
-
-.maint__title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.maint__text {
-  margin: 0.5rem auto 1.5rem;
-  color: var(--muted);
-  font-size: 0.9375rem;
-  max-width: 40ch;
-}
-
-.maint__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
 /* ══════════════════════════════════════════════════════════════════
    Accesibilidad: movimiento reducido
    ══════════════════════════════════════════════════════════════════ */

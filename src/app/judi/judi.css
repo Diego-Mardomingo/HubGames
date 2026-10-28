@@ -1749,6 +1749,110 @@
   margin-top: 0.375rem;
 }
 
+/* Tono del icono: rojo para errores, ámbar de aviso para el mantenimiento (texto oscurecido en claro, como .alert--warn) */
+.jd-error__icon.ko { --c: var(--danger); }
+.jd-error__icon.warn { --c: var(--warning); }
+:root:not([data-theme='dark']) .jd-error__icon.warn {
+  color: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+}
+
+/* ── JUDI en mantenimiento (JudiMaintenance): tarjeta centrada con la forma de .jd-error ── */
+.jd-maint {
+  display: grid;
+  place-items: center;
+  min-height: calc(100dvh - 200px);
+}
+
+.jd-error--maint {
+  width: 100%;
+  max-width: 520px;
+  padding: 2.5rem 1.75rem;
+}
+
+.jd-maint__title {
+  margin: 0.25rem 0 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.jd-maint__when {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.jd-error .jd-maint__when {
+  color: var(--muted);
+}
+
+.jd-maint__when svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+}
+
+[data-theme='dark'] .jd-maint__when svg {
+  color: var(--warning);
+}
+
+.jd-maint__when--late svg,
+[data-theme='dark'] .jd-maint__when--late svg {
+  color: var(--muted);
+}
+
+.jd-maint__when b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.jd-maint__count {
+  font-variant-numeric: tabular-nums;
+}
+
+/* La llave «aprieta» una vez al llegar: un cuarto de vuelta atrás y vuelve con un pequeño rebote */
+.jd-maint__wrench {
+  transform-origin: 60% 40%;
+  animation: jd-wrench 0.42s var(--ease-out) 0.3s backwards;
+}
+
+@keyframes jd-wrench {
+  35% { transform: rotate(-32deg); }
+  70% { transform: rotate(10deg); }
+}
+
+/* Texto que cambia (p. ej., al pasar la hora prevista): fundido corto */
+.jd-maint__swap {
+  animation: jd-maint-swap 0.2s var(--ease-out);
+}
+
+@keyframes jd-maint-swap {
+  from { opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .jd-maint {
+    min-height: calc(100dvh - 240px);
+  }
+
+  .jd-error--maint {
+    padding: 2rem 1.125rem;
+  }
+
+  .jd-error--maint .jd-error__acts {
+    width: 100%;
+  }
+
+  .jd-error--maint .jd-error__acts .hg-button {
+    width: 100%;
+    height: 44px;
+  }
+}
+
 /* ── Microanimaciones de la partida ── */
 /* Vida que se pierde: sacudida y fundido mientras pasa a su color (rojo o neutro) */
 .jd-fx-lose {

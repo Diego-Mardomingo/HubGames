@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · JUDI en mantenimiento · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --tint: 12%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --tint: 14%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; color: inherit; cursor: pointer; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after, html.theme-anim body {
+  transition: background-color .3s var(--ease-out), color .3s var(--ease-out), border-color .3s var(--ease-out), fill .3s, stroke .3s, box-shadow .3s var(--ease-out) !important;
+}
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.doc-group { display: inline-flex; align-items: center; gap: 4px; padding-right: 8px; margin-right: 4px; border-right: 1px solid var(--border); }
+.doc-group > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.doc-btn--sm { height: 32px; padding: 0 10px; font-size: .8125rem; }
+.doc-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: .71875rem; font-weight: 700; vertical-align: 2px; }
+.doc-tag--new { background: var(--primary-glow); color: var(--primary); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 120ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: clip; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 52ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.grid-frames { display: grid; grid-template-columns: repeat(2, 640px); gap: 28px 24px; align-items: start; }
+.grid-frames.cols3 { grid-template-columns: repeat(3, 460px); }
+.vlabel { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.875rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 7px; background: var(--surface-2); }
+.vlabel .doc-tag { margin-left: 4px; }
+.tests { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 0; }
+.tests > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.tests > span:not(:first-child) { margin-left: 10px; }
+.col-frame { padding: 20px; }
+.qs li { margin: 8px 0; }
+.anim-list li { margin: 3px 0; }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; text-align: left; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nav-ind { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px 0 5px; border-radius: 999px; font-size: .71875rem; font-weight: 700; }
+.nav-ind .i { font-size: 11px; }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-2); color: var(--foreground); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.nav-cta { display: flex; align-items: center; justify-content: center; gap: .5rem; height: 40px; padding: 0 1rem; border-radius: var(--radius-sm); color: var(--primary-foreground); background: var(--primary); font-size: .875rem; font-weight: 600; }
+.nav-cta .i { font-size: 16px; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); }
+.m-tab.active::before { content: ''; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--cursor); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+.m-tab__badge { position: absolute; top: -3px; right: -7px; width: 9px; height: 9px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px var(--surface); }
+.m-tab__badge.neutral { display: grid; place-items: center; top: -5px; right: -9px; width: 14px; height: 14px; background: var(--surface-3); color: var(--foreground); font-size: 9px; }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.m-page { padding: 1rem 1rem 110px; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 0; }
+.page-title { margin: 0.25rem 0 0; font-size: clamp(1.625rem, 2.6vw, 2rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .page-title { font-size: 1.625rem; }
+.page-subtitle { margin: 0.375rem 0 0; color: var(--muted); font-size: 0.9375rem; max-width: 60ch; }
+
+/* ══ Piezas compartidas (copia de lists.css, globals.css y judi.css) ══ */
+.warn { --c: var(--warning); } .neutral { --c: var(--muted); } .ko { --c: var(--danger); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.warn { color: var(--warn-ink); }
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; background: none; transition: background-color .2s var(--ease-out), border-color .15s, color .2s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { background: var(--surface-2); border-color: var(--border-hover); }
+.btn .i-go { transition: transform .16s var(--ease-out); }
+.btn:hover .i-go { transform: translateX(3px); }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 12px; }
+
+.jd { display: grid; gap: 1.75rem; }
+.w-mob .jd { gap: 1.25rem; }
+.jd > * { min-width: 0; }
+
+/* Tarjeta «Juego del día» (judi.css) */
+.jd-today { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.w-col .jd-today, .w-mob .jd-today { grid-template-columns: 1fr; }
+.jd-today__art { position: relative; display: grid; place-items: center; min-height: 100%; aspect-ratio: 16 / 9; background: var(--surface-2); overflow: hidden; }
+.w-col .jd-today__art, .w-mob .jd-today__art { min-height: 0; }
+.jd-today__body { display: grid; align-content: center; gap: 0.875rem; padding: 1.5rem 1.75rem; min-width: 0; }
+.w-mob .jd-today__body { padding: 1.125rem; }
+.jd-today__meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; color: var(--muted); font-size: 0.875rem; }
+.jd-today__date::first-letter { text-transform: uppercase; }
+.jd-today__name { margin: 0; font-size: clamp(1.5rem, 2.4vw, 1.875rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; overflow-wrap: anywhere; }
+.w-mob .jd-today__name, .w-col .jd-today__name { font-size: 1.5rem; }
+.jd-today__text { margin: 0; color: var(--muted); font-size: 0.875rem; max-width: 52ch; }
+.jd-today__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-top: 0.25rem; }
+.jd-today__acts { display: flex; flex-wrap: wrap; gap: .5rem; }
+.w-mob .jd-today__acts { width: 100%; }
+.w-mob .jd-today__acts .btn { width: 100%; height: 44px; }
+.jd-countdown { display: grid; line-height: 1.15; }
+.jd-countdown__time { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.jd-countdown__label { color: var(--muted); font-size: 0.8125rem; }
+
+/* NUEVO · JUDI en mantenimiento, variante A (modificador de .jd-today) */
+.jd-maint__art { color: var(--warn-ink); }
+.jd-maint__badge { display: grid; place-items: center; width: 76px; height: 76px; border-radius: 50%; }
+.jd-maint__badge .i { font-size: 34px; }
+.w-col .jd-maint .jd-today__art, .w-mob .jd-maint .jd-today__art { aspect-ratio: auto; height: 112px; }
+.w-col .jd-maint__badge, .w-mob .jd-maint__badge { width: 60px; height: 60px; }
+.w-col .jd-maint__badge .i, .w-mob .jd-maint__badge .i { font-size: 27px; }
+/* Cuándo vuelve (propuesta): la cuenta atrás de la tarjeta del día, o una línea si es otro día o ya ha pasado */
+.jd-maint__when { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--muted); font-size: .875rem; }
+.jd-maint__when .i { font-size: 16px; color: var(--warn-ink); }
+.jd-maint__when b { color: var(--foreground); font-weight: 600; }
+.jd-maint__when.is-late .i { color: var(--muted); }
+
+/* Variante B: tarjeta centrada (la forma de .jd-error de judi.css, con el tono de aviso) */
+.jd-error { display: grid; justify-items: center; gap: 0.625rem; width: 100%; max-width: 520px; margin: 0 auto; padding: 2.5rem 1.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); text-align: center; }
+.w-mob .jd-error { padding: 2rem 1.125rem; }
+.jd-error__icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; }
+.jd-error__icon .i { font-size: 22px; }
+.jd-error h1 { margin: .25rem 0 0; font-size: 1.375rem; letter-spacing: -0.02em; line-height: 1.2; }
+.jd-error p { max-width: 46ch; margin: 0; color: var(--muted); font-size: 0.875rem; }
+.jd-error__acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 0.375rem; }
+.w-mob .jd-error__acts { width: 100%; } .w-mob .jd-error__acts .btn { width: 100%; height: 44px; }
+.jd-error .jd-maint__when { justify-content: center; flex-wrap: wrap; text-align: center; }
+.maint-wrap { display: grid; place-items: center; min-height: 640px; }
+.w-col .maint-wrap { min-height: 0; }
+.w-mob .maint-wrap { min-height: 560px; }
+
+/* Lo de hoy (para comparar): .maint de globals.css */
+.maint { display: grid; place-items: center; min-height: 640px; }
+.w-col .maint { min-height: 0; }
+.maint__card { width: 100%; max-width: 460px; padding: 2.25rem 2rem; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.maint__icon { display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto 1rem; border-radius: var(--radius); background: var(--surface-2); color: var(--warning); font-size: 22px; }
+.maint__title { margin: 0; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+.maint__text { margin: 0.5rem auto 1.5rem; color: var(--muted); font-size: 0.9375rem; max-width: 40ch; }
+.maint__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+
+/* ══ Microanimaciones ══ */
+@keyframes hg-enter { from { opacity: 0; transform: translateY(8px); } }
+@keyframes hg-pop-in { from { opacity: 0; transform: scale(0.5); } }
+@keyframes fade-in { from { opacity: 0; } }
+.anim .hg-enter { animation: hg-enter .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+.anim .hg-pop-in { animation: hg-pop-in .26s var(--ease-out) backwards; animation-delay: calc(250ms + min(var(--i, 0), 8) * 30ms); }
+/* La llave «aprieta»: un cuarto de vuelta atrás y vuelve con un pequeño rebote, una sola vez al llegar */
+@keyframes jd-wrench { 0% { transform: rotate(0); } 35% { transform: rotate(-32deg); } 70% { transform: rotate(10deg); } 100% { transform: rotate(0); } }
+.anim .jd-wrench { animation: jd-wrench .42s var(--ease-out) .3s backwards; transform-origin: 60% 40%; }
+/* Cambio de texto (llega la hora o cambia el estado): fundido corto */
+.fx-swap { animation: fade-in .2s var(--ease-out); }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · JUDI en mantenimiento</h1>
+  <div class="doc-bar__actions">
+    <div class="doc-group" role="group" aria-label="Variante"><span>Forma</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="v" data-val="A" aria-pressed="true">A · Portada de JUDI (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="v" data-val="B" aria-pressed="false">B · Tarjeta centrada</button>
+    </div>
+    <div class="doc-group" role="group" aria-label="Indicador de JUDI en la navegación"><span>Indicador</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="ind" data-val="pause" aria-pressed="true">«Pausa» (propuesta)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="ind" data-val="today" aria-pressed="false">«Hoy» (como ahora)</button>
+    </div>
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p><b>Hoy</b> <code>JudiMaintenance</code> sale en <code>/judi</code> cuando <code>NEXT_PUBLIC_JUDI_MAINTENANCE=true</code> (se lee en <code>page.tsx</code> y en el título de <code>layout.tsx</code>; se fija al desplegar). Es una tarjeta centrada con la llave en ámbar, «JUDI está en mantenimiento», «Vuelve en un rato» y dos botones: «Ir a Inicio» e «Iniciar sesión», <b>este último también si ya has entrado</b>. No hay otros casos: «Hoy no hay JUDI» y los errores de carga ya los resuelve la partida (PR #114). Es un repaso ligero: sin color nuevo, con las piezas de la portada de JUDI.</p>
+  <ul>
+    <li><b>Forma</b> (decisión 1): <b>A</b> la portada de JUDI de siempre (título «JUDI» y su subtítulo) con la tarjeta del día en estado de mantenimiento, igual que «Hoy no hay JUDI»; <b>B</b> la tarjeta centrada de hoy, ordenada con la forma del error de carga de la partida (<code>.jd-error</code>).</li>
+    <li><b>Color con significado</b>: la llave en <code>--warning</code> sobre su tinte y el chip «En mantenimiento» en ámbar (el aviso de la web). Nada más tiene color; los botones son los de siempre.</li>
+    <li><b>Texto que tranquiliza</b>: «Tus partidas y tus puntos están guardados» (sin sesión: «Tu progreso en este dispositivo está guardado»). Es cierto en los dos casos: el mantenimiento solo oculta la página. No prometo la racha (pregunta 4).</li>
+    <li><b>Acciones según la sesión</b>: con sesión, «Ir a Inicio» y «Ver el ranking» (<code>/ranking</code> no depende de JUDI y sigue abierto); sin sesión, «Ir a Inicio» e «Iniciar sesión». Quita el «Iniciar sesión» a quien ya ha entrado (la página ya puede saberlo en el servidor, como <code>src/app/page.tsx</code> con <code>getUser</code>).</li>
+    <li><b>Cuándo vuelve</b> <span class="doc-tag doc-tag--new">Propuesta</span>: hoy no se sabe. Con una variable opcional <code>NEXT_PUBLIC_JUDI_MAINTENANCE_UNTIL</code> (fecha ISO) se enseña la cuenta atrás de la tarjeta del día («01:42:10 · para que vuelva, hacia las 18:30»), una línea si es otro día («Vuelve el jueves, 29 de octubre, hacia las 10:00») y, si la hora pasa y sigue en mantenimiento, «Está tardando más de lo previsto». Sin la variable, como hoy: «Vuelve en un rato».</li>
+    <li><b>Indicador de la navegación</b> <span class="doc-tag doc-tag--new">Propuesta</span>: hoy, en mantenimiento, la barra lateral sigue diciendo «Hoy» en ámbar (invita a jugar algo que no se puede). Propongo «Pausa» en neutro con la llave (en las pestañas móviles, la insignia con la llave). Neutro y no ámbar para no confundirlo con «Hoy»; la flag es <code>NEXT_PUBLIC_</code>, así que <code>loadJudiToday</code> la puede leer sin consultas.</li>
+  </ul>
+
+  <h3>Microanimaciones</h3>
+  <ul class="anim-list">
+    <li><b>Entrada</b>: título y tarjeta con <code>.hg-enter</code> (320 ms, 30 ms entre bloques).</li>
+    <li><b>La llave aprieta</b> (el detalle con personalidad): un cuarto de vuelta atrás y vuelve con un pequeño rebote, una sola vez al llegar. <span class="t">420 ms, 300 ms después de la entrada; solo <code>transform</code>.</span></li>
+    <li><b>Chip «En mantenimiento»</b> con <code>.hg-pop-in</code>. <span class="t">260 ms.</span></li>
+    <li><b>Botones</b>: los de siempre (fondo 200 ms, pulsación a 0,97, flecha que se adelanta 3 px). <b>Cuenta atrás</b>: solo cambia el texto, sin animación; al llegar a la hora, el texto cambia con un fundido. <span class="t">200 ms.</span></li>
+    <li>Nada en bucle. Con <b>movimiento reducido</b> (o el interruptor de arriba) no hay entrada, giro ni pop.</li>
+  </ul>
+
+  <h3>Piezas que se reutilizan</h3>
+  <ul>
+    <li>A: <code>.page-head</code> / <code>.page-title</code> / <code>.page-subtitle</code> y el subtítulo de la portada de JUDI; <code>.jd-today</code>, <code>.jd-today__body/meta/name/text/foot</code>, <code>.jd-today__art--empty</code> (como <code>NoTodayCard</code>) y <code>.jd-countdown</code> (como <code>TodayCard</code>).</li>
+    <li>B: <code>.jd-error</code> / <code>.jd-error__icon</code> / <code>.jd-error__acts</code> (como <code>LoadErrorCard</code>).</li>
+    <li>Las dos: <code>.hg-tint.warn</code> (texto <code>--warn-ink</code>, como <code>.alert--warn</code>), <code>.hg-chip</code>, <code>Button</code>, <code>.hg-enter</code>, <code>.hg-pop-in</code>, la fecha de Madrid de <code>NoTodayCard</code> y el formato de <code>formatHmsCountdown</code>. <code>.nav-ind</code> con <code>.hg-tint</code> neutro para «Pausa».</li>
+    <li>Nuevo y pequeño: el modificador <code>.jd-maint</code> (llave grande en su tinte, franja de 112 px en una columna y la línea «Vuelve…») y la animación <code>jd-wrench</code>. <code>judi.css</code> hoy solo lo importa <code>JudiClient</code>: <code>JudiMaintenance</code> tendría que importarlo también. Sale <code>.maint*</code> de <code>globals.css</code>.</li>
+  </ul>
+  <p class="t">Contraste: la llave y el chip usan <code>--warn-ink</code> (en claro, ámbar oscurecido con el texto; en oscuro, <code>--warning</code>), ≥ 4,5:1 sobre su tinte en los dos temas, como <code>.alert--warn</code>. El resto son textos y botones ya medidos.</p>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px · en vivo</h2>
+  <p>Con la barra lateral y JUDI activo. Cambia la forma y el indicador arriba, y el caso con los botones de debajo.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px;min-height:860px" id="f-desk"></div></div>
+  <div class="tests" id="desk-tests"><span>Caso:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-case="plain" aria-pressed="true">Sin hora (como hoy)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-case="eta" aria-pressed="false">Vuelve en unas horas (propuesta)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-case="later" aria-pressed="false">Vuelve otro día (propuesta)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-case="late" aria-pressed="false">Hora pasada (propuesta)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-case="guest" aria-pressed="false">Sin sesión</button>
+    <span>Probar:</span>
+    <button class="doc-btn doc-btn--sm" type="button" id="arrive-btn">Llegar a la hora</button>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Casos · variante A · columna (tableta o ventana estrecha)</h2>
+  <p>La tarjeta a 640 px: en una columna, la zona de la llave pasa a una franja de 112 px en vez de la proporción 16:9 de la captura (si no, sería media pantalla vacía).</p>
+  <div class="scroller"><div class="grid-frames" id="cases"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · lado a lado (y lo de hoy)</h2>
+  <p><b>A · Portada de JUDI</b>: la página se reconoce (mismo título, mismo subtítulo, la tarjeta en el sitio donde va la del día) y cuenta lo mismo que «Hoy no hay JUDI», con la misma forma. Al volver JUDI, todo sigue en su sitio. <b>B · Tarjeta centrada</b>: la de hoy, ordenada con la forma del error de carga: más compacta y más «aviso», pero se pierde el título de la página. Recomiendo <b>A</b> por coherencia con la portada de JUDI; B si prefieres que el mantenimiento se vea como algo excepcional.</p>
+  <div class="scroller"><div class="grid-frames cols3" id="variants"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Barra superior y pestañas con JUDI activo. Botones a todo el ancho y de 44 px.</p>
+  <div class="scroller"><div class="row-frames" id="mobiles"></div></div>
+</section>
+
+<section class="sec note" id="questions">
+  <h2>Preguntas para Diego</h2>
+  <ol class="qs">
+    <li><b>Forma: A (portada de JUDI) o B (tarjeta centrada).</b> Recomiendo <b>A</b>.</li>
+    <li><b>Cuándo vuelve</b> <span class="doc-tag doc-tag--new">Propuesta</span>: ¿añadimos <code>NEXT_PUBLIC_JUDI_MAINTENANCE_UNTIL</code> (opcional) para la cuenta atrás? Como las dos variables se fijan al desplegar, cambiar la hora exige volver a desplegar; si prefieres cambiarla sin desplegar, haría falta una tabla o una fila de ajustes en Supabase (más trabajo; lo dejaría fuera). Recomiendo <b>la variable opcional</b>, o nada si los mantenimientos son siempre cortos.</li>
+    <li><b>Indicador «Pausa» en la navegación</b> (y que el panel «JUDI de hoy» del Inicio diga «JUDI está en mantenimiento» en vez de invitar a jugar) <span class="doc-tag doc-tag--new">Propuesta</span>. Recomiendo <b>sí</b>; sin coste de consultas. Si no, queda «Hoy» en ámbar como ahora.</li>
+    <li><b>La racha</b>: si el mantenimiento dura un día entero, ese día no se puede jugar y la racha se corta. ¿Lo dejamos así (y no se menciona) o el día en mantenimiento no debería contar? Recomiendo <b>dejarlo así</b> en este repaso; si quieres protegerla, es un cambio aparte en el cálculo de rachas.</li>
+    <li><b>Acción secundaria con sesión: «Ver el ranking»</b>. El historial vive dentro de <code>/judi</code>, así que en mantenimiento tampoco se ve; el ranking sí. ¿Te vale o prefieres otra (por ejemplo, «Ver tus logros»)? Recomiendo <b>el ranking</b>.</li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+  clockalert: '<path d="M12 6v6l4 2"/><path d="M16 21.16a10 10 0 1 1 5-13.516"/><path d="M20 11.5v6"/><path d="M20 21.5h.01"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+
+/* ── Hora de Madrid y vuelta prevista (simulada: dentro de 1 h 42 min, redondeada a 5 min) ── */
+const TZ = 'Europe/Madrid';
+const todayLong = () => new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', timeZone: TZ }).format(new Date());
+const hhmm = (d) => new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: TZ }).format(d);
+let ETA = makeEta();
+function makeEta() { const t = Date.now() + (102 * 60 + 10) * 1000; return new Date(Math.ceil(t / 300000) * 300000); }
+function hms(ms) { const s = Math.max(0, Math.floor(ms / 1000)); return [Math.floor(s / 3600), Math.floor((s % 3600) / 60), s % 60].map((x) => String(x).padStart(2, '0')).join(':'); }
+
+const VAR = { v: 'A', ind: 'pause' };
+const FR = {};
+// Casos: plain (sin hora), eta (hoy), later (otro día), late (hora pasada), guest (sin sesión, sin hora)
+function texts(c, guest) {
+  const saved = guest ? 'Tu progreso en este dispositivo está guardado.' : 'Tus partidas y tus puntos están guardados.';
+  const base = `Estamos haciendo cambios en el juego del día. ${saved}`;
+  if (c === 'plain' || c === 'guest') return `${base} Vuelve en un rato.`;
+  if (c === 'late') return `${base} Está tardando más de lo previsto: vuelve a mirar en un rato.`;
+  return base;
+}
+function when(c, layout) {
+  if (c === 'eta') {
+    return `<div class="jd-countdown fx-target"><span class="jd-countdown__time js-eta" aria-live="off">${hms(ETA - Date.now())}</span><span class="jd-countdown__label">para que vuelva, hacia las ${hhmm(ETA)}</span></div>`;
+  }
+  if (c === 'later') return `<p class="jd-maint__when">${ic('clock')}<span>Vuelve el <b>jueves, 29 de octubre, hacia las 10:00</b></span></p>`;
+  if (c === 'late') return `<p class="jd-maint__when is-late">${ic('clockalert')}<span>Estaba previsto hacia las ${hhmm(new Date(Date.now() - 25 * 60000))}</span></p>`;
+  return '';
+}
+function actions(guest, primaryLast = false) {
+  const home = `<a href="#" class="btn btn--primary">${ic('home')}Ir a Inicio</a>`;
+  const second = guest ? `<a href="#" class="btn btn--secondary">${ic('login')}Iniciar sesión</a>` : `<a href="#" class="btn btn--secondary">${ic('trophy')}Ver el ranking</a>`;
+  return home + second;
+}
+const chip = (i) => `<span class="hg-chip hg-tint warn hg-pop-in" style="--i:${i}">${ic('wrench')}En mantenimiento</span>`;
+
+function variantA(st) {
+  const guest = st.c === 'guest';
+  const w = when(st.c, st.layout);
+  const head = st.noHead ? '' : `<header class="page-head hg-enter" style="--i:0"><div><h1 class="page-title">JUDI</h1><p class="page-subtitle">Adivina el videojuego del día con 6 capturas y 5 pistas. Cuanto antes aciertes, más puntos sumas en el ranking.</p></div></header>`;
+  const tag = st.noHead ? 'h1' : 'h2';
+  return `<div class="jd">${head}
+    <section class="jd-today jd-maint hg-enter" style="--i:1" aria-labelledby="maint-${st.id}">
+      <div class="jd-today__art jd-maint__art" aria-hidden="true"><span class="jd-maint__badge hg-tint warn">${ic('wrench', 'jd-wrench')}</span></div>
+      <div class="jd-today__body">
+        <div class="jd-today__meta"><span class="jd-today__date">${todayLong()}</span>${chip(2)}</div>
+        <${tag} class="jd-today__name" id="maint-${st.id}">JUDI está en mantenimiento</${tag}>
+        <p class="jd-today__text fx-target">${texts(st.c, guest)}</p>
+        ${st.c === 'eta' ? '' : w}
+        <div class="jd-today__foot"><div class="jd-today__acts">${actions(guest)}</div>${st.c === 'eta' ? w : ''}</div>
+      </div>
+    </section></div>`;
+}
+function variantB(st) {
+  const guest = st.c === 'guest';
+  let w = when(st.c, st.layout);
+  if (st.c === 'eta') w = `<p class="jd-maint__when fx-target">${ic('clock')}<span>Vuelve hacia las <b>${hhmm(ETA)}</b> · <b class="js-eta">${hms(ETA - Date.now())}</b></span></p>`;
+  return `<div class="maint-wrap"><section class="jd-error hg-enter" style="--i:0">
+    <span class="jd-error__icon hg-tint warn" aria-hidden="true">${ic('wrench', 'jd-wrench')}</span>
+    <h1>JUDI está en mantenimiento</h1>
+    <p class="fx-target">${texts(st.c, guest)}</p>
+    ${w}
+    <div class="jd-error__acts">${actions(guest)}</div>
+  </section></div>`;
+}
+function todayView() {
+  return `<div class="maint"><div class="maint__card"><span class="maint__icon">${ic('wrench')}</span><h1 class="maint__title">JUDI está en mantenimiento</h1>
+    <p class="maint__text">Estamos mejorando el juego del día. Vuelve en un rato.</p>
+    <div class="maint__actions"><a href="#" class="btn btn--primary">${ic('home')}Ir a Inicio</a><a href="#" class="btn btn--secondary">${ic('login')}Iniciar sesión</a></div></div></div>`;
+}
+
+/* ── Navegación ── */
+function navInd() {
+  return VAR.ind === 'pause' ? { cls: 'neutral', word: 'Pausa', icon: 'wrench' } : { cls: 'warn', word: 'Hoy', icon: 'clock' };
+}
+function sidebar(st) {
+  const ind = navInd();
+  const link = (label, icon, active = false, extra = '') => `<a href="#" class="nv-link${active ? ' active' : ''}">${ic(icon)}<span class="nv-link__label">${label}</span>${extra}</a>`;
+  const judiInd = `<span class="nav-ind hg-tint ${ind.cls}" title="${ind.word === 'Pausa' ? 'JUDI está en mantenimiento' : 'JUDI de hoy sin jugar'}">${ic(ind.icon)}${ind.word}</span>`;
+  const groups = [`<div class="nv-group">${link('Inicio', 'home')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('Biblioteca', 'library')}${link('Logros', 'award')}${link('Wishlist', 'heart')}${link('Estadísticas', 'chart')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('JUDI', 'gamepad', true, judiInd)}${link('Ranking', 'trophy')}</div>`];
+  const dark = document.documentElement.dataset.theme === 'dark';
+  const theme = `<div class="theme-toggle">${['sun', 'moon', 'monitor'].map((i, k) => `<span class="${(dark ? 1 : 0) === k ? 'on' : ''}">${ic(i)}</span>`).join('')}</div>`;
+  const account = st.c === 'guest'
+    ? `<a href="#" class="nav-cta">${ic('login')}<span>Iniciar sesión</span></a>`
+    : `<a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>diego</span><span class="nv-account__meta">Ver perfil</span></span></a>`;
+  return `<aside class="nv-side"><a href="#" class="nv-brand">${logo(22)}</a><span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span><nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}${account}</div></aside>`;
+}
+function mobileChrome(st, body) {
+  const ind = navInd();
+  const tabs = [['Inicio', 'home'], ['Biblioteca', 'library'], ['Logros', 'award'], ['JUDI', 'gamepad'], ['Ranking', 'trophy'], ['Perfil', 'user']];
+  const badge = ind.cls === 'neutral' ? `<span class="m-tab__badge neutral" title="En mantenimiento">${ic('wrench')}</span>` : `<span class="m-tab__badge warn" title="Hoy"></span>`;
+  const tabbar = tabs.map(([l, i]) => `<a href="#" class="m-tab ${l === 'JUDI' ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}${l === 'JUDI' ? badge : ''}</span><span>${l}</span></a>`).join('');
+  const right = st.c === 'guest' ? `<span class="m-icon">${ic('login')}</span>` : `<span class="m-icon"><span class="nv-avatar">D</span></span>`;
+  return `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon">${ic(document.documentElement.dataset.theme === 'dark' ? 'moon' : 'sun')}</span>${right}</div></header><div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+
+/* ── Marcos ── */
+function mk(id, layout, c, extra = {}) { FR[id] = { id, layout, c, ...extra }; }
+function view(st) {
+  if (st.today) return todayView();
+  const v = st.forceV || VAR.v;
+  return v === 'A' ? variantA(st) : variantB(st);
+}
+function renderFrame(id, anim = false) {
+  const st = FR[id]; const el = document.getElementById(id); if (!el) return;
+  el.classList.toggle('anim', anim && !rm());
+  const body = view(st);
+  if (st.layout === 'desk') el.innerHTML = `${sidebar(st)}<div class="page"><div class="page-in">${body}</div></div>`;
+  else if (st.layout === 'mob') el.innerHTML = mobileChrome(st, body);
+  else el.innerHTML = `<div class="col-frame">${body}</div>`;
+}
+function renderAll(anim = true) { Object.keys(FR).forEach((id) => renderFrame(id, anim)); }
+
+// Escritorio en vivo
+mk('f-desk', 'desk', 'plain');
+
+// Casos (A, en columna)
+const CASES = [
+  ['plain', 'Sin hora (como hoy)', 'Con sesión: «Ir a Inicio» y «Ver el ranking».'],
+  ["eta", "Vuelve en unas horas", 'Propuesta: la cuenta atrás de la tarjeta del día, en vivo, con la hora al lado.'],
+  ['later', 'Vuelve otro día (texto largo)', 'Propuesta: una línea con la fecha y la hora, sin cuenta atrás.'],
+  ['late', 'Hora pasada', 'Propuesta: sigue en mantenimiento después de la hora prevista, en vez de una cuenta atrás parada en 00:00:00.'],
+];
+document.getElementById('cases').innerHTML = CASES.map(([c, t, d], i) => `<div><div class="vlabel"><b>${i + 1}</b>${t}${c !== 'plain' ? '<span class="doc-tag doc-tag--new">Propuesta</span>' : ''}</div><div class="frame w-col" style="width:640px" id="c-${c}"></div><p class="frame-cap">${d}</p></div>`).join('');
+CASES.forEach(([c]) => mk(`c-${c}`, 'col', c, { forceV: 'A', noHead: true }));
+
+// Variantes
+const VARS = [['A', 'Portada de JUDI', true], ['B', 'Tarjeta centrada', false], ['today', 'Hoy', false]];
+document.getElementById('variants').innerHTML = VARS.map(([v, t, rec]) => `<div><div class="vlabel"><b>${v === 'today' ? '·' : v}</b>${t}${rec ? '<span class="doc-tag doc-tag--new">Recomendada</span>' : ''}</div><div class="frame w-col" style="width:460px" id="v-${v}"></div><p class="frame-cap">${v === 'A' ? 'Título y subtítulo de JUDI y la tarjeta del día en mantenimiento (como «Hoy no hay JUDI»).' : v === 'B' ? 'Forma de <code>.jd-error</code> con el tono de aviso; sin título de página.' : 'Lo de hoy: «Iniciar sesión» aunque ya hayas entrado y sin decir nada de tus partidas.'}</p></div>`).join('');
+mk('v-A', 'col', 'eta', { forceV: 'A' });
+mk('v-B', 'col', 'eta', { forceV: 'B' });
+mk('v-today', 'col', 'plain', { today: true });
+
+// Móvil
+const MOBS = [
+  ['plain', 'Con sesión, sin hora', 'Lo más habitual. La franja de la llave mide 112 px.'],
+  ['later', 'Vuelve otro día (texto largo)', 'La fecha larga parte en dos líneas; los botones, a todo el ancho.'],
+  ['guest', 'Sin sesión', '«Tu progreso en este dispositivo está guardado» e «Iniciar sesión».'],
+];
+document.getElementById('mobiles').innerHTML = MOBS.map(([c, t, d]) => `<div><div class="vlabel">${t}</div><div class="frame w-mob" style="width:390px;min-height:844px" id="m-${c}"></div><p class="frame-cap">${d}</p></div>`).join('');
+MOBS.forEach(([c]) => mk(`m-${c}`, 'mob', c));
+
+/* ── Controles ── */
+document.querySelectorAll('#desk-tests [data-case]').forEach((b) => b.addEventListener('click', () => {
+  document.querySelectorAll('#desk-tests [data-case]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  FR['f-desk'].c = b.dataset.case; ETA = makeEta();
+  renderFrame('f-desk', true);
+}));
+document.getElementById('arrive-btn').addEventListener('click', () => {
+  // Simula que llega la hora: la cuenta atrás termina y el texto pasa a «Está tardando más de lo previsto»
+  const st = FR['f-desk'];
+  document.querySelectorAll('#desk-tests [data-case]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.case === 'eta')));
+  st.c = 'eta'; ETA = new Date(Date.now() + 3200); renderFrame('f-desk');
+  setTimeout(() => {
+    st.c = 'late';
+    document.querySelectorAll('#desk-tests [data-case]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.case === 'late')));
+    renderFrame('f-desk');
+    document.querySelectorAll('#f-desk .fx-target, #f-desk .jd-maint__when').forEach((el) => el.classList.add('fx-swap'));
+  }, 3300);
+});
+document.querySelectorAll('[data-var]').forEach((b) => b.addEventListener('click', () => {
+  VAR[b.dataset.var] = b.dataset.val;
+  document.querySelectorAll(`[data-var="${b.dataset.var}"]`).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  renderAll(b.dataset.var === 'v');
+}));
+function setTheme(t) {
+  const html = document.documentElement;
+  if (!rm()) { html.classList.add('theme-anim'); setTimeout(() => html.classList.remove('theme-anim'), 320); }
+  html.dataset.theme = t;
+  const btn = document.getElementById('theme-btn'); btn.setAttribute('aria-pressed', String(t === 'dark')); btn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro';
+  renderAll(false);
+}
+document.getElementById('theme-btn').addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+document.getElementById('rm-btn').addEventListener('click', (e) => {
+  const on = document.documentElement.classList.toggle('rm');
+  e.currentTarget.setAttribute('aria-pressed', String(on));
+  e.currentTarget.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`;
+});
+document.getElementById('replay-btn').addEventListener('click', () => renderAll(true));
+
+// Cuenta atrás en vivo (cada segundo, como la tarjeta del día)
+setInterval(() => document.querySelectorAll('.js-eta').forEach((el) => { el.textContent = hms(ETA - Date.now()); }), 1000);
+
+renderAll(true);
+</script>
+</body>
+</html>
