@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Registro · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-hover: #ad1b31; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --rar-comun: #8a8f98; --rar-poco: #2e9e5b; --rar-rara: #2f6fe0; --rar-epica: #8b4fd8; --rar-leg: #c98a0b; --rar-ink: 62%;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-completado: #1a7743;
+  --st-abandonado: #c7243b; --st-favorito: #c2255c; --st-sinfinal: #6741d9;
+  --sc-top: #1a7743; --sc-good: #4d7c0f; --sc-mid: #8e5e18; --sc-bad: #c7243b;
+  --deal: #f5c400; --deal-foreground: #2b2100; --tint: 12%;
+  --on-done: #ffffff;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Texto ámbar en claro: se oscurece para llegar a 4,5:1 (como en el perfil) */
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-hover: #ff8090; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --rar-comun: #9aa0aa; --rar-poco: #4cc97e; --rar-rara: #5b93ff; --rar-epica: #b07cff; --rar-leg: #f2b53a; --rar-ink: 100%;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e; --st-favorito: #f783ac; --st-sinfinal: #b197fc;
+  --sc-top: #4cc97e; --sc-good: #a9d15b; --sc-mid: #f2b53a; --sc-bad: #f26b7e;
+  --deal: #ffd43b; --deal-foreground: #221a00; --tint: 14%;
+  --on-done: #0b1f13;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button, input { font-family: inherit; color: inherit; }
+button { cursor: pointer; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+[hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* Cambio de tema con fundido de colores (html.hg-theme-anim de la app) */
+html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after, html.theme-anim body {
+  transition: background-color .3s var(--ease-out), color .3s var(--ease-out), border-color .3s var(--ease-out), fill .3s, stroke .3s, box-shadow .3s var(--ease-out) !important;
+}
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.doc-group { display: inline-flex; align-items: center; gap: 4px; padding-right: 8px; margin-right: 4px; border-right: 1px solid var(--border); }
+.doc-group > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.doc-btn--sm { height: 32px; padding: 0 10px; font-size: .8125rem; }
+.doc-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: .71875rem; font-weight: 700; vertical-align: 2px; }
+.doc-tag--new { background: var(--primary-glow); color: var(--primary); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.note table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: .8125rem; }
+.note th, .note td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.note th { color: var(--muted); font-weight: 600; }
+.note .sw { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; vertical-align: -6px; font-size: 13px; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 110ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: clip; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 46ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.grid-frames { display: grid; grid-template-columns: repeat(2, 580px); gap: 24px; align-items: start; }
+.grid-frames.three { grid-template-columns: repeat(3, 420px); }
+.vlabel { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.875rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 7px; background: var(--surface-2); }
+.tests { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 0; }
+.tests > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+
+/* ══ Navegación sin sesión (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nav-ind { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px 0 5px; border-radius: 999px; font-size: .71875rem; font-weight: 700; }
+.nav-ind .i { font-size: 11px; }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.nav-cta-hint { margin: 0; padding: 0 .25rem; color: var(--muted); font-size: .8125rem; line-height: 1.4; }
+.nav-cta { display: flex; align-items: center; justify-content: center; gap: .5rem; height: 40px; padding: 0 1rem; border-radius: var(--radius-sm); color: var(--primary-foreground); background: var(--primary); font-size: .875rem; font-weight: 600; }
+.nav-cta .i { font-size: 16px; }
+/* Barra plegada (72 px): solo iconos */
+.nv-side.is-compact { width: 72px; align-items: center; padding-inline: .625rem; }
+.is-compact .hg-wordmark, .is-compact .nv-link__label, .is-compact .nv-group__title, .is-compact .nav-cta-hint, .is-compact .nav-cta span, .is-compact .theme-toggle, .is-compact .nav-ind { display: none; }
+.is-compact .nv-link { justify-content: center; padding: 0; width: 44px; }
+.is-compact .nav-cta { width: 44px; padding: 0; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); }
+.m-tab.active::before { content: ''; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--cursor); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.w-mid .page { margin-left: 72px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.m-page { padding: 1rem 1rem 110px; }
+
+/* ══ Piezas compartidas (copia de lists.css y globals.css) ══ */
+.st-todos { --c: var(--primary); } .st-bandeja { --c: var(--st-bandeja); } .st-pendiente { --c: var(--st-pendiente); }
+.st-jugando { --c: var(--st-jugando); } .st-completado { --c: var(--st-completado); } .st-favorito { --c: var(--st-favorito); }
+.sc-top { --c: var(--sc-top); }
+.rar-comun { --c: var(--rar-comun); } .rar-poco { --c: var(--rar-poco); } .rar-rara { --c: var(--rar-rara); } .rar-epica { --c: var(--rar-epica); } .rar-leg { --c: var(--rar-leg); }
+.ok { --c: var(--success); } .ko { --c: var(--danger); } .warn { --c: var(--warning); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.warn { color: var(--warn-ink); }
+.rar-ink { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; transition: background-color .2s var(--ease-out), border-color .15s, color .2s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active:not(:disabled) { transform: scale(.97); }
+.btn:disabled { cursor: not-allowed; opacity: .55; }
+.btn.is-busy:disabled, .btn.is-done:disabled { opacity: 1; cursor: default; }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover:not(:disabled) { background: var(--surface-2); border-color: var(--border-hover); }
+.btn--block { width: 100%; height: 44px; font-size: .9375rem; }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.btn--primary.is-done { background: var(--success); color: var(--on-done); }
+.w-mob .btn--sm { height: 44px; }
+.spin-ring { width: 15px; height: 15px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; flex: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.hg-draw path, .hg-draw polyline { stroke-dasharray: 30; animation: hg-draw .3s var(--ease-out) backwards; }
+@keyframes hg-draw { from { stroke-dashoffset: 30; } }
+.link { color: var(--primary); font-weight: 600; }
+.link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.link--sm { font-size: .8125rem; }
+
+/* Campos: transición de foco (borde y anillo cambian de color; el icono se tiñe y crece un poco) */
+.field { display: grid; gap: .375rem; }
+.field__top { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
+.field__label { font-size: .8125rem; font-weight: 600; }
+.field__control { position: relative; }
+.field__icon { position: absolute; left: 12px; top: 50%; display: grid; font-size: 16px; color: var(--muted); pointer-events: none; transform: translateY(-50%); transition: color .18s var(--ease-out), transform .18s var(--ease-out); }
+.hg-input { width: 100%; min-width: 0; height: 42px; padding: 0 .875rem 0 2.4rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: .9375rem; outline: none; box-shadow: 0 0 0 3px transparent; transition: border-color .18s var(--ease-out), box-shadow .18s var(--ease-out), background-color .18s; text-overflow: ellipsis; }
+.w-mob .hg-input { height: 44px; }
+.hg-input::placeholder { color: var(--muted); }
+.hg-input:hover:not(:disabled) { border-color: var(--border-hover); }
+.hg-input:focus, .field.is-focus .hg-input { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+.field__control:focus-within .field__icon, .field.is-focus .field__icon { color: var(--primary); transform: translateY(-50%) scale(1.08); }
+.hg-input:disabled { background: var(--surface-2); color: var(--muted); cursor: not-allowed; }
+.hg-input.has-toggle { padding-right: 2.75rem; }
+.field__toggle { position: absolute; right: 4px; top: 50%; display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 6px; background: none; color: var(--muted); font-size: 16px; transform: translateY(-50%); transition: color .15s, background-color .15s; }
+.field__toggle:hover { color: var(--foreground); background: var(--surface-2); }
+.field__toggle::before { content: ''; position: absolute; inset: -5px; }
+.w-mob .field__toggle { right: 2px; width: 40px; height: 40px; }
+.field__toggle .i { transition: transform .2s var(--ease-out); }
+.field__toggle[aria-pressed='true'] { color: var(--primary); }
+.field__toggle.is-flip .i { animation: eye-flip .22s var(--ease-out); }
+@keyframes eye-flip { 50% { transform: scaleY(.2); } }
+/* Campo con error: borde, icono y anillo en --danger (con el aviso al lado: nunca solo color) */
+.field.is-bad .hg-input { border-color: var(--danger); }
+.field.is-bad .hg-input:focus, .field.is-bad.is-focus .hg-input { box-shadow: 0 0 0 3px var(--danger-glow); }
+.field.is-bad .field__icon { color: var(--danger); }
+.divider-text { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .8125rem; }
+.divider-text::before, .divider-text::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* Avisos: icono + texto, en su tinte */
+.alert { display: flex; align-items: flex-start; gap: .625rem; margin: 0; padding: .625rem .875rem; border-radius: var(--radius-sm); font-size: .875rem; font-weight: 500; }
+.alert > .i { margin-top: 2px; font-size: 16px; }
+.alert p { margin: 0; }
+.alert__body { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.alert__sub { color: var(--foreground); font-weight: 400; font-size: .8125rem; }
+.alert__sub b { font-weight: 600; }
+.alert__act { justify-self: start; margin-top: 4px; }
+.alert--error { color: var(--danger); background: var(--danger-glow); }
+.alert--ok { color: var(--success); background: var(--success-glow); }
+.alert--warn { color: var(--warn-ink); background: color-mix(in srgb, var(--warning) var(--tint), transparent); }
+.alert__act.btn { height: 30px; padding: 0 10px; font-size: .8125rem; color: inherit; background: var(--surface); border-color: color-mix(in srgb, currentColor 35%, var(--border)); }
+.w-mob .alert__act.btn { height: 40px; }
+.au-hint { display: flex; align-items: center; gap: 6px; margin: -2px 0 0; color: var(--warn-ink); font-size: .8125rem; font-weight: 600; }
+.au-hint .i { font-size: 14px; }
+
+/* Filas de biblioteca, chips, puntuaciones, precio, logros (lists.css) */
+.hg-rows { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.hg-row { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: center; gap: .875rem; min-height: 64px; padding: 8px 12px 8px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.hg-row.lib-row::before { content: ''; position: absolute; inset: -1px auto -1px -1px; width: 4px; border-radius: var(--radius) 0 0 var(--radius); background: var(--c); transition: background-color .25s var(--ease-out); }
+.hg-row__cover { position: relative; display: block; width: 112px; height: 52px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.hg-row__cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hg-row.is-unowned .hg-row__cover { outline: 1px dashed var(--st-pendiente); outline-offset: -1px; }
+.hg-row.is-unowned .hg-row__cover img { filter: saturate(.35); opacity: .85; }
+.hg-row__main { display: grid; gap: 3px; min-width: 0; }
+.hg-row__name { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.hg-row__link { overflow: hidden; color: var(--foreground); font-weight: 600; font-size: .875rem; text-overflow: ellipsis; white-space: nowrap; }
+.hg-row__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; color: var(--muted); font-size: 0.78125rem; min-width: 0; }
+.lib-meta { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.lib-meta .i { font-size: 12px; }
+.hg-bar { position: relative; display: block; height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.hg-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--primary); transform-origin: left; }
+.hg-bar.is-done > span { background: var(--success); }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; justify-self: end; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; transition: background-color .25s, color .25s; }
+.hg-chip .i { font-size: 12px; }
+.hg-flag { display: inline-grid; flex: none; place-items: center; width: 18px; height: 18px; border-radius: 5px; font-size: 11px; }
+.hg-score { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 24px; height: 19px; padding: 0 5px; border-radius: 6px; font-size: 0.71875rem; font-weight: 700; }
+.hg-score .i { font-size: 10px; }
+.hg-deal { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 6px; background: var(--deal); color: var(--deal-foreground); font-size: 0.71875rem; font-weight: 700; white-space: nowrap; }
+.hg-deal .i { font-size: 12px; }
+.lib-own--no { display: inline-flex; align-items: center; gap: 4px; padding: 0 6px; border-radius: 5px; color: var(--st-pendiente); outline: 1px dashed var(--st-pendiente); outline-offset: -1px; font-size: 0.6875rem; font-weight: 700; line-height: 1.6; white-space: nowrap; }
+.lib-own--no .i { font-size: 10px; }
+.hg-keyhint { color: var(--muted); font-size: 0.75rem; white-space: nowrap; }
+.hg-achs { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.hg-ach { --c: var(--muted); position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: .7rem; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: inset 3px 0 0 var(--c); overflow: hidden; transition: box-shadow .3s; }
+.hg-ach__icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--c) 16%, transparent); color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: 16px; transition: background-color .3s, color .3s; }
+.hg-ach__body { display: grid; min-width: 0; }
+.hg-ach__name { overflow: hidden; font-size: 0.8125rem; font-weight: 600; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.hg-ach__game { overflow: hidden; color: var(--muted); font-size: 0.75rem; text-overflow: ellipsis; white-space: nowrap; }
+.hg-ach__pct { display: grid; justify-items: end; font-size: 0.78125rem; font-weight: 600; white-space: nowrap; }
+.hg-ach__pct small { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: 0.6875rem; font-weight: 600; }
+.hg-ach.rar-epica { --c: var(--rar-epica); } .hg-ach.rar-leg { --c: var(--rar-leg); }
+.hg-ach.is-locked { --c: var(--border-hover); }
+.hg-ach.is-locked .hg-ach__icon { background: var(--surface-2); color: var(--muted); }
+.hg-ach.is-locked .hg-ach__name { color: var(--muted); }
+.mini-pill { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px 0 3px; border: 1px solid var(--border); border-radius: 999px; background: var(--background); font-size: .75rem; font-weight: 500; white-space: nowrap; }
+.mini-pill.st-bandeja { border-style: dashed; border-color: color-mix(in srgb, var(--c) 55%, transparent); }
+.mini-pill b { display: inline-block; font-weight: 700; color: color-mix(in srgb, var(--c) 85%, var(--foreground)); }
+.dash-list__icon { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 999px; font-size: 11px; }
+.rar-stack { display: flex; gap: 2px; height: 8px; border-radius: 999px; overflow: hidden; }
+.rar-stack span { background: var(--c); transition: flex-grow .45s var(--ease-out); }
+.rar-legend { display: flex; flex-wrap: wrap; gap: 2px 10px; margin: 0; padding: 0; list-style: none; color: var(--muted); font-size: .71875rem; }
+.rar-legend li { display: inline-flex; align-items: center; gap: 5px; }
+.rar-legend li::before { content: ''; width: 8px; height: 8px; border-radius: 2px; background: var(--c); }
+.verdict { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin: 0; padding: 8px 10px; border-radius: var(--radius); background: var(--deal); color: var(--deal-foreground); font-size: .78125rem; font-weight: 700; }
+.verdict .i { font-size: 15px; }
+.verdict span { font-weight: 500; }
+.verdict .verdict__price { margin-left: auto; font-size: .9375rem; font-weight: 700; }
+
+/* ══ AuthShell ══ */
+.auth { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 640px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--surface); overflow: hidden; }
+.auth__brand { display: flex; flex-direction: column; gap: 1.5rem; min-width: 0; padding: 2.25rem; background: var(--background); border-right: 1px solid var(--border); }
+.w-mid .auth__brand { padding: 1.75rem; gap: 1.25rem; }
+.auth__pitch { display: grid; gap: .5rem; }
+.auth__tagline { margin: 0; font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; max-width: 20ch; }
+.w-mid .auth__tagline { font-size: 1.375rem; }
+.auth__tagline-sub { margin: 0; color: var(--muted); font-size: .9375rem; max-width: 42ch; }
+.w-mid .auth__tagline-sub { font-size: .875rem; }
+.auth__preview { display: grid; gap: .75rem; margin-top: auto; pointer-events: none; user-select: none; }
+.auth__form-wrap { display: flex; align-items: center; justify-content: center; padding: 2.5rem 2rem; min-width: 0; }
+.w-mid .auth__form-wrap { padding: 2rem 1.75rem; }
+.au-form { width: 100%; max-width: 380px; display: grid; gap: 1.25rem; }
+.au-head h1 { margin: 0; font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+.au-head p { margin: .25rem 0 0; color: var(--muted); font-size: .9375rem; }
+.w-mob .au-head h1 { font-size: 1.5rem; }
+.au-fields { display: grid; gap: 1rem; }
+.au-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.au-msg:empty { display: none; }
+.au-switch { margin: .25rem 0 0; text-align: center; font-size: .875rem; color: var(--muted); }
+.au-submit__lbl { display: inline-flex; align-items: center; gap: 8px; }
+.au-submit .i-go { transition: transform .16s var(--ease-out); }
+.au-submit:hover:not(:disabled) .i-go { transform: translateX(3px); }
+.au-google .g { width: 16px; height: 16px; flex: none; }
+
+/* Vista previa A · ventana de biblioteca (la de la portada, más estrecha) */
+.au-win { display: grid; gap: .625rem; padding: .875rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.au-win__head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.au-win__head b { font-size: .9375rem; }
+.au-rail { display: flex; flex-wrap: wrap; gap: 6px; }
+.au-win .hg-row, .au-peek .hg-row { grid-template-columns: 88px minmax(0, 1fr) auto; background: var(--background); gap: .75rem; padding: 7px 10px 7px 12px; min-height: 0; }
+.au-win .hg-row__cover, .au-peek .hg-row__cover { width: 88px; height: 41px; }
+.w-mid .au-win .hg-row { grid-template-columns: 64px minmax(0, 1fr) auto; gap: .625rem; }
+.w-mid .au-win .hg-row__cover { width: 64px; height: 30px; }
+.w-mid .au-rail .mini-pill:nth-child(4) { display: none; }
+.au-prog { display: flex; align-items: center; gap: 8px; margin-top: 2px; color: var(--muted); font-size: .71875rem; }
+.au-prog .hg-bar { flex: 1; max-width: 140px; height: 5px; }
+.au-prog b { color: var(--foreground); font-weight: 600; }
+.au-prog .is-full { color: var(--success); font-weight: 700; }
+.au-price { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 2px; font-size: .78125rem; }
+.au-price b { font-size: .8125rem; }
+
+/* Vista previa B · tres pruebas */
+.au-cards { display: grid; gap: .625rem; }
+.au-card { display: grid; gap: .625rem; padding: .875rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.au-card__head { display: flex; align-items: center; gap: .625rem; }
+.au-card__head .sec-icon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; font-size: 14px; flex: none; }
+.au-card__head b { font-size: .875rem; }
+.au-card__head span:last-child { margin-left: auto; color: var(--muted); font-size: .75rem; }
+.au-ficha { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: .75rem; align-items: center; }
+.w-mid .au-ficha { grid-template-columns: 76px minmax(0, 1fr); }
+.au-ficha__img { aspect-ratio: 460 / 215; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.au-ficha__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.au-ficha__txt { display: grid; gap: 4px; min-width: 0; font-size: .78125rem; color: var(--muted); }
+.au-ficha__txt > b { color: var(--foreground); font-size: .875rem; }
+.au-ficha__txt > span { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+/* Móvil: el formulario en su tarjeta; la vista previa reducida, debajo */
+.au-mcard { padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.au-mcard .au-form { max-width: none; }
+.au-peek { display: grid; grid-template-columns: minmax(0, 1fr); gap: .625rem; margin-top: 1.25rem; padding: 0 .25rem; pointer-events: none; user-select: none; }
+.au-peek__t { margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
+.au-peek__s { margin: -4px 0 0; color: var(--muted); font-size: .8125rem; }
+.au-peek .au-rail { flex-wrap: nowrap; overflow: hidden; }
+.au-tagline-only { margin: 1.25rem .25rem 0; color: var(--muted); font-size: .8125rem; text-align: center; }
+
+/* Teclado simulado (solo para el marco) */
+.kb { position: absolute; inset: auto 0 0 0; z-index: 8; height: 290px; padding: 8px 4px 30px; background: var(--surface-3); display: grid; grid-template-rows: 36px repeat(4, 1fr); gap: 9px; }
+.kb__bar { display: flex; align-items: center; justify-content: center; gap: 24px; color: var(--muted); font-size: .8125rem; font-weight: 600; }
+.kb__row { display: flex; gap: 5px; justify-content: center; }
+.kb__row i { flex: 1; max-width: 33px; border-radius: 5px; background: var(--surface); box-shadow: 0 1px 0 var(--border-hover); }
+.kb__row i.w { max-width: 60px; } .kb__row i.sp { max-width: 180px; } .kb__row i.go { max-width: 80px; background: var(--primary); }
+
+/* ══ Microanimaciones ══ */
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes count-pop { 40% { transform: scale(1.18); } }
+@keyframes bar-fill { from { transform: scaleX(0); } }
+@keyframes deal-flash { 0% { box-shadow: 0 0 0 0 var(--deal); } 40% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--deal) 50%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
+@keyframes shake { 20% { transform: translateX(-6px); } 45% { transform: translateX(5px); } 70% { transform: translateX(-3px); } 90% { transform: translateX(1px); } }
+@keyframes msg-in { from { opacity: 0; transform: translateY(-4px); } }
+@keyframes msg-out { to { opacity: 0; transform: translateY(-4px); } }
+@keyframes lbl-in { from { opacity: 0; transform: translateY(5px); } }
+@keyframes form-out { to { opacity: 0; transform: translateY(4px); } }
+/* Entrada con intención: .hg-enter (30 ms entre elementos, solo los 8 primeros) */
+.anim .hg-enter { animation: in-up .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+.anim .hg-bar--fill > span { animation: bar-fill .45s var(--ease-out) backwards; animation-delay: .25s; }
+.pop { animation: count-pop .3s var(--ease-out); }
+.flash-deal { animation: count-pop .3s var(--ease-out), deal-flash .7s var(--ease-out); }
+.au-shake { animation: shake .32s var(--ease-out); }
+.au-msg > .alert { animation: msg-in .2s var(--ease-out); }
+.au-msg > .alert.is-out { animation: msg-out .16s ease-in forwards; }
+.lbl-in { animation: lbl-in .18s var(--ease-out); }
+.is-form-out { animation: form-out .12s ease-in forwards; }
+.is-form-in { animation: in-up .22s var(--ease-out); }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+html.rm .spin-ring { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+  .spin-ring { animation: none !important; }
+}
+.anim-list li { margin: 3px 0; }
+.qs li { margin: 8px 0; }
+/* ══ Registro: pistas bajo los campos y requisitos de la contraseña ══ */
+.field__hint-row { min-height: 18px; margin: -2px 0 0; }
+.field__hint-row:empty { display: none; }
+.hint { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: .78125rem; font-weight: 500; animation: fade-in .18s var(--ease-out); overflow-wrap: anywhere; }
+.hint .i { font-size: 13px; flex: none; }
+.hint .spin-ring { width: 12px; height: 12px; border-width: 1.5px; }
+.hint.is-ok { color: var(--success); }
+.hint.is-bad { color: var(--danger); }
+.hint b { font-weight: 600; }
+/* Nombre libre: el icono del campo se tiñe de verde (con la pista al lado) */
+.field.is-ok .field__icon { color: var(--success); }
+.field.is-ok .hg-input:not(:focus) { border-color: color-mix(in srgb, var(--success) 55%, var(--border)); }
+
+/* Requisitos (los del perfil, .pf-rules): el punto se rellena de verde con un check que se dibuja y un pop */
+.rules { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: -2px 0 0; padding: 0; color: var(--muted); font-size: .78125rem; font-weight: 500; list-style: none; }
+.rules li { display: inline-flex; align-items: center; gap: 5px; transition: color .2s; }
+.rules__dot { display: grid; place-items: center; width: 14px; height: 14px; border: 1.5px solid currentColor; border-radius: 50%; transition: background-color .2s, border-color .2s; }
+.rules__dot .i { font-size: 9px; stroke-width: 3; opacity: 0; }
+.rules li.is-ok { color: var(--success); }
+.rules li.is-ok .rules__dot { border-color: var(--success); background: var(--success); color: var(--on-done); animation: count-pop .3s var(--ease-out); }
+.rules li.is-ok .rules__dot .i { opacity: 1; }
+.rules li.is-ok .rules__dot path { stroke-dasharray: 30; animation: hg-draw .3s var(--ease-out) backwards; }
+.rules li.is-bad { color: var(--danger); }
+.field.is-ok-pass .field__icon { color: var(--success); }
+.alert__act.btn { text-decoration: none; }
+.w-mob .au-mcard .au-form { gap: 1.1rem; }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Registro</h1>
+  <div class="doc-bar__actions">
+    <div class="doc-group" role="group" aria-label="Variante de la contraseña"><span>Contraseña</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="pass" data-val="A" aria-pressed="true">A · Dos campos (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="pass" data-val="B" aria-pressed="false">B · Uno con ojo</button>
+    </div>
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p><b>Hoy</b> el registro ya está en el marco nuevo (lateral «en acción», <code>FormError</code>, sacudida), pero el formulario no dice nada hasta que pulsas «Crear cuenta»: entonces enseña <b>un solo error cada vez</b>, en un orden raro (las contraseñas que no coinciden antes que la longitud), con textos como «Por favor ingresa un email válido» o «El username debe…», y los errores de Supabase salen <b>en inglés</b> tal cual (<code>signUpError.message</code> y el <code>err.message</code> del <code>catch (err: any)</code>). Al crear la cuenta, el botón dice «Creando cuenta...» y la página cambia sin más.</p>
+  <ul>
+    <li><b>Cada campo se valida con color, icono y texto mientras escribes</b>, como en el perfil:
+      <ul>
+        <li><b>Nombre de usuario</b>: «Comprobando…» con spinner y, 400 ms después de dejar de escribir, «laura_g ya está en uso» en rojo o «laurita está libre» en verde (con un check que se dibuja y el icono del campo en verde), con <code>hubgames_username_available</code>, la misma RPC y el mismo <code>usernameIssue</code> / <code>USERNAME_MIN</code> (3) del perfil. En reposo, «Es el nombre que sale en el ranking».</li>
+        <li><b>Email</b>: el formato se comprueba al salir del campo (no a la primera letra); si está mal, «Revisa el email: falta algo como nombre@dominio.es». Si ya hay una cuenta, lo dice el servidor al enviar.</li>
+        <li><b>Contraseña</b>: los requisitos del perfil (<code>passwordRules</code>) debajo de los campos, que se van marcando en verde: «Mínimo 6 caracteres» y «Coinciden» («No coinciden» en rojo solo cuando ya has escrito tanto como la contraseña). Sin reglas nuevas: 6 es el mínimo por defecto de Supabase y el que pide el perfil (la configuración de Auth del proyecto no está en el repositorio: confírmalo, pregunta 2).</li>
+      </ul>
+    </li>
+    <li><b>Al enviar con algo mal</b>: se marcan <b>todos</b> los campos con problema a la vez (no uno cada vez), el formulario tiembla, el foco va al primero y el aviso dice cuál falta si es uno («Te falta el email.») o «Revisa los campos marcados.» si son varios; la pista de cada campo explica el suyo.</li>
+    <li><b>Errores del servidor en español, con tono</b> (tabla abajo), reutilizando <code>auth-messages.ts</code> (sin conexión y demasiados intentos son los del login). «Ya hay una cuenta con este email» marca el email y ofrece <b>«Iniciar sesión»</b>.</li>
+    <li><b>Éxito</b>: «Crear cuenta» → «Creando cuenta…» → verde con check «Cuenta creada» y «Ya estás dentro, laurita. Abriendo tu Inicio para conectar Steam…» (sin género). La confirmación por email está desactivada: <code>signUp</code> devuelve la sesión y se entra directo al Inicio, que enseña «Conecta tu cuenta de Steam».</li>
+    <li><b>Contraseña con <code>PasswordField</code></b> (el del login): ojo para verla y aviso de Bloq Mayús. Los dos campos van uno encima del otro (hoy, en dos columnas, no caben con el ojo).</li>
+  </ul>
+
+  <h3>Mensajes: los de hoy y los propuestos</h3>
+  <table>
+    <thead><tr><th>Caso</th><th>Hoy</th><th>Propuesta</th><th>Tono e icono</th></tr></thead>
+    <tbody>
+      <tr><td>Campos vacíos</td><td>«Por favor completa todos los campos»</td><td>Los vacíos en rojo; «Te falta el nombre de usuario.» / «…el email.» / «…la contraseña.» / «Repite la contraseña para confirmarla.» o, si son varios, «Revisa los campos marcados.»</td><td><span class="sw hg-tint ko">!</span> <code>--danger</code></td></tr>
+      <tr><td>Nombre corto</td><td>«El username debe tener al menos 3 caracteres» (al enviar)</td><td>Pista «Al menos 3 caracteres» mientras escribes (gris; roja si envías)</td><td>gris → <span class="sw hg-tint ko">×</span></td></tr>
+      <tr><td>Nombre en uso</td><td>«Este username ya está en uso» (al enviar)</td><td>«laura_g ya está en uso» mientras escribes; al enviar, «laura_g ya está en uso. Prueba con otro.»</td><td><span class="sw hg-tint ko">×</span> <code>--danger</code></td></tr>
+      <tr><td>Nombre libre</td><td>—</td><td>«laurita está libre»</td><td><span class="sw hg-tint ok">✓</span> <code>--success</code></td></tr>
+      <tr><td>Email con mal formato</td><td>«Por favor ingresa un email válido» (al enviar, después de las contraseñas)</td><td>Pista al salir del campo; al enviar, «Revisa el email: no parece válido.»</td><td><span class="sw hg-tint ko">×</span></td></tr>
+      <tr><td>Contraseña corta / no coinciden</td><td>«La contraseña debe tener al menos 6 caracteres» / «Las contraseñas no coinciden»</td><td>Requisitos en vivo; al enviar, el requisito en rojo y «La contraseña necesita al menos 6 caracteres.» / «Las contraseñas no coinciden.»</td><td><span class="sw hg-tint ok">●</span> → <span class="sw hg-tint ko">●</span></td></tr>
+      <tr><td>Email ya registrado (<code>user_already_exists</code> / <code>email_exists</code>, 422; o <code>identities</code> vacío)</td><td>«Este email ya está registrado»</td><td>«Ya hay una cuenta con este email.» + «laura@… ya tiene cuenta en HubGames. ¿Es tuya? Entra con ella.» y botón «Iniciar sesión»; el email en rojo</td><td><span class="sw hg-tint ko">!</span></td></tr>
+      <tr><td>Contraseña débil (<code>AuthWeakPasswordError</code>, <code>weak_password</code> con <code>reasons</code>)</td><td>el texto en inglés de Supabase</td><td>«La contraseña no vale.» + el motivo: <code>length</code> «Necesita al menos N caracteres», <code>characters</code> «Mezcla letras, números y símbolos», <code>pwned</code> «Aparece en filtraciones conocidas: elige otra». Hoy solo puede llegar si cambia la configuración de Supabase</td><td><span class="sw hg-tint ko">!</span></td></tr>
+      <tr><td>Email que Supabase no acepta (<code>email_address_invalid</code>, <code>validation_failed</code>)</td><td>en inglés</td><td>«Ese email no es válido.» y el email en rojo</td><td><span class="sw hg-tint ko">!</span></td></tr>
+      <tr><td>Sin conexión (<code>AuthRetryableFetchError</code>, estado 0)</td><td>«Failed to fetch» (en inglés)</td><td>«Sin conexión. Comprueba tu red y vuelve a probar.» (el del login)</td><td><span class="sw hg-tint ko">!</span> wifi tachado</td></tr>
+      <tr><td>Demasiados intentos (429, <code>over_*_rate_limit</code>)</td><td>en inglés</td><td>«Demasiados intentos. Espera un minuto y vuelve a probar.» (el del login)</td><td><span class="sw hg-tint warn">◷</span> <code>--warning</code></td></tr>
+      <tr><td>Cualquier otro</td><td><code>signUpError.message</code> o «Error al crear la cuenta»</td><td>«No se pudo crear la cuenta. Inténtalo de nuevo.»</td><td><span class="sw hg-tint ko">!</span></td></tr>
+      <tr><td>Google no arranca</td><td>«Error al registrarse con Google»</td><td>«No se pudo abrir Google. Inténtalo de nuevo.» (el del login) y spinner «Abriendo Google…»</td><td><span class="sw hg-tint ko">!</span></td></tr>
+      <tr><td>Cuenta creada</td><td>«Creando cuenta...» hasta que cambia la página</td><td>Botón verde «Cuenta creada» y «Ya estás dentro, laurita. Abriendo tu Inicio para conectar Steam…»</td><td><span class="sw hg-tint ok">✓</span></td></tr>
+    </tbody>
+  </table>
+  <p class="t">Sin tokens nuevos. Si la RPC del nombre falla, se deja seguir (como en el perfil). El email y el nombre se envían recortados (hoy no).</p>
+
+  <h3>Microanimaciones (pruébalas en los marcos en vivo)</h3>
+  <ul class="anim-list">
+    <li><b>Requisitos que se van marcando</b>: el punto se rellena de verde con un pop y el check se dibuja; si se deja de cumplir, vuelve a gris; en rojo al enviar sin cumplirlo. <span class="t">pop 300 ms, trazo 300 ms, color 200 ms.</span></li>
+    <li><b>Nombre</b>: spinner «Comprobando…», y la pista cambia con un fundido a libre (check que se dibuja, icono del campo en verde) o en uso (rojo). <span class="t">fundido 180 ms; consulta tras 400 ms sin teclear.</span></li>
+    <li><b>Error al enviar</b>: el formulario tiembla, los campos se ponen en rojo y el aviso baja con un fundido; se desmarcan al corregirlos. <span class="t">320 ms; aviso 200 / 160 ms.</span></li>
+    <li><b>Botón</b>: «Crear cuenta» → spinner «Creando cuenta…» → verde con check «Cuenta creada» (<code>SaveButton</code>). <span class="t">180 ms el texto; trazo 300 ms.</span></li>
+    <li><b>Login ↔ Registro</b>: ya hecho por el layout de <code>(auth)</code>; el lateral se queda y solo entra el formulario. El lateral de este mockup es el del login (se anima al cargar).</li>
+    <li>Con <b>movimiento reducido</b>, nada se mueve: los requisitos cambian de color sin pop.</li>
+  </ul>
+
+  <h3>Piezas que se reutilizan</h3>
+  <ul>
+    <li><code>AuthShell</code>, <code>AuthForm</code>, <code>FormError</code>, <code>PasswordField</code>, <code>useShake</code>, <code>SaveButton</code> (login).</li>
+    <li>Del perfil: <code>usernameIssue</code>, <code>USERNAME_MIN</code>, <code>passwordRules</code> (<code>src/lib/profile.ts</code>), la comprobación con espera de 400 ms y número de secuencia, y los estilos de <code>.pf-hint</code> y <code>.pf-rules</code>, que propongo mover a <code>globals.css</code> como <code>.field__status</code> y <code>.field-rules</code> para que los usen los dos.</li>
+    <li>De <code>auth-messages.ts</code>: <code>OFFLINE_MESSAGE</code>, <code>RATE_LIMIT_MESSAGE</code>, <code>OAUTH_START_MESSAGE</code>, <code>isNetworkError</code>, <code>isRateLimited</code>; se añade <code>signUpErrorMessage</code> (y los mensajes de campos del registro) con tests.</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px · en vivo</h2>
+  <p>Escribe: «laura_g», «pablo.r» y «diego» están en uso; cualquier otro nombre de 3 o más está libre. El email <b>ya@registrado.es</b> ya tiene cuenta; empieza el email por <b>sinred</b> o <b>muchos</b> para los otros errores. O usa los atajos de debajo. Cambia la variante de contraseña arriba.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px;height:900px" id="f-desk"></div></div>
+  <div class="tests" data-tests="f-desk"><span>Probar:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="ok">Crear bien</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="empty">Enviar vacío</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="taken">Nombre en uso</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="exists">Email ya registrado</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="weak">Contraseña débil (servidor)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="offline">Sin conexión</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="rate">Demasiados intentos</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="reset">Reiniciar</button>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Contraseña · A y B lado a lado</h2>
+  <p><b>A · Dos campos</b>: contraseña y confirmación, cada una con su ojo, y los dos requisitos. <b>B · Uno con ojo</b>: un solo campo; el ojo sustituye a la confirmación y solo queda «Mínimo 6 caracteres». B es más corto, pero recomiendo <b>A</b>: hoy no hay forma de recuperar la contraseña («¿Has olvidado la contraseña?» va en otro PR), así que una errata al crearla te deja fuera de la cuenta; la confirmación lo evita. Cuando exista la recuperación, B pasa a ser buena opción.</p>
+  <div class="scroller"><div class="grid-frames" id="pass-compare"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Estados del formulario</h2>
+  <p>Solo la columna del formulario (igual en escritorio y móvil), con la variante A.</p>
+  <div class="scroller"><div class="grid-frames three" id="states"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>El formulario en su tarjeta y la vista previa reducida debajo (lo aprobado en el login). En la barra inferior no hay pestaña activa (el registro no es una de ellas).</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px;height:844px" id="f-mob"></div><p class="frame-cap">En vivo.</p></div>
+    <div><div class="frame w-mob" style="width:390px;height:844px" id="f-mob-kb"></div><p class="frame-cap"><b>Con el teclado abierto</b>, confirmando la contraseña: la página sube para que se vean el campo, los requisitos (uno ya en verde) y «Crear cuenta». Nombre con <code>autocapitalize="none"</code> y <code>spellcheck</code> apagado; email con <code>inputmode="email"</code>; la confirmación con <code>enterkeyhint="go"</code>.</p></div>
+    <div><div class="frame w-mob" style="width:390px;height:844px" id="f-mob-err"></div><p class="frame-cap"><b>Nombre y email largos, email ya registrado</b>: el aviso parte el texto sin desbordar y ofrece «Iniciar sesión».</p></div>
+  </div></div>
+</section>
+
+<section class="sec note" id="questions">
+  <h2>Preguntas</h2>
+  <ol class="qs">
+    <li><b>Contraseña A (dos campos) o B (uno con ojo).</b> Recomiendo <b>A</b> mientras no haya recuperación de contraseña.</li>
+    <li><b>Mínimo de 6 caracteres.</b> Es el mínimo por defecto de Supabase y el del perfil, pero no he podido leer la configuración de Auth del proyecto (Authentication → Providers → Email → «Minimum password length» y «Password requirements»). ¿Sigue en 6 y sin requisitos de caracteres? ¿Lo subimos (por ejemplo a 8, en Supabase y en los dos sitios a la vez)? Recomiendo <b>dejarlo en 6</b> en este PR; si lo subes en Supabase, el aviso de «contraseña débil» ya sabe decir el nuevo mínimo.</li>
+    <li><b>«Iniciar sesión» desde «Ya hay una cuenta con este email»</b>: ¿llevamos el email escrito al login (<code>/login?email=…</code>, <span class="doc-tag doc-tag--new">Propuesta</span>, solo cliente)? Recomiendo <b>sí</b>.</li>
+    <li><b>Nombre de usuario sin restricciones de caracteres</b> (hoy acepta espacios, emojis…; solo se exige 3 y que esté libre, sin distinguir mayúsculas). ¿Lo dejamos así? Recomiendo <b>sí en este PR</b>; si quieres limitarlo (letras, números, «.», «_» y «-», máximo 24), sería una regla nueva en cliente y en el perfil, y convendría también en la base de datos.</li>
+    <li><b>Dos personas con el mismo nombre a la vez</b>: no hay restricción única en <code>hubgames_usuarios.username</code>; la RPC lo comprueba antes, pero si dos se registran a la vez con el mismo nombre, entran los dos. ¿Lo dejamos (es raro) o añadimos un índice único sin distinguir mayúsculas en otro PR? Recomiendo <b>dejarlo para otro PR</b> (necesita migración y revisar si ya hay repetidos).</li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  hourglass: '<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
+  cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+  trenddown: '<polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>',
+  tag: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+  thumbs: '<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+  eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+  eyeoff: '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+  arrowr: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  checkc: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+  alertc: '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+  wifioff: '<path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/>',
+  caps: '<path d="M9 18v-6H5l7-7 7 7h-4v6H9z"/>',
+  send: '<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.112z"/><path d="m21.854 2.147-10.94 10.939"/>',
+  userround: '<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',
+  userplus: '<path d="M2 21a8 8 0 0 1 13.292-6"/><circle cx="10" cy="8" r="5"/><path d="M19 16v6"/><path d="M22 19h-6"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const GOOGLE = `<svg class="g" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>`;
+const IMG = (id) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`;
+const rm = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const VAR = { side: 'A', mob: 'A' };
+const THEME = { pref: 'light' };
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+function sidebar(compact) {
+  const link = (label, icon, ind = '') => `<a href="#" class="nv-link" title="${label}">${ic(icon)}<span class="nv-link__label">${label}</span>${ind}</a>`;
+  const theme = `<div class="theme-toggle">${['light', 'dark', 'system'].map((v, i) => `<span class="${v === THEME.pref ? 'on' : ''}">${ic(['sun', 'moon', 'monitor'][i])}</span>`).join('')}</div>`;
+  return `<aside class="nv-side ${compact ? 'is-compact' : ''}"><a href="#" class="nv-brand">${logo(22)}</a><nav class="nv-menu"><div class="nv-group">${link('Inicio', 'home')}</div><div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('JUDI', 'gamepad', `<span class="nav-ind hg-tint warn">${ic('clock')}Hoy</span>`)}${link('Ranking', 'trophy')}</div></nav><div class="nv-foot">${theme}<p class="nav-cta-hint">Entra para tener tu biblioteca de Steam y tus logros.</p><a href="#" class="nav-cta" title="Entrar">${ic('login')}<span>Entrar</span></a></div></aside>`;
+}
+function mobileChrome(body, kb = false) {
+  const tabs = [['Inicio', 'home'], ['JUDI', 'gamepad'], ['Ranking', 'trophy'], ['Entrar', 'login']];
+  const thIcon = THEME.pref === 'dark' ? 'moon' : 'sun';
+  return `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><span class="m-icon">${ic(thIcon)}</span></header><div class="m-page">${body}</div>${kb ? keyboard() : `<nav class="m-tabbar">${tabs.map(([l, i]) => `<a href="#" class="m-tab ${l === 'Entrar' ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}</span><span>${l}</span></a>`).join('')}</nav>`}`;
+}
+function keyboard() {
+  const row = (n, extra = '') => `<div class="kb__row">${extra}${'<i></i>'.repeat(n)}</div>`;
+  return `<div class="kb" aria-hidden="true"><div class="kb__bar"><span>Contraseñas</span><span>·</span><span>Usar contraseña segura</span></div>${row(10)}${row(9)}<div class="kb__row"><i class="w"></i>${'<i></i>'.repeat(7)}<i class="w"></i></div><div class="kb__row"><i class="w"></i><i class="sp"></i><i class="go"></i></div></div>`;
+}
+
+/* ── Vista previa del producto ── */
+const ST = { jugando: ['play', 'Jugando'], pendiente: ['bookmark', 'Pendiente'], completado: ['flag', 'Completado'], bandeja: ['inbox', 'Bandeja'] };
+const chip = (s) => `<span class="hg-chip hg-tint st-${s}">${ic(ST[s][0])}${ST[s][1]}</span>`;
+const mc = (v) => `<span class="hg-score hg-tint sc-top" title="Metacritic">${v}</span>`;
+const pills = (keys) => `<div class="au-rail">${keys.map(([k, n]) => `<span class="mini-pill st-${k}"><span class="dash-list__icon hg-tint">${ic(ST[k][0])}</span>${ST[k][1]} <b data-pill="${k}">${n}</b></span>`).join('')}</div>`;
+function prog(done, total) {
+  const p = Math.round(done / total * 100);
+  return `<span class="au-prog"><span class="hg-bar hg-bar--fill ${p === 100 ? 'is-done' : ''}"><span style="width:${p}%"></span></span><span><b>${done}</b> / ${total}</span><span class="${p === 100 ? 'is-full' : ''}">${p} %</span></span>`;
+}
+const rowElden = () => `<li class="hg-row lib-row st-jugando"><span class="hg-row__cover"><img src="${IMG(1245620)}" alt=""></span><span class="hg-row__main"><span class="hg-row__name"><span class="hg-row__link">ELDEN RING</span><span class="hg-flag hg-tint st-favorito" title="Favorito">${ic('heart')}</span></span><span class="hg-row__meta"><span class="lib-meta">${ic('clock')} 142 h</span>${mc(96)}</span>${prog(31, 42)}</span>${chip('jugando')}</li>`;
+const rowHades = (barless = false) => `<li class="hg-row lib-row st-pendiente" data-swap><span class="hg-row__cover"><img src="${IMG(1145350)}" alt=""></span><span class="hg-row__main"><span class="hg-row__name"><span class="hg-row__link">Hades II</span></span><span class="hg-row__meta"><span class="lib-meta">${ic('hourglass')} Historia 22 h</span>${mc(95)}</span>${barless ? '' : prog(0, 49)}</span>${chip('pendiente')}</li>`;
+const rowOuter = () => `<li class="hg-row lib-row st-completado"><span class="hg-row__cover"><img src="${IMG(753640)}" alt=""></span><span class="hg-row__main"><span class="hg-row__name"><span class="hg-row__link">Outer Wilds</span></span><span class="hg-row__meta"><span class="lib-meta">${ic('clock')} 24 h</span><span class="hg-score hg-tint sc-top">★ 9,5</span></span>${prog(31, 31)}</span>${chip('completado')}</li>`;
+const rowDisco = () => `<li class="hg-row lib-row st-pendiente is-unowned"><span class="hg-row__cover"><img src="${IMG(632470)}" alt=""></span><span class="hg-row__main"><span class="hg-row__name"><span class="hg-row__link">Disco Elysium - The Final Cut</span></span><span class="hg-row__meta"><span class="lib-own--no">${ic('cart')} Sin comprar</span>${mc(97)}</span><span class="au-price"><span class="hg-deal" data-deal>${ic('trenddown')} Mínimo histórico</span><b>9,99 €</b><span class="hg-score hg-tint sc-top">-75 %</span></span></span>${chip('pendiente')}</li>`;
+const achLeg = () => `<li class="hg-ach rar-leg"><span class="hg-ach__icon">${ic('trophy')}</span><span class="hg-ach__body"><span class="hg-ach__name">Hollow Knight puro</span><span class="hg-ach__game">Hollow Knight · hace 2 días</span></span><span class="hg-ach__pct"><span>0,9 %</span><small>Legendaria</small></span></li>`;
+const achUnlock = () => `<li class="hg-ach is-locked" data-unlock><span class="hg-ach__icon">${ic('lock')}</span><span class="hg-ach__body"><span class="hg-ach__name">Paz en el Abismo</span><span class="hg-ach__game">Hollow Knight · Te falta</span></span><span class="hg-ach__pct"><span>3,1 %</span><small>Épica</small></span></li>`;
+
+function previewA() {
+  return `<div class="auth__preview" data-preview role="img" aria-label="Ejemplo de HubGames: tu biblioteca por listas, un juego en mínimo histórico y un logro épico que se desbloquea">
+    <div class="au-win hg-enter" style="--i:2" aria-hidden="true"><div class="au-win__head"><b>Biblioteca</b><span class="hg-keyhint">Ejemplo</span></div>${pills([['jugando', 1], ['pendiente', 37], ['completado', 58], ['bandeja', 14]])}<ul class="hg-rows">${rowElden()}${rowHades()}${rowDisco()}</ul></div>
+    <ul class="hg-achs hg-enter" style="--i:3" aria-hidden="true">${achUnlock()}</ul>
+  </div>`;
+}
+function previewB() {
+  return `<div class="auth__preview" data-preview role="img" aria-label="Ejemplo de HubGames: listas con color, precios con veredicto y logros por rareza">
+    <div class="au-cards" aria-hidden="true">
+      <article class="au-card hg-enter" style="--i:2"><div class="au-card__head"><span class="sec-icon hg-tint st-jugando">${ic('play')}</span><b>Cada juego en su lista</b>${pills([['jugando', 1], ['pendiente', 37]]).replace('au-rail', 'au-rail" style="margin-left:auto')}</div><ul class="hg-rows">${rowHades(true)}</ul></article>
+      <article class="au-card hg-enter" style="--i:3"><div class="au-card__head"><span class="sec-icon hg-tint sc-top">${ic('tag')}</span><b>Cada precio, con veredicto</b></div><div class="au-ficha"><span class="au-ficha__img"><img src="${IMG(1086940)}" alt=""></span><span class="au-ficha__txt"><b>Baldur's Gate 3</b><span>${mc(96)} Aclamado <span class="hg-score hg-tint sc-top">${ic('thumbs')} 96 %</span> Extremadamente positivas</span></span></div><p class="verdict" data-deal>${ic('trenddown')} Mínimo histórico <span>nunca ha estado más barato</span><span class="verdict__price">47,99 €</span></p></article>
+      <article class="au-card hg-enter" style="--i:4"><div class="au-card__head"><span class="sec-icon hg-tint rar-epica rar-ink">${ic('trophy')}</span><b>Logros por rareza</b><span><b style="color:var(--foreground)" data-achn>43</b> / 63 · Hollow Knight</span></div><div class="rar-stack"><span class="rar-comun" style="flex-grow:14"></span><span class="rar-poco" style="flex-grow:12"></span><span class="rar-rara" style="flex-grow:10"></span><span class="rar-epica" style="flex-grow:6" data-epic></span><span class="rar-leg" style="flex-grow:1"></span><span style="flex-grow:20;background:var(--surface-2)" data-rest></span></div><ul class="hg-achs">${achUnlock()}</ul></article>
+    </div>
+  </div>`;
+}
+function brandHTML(variant) {
+  return `<aside class="auth__brand"><a href="#" class="nv-brand hg-enter" style="--i:0;padding:0;align-self:flex-start">${logo(26)}</a><div class="auth__pitch hg-enter" style="--i:1"><p class="auth__tagline">Tu biblioteca de Steam y tus logros, en orden.</p><p class="auth__tagline-sub">Lo que juegas, lo que tienes pendiente y los logros que te faltan, sincronizado con Steam. Y cada día, un juego que adivinar en JUDI.</p></div>${variant === 'B' ? previewB() : previewA()}</aside>`;
+}
+function peekHTML(variant) {
+  if (variant === 'B') return `<p class="au-tagline-only hg-enter" style="--i:6">Tu biblioteca de Steam y tus logros, en orden.</p>`;
+  return `<section class="au-peek hg-enter" style="--i:6" data-preview role="img" aria-label="Ejemplo de tu biblioteca en HubGames"><p class="au-peek__t">Tu biblioteca de Steam y tus logros, en orden.</p><p class="au-peek__s">Cada juego en su lista, sincronizado con Steam.</p><div aria-hidden="true">${pills([['jugando', 1], ['pendiente', 37], ['completado', 58]])}</div><ul class="hg-rows" aria-hidden="true">${rowHades(true)}</ul></section>`;
+}
+
+
+Object.assign(P, {
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+});
+VAR.pass = 'A';
+
+/* ── Reglas (las de src/lib/profile.ts) ── */
+const USERNAME_MIN = 3;
+const TAKEN = ['laura_g', 'pablo.r', 'diego'];
+const emailOk = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
+function rulesOf(st) {
+  const len = st.pass.length >= 6;
+  const eq = VAR.pass === 'B' ? true : st.pass2 ? st.pass === st.pass2 : null;
+  const mismatch = VAR.pass === 'A' && eq === false && st.pass2.length >= st.pass.length;
+  return { len, eq, mismatch };
+}
+function availOf(name) {
+  const v = name.trim();
+  if (!v) return 'idle';
+  if (v.length < USERNAME_MIN) return 'short';
+  return TAKEN.includes(v.toLowerCase()) ? 'taken' : 'free';
+}
+
+/* ── Pistas y marcas de cada campo ── */
+function userHint(st) {
+  const name = esc(st.user.trim());
+  switch (st.avail) {
+    case 'short': return `<span class="hint ${st.submitted ? 'is-bad' : ''}">${ic(st.submitted ? 'x' : 'alertc')} Al menos ${USERNAME_MIN} caracteres</span>`;
+    case 'checking': return `<span class="hint"><span class="spin-ring"></span> Comprobando…</span>`;
+    case 'free': return `<span class="hint is-ok">${ic('check', 'hg-draw')} <b>${name}</b> está libre</span>`;
+    case 'taken': return `<span class="hint is-bad">${ic('x')} <b>${name}</b> ya está en uso</span>`;
+    default: return st.submitted && !st.user.trim() ? '' : `<span class="hint">Es el nombre que sale en el ranking.</span>`;
+  }
+}
+function emailHint(st) {
+  return st.emailBad ? `<span class="hint is-bad">${ic('x')} Revisa el email: falta algo como nombre@dominio.es</span>` : '';
+}
+function rulesHTML(st) {
+  const r = rulesOf(st);
+  const li = (ok, bad, text) => `<li class="${ok ? 'is-ok' : bad ? 'is-bad' : ''}"><span class="rules__dot" aria-hidden="true">${ic('check')}</span>${text}</li>`;
+  return li(r.len, (st.submitted || st.bad.pass) && !r.len, 'Mínimo 6 caracteres') + (VAR.pass === 'A' ? li(r.eq === true, r.mismatch || (st.submitted && r.eq !== true), r.mismatch ? 'No coinciden' : 'Coinciden') : '');
+}
+function badOf(st) {
+  const r = rulesOf(st);
+  return {
+    user: st.avail === 'taken' || (st.submitted && (st.avail === 'short' || !st.user.trim())),
+    email: st.emailBad || !!st.bad.email || (st.submitted && !st.email.trim()),
+    pass: !!st.bad.pass || (st.submitted && !r.len),
+    pass2: VAR.pass === 'A' && (r.mismatch || (st.submitted && r.eq !== true)),
+  };
+}
+
+/* ── Mensajes ── */
+function msgData(key, st) {
+  const name = esc(st.user.trim() || 'laurita');
+  return {
+    several: { tone: 'error', icon: 'alertc', text: 'Revisa los campos marcados.' },
+    noUser: { tone: 'error', icon: 'alertc', text: 'Te falta el nombre de usuario.' },
+    noEmail: { tone: 'error', icon: 'alertc', text: 'Te falta el email.' },
+    noPass: { tone: 'error', icon: 'alertc', text: 'Te falta la contraseña.' },
+    noPass2: { tone: 'error', icon: 'alertc', text: 'Repite la contraseña para confirmarla.' },
+    short: { tone: 'error', icon: 'alertc', text: `El nombre necesita al menos ${USERNAME_MIN} caracteres.` },
+    taken: { tone: 'error', icon: 'alertc', text: `${name} ya está en uso.`, sub: 'Prueba con otro.' },
+    badEmail: { tone: 'error', icon: 'alertc', text: 'Revisa el email: no parece válido.' },
+    passShort: { tone: 'error', icon: 'alertc', text: 'La contraseña necesita al menos 6 caracteres.' },
+    mismatch: { tone: 'error', icon: 'alertc', text: 'Las contraseñas no coinciden.' },
+    exists: { tone: 'error', icon: 'alertc', text: 'Ya hay una cuenta con este email.', sub: `<b>${esc(st.email.trim())}</b> ya tiene cuenta en HubGames. ¿Es tuya? Entra con ella.`, act: 'login' },
+    weak: { tone: 'error', icon: 'alertc', text: 'La contraseña no vale.', sub: 'Aparece en filtraciones conocidas: elige otra.' },
+    emailInvalid: { tone: 'error', icon: 'alertc', text: 'Ese email no es válido.' },
+    offline: { tone: 'error', icon: 'wifioff', text: 'Sin conexión.', sub: 'Comprueba tu red y vuelve a probar.' },
+    rate: { tone: 'warn', icon: 'clock', text: 'Demasiados intentos.', sub: 'Espera un minuto y vuelve a probar.' },
+    generic: { tone: 'error', icon: 'alertc', text: 'No se pudo crear la cuenta. Inténtalo de nuevo.' },
+    google: { tone: 'error', icon: 'alertc', text: 'No se pudo abrir Google. Inténtalo de nuevo.' },
+    welcome: { tone: 'ok', icon: 'checkc', text: `Ya estás dentro, ${name}.`, sub: 'Abriendo tu Inicio para conectar Steam…' },
+  }[key];
+}
+function alertHTML(key, st) {
+  const m = msgData(key, st);
+  const act = m.act === 'login' ? `<a href="#" class="btn alert__act">${ic('login')}Iniciar sesión</a>` : '';
+  return `<div class="alert alert--${m.tone}" role="${m.tone === 'ok' ? 'status' : 'alert'}">${ic(m.icon)}<div class="alert__body"><p>${m.text}</p>${m.sub ? `<p class="alert__sub">${m.sub}</p>` : ''}${act}</div></div>`;
+}
+
+/* ── Formulario ── */
+function inputHTML(o) {
+  return `<div class="field ${o.bad ? 'is-bad' : ''} ${o.ok ? 'is-ok' : ''} ${o.focus ? 'is-focus' : ''}" data-field="${o.key}">
+    <label class="field__label" for="${o.id}">${o.label}</label>
+    <div class="field__control"><span class="field__icon">${ic(o.icon)}</span><input id="${o.id}" name="${o.key}" class="hg-input ${o.toggle ? 'has-toggle' : ''}" type="${o.toggle ? (o.show ? 'text' : 'password') : o.type}" value="${esc(o.value || '')}" placeholder="${o.ph}" autocomplete="${o.ac}" ${o.extra || ''} ${o.disabled ? 'disabled' : ''} ${o.bad ? 'aria-invalid="true"' : ''}>${o.toggle ? `<button type="button" class="field__toggle" data-act="toggle" aria-label="${o.show ? 'Ocultar' : 'Mostrar'} contraseña" aria-pressed="${!!o.show}" ${o.disabled ? 'disabled' : ''}>${ic(o.show ? 'eyeoff' : 'eye')}</button>` : ''}</div>
+    ${o.after || ''}
+  </div>`;
+}
+function submitInner(state) {
+  if (state === 'loading') return `<span class="au-submit__lbl"><span class="spin-ring"></span>Creando cuenta…</span>`;
+  if (state === 'success') return `<span class="au-submit__lbl">${ic('check', 'hg-draw')}Cuenta creada</span>`;
+  return `<span class="au-submit__lbl">${ic('userplus')}Crear cuenta</span>`;
+}
+function regForm(st) {
+  const busy = st.state !== 'idle';
+  const b = badOf(st);
+  const g = st.google ? `<span class="au-submit__lbl"><span class="spin-ring"></span>Abriendo Google…</span>` : `${GOOGLE}Registrarse con Google`;
+  const passA = VAR.pass === 'A';
+  return `<div class="au-form">
+    <div class="au-head hg-enter" style="--i:0"><h1>Crea tu cuenta</h1><p>Crea la cuenta y después conecta Steam para traer tus juegos y logros.</p></div>
+    <button type="button" class="btn btn--secondary btn--block au-google hg-enter" style="--i:1" data-act="google" ${busy || st.google ? 'disabled' : ''}>${g}</button>
+    <div class="divider-text hg-enter" style="--i:2">o con tu email</div>
+    <form class="au-fields hg-enter" style="--i:3" novalidate data-reg>
+      ${inputHTML({ key: 'user', id: `${st.id}-u`, label: 'Nombre de usuario', icon: 'userround', type: 'text', value: st.user, ph: 'Tu alias', ac: 'username', extra: 'autocapitalize="none" spellcheck="false"', bad: b.user, ok: st.avail === 'free', focus: st.focus === 'user', disabled: busy, after: `<p class="field__hint-row" data-hint="user" aria-live="polite">${userHint(st)}</p>` })}
+      ${inputHTML({ key: 'email', id: `${st.id}-e`, label: 'Email', icon: 'mail', type: 'email', value: st.email, ph: 'tu@email.com', ac: 'email', extra: 'inputmode="email" enterkeyhint="next"', bad: b.email, focus: st.focus === 'email', disabled: busy, after: `<p class="field__hint-row" data-hint="email" aria-live="polite">${emailHint(st)}</p>` })}
+      ${inputHTML({ key: 'pass', id: `${st.id}-p`, label: 'Contraseña', icon: 'lock', toggle: true, show: st.show, value: st.pass, ph: 'Mínimo 6 caracteres', ac: 'new-password', extra: `enterkeyhint="${passA ? 'next' : 'go'}"`, bad: b.pass, focus: st.focus === 'pass', disabled: busy, after: !passA ? `<ul class="rules" data-rules aria-live="polite">${rulesHTML(st)}</ul>` : '' })}
+      ${passA ? inputHTML({ key: 'pass2', id: `${st.id}-c`, label: 'Repite la contraseña', icon: 'lock', toggle: true, show: st.show2, value: st.pass2, ph: 'La misma otra vez', ac: 'new-password', extra: 'enterkeyhint="go"', bad: b.pass2, focus: st.focus === 'pass2', disabled: busy, after: `<ul class="rules" data-rules aria-live="polite">${rulesHTML(st)}</ul>` }) : ''}
+      <p class="au-hint" data-caps ${st.caps ? '' : 'hidden'}>${ic('caps')}Bloq Mayús está activado</p>
+      <div class="au-msg" data-msg aria-live="polite">${st.msg ? alertHTML(st.msg, st) : ''}</div>
+      <button type="submit" class="btn btn--primary btn--block au-submit ${st.state === 'loading' ? 'is-busy' : st.state === 'success' ? 'is-done' : ''}" ${busy ? 'disabled' : ''}>${submitInner(st.state)}</button>
+    </form>
+    <p class="au-switch hg-enter" style="--i:4">¿Ya tienes cuenta? <a href="#" class="link">Inicia sesión</a></p>
+  </div>`;
+}
+
+/* ── Marcos ── */
+function frameHTML(st) {
+  if (st.mob) return mobileChrome(`<div class="au-mcard">${regForm(st)}</div>${peekHTML('A')}`, st.kb).replace(/m-tab active/g, 'm-tab');
+  return `${sidebar(false)}<div class="page"><div class="page-in"><div class="auth">${brandHTML('A')}<div class="auth__form-wrap">${regForm(st)}</div></div></div></div>`;
+}
+const BASE = { mob: false, state: 'idle', msg: null, user: '', email: '', pass: '', pass2: '', avail: 'idle', emailBad: false, submitted: false, bad: {}, focus: null, show: false, show2: false, caps: false };
+const FR = {};
+function mk(id, o) { FR[id] = { id, ...JSON.parse(JSON.stringify(BASE)), ...o }; FR[id].init = JSON.parse(JSON.stringify(FR[id])); }
+mk('f-desk', { live: true });
+mk('f-mob', { mob: true, live: true });
+mk('f-mob-kb', { mob: true, kb: true, user: 'laurita', avail: 'free', email: 'laura.gomez@gmail.com', pass: 'hubgames', pass2: 'hubga', focus: 'pass2' });
+mk('f-mob-err', { mob: true, user: 'laurita_la_cazadora_de_logros', avail: 'free', email: 'laura.gomez.cuenta.de.la.universidad@alumnos.example.es', pass: 'hubgames', pass2: 'hubgames', bad: { email: true }, msg: 'exists' });
+
+function renderFrame(id) {
+  const st = FR[id]; const el = document.getElementById(id);
+  el.innerHTML = frameHTML(st);
+  if (st.kb) el.querySelector('.m-page').style.transform = 'translateY(-300px)';
+  if (st.id === 'f-mob-err') el.querySelector('.m-page').style.transform = 'translateY(-250px)';
+  enter(el);
+}
+function enter(el) {
+  el.classList.remove('anim'); void el.offsetWidth;
+  if (!rm()) el.classList.add('anim');
+  el.querySelectorAll('[data-preview]').forEach(action);
+}
+function renderCompare() {
+  const box = document.getElementById('pass-compare');
+  const keep = VAR.pass;
+  const demo = { ...JSON.parse(JSON.stringify(BASE)), id: 'cmp', user: 'laurita', avail: 'free', email: 'laura.gomez@gmail.com', pass: 'hubgames', pass2: 'hubgames' };
+  box.innerHTML = ['A', 'B'].map((v) => { VAR.pass = v; return `<div><p class="vlabel"><b>${v}</b>${v === 'A' ? 'Dos campos · recomendada' : 'Uno con ojo'}</p><div class="frame w-desk" style="width:580px;background:var(--surface);border-radius:18px"><div class="auth__form-wrap" style="padding:2rem">${regForm({ ...demo, id: `cmp${v}` })}</div></div></div>`; }).join('');
+  VAR.pass = keep;
+  box.querySelectorAll('.frame').forEach(enter);
+}
+const STATES = [
+  ['Inicial', 'Hoy + pistas', {}],
+  ['Escribiendo: requisitos a medias', 'Nuevo', { user: 'laurita', avail: 'free', email: 'laura.gomez@gmail.com', pass: 'hubgames', pass2: 'hubg', focus: 'pass2' }],
+  ['Comprobando el nombre', 'Nuevo', { user: 'laura', avail: 'checking', focus: 'user' }],
+  ['Nombre en uso', 'Nuevo', { user: 'laura_g', avail: 'taken', focus: 'user' }],
+  ['Email con mal formato (al salir)', 'Nuevo', { user: 'laurita', avail: 'free', email: 'laura.gomez@gmail', emailBad: true }],
+  ['Contraseñas que no coinciden', 'Nuevo', { user: 'laurita', avail: 'free', email: 'laura.gomez@gmail.com', pass: 'hubgames', pass2: 'hubgamez', focus: 'pass2' }],
+  ['Enviar con varios campos mal', 'Texto nuevo', { user: 'la', avail: 'short', email: '', pass: 'hub', submitted: true, msg: 'several' }],
+  ['Email ya registrado', 'Texto nuevo', { user: 'laurita', avail: 'free', email: 'ya@registrado.es', pass: 'hubgames', pass2: 'hubgames', bad: { email: true }, msg: 'exists' }],
+  ['Contraseña débil (servidor)', 'Texto nuevo', { user: 'laurita', avail: 'free', email: 'laura.gomez@gmail.com', pass: '123456', pass2: '123456', bad: { pass: true }, msg: 'weak' }],
+  ['Sin conexión', 'Texto nuevo', { user: 'laurita', avail: 'free', email: 'laura.gomez@gmail.com', pass: 'hubgames', pass2: 'hubgames', msg: 'offline' }],
+  ['Demasiados intentos', 'Texto nuevo', { user: 'laurita', avail: 'free', email: 'laura.gomez@gmail.com', pass: 'hubgames', pass2: 'hubgames', msg: 'rate' }],
+  ['Google no arranca', 'Texto nuevo', { msg: 'google' }],
+  ['Creando cuenta', 'Hoy', { user: 'laurita', avail: 'free', email: 'laura.gomez@gmail.com', pass: 'hubgames', pass2: 'hubgames', state: 'loading' }],
+  ['Cuenta creada', 'Nuevo', { user: 'laurita', avail: 'free', email: 'laura.gomez@gmail.com', pass: 'hubgames', pass2: 'hubgames', state: 'success', msg: 'welcome' }],
+  ['Bloq Mayús y contraseña visible', 'Nuevo', { user: 'laurita', avail: 'free', email: 'laura.gomez@gmail.com', pass: 'HUBGAMES', show: true, caps: true, focus: 'pass' }],
+];
+function renderStates() {
+  const box = document.getElementById('states');
+  const keep = VAR.pass; VAR.pass = 'A';
+  box.innerHTML = STATES.map(([t, tag, o], i) => {
+    const st = { ...JSON.parse(JSON.stringify(BASE)), id: `s${i}`, ...o };
+    return `<div><p class="vlabel"><b>${i + 1}</b>${t} <span class="doc-tag ${tag === 'Hoy' ? '' : 'doc-tag--new'}">${tag}</span></p><div class="frame w-desk" style="width:420px;background:var(--surface);border-radius:18px"><div class="auth__form-wrap" style="padding:1.75rem">${regForm(st)}</div></div></div>`;
+  }).join('');
+  VAR.pass = keep;
+  box.querySelectorAll('.frame').forEach((f) => { f.querySelectorAll('input, button').forEach((x) => (x.tabIndex = -1)); enter(f); });
+}
+
+/* ── Vista previa «en acción» (la del login) ── */
+/* ── Vista previa «en acción» (una vez al entrar) ── */
+const timers = [];
+function replayCls(el, cls) { if (!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+function action(root) {
+  const go = (ms, fn) => timers.push(setTimeout(fn, rm() ? 0 : ms));
+  const row = root.querySelector('[data-swap]');
+  const un = root.querySelector('[data-unlock]');
+  go(700, () => {
+    if (row) {
+      row.classList.replace('st-pendiente', 'st-jugando');
+      const c = row.querySelector('.hg-chip'); c.className = 'hg-chip hg-tint st-jugando'; c.innerHTML = `${ic('play')}Jugando`; replayCls(c, 'pop');
+    }
+    const pp = root.querySelector('[data-pill="pendiente"]'); if (pp) { pp.textContent = '36'; replayCls(pp, 'pop'); }
+    const pj = root.querySelector('[data-pill="jugando"]'); if (pj) { pj.textContent = '2'; replayCls(pj, 'pop'); }
+  });
+  go(1200, () => {
+    if (!un) return;
+    un.className = 'hg-ach rar-epica'; un.querySelector('.hg-ach__icon').innerHTML = ic('trophy');
+    un.querySelector('.hg-ach__game').textContent = 'Hollow Knight · ahora mismo';
+    if (!rm()) un.animate([{ backgroundColor: 'color-mix(in srgb, var(--rar-epica) 30%, var(--surface))' }, { backgroundColor: 'var(--surface)' }], { duration: 900, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+    const n = root.querySelector('[data-achn]'); if (n) { n.textContent = '44'; replayCls(n, 'pop'); }
+    const e = root.querySelector('[data-epic]'); if (e) { e.style.flexGrow = 7; root.querySelector('[data-rest]').style.flexGrow = 19; }
+  });
+  go(1600, () => root.querySelectorAll('[data-deal]').forEach((d) => replayCls(d, 'flash-deal')));
+}
+
+
+
+/* ── Interacción del formulario en vivo ── */
+const wait = (ms) => new Promise((r) => setTimeout(r, rm() ? Math.min(ms, 60) : ms));
+const q = (root, s) => root.querySelector(s);
+function setMsg(root, st, key) {
+  st.msg = key;
+  const slot = q(root, '[data-msg]'); if (slot) slot.innerHTML = key ? alertHTML(key, st) : '';
+}
+function clearMsg(root, st) {
+  if (!st.msg || st.msg === 'welcome') return;
+  st.msg = null;
+  const a = q(root, '[data-msg] > .alert'); if (!a) return;
+  if (rm()) { a.remove(); return; }
+  a.classList.add('is-out'); setTimeout(() => a.remove(), 160);
+}
+/* Repinta pistas, requisitos y marcas sin tocar los campos (no se pierde el foco) */
+function refresh(root, st) {
+  const b = badOf(st);
+  const hu = q(root, '[data-hint="user"]'); const nu = userHint(st); if (hu && hu.dataset.last !== nu) { hu.innerHTML = nu; hu.dataset.last = nu; }
+  const he = q(root, '[data-hint="email"]'); if (he) he.innerHTML = emailHint(st);
+  const rl = q(root, '[data-rules]');
+  if (rl) {
+    const before = [...rl.children].map((li) => li.className);
+    const tmp = document.createElement('ul'); tmp.innerHTML = rulesHTML(st);
+    [...tmp.children].forEach((li, i) => { const cur = rl.children[i]; if (!cur) return rl.appendChild(li); if (before[i] !== li.className || cur.textContent !== li.textContent) rl.replaceChild(li, cur); });
+  }
+  for (const [k, on] of Object.entries(b)) {
+    const f = q(root, `[data-field="${k}"]`); if (!f) continue;
+    f.classList.toggle('is-bad', on);
+    const inp = f.querySelector('input'); on ? inp.setAttribute('aria-invalid', 'true') : inp.removeAttribute('aria-invalid');
+  }
+  const fu = q(root, '[data-field="user"]'); if (fu) fu.classList.toggle('is-ok', st.avail === 'free');
+}
+function setBusy(root, st, state) {
+  st.state = state;
+  const b = q(root, '.au-submit');
+  b.className = `btn btn--primary btn--block au-submit ${state === 'loading' ? 'is-busy' : state === 'success' ? 'is-done' : ''}`;
+  b.disabled = state !== 'idle';
+  b.innerHTML = submitInner(state); replayCls(b.firstElementChild, 'lbl-in');
+  root.querySelectorAll('[data-reg] input, [data-reg] .field__toggle, .au-google').forEach((x) => (x.disabled = state !== 'idle'));
+}
+function shake(root) { replayCls(q(root, '[data-reg]'), 'au-shake'); }
+const checkTimers = {};
+function onUser(root, st) {
+  clearTimeout(checkTimers[st.id]);
+  const a = availOf(st.user);
+  if (a === 'idle' || a === 'short') { st.avail = a; return refresh(root, st); }
+  st.avail = 'checking'; refresh(root, st);
+  checkTimers[st.id] = setTimeout(() => { st.avail = availOf(st.user); refresh(root, st); }, rm() ? 0 : 400 + 350);
+}
+function readInputs(root, st) {
+  ['user', 'email', 'pass', 'pass2'].forEach((k) => { const i = q(root, `input[name=${k}]`); if (i) st[k] = i.value; });
+}
+async function submit(root, st) {
+  if (st.state !== 'idle') return;
+  readInputs(root, st);
+  clearTimeout(checkTimers[st.id]);
+  st.avail = availOf(st.user);
+  st.emailBad = !!st.email.trim() && !emailOk(st.email);
+  st.bad = {};
+  const r = rulesOf(st);
+  const problems = [];
+  if (!st.user.trim()) problems.push(['user', 'noUser']); else if (st.avail === 'short') problems.push(['user', 'short']); else if (st.avail === 'taken') problems.push(['user', 'taken']);
+  if (!st.email.trim()) problems.push(['email', 'noEmail']); else if (st.emailBad) problems.push(['email', 'badEmail']);
+  if (!st.pass) problems.push(['pass', 'noPass']); else if (!r.len) problems.push(['pass', 'passShort']);
+  if (VAR.pass === 'A') { if (!st.pass2) problems.push(['pass2', 'noPass2']); else if (r.eq === false) problems.push(['pass2', 'mismatch']); }
+  if (problems.length) {
+    st.submitted = true; refresh(root, st);
+    setMsg(root, st, problems.length === 1 ? problems[0][1] : 'several'); shake(root);
+    q(root, `input[name=${problems[0][0]}]`).focus();
+    return;
+  }
+  st.submitted = false; refresh(root, st); clearMsg(root, st);
+  setBusy(root, st, 'loading');
+  await wait(1100);
+  const e = st.email.trim().toLowerCase();
+  const key = e === 'ya@registrado.es' ? 'exists' : e.startsWith('sinred') ? 'offline' : e.startsWith('muchos') ? 'rate' : st.pass === '123456' ? 'weak' : null;
+  if (!key) { setBusy(root, st, 'success'); setMsg(root, st, 'welcome'); return; }
+  setBusy(root, st, 'idle');
+  if (key === 'exists') st.bad.email = true;
+  if (key === 'weak') st.bad.pass = true;
+  refresh(root, st); setMsg(root, st, key); shake(root);
+  if (key === 'exists') q(root, 'input[name=email]').focus();
+  if (key === 'weak') { const p = q(root, 'input[name=pass]'); p.focus(); p.select(); }
+}
+function bindLive(id) {
+  const root = document.getElementById(id);
+  if (root.dataset.bound) return; root.dataset.bound = '1';
+  const st = () => FR[id];
+  root.addEventListener('submit', (e) => { e.preventDefault(); submit(root, st()); });
+  root.addEventListener('click', async (e) => {
+    const a = e.target.closest('[data-act]'); if (!a) { if (e.target.closest('a[href="#"]')) e.preventDefault(); return; }
+    e.preventDefault();
+    const s = st();
+    if (a.dataset.act === 'toggle') {
+      const inp = a.parentElement.querySelector('input'); const k = inp.name === 'pass' ? 'show' : 'show2';
+      s[k] = !s[k]; inp.type = s[k] ? 'text' : 'password';
+      a.setAttribute('aria-pressed', s[k]); a.setAttribute('aria-label', `${s[k] ? 'Ocultar' : 'Mostrar'} contraseña`);
+      a.innerHTML = ic(s[k] ? 'eyeoff' : 'eye'); replayCls(a, 'is-flip'); inp.focus();
+    }
+    if (a.dataset.act === 'google') {
+      a.disabled = true; a.innerHTML = `<span class="au-submit__lbl lbl-in"><span class="spin-ring"></span>Abriendo Google…</span>`;
+      await wait(1400); a.disabled = false; a.innerHTML = `${GOOGLE}Registrarse con Google`;
+    }
+  });
+  root.addEventListener('input', (e) => {
+    const s = st(); const k = e.target.name; if (!k) return;
+    s[k] = e.target.value;
+    if (k === 'user') onUser(root, s);
+    if (k === 'email') { s.emailBad = false; s.bad.email = false; }
+    if (k === 'pass') s.bad.pass = false;
+    clearMsg(root, s);
+    refresh(root, s);
+  });
+  root.addEventListener('focusout', (e) => {
+    const s = st();
+    if (e.target.name === 'email') { s.emailBad = !!s.email.trim() && !emailOk(s.email); refresh(root, s); }
+  });
+  const caps = (e) => {
+    if (!/^pass/.test(e.target.name || '') || !e.getModifierState) return;
+    const h = q(root, '[data-caps]'); if (h) h.hidden = !e.getModifierState('CapsLock');
+  };
+  root.addEventListener('keyup', caps); root.addEventListener('keydown', caps);
+}
+function runTest(id, kind) {
+  const init = FR[id].init; FR[id] = { ...JSON.parse(JSON.stringify(init)), init };
+  renderFrame(id);
+  if (kind === 'reset') return;
+  const r = document.getElementById(id); const s = FR[id];
+  const data = {
+    ok: ['laurita', 'laura.gomez@gmail.com', 'hubgames'],
+    empty: ['', '', ''],
+    taken: ['laura_g', 'laura.gomez@gmail.com', 'hubgames'],
+    exists: ['laurita', 'ya@registrado.es', 'hubgames'],
+    weak: ['laurita', 'laura.gomez@gmail.com', '123456'],
+    offline: ['laurita', 'sinred@hubgames.es', 'hubgames'],
+    rate: ['laurita', 'muchos@hubgames.es', 'hubgames'],
+  }[kind];
+  q(r, 'input[name=user]').value = data[0]; q(r, 'input[name=email]').value = data[1]; q(r, 'input[name=pass]').value = data[2];
+  const p2 = q(r, 'input[name=pass2]'); if (p2) p2.value = data[2];
+  submit(r, s);
+}
+
+/* ── Montaje ── */
+function renderAll() {
+  timers.splice(0).forEach(clearTimeout);
+  Object.keys(FR).forEach((id) => {
+    const init = FR[id].init; FR[id] = { ...JSON.parse(JSON.stringify(init)), init };
+    renderFrame(id);
+  });
+  renderCompare(); renderStates();
+  bindLive('f-desk'); bindLive('f-mob');
+}
+renderAll();
+
+document.querySelectorAll('[data-tests] [data-test]').forEach((b) => b.addEventListener('click', () => runTest(b.closest('[data-tests]').dataset.tests, b.dataset.test)));
+document.querySelectorAll('[data-var]').forEach((b) => b.addEventListener('click', () => {
+  VAR[b.dataset.var] = b.dataset.val;
+  document.querySelectorAll(`[data-var="${b.dataset.var}"]`).forEach((x) => x.setAttribute('aria-pressed', x === b));
+  renderAll();
+}));
+document.getElementById('replay-btn').addEventListener('click', renderAll);
+document.getElementById('rm-btn').addEventListener('click', (e) => {
+  const on = document.documentElement.classList.toggle('rm');
+  e.currentTarget.setAttribute('aria-pressed', on); e.currentTarget.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`;
+  renderAll();
+});
+document.getElementById('theme-btn').addEventListener('click', (e) => {
+  const html = document.documentElement; const dark = html.dataset.theme !== 'dark';
+  if (!rm()) { html.classList.add('theme-anim'); clearTimeout(window.__th); window.__th = setTimeout(() => html.classList.remove('theme-anim'), 340); }
+  html.dataset.theme = dark ? 'dark' : 'light'; THEME.pref = dark ? 'dark' : 'light';
+  e.currentTarget.setAttribute('aria-pressed', dark);
+  document.querySelectorAll('.theme-toggle span').forEach((s, i) => s.classList.toggle('on', ['light', 'dark', 'system'][i % 3] === THEME.pref));
+  document.querySelectorAll('.m-top .m-icon').forEach((m) => (m.innerHTML = ic(dark ? 'moon' : 'sun')));
+});
+</script>
+</body>
+</html>

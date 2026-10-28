@@ -1,8 +1,9 @@
 'use client'
 
 import { useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { AlertCircle, CheckCircle2, Clock, Eye, EyeOff, Lock, WifiOff, ArrowBigUp } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Clock, Eye, EyeOff, Lock, LogIn, WifiOff, ArrowBigUp } from 'lucide-react'
 import { Logo } from '@/components/brand/Logo'
 import { Input } from '@/components/ui/input'
 import { LibraryPreview, UnlockAchievement } from '@/components/preview/LibraryPreview'
@@ -101,6 +102,11 @@ export function FormError({ message, id }: { message: AuthMessage | string | nul
                         <div className="auth-msg__body">
                             <p>{msg.text}</p>
                             {msg.sub && <p className="auth-msg__sub">{msg.sub}</p>}
+                            {msg.action && (
+                                <Link href={msg.action.href} className="auth-msg__act">
+                                    <LogIn aria-hidden /> {msg.action.label}
+                                </Link>
+                            )}
                         </div>
                     </motion.div>
                 )}

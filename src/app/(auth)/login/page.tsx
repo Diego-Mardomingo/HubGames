@@ -32,7 +32,8 @@ function GoogleIcon() {
     )
 }
 
-const NO_FIELDS: Record<AuthField, boolean> = { email: false, password: false }
+type LoginField = Extract<AuthField, 'email' | 'password'>
+const NO_FIELDS: Record<LoginField, boolean> = { email: false, password: false }
 
 export default function LoginPage() {
     const router = useRouter()
@@ -48,7 +49,14 @@ export default function LoginPage() {
     const busy = state !== 'idle' || googleBusy
 
     useEffect(() => {
-        if (new URLSearchParams(window.location.search).get('error') === 'oauth') setMessage(OAUTH_RETURN_MESSAGE)
+        const params = new URLSearchParams(window.location.search)
+        if (params.get('error') === 'oauth') setMessage(OAUTH_RETURN_MESSAGE)
+        // Desde «Ya hay una cuenta con este email» del registro: el email ya escrito y el foco en la contraseña
+        const prefill = params.get('email')
+        if (prefill) {
+            setEmail(prefill)
+            passwordRef.current?.focus()
+        }
     }, [])
 
     /** Muestra un error: marca sus campos, sacude el formulario y lleva el foco donde hay que corregir. */
@@ -69,7 +77,7 @@ export default function LoginPage() {
     }
 
     /** Al escribir en un campo marcado se desmarca, y el aviso se va. */
-    const edit = (field: AuthField, value: string) => {
+    const edit = (field: LoginField, value: string) => {
         if (field === 'email') setEmail(value)
         else setPassword(value)
         if (invalid[field]) setInvalid((prev) => ({ ...prev, [field]: false }))

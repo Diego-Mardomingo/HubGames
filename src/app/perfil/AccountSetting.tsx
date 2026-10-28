@@ -1,15 +1,13 @@
 'use client'
 
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { Check, KeyRound, User, X } from 'lucide-react'
+import { KeyRound, User } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/input'
-import { Spinner } from '@/components/ui/spinner'
-import { USERNAME_MIN, passwordRules, usernameIssue } from '@/lib/profile'
+import { USERNAME_MIN, PASSWORD_MIN, passwordMismatch, passwordRules } from '@/lib/account'
+import { FieldRules, FieldStatus, useUsernameCheck } from '@/components/AccountFields'
 import { SaveButton, type SaveState } from '@/components/SaveButton'
 import { PfSection, enter, type Notify } from './Section'
-
-type Availability = 'idle' | 'short' | 'checking' | 'free' | 'taken'
 
 /** Cuenta: nombre de usuario (con «libre / en uso» mientras escribes) y contraseña (con sus reglas marcándose). Cobalto: eres tú. */
 export default function AccountSetting({
@@ -26,19 +24,16 @@ export default function AccountSetting({
     index: number
 }) {
     const [name, setName] = useState(username)
-    const [avail, setAvail] = useState<Availability>('idle')
+    const { avail, onChange: checkName, reset: resetCheck } = useUsernameCheck(username)
     const [nameSave, setNameSave] = useState<SaveState>('idle')
     const [pass, setPass] = useState('')
     const [confirm, setConfirm] = useState('')
     const [passSave, setPassSave] = useState<SaveState>('idle')
     const [shake, setShake] = useState(0)
-    const checkTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
-    const checkSeq = useRef(0)
     const resetTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
     useEffect(
         () => () => {
-            clearTimeout(checkTimer.current)
             clearTimeout(resetTimer.current)
         },
         [],
@@ -46,18 +41,7 @@ export default function AccountSetting({
 
     function onNameChange(value: string) {
         setName(value)
-        clearTimeout(checkTimer.current)
-        const seq = ++checkSeq.current
-        const issue = usernameIssue(value, username)
-        if (issue === 'same') return setAvail('idle')
-        if (issue === 'short') return setAvail('short')
-        setAvail('checking')
-        checkTimer.current = setTimeout(async () => {
-            const { data, error } = await supabase.rpc('hubgames_username_available', { p_username: value.trim() })
-            if (seq !== checkSeq.current) return
-            // Si la comprobación falla, se deja guardar: el error de nombre repetido saldría al guardar.
-            setAvail(error ? 'free' : data === false ? 'taken' : 'free')
-        }, 400)
+        checkName(value)
     }
 
     function finish(set: (s: SaveState) => void) {
@@ -76,7 +60,7 @@ export default function AccountSetting({
             if (authError) throw authError
             const { error: dbError } = await supabase.from('hubgames_usuarios').update({ username: value }).eq('id', userId)
             if (dbError) throw dbError
-            setAvail('idle')
+            resetCheck()
             setName(value)
             onSaved(value)
             finish(setNameSave)
@@ -88,12 +72,11 @@ export default function AccountSetting({
     }
 
     const rules = passwordRules(pass, confirm)
-    // «No coinciden» solo cuando ya has escrito tanto como la contraseña (no a la primera letra).
-    const mismatch = rules.eq === false && confirm.length >= pass.length
+    const mismatch = passwordMismatch(pass, confirm)
 
     async function savePassword(event: FormEvent) {
         event.preventDefault()
-        const error = !rules.len ? 'La contraseña debe tener al menos 6 caracteres' : rules.eq !== true ? 'Las contraseñas no coinciden' : ''
+        const error = !rules.len ? `La contraseña debe tener al menos ${PASSWORD_MIN} caracteres` : rules.eq !== true ? 'Las contraseñas no coinciden' : ''
         if (error) {
             setShake((n) => n + 1)
             notify('error', error)
@@ -115,21 +98,13 @@ export default function AccountSetting({
 
     const hint =
         avail === 'short' ? (
-            <span className="pf-hint pf-ink dash-ko">
-                <X aria-hidden /> Al menos {USERNAME_MIN} caracteres
-            </span>
+            <FieldStatus tone="bad">Al menos {USERNAME_MIN} caracteres</FieldStatus>
         ) : avail === 'checking' ? (
-            <span className="pf-hint">
-                <Spinner /> Comprobando…
-            </span>
+            <FieldStatus tone="checking">Comprobando…</FieldStatus>
         ) : avail === 'taken' ? (
-            <span className="pf-hint pf-ink dash-ko">
-                <X aria-hidden /> «{name.trim()}» ya está en uso
-            </span>
+            <FieldStatus tone="bad">«{name.trim()}» ya está en uso</FieldStatus>
         ) : avail === 'free' ? (
-            <span className="pf-hint pf-ink dash-ok">
-                <Check aria-hidden /> Disponible
-            </span>
+            <FieldStatus tone="ok">Disponible</FieldStatus>
         ) : null
 
     return (
@@ -166,20 +141,12 @@ export default function AccountSetting({
                     <span className="pf-row__label" id="pf-pass-label">
                         Contraseña
                     </span>
-                    <ul className="pf-rules" aria-live="polite">
-                        <li className={rules.len ? 'is-ok' : shake > 0 ? 'is-bad' : undefined}>
-                            <span className="pf-rules__dot" aria-hidden>
-                                <Check />
-                            </span>
-                            Mínimo 6 caracteres
-                        </li>
-                        <li className={rules.eq ? 'is-ok' : mismatch || shake > 0 ? 'is-bad' : undefined}>
-                            <span className="pf-rules__dot" aria-hidden>
-                                <Check />
-                            </span>
-                            {mismatch ? 'No coinciden' : 'Coinciden'}
-                        </li>
-                    </ul>
+                    <FieldRules
+                        rules={[
+                            { label: `Mínimo ${PASSWORD_MIN} caracteres`, ok: rules.len, bad: shake > 0 },
+                            { label: mismatch ? 'No coinciden' : 'Coinciden', ok: rules.eq === true, bad: mismatch || shake > 0 },
+                        ]}
+                    />
                 </div>
                 <div key={shake} className={`pf-row__control pf-row__control--stack${shake ? ' hg-shake' : ''}`} role="group" aria-labelledby="pf-pass-label">
                     <label htmlFor="perfil-pass-new" className="sr-only">
