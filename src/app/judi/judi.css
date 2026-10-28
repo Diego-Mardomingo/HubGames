@@ -39,30 +39,58 @@
 }
 
 /* ── Intentos: seis casillas (como las del mapa de actividad) ── */
+/* Intentos: cada uno con su icono (nunca solo color). Fallo en rojo, saltado neutro, acierto en verde, el actual con borde
+   cobalto; el color llega un poco después de la sacudida (.jd-fx-lose). */
 .jd-pips {
   display: inline-flex;
   gap: 4px;
 }
 
 .jd-pip {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--muted);
+  transition: background-color 0.25s var(--ease-out) 0.12s, color 0.25s var(--ease-out) 0.12s;
+}
+
+.jd-pip svg {
   width: 12px;
   height: 12px;
-  border-radius: 3px;
-  background: var(--surface-3);
 }
 
 .jd-pips--sm .jd-pip {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.jd-pips--sm .jd-pip svg {
+  width: 9px;
+  height: 9px;
+}
+
+.jd-pip--current {
+  background: var(--primary-glow);
+  box-shadow: inset 0 0 0 2px var(--primary);
 }
 
 .jd-pip--miss {
   background: var(--danger);
+  color: var(--danger-foreground);
+}
+
+.jd-pip--skip {
+  background: var(--surface-3);
+  color: var(--foreground);
 }
 
 .jd-pip--hit {
   background: var(--success);
+  color: var(--on-done);
 }
 
 /* ── Juego del día ── */
@@ -126,6 +154,37 @@
 
 .jd-today__meta .hg-chip {
   justify-self: auto;
+}
+
+.jd-chip--plain {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.jd-today__art--empty {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  cursor: default;
+}
+
+.jd-today__art--empty svg {
+  width: 34px;
+  height: 34px;
+}
+
+.jd-today__text {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.jd-today__pips .jd-today__pts {
+  color: var(--primary);
+}
+
+.jd-today__pips b {
+  color: var(--foreground);
 }
 
 .jd-chip--lost {
@@ -538,17 +597,6 @@
   margin-left: auto;
 }
 
-.jd-lives {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-}
-
-.jd-lives__label {
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
 .jd-game__grid {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(300px, 1fr);
@@ -681,56 +729,164 @@
   font-weight: 600;
 }
 
-/* Selector de capturas */
-.jd-phases {
+/* Captura que no carga */
+.jd-stage__broken {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.jd-stage__broken > svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Tira de capturas: una por intento, con su número, el icono y la franja del resultado de ese intento */
+.jd-strip {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 2px;
-  padding: 3px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
+  gap: 8px;
 }
 
-.jd-phase {
-  display: inline-grid;
-  place-items: center;
-  height: 36px;
+.jd-shot {
+  --c: transparent;
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  padding: 0;
   border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--muted);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-2);
+  color: inherit;
   font: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  transition: background 0.15s, color 0.15s;
+  transition: box-shadow 0.18s var(--ease-out), transform 0.18s var(--ease-out);
 }
 
-.jd-phase:hover:not(:disabled) {
-  color: var(--foreground);
+.jd-shot img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
 }
 
-.jd-phase[aria-selected='true'] {
-  background: var(--surface);
-  color: var(--primary);
-  box-shadow: var(--shadow-sm);
+.jd-shot::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 2;
+  height: 4px;
+  background: var(--c);
+  transition: background-color 0.25s var(--ease-out) 0.12s;
 }
 
-.jd-phase:disabled {
+.jd-shot:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.jd-shot[aria-selected='true'] {
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--cursor);
+}
+
+.jd-shot:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+}
+
+/* Placa sobre la miniatura: velo oscuro y texto blanco, como las de la captura */
+.jd-shot__tag {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 5px;
+  background: rgba(12, 14, 18, 0.72);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  transition: background-color 0.25s var(--ease-out) 0.12s, color 0.25s var(--ease-out) 0.12s;
+}
+
+.jd-shot__tag svg {
+  width: 11px;
+  height: 11px;
+}
+
+.jd-shot--miss {
+  --c: var(--danger);
+}
+
+.jd-shot--miss .jd-shot__tag {
+  background: var(--danger);
+  color: var(--danger-foreground);
+}
+
+.jd-shot--skip {
+  --c: var(--muted);
+}
+
+.jd-shot--hit {
+  --c: var(--success);
+}
+
+.jd-shot--hit .jd-shot__tag {
+  background: var(--success);
+  color: var(--on-done);
+}
+
+.jd-shot--current {
+  --c: var(--primary);
+}
+
+.jd-shot--locked {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 1px;
+  background: transparent;
+  outline: 1px dashed var(--border-hover);
+  outline-offset: -1px;
   color: var(--muted);
-  opacity: 0.6;
+  font-size: 0.6875rem;
+  font-weight: 600;
   cursor: not-allowed;
 }
 
-.jd-phase:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 1px;
+.jd-shot--locked svg {
+  width: 13px;
+  height: 13px;
+}
+
+.jd-shot.is-unlock img {
+  animation: hg-fade-in 0.3s var(--ease-out) 0.18s backwards;
 }
 
 .jd-keyhint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   margin: 0;
   color: var(--muted);
   font-size: 0.75rem;
-  text-align: center;
+}
+
+.jd-keyhint b {
+  color: var(--foreground);
+  font-weight: 600;
 }
 
 /* Panel lateral */
@@ -738,19 +894,78 @@
   position: relative;
   z-index: 3;
   display: grid;
-  gap: 1.5rem;
+  gap: 1.25rem;
   padding: 1.25rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
 }
 
+.jd-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.jd-panel__head .jd-panel__title {
+  margin: 0;
+}
+
 .jd-panel__title {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   margin: 0 0 0.5rem;
   font-size: 0.9375rem;
   font-weight: 700;
   letter-spacing: -0.01em;
+}
+
+.jd-panel__count {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* Lo que te juegas: «+4 si aciertas» (cobalto: los puntos son tuyos) */
+.jd-stake {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 9px 0 7px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.jd-stake svg {
+  width: 12px;
+  height: 12px;
+}
+
+.jd-lives {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.jd-lives__n {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.jd-lives__n.is-low {
+  color: var(--danger);
 }
 
 .jd-guess-block {
@@ -759,35 +974,40 @@
 
 .jd-guess {
   position: relative;
-  z-index: 40;
 }
 
 .jd-guess__icon {
   position: absolute;
+  left: 0.875rem;
   top: 50%;
-  left: 12px;
-  translate: 0 -50%;
+  z-index: 1;
   color: var(--muted);
+  transform: translateY(-50%);
   pointer-events: none;
+  transition: color 0.18s var(--ease-out);
+}
+
+.jd-guess:focus-within .jd-guess__icon {
+  color: var(--primary);
 }
 
 .jd-guess__input {
-  height: 46px;
-  padding-left: 2.4rem;
+  height: 44px;
+  padding-left: 2.5rem;
   padding-right: 2.5rem;
 }
 
 .jd-guess__spinner {
   position: absolute;
+  right: 0.875rem;
   top: 50%;
-  right: 14px;
   width: 16px;
   height: 16px;
   margin-top: -8px;
-  border: 2px solid var(--border);
+  border: 2px solid var(--border-hover);
   border-top-color: var(--primary);
   border-radius: 50%;
-  animation: spin 0.6s linear infinite;
+  animation: spin 0.7s linear infinite;
 }
 
 .jd-guess__dropdown {
@@ -795,20 +1015,32 @@
   top: calc(100% + 6px);
   left: 0;
   right: 0;
+  z-index: 20;
   display: grid;
-  max-height: 280px;
-  overflow-y: auto;
+  gap: 2px;
+  max-height: 300px;
+  margin: 0;
   padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: var(--surface);
   box-shadow: var(--shadow-lg);
+  animation: jd-drop-in 0.16s var(--ease-out);
 }
 
-.jd-guess__dropdown--empty {
-  padding: 0.75rem;
+@keyframes jd-drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.jd-guess__empty {
+  padding: 0.625rem;
   color: var(--muted);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
 }
 
 .jd-guess__option {
@@ -816,66 +1048,171 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  min-height: 38px;
-  padding: 0.4rem 0.625rem;
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 10px;
   border: 0;
-  border-radius: 6px;
-  background: transparent;
+  border-radius: 7px;
+  background: none;
   color: var(--foreground);
   font: inherit;
   font-size: 0.875rem;
   text-align: left;
 }
 
-.jd-guess__option:hover:not(:disabled),
-.jd-guess__option:focus-visible {
-  outline: none;
+.jd-guess__option mark {
+  background: none;
+  color: inherit;
+  font-weight: 700;
+}
+
+.jd-guess__option.is-hl {
   background: var(--surface-2);
+  box-shadow: inset 3px 0 0 var(--cursor);
 }
 
 .jd-guess__option:disabled {
   color: var(--muted);
-  text-decoration: line-through;
   cursor: not-allowed;
 }
 
+.jd-guess__option:disabled .jd-guess__name {
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--danger) 60%, transparent);
+}
+
+.jd-guess__tag {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px 1px 5px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.jd-guess__tag svg {
+  width: 11px;
+  height: 11px;
+}
+
+.jd-guess__key {
+  flex: none;
+}
+
 .jd-guess__error {
-  margin: 0.625rem 0 0;
+  align-items: center;
+  margin-top: 0.625rem;
+  animation: jd-msg-in 0.2s var(--ease-out);
+}
+
+@keyframes jd-msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.jd-guess__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .jd-guess__help {
-  margin: 0.5rem 0 0;
+  margin: 0;
   color: var(--muted);
   font-size: 0.8125rem;
 }
 
-.jd-wrong {
+.jd-guess__cost {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Tus intentos: en orden, fallo en rojo y salto neutro */
+.jd-tries {
+  margin-top: 0.875rem;
+}
+
+.jd-tries .jd-panel__title {
+  margin-bottom: 0.375rem;
+}
+
+.jd-tries__list {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin: 0.75rem 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.jd-wrong__chip {
+.jd-try {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   max-width: 100%;
-  padding: 3px 10px 3px 8px;
+  min-height: 28px;
+  padding: 3px 10px 3px 4px;
   border-radius: 999px;
-  background: var(--danger-glow);
-  color: var(--danger);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  overflow-wrap: anywhere;
+  font-size: 0.78125rem;
+  font-weight: 600;
 }
 
-/* Pistas */
+.jd-try__icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.jd-try__icon svg {
+  width: 11px;
+  height: 11px;
+}
+
+.jd-try__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jd-try--miss {
+  background: var(--danger-glow);
+  color: var(--danger);
+}
+
+.jd-try--miss .jd-try__icon {
+  background: var(--danger);
+  color: var(--danger-foreground);
+}
+
+.jd-try--skip {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.jd-try--skip .jd-try__icon {
+  background: var(--surface-3);
+  color: var(--foreground);
+}
+
+.jd-tries__sum {
+  margin: 0.375rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* Pistas: color solo donde el dato tiene escala (reseñas); la nueva en cobalto */
 .jd-hints__list {
   display: grid;
-  gap: 4px;
+  gap: 6px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -885,34 +1222,40 @@
   display: grid;
   grid-template-columns: 32px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.625rem;
   width: 100%;
   min-height: 52px;
-  padding: 0.4rem 0.625rem 0.4rem 0.4rem;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: transparent;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
   color: var(--foreground);
   font: inherit;
   text-align: left;
-  transition: background 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.18s var(--ease-out), background-color 0.15s;
 }
 
 .jd-hint:hover:not(:disabled) {
-  background: var(--surface-2);
+  border-color: var(--border-hover);
 }
 
 .jd-hint.is-active {
-  background: var(--primary-glow);
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  box-shadow: inset 3px 0 0 var(--primary);
 }
 
 .jd-hint:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--cursor);
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.jd-hint:disabled {
+  cursor: default;
 }
 
 .jd-hint.is-locked {
-  cursor: default;
+  background: transparent;
+  border-style: dashed;
 }
 
 .jd-hint__icon {
@@ -922,11 +1265,25 @@
   height: 32px;
   border-radius: var(--radius-sm);
   background: var(--surface-2);
+}
+
+.jd-hint__icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.jd-hint.is-locked .jd-hint__icon {
+  background: transparent;
   color: var(--muted);
 }
 
-.jd-hint.is-active .jd-hint__icon {
-  background: var(--surface);
+.jd-hint.is-locked .jd-hint__icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+.jd-hint.is-new .jd-hint__icon {
+  background: var(--primary-glow);
   color: var(--primary);
 }
 
@@ -938,38 +1295,62 @@
 .jd-hint__label {
   color: var(--muted);
   font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .jd-hint__value {
-  font-size: 0.9375rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 7px;
+  font-size: 0.875rem;
   font-weight: 600;
-  line-height: 1.35;
   overflow-wrap: anywhere;
 }
 
 .jd-hint.is-locked .jd-hint__value {
   color: var(--muted);
   font-size: 0.8125rem;
-  font-weight: 400;
+  font-weight: 500;
+}
+
+.jd-hint__word {
+  color: var(--c);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.jd-hint__word.sc-mid {
+  color: color-mix(in srgb, var(--c) 80%, var(--foreground));
+}
+
+.jd-hint__end {
+  display: grid;
+  justify-items: end;
+  gap: 3px;
 }
 
 .jd-hint__phase {
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
   white-space: nowrap;
 }
 
-/* Resultado */
-.jd-result {
-  --state: var(--success);
-  --state-glow: var(--success-glow);
-  display: grid;
-  gap: 1rem;
+.jd-new {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 5px;
+  font-size: 0.6875rem;
+  font-weight: 700;
 }
 
-.jd-result--lost {
-  --state: var(--danger);
-  --state-glow: var(--danger-glow);
+/* Resultado: la tarjeta del juego, como en la ficha */
+.jd-result {
+  display: grid;
+  gap: 1rem;
 }
 
 .jd-result__head {
@@ -982,111 +1363,454 @@
 .jd-result__icon {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--state-glow);
-  color: var(--state);
+}
+
+.jd-result__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.jd-result--won .jd-result__icon {
+  background: var(--success);
+  color: var(--on-done);
+}
+
+.jd-result--lost .jd-result__icon {
+  background: var(--danger-glow);
+  color: var(--danger);
 }
 
 .jd-result__status {
   margin: 0;
-  color: var(--state);
   font-size: 1.0625rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.jd-result__detail {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
 }
 
 .jd-result__pts {
   display: grid;
   justify-items: end;
   margin: 0;
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
   line-height: 1;
 }
 
-.jd-result__pts small {
-  margin-top: 2px;
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0;
+.jd-result__num {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-.jd-result__game {
+.jd-result--won .jd-result__num {
+  color: var(--primary);
+}
+
+.jd-result--won .jd-result__num::before {
+  content: '+';
+}
+
+.jd-result--lost .jd-result__num {
+  color: var(--muted);
+}
+
+.jd-result__pts small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.jd-card {
   display: grid;
-  grid-template-columns: 112px minmax(0, 1fr);
-  align-items: center;
-  gap: 0.875rem;
-  padding: 8px;
-  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.jd-card__art {
+  position: relative;
+  aspect-ratio: 460 / 215;
+  overflow: hidden;
   background: var(--surface-2);
 }
 
-.jd-result__game:not(:has(img)) {
-  grid-template-columns: minmax(0, 1fr);
-  padding: 0.625rem 0.75rem;
-}
-
-.jd-result__game img {
-  display: block;
-  width: 112px;
-  height: 52px;
-  border-radius: 6px;
+.jd-card__art img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
-.jd-result__label {
-  color: var(--muted);
-  font-size: 0.75rem;
+.jd-card__body {
+  display: grid;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem 1rem;
 }
 
-.jd-result__name {
-  margin: 0;
-  font-size: 1rem;
+.jd-card__label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.jd-card__name {
+  margin: -4px 0 0;
+  font-size: 1.125rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
 
-.jd-result__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+.jd-card__name a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.jd-result__actions .hg-button {
-  flex: 1 1 auto;
-}
-
-.jd-result__extra {
-  display: grid;
-  gap: 0.375rem;
-  padding-top: 0.875rem;
-  border-top: 1px solid var(--border);
-}
-
-.jd-result__extra-row {
+.jd-card__row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 6px 10px;
+  font-size: 0.8125rem;
 }
 
-.jd-result__done {
+.jd-card__none {
+  color: var(--muted);
+}
+
+.jd-card__wished {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  color: var(--success);
+  gap: 5px;
+  padding: 2px 9px 2px 7px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.jd-card__wished svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+
+.jd-card__swap,
+.jd-card__wished.hg-pop-in {
+  animation-delay: 0s;
+}
+
+.jd-card__score {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.jd-card__score b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.jd-card__price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 0;
+}
+
+.jd-card__price strong {
+  font-size: 1rem;
+}
+
+.jd-card__price s,
+.jd-card__store,
+.jd-card__price--none {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.jd-card__cut {
+  padding: 0 6px;
+  border-radius: 5px;
+  font-size: 0.78125rem;
+  font-weight: 700;
+}
+
+/* Veredicto del precio, el de la ficha (.juego-verdict) en pequeño */
+.jd-verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin: 0;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78125rem;
+  font-weight: 700;
+}
+
+.jd-verdict svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+.jd-verdict span {
+  font-weight: 500;
+}
+
+.jd-verdict--deal {
+  background: var(--deal);
+  color: var(--deal-foreground);
+}
+
+.jd-card__acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.jd-card__pend svg:first-child {
+  color: var(--st-pendiente);
+}
+
+.jd-card__done {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
   font-size: 0.8125rem;
   font-weight: 600;
 }
 
-.jd-result__msg {
+.jd-card__done svg {
+  width: 14px;
+  height: 14px;
+}
+
+.jd-card__done--wish {
+  background: var(--surface-2);
+}
+
+.jd-card__done--wish svg {
+  fill: currentColor;
+}
+
+.jd-card__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 0 4px;
+  color: var(--primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.jd-card__open svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.16s var(--ease-out);
+}
+
+.jd-card__open:hover svg {
+  transform: translateX(3px);
+}
+
+.jd-card__guest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 0.8125rem;
+}
+
+.jd-card__guest p {
+  flex: 1 1 200px;
   margin: 0;
+}
+
+.jd-result__foot {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.jd-result__share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem;
+}
+
+.jd-result__countdown,
+.jd-result__msg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--muted);
   font-size: 0.8125rem;
+}
+
+.jd-result__countdown b {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.jd-result__countdown svg,
+.jd-result__msg svg {
+  width: 14px;
+  height: 14px;
+}
+
+.jd-result__msg--ok {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.jd-result__msg--error {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.jd-result__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.jd-result__actions .hg-button {
+  flex: 1 1 0;
+}
+
+/* Error al cargar la partida o la lista */
+.jd-error {
+  display: grid;
+  justify-items: center;
+  gap: 0.625rem;
+  padding: 3rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.jd-error__icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.jd-error__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.jd-error h2 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.jd-error p {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.jd-error__acts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.375rem;
+}
+
+/* ── Microanimaciones de la partida ── */
+/* Vida que se pierde: sacudida y fundido mientras pasa a su color (rojo o neutro) */
+.jd-fx-lose {
+  animation: jd-life-lose 0.42s var(--ease-out);
+}
+
+@keyframes jd-life-lose {
+  15% { transform: translateX(-4px) rotate(-5deg); }
+  30% { transform: translateX(4px) rotate(4deg); }
+  45% { transform: translateX(-2px) rotate(-2deg); opacity: 0.8; }
+  65% { transform: none; opacity: 0.3; }
+}
+
+/* Acierto: el intento (y el icono del resultado) saltan */
+.jd-fx-hit {
+  animation: jd-pop 0.32s var(--ease-out);
+}
+
+@keyframes jd-pop {
+  40% { transform: scale(1.22); }
+}
+
+/* Intento nuevo en «Tus intentos» */
+.jd-fx-chip {
+  animation: jd-chip-in 0.26s var(--ease-out);
+}
+
+@keyframes jd-chip-in {
+  from { opacity: 0; transform: scale(0.6); }
+}
+
+/* Pista que se despliega: el icono salta y el valor se descubre de izquierda a derecha */
+.jd-fx-unlock {
+  animation: hg-enter 0.3s var(--ease-out);
+}
+
+.jd-fx-unlock .jd-hint__icon svg {
+  animation: jd-pop 0.3s var(--ease-out) 0.1s;
+}
+
+.jd-fx-unlock .jd-hint__label,
+.jd-fx-unlock .jd-hint__value {
+  animation: jd-unveil 0.38s var(--ease-out) 0.12s backwards;
+}
+
+@keyframes jd-unveil {
+  from { clip-path: inset(0 100% 0 0); opacity: 0.2; }
+  to { clip-path: inset(0 0 0 0); opacity: 1; }
+}
+
+/* Resultado que entra y portada que se revela desde el centro */
+.jd-fx-in {
+  animation: hg-enter 0.32s var(--ease-out) backwards;
+}
+
+.jd-fx-reveal img {
+  animation: jd-reveal 0.65s var(--ease-out) 0.12s backwards;
+}
+
+@keyframes jd-reveal {
+  from { clip-path: circle(0% at 50% 50%); transform: scale(1.08); }
+  to { clip-path: circle(75% at 50% 50%); transform: none; }
 }
 
 /* Captura ampliada */
@@ -1142,6 +1866,23 @@
 
   .jd-game__grid {
     grid-template-columns: 1fr;
+  }
+
+  /* En una columna, al terminar el resultado va arriba (si no, queda debajo de la captura y la tira) */
+  .jd-game__grid.is-finished .jd-panel {
+    order: -1;
+  }
+}
+
+/* En una columna ancha (tableta), la tarjeta del juego en dos columnas: la portada no ocupa toda la pantalla */
+@media (min-width: 641px) and (max-width: 1100px) {
+  .jd-card {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+  }
+
+  .jd-card__art {
+    aspect-ratio: auto;
+    min-height: 100%;
   }
 }
 
@@ -1228,7 +1969,34 @@
     max-width: calc(100% - 16px);
   }
 
-  .jd-phase {
+  .jd-strip {
+    gap: 6px;
+  }
+
+  .jd-shot {
+    aspect-ratio: auto;
+    height: 44px;
+  }
+
+  .jd-shot--locked span {
+    display: none;
+  }
+
+  .jd-guess__row .hg-button {
+    height: 44px;
+  }
+
+  .jd-card__acts .hg-button {
+    flex: 1 1 auto;
+    height: 44px;
+  }
+
+  .jd-card__open {
+    min-height: 44px;
+    margin-left: 0;
+  }
+
+  .jd-result__share .hg-button {
     height: 44px;
   }
 
@@ -1244,16 +2012,24 @@
     min-height: 44px;
   }
 
-  /* En móvil el teclado tapa lo de abajo: el desplegable se abre hacia arriba */
+  /* En móvil el teclado tapa lo de abajo: el desplegable se abre hacia arriba, sobre la tira y no sobre la captura */
   .jd-guess__dropdown {
     top: auto;
     bottom: calc(100% + 6px);
-    max-height: 220px;
+    max-height: 184px;
+    animation-name: jd-drop-up;
+  }
+
+  @keyframes jd-drop-up {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
   }
 }
 
 @media (hover: none) {
-  .jd-keyhint {
+  .jd-keyhint__keys {
     display: none;
   }
 
@@ -1266,7 +2042,10 @@
   .jd-tile,
   .jd-chev,
   .jd-hint,
-  .jd-phase,
+  .jd-shot,
+  .jd-shot::after,
+  .jd-shot__tag,
+  .jd-pip,
   .jd-year__head,
   .jd-month__head {
     transition: none;

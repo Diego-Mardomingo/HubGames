@@ -31,6 +31,8 @@ export type JudiDay = {
     failed: number | null
     /** Con sesión: nombres fallados guardados. Sin sesión: null. */
     guesses: string[] | null
+    /** Con sesión y la migración de saltos: todos los intentos en orden (texto = fallo, null = salto). Si no, null. */
+    attempts: (string | null)[] | null
     /** Solo en los intentos. */
     result: 'correct' | 'wrong' | 'skipped' | 'duplicate' | 'finished' | null
 }
@@ -69,6 +71,9 @@ export function parseJudiDay(raw: Json | null | undefined): JudiDay | null {
         state,
         failed: num(r.failed),
         guesses: Array.isArray(r.guesses) ? r.guesses.filter((g): g is string => typeof g === 'string') : null,
+        attempts: Array.isArray(r.attempts)
+            ? r.attempts.map((a) => (typeof a === 'string' && a.trim() ? a : null))
+            : null,
         result,
     }
 }
@@ -107,4 +112,88 @@ export function judiShareText(game: { id: number; fecha: string }, state: 'won' 
     const squares = state === 'lost' ? '🟥'.repeat(6) : '🟥'.repeat(misses) + '🟩' + '⬛'.repeat(5 - misses)
     const score = state === 'lost' ? 'X/6' : `${misses + 1}/6`
     return `JUDI #${game.id} (${game.fecha.replaceAll('-', '/')}) ${score}\n${squares}\n${url}`
+}
+
+// ── Intentos (rediseño de JUDI) ──
+
+/** Intentos que tiene una partida: 6, uno por captura. La fase n es el intento n (cada fallo o salto abre la siguiente). */
+export const JUDI_ATTEMPTS = 6
+
+/** Un intento que no acertó: fallo con nombre o salto. `name` null en un fallo = no sabemos cuál fue (partidas antiguas). */
+export type JudiAttempt = { kind: 'miss' | 'skip'; name: string | null }
+
+/** Cómo se ve cada uno de los 6 intentos: hecho (fallo, salto, acierto), el que juegas, sin usar tras acertar o bloqueado. */
+export type JudiSlotKind = 'miss' | 'skip' | 'hit' | 'current' | 'open' | 'locked'
+export type JudiSlot = { kind: JudiSlotKind; name: string | null }
+
+/**
+ * Los intentos de una partida en su orden. Con la migración `hubgames_judi_intentos_saltos`, el servidor manda
+ * `attempts` (texto = fallo, null = salto) y cuadra con `failed`: es exacto. Si no cuadra (servidor sin la migración,
+ * partidas anteriores sin sus saltos o que borraron los fallos al acertar), cada intento es un fallo sin orden conocido
+ * (`exact: false`) y los nombres que sí tenemos van aparte.
+ */
+export function attemptHistory(input: {
+    attempts?: readonly (string | null)[] | null
+    guesses?: readonly string[] | null
+    failed: number
+}): { attempts: JudiAttempt[]; names: string[]; exact: boolean } {
+    const failed = Math.min(Math.max(0, input.failed), JUDI_ATTEMPTS)
+    const raw = input.attempts ?? null
+    if (raw && raw.length === failed) {
+        const attempts = raw.map((a): JudiAttempt => (a ? { kind: 'miss', name: a } : { kind: 'skip', name: null }))
+        return { attempts, names: attempts.flatMap((a) => (a.name ? [a.name] : [])), exact: true }
+    }
+    const names = (raw ? raw.filter((a): a is string => !!a) : (input.guesses ?? [])).slice(0, failed)
+    return { attempts: Array.from({ length: failed }, () => ({ kind: 'miss', name: null })), names, exact: false }
+}
+
+/** Los 6 intentos para pintarlos (tira de capturas, cuadraditos, compartir). */
+export function attemptSlots(state: JudiDayState, attempts: readonly JudiAttempt[]): JudiSlot[] {
+    const failed = Math.min(attempts.length, JUDI_ATTEMPTS)
+    return Array.from({ length: JUDI_ATTEMPTS }, (_, i): JudiSlot => {
+        if (i < failed) return { kind: attempts[i].kind, name: attempts[i].name }
+        if (state === 'won' && i === failed) return { kind: 'hit', name: null }
+        if (state === 'playing' && i === failed) return { kind: 'current', name: null }
+        if (state === 'won') return { kind: 'open', name: null }
+        return { kind: 'locked', name: null }
+    })
+}
+
+/** Puntos si aciertas ahora: 6 menos los intentos gastados, mínimo 1 (la cuenta de `getPointsForRecord`). */
+export function pointsAtStake(failed: number): number {
+    return Math.max(JUDI_ATTEMPTS - Math.max(0, failed), 1)
+}
+
+function count(n: number, one: string, many: string) {
+    return `${n} ${n === 1 ? one : many}`
+}
+
+/** Titular y segunda línea del resultado. */
+export function resultSummary(state: 'won' | 'lost', attempts: readonly JudiAttempt[], exact: boolean): { title: string; detail: string } {
+    const failed = attempts.length
+    const misses = attempts.filter((a) => a.kind === 'miss').length
+    const skips = failed - misses
+    const parts = exact
+        ? [misses && count(misses, 'fallo', 'fallos'), skips && count(skips, 'saltado', 'saltados')].filter(Boolean).join(' y ')
+        : count(failed, 'intento fallado', 'intentos fallados')
+    if (state === 'won') {
+        if (failed === 0) return { title: '¡Acertado a la primera!', detail: 'Con solo la primera captura' }
+        return { title: `¡Acertado en la fase ${failed + 1}!`, detail: `Tras ${parts}` }
+    }
+    return { title: 'Esta vez no', detail: `${parts.charAt(0).toUpperCase()}${parts.slice(1)}, sin dar con él` }
+}
+
+/**
+ * Siguiente opción del desplegable con ↑/↓ (`dir` 1 o -1), saltando las ya probadas y dando la vuelta. -1 si no hay
+ * ninguna que se pueda elegir. Con `from` -1 y `dir` 1 da la primera libre.
+ */
+export function nextOption(tried: readonly boolean[], from: number, dir: 1 | -1): number {
+    const n = tried.length
+    if (n === 0) return -1
+    let i = from
+    for (let k = 0; k < n; k++) {
+        i = (((i + dir) % n) + n) % n
+        if (!tried[i]) return i
+    }
+    return -1
 }
