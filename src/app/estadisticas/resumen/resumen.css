@@ -1,0 +1,1336 @@
+/* ── Resumen anual (Wrapped, #33): la página «de celebración». Mockup: docs/mockups/resumen-anual.html ──
+   Más color y movimiento que en ninguna otra, siempre con los colores que ya significan algo (listas, notas, rarezas). */
+
+.wr {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-bottom: 3rem;
+}
+
+.wr-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  justify-self: start;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.wr-back:hover {
+  color: var(--foreground);
+}
+
+.wr-back svg {
+  width: 14px;
+  height: 14px;
+}
+
+.wr-block {
+  position: relative;
+  min-width: 0;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+}
+
+.wr-block > .wr-head {
+  margin-bottom: 1rem;
+}
+
+.wr-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.wr-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.25rem;
+}
+
+.wr-pair > :only-child {
+  grid-column: 1 / -1;
+}
+
+/* Cabecera de bloque: icono tintado, título y cifra */
+.wr-head {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 2rem;
+}
+
+.wr-head__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+}
+
+.wr-head__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.wr-head h2 {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.wr-head__count {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.wr-head__end {
+  margin-left: auto;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* ── Cabecera: el año en grande, la frase y las acciones ── */
+.wr-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 1rem 2rem;
+  padding: 0.5rem 0 0.75rem;
+}
+
+.wr-hero__kicker {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.wr-hero__year {
+  margin: 0;
+  font-size: 7.5rem;
+  font-weight: 800;
+  font-variant-numeric: proportional-nums;
+  letter-spacing: -0.05em;
+  line-height: 0.92;
+}
+
+.wr-hero__year .d {
+  display: inline-block;
+}
+
+.wr-hero__lead {
+  max-width: 46ch;
+  margin: 0.75rem 0 0;
+  font-size: 1.125rem;
+}
+
+.wr-hero__lead b {
+  font-weight: 700;
+}
+
+.wr-hero__side {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: end;
+}
+
+.wr-years {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.wr-years a,
+.wr-years__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 52px;
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.wr-years__more svg {
+  width: 14px;
+  height: 14px;
+}
+
+.wr-years a:hover,
+.wr-years__more:hover,
+.wr-years__more[data-state='open'] {
+  color: var(--foreground);
+}
+
+.wr-years a.on {
+  background: var(--surface);
+  color: var(--foreground);
+  box-shadow: var(--shadow-sm);
+}
+
+.wr-years__pop {
+  width: auto;
+  min-width: 8rem;
+  padding: 0.25rem;
+}
+
+.wr-years__pop ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wr-years__pop a {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 0.75rem;
+  border-radius: 6px;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.wr-years__pop a:hover,
+.wr-years__pop a:focus-visible {
+  background: var(--surface-2);
+}
+
+/* ── Horas: cifra protagonista + meses ── */
+.wr-hours {
+  display: grid;
+  grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: end;
+}
+
+.wr-hours--solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.wr-big {
+  margin: 0;
+  font-size: 5rem;
+  font-weight: 800;
+  font-variant-numeric: proportional-nums;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.wr-big small {
+  margin-left: 0.15em;
+  color: var(--muted);
+  font-size: 0.45em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.wr-big--md {
+  font-size: 3.25rem;
+}
+
+.wr-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin: 0.875rem 0 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.wr-fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.wr-fact b {
+  font-weight: 700;
+}
+
+.wr-fact svg {
+  width: 13px;
+  height: 13px;
+  color: var(--muted);
+}
+
+.wr-fact.hg-tint svg {
+  color: inherit;
+}
+
+.wr-months {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 2px;
+  align-items: end;
+  height: 168px;
+}
+
+.wr-m {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 6px;
+  height: 100%;
+  border-radius: 4px;
+  outline-offset: 2px;
+}
+
+.wr-m__track {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+.wr-m__bar {
+  width: 100%;
+  max-width: 40px;
+  height: var(--h);
+  margin: 0 auto;
+  border-radius: 4px 4px 0 0;
+  background: var(--surface-3);
+  transform-origin: bottom;
+  transition: background-color 0.15s;
+}
+
+.wr-m.is-peak .wr-m__bar {
+  background: var(--primary);
+}
+
+.wr-m:hover .wr-m__bar,
+.wr-m:focus-visible .wr-m__bar {
+  background: color-mix(in srgb, var(--primary) 55%, var(--surface-3));
+}
+
+.wr-m.is-peak:hover .wr-m__bar,
+.wr-m.is-peak:focus-visible .wr-m__bar {
+  background: var(--primary-hover);
+}
+
+.wr-m__lbl {
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.wr-m.is-peak .wr-m__lbl {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.wr-m__peak {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--h) + 6px);
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: opacity 0.12s;
+}
+
+.wr-tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--h) + 8px);
+  z-index: 2;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition: opacity 0.12s, transform 0.12s var(--ease-out);
+}
+
+/* El primero y el último no se salen del bloque */
+.wr-m:first-child .wr-tip { left: 0; transform: translate(0, 4px); }
+.wr-m:last-child .wr-tip { left: auto; right: 0; transform: translate(0, 4px); }
+
+.wr-m:hover .wr-tip,
+.wr-m:focus-visible .wr-tip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.wr-m:first-child:hover .wr-tip,
+.wr-m:first-child:focus-visible .wr-tip,
+.wr-m:last-child:hover .wr-tip,
+.wr-m:last-child:focus-visible .wr-tip {
+  transform: translate(0, 0);
+}
+
+.wr-m:hover .wr-m__peak,
+.wr-m:focus-visible .wr-m__peak {
+  opacity: 0;
+}
+
+.wr-months-cap {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* ── Juego del año: el arte grande de la ficha (HeroImage) ── */
+.wr-goty {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.wr-goty__hero {
+  display: block;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.wr-goty__hero .juego__hero {
+  position: relative;
+  display: block;
+  aspect-ratio: 1920 / 620;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.wr-goty__hero .juego__hero img {
+  object-fit: cover;
+  object-position: center 30%;
+}
+
+.wr-goty__hero .juego__hero--header {
+  aspect-ratio: 460 / 215;
+  max-width: 560px;
+}
+
+.wr-goty__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem 2rem;
+  align-items: start;
+}
+
+.wr-goty__name {
+  margin: 0;
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.wr-goty__name a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.wr-goty__name a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+.wr-goty__chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0.6rem;
+}
+
+.wr-goty__chips > span {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.wr-goty__share {
+  display: grid;
+  gap: 8px;
+  min-width: 260px;
+}
+
+.wr-goty__share p {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.wr-goty__share p b {
+  color: var(--foreground);
+  font-size: 1.75rem;
+  font-weight: 800;
+  font-variant-numeric: proportional-nums;
+  letter-spacing: -0.02em;
+}
+
+.wr-goty__share p strong {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.wr-goty__share .hg-bar {
+  height: 8px;
+}
+
+.wr-goty__share .hg-bar > span {
+  transform-origin: left;
+}
+
+.wr-goty .wr-facts {
+  margin: 0;
+}
+
+/* Tu nota con su color y su palabra («—» sin nota) */
+.wr-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.wr-score svg {
+  width: 13px;
+  height: 13px;
+}
+
+.wr-score b {
+  font-weight: 800;
+}
+
+.wr-score.is-none {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+/* ── Top 5: filas con barra relativa al primero ── */
+.wr-top {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wr-top li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px 112px minmax(0, 1fr) 150px;
+  align-items: center;
+  gap: 1rem;
+  min-height: 72px;
+  padding: 8px 14px 8px 8px;
+  border-radius: var(--radius);
+  background: var(--background);
+  transition: box-shadow 0.15s;
+}
+
+.wr-top li:hover,
+.wr-top li:has(:focus-visible) {
+  box-shadow: 0 0 0 3px var(--cursor);
+}
+
+.wr-top__pos {
+  color: var(--muted);
+  font-size: 1.75rem;
+  font-weight: 800;
+  font-variant-numeric: proportional-nums;
+  letter-spacing: -0.03em;
+  text-align: center;
+}
+
+.wr-top li.is-first .wr-top__pos {
+  color: var(--primary);
+}
+
+.wr-top__cover {
+  position: relative;
+  display: block;
+  width: 112px;
+  height: 52px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.wr-top__cover .game-cover img {
+  transition: transform 0.2s var(--ease-out);
+}
+
+.wr-top li:hover .wr-top__cover img {
+  transform: scale(1.05);
+}
+
+.wr-top__cover .game-cover--empty span,
+.wr-done__cover .game-cover--empty span,
+.wr-rare__cover .game-cover--empty span {
+  display: none;
+}
+
+.wr-top__main {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wr-top__line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.wr-top__line .hg-chip {
+  flex: none;
+  padding: 1px 8px 1px 6px;
+  font-size: 0.71875rem;
+}
+
+.wr-top__name {
+  overflow: hidden;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wr-top__name::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.wr-top__name:focus-visible {
+  outline: none;
+}
+
+.wr-top__barline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.wr-top__barline b {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.wr-top .hg-bar > span {
+  transform-origin: left;
+}
+
+.wr-top .wr-score {
+  justify-self: end;
+}
+
+/* ── Logro más raro: el bloque se tiñe de su rareza (--c) ── */
+.wr-rare {
+  --c: var(--surface-3);
+  position: relative;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.25rem 1.5rem 1.25rem 1.25rem;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--c) 7%, var(--surface));
+  box-shadow: inset 4px 0 0 var(--c);
+}
+
+.wr-rare__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--c) 18%, var(--surface));
+  color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground));
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 55%, transparent);
+}
+
+.wr-rare__icon > svg {
+  width: 44px;
+  height: 44px;
+  stroke-width: 1.75;
+}
+
+.wr-rare__icon > img {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+}
+
+.wr-rare__ring {
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--c);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.wr-spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px;
+  border-radius: 2px;
+  background: var(--c);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.wr-spark:nth-of-type(odd) {
+  width: 5px;
+  height: 5px;
+  margin: -2.5px;
+  border-radius: 50%;
+}
+
+.wr-rare__text {
+  min-width: 0;
+}
+
+.wr-rare__name {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.wr-rare__desc {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.wr-rare__ctx {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.wr-rare__cover {
+  position: relative;
+  display: block;
+  width: 48px;
+  height: 22px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.wr-rare__ctx a {
+  color: var(--foreground);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.wr-rare__ctx a:hover {
+  text-decoration: underline;
+}
+
+.wr-rare__pct {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  text-align: right;
+}
+
+.wr-rare__pct strong {
+  font-size: 3.25rem;
+  font-weight: 800;
+  font-variant-numeric: proportional-nums;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.wr-rare__pct .hg-chip {
+  justify-self: end;
+}
+
+.wr-rare__of {
+  max-width: 18ch;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+/* Logros del año por rareza: barra apilada (2 px entre tramos) y leyenda con cifras */
+.wr-tiers {
+  margin-top: 1.25rem;
+}
+
+.wr-tiers__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.wr-tiers__head span {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.wr-stack {
+  display: flex;
+  gap: 2px;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.wr-stack span {
+  min-width: 4px;
+  background: var(--c);
+}
+
+.wr-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.wr-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wr-legend li::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--c);
+}
+
+.wr-legend b {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+/* ── Racha: un cuadrado por día ── */
+.wr-streak {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 1rem;
+}
+
+.wr-streak span {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--primary);
+}
+
+.wr-streak span.is-edge {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--primary);
+}
+
+.wr-streak em {
+  align-self: center;
+  margin-left: 4px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-style: normal;
+}
+
+/* ── En números (Tile) ── */
+.wr-tiles {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wr-tiles .hg-tile:nth-child(2) { --k: 1; }
+.wr-tiles .hg-tile:nth-child(3) { --k: 2; }
+.wr-tiles .hg-tile:nth-child(4) { --k: 3; }
+
+.wr-tile__score {
+  color: color-mix(in srgb, var(--c) 85%, var(--foreground));
+}
+
+/* ── Lo que completaste ── */
+.wr-done {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wr-done li {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  padding: 6px 6px 8px;
+  border-radius: var(--radius);
+  background: var(--background);
+  transition: box-shadow 0.15s;
+}
+
+.wr-done li:hover,
+.wr-done li:has(:focus-visible) {
+  box-shadow: 0 0 0 3px var(--cursor);
+}
+
+.wr-done__cover {
+  position: relative;
+  display: block;
+  aspect-ratio: 460 / 215;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.wr-done a {
+  overflow: hidden;
+  padding: 0 2px;
+  color: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wr-done a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.wr-done a:focus-visible {
+  outline: none;
+}
+
+.wr-done .wr-score {
+  justify-self: start;
+  height: 24px;
+  padding: 0 8px;
+  font-size: 0.75rem;
+}
+
+.wr-done time {
+  padding: 0 2px;
+  color: var(--muted);
+  font-size: 0.71875rem;
+}
+
+/* ── Compartir ── */
+.wr-share {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.wr-share__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1200 / 630;
+  border-radius: 12px;
+  background: #15171c; /* el fondo de la imagen (siempre oscura) mientras carga */
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.wr-share__side {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.wr-share__side p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.wr-share__side .hg-button {
+  width: 100%;
+}
+
+.wr-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--success-glow);
+  color: var(--success) !important;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  animation: wr-in-up 0.24s var(--ease-out);
+}
+
+.wr-toast.is-error {
+  background: var(--danger-glow);
+  color: var(--danger) !important;
+}
+
+.wr-toast svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+.wr-toast .hg-draw path {
+  animation-delay: 0.1s;
+}
+
+/* ── Vacío ── */
+.wr-empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  text-align: center;
+}
+
+.wr-empty__icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+}
+
+.wr-empty__icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.wr-empty h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.wr-empty p {
+  max-width: 44ch;
+  margin: 0;
+  color: var(--muted);
+}
+
+.wr-empty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* ── Móvil ── */
+@media (max-width: 760px) {
+  .wr { gap: 1rem; }
+  .wr-block { padding: 1.1rem 1rem 1.15rem; border-radius: var(--radius-lg); }
+  .wr-note { font-size: 0.8125rem; }
+  .wr-pair { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+
+  .wr-hero { grid-template-columns: minmax(0, 1fr); padding: 0 0 0.25rem; }
+  .wr-hero__year { font-size: 5rem; }
+  .wr-hero__lead { font-size: 1rem; }
+  .wr-hero__side { justify-items: stretch; }
+  .wr-years { display: flex; overflow-x: auto; }
+  .wr-years a, .wr-years__more { flex: 1 0 auto; height: 40px; min-width: 0; padding: 0 8px; }
+
+  .wr-hours { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+  .wr-big { font-size: 3.75rem; }
+  .wr-big--md { font-size: 2.75rem; }
+  .wr-months { height: 120px; }
+
+  .wr-goty__hero .juego__hero:not(.juego__hero--header) { aspect-ratio: 460 / 215; }
+  .wr-goty__body { grid-template-columns: minmax(0, 1fr); }
+  .wr-goty__name { font-size: 1.625rem; }
+  .wr-goty__share { min-width: 0; }
+
+  .wr-top li {
+    grid-template-columns: 26px 72px minmax(0, 1fr);
+    grid-template-areas: 'p c m' 'p s s';
+    gap: 6px 10px;
+    padding: 8px 10px 10px 6px;
+  }
+  .wr-top__pos { grid-area: p; align-self: start; padding-top: 6px; font-size: 1.25rem; }
+  .wr-top__cover { grid-area: c; width: 72px; height: 34px; }
+  .wr-top__main { grid-area: m; }
+  .wr-top .wr-score { grid-area: s; justify-self: start; height: 26px; }
+  .wr-top__line .hg-chip, .wr-top__line .hg-flag { display: none; }
+
+  .wr-rare { grid-template-columns: 64px minmax(0, 1fr); gap: 0.875rem 1rem; padding: 1rem 1rem 1rem 0.875rem; }
+  .wr-rare__icon { width: 64px; height: 64px; border-radius: 14px; }
+  .wr-rare__icon > svg { width: 30px; height: 30px; }
+  .wr-rare__icon > img { width: 44px; height: 44px; border-radius: 8px; }
+  .wr-rare__name { font-size: 1.25rem; }
+  .wr-rare__desc { font-size: 0.8125rem; }
+  .wr-rare__pct { grid-column: 1 / -1; grid-template-columns: auto auto; align-items: baseline; justify-content: start; justify-items: start; gap: 4px 10px; text-align: left; }
+  .wr-rare__pct strong { font-size: 2.25rem; }
+  .wr-rare__pct .hg-chip { justify-self: start; }
+  .wr-rare__of { grid-column: 1 / -1; max-width: none; }
+
+  .wr-done { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+
+  .wr-share { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  .wr-share__side .hg-button { height: 44px; }
+}
+
+/* ══ Microanimaciones: la página con más movimiento de la web ══ */
+
+/* Bloques que se revelan al llegar con el scroll (una vez); dentro, cada pieza tiene su entrada */
+.wr [data-reveal] {
+  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+}
+
+.wr.anim [data-reveal]:not(.is-in) {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+@media (scripting: none) {
+  .wr.anim [data-reveal]:not(.is-in) { opacity: 1; transform: none; }
+}
+
+@keyframes wr-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes wr-fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes wr-pop-in {
+  from { opacity: 0; transform: scale(0.6); }
+}
+
+@keyframes wr-grow-y {
+  from { transform: scaleY(0); }
+}
+
+@keyframes wr-bar-fill {
+  from { transform: scaleX(0); }
+}
+
+/* Año: dígitos que caen uno a uno, luego la frase */
+.is-in .wr-hero__year .d {
+  animation: wr-digit 0.5s var(--ease-out) backwards;
+  animation-delay: calc(var(--k) * 70ms);
+}
+
+@keyframes wr-digit {
+  from { opacity: 0; transform: translateY(-24px); }
+}
+
+.is-in .wr-hero__lead,
+.is-in .wr-hero__side {
+  animation: wr-in-up 0.4s var(--ease-out) backwards 0.35s;
+}
+
+/* Horas: meses que crecen desde abajo, el pico al final con su etiqueta */
+.is-in .wr-m__bar {
+  animation: wr-grow-y 0.5s var(--ease-out) backwards;
+  animation-delay: calc(200ms + var(--k) * 30ms);
+}
+
+.is-in .wr-m__peak {
+  animation: wr-fade-in 0.3s var(--ease-out) backwards 0.9s;
+}
+
+.is-in .wr-hours .wr-fact {
+  animation: wr-in-up 0.3s var(--ease-out) backwards;
+  animation-delay: calc(700ms + var(--k) * 60ms);
+}
+
+/* Juego del año: la imagen se descubre, el nombre sube, chips y datos saltan y la barra se rellena */
+.is-in .wr-goty__hero img {
+  animation: wr-hero-in 0.9s var(--ease-out) backwards 0.1s;
+}
+
+@keyframes wr-hero-in {
+  from { opacity: 0; transform: scale(1.06); }
+}
+
+.is-in .wr-goty__name {
+  animation: wr-in-up 0.4s var(--ease-out) backwards 0.3s;
+}
+
+.is-in .wr-goty__chips > *,
+.is-in .wr-goty .wr-facts > li {
+  animation: wr-pop-in 0.26s var(--ease-out) backwards;
+  animation-delay: calc(450ms + var(--k, 0) * 40ms);
+}
+
+.is-in .wr-goty__share .hg-bar > span {
+  animation: wr-bar-fill 0.7s var(--ease-out) backwards 0.5s;
+}
+
+/* Top 5 en orden inverso, del 5 al 1 (160 ms entre filas: excepción aceptada solo aquí, el orden es el mensaje);
+   el 1 llega el último con un pop y el cursor cobalto un instante */
+.is-in .wr-top li {
+  animation: wr-top-in 0.42s var(--ease-out) backwards;
+  animation-delay: calc(150ms + (var(--n) - 1 - var(--k)) * 160ms);
+}
+
+@keyframes wr-top-in {
+  from { opacity: 0; transform: translateX(-24px); }
+}
+
+.is-in .wr-top li .hg-bar > span {
+  animation: wr-bar-fill 0.5s var(--ease-out) backwards;
+  animation-delay: calc(300ms + (var(--n) - 1 - var(--k)) * 160ms);
+}
+
+.is-in .wr-top li.is-first {
+  animation: wr-top-first 0.6s var(--ease-out) backwards;
+  animation-delay: calc(150ms + (var(--n) - 1) * 160ms);
+}
+
+@keyframes wr-top-first {
+  0% { opacity: 0; transform: scale(0.92); }
+  60% { opacity: 1; transform: scale(1.02); box-shadow: 0 0 0 3px var(--primary); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+.is-in .wr-top li.is-first .wr-top__pos {
+  animation: wr-pop-in 0.35s var(--ease-out) backwards;
+  animation-delay: calc(350ms + (var(--n) - 1) * 160ms);
+}
+
+/* Logro más raro: entra el icono; si es épico o legendario destella su rareza, se abre un anillo y saltan chispas (≈ 1 s) */
+.is-in .wr-rare__icon {
+  animation: wr-rare-icon 0.7s var(--ease-out) backwards 0.2s;
+}
+
+@keyframes wr-rare-icon {
+  0% { opacity: 0; transform: scale(0.4) rotate(-12deg); }
+  55% { opacity: 1; transform: scale(1.12) rotate(3deg); }
+}
+
+.is-in .wr-rare.is-flash {
+  animation: wr-rare-flash 1s var(--ease-out) backwards 0.45s;
+}
+
+@keyframes wr-rare-flash {
+  from { background-color: color-mix(in srgb, var(--c) 34%, var(--surface)); }
+}
+
+.is-in .is-flash .wr-rare__ring {
+  animation: wr-ring 0.8s var(--ease-out) 0.5s;
+}
+
+@keyframes wr-ring {
+  0% { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.7); }
+}
+
+.is-in .is-flash .wr-spark {
+  animation: wr-spark 0.8s var(--ease-out) 0.5s;
+}
+
+@keyframes wr-spark {
+  0% { opacity: 1; transform: rotate(var(--a)) translateX(30px) scale(1); }
+  100% { opacity: 0; transform: rotate(var(--a)) translateX(var(--d, 80px)) scale(0.4); }
+}
+
+.is-in .wr-rare__pct strong {
+  animation: wr-in-up 0.4s var(--ease-out) backwards 0.55s;
+}
+
+.is-in .wr-rare__pct .hg-chip {
+  animation: wr-pop-in 0.3s var(--ease-out) backwards 0.8s;
+}
+
+.is-in .wr-stack {
+  animation: wr-stack-grow 0.7s var(--ease-out) backwards 0.6s;
+}
+
+@keyframes wr-stack-grow {
+  from { clip-path: inset(0 100% 0 0 round 999px); }
+  to { clip-path: inset(0 0 0 0 round 999px); }
+}
+
+/* Racha: los días se encienden en cadena */
+.is-in .wr-streak span {
+  animation: wr-pop-in 0.26s var(--ease-out) backwards;
+  animation-delay: calc(250ms + var(--k) * 25ms);
+}
+
+/* Tiles y completados: escalonado corto */
+.is-in .hg-tile,
+.is-in .wr-done li {
+  animation: wr-in-up 0.32s var(--ease-out) backwards;
+  animation-delay: calc(100ms + min(var(--k, 0), 8) * 40ms);
+}
+
+.is-in .wr-done .wr-score {
+  animation: wr-pop-in 0.26s var(--ease-out) backwards;
+  animation-delay: calc(350ms + min(var(--k, 0), 8) * 40ms);
+}
+
+/* Movimiento reducido: todo visible desde el principio (la regla global de globals.css anula duraciones y retrasos) */
+@media (prefers-reduced-motion: reduce) {
+  .wr.anim [data-reveal]:not(.is-in) { opacity: 1; transform: none; }
+  .wr-rare__ring, .wr-spark { display: none; }
+}

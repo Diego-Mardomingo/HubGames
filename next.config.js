@@ -12,6 +12,10 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
     reactStrictMode: true,
     turbopack: {},
+    // Onest para la imagen del resumen anual (ImageResponse la lee del disco con readFile)
+    outputFileTracingIncludes: {
+        '/api/estadisticas/resumen/imagen': ['./src/assets/fonts/onest/*.ttf'],
+    },
     images: {
         // Portadas del CDN de Steam (#21). Pocos anchos y caché larga: Vercel Hobby cuenta cada transformación.
         remotePatterns: [

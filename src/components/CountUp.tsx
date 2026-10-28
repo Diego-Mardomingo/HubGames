@@ -9,6 +9,10 @@ type Props = {
     /** Texto tras la cifra («h»), separado por un espacio. */
     suffix?: string
     className?: string
+    /** Duración del conteo en ms (450 por defecto; el resumen anual usa más para la cifra protagonista). */
+    duration?: number
+    /** false = espera (p. ej. a que su bloque entre en pantalla) y cuenta en cuanto pasa a true. */
+    run?: boolean
 }
 
 const DURATION = 450
@@ -27,10 +31,11 @@ function reducedMotion() {
  * (clases `.hg-count*` de styles/lists.css). En el servidor y para lectores de pantalla siempre es el valor final.
  * `prefers-reduced-motion`: sin conteo.
  */
-export default function CountUp({ value, decimals = 0, suffix, className }: Props) {
+export default function CountUp({ value, decimals = 0, suffix, className, duration = DURATION, run = true }: Props) {
     // Conteo de entrada: null = ya terminó (se enseña el valor real).
     const [counting, setCounting] = useState<number | null>(null)
     const initial = useRef(value)
+    const started = useRef(false)
     // Saltos posteriores (patrón de AnimatedCount: comparar con el valor anterior durante el render).
     const [prev, setPrev] = useState(value)
     const [jump, setJump] = useState<{ n: number; dir: 'up' | 'down' } | null>(null)
@@ -41,19 +46,24 @@ export default function CountUp({ value, decimals = 0, suffix, className }: Prop
 
     useEffect(() => {
         const target = initial.current
+        if (!run || started.current) return
+        started.current = true
         if (reducedMotion() || target === 0) return
         const factor = 10 ** decimals
         const start = performance.now()
         let frame = 0
         const tick = (t: number) => {
-            const k = Math.min(1, (t - start) / DURATION)
+            const k = Math.min(1, (t - start) / duration)
             const eased = 1 - Math.pow(1 - k, 3)
             setCounting(k < 1 ? Math.round(target * eased * factor) / factor : null)
             if (k < 1) frame = requestAnimationFrame(tick)
         }
         frame = requestAnimationFrame(tick)
-        return () => cancelAnimationFrame(frame)
-    }, [decimals])
+        return () => {
+            cancelAnimationFrame(frame)
+            started.current = false
+        }
+    }, [decimals, duration, run])
 
     const shown = counting ?? value
     return (
