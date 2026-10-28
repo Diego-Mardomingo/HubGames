@@ -3,7 +3,11 @@ import assert from 'node:assert/strict'
 import {
     achievementPoints,
     computeMilestones,
+    countByGame,
     estimateDifficulty,
+    seriesProgress,
+    thisMonth,
+    unlockedByRarity,
     pointsByGame,
     pointsOf,
     forgottenGames,
@@ -243,5 +247,121 @@ describe('computeMilestones', () => {
         const { reached, next } = computeMilestones([], [])
         assert.equal(reached.length, 0)
         assert.deepEqual(next.map((m) => m.id), ['logros-100', 'perfectos-1', 'primer-epico', 'primer-legendario'])
+    })
+})
+
+describe('computeMilestones: series completas', () => {
+    const day = (n: number) => new Date(Date.UTC(2025, 0, 1) + n * 24 * 3600_000).toISOString()
+
+    it('todos los escalones, alcanzados con fecha y futuros sin ella', () => {
+        const unlocked = Array.from({ length: 120 }, (_, i) =>
+            ach({ appid: i < 3 ? 1 : 2, achieved: true, unlocktime: day(i), global_percent: i === 50 ? 3 : 40 }),
+        )
+        const games = [
+            { appid: 1, achievements_total: 3, achievements_unlocked: 3 },
+            { appid: 2, achievements_total: 200, achievements_unlocked: 117 },
+        ]
+        const { series } = computeMilestones(unlocked, games)
+        assert.equal(series.count.current, 120)
+        assert.deepEqual(
+            series.count.steps.map((s) => [s.value, s.reached, s.date]),
+            [
+                [100, true, day(99)],
+                [500, false, null],
+                [1000, false, null],
+                [2500, false, null],
+                [5000, false, null],
+                [10000, false, null],
+            ],
+        )
+        assert.equal(series.count.steps[5].label, '10.000 logros')
+        assert.equal(series.perfect.current, 1)
+        assert.deepEqual(
+            series.perfect.steps.map((s) => [s.value, s.reached]),
+            [
+                [1, true],
+                [10, false],
+                [25, false],
+                [50, false],
+                [100, false],
+            ],
+        )
+        assert.equal(series.perfect.steps[0].date, day(2))
+        assert.deepEqual(
+            series.rare.map((r) => [r.id, r.tier, r.reached, r.date]),
+            [
+                ['primer-epico', 'epica', true, day(50)],
+                ['primer-legendario', 'leg', false, null],
+            ],
+        )
+    })
+
+    it('sin logros: series enteras sin alcanzar', () => {
+        const { series } = computeMilestones([], [])
+        assert.equal(series.count.current, 0)
+        assert.ok(series.count.steps.every((s) => !s.reached))
+        assert.equal(series.perfect.steps.length, 5)
+        assert.ok(series.rare.every((r) => !r.reached))
+    })
+})
+
+describe('seriesProgress', () => {
+    const steps = [100, 500, 1000, 2500, 5000, 10000]
+    it('0 antes del primer escalón y 1 al pasar el último', () => {
+        assert.equal(seriesProgress(0, steps), 0)
+        assert.equal(seriesProgress(99, steps), 0)
+        assert.equal(seriesProgress(10000, steps), 1)
+        assert.equal(seriesProgress(20000, steps), 1)
+    })
+    it('en un escalón, su posición; entre dos, la parte proporcional', () => {
+        assert.equal(seriesProgress(100, steps), 0)
+        assert.equal(seriesProgress(500, steps), 0.2)
+        assert.equal(seriesProgress(300, steps), 0.1)
+        assert.equal(seriesProgress(1750, steps), 0.5)
+    })
+    it('un solo escalón: todo o nada', () => {
+        assert.equal(seriesProgress(0, [1]), 0)
+        assert.equal(seriesProgress(1, [1]), 1)
+    })
+})
+
+describe('unlockedByRarity', () => {
+    it('cuenta y suma puntos por rareza, con todas las rarezas aunque estén vacías', () => {
+        const list = [
+            ach({ achieved: true, global_percent: 50 }),
+            ach({ achieved: true, global_percent: 60 }),
+            ach({ achieved: true, global_percent: 0.5 }),
+            ach({ achieved: true, global_percent: null }),
+            ach({ achieved: false, global_percent: 2 }),
+        ]
+        assert.deepEqual(unlockedByRarity(list), [
+            { tier: 'comun', count: 2, points: 5 },
+            { tier: 'poco', count: 0, points: 0 },
+            { tier: 'rara', count: 0, points: 0 },
+            { tier: 'epica', count: 0, points: 0 },
+            { tier: 'leg', count: 1, points: 23 },
+        ])
+    })
+})
+
+describe('thisMonth', () => {
+    it('solo los desbloqueados desde el día 1 del mes', () => {
+        const now = new Date(2026, 9, 28, 12)
+        const list = [
+            ach({ achieved: true, unlocktime: new Date(2026, 9, 1, 0, 5).toISOString(), global_percent: 10 }),
+            ach({ achieved: true, unlocktime: new Date(2026, 9, 20).toISOString(), global_percent: 50 }),
+            ach({ achieved: true, unlocktime: new Date(2026, 8, 30, 23).toISOString(), global_percent: 1 }),
+            ach({ achieved: true, unlocktime: null, global_percent: 1 }),
+        ]
+        assert.deepEqual(thisMonth(list, now), { achievements: 2, points: 13 })
+    })
+})
+
+describe('countByGame', () => {
+    it('cuenta por appid', () => {
+        const counts = countByGame([ach({ appid: 1 }), ach({ appid: 2 }), ach({ appid: 1 })])
+        assert.equal(counts.get(1), 2)
+        assert.equal(counts.get(2), 1)
+        assert.equal(counts.get(3), undefined)
     })
 })
