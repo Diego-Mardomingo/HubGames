@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react'
-import { dayLabel, heatmapSummary, type Heatmap } from '@/lib/activity-heatmap'
+import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from 'react'
+import { dayLabel, heatmapSummary, type HeatDay, type Heatmap } from '@/lib/activity-heatmap'
 
 const RANGE = new Intl.DateTimeFormat('es-ES', { month: 'short', year: 'numeric', timeZone: 'UTC' })
 
@@ -18,6 +18,32 @@ interface Props {
     footer?: ReactNode
     /** Ilustración estática (portada sin sesión): sin tooltip ni teclado, oculta a lectores de pantalla. */
     preview?: boolean
+
+    // ── Modo «año» (historial de logros): todo opcional; sin estas props, el mapa del Inicio de siempre ──
+    /** Clase extra de la sección. */
+    className?: string
+    /** id del título visible (en `header`); sin él, un título oculto «Actividad del último año». */
+    labelledBy?: string
+    /** aria-label del mapa (el único tab-stop). */
+    gridLabel?: string
+    /** Clase extra del mapa (p. ej. `is-spot` para apagar todo menos una racha). */
+    gridClass?: string
+    /** Clases y variables de cada casilla (seleccionada, racha…). */
+    decorate?: (day: HeatDay) => { className?: string; style?: CSSProperties } | undefined
+    /** Texto del día para el anuncio del teclado (por defecto, `dayLabel`). */
+    describe?: (day: HeatDay) => string
+    /** Contenido del tooltip (por defecto, el mismo texto de `describe`). */
+    renderTip?: (day: HeatDay) => ReactNode
+    /** Casillas pulsables: clic, Intro o espacio sobre un día que ya ha llegado. */
+    onPick?: (day: HeatDay) => void
+    /** Día en el que empieza el recorrido con el teclado (por defecto, el último). */
+    focusDay?: string | null
+    /** Letras de los días de la semana a la izquierda (L, X, V, D). */
+    weekdays?: boolean
+    /** Rango de fechas en el pie (por defecto, sí). */
+    range?: boolean
+    /** Dónde abre el mapa si se desplaza en horizontal (por defecto, al final: lo más reciente). */
+    startAt?: 'start' | 'end'
 }
 
 interface Tip {
@@ -27,20 +53,41 @@ interface Tip {
 }
 
 const LEVELS = [0, 1, 2, 3, 4] as const
+const WEEKDAYS = ['L', '', 'X', '', 'V', '', 'D']
 
 /**
  * Mapa de actividad anual (estilo GitHub). Las celdas no son tab-stops: el mapa entero es un único elemento
  * enfocable que se recorre con las flechas (y anuncia el día), con un resumen textual para lectores de pantalla.
- * Con el ratón, tooltip al pasar por encima.
+ * Con el ratón, tooltip al pasar por encima. En modo «año» (historial) las casillas se pueden pulsar.
  */
-export default function ActivityHeatmap({ map, header, footer, preview = false }: Props) {
+export default function ActivityHeatmap({
+    map,
+    header,
+    footer,
+    preview = false,
+    className,
+    labelledBy,
+    gridLabel = 'Días del último año. Usa las flechas para recorrerlos.',
+    gridClass,
+    decorate,
+    describe = dayLabel,
+    renderTip,
+    onPick,
+    focusDay,
+    weekdays = false,
+    range = true,
+    startAt = 'end',
+}: Props) {
     const id = useId()
     const scrollRef = useRef<HTMLDivElement>(null)
     const gridRef = useRef<HTMLDivElement>(null)
     const monthsRef = useRef<HTMLDivElement>(null)
     const [tip, setTip] = useState<Tip | null>(null)
     const [active, setActive] = useState<number | null>(null)
-    const lastDay = map.days.findLastIndex((d) => !d.future)
+    const walkable = (d: HeatDay) => !d.future && !d.out
+    const firstDay = Math.max(0, map.days.findIndex(walkable))
+    const lastDay = map.days.findLastIndex(walkable)
+    const todayIndex = map.hasToday === false ? -1 : lastDay
 
     // En pantallas estrechas el mapa se desplaza en horizontal: se empieza por lo más reciente.
     // La etiqueta de un mes que queda cortada por el borde izquierdo se oculta (si no, se lee «ay» por «may»).
@@ -54,7 +101,7 @@ export default function ActivityHeatmap({ map, header, footer, preview = false }
                 label.style.visibility = label.getBoundingClientRect().left < edge ? 'hidden' : ''
             }
         }
-        el.scrollLeft = el.scrollWidth
+        el.scrollLeft = startAt === 'end' ? el.scrollWidth : 0
         clipMonths()
         el.addEventListener('scroll', clipMonths, { passive: true })
         window.addEventListener('resize', clipMonths)
@@ -62,7 +109,7 @@ export default function ActivityHeatmap({ map, header, footer, preview = false }
             el.removeEventListener('scroll', clipMonths)
             window.removeEventListener('resize', clipMonths)
         }
-    }, [])
+    }, [startAt])
 
     // El tooltip es `fixed`: si la página se desplaza, se oculta en vez de quedarse descolocado.
     useEffect(() => {
@@ -85,40 +132,62 @@ export default function ActivityHeatmap({ map, header, footer, preview = false }
         return { index, x, y: r.top }
     }
 
+    function cellAt(target: EventTarget): number | null {
+        const cell = (target as HTMLElement).closest<HTMLElement>('[data-i]')
+        return cell ? Number(cell.dataset.i) : null
+    }
+
     function onPointerMove(e: PointerEvent<HTMLDivElement>) {
         if (e.pointerType !== 'mouse') return
-        const cell = (e.target as HTMLElement).closest<HTMLElement>('[data-i]')
-        const index = cell ? Number(cell.dataset.i) : null
-        if (index === null || map.days[index].future) return setTip(null)
+        const index = cellAt(e.target)
+        if (index === null || !walkable(map.days[index])) return setTip(null)
         if (tip?.index !== index) setTip(tipFor(index))
     }
 
+    function onClick(e: MouseEvent<HTMLDivElement>) {
+        const index = cellAt(e.target)
+        if (index === null || !walkable(map.days[index])) return
+        setActive(index)
+        onPick?.(map.days[index])
+    }
+
     function move(index: number) {
-        const next = Math.max(0, Math.min(lastDay, index))
+        const next = Math.max(firstDay, Math.min(lastDay, index))
         setActive(next)
         setTip(tipFor(next))
         // Que el día activo se vea si el mapa se desplaza en horizontal.
         ;(gridRef.current?.children[next] as HTMLElement | undefined)?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
     }
 
+    function startIndex(): number {
+        const i = focusDay ? map.days.findIndex((d) => d.date === focusDay) : -1
+        return i >= 0 && walkable(map.days[i]) ? i : lastDay
+    }
+
     function onKeyDown(e: KeyboardEvent<HTMLDivElement>) {
-        const current = active ?? lastDay
+        const current = active ?? startIndex()
         const step: Record<string, number> = { ArrowLeft: -7, ArrowRight: 7, ArrowUp: -1, ArrowDown: 1 }
         if (e.key in step) move(current + step[e.key])
-        else if (e.key === 'Home') move(0)
+        else if (e.key === 'Home') move(firstDay)
         else if (e.key === 'End') move(lastDay)
         else if (e.key === 'Escape') setTip(null)
+        else if (onPick && (e.key === 'Enter' || e.key === ' ')) onPick(map.days[current])
         else return
         e.preventDefault()
     }
 
     const style = { '--weeks': map.weeks } as CSSProperties
     const shown = tip ? map.days[tip.index] : null
-    const announced = active !== null ? dayLabel(map.days[active]) : ''
+    const announced = active !== null ? describe(map.days[active]) : ''
+    const interactive = onPick ? { onClick } : {}
 
     return (
-        <section className={`heat glass${preview ? ' heat--preview' : ''}`} aria-labelledby={preview ? undefined : `${id}-title`} aria-hidden={preview || undefined}>
-            {!preview && (
+        <section
+            className={['heat glass', preview && 'heat--preview', className].filter(Boolean).join(' ')}
+            aria-labelledby={preview ? undefined : (labelledBy ?? `${id}-title`)}
+            aria-hidden={preview || undefined}
+        >
+            {!preview && !labelledBy && (
                 <h2 id={`${id}-title`} className="sr-only">
                     Actividad del último año
                 </h2>
@@ -126,39 +195,61 @@ export default function ActivityHeatmap({ map, header, footer, preview = false }
             {header}
 
             <div className="heat__scroll" ref={scrollRef}>
-                <div className="heat__body" style={style}>
+                <div className={weekdays ? 'heat__body heat__body--wd' : 'heat__body'} style={style}>
+                    {weekdays && (
+                        <div className="heat__wd" aria-hidden>
+                            {WEEKDAYS.map((w, i) => (
+                                <span key={i}>{w}</span>
+                            ))}
+                        </div>
+                    )}
                     <div
                         ref={gridRef}
-                        className="heat__grid heat__grid--paint"
+                        className={['heat__grid heat__grid--paint', onPick && 'heat__grid--pick', gridClass].filter(Boolean).join(' ')}
                         {...(preview
                             ? {}
                             : {
                                   tabIndex: 0,
                                   role: 'group',
                                   'aria-roledescription': 'mapa de actividad',
-                                  'aria-label': 'Días del último año. Usa las flechas para recorrerlos.',
+                                  'aria-label': gridLabel,
                                   'aria-describedby': `${id}-summary`,
                                   onKeyDown,
-                                  onFocus: () => setActive((a) => a ?? lastDay),
+                                  onFocus: () => setActive((a) => a ?? startIndex()),
                                   onBlur: () => {
                                       setActive(null)
                                       setTip(null)
                                   },
                                   onPointerMove,
                                   onPointerLeave: () => active === null && setTip(null),
+                                  ...interactive,
                               })}
                     >
-                        {map.days.map((d, i) => (
-                            <i
-                                key={d.date}
-                                data-i={i}
-                                data-l={d.level}
-                                aria-hidden
-                                // Semana de la casilla: el mapa se pinta de la más antigua a hoy al llegar.
-                                style={{ '--w': Math.floor(i / 7) } as CSSProperties}
-                                className={[d.future && 'is-future', i === active && 'is-active', i === lastDay && 'is-today'].filter(Boolean).join(' ') || undefined}
-                            />
-                        ))}
+                        {map.days.map((d, i) => {
+                            const extra = decorate?.(d)
+                            return (
+                                <i
+                                    key={d.date}
+                                    data-i={i}
+                                    data-l={d.level}
+                                    aria-hidden
+                                    // Semana de la casilla: el mapa se pinta de la más antigua a hoy al llegar.
+                                    style={{ '--w': Math.floor(i / 7), ...extra?.style } as CSSProperties}
+                                    className={
+                                        [
+                                            d.future && 'is-future',
+                                            d.out && 'is-out',
+                                            d.achievements > 0 && 'has-n',
+                                            i === active && 'is-active',
+                                            i === todayIndex && 'is-today',
+                                            extra?.className,
+                                        ]
+                                            .filter(Boolean)
+                                            .join(' ') || undefined
+                                    }
+                                />
+                            )
+                        })}
                     </div>
                     <div ref={monthsRef} className="heat__months" aria-hidden>
                         {map.months.map((m) => (
@@ -178,7 +269,7 @@ export default function ActivityHeatmap({ map, header, footer, preview = false }
                     ))}
                     más
                 </span>
-                <span>{rangeLabel(map.from, map.to)}</span>
+                {range && <span>{rangeLabel(map.from, map.to)}</span>}
                 {footer}
             </div>
 
@@ -194,7 +285,7 @@ export default function ActivityHeatmap({ map, header, footer, preview = false }
             )}
             {shown && tip && (
                 <div className="heat__tip" role="tooltip" style={{ left: tip.x, top: tip.y }}>
-                    {dayLabel(shown)}
+                    {renderTip ? renderTip(shown) : describe(shown)}
                 </div>
             )}
         </section>

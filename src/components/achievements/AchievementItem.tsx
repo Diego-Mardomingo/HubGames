@@ -8,6 +8,7 @@ import './achievements.css'
 import { achievementIconUrl } from '@/lib/steam-icon'
 
 const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+const TIME = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit' })
 
 type CSSVars = React.CSSProperties & Record<`--${string}`, string | number>
 
@@ -18,6 +19,8 @@ interface Props {
     context?: React.ReactNode
     /** Oculta la fecha de desbloqueo (en el historial ya está en el encabezado del día). */
     hideDate?: boolean
+    /** La hora del desbloqueo en vez de la fecha (historial: la fecha ya está en el día). */
+    showTime?: boolean
     /** Posición en la entrada escalonada (`.hg-enter`); los épicos y legendarios conseguidos, además, destellan. */
     index?: number
     /** Elemento raíz: `li` por defecto; `div` si el `li` lo pone quien lo envuelve (p. ej. un `motion.li`). */
@@ -28,7 +31,7 @@ interface Props {
  * Un logro: icono tintado y borde izquierdo con el color de su rareza, nombre, descripción, % global con el nombre de
  * la rareza y fecha. Los ocultos bloqueados no enseñan el nombre hasta pulsar.
  */
-export default function AchievementItem({ achievement: a, gameName, context, hideDate, index, as: Root = 'li' }: Props) {
+export default function AchievementItem({ achievement: a, gameName, context, hideDate, showTime, index, as: Root = 'li' }: Props) {
     const [revealed, setRevealed] = useState(false)
     const secret = a.hidden && !a.achieved && !revealed
     const name = a.display_name ?? a.apiname
@@ -86,7 +89,7 @@ export default function AchievementItem({ achievement: a, gameName, context, hid
                 {a.achieved && a.unlocktime ? (
                     !hideDate && (
                         <time className="ach-item__date" dateTime={a.unlocktime}>
-                            {DATE.format(new Date(a.unlocktime))}
+                            {(showTime ? TIME : DATE).format(new Date(a.unlocktime))}
                         </time>
                     )
                 ) : (

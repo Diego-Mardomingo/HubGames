@@ -10,7 +10,7 @@ const MONTH = new Intl.DateTimeFormat('es-ES', { month: 'short', year: 'numeric'
 const n = (v: number) => v.toLocaleString('es-ES')
 
 /** Color e icono de cada serie: logros como Sin final (igual que en la ficha), juegos al 100 % como Completado y rarezas con la suya. */
-function seriesOf(id: string): { tone: string; Icon: LucideIcon } {
+export function seriesOf(id: string): { tone: string; Icon: LucideIcon } {
     if (id.startsWith('logros-')) return { tone: 'st-sin_final', Icon: Award }
     if (id.startsWith('perfectos-')) return { tone: 'st-completado', Icon: Flag }
     return { tone: id === 'primer-legendario' ? 'rar-leg' : 'rar-epica', Icon: Trophy }
