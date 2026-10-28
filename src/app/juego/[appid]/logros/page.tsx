@@ -20,5 +20,5 @@ export default async function LogrosJuegoPage({ params }: Props) {
     if (!appid) notFound()
     const game = await getCatalogGame(appid)
     if (!game) notFound()
-    return <GameAchievements appid={appid} name={game.name} />
+    return <GameAchievements appid={appid} name={game.name} headerImage={game.header_image} />
 }

@@ -20,13 +20,15 @@ interface Props {
     hideDate?: boolean
     /** Posición en la entrada escalonada (`.hg-enter`); los épicos y legendarios conseguidos, además, destellan. */
     index?: number
+    /** Elemento raíz: `li` por defecto; `div` si el `li` lo pone quien lo envuelve (p. ej. un `motion.li`). */
+    as?: 'li' | 'div'
 }
 
 /**
  * Un logro: icono tintado y borde izquierdo con el color de su rareza, nombre, descripción, % global con el nombre de
  * la rareza y fecha. Los ocultos bloqueados no enseñan el nombre hasta pulsar.
  */
-export default function AchievementItem({ achievement: a, gameName, context, hideDate, index }: Props) {
+export default function AchievementItem({ achievement: a, gameName, context, hideDate, index, as: Root = 'li' }: Props) {
     const [revealed, setRevealed] = useState(false)
     const secret = a.hidden && !a.achieved && !revealed
     const name = a.display_name ?? a.apiname
@@ -39,7 +41,7 @@ export default function AchievementItem({ achievement: a, gameName, context, hid
     if (entering) style['--i'] = index
 
     return (
-        <li
+        <Root
             className={['hg-ach ach-item', a.achieved ? 'is-unlocked' : 'is-locked', entering && 'hg-enter', flash && 'hg-rar-flash'].filter(Boolean).join(' ')}
             style={tier || entering ? style : undefined}
         >
@@ -101,6 +103,6 @@ export default function AchievementItem({ achievement: a, gameName, context, hid
                     )
                 )}
             </div>
-        </li>
+        </Root>
     )
 }
