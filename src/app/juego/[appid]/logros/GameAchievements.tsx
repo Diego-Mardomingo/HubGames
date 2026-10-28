@@ -1,65 +1,107 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, Gauge, LogIn, Trophy } from 'lucide-react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { ArrowLeft, BookOpen, Clock, FilterX, LogIn, Trophy, X } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import {
     ACHIEVEMENT_COLUMNS,
     ACHIEVEMENT_FILTER_LABELS,
-    DIFFICULTY_LABELS,
-    estimateDifficulty,
-    formatPercent,
-    matchesAchievementFilter,
-    pointsOf,
-    sortAchievements,
     steamGuidesUrl,
     type Achievement,
     type AchievementFilter,
     type AchievementSort,
 } from '@/lib/achievements'
+import { ACHIEVEMENT_FILTERS, LAYOUT_ANIMATION_LIMIT, filterAchievements, lastUnlock, stateCounts } from '@/lib/game-achievements'
+import { RARITY_TIER_LABELS, rarityColor, type RarityTier } from '@/lib/rarity'
+import { formatHours } from '@/lib/format'
+import type { GameStatus } from '@/lib/tracker'
 import { Button } from '@/components/ui/button'
 import Loader from '@/components/Loader'
+import AnimatedCount from '@/components/AnimatedCount'
 import AchievementItem from '@/components/achievements/AchievementItem'
-import { RARITY_TIERS, RARITY_TIER_LABELS, rarityColor, rarityTier, type RarityTier } from '@/lib/rarity'
+import GameCover from '@/components/tracker/GameCover'
+import { MarkFlags, StatusChip } from '@/components/tracker/status'
+import AchievementsSummary from './AchievementsSummary'
 import '@/styles/lists.css'
 import '@/components/achievements/achievements.css'
-import '@/components/tracker/tracker.css'
+import './logros-juego.css'
 
 interface Props {
     appid: number
     name: string
+    headerImage: string | null
 }
 
-type State = { kind: 'cargando' } | { kind: 'sin_sesion' } | { kind: 'ok'; list: Achievement[] }
+/** Tu fila de la biblioteca para la cabecera (la misma que lee la ficha). */
+interface LibraryInfo {
+    status: GameStatus | null
+    favorite: boolean | null
+    endless: boolean | null
+    playtime_forever: number | null
+}
 
-const FILTERS: AchievementFilter[] = ['todos', 'bloqueados', 'desbloqueados', 'ocultos']
+type State = { kind: 'cargando' } | { kind: 'sin_sesion' } | { kind: 'ok'; list: Achievement[]; library: LibraryInfo | null }
+
 const SORTS: AchievementSort[] = ['rareza', 'fecha', 'nombre']
 /** Etiquetas cortas para el control segmentado ("Ordenar por …"). */
 const SORT_LABELS: Record<AchievementSort, string> = { rareza: 'Rareza', fecha: 'Recientes', nombre: 'Nombre' }
+const FILTER_LABELS = Object.fromEntries(ACHIEVEMENT_FILTERS.map((f) => [f, ACHIEVEMENT_FILTER_LABELS[f]])) as Record<AchievementFilter, string>
 const NONE: Achievement[] = []
+const EASE_OUT = [0.22, 1, 0.36, 1] as const
+const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
 
-type CSSVars = React.CSSProperties & Record<`--${string}`, string>
+type CSSVars = React.CSSProperties & Record<`--${string}`, string | number>
+/** Posición en la entrada escalonada (`.hg-enter`, styles/lists.css). */
+const enter = (i: number): CSSVars => ({ '--i': i })
 
-/** Conseguidos y totales por rareza (los logros sin dato de Steam no cuentan). */
-function byRarity(list: Achievement[]): { tier: RarityTier; unlocked: number; total: number }[] {
-    const rows = RARITY_TIERS.map((tier) => ({ tier, unlocked: 0, total: 0 }))
-    for (const a of list) {
-        const tier = rarityTier(a.global_percent)
-        if (!tier) continue
-        const row = rows[RARITY_TIERS.indexOf(tier)]
-        row.total++
-        if (a.achieved) row.unlocked++
-    }
-    return rows.filter((r) => r.total > 0)
+/** Control segmentado con el fondo activo que se desliza (`layoutId`) y, si se pasan, contadores que saltan. */
+function Segmented<T extends string>({
+    value,
+    options,
+    labels,
+    onChange,
+    counts,
+    scroll,
+    ...aria
+}: {
+    value: T
+    options: T[]
+    labels: Record<T, string>
+    onChange: (v: T) => void
+    counts?: Record<T, number>
+    scroll?: boolean
+    'aria-label'?: string
+    'aria-labelledby'?: string
+}) {
+    const id = useId()
+    const reduce = useReducedMotion()
+    return (
+        <div className={`hg-seg hg-seg--slide${scroll ? ' hg-seg--scroll' : ''}`} role="group" {...aria}>
+            {options.map((o) => (
+                <button key={o} type="button" className={`hg-seg__opt${value === o ? ' is-active' : ''}`} aria-pressed={value === o} onClick={() => onChange(o)}>
+                    {value === o && (
+                        <motion.span layoutId={`${id}-thumb`} className="hg-seg__thumb" transition={{ duration: reduce ? 0 : 0.22, ease: EASE_OUT }} />
+                    )}
+                    <span className="hg-seg__text">{labels[o]}</span>
+                    {counts && <AnimatedCount value={counts[o]} className="hg-seg__count hg-seg__text" />}
+                </button>
+            ))}
+        </div>
+    )
 }
 
-/** Página de logros de un juego (#25): progreso, filtros, rareza con colores y dificultad estimada. */
-export default function GameAchievements({ appid, name }: Props) {
+/** Página de logros de un juego (#25): cabecera con tu lista, resumen como el de la ficha, filtros de estado y rareza y lista. */
+export default function GameAchievements({ appid, name, headerImage }: Props) {
     const [state, setState] = useState<State>({ kind: 'cargando' })
     const [filter, setFilter] = useState<AchievementFilter>('todos')
+    const [rarity, setRarity] = useState<RarityTier | null>(null)
     const [sort, setSort] = useState<AchievementSort>('rareza')
+    // Hasta que se toca un filtro, la lista entra escalonada (CSS); después, entra y sale con framer-motion.
+    const [touched, setTouched] = useState(false)
     const [error, setError] = useState('')
+    const reduce = useReducedMotion() ?? false
 
     useEffect(() => {
         let cancelled = false
@@ -68,10 +110,13 @@ export default function GameAchievements({ appid, name }: Props) {
                 if (!cancelled) setState({ kind: 'sin_sesion' })
                 return
             }
-            const { data, error: loadError } = await supabase.from('hubgames_achievements').select(ACHIEVEMENT_COLUMNS).eq('appid', appid)
+            const [achievements, library] = await Promise.all([
+                supabase.from('hubgames_achievements').select(ACHIEVEMENT_COLUMNS).eq('appid', appid),
+                supabase.from('hubgames_library').select('status, favorite, endless, playtime_forever').eq('appid', appid).maybeSingle(),
+            ])
             if (cancelled) return
-            if (loadError) setError(loadError.message)
-            setState({ kind: 'ok', list: (data ?? []) as Achievement[] })
+            if (achievements.error) setError(achievements.error.message)
+            setState({ kind: 'ok', list: (achievements.data ?? []) as Achievement[], library: (library.data as LibraryInfo | null) ?? null })
         })
         return () => {
             cancelled = true
@@ -79,32 +124,132 @@ export default function GameAchievements({ appid, name }: Props) {
     }, [appid])
 
     const list = state.kind === 'ok' ? state.list : NONE
-    const counts = useMemo(
-        () => Object.fromEntries(FILTERS.map((f) => [f, list.filter((a) => matchesAchievementFilter(a, f)).length])) as Record<AchievementFilter, number>,
-        [list],
-    )
-    const shown = useMemo(() => sortAchievements(list.filter((a) => matchesAchievementFilter(a, filter)), sort), [list, filter, sort])
+    const counts = useMemo(() => stateCounts(list, rarity), [list, rarity])
+    const shown = useMemo(() => filterAchievements(list, filter, rarity, sort), [list, filter, rarity, sort])
+
+    // Los que entran al cambiar de filtro aparecen escalonados entre ellos: se comparan con lo que se veía antes.
+    const [prevShown, setPrevShown] = useState(shown)
+    const [before, setBefore] = useState<Set<string> | null>(null)
+    if (prevShown !== shown) {
+        setPrevShown(shown)
+        setBefore(new Set(prevShown.map((a) => a.apiname)))
+    }
 
     if (state.kind === 'cargando') return <Loader label="Cargando logros" resetScroll />
 
-    const unlocked = counts.desbloqueados
+    const library = state.kind === 'ok' ? state.library : null
     const total = list.length
-    const pct = total > 0 ? Math.floor((unlocked / total) * 100) : 0
-    const difficulty = estimateDifficulty(list)
-    const points = pointsOf(list)
-    const tiers = byRarity(list)
+    const last = lastUnlock(list)
+    const filtered = filter !== 'todos' || rarity !== null
+    const big = total > LAYOUT_ANIMATION_LIMIT
 
-    return (
-        <div className="logros">
-            <Link href={`/juego/${appid}`} className="logros__back">
+    const change = <T,>(set: (v: T) => void) => (v: T) => {
+        setTouched(true)
+        set(v)
+    }
+    const pickRarity = change((t: RarityTier | null) => setRarity((cur) => (cur === t ? null : t)))
+    const clearFilters = () => {
+        setTouched(true)
+        setFilter('todos')
+        setRarity(null)
+    }
+
+    const header = (
+        <>
+            <Link href={`/juego/${appid}`} className="logros__back gl-back hg-enter" style={enter(0)}>
                 <ArrowLeft size={14} aria-hidden /> {name}
             </Link>
-
-            <header className="page-head">
-                <div>
-                    <h1 className="page-title">Logros de {name}</h1>
+            <header className="gl-head hg-enter" style={enter(0)}>
+                <Link href={`/juego/${appid}`} className="gl-cap" aria-label={`Ficha de ${name}`}>
+                    <GameCover appid={appid} name={name} headerImage={headerImage} variant="header" sizes="184px" priority />
+                </Link>
+                <h1 className="page-title">Logros de {name}</h1>
+                {(library || last) && (
+                    <p className="gl-meta">
+                        {library?.status && <StatusChip status={library.status} />}
+                        {library && (library.favorite || library.endless) && (
+                            <span className="gl-meta__flags">
+                                <MarkFlags favorite={!!library.favorite} endless={!!library.endless} />
+                            </span>
+                        )}
+                        {library && (library.playtime_forever ?? 0) > 0 && (
+                            <span className="lib-meta">
+                                <Clock aria-hidden />
+                                <b>{formatHours(library.playtime_forever!)}</b> jugadas
+                            </span>
+                        )}
+                        {last && (
+                            <span className="lib-meta">
+                                <Trophy aria-hidden />
+                                Último logro, <b>{DATE.format(new Date(last))}</b>
+                            </span>
+                        )}
+                    </p>
+                )}
+                <div className="gl-head__act">
+                    <Button variant="secondary" asChild>
+                        <a href={steamGuidesUrl(appid)} target="_blank" rel="noreferrer">
+                            <BookOpen aria-hidden /> Guías de Steam
+                        </a>
+                    </Button>
                 </div>
             </header>
+        </>
+    )
+
+    if (state.kind === 'sin_sesion' || total === 0) {
+        return (
+            <div className="logros gl">
+                {header}
+                {error && (
+                    <p className="alert alert--error" role="alert">
+                        {error}
+                    </p>
+                )}
+                {state.kind === 'sin_sesion' ? (
+                    <div className="lg-empty hg-enter" style={enter(1)}>
+                        <span className="lg-empty__icon hg-tint st-todos" aria-hidden>
+                            <LogIn />
+                        </span>
+                        <p>
+                            <b>Inicia sesión para ver tus logros.</b>
+                            Verás tu progreso, tus puntos y lo que te falta de este juego.
+                        </p>
+                        <div className="lg-empty__action">
+                            <Button variant="secondary" size="sm" asChild>
+                                <Link href="/login">
+                                    <LogIn aria-hidden /> Entrar
+                                </Link>
+                            </Button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="lg-empty gl-empty--leg hg-enter" style={enter(1)}>
+                        <span className="lg-empty__icon hg-tint" aria-hidden>
+                            <Trophy />
+                        </span>
+                        <p>
+                            <b>No hay logros de este juego en tu cuenta.</b>O no tiene logros, o aún no se han sincronizado desde Steam.
+                        </p>
+                        <div className="lg-empty__action">
+                            <Button variant="secondary" size="sm" asChild>
+                                <Link href={`/juego/${appid}`}>
+                                    <ArrowLeft aria-hidden /> Volver a la ficha
+                                </Link>
+                            </Button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        )
+    }
+
+    let entering = 0
+    const what = [filter !== 'todos' ? ACHIEVEMENT_FILTER_LABELS[filter] : '', rarity ? RARITY_TIER_LABELS[rarity] : ''].filter(Boolean).join(' · ')
+
+    return (
+        <div className="logros gl">
+            {header}
 
             {error && (
                 <p className="alert alert--error" role="alert">
@@ -112,119 +257,98 @@ export default function GameAchievements({ appid, name }: Props) {
                 </p>
             )}
 
-            {state.kind === 'sin_sesion' ? (
-                <section className="logros__empty glass">
-                    <p>Inicia sesión para ver tus logros de este juego.</p>
-                    <Button variant="secondary" asChild>
-                        <Link href="/login">
-                            <LogIn aria-hidden /> Entrar
-                        </Link>
-                    </Button>
-                </section>
-            ) : total === 0 ? (
-                <section className="logros__empty glass">
-                    <p>No hay logros de este juego en tu cuenta. O no tiene logros, o aún no se han sincronizado desde Steam.</p>
-                    <Button variant="secondary" asChild>
-                        <Link href={`/juego/${appid}`}>Volver a la ficha</Link>
-                    </Button>
-                </section>
-            ) : (
-                <>
-                    <section className="ach-summary glass" aria-label="Progreso">
-                        <div className="ach-summary__progress">
-                            <p className="ach-summary__count">
-                                {unlocked}/{total}
-                                <small>{pct} %</small>
-                            </p>
-                            <span className="ach-summary__bar" aria-hidden>
-                                <span style={{ width: `${pct}%` }} />
-                            </span>
-                            <p className="ach-summary__points" title="Puntos según la rareza de cada logro">
-                                {points.earned.toLocaleString('es-ES')} de {points.possible.toLocaleString('es-ES')} puntos de cazador
-                            </p>
-                        </div>
-                        <div className="ach-summary__side">
-                            {difficulty ? (
-                                <p>
-                                    <span className={`ach-difficulty ach-difficulty--${difficulty.level}`}>
-                                        <Gauge size={14} aria-hidden /> {DIFFICULTY_LABELS[difficulty.level]}
-                                    </span>{' '}
-                                    para el 100 %: te {difficulty.remaining === 1 ? 'falta 1 logro' : `faltan ${difficulty.remaining} logros`}
-                                    {difficulty.rarest !== null && `, el más raro lo tiene el ${formatPercent(difficulty.rarest)}`}
-                                    {difficulty.hard > 1 && ` y ${difficulty.hard} son raros o más`}.
-                                </p>
-                            ) : (
-                                <p>
-                                    <span className="badge-100">
-                                        <Trophy size={11} aria-hidden /> 100%
-                                    </span>{' '}
-                                    Todos los logros desbloqueados.
-                                </p>
-                            )}
-                            {tiers.length > 0 && (
-                                <ul className="ach-tiers" aria-label="Conseguidos por rareza">
-                                    {tiers.map((t) => (
-                                        <li key={t.tier} style={{ '--c': rarityColor(t.tier) } as CSSVars}>
-                                            <span className="ach-tiers__name">{RARITY_TIER_LABELS[t.tier]}</span>
-                                            <span>
-                                                <b>{t.unlocked}</b>/{t.total}
-                                            </span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                            <div className="ach-summary__links">
-                                <a href={steamGuidesUrl(appid)} target="_blank" rel="noreferrer">
-                                    <BookOpen size={13} aria-hidden /> Guías de Steam
-                                </a>
-                            </div>
-                        </div>
-                    </section>
+            <AchievementsSummary list={list} rarity={rarity} onRarity={pickRarity} />
 
-                    <div className="ach-toolbar">
-                        <div className="hg-seg hg-seg--scroll" role="group" aria-label="Filtrar logros">
-                            {FILTERS.map((f) => (
-                                <button
-                                    key={f}
-                                    type="button"
-                                    className={`hg-seg__opt${filter === f ? ' is-active' : ''}`}
-                                    aria-pressed={filter === f}
-                                    onClick={() => setFilter(f)}
-                                >
-                                    {ACHIEVEMENT_FILTER_LABELS[f]}
-                                    <span className="hg-seg__count">{counts[f]}</span>
-                                </button>
-                            ))}
-                        </div>
-                        <div className="ach-sort">
-                            <span id="ach-sort-label">Ordenar por</span>
-                            <div className="hg-seg" role="group" aria-labelledby="ach-sort-label">
-                                {SORTS.map((o) => (
-                                    <button
-                                        key={o}
-                                        type="button"
-                                        className={`hg-seg__opt${sort === o ? ' is-active' : ''}`}
-                                        aria-pressed={sort === o}
-                                        onClick={() => setSort(o)}
-                                    >
-                                        {SORT_LABELS[o]}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
+            <div className="gl-bar hg-enter" style={enter(2)}>
+                <div className="gl-bar__left">
+                    <Segmented
+                        aria-label="Filtrar logros"
+                        value={filter}
+                        options={[...ACHIEVEMENT_FILTERS]}
+                        labels={FILTER_LABELS}
+                        counts={counts}
+                        onChange={change(setFilter)}
+                        scroll
+                    />
+                    <AnimatePresence initial={false}>
+                        {rarity && (
+                            <motion.button
+                                key={rarity}
+                                type="button"
+                                className="gl-rf-chip hg-tint"
+                                style={{ '--c': rarityColor(rarity) } as CSSVars}
+                                title="Quitar el filtro de rareza"
+                                onClick={() => pickRarity(null)}
+                                initial={{ opacity: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                transition={{ duration: reduce ? 0 : 0.22, ease: EASE_OUT }}
+                            >
+                                {RARITY_TIER_LABELS[rarity]} <X aria-hidden />
+                                <span className="sr-only"> (quitar filtro)</span>
+                            </motion.button>
+                        )}
+                    </AnimatePresence>
+                </div>
+                <div className="gl-sort">
+                    <span id="gl-sort-label">Ordenar por</span>
+                    <Segmented aria-labelledby="gl-sort-label" value={sort} options={SORTS} labels={SORT_LABELS} onChange={change(setSort)} />
+                </div>
+            </div>
 
-                    {shown.length === 0 ? (
-                        <p className="hg-empty">No hay logros con este filtro.</p>
-                    ) : (
-                        <ul className="ach-list">
-                            {shown.map((a) => (
-                                <AchievementItem key={a.apiname} achievement={a} gameName={name} />
-                            ))}
-                        </ul>
+            <p className="gl-result" aria-live="polite">
+                {filtered ? (
+                    <>
+                        Mostrando <b>{shown.length}</b> de {total}
+                    </>
+                ) : (
+                    `${total} ${total === 1 ? 'logro' : 'logros'}`
+                )}
+            </p>
+
+            <ul className="ach-list gl-list" aria-label="Logros">
+                <AnimatePresence initial={false} mode="popLayout">
+                    {shown.map((a, i) => {
+                        const isNew = before !== null && !before.has(a.apiname)
+                        const delay = isNew && !big ? 0.09 + Math.min(entering++, 8) * 0.02 : 0
+                        return (
+                            <motion.li
+                                key={a.apiname}
+                                layout={big || reduce ? false : 'position'}
+                                initial={big ? { opacity: 0 } : { opacity: 0, scale: 0.97 }}
+                                animate={{ opacity: 1, scale: 1, transition: { duration: reduce ? 0 : 0.24, delay: reduce ? 0 : delay, ease: EASE_OUT } }}
+                                exit={{ opacity: 0, scale: big ? 1 : 0.97, transition: { duration: reduce ? 0 : 0.16, ease: EASE_OUT } }}
+                                transition={{ layout: { duration: 0.32, ease: EASE_OUT } }}
+                            >
+                                <AchievementItem as="div" achievement={a} gameName={name} index={touched ? undefined : i} />
+                            </motion.li>
+                        )
+                    })}
+                    {shown.length === 0 && (
+                        <motion.li
+                            key="sin-resultados"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1, transition: { duration: reduce ? 0 : 0.2, delay: reduce ? 0 : 0.12 } }}
+                            exit={{ opacity: 0, transition: { duration: reduce ? 0 : 0.12 } }}
+                        >
+                            <div className="lg-empty gl-empty">
+                                <span className="lg-empty__icon" aria-hidden>
+                                    <FilterX />
+                                </span>
+                                <p>
+                                    <b>No hay logros con este filtro.</b>
+                                    {what}: ninguno.
+                                </p>
+                                <div className="lg-empty__action">
+                                    <Button variant="secondary" size="sm" onClick={clearFilters}>
+                                        Quitar filtros
+                                    </Button>
+                                </div>
+                            </div>
+                        </motion.li>
                     )}
-                </>
-            )}
+                </AnimatePresence>
+            </ul>
         </div>
     )
 }
