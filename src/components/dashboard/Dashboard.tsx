@@ -34,7 +34,6 @@ import {
     yearSummary,
     type Activity,
     type JudiTodayState,
-    type ListCountKey,
 } from '@/lib/dashboard'
 import type { DashboardData } from '@/lib/dashboard-db'
 import { buildHeatmap } from '@/lib/activity-heatmap'
@@ -50,7 +49,7 @@ import { isPerfect } from '@/lib/tracker-rules'
 import { Button } from '@/components/ui/button'
 import GameCover from '@/components/tracker/GameCover'
 import SuggestionsPanel from '@/components/tracker/SuggestionsPanel'
-import { LIST_ICONS, MarkFlags, StatusChip } from '@/components/tracker/status'
+import { MarkFlags, StatusChip } from '@/components/tracker/status'
 import { PriceTag } from '@/components/wishlist/PriceInfo'
 import KeyboardList from '@/components/KeyboardList'
 import CountUp from '@/components/CountUp'
@@ -58,6 +57,7 @@ import Tile from '@/components/Tile'
 import ActivityHeatmap from './ActivityHeatmap'
 import SyncButton from './SyncButton'
 import WhatToPlay from './WhatToPlay'
+import ListShortcuts from './ListShortcuts'
 import MonthlyGoals from './MonthlyGoals'
 import OpenSearchButton from './OpenSearchButton'
 import { shortDate, timeAgo } from './format'
@@ -347,40 +347,6 @@ function JudiPanel({ data, index }: { data: DashboardData; index: number }) {
     )
 }
 
-const LIST_SHORTCUTS: { key: ListCountKey; label: string }[] = [
-    { key: 'jugando', label: 'Jugando' },
-    { key: 'pendiente', label: 'Pendiente' },
-    { key: 'pausado', label: 'Pausado' },
-    { key: 'rejugable', label: 'Rejugable' },
-    { key: 'completado', label: 'Completado' },
-    { key: 'ya_jugado', label: 'Ya jugado' },
-    { key: 'otros', label: 'Otros' },
-    { key: 'bandeja', label: 'Bandeja' },
-]
-
-/** Atajos a tus listas: icono, color y número de cada una, como el raíl de la biblioteca. */
-function ListShortcuts({ counts, limit }: { counts: Record<ListCountKey, number>; limit: number }) {
-    return (
-        <nav className="dash-lists hg-enter" style={enter(1)} aria-label="Tus listas">
-            {LIST_SHORTCUTS.filter((l) => l.key === 'jugando' || counts[l.key] > 0).map(({ key, label }) => {
-                const Icon = LIST_ICONS[key]
-                return (
-                    <Link key={key} href={key === 'bandeja' ? '/biblioteca/bandeja' : `/biblioteca?estado=${key}`} className={`dash-list st-${key}`}>
-                        <span className="dash-list__icon hg-tint" aria-hidden>
-                            <Icon />
-                        </span>
-                        {label}
-                        <b>
-                            <CountUp value={counts[key]} />
-                            {key === 'jugando' && <small>/{limit}</small>}
-                        </b>
-                    </Link>
-                )
-            })}
-        </nav>
-    )
-}
-
 function ConnectCard() {
     return (
         <section className="dash-panel dash-connect hg-enter" style={enter(1)} aria-labelledby="dash-connect">
@@ -475,7 +441,7 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                 </div>
                 {linked && <SyncButton />}
             </div>
-            {linked && <ListShortcuts counts={counts} limit={data.playingLimit} />}
+            {linked && <ListShortcuts counts={counts} limit={data.playingLimit} style={enter(1)} />}
         </header>
     )
 
@@ -496,7 +462,7 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
         <div className="dash">
             {head}
 
-            <SuggestionsPanel />
+            <SuggestionsPanel games={data.games.filter((g) => g.suggestion)} now={now} />
 
             <div className="hg-enter" style={enter(2)}>
                 <ActivityHeatmap

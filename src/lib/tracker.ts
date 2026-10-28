@@ -155,9 +155,13 @@ export async function restoreGames(snapshots: StatusSnapshot[]): Promise<void> {
                     endless: s.endless,
                 })
                 .eq('appid', s.appid)
-            if (res.error || !s.status_changed_at) return res
-            // El trigger pone status_changed_at a ahora al cambiar de estado: se le devuelve el de antes.
-            return supabase.from('hubgames_user_games').update({ status_changed_at: s.status_changed_at }).eq('appid', s.appid)
+            if (res.error || (!s.status_changed_at && !s.suggestion)) return res
+            // El trigger pone status_changed_at a ahora al cambiar de estado (se le devuelve el de antes) y, si el estado
+            // de antes era manual, borra la sugerencia: se vuelve a poner (Deshacer «Pausar» en el panel de sugerencias).
+            return supabase
+                .from('hubgames_user_games')
+                .update({ ...(s.status_changed_at ? { status_changed_at: s.status_changed_at } : {}), suggestion: s.suggestion })
+                .eq('appid', s.appid)
         }),
     )
     const failed = results.find((r) => r.error)
@@ -234,6 +238,16 @@ export async function dismissSuggestion(appid: number): Promise<void> {
     const { error } = await supabase
         .from('hubgames_user_games')
         .update({ suggestion: null, suggestion_dismissed_at: new Date().toISOString() })
+        .eq('appid', appid)
+    if (error) throw new Error(error.message)
+    notifyChanged()
+}
+
+/** Deshacer «Todavía no» / «Sigo con él»: devuelve la sugerencia y la fecha del descarte anterior (o null). */
+export async function restoreSuggestion(appid: number, suggestion: string, dismissedAt: string | null): Promise<void> {
+    const { error } = await supabase
+        .from('hubgames_user_games')
+        .update({ suggestion, suggestion_dismissed_at: dismissedAt })
         .eq('appid', appid)
     if (error) throw new Error(error.message)
     notifyChanged()

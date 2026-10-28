@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { isMissingRpc, judiStreak, judiWeek, listCounts, minutesInMonth, judiTodayState, nearHundred, nextInQueue, playingNow, recentActivity, remainingMinutes, yearSummary } from './dashboard'
+import { isMissingRpc, judiStreak, judiWeek, listCounts, moveListCount, minutesInMonth, judiTodayState, nearHundred, nextInQueue, playingNow, recentActivity, remainingMinutes, yearSummary } from './dashboard'
 import { libraryGame as game } from './test-utils'
 
 const names = (list: { name: string | null }[]) => list.map((g) => g.name)
@@ -136,5 +136,23 @@ describe('dashboard', () => {
     it('minutos del mes', () => {
         const rows = [{ date: '2026-09-30', minutes: 100 }, { date: '2026-10-01', minutes: 30 }, { date: '2026-10-26', minutes: 45 }]
         assert.equal(minutesInMonth(rows, '2026-10-01'), 75)
+    })
+})
+
+describe('moveListCount', () => {
+    const base = { jugando: 4, pendiente: 23, pausado: 0, rejugable: 0, completado: 87, ya_jugado: 0, otros: 0, bandeja: 3 }
+
+    it('baja el origen y sube el destino; con -1 lo deshace', () => {
+        const moved = moveListCount(base, 'jugando', 'pausado')
+        assert.equal(moved.jugando, 3)
+        assert.equal(moved.pausado, 1)
+        assert.deepEqual(moveListCount(moved, 'jugando', 'pausado', -1), base)
+    })
+
+    it('ignora listas sin atajo y nunca baja de 0', () => {
+        const moved = moveListCount(base, 'abandonado', 'completado')
+        assert.equal(moved.completado, 88)
+        assert.equal(moveListCount(base, 'pausado', 'completado').pausado, 0)
+        assert.equal(base.jugando, 4)
     })
 })

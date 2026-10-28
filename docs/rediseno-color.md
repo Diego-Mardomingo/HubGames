@@ -139,9 +139,10 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
   - Animación: la celebración principal de la web al confirmar (bandera de Completado que se planta, confeti breve o anillo que se cierra), estrellas o puntos de la nota que se encienden al elegirla.
   - Mockup: `docs/mockups/completar.html` (aprobadas la nota A · diez puntos con medios y la celebración 1 · bandera + anillo + chispas; a diferencia del mockup, Favorito y Sin final se muestran siempre; «Saltar este» deja el juego seleccionado en la bandeja)
   - Hecho en la rama `Diego-Mardomingo/rediseno-completar`, commit `9c846fd`. Añade `ratingLabel` / `RATING_LABELS` junto a `ratingTier` (palabra de tu nota), `src/lib/completion.ts` (teclas y puntero de la nota, avance del lote), el token `--on-done` y las marcas en `saveCompletion` y en Deshacer (`restoreGames`).
-- 🎨 **Panel de sugerencias** — `src/components/tracker/SuggestionsPanel.tsx`
+- [x] **Panel de sugerencias** — `src/components/tracker/SuggestionsPanel.tsx`
   - Ideas: puntuaciones y precios con color, lista de destino con su color.
-  - Mockup: `docs/mockups/sugerencias.html`
+  - Mockup: `docs/mockups/sugerencias.html` (aprobada la variante A: lista agrupada por destino, «¿Lo has terminado?» en verde Completado y «¿Lo dejas en pausa?» en ámbar Pausado, con resumen «3 por completar · 2 por pausar» y, con una sola, la pregunta como título; las tres pruebas con color de `evaluateGame`; contexto sin precios; Deshacer 5 s al pausar y al descartar, con cuándo volverá a preguntar; ficha que vuela al atajo de la lista en la cabecera del Inicio; sin tercera respuesta «Lo dejo»; 4 a la vista y «Ver N más»; primero completar y luego pausar, cada grupo por última partida)
+  - Hecho en la rama `Diego-Mardomingo/rediseno-sugerencias`, commit `5c96981`. Añade `src/lib/suggestions.ts` (grupos y orden, la prueba de cada regla, cuándo vuelve a preguntar), `restoreSuggestion` (Deshacer un descarte), `moveListCount` y los atajos de listas del Inicio como componente cliente (`ListShortcuts`, que cuentan los cambios del panel sin recargar); `restoreGames` vuelve a poner la sugerencia que borra el trigger.
 
 ### 4. Logros
 
