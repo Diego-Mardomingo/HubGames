@@ -8,6 +8,7 @@ import type { WishlistGame } from '@/lib/wishlist'
 import { Button } from '@/components/ui/button'
 import CompleteDialog from '@/components/tracker/CompleteDialog'
 import type { PriceData } from '@/components/wishlist/PriceInfo'
+import type { StorePrice } from '@/lib/store-price'
 
 /**
  * Lo tuyo de un juego en su ficha: lo tienes (`ok`), no lo tienes (`no_lo_tienes`: quizá en Pendientes sin comprar o en
@@ -41,14 +42,10 @@ export function useGame(): GameContextValue {
 const PRICE_COLUMNS =
     'price_initial, price_final, discount_percent, itad_id, steam_low, steam_low_at, all_low, all_low_shop, all_low_at'
 
-/** Precio de Steam guardado con la ficha (`price_overview`), si no hay precio sincronizado. */
-export interface StorePrice {
-    initial: number
-    final: number
-    discount_percent: number
-}
+export type { StorePrice }
 
-async function load(appid: number, store: StorePrice | null, isFree: boolean, comingSoon: boolean): Promise<GameState> {
+/** Lo tuyo de un juego (la carga de la ficha). También lo usa el resultado de JUDI. */
+export async function loadGameState(appid: number, store: StorePrice | null, isFree: boolean, comingSoon: boolean): Promise<GameState> {
     const {
         data: { session },
     } = await safeGetSession()
@@ -106,12 +103,12 @@ export function GameProvider({
     const [completing, setCompleting] = useState(false)
 
     const reload = useCallback(async () => {
-        setState(await load(appid, store, isFree, comingSoon))
+        setState(await loadGameState(appid, store, isFree, comingSoon))
     }, [appid, store, isFree, comingSoon])
 
     useEffect(() => {
         let cancelled = false
-        load(appid, store, isFree, comingSoon).then((s) => !cancelled && setState(s))
+        loadGameState(appid, store, isFree, comingSoon).then((s) => !cancelled && setState(s))
         return () => {
             cancelled = true
         }

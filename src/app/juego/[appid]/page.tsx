@@ -10,7 +10,8 @@ import { htmlToParagraphs, parseGenres, parseScreenshots, parseTrailers } from '
 import { Button } from '@/components/ui/button'
 import GamePanel from './GamePanel'
 import GameAchievementsSummary from './GameAchievementsSummary'
-import { GameHeaderActions, GameProvider, type StorePrice } from './GameContext'
+import { GameHeaderActions, GameProvider } from './GameContext'
+import { storePrice } from '@/lib/store-price'
 import { HeroImage, Screenshots, Trailers } from './Media'
 import '@/styles/lists.css'
 import './juego.css'
@@ -24,17 +25,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const game = appid ? await getCatalogGame(appid) : null
     if (!game) return { title: 'Juego no encontrado' }
     return { title: game.name, description: game.short_description ?? undefined }
-}
-
-/** Precio de Steam guardado con la ficha (`price_overview`, en céntimos), o null. */
-function storePrice(raw: unknown): StorePrice | null {
-    const p = raw as { initial?: unknown; final?: unknown; discount_percent?: unknown } | null
-    if (!p || typeof p.final !== 'number') return null
-    return {
-        initial: typeof p.initial === 'number' ? p.initial : p.final,
-        final: p.final,
-        discount_percent: typeof p.discount_percent === 'number' ? p.discount_percent : 0,
-    }
 }
 
 /** Ficha de un juego (#22): datos de Steam en el servidor y, en el cliente, los tuyos (estado, horas, logros). */

@@ -1,0 +1,1343 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · JUDI, partida del día · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- El confeti de JUDI: la misma librería que usa la app (canvas-confetti) -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-hover: #ad1b31; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --rar-comun: #8a8f98; --rar-poco: #2e9e5b; --rar-rara: #2f6fe0; --rar-epica: #8b4fd8; --rar-leg: #c98a0b; --rar-ink: 62%;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-completado: #1a7743;
+  --st-abandonado: #c7243b; --st-favorito: #c2255c; --st-sinfinal: #6741d9;
+  --sc-top: #1a7743; --sc-good: #4d7c0f; --sc-mid: #8e5e18; --sc-bad: #c7243b;
+  --deal: #f5c400; --deal-foreground: #2b2100; --tint: 12%;
+  --on-done: #ffffff;
+  --scrim: rgba(14, 18, 28, 0.55);
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-hover: #ff8090; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --rar-comun: #9aa0aa; --rar-poco: #4cc97e; --rar-rara: #5b93ff; --rar-epica: #b07cff; --rar-leg: #f2b53a; --rar-ink: 100%;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e; --st-favorito: #f783ac; --st-sinfinal: #b197fc;
+  --sc-top: #4cc97e; --sc-good: #a9d15b; --sc-mid: #f2b53a; --sc-bad: #f26b7e;
+  --deal: #ffd43b; --deal-foreground: #221a00; --tint: 14%;
+  --on-done: #0b1f13;
+  --scrim: rgba(0, 0, 0, 0.65);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button, input { font-family: inherit; color: inherit; }
+button { cursor: pointer; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+[hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after, html.theme-anim body {
+  transition: background-color .3s var(--ease-out), color .3s var(--ease-out), border-color .3s var(--ease-out), fill .3s, stroke .3s, box-shadow .3s var(--ease-out) !important;
+}
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.doc-group { display: inline-flex; align-items: center; gap: 4px; padding-right: 8px; margin-right: 4px; border-right: 1px solid var(--border); }
+.doc-group > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.doc-btn--sm { height: 32px; padding: 0 10px; font-size: .8125rem; }
+.doc-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: .71875rem; font-weight: 700; vertical-align: 2px; }
+.doc-tag--new { background: var(--primary-glow); color: var(--primary); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.note table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: .8125rem; }
+.note th, .note td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.note th { color: var(--muted); font-weight: 600; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 120ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: clip; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 52ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.grid-frames { display: grid; grid-template-columns: repeat(2, 600px); gap: 24px 24px; align-items: start; }
+.grid-frames.cols { grid-template-columns: repeat(3, 420px); }
+.vlabel { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.875rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 7px; background: var(--surface-2); }
+.vlabel .doc-tag { margin-left: 4px; }
+.tests { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 0; }
+.tests > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.tests > span:not(:first-child) { margin-left: 10px; }
+.col-frame { padding: 16px; }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; text-align: left; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nav-ind { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px 0 5px; border-radius: 999px; font-size: .71875rem; font-weight: 700; }
+.nav-ind .i { font-size: 11px; }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-2); color: var(--foreground); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.nav-cta { display: flex; align-items: center; justify-content: center; gap: .5rem; height: 40px; padding: 0 1rem; border-radius: var(--radius-sm); color: var(--primary-foreground); background: var(--primary); font-size: .875rem; font-weight: 600; }
+.nav-cta .i { font-size: 16px; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); }
+.m-tab.active::before { content: ''; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--cursor); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+.m-tab__badge { position: absolute; top: -3px; right: -7px; width: 9px; height: 9px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px var(--surface); }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.m-page { padding: 1rem 1rem 110px; }
+
+/* ══ Piezas compartidas (copia de lists.css y globals.css) ══ */
+.st-todos { --c: var(--primary); } .st-bandeja { --c: var(--st-bandeja); } .st-pendiente { --c: var(--st-pendiente); }
+.st-jugando { --c: var(--st-jugando); } .st-completado { --c: var(--st-completado); } .st-favorito { --c: var(--st-favorito); }
+.st-sinfinal { --c: var(--st-sinfinal); }
+.sc-top { --c: var(--sc-top); } .sc-good { --c: var(--sc-good); } .sc-mid { --c: var(--sc-mid); } .sc-bad { --c: var(--sc-bad); }
+.rar-leg { --c: var(--rar-leg); }
+.ok { --c: var(--success); } .ko { --c: var(--danger); } .warn { --c: var(--warning); } .neutral { --c: var(--muted); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.warn, .hg-tint.sc-mid { color: var(--warn-ink); }
+.ink { color: var(--c); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; background: none; transition: background-color .2s var(--ease-out), border-color .15s, color .2s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active:not(:disabled) { transform: scale(.97); }
+.btn:disabled { cursor: not-allowed; opacity: .55; }
+.btn.is-busy:disabled, .btn.is-done:disabled { opacity: 1; cursor: default; }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover:not(:disabled) { background: var(--surface-2); border-color: var(--border-hover); }
+.btn--ghost { color: var(--foreground); }
+.btn--ghost:hover:not(:disabled) { background: var(--surface-2); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.btn--lg { height: 44px; padding: 0 18px; font-size: .9375rem; }
+.w-mob .btn--sm, .w-col .btn--sm { height: 40px; }
+.btn .i-go { transition: transform .16s var(--ease-out); }
+.btn:hover:not(:disabled) .i-go { transform: translateX(3px); }
+.hg-icon-btn { display: inline-grid; place-items: center; width: 40px; height: 40px; flex: none; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 18px; transition: background-color .15s, border-color .15s; }
+.hg-icon-btn:hover { background: var(--surface-2); border-color: var(--border-hover); }
+.w-mob .hg-icon-btn { width: 44px; height: 44px; }
+.spin-ring { width: 15px; height: 15px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; flex: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 12px; }
+.hg-chip--plain { background: var(--surface-2); color: var(--muted); }
+.hg-flag { display: inline-grid; flex: none; place-items: center; width: 20px; height: 20px; border-radius: 5px; font-size: 12px; }
+.hg-flag.st-favorito .i { fill: currentColor; }
+.hg-score { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 26px; height: 20px; padding: 0 6px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+.hg-deal { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 6px; background: var(--deal); color: var(--deal-foreground); font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+.hg-deal .i { font-size: 12px; }
+.lib-own--no { display: inline-flex; align-items: center; gap: 4px; padding: 0 6px; border-radius: 5px; color: var(--st-pendiente); outline: 1px dashed var(--st-pendiente); outline-offset: -1px; font-size: 0.6875rem; font-weight: 700; line-height: 1.6; white-space: nowrap; }
+.gs-wish-chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px 2px 7px; border-radius: 999px; background: var(--surface-2); color: var(--foreground); font-size: .75rem; font-weight: 600; white-space: nowrap; }
+.gs-wish-chip .i { font-size: 12px; fill: currentColor; }
+.hg-kbd { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); font-size: .6875rem; font-weight: 600; font-family: inherit; }
+.hg-input { width: 100%; min-width: 0; height: 44px; padding: 0 2.5rem 0 2.5rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: .9375rem; outline: none; box-shadow: 0 0 0 3px transparent; transition: border-color .18s var(--ease-out), box-shadow .18s var(--ease-out); text-overflow: ellipsis; }
+.hg-input::placeholder { color: var(--muted); }
+.hg-input:hover:not(:disabled) { border-color: var(--border-hover); }
+.hg-input:focus, .is-focus .hg-input { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+.hg-input:disabled { background: var(--surface-2); color: var(--muted); cursor: progress; }
+.alert { display: flex; align-items: flex-start; gap: .625rem; margin: 0; padding: .625rem .875rem; border-radius: var(--radius-sm); font-size: .875rem; font-weight: 500; }
+.alert > .i { margin-top: 2px; font-size: 16px; }
+.alert__body { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.alert__sub { color: var(--foreground); font-weight: 400; font-size: .8125rem; }
+.alert--error { color: var(--danger); background: var(--danger-glow); }
+.alert--neutral { color: var(--foreground); background: var(--surface-2); }
+.alert .btn { height: 30px; padding: 0 10px; font-size: .8125rem; color: inherit; background: var(--surface); border-color: color-mix(in srgb, currentColor 35%, var(--border)); align-self: center; }
+.w-mob .alert .btn, .w-col .alert .btn { height: 40px; }
+
+/* ══ JUDI · partida ══ */
+.jd { display: grid; gap: 1.25rem; }
+.jd-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.jd-top__title { display: grid; min-width: 0; }
+.jd-top__title h1 { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; margin: 0; font-size: 1.375rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+.jd-top__title p { margin: 0; color: var(--muted); font-size: .8125rem; }
+.jd-top__right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.w-mob .jd-top__right, .w-col .jd-top__right { width: 100%; margin-left: 0; justify-content: space-between; }
+.jd-lives { display: inline-flex; align-items: center; gap: 10px; color: var(--muted); font-size: .8125rem; font-weight: 600; white-space: nowrap; }
+.jd-lives b { color: var(--foreground); }
+.jd-lives b.is-low { color: var(--danger); }
+
+/* Intentos (pips): cada uno con su icono, nunca solo color */
+.jd-pips { display: inline-flex; gap: 4px; }
+.jd-pip { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: 12px; transition: background-color .25s var(--ease-out) .12s, color .25s .12s, box-shadow .2s; }
+.jd-pip .i { stroke-width: 2.75; }
+.jd-pip.is-current { background: var(--primary-glow); box-shadow: inset 0 0 0 2px var(--primary); }
+.jd-pip.is-miss { background: var(--danger); color: var(--danger-foreground); }
+.jd-pip.is-skip { background: var(--surface-3); color: var(--foreground); }
+.jd-pip.is-hit { background: var(--success); color: var(--on-done); }
+.jd-pips--sm .jd-pip { width: 16px; height: 16px; border-radius: 4px; font-size: 10px; }
+
+.jd-grid { display: grid; gap: 1.5rem; align-items: start; }
+.w-desk .jd-grid { grid-template-columns: minmax(0, 1.65fr) minmax(330px, 1fr); }
+.jd-stagecol { display: grid; gap: 10px; min-width: 0; }
+.jd-stage { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; padding: 0; border: 0; border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-2); cursor: zoom-in; }
+.jd-stage:focus-visible { outline: 3px solid var(--cursor); outline-offset: -3px; }
+.jd-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; pointer-events: none; }
+/* Placas sobre la captura: velo oscuro y texto blanco (excepción documentada) */
+.jd-plate { position: absolute; z-index: 2; background: rgba(12, 14, 18, 0.72); color: #fff; border-radius: var(--radius-sm); pointer-events: none; }
+.jd-plate--badge { top: 12px; left: 12px; padding: 4px 10px; font-size: .8125rem; }
+.jd-plate--zoom { top: 12px; right: 12px; display: grid; place-items: center; width: 36px; height: 36px; font-size: 16px; opacity: 0; transition: opacity .15s; }
+.jd-stage:hover .jd-plate--zoom, .jd-stage:focus-visible .jd-plate--zoom, .w-mob .jd-plate--zoom { opacity: 1; }
+.jd-plate--hint { left: 12px; bottom: 12px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; max-width: calc(100% - 24px); padding: 7px 12px; }
+.jd-plate--hint span { color: rgba(255, 255, 255, .78); font-size: .8125rem; }
+.jd-plate--hint b { font-size: .9375rem; font-weight: 600; }
+.w-mob .jd-plate--badge, .w-mob .jd-plate--hint { left: 8px; } .w-mob .jd-plate--hint { bottom: 8px; padding: 5px 10px; }
+.w-mob .jd-plate--hint b { font-size: .875rem; }
+.jd-flash { position: absolute; inset: 0; z-index: 3; border-radius: inherit; box-shadow: inset 0 0 0 4px var(--danger); pointer-events: none; animation: fade-out .7s ease-out forwards; }
+.jd-stage__empty { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 6px; color: var(--muted); font-size: .875rem; cursor: default; }
+.jd-stage__empty .q { font-size: 3rem; font-weight: 700; color: var(--surface-3); line-height: 1; }
+.jd-keyhint { margin: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .75rem; }
+.jd-keyhint b { color: var(--foreground); font-weight: 600; }
+.w-mob .jd-keyhint .kh { display: none; }
+
+/* Variante A · tira de capturas: una por intento, con el resultado de ese intento */
+.jd-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.w-mob .jd-strip { gap: 6px; }
+.jd-shot { --c: transparent; position: relative; display: block; aspect-ratio: 16 / 9; padding: 0; border: 0; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2); transition: box-shadow .18s var(--ease-out), transform .18s var(--ease-out); }
+.w-mob .jd-shot, .w-col .jd-shot { aspect-ratio: auto; height: 44px; }
+.jd-shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.jd-shot::after { content: ''; position: absolute; inset: auto 0 0 0; z-index: 2; height: 4px; background: var(--c); transition: background-color .25s var(--ease-out) .12s; }
+.jd-shot:hover:not(:disabled) { transform: translateY(-2px); }
+.jd-shot[aria-selected='true'] { box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--cursor); }
+.jd-shot__tag { position: absolute; left: 4px; top: 4px; z-index: 2; display: inline-flex; align-items: center; gap: 3px; height: 18px; padding: 0 5px; border-radius: 5px; background: rgba(12, 14, 18, 0.72); color: #fff; font-size: .6875rem; font-weight: 700; }
+.jd-shot__tag .i { font-size: 11px; stroke-width: 3; }
+.jd-shot.is-miss { --c: var(--danger); } .jd-shot.is-miss .jd-shot__tag { background: var(--danger); color: var(--danger-foreground); }
+.jd-shot.is-skip { --c: var(--muted); }
+.jd-shot.is-hit { --c: var(--success); } .jd-shot.is-hit .jd-shot__tag { background: var(--success); color: var(--on-done); }
+.jd-shot.is-current { --c: var(--primary); }
+.jd-shot.is-locked { display: grid; place-items: center; align-content: center; gap: 1px; background: transparent; outline: 1px dashed var(--border-hover); outline-offset: -1px; color: var(--muted); font-size: .6875rem; font-weight: 600; cursor: not-allowed; }
+.jd-shot.is-locked .i { font-size: 13px; }
+.w-mob .jd-shot.is-locked span, .w-col .jd-shot.is-locked span { display: none; }
+.jd-shot.is-unlock img { animation: fade-in .3s var(--ease-out) .18s backwards; }
+
+/* Variante B · pestañas numeradas (las de hoy) con el resultado debajo */
+.jd-tabs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.jd-tab { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 4px; height: 38px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-size: .875rem; font-weight: 600; transition: background-color .15s, color .15s; }
+.w-mob .jd-tab, .w-col .jd-tab { height: 44px; }
+.jd-tab .i { font-size: 12px; stroke-width: 3; }
+.jd-tab[aria-selected='true'] { background: var(--surface); color: var(--primary); box-shadow: var(--shadow-sm); }
+.jd-tab:disabled { opacity: .6; cursor: not-allowed; }
+.jd-tab.is-miss .i { color: var(--danger); } .jd-tab.is-hit .i { color: var(--success); }
+.jd-tab::after { content: ''; position: absolute; left: 30%; right: 30%; bottom: 3px; height: 3px; border-radius: 2px; background: var(--c, transparent); }
+.jd-tab.is-miss { --c: var(--danger); } .jd-tab.is-skip { --c: var(--muted); } .jd-tab.is-hit { --c: var(--success); } .jd-tab.is-current { --c: var(--primary); }
+
+/* Panel */
+.jd-panel { display: grid; gap: 1.25rem; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); min-width: 0; }
+.w-mob .jd-panel { padding: 1rem; }
+.jd-ptitle { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 .5rem; font-size: .9375rem; font-weight: 700; letter-spacing: -0.01em; }
+.jd-stake { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px 0 7px; border-radius: 999px; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+.jd-stake .i { font-size: 12px; }
+.jd-guess { position: relative; }
+.jd-guess__icon { position: absolute; left: 13px; top: 50%; z-index: 1; display: grid; color: var(--muted); font-size: 16px; transform: translateY(-50%); pointer-events: none; transition: color .18s; }
+.jd-guess:focus-within .jd-guess__icon { color: var(--primary); }
+.jd-guess__spin { position: absolute; right: 13px; top: 50%; margin-top: -7.5px; color: var(--muted); }
+.jd-drop { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 20; display: grid; gap: 2px; max-height: 300px; overflow: auto; margin: 0; padding: 4px; list-style: none; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); animation: drop-in .16s var(--ease-out); }
+.w-mob .jd-drop { top: auto; bottom: calc(100% + 6px); max-height: 228px; }
+.jd-opt { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 40px; padding: 6px 10px; border: 0; border-radius: 7px; background: none; text-align: left; font-size: .875rem; }
+.w-mob .jd-opt, .w-col .jd-opt { min-height: 44px; }
+.jd-opt mark { background: none; color: inherit; font-weight: 700; }
+.jd-opt.is-hl { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--cursor); }
+.jd-opt:disabled { cursor: not-allowed; color: var(--muted); }
+.jd-opt:disabled .jd-opt__name { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+.jd-opt__tag { display: inline-flex; align-items: center; gap: 4px; flex: none; padding: 1px 7px 1px 5px; border-radius: 999px; font-size: .6875rem; font-weight: 700; }
+.jd-opt__tag .i { font-size: 11px; stroke-width: 3; }
+.jd-opt__key { flex: none; display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: .6875rem; }
+.jd-drop__empty { padding: 10px; color: var(--muted); font-size: .8125rem; }
+.jd-guess-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: .5rem; }
+.jd-help { margin: 0; color: var(--muted); font-size: .8125rem; }
+.jd-guess-err { margin-top: .625rem; animation: msg-in .2s var(--ease-out); }
+
+.jd-tries { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.jd-try { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 28px; padding: 3px 10px 3px 4px; border-radius: 999px; font-size: .78125rem; font-weight: 600; }
+.jd-try__n { display: inline-grid; place-items: center; width: 20px; height: 20px; flex: none; border-radius: 50%; font-size: .6875rem; }
+.jd-try__n .i { font-size: 11px; stroke-width: 3; }
+.jd-try.is-miss { background: var(--danger-glow); color: var(--danger); }
+.jd-try.is-miss .jd-try__n { background: var(--danger); color: var(--danger-foreground); }
+.jd-try.is-skip { background: var(--surface-2); color: var(--muted); }
+.jd-try.is-skip .jd-try__n { background: var(--surface-3); color: var(--foreground); }
+.jd-try span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jd-tries-sum { margin: .375rem 0 0; color: var(--muted); font-size: .75rem; }
+
+/* Pistas */
+.jd-hints { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.jd-hint { position: relative; display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: left; transition: border-color .15s, box-shadow .18s var(--ease-out), background-color .15s; }
+.w-mob .jd-hint { min-height: 56px; }
+.jd-hint:hover:not(:disabled) { border-color: var(--border-hover); }
+.jd-hint.is-active { border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); box-shadow: inset 3px 0 0 var(--primary); }
+.jd-hint:disabled { cursor: default; }
+.jd-hint.is-locked { background: transparent; border-style: dashed; }
+.jd-hint__icon { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius-sm); background: var(--surface-2); color: var(--foreground); font-size: 15px; }
+.jd-hint.is-locked .jd-hint__icon { background: transparent; color: var(--muted); font-size: 13px; }
+.jd-hint.is-new .jd-hint__icon { background: var(--primary-glow); color: var(--primary); }
+.jd-hint__text { display: grid; min-width: 0; }
+.jd-hint__label { color: var(--muted); font-size: .75rem; font-weight: 500; }
+.jd-hint__value { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 7px; font-size: .875rem; font-weight: 600; overflow-wrap: anywhere; }
+.jd-hint__value small { color: var(--c, var(--muted)); font-size: .75rem; font-weight: 600; }
+.jd-hint__value small.sc-mid { color: var(--warn-ink); }
+.jd-hint.is-locked .jd-hint__value { color: var(--muted); font-weight: 500; font-size: .8125rem; }
+.jd-hint__end { display: grid; justify-items: end; gap: 3px; }
+.jd-hint__phase { color: var(--muted); font-size: .6875rem; font-weight: 600; white-space: nowrap; }
+.jd-new { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: 5px; font-size: .6875rem; font-weight: 700; }
+/* Variante B de pistas: cuánto acerca (tres segmentos en cobalto) */
+.jd-meter { display: inline-flex; align-items: center; gap: 2px; }
+.jd-meter i { width: 10px; height: 5px; border-radius: 2px; background: var(--surface-3); }
+.jd-meter i.on { background: var(--primary); }
+.jd-meter-lbl { color: var(--muted); font-size: .6875rem; font-weight: 600; white-space: nowrap; }
+
+/* Resultado: la tarjeta del juego, como en la ficha */
+.jd-res { display: grid; gap: 1rem; }
+.jd-res__head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.jd-res__icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; }
+.jd-res__icon .i { stroke-width: 3; }
+.jd-res--won .jd-res__icon { background: var(--success); color: var(--on-done); }
+.jd-res--lost .jd-res__icon { background: var(--danger-glow); color: var(--danger); }
+.jd-res__status { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; }
+.jd-res__sub { margin: 2px 0 0; color: var(--muted); font-size: .8125rem; }
+.jd-res__pts { display: grid; justify-items: end; margin: 0; line-height: 1; }
+.jd-res__pts b { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
+.jd-res--won .jd-res__pts b { color: var(--primary); }
+.jd-res--lost .jd-res__pts b { color: var(--muted); }
+.jd-res__pts small { margin-top: 4px; color: var(--muted); font-size: .75rem; font-weight: 600; }
+.jd-card { display: grid; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--background); }
+.jd-card__art { position: relative; aspect-ratio: 460 / 215; background: var(--surface-2); overflow: hidden; }
+.jd-card__art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.jd-card__body { display: grid; gap: .625rem; padding: .875rem 1rem 1rem; }
+.jd-card__label { color: var(--muted); font-size: .75rem; font-weight: 600; }
+.jd-card__name { margin: -4px 0 0; font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; overflow-wrap: anywhere; }
+.jd-card__name a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.jd-card__row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; font-size: .8125rem; }
+.jd-sc { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: .8125rem; white-space: nowrap; }
+.jd-sc b { color: var(--foreground); font-weight: 600; }
+.jd-price { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; }
+.jd-price strong { font-size: 1rem; }
+.jd-price s { color: var(--muted); font-size: .8125rem; }
+.jd-price__cut { padding: 0 6px; border-radius: 5px; font-size: .78125rem; font-weight: 700; }
+.jd-price__low--muted { color: var(--muted); font-size: .78125rem; }
+.jd-verdict { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; padding: 7px 10px; border-radius: var(--radius-sm); font-size: .78125rem; font-weight: 700; }
+.jd-verdict .i { font-size: 15px; }
+.jd-verdict span { font-weight: 500; }
+.jd-verdict--deal { background: var(--deal); color: var(--deal-foreground); }
+.jd-verdict--sale { background: color-mix(in srgb, var(--sc-mid) var(--tint), transparent); color: var(--warn-ink); }
+.jd-acts { display: flex; flex-wrap: wrap; gap: 6px; }
+.jd-acts .btn--link { margin-left: auto; color: var(--primary); }
+.w-mob .jd-acts .btn { flex: 1 1 auto; }
+.w-mob .jd-acts .btn--link { margin-left: 0; }
+.jd-add .i:first-child { color: var(--st-pendiente); }
+.jd-add.is-done, .jd-add.is-done:hover { border-color: transparent !important; background: color-mix(in srgb, var(--st-pendiente) var(--tint), transparent) !important; color: var(--st-pendiente); }
+.jd-add.is-done .i:first-child { color: currentColor; }
+.jd-wish.is-done, .jd-wish.is-done:hover { background: var(--surface-2) !important; color: var(--foreground); }
+.jd-wish.is-done .i { fill: currentColor; }
+.btn.is-saving { color: var(--muted); }
+.jd-guest { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface-2); font-size: .8125rem; }
+.jd-guest p { margin: 0; flex: 1 1 200px; }
+.jd-res__foot { display: grid; gap: .75rem; }
+.jd-share { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.jd-count { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: .8125rem; }
+.jd-count b { color: var(--foreground); font-weight: 700; }
+.jd-count .i { font-size: 14px; }
+.jd-nav { display: flex; gap: 8px; }
+.jd-nav .btn { flex: 1; }
+
+/* Zoom de la captura */
+.jd-zoom { position: absolute; inset: 0; z-index: 50; display: grid; place-items: center; padding: 32px; background: var(--scrim); animation: fade-in .18s var(--ease-out); cursor: zoom-out; }
+.jd-zoom img { max-width: 100%; max-height: 100%; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); animation: zoom-in .2s var(--ease-out); }
+
+/* Carga y error */
+.jd-err { display: grid; justify-items: center; gap: .625rem; padding: 3rem 1.5rem; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.jd-err__icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; font-size: 22px; }
+.jd-err h2 { margin: 0; font-size: 1.125rem; }
+.jd-err p { margin: 0; color: var(--muted); font-size: .875rem; max-width: 46ch; }
+.jd-err__acts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: .375rem; }
+
+/* ══ Tarjeta «Juego del día» (portada de /judi) ══ */
+.jd-today { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.jd-today__art { position: relative; aspect-ratio: 16 / 9; background: var(--surface-2); overflow: hidden; }
+.jd-today__art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.jd-today__ph { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 34px; }
+.jd-today__body { display: grid; align-content: center; gap: .625rem; padding: 1.125rem 1.25rem; min-width: 0; }
+.jd-today__meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .78125rem; }
+.jd-today__name { margin: 0; font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; }
+.jd-today__name.is-q { color: var(--muted); }
+.jd-today__line { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: .8125rem; }
+.jd-today__line b { color: var(--foreground); }
+.jd-today__foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: .25rem; }
+.jd-today__foot .btn { height: 38px; }
+
+/* Teclado simulado (solo para el marco) */
+.kb { position: absolute; inset: auto 0 0 0; z-index: 8; height: 290px; padding: 8px 4px 30px; background: var(--surface-3); display: grid; grid-template-rows: 36px repeat(4, 1fr); gap: 9px; }
+.kb__bar { display: flex; align-items: center; justify-content: center; gap: 24px; color: var(--muted); font-size: .8125rem; font-weight: 600; }
+.kb__row { display: flex; gap: 5px; justify-content: center; }
+.kb__row i { flex: 1; max-width: 33px; border-radius: 5px; background: var(--surface); box-shadow: 0 1px 0 var(--border-hover); }
+.kb__row i.w { max-width: 60px; } .kb__row i.sp { max-width: 180px; } .kb__row i.go { max-width: 80px; background: var(--primary); }
+.kbv { position: absolute; top: 57px; left: 0; right: 0; bottom: 290px; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; padding: 10px 16px; overflow: hidden; }
+.kbv__top { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: .8125rem; color: var(--muted); }
+.kbv__top b { color: var(--foreground); }
+.kbv .jd-stage { flex: none; }
+.kbv .jd-drop { position: static; animation: none; box-shadow: var(--shadow-lg); max-height: none; }
+
+/* ══ Microanimaciones ══ */
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes pop { 40% { transform: scale(1.22); } }
+@keyframes drop-in { from { opacity: 0; transform: translateY(-4px); } }
+.w-mob .jd-drop { animation-name: drop-up; }
+@keyframes drop-up { from { opacity: 0; transform: translateY(4px); } }
+@keyframes msg-in { from { opacity: 0; transform: translateY(-4px); } }
+@keyframes shake { 20% { transform: translateX(-6px); } 45% { transform: translateX(5px); } 70% { transform: translateX(-3px); } 90% { transform: translateX(1px); } }
+@keyframes zoom-in { from { opacity: 0; transform: scale(.94); } }
+/* Vida que se pierde: sacudida y fundido mientras pasa a su color */
+@keyframes life-lose { 0% { transform: none; opacity: 1; } 15% { transform: translateX(-4px) rotate(-5deg); } 30% { transform: translateX(4px) rotate(4deg); } 45% { transform: translateX(-2px) rotate(-2deg); opacity: .8; } 65% { transform: none; opacity: .3; } 100% { opacity: 1; } }
+/* Captura que cambia de fase: se desliza */
+@keyframes in-r { from { opacity: 0; transform: translateX(24px); } }
+@keyframes in-l { from { opacity: 0; transform: translateX(-24px); } }
+@keyframes out-l { to { opacity: 0; transform: translateX(-24px); } }
+@keyframes out-r { to { opacity: 0; transform: translateX(24px); } }
+.jd-img.in-r { animation: in-r .25s var(--ease-out); } .jd-img.in-l { animation: in-l .25s var(--ease-out); }
+.jd-img.out-l { animation: out-l .25s var(--ease-out) forwards; } .jd-img.out-r { animation: out-r .25s var(--ease-out) forwards; }
+/* Pista que se despliega: el candado se va, el icono salta y el valor se descubre de izquierda a derecha */
+@keyframes unveil { from { clip-path: inset(0 100% 0 0); opacity: .2; } to { clip-path: inset(0 0 0 0); opacity: 1; } }
+.fx-unlock .jd-hint__icon .i { animation: pop .3s var(--ease-out) .1s; }
+.fx-unlock .jd-hint__value, .fx-unlock .jd-hint__label { animation: unveil .38s var(--ease-out) .12s backwards; }
+.fx-unlock { animation: in-up .3s var(--ease-out); }
+/* Portada que se revela */
+@keyframes reveal { from { clip-path: circle(0% at 50% 50%); transform: scale(1.08); } to { clip-path: circle(75% at 50% 50%); transform: none; } }
+.fx-reveal img { animation: reveal .65s var(--ease-out) .12s backwards; }
+.fx-lose { animation: life-lose .42s var(--ease-out); }
+.fx-pop { animation: pop .32s var(--ease-out); }
+.fx-shake { animation: shake .32s var(--ease-out); }
+.fx-in { animation: in-up .32s var(--ease-out) backwards; }
+.fx-chip { animation: chip-in .26s var(--ease-out); }
+@keyframes chip-in { from { opacity: 0; transform: scale(.6); } }
+.hg-draw path, .hg-draw polyline { stroke-dasharray: 30; animation: hg-draw .3s var(--ease-out) backwards .05s; }
+@keyframes hg-draw { from { stroke-dashoffset: 30; } }
+.beat { animation: beat .4s var(--ease-out); }
+@keyframes beat { 30% { transform: scale(1.3); } 60% { transform: scale(.92); } }
+.anim .hg-enter { animation: in-up .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+html.rm .spin-ring { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+  .spin-ring { animation: none !important; }
+}
+.anim-list li { margin: 3px 0; }
+.qs li { margin: 8px 0; }
+.sw { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; vertical-align: -6px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · JUDI, partida del día</h1>
+  <div class="doc-bar__actions">
+    <div class="doc-group" role="group" aria-label="Variante de fases e intentos"><span>Fases</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="p" data-val="A" aria-pressed="true">A · Tira de capturas (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="p" data-val="B" aria-pressed="false">B · Pestañas + intentos</button>
+    </div>
+    <div class="doc-group" role="group" aria-label="Variante de pistas"><span>Pistas</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="h" data-val="A" aria-pressed="true">A · Color del dato (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="h" data-val="B" aria-pressed="false">B · Cuánto acercan</button>
+    </div>
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p><b>Hoy</b> la partida ya funciona bien (6 capturas, 6 intentos, 5 pistas que se abren con cada fallo o salto, puntos = 6 − fallos con mínimo 1), pero casi todo es gris: los intentos son cuadraditos sin icono, las fases son números que no dicen qué pasó en cada una, las pistas son todas iguales (el 97 % de reseñas pesa igual que el año) y al terminar sale una cápsula pequeña con el nombre y un botón: no sabes si el juego merece la pena, cuánto cuesta ni si ya lo tienes. La propuesta aplica el lenguaje de la Biblioteca y la Ficha sin cambiar las reglas del juego.</p>
+  <ul>
+    <li><b>Cada intento con su color e icono</b>: fallo en <code>--danger</code> con aspa, saltado en neutro con el icono de saltar, acierto en <code>--success</code> con check, el intento en curso con borde cobalto y los que quedan, vacíos. Igual en la tira, en los intentos de arriba, en la lista «Tus intentos» y en el resultado.</li>
+    <li><b>Fases con indicador claro</b> (punto de decisión 1): <b>A</b> una tira con las 6 capturas en miniatura, cada una con el resultado de su intento (la fase <i>n</i> es exactamente el intento <i>n</i>: cada fallo abre la siguiente), o <b>B</b> las pestañas numeradas de hoy con el resultado debajo y los intentos arriba.</li>
+    <li><b>Lo que te juegas, a la vista</b>: «+5 si aciertas» junto al campo (la misma cuenta que <code>getPointsForRecord</code>) y «Quedan 4 intentos» arriba; al fallar, los dos bajan con un salto.</li>
+    <li><b>Pistas con color</b> (punto de decisión 2): <b>A</b> color solo donde el dato tiene escala propia: las reseñas con <code>steamReviewScore</code> («97 % · Extremadamente positivas» en <code>--sc-top</code>); la recién abierta en cobalto con «Nueva»; las bloqueadas dicen en qué fase se abren. <b>B</b> una medida de cuánto acerca cada pista (tres segmentos en cobalto).</li>
+    <li><b>Al terminar, la tarjeta del juego como en la ficha</b>: portada grande que se revela, nombre que lleva a la ficha, <code>StatusChip</code> y marcas si ya lo tienes (o «En tu wishlist» / «No lo tienes»), Metacritic y reseñas con color y palabra, precio con veredicto (mínimo histórico en amarillo) y las acciones del buscador: «Pendientes» / «A Pendientes» y «Wishlist» con confirmación animada, y «Ver ficha». Debajo, compartir, la cuenta atrás al siguiente JUDI (si es el de hoy) y «Historial» / «Siguiente reto».</li>
+    <li><b>Intro elige el resultado resaltado</b> <span class="doc-tag doc-tag--new">Propuesta</span>: hoy Intro envía lo escrito tal cual, y «hollow» + Intro gasta un intento. Con ↑/↓ se mueve el resaltado (como en el buscador); sin resultados, Intro no envía. «Ya probado» sale tachado con su etiqueta roja.</li>
+    <li><b>«Saltar» junto al campo</b> (hoy está arriba a la derecha, lejos de la decisión), con su coste: «Saltar (−1 intento)».</li>
+    <li><b>Estados que hoy no existen</b>: error al cargar la partida (hoy se queda en el listado sin decir nada), captura que no carga, «Hoy no hay JUDI» en la tarjeta de entrada (hoy enseña la de ayer como si fuera de hoy) y error al cargar la lista.</li>
+    <li>En <b>móvil</b>, al terminar el resultado va <b>arriba</b> (hoy queda debajo de la captura); al escribir, el campo queda pegado al teclado y los resultados se abren hacia arriba sin tapar la captura.</li>
+  </ul>
+
+  <h3>De dónde sale cada dato (sin datos inventados)</h3>
+  <table>
+    <thead><tr><th>Dato</th><th>Fuente</th><th>Coste</th></tr></thead>
+    <tbody>
+      <tr><td>Capturas (y las miniaturas de la tira A)</td><td><code>/api/judi/captura/{id}/{fase}</code> (<code>judiCaptureUrl</code>); las miniaturas son las mismas URLs, ya en caché al haberlas visto</td><td>0 consultas nuevas</td></tr>
+      <tr><td>Fase, fallos, intentos con nombre, resultado de cada envío</td><td><code>hubgames_judi_get_day</code> / <code>hubgames_judi_guess</code> (<code>phase</code>, <code>failed</code>, <code>guesses</code>, <code>result: 'wrong' | 'skipped'</code>); invitados, <code>localStorage</code> como hoy</td><td>Ya se carga</td></tr>
+      <tr><td>Orden de fallos y saltos al volver a entrar</td><td><span class="doc-tag doc-tag--new">Propuesta</span> guardar el salto como fila en <code>hubgames_judi_intentos</code> (intento vacío) y no borrar los intentos al acertar. Sin eso, al volver los saltos solo se pueden contar, no colocar (pregunta 3)</td><td>Migración pequeña</td></tr>
+      <tr><td>Pistas</td><td>las de hoy (<code>hints</code>): géneros, <code>steamspy_ccu</code>, % positivas, año, estudio. El color de reseñas con <code>steamReviewScore</code></td><td>Ya se carga</td></tr>
+      <tr><td>Puntos en juego y ganados</td><td><code>max(6 − fallos, 1)</code>, como <code>getPointsForRecord</code></td><td>—</td></tr>
+      <tr><td>Tarjeta del juego (con sesión)</td><td>con el <code>appid</code> revelado, la misma carga que la ficha (<code>GameContext</code>): <code>hubgames_library</code> (estado, marcas, <code>owned</code>, Metacritic, reseñas, precio) o <code>hubgames_wishlist</code>, y si no, <code>hubgames_game_prices</code> + <code>hubgames_juegos_steam</code> (<code>metacritic_score</code>, <code>steamspy_userscore</code>, <code>price_overview</code>). Hoy <code>JudiFinishActions</code> lee <code>hubgames_user_games</code> y <code>hubgames_user_wishlist</code> solo para el botón</td><td>1–2 consultas al terminar</td></tr>
+      <tr><td>Tarjeta del juego (invitado)</td><td>solo <code>hubgames_juegos_steam</code> (lectura pública): Metacritic, reseñas y precio de tienda sin veredicto</td><td>1 consulta</td></tr>
+      <tr><td>Cuenta atrás</td><td><code>useNextDailyCountdown</code> (ya existe en la portada de JUDI)</td><td>—</td></tr>
+    </tbody>
+  </table>
+  <p class="t">Sin tokens nuevos: todo sale de <code>--success</code>, <code>--danger</code>, neutros, cobalto, <code>--sc-*</code>, <code>--st-*</code> y <code>--deal</code>. Texto sobre <code>--danger</code> con <code>--danger-foreground</code> (≥ 5,5:1) y sobre <code>--success</code> con <code>--on-done</code> (el del botón «Completar»); placas sobre la captura con el velo oscuro ya documentado.</p>
+
+  <h3>Microanimaciones (pruébalas en los marcos en vivo)</h3>
+  <ul class="anim-list">
+    <li><b>Vida que se pierde</b>: el intento en curso se sacude y se funde mientras pasa a rojo con su aspa (o a neutro si saltas); «Quedan N» y «+N si aciertas» saltan. <span class="t">420 ms; color 250 ms con 120 ms de retraso; pop 320 ms.</span></li>
+    <li><b>Fallo que tiembla en rojo</b>: el campo tiembla, la captura destella con un borde rojo y el intento entra en «Tus intentos» con un pop (saltar no tiembla ni destella). <span class="t">320 ms; destello 700 ms; chip 260 ms.</span></li>
+    <li><b>Cambio de fase</b>: la captura se desliza en la dirección de la fase (también con ← → o deslizando en móvil), la miniatura nueva aparece en la tira. <span class="t">250 ms (el <code>phaseImageVariants</code> de hoy).</span></li>
+    <li><b>Pistas que se despliegan</b>: el candado deja paso al icono con un pop y el valor se descubre de izquierda a derecha (<code>clip-path</code>), con «Nueva». <span class="t">300 + 380 ms.</span></li>
+    <li><b>Acierto</b>: el intento pasa a verde con un pop, el confeti de JUDI (el mismo <code>canvas-confetti</code> con <code>systemConfettiColors</code>, ahora saliendo de la tarjeta), la portada se revela desde el centro y los puntos cuentan. <span class="t">pop 320 ms, portada 650 ms, puntos 450 ms; confeti ≈ 1 s.</span></li>
+    <li><b>Derrota</b>: el último intento se pierde igual, sin confeti; la portada se revela igual («El juego era»). <span class="t">650 ms.</span></li>
+    <li><b>Añadir</b>: «Pendientes» pasa a spinner y a «En Pendientes» en cian con el check que se dibuja; «Wishlist», a «En la wishlist» con el corazón que late; el chip de estado salta. <span class="t">pop 300 ms, trazo 300 ms, latido 400 ms.</span></li>
+    <li><b>Ampliar captura</b>: el velo aparece y la imagen escala desde 0,94. <span class="t">180 / 200 ms.</span></li>
+    <li><b>Entrada</b> de la partida con <code>.hg-enter</code> (30 ms entre bloques). Al <b>volver a entrar</b> en una partida terminada, nada se anima ni hay confeti.</li>
+    <li>Con <b>movimiento reducido</b>: sin sacudidas, deslizamientos, confeti ni revelado; solo cambian los colores.</li>
+  </ul>
+
+  <h3>Piezas que se reutilizan</h3>
+  <ul>
+    <li><code>StatusChip</code>, <code>MarkFlags</code>, <code>LIST_ICONS</code>; <code>metacriticScore</code>, <code>steamReviewScore</code>, <code>priceVerdict</code>; <code>PriceTag</code> / <code>.juego-verdict</code> para el precio; <code>.hg-tint</code>, <code>.hg-score</code>, <code>.hg-deal</code>, <code>.lib-own--no</code>.</li>
+    <li>Del buscador: <code>pendingAction</code> y <code>canWishlist</code> (<code>src/lib/game-search.ts</code>), <code>setGamesStatus</code>, <code>addToWishlist</code> y su confirmación (<code>.hg-draw</code>, <code>.hg-beat</code>, <code>.hg-count--pop</code>).</li>
+    <li><code>.hg-shake</code> (login y registro), <code>.hg-pop-in</code>, <code>.hg-enter</code>, <code>CountUp</code> para los puntos, <code>AnimatedCount</code> para «Quedan N», el confeti y <code>phaseImageVariants</code> de JUDI, <code>Button loading</code>, <code>.alert--error</code>.</li>
+    <li>Nuevo: <code>AttemptPips</code> con icono por estado (sustituye al de hoy y lo usará también el historial), la tira <code>JudiStrip</code> (si gana A) y la lógica pura de intentos (<code>attemptSlots</code>, <code>pointsAtStake</code>) en <code>src/lib/judi.ts</code> con tests.</li>
+  </ul>
+  <p class="t">Fuera de este mockup: las cifras y el historial de la portada de JUDI (siguiente elemento de la checklist). Aquí solo entra la tarjeta «Juego del día», que es la puerta a la partida.</p>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px · en vivo</h2>
+  <p>El JUDI de hoy (#812, Hollow Knight) en la fase 1. Escribe en el campo (por ejemplo «dead», «ori», «hollow»), usa ↑/↓ e Intro, pulsa «Saltar», cambia de captura en la tira o con ← →, y pulsa la captura para ampliarla. O carga un estado con los atajos.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px;min-height:940px" id="f-desk"></div></div>
+  <div class="tests" data-frame="f-desk"><span>Estado:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="start">Fase 1</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="mid">Media partida</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="early">Acierto en fase 2</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="late">Acierto en fase 5</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="lostpre">A un intento de perder</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="revisit">Ya jugado hoy</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="guest">Invitado</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="errload">Error de carga</button>
+    <span>Acción:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="fail">Fallar</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="skip">Saltar</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="win">Acertar</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="errcheck">Que falle la comprobación</button>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Estados · columna de la partida</h2>
+  <p>La partida a 420 px de ancho (lo que se ve en tableta o con la ventana estrecha: captura, tira y panel en una columna). Los botones de cada tarjeta funcionan.</p>
+  <div class="scroller"><div class="grid-frames cols" id="states"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · lado a lado</h2>
+  <p><b>Fases A · Tira de capturas</b>: las 6 miniaturas debajo de la captura grande, cada una con su número, el icono y la franja del resultado de su intento; arriba solo «Quedan N intentos». Ves de un vistazo qué capturas te costaron un fallo y vuelves a cualquiera con un toque. <b>Fases B · Pestañas + intentos</b>: las pestañas numeradas de hoy con el icono y la franja del resultado, y los 6 intentos con icono arriba a la derecha (dos indicadores para lo mismo). Recomiendo <b>A</b>: en el juego real la fase <i>n</i> <b>es</b> el intento <i>n</i>, así que un solo indicador lo cuenta todo, y las miniaturas ayudan a comparar capturas (las imágenes ya están cargadas). B pesa menos si prefieres no repetir capturas en pequeño.</p>
+  <div class="scroller"><div class="grid-frames" id="var-p"></div></div>
+  <p style="margin-top:24px"><b>Pistas A · Color del dato</b>: solo las reseñas tienen una escala propia (la de Steam, la misma que en la ficha), así que solo ellas llevan color; las demás son neutras y la última abierta va en cobalto con «Nueva». <b>Pistas B · Cuánto acercan</b>: cada pista con una medida fija de tres segmentos (géneros, jugadores y reseñas «poco», año «algo», estudio «mucho»). Recomiendo <b>A</b>: el color dice algo cierto de este juego; en B la medida es una opinión fija por tipo de pista (un estudio como Valve no acerca tanto como Team Cherry) y añade ruido.</p>
+  <div class="scroller"><div class="grid-frames" id="var-h"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Entrada · tarjeta «Juego del día»</h2>
+  <p>La tarjeta de la portada de <code>/judi</code> que abre la partida, con los mismos intentos con color. Incluye los dos casos que hoy no existen: sin JUDI hoy (hoy enseña el de ayer como si fuera el de hoy) y error al cargar (hoy, «Nada por aquí con este filtro»).</p>
+  <div class="scroller"><div class="grid-frames" id="today"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Barra superior y pestañas con JUDI activa (y su indicador del día en la insignia). Todo lo pulsable mide 44 px; la tira es de 44 px de alto.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px" id="f-mob"></div><p class="frame-cap"><b>En vivo</b>, a media partida (fase 3, un fallo y un salto). Prueba a fallar, saltar o acertar con los botones del panel; desliza o pulsa la tira para cambiar de captura.</p>
+      <div class="tests" data-frame="f-mob"><span>Probar:</span><button class="doc-btn doc-btn--sm" type="button" data-test="fail">Fallar</button><button class="doc-btn doc-btn--sm" type="button" data-test="win">Acertar</button><button class="doc-btn doc-btn--sm" type="button" data-preset="mobmid">Reiniciar</button></div></div>
+    <div><div class="frame w-mob" style="width:390px;height:844px" id="f-mob-kb"></div><p class="frame-cap"><b>Con el teclado abierto</b>, escribiendo «hol»: el campo queda pegado al teclado, la captura sigue a la vista arriba y los resultados se abren hacia arriba, sobre la tira y las pistas (hoy se abren hacia arriba tapando la captura). «Dead Cells» ya probado, tachado. <code>enterkeyhint="go"</code>, sin autocorrección ni mayúscula inicial.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-long"></div><p class="frame-cap"><b>Acierto con nombre largo</b> (Divinity: Original Sin 2 - Definitive Edition, fase 3, en tu Bandeja): el resultado sube arriba del todo, el nombre parte en dos líneas y la acción es «A Pendientes».</p></div>
+  </div></div>
+</section>
+
+<section class="sec note" id="questions">
+  <h2>Preguntas para Diego</h2>
+  <ol class="qs">
+    <li><b>Fases: A (tira de capturas) o B (pestañas + intentos).</b> Recomiendo <b>A</b>.</li>
+    <li><b>Pistas: A (color del dato) o B (cuánto acercan).</b> Recomiendo <b>A</b>.</li>
+    <li><b>Guardar los saltos y no borrar los intentos al acertar</b> <span class="doc-tag doc-tag--new">Propuesta</span>. Hoy el servidor no guarda los saltos (solo marca la fase) y al acertar borra los intentos fallados, así que al volver a entrar no se sabe en qué intento saltaste ni, si acertaste, qué nombres probaste. ¿Hacemos la migración (salto = fila con intento vacío en <code>hubgames_judi_intentos</code>, y quitar el <code>delete</code> de <code>hubgames_judi_guess</code>)? Recomiendo <b>sí</b>; sin ella, al volver a entrar todos los no aciertos salen en rojo y debajo «2 fallos · 1 saltado».</li>
+    <li><b>Intro elige el resultado resaltado</b> y ya no envía el texto libre. Recomiendo <b>sí</b>: hoy una búsqueda a medias gasta un intento. ¿O prefieres que el texto libre siga valiendo si coincide exactamente con un juego del pool?</li>
+    <li><b>«Saltar» junto al campo</b>, sin confirmación (como hoy). ¿Te vale o lo quieres arriba? Recomiendo <b>junto al campo</b>.</li>
+    <li><b>Precio del juego al terminar</b>: <code>hubgames_game_prices</code> solo tiene los juegos que alguien sigue; para el resto queda el precio de tienda guardado con la ficha (<code>price_overview</code>), sin mínimo histórico. ¿Te vale así, o pedimos su precio a IsThereAnyDeal al revelarlo? Recomiendo <b>así</b> (sin llamadas nuevas).</li>
+    <li><b>«A Pendientes» para juegos de otras listas</b> (por ejemplo, uno Completado): lo mantengo como en el buscador aprobado. ¿O en JUDI solo para Bandeja y lo que no tienes? Recomiendo <b>igual que el buscador</b>, por coherencia.</li>
+    <li><b>En móvil, el resultado arriba</b> al terminar (hoy va debajo de la captura y de la tira). Recomiendo <b>sí</b>.</li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  arrowl: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+  arrowr: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  skip: '<polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  max: '<path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/>',
+  tags: '<path d="m15 5 6.3 6.3a2.4 2.4 0 0 1 0 3.4L17 19"/><path d="M9.586 5.586A2 2 0 0 0 8.172 5H3a1 1 0 0 0-1 1v5.172a2 2 0 0 0 .586 1.414L8.29 18.29a2.426 2.426 0 0 0 3.42 0l3.58-3.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="6.5" cy="9.5" r=".5" fill="currentColor"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  thumbs: '<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+  cal: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+  building: '<rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/>',
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+  bookmarkplus: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/><line x1="12" x2="12" y1="7" y2="13"/><line x1="15" x2="9" y1="10" y2="10"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+  tdown: '<polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>',
+  ext: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  alert: '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  calx: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m14 14-4 4"/><path d="m10 14 4 4"/>',
+  login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+  imgoff: '<line x1="2" x2="22" y1="2" y2="22"/><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/><line x1="13.5" x2="6" y1="13.5" y2="21"/><line x1="18" x2="21" y1="12" y2="15"/><path d="M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.052-.22 1.41-.59"/><path d="M21 15V5a2 2 0 0 0-2-2H9"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wait = (ms) => new Promise((r) => setTimeout(r, rm() ? Math.min(ms, 60) : ms));
+const n = (v) => v.toLocaleString('es-ES');
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+const plural = (v, one, many) => `${n(v)} ${v === 1 ? one : many}`;
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+
+/* ── Datos de ejemplo (juegos y capturas reales de Steam) ── */
+const SS = (appid, hashes) => hashes.map((h) => `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${appid}/ss_${h}.600x338.jpg`);
+const HDR = (appid) => `https://cdn.akamai.steamstatic.com/steam/apps/${appid}/header.jpg`;
+const GAMES = {
+  hk: { id: 812, date: 'miércoles, 28 de octubre de 2026', today: true, name: 'Hollow Knight', appid: 367520,
+    shots: SS(367520, ['5384f9f8b96a0b9934b2bc35a4058376211636d2', 'd5b6edd94e77ba6db31c44d8a3c09d807ab27751', 'a81e4231cc8d55f58b51a4a938898af46503cae5', '62e10cf506d461e11e050457b08aa0e2a1c078d0', 'bd76bd88bc5334ee56ae3d5f0d8dec4455e8e3b8', '33a645903d6dd9beec39f272a3daf57174a6cc26']),
+    hints: { generos: 'Acción, Aventura, Indie', ccu: 9874, positivas: 97, anio: '2017', estudio: 'Team Cherry' },
+    mc: 87, price: { now: '7,39 €', was: '14,79 €', cut: 50, verdict: 'low' }, store: '14,79 €' },
+  ow: { id: 809, date: 'domingo, 25 de octubre de 2026', today: false, name: 'Outer Wilds', appid: 753640,
+    shots: SS(753640, ['ec95a283483f0438be40d033f08b9d956e748d54', '09f0fa8d9b8d7da1408cf4e03303d896cbd9be18', 'c624a6b8edca0d451605592edd927dbcc14917a8', '8683942f8d09eec32daeebe94867287424968f97', 'fe4a6504c49efa6e7cb9ecda7aeddb6f7451a2cc', '09f0fa8d9b8d7da1408cf4e03303d896cbd9be18']),
+    hints: { generos: 'Acción, Aventura', ccu: 2140, positivas: 95, anio: '2020', estudio: 'Mobius Digital' }, mc: 85, store: '22,99 €' },
+  de: { id: 807, date: 'viernes, 23 de octubre de 2026', today: false, name: 'Disco Elysium - The Final Cut', appid: 632470,
+    shots: SS(632470, ['b3694e99ffdb686d1bbbbe16a540d3d2ccd509c4', '9125a718ee9ba85386ae5d4eb820f3266073fc97', '4f5fdc3cf42feca8dafb1f7d2910ef96e62708a2', 'fc6969799ebf19fd2a2c8a986c9419e053606a17', 'dec29c440fab2f7817d68c1380c019290eb1755e', 'ab38615b3a1d0d4309f06772db4bd9db5c250ef7']),
+    hints: { generos: 'Rol', ccu: 3512, positivas: 93, anio: '2019', estudio: 'ZA/UM' },
+    mc: 97, price: { now: '15,19 €', was: '37,99 €', cut: 60, verdict: 'sale', steamLow: '9,49 €' }, store: '37,99 €' },
+  dos: { id: 810, date: 'lunes, 26 de octubre de 2026', today: false, name: 'Divinity: Original Sin 2 - Definitive Edition', appid: 435150,
+    shots: SS(435150, ['b59e5889726cab2cf01a93d0c0d192d25928952a', '34a428cdd26113e8645b77331d9fc82fcc50a4a2', '66d58326ebea7154d7f3d89e02f13913452caef7', 'd3badb07717f13ef3316928c513f8c4c7f7b50b1', 'd51d3ccb39019124c45bf851bbe6a76e2461fab3', 'a0fa5dd2f40fffbae32af259afcf588a999e6663']),
+    hints: { generos: 'Aventura, Rol, Estrategia', ccu: 11380, positivas: 94, anio: '2017', estudio: 'Larian Studios' }, mc: 93, store: '44,99 €' },
+};
+const POOL = ['Hollow Knight', 'Hollow Knight: Silksong', 'Hades', 'Hades II', 'Dead Cells', 'Celeste', 'Ori and the Blind Forest', 'Ori and the Will of the Wisps',
+  'Salt and Sanctuary', 'Blasphemous', 'Blasphemous 2', 'Axiom Verge', 'Hyper Light Drifter', 'Cuphead', 'Shovel Knight: Treasure Trove', 'Outer Wilds',
+  'The Outer Worlds', "No Man's Sky", 'Subnautica', 'Disco Elysium - The Final Cut', 'Divinity: Original Sin 2 - Definitive Edition', 'Pillars of Eternity',
+  'Stardew Valley', 'Terraria', 'Spelunky 2', 'DARK SOULS III', 'ELDEN RING', 'Sekiro: Shadows Die Twice', 'ENDER LILIES: Quietus of the Knights',
+  "Death's Door", 'TUNIC', 'INSIDE', 'LIMBO', 'GRIS', 'Katana ZERO', 'Risk of Rain 2', 'Slay the Spire', 'The Binding of Isaac: Rebirth',
+  'Warhammer 40,000: Dawn of War II - Chaos Rising', 'Planescape: Torment: Enhanced Edition', 'Pathologic 2', 'Kentucky Route Zero: TV Edition'];
+const WRONG = ['Dead Cells', 'Ori and the Blind Forest', 'Salt and Sanctuary', 'Blasphemous', 'ENDER LILIES: Quietus of the Knights', 'Axiom Verge', 'Hyper Light Drifter', 'Celeste'];
+const HINTS = [
+  { p: 2, key: 'generos', label: 'Géneros', icon: 'tags', lvl: 1 },
+  { p: 3, key: 'ccu', label: 'Pico de jugadores (Steam)', icon: 'users', lvl: 1 },
+  { p: 4, key: 'positivas', label: 'Reseñas positivas (Steam)', icon: 'thumbs', lvl: 1 },
+  { p: 5, key: 'anio', label: 'Año de lanzamiento', icon: 'cal', lvl: 2 },
+  { p: 6, key: 'estudio', label: 'Estudio', icon: 'building', lvl: 3 },
+];
+const LVL = ['', 'Acerca poco', 'Acerca algo', 'Acerca mucho'];
+const LISTS = { bandeja: ['Bandeja', 'inbox'], pendiente: ['Pendiente', 'bookmark'], completado: ['Completado', 'flag'] };
+
+/* src/lib/scores.ts */
+function metacriticScore(s) { return s >= 90 ? ['top', 'Aclamado'] : s >= 75 ? ['top', 'Favorable'] : s >= 50 ? ['mid', 'Variado'] : ['bad', 'Desfavorable']; }
+function steamReviewScore(p) { return p >= 95 ? ['top', 'Extremadamente positivas'] : p >= 80 ? ['top', 'Muy positivas'] : p >= 70 ? ['good', 'Mayormente positivas'] : p >= 40 ? ['mid', 'Variadas'] : p >= 20 ? ['bad', 'Mayormente negativas'] : ['bad', 'Muy negativas']; }
+
+const VAR = { p: 'A', h: 'A' };
+
+/* ── Lógica de intentos (propuesta para src/lib/judi.ts) ── */
+const failedOf = (st) => st.attempts.length;
+const stake = (st) => Math.max(6 - failedOf(st), 1);
+const unlocked = (st) => (st.state === 'playing' ? failedOf(st) + 1 : 6);
+function slots(st) {
+  const f = failedOf(st);
+  return Array.from({ length: 6 }, (_, i) => {
+    if (i < f) return { k: st.attempts[i].k, name: st.attempts[i].name };
+    if (st.state === 'won' && i === f) return { k: 'hit' };
+    if (st.state === 'playing' && i === f) return { k: 'current' };
+    if (st.state === 'won') return { k: 'open' };
+    return { k: 'locked' };
+  });
+}
+const SLOT_ICON = { miss: 'x', skip: 'skip', hit: 'check' };
+const SLOT_WORD = { miss: 'fallado', skip: 'saltado', hit: 'acertado', current: 'en curso', open: 'sin usar', locked: 'bloqueado' };
+
+/* ── Navegación ── */
+function navInd(st) {
+  if (!GAMES[st.game].today && st.preset !== 'errload') return { cls: 'warn', word: 'Hoy', icon: 'clock' };
+  if (st.state === 'won') return { cls: 'ok', word: 'Acertado', icon: 'check' };
+  if (st.state === 'lost') return { cls: 'ko', word: 'Fallado', icon: 'x' };
+  return { cls: 'warn', word: 'Hoy', icon: 'clock' };
+}
+function sidebar(st) {
+  const ind = navInd(st);
+  const link = (label, icon, active = false, extra = '') => `<a href="#" class="nv-link${active ? ' active' : ''}">${ic(icon)}<span class="nv-link__label">${label}</span>${extra}</a>`;
+  const judiInd = `<span class="nav-ind hg-tint ${ind.cls} js-nav-ind">${ic(ind.icon)}${ind.word}</span>`;
+  const groups = [`<div class="nv-group">${link('Inicio', 'home')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('Biblioteca', 'library')}${link('Logros', 'award')}${link('Wishlist', 'heart')}${link('Estadísticas', 'chart')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('JUDI', 'gamepad', true, judiInd)}${link('Ranking', 'trophy')}</div>`];
+  const theme = `<div class="theme-toggle">${['sun', 'moon', 'monitor'].map((i, k) => `<span class="${(document.documentElement.dataset.theme === 'dark' ? 1 : 0) === k ? 'on' : ''}">${ic(i)}</span>`).join('')}</div>`;
+  const account = st.guest
+    ? `<a href="#" class="nav-cta">${ic('login')}<span>Iniciar sesión</span></a>`
+    : `<a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>diego</span><span class="nv-account__meta">Ver perfil</span></span></a>`;
+  return `<aside class="nv-side"><a href="#" class="nv-brand">${logo(22)}</a><span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span><nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}${account}</div></aside>`;
+}
+function mobileChrome(st, body) {
+  const ind = navInd(st);
+  const tabs = [['Inicio', 'home'], ['Biblioteca', 'library'], ['Logros', 'award'], ['JUDI', 'gamepad'], ['Ranking', 'trophy'], ['Perfil', 'user']];
+  const tabbar = tabs.map(([l, i]) => `<a href="#" class="m-tab ${l === 'JUDI' ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}${l === 'JUDI' ? `<span class="m-tab__badge ${ind.cls} js-nav-ind" title="${ind.word}"></span>` : ''}</span><span>${l}</span></a>`).join('');
+  return `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon">${ic(document.documentElement.dataset.theme === 'dark' ? 'moon' : 'sun')}</span><span class="m-icon"><span class="nv-avatar">D</span></span></div></header><div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+
+/* ── Piezas de la partida ── */
+function pips(st, size = '') {
+  const s = slots(st);
+  const label = `${s.filter((x) => x.k === 'miss').length} fallados, ${s.filter((x) => x.k === 'skip').length} saltados de 6 intentos`;
+  return `<span class="jd-pips ${size}" role="img" aria-label="${label}">${s.map((x, i) => {
+    const fx = st.fx && st.fx.slot === i ? (st.fx.k === 'win' ? ' fx-pop' : ' fx-lose') : '';
+    return `<span class="jd-pip is-${x.k}${fx}">${SLOT_ICON[x.k] ? ic(SLOT_ICON[x.k]) : ''}</span>`;
+  }).join('')}</span>`;
+}
+function topBar(st) {
+  const g = GAMES[st.game];
+  const left = st.state === 'playing' ? 6 - failedOf(st) : 0;
+  const chip = g.today ? `<span class="hg-chip hg-tint st-todos">${ic('clock')}Juego de hoy</span>` : '<span class="hg-chip hg-chip--plain">Archivo</span>';
+  const fxPop = st.fx && ['miss', 'skip'].includes(st.fx.k) ? ' fx-pop' : '';
+  let right = '';
+  if (st.state === 'playing') {
+    const count = `<span>Quedan <b class="${left <= 2 ? 'is-low' : ''}${fxPop}" style="display:inline-block">${left}</b> ${left === 1 ? 'intento' : 'intentos'}</span>`;
+    right = pVar(st) === 'B' ? `<span class="jd-lives">${pips(st)}${count}</span>` : `<span class="jd-lives">${count}</span>`;
+  } else {
+    right = `<span class="jd-lives">${pips(st)}</span>`;
+  }
+  return `<div class="jd-top hg-enter" style="--i:0"><button type="button" class="hg-icon-btn" aria-label="Volver al historial">${ic('arrowl')}</button>
+    <div class="jd-top__title"><h1>JUDI #${g.id} ${chip}</h1><p>${g.date}</p></div>
+    <div class="jd-top__right">${right}</div></div>`;
+}
+const pVar = (st) => st.forceP || VAR.p;
+const hVar = (st) => st.forceH || VAR.h;
+function hintValue(g, h) {
+  const v = g.hints[h.key];
+  if (h.key === 'ccu') return n(v);
+  if (h.key === 'positivas') return `${v} %`;
+  return esc(v);
+}
+function stage(st) {
+  const g = GAMES[st.game];
+  const viewed = st.viewed;
+  const hint = HINTS.find((h) => h.p === viewed);
+  const showHint = hint && hint.p <= unlocked(st);
+  let imgs;
+  if (st.noShot && viewed === unlocked(st)) {
+    imgs = `<span class="jd-stage__empty">${ic('imgoff')}<span>La captura ${viewed} no carga.</span><span class="btn btn--secondary btn--sm" data-act="reload-shot">${ic('refresh')}Reintentar</span></span>`;
+  } else if (st.fx && st.fx.slide) {
+    const d = st.fx.slide.dir;
+    imgs = `<img class="jd-img ${d > 0 ? 'out-l' : 'out-r'}" src="${g.shots[st.fx.slide.from - 1]}" alt=""><img class="jd-img ${d > 0 ? 'in-r' : 'in-l'}" src="${g.shots[viewed - 1]}" alt="">`;
+  } else {
+    imgs = `<img class="jd-img" src="${g.shots[viewed - 1]}" alt="">`;
+  }
+  const flash = st.fx && st.fx.k === 'miss' ? '<span class="jd-flash"></span>' : st.fx && st.fx.k === 'lost' && st.fx.lastMiss ? '<span class="jd-flash"></span>' : '';
+  return `<button type="button" class="jd-stage" data-act="zoom" aria-label="Captura ${viewed} de 6. Pulsa para ampliar">${imgs}
+    <span class="jd-plate jd-plate--badge">Captura <b>${viewed}</b> de 6</span>
+    <span class="jd-plate jd-plate--zoom">${ic('max')}</span>
+    ${showHint ? `<span class="jd-plate jd-plate--hint"><span>${hint.label}</span><b>${hintValue(g, hint)}</b></span>` : ''}${flash}</button>`;
+}
+function strip(st) {
+  const g = GAMES[st.game];
+  const s = slots(st);
+  if (pVar(st) === 'B') {
+    return `<div class="jd-tabs" role="tablist" aria-label="Capturas">${s.map((x, i) => {
+      const p = i + 1; const locked = x.k === 'locked';
+      return `<button type="button" role="tab" class="jd-tab is-${x.k}" aria-selected="${st.viewed === p}" ${locked ? 'disabled' : ''} data-act="view" data-p="${p}" aria-label="Captura ${p}, ${SLOT_WORD[x.k]}">${locked ? ic('lock') : p}${SLOT_ICON[x.k] ? ic(SLOT_ICON[x.k]) : ''}</button>`;
+    }).join('')}</div>`;
+  }
+  return `<div class="jd-strip" role="tablist" aria-label="Capturas e intentos">${s.map((x, i) => {
+    const p = i + 1;
+    if (x.k === 'locked') return `<button type="button" role="tab" class="jd-shot is-locked" disabled aria-label="Captura ${p}, bloqueada">${ic('lock')}<span>Fase ${p}</span></button>`;
+    const fx = st.fx && st.fx.slot === i ? (st.fx.k === 'win' ? ' fx-pop' : ' fx-lose') : '';
+    const unl = st.fx && st.fx.unlock === p ? ' is-unlock' : '';
+    return `<button type="button" role="tab" class="jd-shot is-${x.k}${fx}${unl}" aria-selected="${st.viewed === p}" data-act="view" data-p="${p}" aria-label="Captura ${p}, ${SLOT_WORD[x.k]}${x.name ? `: ${esc(x.name)}` : ''}">
+      <img src="${g.shots[i]}" alt="" loading="lazy"><span class="jd-shot__tag">${SLOT_ICON[x.k] ? ic(SLOT_ICON[x.k]) : ''}${p}</span></button>`;
+  }).join('')}</div>`;
+}
+function keyhint(st) {
+  const left = st.state === 'playing' ? `Intento <b>${failedOf(st) + 1}</b> de 6` : st.state === 'won' ? 'Todas las capturas abiertas' : 'Todas las capturas abiertas';
+  return `<p class="jd-keyhint"><span>${left}</span><span class="kh"><kbd class="hg-kbd">←</kbd> <kbd class="hg-kbd">→</kbd> para cambiar de captura</span></p>`;
+}
+function results(st) {
+  const q = norm(st.query || '');
+  if (q.length < 2) return [];
+  return [...new Set(POOL)].filter((x) => norm(x).includes(q)).slice(0, 8);
+}
+function hlName(name, query) {
+  const q = (query || '').trim(); if (!q) return esc(name);
+  const i = norm(name).indexOf(norm(q));
+  // Resalta solo si la normalización conserva posiciones (nombres simples); si no, sin resaltar
+  if (i < 0 || name.toLowerCase().indexOf(q.toLowerCase()) !== i) return esc(name);
+  return `${esc(name.slice(0, i))}<mark>${esc(name.slice(i, i + q.length))}</mark>${esc(name.slice(i + q.length))}`;
+}
+function dropHTML(st) {
+  if (!st.open) return '';
+  const r = results(st);
+  const tried = new Set(st.attempts.filter((a) => a.name).map((a) => norm(a.name)));
+  if (!r.length) return `<div class="jd-drop"><p class="jd-drop__empty">Ningún juego del pool coincide con «${esc(st.query)}».</p></div>`;
+  return `<ul class="jd-drop" role="listbox">${r.map((name, i) => {
+    const t = tried.has(norm(name));
+    return `<li><button type="button" role="option" class="jd-opt${i === st.hl ? ' is-hl' : ''}" ${t ? 'disabled' : ''} data-act="pick" data-name="${esc(name)}" aria-selected="${i === st.hl}"><span class="jd-opt__name">${hlName(name, st.query)}</span>${t ? `<span class="jd-opt__tag hg-tint ko">${ic('x')}Ya probado</span>` : i === st.hl ? '<span class="jd-opt__key"><kbd class="hg-kbd">Intro</kbd></span>' : ''}</button></li>`;
+  }).join('')}</ul>`;
+}
+function guessBlock(st) {
+  const k = stake(st);
+  const fxPop = st.fx && ['miss', 'skip'].includes(st.fx.k) ? ' fx-pop' : '';
+  const shakeCls = st.fx && st.fx.k === 'miss' ? ' fx-shake' : '';
+  const tries = st.attempts.length ? `<ul class="jd-tries" aria-label="Tus intentos">${st.attempts.map((a, i) => {
+    const fresh = st.fx && st.fx.slot === i ? ' fx-chip' : '';
+    return a.k === 'miss'
+      ? `<li class="jd-try is-miss${fresh}"><span class="jd-try__n">${ic('x')}</span><span>${esc(a.name)}</span></li>`
+      : `<li class="jd-try is-skip${fresh}"><span class="jd-try__n">${ic('skip')}</span><span>Saltado</span></li>`;
+  }).join('')}</ul>` : '';
+  const err = st.error === 'check' ? `<div class="alert alert--error jd-guess-err" role="alert">${ic('alert')}<div class="alert__body"><span>No se ha podido comprobar «${esc(st.lastGuess || '')}».</span><span class="alert__sub">No has perdido el intento. Vuelve a probar.</span></div><button type="button" class="btn" data-act="retry">${ic('refresh')}Reintentar</button></div>` : '';
+  return `<div class="jd-guess-block">
+    <label class="jd-ptitle" for="${st.id}-guess"><span>¿Qué juego es?</span><span class="jd-stake hg-tint st-todos${fxPop}">${ic('trophy')}+${k} si aciertas</span></label>
+    <div class="jd-guess${shakeCls}">
+      <span class="jd-guess__icon">${ic('search')}</span>
+      <input id="${st.id}-guess" class="hg-input jd-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="go" placeholder="${st.checking ? 'Comprobando…' : 'Escribe el nombre del juego'}" value="${esc(st.checking ? (st.lastGuess || '') : st.query || '')}" ${st.checking ? 'disabled' : ''} role="combobox" aria-expanded="${!!st.open}">
+      ${st.checking ? '<span class="spin-ring jd-guess__spin" aria-hidden="true"></span>' : ''}
+      <div class="js-drop">${dropHTML(st)}</div>
+    </div>
+    ${err}
+    <div class="jd-guess-row"><p class="jd-help">Cada fallo o salto abre otra captura y una pista.</p><button type="button" class="btn btn--ghost btn--sm" data-act="skip" ${st.checking ? 'disabled' : ''} title="Pierdes un intento sin elegir título">${ic('skip')}Saltar <span style="color:var(--muted);font-weight:500">(−1 intento)</span></button></div>
+    ${tries ? `<div style="margin-top:.875rem"><h2 class="jd-ptitle" style="margin-bottom:.375rem">Tus intentos</h2>${tries}</div>` : ''}
+  </div>`;
+}
+function hintsBlock(st) {
+  const g = GAMES[st.game];
+  const top = unlocked(st);
+  const newest = st.state === 'playing' && top >= 2 ? top : 0;
+  const items = HINTS.map((h) => {
+    const open = h.p <= top;
+    const active = st.viewed === h.p;
+    const fresh = st.fx && st.fx.unlock === h.p ? ' fx-unlock' : '';
+    let value = open ? hintValue(g, h) : `Se abre en la fase ${h.p}`;
+    let end = `<span class="jd-hint__phase">Fase ${h.p}</span>`;
+    if (open && h.key === 'positivas' && hVar(st) === 'A') {
+      const [tier, word] = steamReviewScore(g.hints.positivas);
+      value = `<span class="hg-score hg-tint sc-${tier}">${g.hints.positivas} %</span><small class="sc-${tier}" style="--c:var(--sc-${tier})">${word}</small>`;
+    }
+    if (hVar(st) === 'B') {
+      end = `<span class="jd-hint__end"><span class="jd-meter" aria-hidden="true">${[1, 2, 3].map((x) => `<i class="${x <= h.lvl ? 'on' : ''}"></i>`).join('')}</span><span class="jd-meter-lbl">${LVL[h.lvl]}</span></span>`;
+    } else if (open && h.p === newest) {
+      end = `<span class="jd-hint__end"><span class="jd-new hg-tint st-todos">Nueva</span><span class="jd-hint__phase">Fase ${h.p}</span></span>`;
+    }
+    return `<li><button type="button" class="jd-hint${open ? '' : ' is-locked'}${active ? ' is-active' : ''}${open && h.p === newest && hVar(st) === 'A' ? ' is-new' : ''}${fresh}" ${open ? `data-act="view" data-p="${h.p}" aria-pressed="${active}"` : 'disabled'}>
+      <span class="jd-hint__icon">${ic(open ? h.icon : 'lock')}</span>
+      <span class="jd-hint__text"><span class="jd-hint__label">${h.label}</span><span class="jd-hint__value">${value}</span></span>${end}</button></li>`;
+  }).join('');
+  return `<div><h2 class="jd-ptitle">Pistas <span style="color:var(--muted);font-size:.75rem;font-weight:600">${Math.max(0, top - 1)} de 5</span></h2><ul class="jd-hints">${items}</ul></div>`;
+}
+function statusPart(st) {
+  if (st.lib) {
+    const [label, icon] = LISTS[st.lib.status];
+    const pop = st.fx && st.fx.k === 'added-pend' ? ' fx-chip' : '';
+    return `<span class="hg-chip hg-tint st-${st.lib.status}${pop}">${ic(icon)}${label}</span>${st.lib.fav ? `<span class="hg-flag hg-tint st-favorito" title="Favorito">${ic('heart')}</span>` : ''}${st.lib.owned === false ? '<span class="lib-own--no">Sin comprar</span>' : ''}`;
+  }
+  if (st.wished) return `<span class="gs-wish-chip${st.fx && st.fx.k === 'added-wish' ? ' fx-chip' : ''}">${ic('heart')}En tu wishlist</span>`;
+  if (st.guest) return '';
+  return '<span style="color:var(--muted)">No lo tienes</span>';
+}
+function pricePart(st) {
+  const g = GAMES[st.game];
+  if (st.lib && st.lib.owned !== false) return '';
+  if (st.guest || !g.price) return `<div class="jd-price"><strong>${g.store}</strong><span class="jd-price__low--muted">Precio en Steam</span></div>`;
+  const p = g.price;
+  const price = `<div class="jd-price">${p.cut ? `<span class="jd-price__cut hg-tint sc-top">-${p.cut} %</span>` : ''}<strong>${p.now}</strong>${p.was ? `<s>${p.was}</s>` : ''}</div>`;
+  if (p.verdict === 'low') return `${price}<p class="jd-verdict jd-verdict--deal">${ic('tdown')}Mínimo histórico <span>Nunca ha estado más barato en Steam</span></p>`;
+  if (p.verdict === 'sale') return `${price}<p class="jd-verdict jd-verdict--sale">${ic('clock')}Rebajado <span>Ha estado a ${p.steamLow} en Steam</span></p>`;
+  return price;
+}
+function actsPart(st) {
+  if (st.guest) return `<div class="jd-guest"><p>Inicia sesión para guardar tus partidas en tu cuenta y añadir este juego a tus pendientes o a tu wishlist.</p><a href="#" class="btn btn--secondary btn--sm">${ic('login')}Iniciar sesión</a></div><div class="jd-acts"><a href="#" class="btn btn--ghost btn--sm btn--link">Ver ficha${ic('arrowr', 'i-go')}</a></div>`;
+  const status = st.lib ? st.lib.status : null;
+  const pend = !status ? 'add' : status === 'pendiente' ? 'done' : 'move';
+  let pendBtn = '';
+  if (pend === 'done') pendBtn = st.fx && st.fx.k === 'added-pend' ? `<span class="btn btn--secondary btn--sm jd-add is-done fx-pop" role="status">${ic('check', 'hg-draw')}En Pendientes</span>` : '';
+  else pendBtn = `<button type="button" class="btn btn--secondary btn--sm jd-add" data-act="add-pend">${ic('bookmarkplus')}${pend === 'move' ? 'A Pendientes' : 'Pendientes'}</button>`;
+  let wishBtn = '';
+  if (st.fx && st.fx.k === 'added-wish') wishBtn = `<span class="btn btn--ghost btn--sm jd-wish is-done" role="status">${ic('heart', 'beat')}En la wishlist</span>`;
+  else if (!status && !st.wished) wishBtn = `<button type="button" class="btn btn--ghost btn--sm jd-wish" data-act="add-wish">${ic('heart')}Wishlist</button>`;
+  return `<div class="jd-acts">${pendBtn}${wishBtn}<a href="#" class="btn btn--ghost btn--sm btn--link">Ver ficha${ic('arrowr', 'i-go')}</a></div>`;
+}
+function resultBlock(st) {
+  const g = GAMES[st.game];
+  const f = failedOf(st);
+  const won = st.state === 'won';
+  const pts = won ? stake(st) : 0;
+  const misses = st.attempts.filter((a) => a.k === 'miss').length;
+  const skips = st.attempts.filter((a) => a.k === 'skip').length;
+  const status = won ? (f === 0 ? '¡Acertado a la primera!' : `¡Acertado en la fase ${f + 1}!`) : 'Esta vez no';
+  const parts = [misses && plural(misses, 'fallo', 'fallos'), skips && plural(skips, 'saltado', 'saltados')].filter(Boolean).join(' y ');
+  const sub = won ? (f === 0 ? 'Con solo la primera captura' : `Tras ${parts}`) : `${parts.charAt(0).toUpperCase() + parts.slice(1)}, sin dar con él`;
+  const animate = st.fx && ['win', 'lost'].includes(st.fx.k);
+  const [mcT, mcW] = metacriticScore(g.mc);
+  const [rvT, rvW] = steamReviewScore(g.hints.positivas);
+  const countdown = g.today ? `<span class="jd-count">${ic('clock')}Nuevo JUDI en <b class="js-countdown">${countdownText()}</b></span>` : '';
+  const copied = st.copied ? `<span class="jd-count ink ok" style="--c:var(--success)">${ic('check', 'hg-draw')}Resultado copiado</span>` : '';
+  return `<div class="jd-res jd-res--${st.state}${animate ? ' fx-in' : ''}" role="status">
+    <div class="jd-res__head"><span class="jd-res__icon${animate ? ' fx-pop' : ''}">${ic(won ? 'check' : 'x')}</span>
+      <div><p class="jd-res__status">${status}</p><p class="jd-res__sub">${sub}</p></div>
+      <p class="jd-res__pts"><b class="${animate && won ? 'js-countup' : ''}" data-to="${pts}">${won ? '+' : ''}${pts}</b><small>${pts === 1 ? 'punto' : 'puntos'}</small></p></div>
+    <article class="jd-card">
+      <div class="jd-card__art${animate ? ' fx-reveal' : ''}"><img src="${HDR(g.appid)}" alt=""></div>
+      <div class="jd-card__body">
+        <span class="jd-card__label">${won ? 'Era' : 'El juego era'}</span>
+        <h2 class="jd-card__name"><a href="#">${esc(g.name)}</a></h2>
+        ${statusPart(st) ? `<div class="jd-card__row">${statusPart(st)}</div>` : ''}
+        <div class="jd-card__row"><span class="jd-sc"><span class="hg-score hg-tint sc-${mcT}">${g.mc}</span><span><b>Metacritic</b> · ${mcW}</span></span><span class="jd-sc"><span class="hg-score hg-tint sc-${rvT}">${g.hints.positivas} %</span><span>${rvW}</span></span></div>
+        ${pricePart(st)}
+        ${actsPart(st)}
+      </div>
+    </article>
+    <div class="jd-res__foot">
+      <div class="jd-share"><button type="button" class="btn btn--secondary btn--sm" data-act="share">${ic('share')}Compartir ${pips(st, 'jd-pips--sm')}</button>${copied || countdown}</div>
+      <div class="jd-nav"><button type="button" class="btn btn--secondary">${ic('arrowl')}Historial</button><button type="button" class="btn btn--primary">Siguiente reto${ic('arrowr', 'i-go')}</button></div>
+    </div>
+  </div>`;
+}
+function gameView(st) {
+  if (st.preset === 'errload') {
+    const g = GAMES[st.game];
+    return `<div class="jd">${`<div class="jd-top hg-enter" style="--i:0"><button type="button" class="hg-icon-btn" aria-label="Volver al historial">${ic('arrowl')}</button><div class="jd-top__title"><h1>JUDI #${g.id}</h1><p>${g.date}</p></div></div>`}
+      <div class="jd-err hg-enter" style="--i:1"><span class="jd-err__icon hg-tint ko">${ic('alert')}</span><h2>No se ha podido cargar el JUDI #${g.id}</h2><p>Puede que se haya cortado la conexión. Tu progreso está guardado: vuelve a probar en un momento.</p>
+      <div class="jd-err__acts"><button type="button" class="btn btn--primary" data-act="reload">${ic('refresh')}Reintentar</button><button type="button" class="btn btn--secondary">${ic('arrowl')}Volver al historial</button></div></div></div>`;
+  }
+  const finished = st.state !== 'playing';
+  const panelInner = finished ? `${resultBlock(st)}${hintsBlock(st)}` : `${guessBlock(st)}${hintsBlock(st)}`;
+  const stageCol = `<div class="jd-stagecol hg-enter" style="--i:1">${stage(st)}${strip(st)}${keyhint(st)}</div>`;
+  const panel = `<aside class="jd-panel hg-enter" style="--i:2">${panelInner}</aside>`;
+  // En móvil y en columna, al terminar el resultado va arriba
+  const body = finished && st.layout !== 'desk' ? `${panel}${stageCol}` : `${stageCol}${panel}`;
+  const zoom = st.zoom ? `<div class="jd-zoom" data-act="unzoom" role="dialog" aria-label="Captura ampliada, fase ${st.viewed} de 6"><img src="${GAMES[st.game].shots[st.viewed - 1].replace('600x338', '1920x1080')}" alt=""></div>` : '';
+  return `<div class="jd">${topBar(st)}<div class="jd-grid">${body}</div></div>${zoom}`;
+}
+
+/* ── Tarjeta «Juego del día» ── */
+function todayCard(kind) {
+  const g = GAMES.hk;
+  const st = { attempts: [], state: 'playing' };
+  if (kind === 'progress') st.attempts = [{ k: 'miss', name: 'Dead Cells' }, { k: 'skip' }];
+  if (kind === 'won') { st.attempts = [{ k: 'miss', name: 'Dead Cells' }]; st.state = 'won'; }
+  const head = (chip) => `<div class="jd-today__meta"><span>JUDI #${g.id} · 28 de octubre</span>${chip}</div>`;
+  const count = `<span class="jd-count">${ic('clock')}<b class="js-countdown">${countdownText()}</b> para el siguiente</span>`;
+  if (kind === 'none') {
+    return `<section class="jd-today"><div class="jd-today__art"><span class="jd-today__ph">${ic('calx')}</span></div><div class="jd-today__body">
+      <div class="jd-today__meta"><span>Miércoles, 28 de octubre</span><span class="hg-chip hg-chip--plain">Sin JUDI</span></div>
+      <p class="jd-today__name">Hoy no hay JUDI</p><p class="jd-today__line">No se ha podido preparar el juego de hoy. Mientras, juega cualquier día del historial.</p>
+      <div class="jd-today__foot"><button type="button" class="btn btn--secondary">Jugar el de ayer (#811)${ic('arrowr', 'i-go')}</button></div></div></section>`;
+  }
+  if (kind === 'error') {
+    return `<section class="jd-today"><div class="jd-today__art"><span class="jd-today__ph" style="color:var(--danger)">${ic('alert')}</span></div><div class="jd-today__body">
+      <div class="jd-today__meta"><span>JUDI</span></div>
+      <p class="jd-today__name">No se ha podido cargar JUDI</p><p class="jd-today__line">Comprueba tu conexión y vuelve a probar. Tus partidas no se han perdido.</p>
+      <div class="jd-today__foot"><button type="button" class="btn btn--primary">${ic('refresh')}Reintentar</button></div></div></section>`;
+  }
+  const chip = kind === 'won' ? `<span class="hg-chip hg-tint ok">${ic('check')}Acertado</span>` : kind === 'progress' ? `<span class="hg-chip hg-tint warn">${ic('clock')}En curso</span>` : `<span class="hg-chip hg-tint warn">${ic('clock')}Sin jugar</span>`;
+  const name = kind === 'won' ? `<p class="jd-today__name">Hollow Knight</p>` : `<p class="jd-today__name is-q">¿Lo reconoces?</p>`;
+  const line = kind === 'won'
+    ? `<p class="jd-today__line">${pips(st)}<span style="white-space:nowrap"><b style="color:var(--primary)">+5 puntos</b> · en la fase 2</span></p>`
+    : `<p class="jd-today__line">${pips(st)}<span style="white-space:nowrap">Quedan <b>${6 - st.attempts.length}</b></span><span class="jd-stake hg-tint st-todos">${ic('trophy')}+${stake(st)} si aciertas</span></p>`;
+  const cta = kind === 'won' ? 'Ver resultado' : kind === 'progress' ? 'Continuar partida' : 'Jugar ahora';
+  const art = kind === 'won' ? HDR(g.appid) : g.shots[kind === 'progress' ? 2 : 0];
+  return `<section class="jd-today"><div class="jd-today__art"><img src="${art}" alt="">${kind !== 'won' ? `<span class="jd-plate jd-plate--badge">Captura ${kind === 'progress' ? 3 : 1} de 6</span>` : ''}</div><div class="jd-today__body">
+    ${head(chip)}${name}${line}<div class="jd-today__foot"><button type="button" class="btn ${kind === 'won' ? 'btn--secondary' : 'btn--primary'}">${cta}${ic('arrowr', 'i-go')}</button>${count}</div></div></section>`;
+}
+
+/* ── Cuenta atrás hasta las 00:00 de Madrid ── */
+function countdownText() {
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(now).split(':').map(Number);
+  const left = 86400 - (parts[0] * 3600 + parts[1] * 60 + parts[2]);
+  return [Math.floor(left / 3600), Math.floor((left % 3600) / 60), left % 60].map((x) => String(x).padStart(2, '0')).join(':');
+}
+setInterval(() => document.querySelectorAll('.js-countdown').forEach((el) => { el.textContent = countdownText(); }), 1000);
+
+/* ── Estados de ejemplo ── */
+const PRESETS = {
+  start: () => ({ game: 'hk', attempts: [], state: 'playing', viewed: 1 }),
+  mid: () => ({ game: 'hk', attempts: [{ k: 'miss', name: 'Dead Cells' }, { k: 'skip' }, { k: 'miss', name: 'Ori and the Blind Forest' }], state: 'playing', viewed: 4 }),
+  early: () => ({ game: 'hk', attempts: [{ k: 'miss', name: 'Dead Cells' }], state: 'won', viewed: 2 }),
+  late: () => ({ game: 'ow', attempts: [{ k: 'miss', name: "No Man's Sky" }, { k: 'skip' }, { k: 'miss', name: 'Subnautica' }, { k: 'miss', name: 'The Outer Worlds' }], state: 'won', viewed: 5, lib: { status: 'completado', fav: true } }),
+  lostpre: () => ({ game: 'de', attempts: [{ k: 'miss', name: 'Pillars of Eternity' }, { k: 'miss', name: 'Planescape: Torment: Enhanced Edition' }, { k: 'skip' }, { k: 'miss', name: 'Pathologic 2' }, { k: 'miss', name: 'Kentucky Route Zero: TV Edition' }], state: 'playing', viewed: 6, wished: true }),
+  lost: () => ({ game: 'de', attempts: [{ k: 'miss', name: 'Pillars of Eternity' }, { k: 'miss', name: 'Planescape: Torment: Enhanced Edition' }, { k: 'skip' }, { k: 'miss', name: 'Pathologic 2' }, { k: 'miss', name: 'Kentucky Route Zero: TV Edition' }, { k: 'skip' }], state: 'lost', viewed: 6, wished: true }),
+  revisit: () => ({ game: 'hk', attempts: [{ k: 'miss', name: 'Dead Cells' }, { k: 'skip' }], state: 'won', viewed: 3, lib: { status: 'pendiente', owned: false } }),
+  guest: () => ({ game: 'hk', attempts: [{ k: 'miss', name: 'Dead Cells' }, { k: 'miss', name: 'Salt and Sanctuary' }], state: 'won', viewed: 3, guest: true }),
+  errload: () => ({ game: 'hk', attempts: [], state: 'playing', viewed: 1 }),
+  errcheck: () => ({ game: 'hk', attempts: [{ k: 'miss', name: 'Dead Cells' }], state: 'playing', viewed: 2, error: 'check', lastGuess: 'Hollow Knight: Silksong' }),
+  noshot: () => ({ game: 'hk', attempts: [{ k: 'miss', name: 'Dead Cells' }, { k: 'skip' }], state: 'playing', viewed: 3, noShot: true }),
+  mobmid: () => ({ game: 'hk', attempts: [{ k: 'miss', name: 'Dead Cells' }, { k: 'skip' }], state: 'playing', viewed: 3 }),
+  long: () => ({ game: 'dos', attempts: [{ k: 'miss', name: 'Pillars of Eternity' }, { k: 'skip' }], state: 'won', viewed: 3, lib: { status: 'bandeja' } }),
+};
+const FR = {};
+function mk(id, layout, preset, extra = {}) {
+  FR[id] = { id, layout, preset, query: '', hl: 0, open: false, checking: false, fx: null, zoom: false, lib: null, wished: false, guest: false, error: null, ...PRESETS[preset](), ...extra };
+  FR[id].initPreset = preset; FR[id].initExtra = extra;
+}
+function loadPreset(st, preset) {
+  const keep = { id: st.id, layout: st.layout, forceP: st.forceP, forceH: st.forceH };
+  Object.keys(st).forEach((k) => delete st[k]);
+  Object.assign(st, { query: '', hl: 0, open: false, checking: false, fx: null, zoom: false, lib: null, wished: false, guest: false, error: null, preset }, PRESETS[preset](), keep);
+  if (preset === 'lost') st.state = 'lost';
+}
+
+/* ── Render ── */
+function frameHTML(st) {
+  const view = gameView(st);
+  if (st.layout === 'desk') return `${sidebar(st)}<div class="page"><div class="page-in">${view}</div></div>`;
+  if (st.layout === 'mob') return mobileChrome(st, view);
+  return `<div class="col-frame">${view}</div>`;
+}
+function renderFrame(id, anim = false) {
+  const st = FR[id]; const el = document.getElementById(id); if (!el) return;
+  el.classList.toggle('anim', anim);
+  el.innerHTML = frameHTML(st);
+  el.querySelectorAll('.js-countup').forEach(countUp);
+  if (st.focusInput) { const inp = el.querySelector('.jd-input'); if (inp && !inp.disabled) { inp.focus({ preventScroll: true }); const v = inp.value; inp.setSelectionRange(v.length, v.length); } }
+}
+function countUp(el) {
+  const to = Number(el.dataset.to) || 0;
+  if (rm()) { el.textContent = `+${to}`; return; }
+  const t0 = performance.now(); const dur = 450;
+  const tick = (t) => { const p = Math.min(1, (t - t0) / dur); const e = 1 - Math.pow(1 - p, 3); el.textContent = `+${Math.round(to * e)}`; if (p < 1) requestAnimationFrame(tick); };
+  el.textContent = '+0'; requestAnimationFrame(tick);
+}
+function confettiFrom(el) {
+  if (rm() || typeof confetti !== 'function' || !el) return;
+  const r = el.getBoundingClientRect();
+  if (r.bottom < 0 || r.top > innerHeight) return;
+  const css = getComputedStyle(document.documentElement);
+  const read = (v, f) => css.getPropertyValue(v).trim() || f;
+  confetti({ particleCount: 90, spread: 70, ticks: 180, scalar: 0.9, disableForReducedMotion: true,
+    origin: { x: (r.left + r.width / 2) / innerWidth, y: Math.min(0.9, (r.top + 60) / innerHeight) },
+    colors: [read('--primary', '#2453ff'), read('--rar-leg', '#c98a0b'), read('--foreground', '#1b1f27'), read('--surface-3', '#d6dae1')] });
+}
+
+/* ── Jugar ── */
+let lastFrame = 'f-desk';
+async function attempt(st, name) {
+  if (st.checking || st.state !== 'playing') return;
+  const g = GAMES[st.game];
+  st.checking = true; st.open = false; st.lastGuess = name || ''; st.fx = null; st.error = null;
+  renderFrame(st.id);
+  await wait(450);
+  st.checking = false;
+  if (st.failNext) { st.failNext = false; st.error = 'check'; st.query = name || ''; renderFrame(st.id); return; }
+  st.query = '';
+  const f = failedOf(st);
+  if (name && norm(name) === norm(g.name)) {
+    st.state = 'won'; st.fx = { k: 'win', slot: f }; st.focusInput = false;
+    renderFrame(st.id);
+    setTimeout(() => confettiFrom(document.querySelector(`#${st.id} .jd-res`)), 120);
+    return;
+  }
+  st.attempts.push(name ? { k: 'miss', name } : { k: 'skip' });
+  if (st.attempts.length >= 6) {
+    st.state = 'lost'; st.fx = { k: 'lost', slot: 5, lastMiss: !!name }; st.focusInput = false;
+  } else {
+    const from = st.viewed; st.viewed = f + 2;
+    st.fx = { k: name ? 'miss' : 'skip', slot: f, unlock: f + 2, slide: from !== st.viewed ? { from, dir: st.viewed > from ? 1 : -1 } : null };
+  }
+  renderFrame(st.id);
+}
+function view(st, p) {
+  if (p < 1 || p > 6 || p === st.viewed) return;
+  if (st.state === 'playing' && p > unlocked(st)) return;
+  const from = st.viewed; st.viewed = p; st.fx = { slide: { from, dir: p > from ? 1 : -1 } }; st.focusInput = false;
+  renderFrame(st.id);
+}
+function updateDrop(st, frame) {
+  const box = frame.querySelector('.js-drop'); if (box) box.innerHTML = dropHTML(st);
+  const inp = frame.querySelector('.jd-input'); if (inp) inp.setAttribute('aria-expanded', String(!!st.open));
+}
+function frameOf(el) { const f = el.closest('.frame'); return f && FR[f.id] ? f : null; }
+
+document.addEventListener('input', (e) => {
+  if (!e.target.classList.contains('jd-input')) return;
+  const frame = frameOf(e.target); if (!frame) return; const st = FR[frame.id];
+  st.query = e.target.value; st.open = norm(st.query).length >= 2; st.hl = firstFree(st);
+  if (st.error) { st.error = null; frame.querySelector('.jd-guess-err')?.remove(); }
+  updateDrop(st, frame);
+});
+function firstFree(st) {
+  const tried = new Set(st.attempts.filter((a) => a.name).map((a) => norm(a.name)));
+  const r = results(st); const i = r.findIndex((x) => !tried.has(norm(x))); return i < 0 ? 0 : i;
+}
+document.addEventListener('focusin', (e) => {
+  const frame = frameOf(e.target); if (frame) lastFrame = frame.id;
+  if (e.target.classList?.contains('jd-input')) FR[frame.id].focusInput = true;
+});
+document.addEventListener('focusout', (e) => {
+  if (!e.target.classList?.contains('jd-input')) return;
+  const frame = frameOf(e.target); if (!frame) return; const st = FR[frame.id];
+  setTimeout(() => { if (!frame.contains(document.activeElement) || !document.activeElement.classList.contains('jd-input')) { if (!st.checking) { st.focusInput = false; st.open = false; updateDrop(st, frame); } } }, 180);
+});
+document.addEventListener('keydown', (e) => {
+  const inInput = e.target.classList?.contains('jd-input');
+  if (inInput) {
+    const frame = frameOf(e.target); const st = FR[frame.id];
+    const r = results(st);
+    const tried = new Set(st.attempts.filter((a) => a.name).map((a) => norm(a.name)));
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!r.length) return; e.preventDefault(); st.open = true;
+      const d = e.key === 'ArrowDown' ? 1 : -1; let i = st.hl;
+      for (let k = 0; k < r.length; k++) { i = (i + d + r.length) % r.length; if (!tried.has(norm(r[i]))) break; }
+      st.hl = i; updateDrop(st, frame);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const name = r[st.hl];
+      if (st.open && name && !tried.has(norm(name))) attempt(st, name);
+    } else if (e.key === 'Escape') { st.open = false; updateDrop(st, frame); }
+    return;
+  }
+  if (e.key === 'Escape') { Object.values(FR).forEach((st) => { if (st.zoom) { st.zoom = false; st.fx = null; renderFrame(st.id); } }); return; }
+  if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !e.target.closest('input, textarea') && FR[lastFrame] && frameActive) {
+    e.preventDefault(); const st = FR[lastFrame]; view(st, st.viewed + (e.key === 'ArrowRight' ? 1 : -1));
+    document.querySelector(`#${st.id} .jd-shot[aria-selected="true"], #${st.id} .jd-tab[aria-selected="true"]`)?.focus({ preventScroll: true });
+  }
+});
+// Deslizar la captura en táctil (como hoy: 56 px)
+let touch = null;
+document.addEventListener('touchstart', (e) => { const s = e.target.closest('.jd-stage'); if (s) touch = { x: e.touches[0].clientX, y: e.touches[0].clientY, f: frameOf(s) }; }, { passive: true });
+document.addEventListener('touchend', (e) => {
+  if (!touch) return; const t = e.changedTouches[0]; const dx = t.clientX - touch.x; const dy = t.clientY - touch.y;
+  if (Math.abs(dx) >= 56 && Math.abs(dx) > Math.abs(dy) * 1.2 && touch.f) { const st = FR[touch.f.id]; view(st, st.viewed + (dx < 0 ? 1 : -1)); touch.swiped = true; }
+  touch = null;
+});
+
+let frameActive = false;
+document.addEventListener('mousedown', (e) => {
+  if (e.target.closest('.jd-opt')) e.preventDefault();
+  const f = e.target.closest('.frame'); frameActive = !!(f && FR[f.id]); if (frameActive) lastFrame = f.id;
+});
+document.addEventListener('click', async (e) => {
+  const a = e.target.closest('[data-act]');
+  if (!a) return;
+  const frame = frameOf(a); if (!frame) return;
+  const st = FR[frame.id]; lastFrame = frame.id;
+  const act = a.dataset.act;
+  if (act === 'pick') { if (!a.disabled) attempt(st, a.dataset.name); }
+  if (act === 'skip') attempt(st, null);
+  if (act === 'view') { view(st, Number(a.dataset.p)); frameActive = true; frame.querySelector('.jd-shot[aria-selected="true"], .jd-tab[aria-selected="true"]')?.focus({ preventScroll: true }); }
+  if (act === 'zoom') { st.zoom = true; st.fx = null; st.focusInput = false; renderFrame(st.id); }
+  if (act === 'unzoom') { st.zoom = false; renderFrame(st.id); }
+  if (act === 'retry') { const g = st.lastGuess; st.error = null; attempt(st, g || null); }
+  if (act === 'reload') { loadPreset(st, 'start'); renderFrame(st.id, true); }
+  if (act === 'reload-shot') { e.stopPropagation(); st.noShot = false; st.fx = null; renderFrame(st.id); }
+  if (act === 'share') {
+    st.copied = true; renderFrame(st.id);
+    setTimeout(() => { st.copied = false; renderFrame(st.id); }, 2200);
+  }
+  if (act === 'add-pend' || act === 'add-wish') {
+    a.disabled = true; a.classList.add('is-saving', 'is-busy');
+    a.innerHTML = `<span class="spin-ring" aria-hidden="true"></span>${act === 'add-pend' ? 'Guardando…' : 'Añadiendo…'}`;
+    frame.querySelectorAll('[data-act^="add-"]').forEach((b) => (b.disabled = true));
+    await wait(550);
+    if (act === 'add-pend') { st.lib = { status: 'pendiente', owned: st.lib ? st.lib.owned : false, fav: st.lib && st.lib.fav }; st.fx = { k: 'added-pend' }; }
+    else { st.wished = true; st.fx = { k: 'added-wish' }; }
+    renderFrame(st.id);
+  }
+});
+
+/* ── Marcos fijos: comparativas, entrada y teclado ── */
+function renderStatic() {
+  // Comparativa de fases
+  const vp = document.getElementById('var-p');
+  vp.innerHTML = ['A', 'B'].map((v) => `<div><div class="vlabel"><b>${v}</b>${v === 'A' ? 'Tira de capturas' : 'Pestañas + intentos'}${v === 'A' ? '<span class="doc-tag doc-tag--new">Recomendada</span>' : ''}</div><div class="frame w-desk" style="width:600px" id="vp-${v}"></div></div>`).join('');
+  const vh = document.getElementById('var-h');
+  vh.innerHTML = ['A', 'B'].map((v) => `<div><div class="vlabel"><b>${v}</b>${v === 'A' ? 'Color del dato' : 'Cuánto acercan'}${v === 'A' ? '<span class="doc-tag doc-tag--new">Recomendada</span>' : ''}</div><div class="frame w-col" style="width:600px" id="vh-${v}"></div></div>`).join('');
+  // Entrada
+  const td = document.getElementById('today');
+  const kinds = [['new', 'Sin jugar'], ['progress', 'En curso: un fallo y un salto'], ['won', 'Acertado'], ['none', 'Sin JUDI hoy'], ['error', 'Error al cargar']];
+  td.innerHTML = kinds.map(([k, l], i) => `<div><div class="vlabel"><b>${i + 1}</b>${l}</div><div class="frame w-desk" style="width:600px"><div class="col-frame">${todayCard(k)}</div></div></div>`).join('');
+}
+function renderCompare() {
+  ['A', 'B'].forEach((v) => {
+    const pst = { id: `vp-${v}`, layout: 'desk', forceP: v, ...PRESETS.mid(), query: '' };
+    const el = document.getElementById(`vp-${v}`);
+    el.innerHTML = `<div class="col-frame"><div class="jd">${topBar(pst)}<div class="jd-stagecol">${stage(pst)}${strip(pst)}${keyhint(pst)}</div></div></div>`;
+    const hst = { id: `vh-${v}`, layout: 'col', forceH: v, ...PRESETS.mid(), attempts: [...PRESETS.mid().attempts, { k: 'skip' }], viewed: 5 };
+    document.getElementById(`vh-${v}`).innerHTML = `<div class="col-frame"><div class="jd-panel">${hintsBlock(hst)}</div></div>`;
+  });
+}
+function renderKeyboard() {
+  const st = { id: 'kb', layout: 'mob', ...PRESETS.mobmid(), query: 'hol', open: true, hl: 0 };
+  st.attempts = [{ k: 'miss', name: 'Dead Cells' }, { k: 'skip' }];
+  const r = ['Hollow Knight', 'Hollow Knight: Silksong', 'Dead Cells'];
+  const opts = r.map((name, i) => `<li><button type="button" class="jd-opt${i === 0 ? ' is-hl' : ''}" ${name === 'Dead Cells' ? 'disabled' : ''}><span class="jd-opt__name">${name === 'Dead Cells' ? 'Dead Cells' : `<mark>Hol</mark>${name.slice(3)}`}</span>${name === 'Dead Cells' ? `<span class="jd-opt__tag hg-tint ko">${ic('x')}Ya probado</span>` : i === 0 ? '<span class="jd-opt__key"><kbd class="hg-kbd">Ir</kbd></span>' : ''}</button></li>`).join('');
+  const el = document.getElementById('f-mob-kb');
+  el.innerHTML = `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon"><span class="nv-avatar">D</span></span></div></header>
+    <div class="kbv"><div class="kbv__top"><span><b>JUDI #812</b> · Intento 3 de 6</span><span class="jd-stake hg-tint st-todos">${ic('trophy')}+4 si aciertas</span></div>
+    ${stage(st)}
+    <ul class="jd-drop" role="listbox" style="list-style:none">${opts}</ul>
+    <div class="jd-guess is-focus"><span class="jd-guess__icon" style="color:var(--primary)">${ic('search')}</span><input class="hg-input" type="text" value="hol" readonly aria-label="Nombre del juego"></div></div>
+    <div class="kb"><div class="kb__bar"><span>Hollow</span><span>Hola</span><span>Holanda</span></div>
+    <div class="kb__row">${'<i></i>'.repeat(10)}</div><div class="kb__row">${'<i></i>'.repeat(9)}</div><div class="kb__row"><i class="w"></i>${'<i></i>'.repeat(7)}<i class="w"></i></div><div class="kb__row"><i class="w"></i><i></i><i class="sp"></i><i></i><i class="go"></i></div></div>`;
+}
+
+/* ── Montaje ── */
+mk('f-desk', 'desk', 'start');
+const STATE_CARDS = [
+  ['mid', 'A media partida', 'Fase 4: dos fallos y un salto. La pista de reseñas, recién abierta, con su color.'],
+  ['early', 'Acierto en fase temprana', 'Fase 2, no lo tienes y está en mínimo histórico: «Pendientes» y «Wishlist».'],
+  ['late', 'Acierto en fase tardía', 'Fase 5 de un día pasado («Archivo»). Ya lo tienes: Completado y Favorito, sin precio; queda «A Pendientes» como en el buscador (pregunta 7).'],
+  ['lost', 'Derrota', 'Seis intentos perdidos. En tu wishlist, rebajado pero ha estado más barato.'],
+  ['revisit', 'Ya jugado hoy (volver a entrar)', 'Sin animaciones ni confeti. Lo añadiste a Pendientes (sin comprar). Con la propuesta de la pregunta 3, se ven el fallo y el salto en su orden.'],
+  ['guest', 'Sin sesión', 'Progreso en este dispositivo. Precio de tienda sin veredicto; para añadirlo, iniciar sesión.'],
+  ['errcheck', 'Error al comprobar', 'El servidor no responde al enviar: no se gasta el intento y se puede reintentar.'],
+  ['noshot', 'Captura que no carga', 'La imagen de la fase 3 falla (proxy o Steam): aviso en la captura y reintentar; el resto sigue jugable.'],
+  ['errload', 'Error al cargar la partida', 'Hoy se queda en el listado sin decir nada.'],
+];
+document.getElementById('states').innerHTML = STATE_CARDS.map(([p, t, d], i) => `<div><div class="vlabel"><b>${i + 1}</b>${t}</div><div class="frame w-col" style="width:420px" id="s-${p}"></div><p class="frame-cap">${d}</p></div>`).join('');
+STATE_CARDS.forEach(([p]) => mk(`s-${p}`, 'col', p));
+mk('f-mob', 'mob', 'mobmid');
+mk('f-mob-long', 'mob', 'long');
+
+function renderAll(anim = true) {
+  Object.keys(FR).forEach((id) => { FR[id].fx = null; renderFrame(id, anim); });
+  renderStatic(); renderCompare(); renderKeyboard();
+}
+
+document.querySelectorAll('.tests').forEach((box) => box.addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  const st = FR[box.dataset.frame];
+  if (b.dataset.preset) { loadPreset(st, b.dataset.preset); renderFrame(st.id, true); return; }
+  const t = b.dataset.test;
+  if (t === 'errcheck') { if (st.state !== 'playing' || st.preset === 'errload') { loadPreset(st, 'start'); renderFrame(st.id); } st.failNext = true; attempt(st, 'Hollow Knight: Silksong'); return; }
+  if (st.state !== 'playing' || st.preset === 'errload') { loadPreset(st, st.layout === 'mob' ? 'mobmid' : 'start'); renderFrame(st.id); }
+  if (t === 'skip') attempt(st, null);
+  if (t === 'win') attempt(st, GAMES[st.game].name);
+  if (t === 'fail') { const tried = new Set(st.attempts.map((a) => a.name)); attempt(st, WRONG.find((w) => !tried.has(w))); }
+}));
+document.querySelectorAll('[data-var]').forEach((b) => b.addEventListener('click', () => {
+  VAR[b.dataset.var] = b.dataset.val;
+  document.querySelectorAll(`[data-var="${b.dataset.var}"]`).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  Object.keys(FR).forEach((id) => { FR[id].fx = null; renderFrame(id); });
+}));
+function setTheme(t) {
+  const html = document.documentElement;
+  if (!rm()) { html.classList.add('theme-anim'); setTimeout(() => html.classList.remove('theme-anim'), 320); }
+  html.dataset.theme = t;
+  const btn = document.getElementById('theme-btn'); btn.setAttribute('aria-pressed', String(t === 'dark')); btn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro';
+  Object.keys(FR).forEach((id) => { FR[id].fx = null; renderFrame(id); });
+}
+document.getElementById('theme-btn').addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+document.getElementById('rm-btn').addEventListener('click', (e) => {
+  const on = document.documentElement.classList.toggle('rm');
+  e.currentTarget.setAttribute('aria-pressed', String(on));
+  e.currentTarget.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`;
+});
+document.getElementById('replay-btn').addEventListener('click', () => {
+  Object.values(FR).forEach((st) => loadPreset(st, st.initPreset));
+  renderAll(true);
+});
+
+renderAll(true);
+</script>
+</body>
+</html>

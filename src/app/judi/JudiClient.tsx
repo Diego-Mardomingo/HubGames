@@ -1,14 +1,32 @@
 'use client'
 
-import { useMemo, useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
+import { useMemo, useState, useEffect, useLayoutEffect, useRef, useCallback, type CSSProperties } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { motion, AnimatePresence, useAnimate } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { supabase, safeGetUser } from '@/lib/supabase/client'
 import Loader from '@/components/Loader'
 import { getFailedAttempts, getPointsForRecord, type JudiProgressRecord } from '@/lib/judi-ranking'
-import { findJudiLocalKey, JUDI_CHANGED_EVENT, judiCaptureUrl, parseJudiDay, writeJudiLocal, type JudiDay, type JudiHints } from '@/lib/judi'
-import JudiFinishActions from './JudiFinishActions'
+import {
+    attemptHistory,
+    attemptSlots,
+    findJudiLocalKey,
+    JUDI_CHANGED_EVENT,
+    judiCaptureUrl,
+    parseJudiDay,
+    pointsAtStake,
+    writeJudiLocal,
+    type JudiAttempt,
+    type JudiDay,
+    type JudiDayState,
+    type JudiHints,
+    type JudiSlot,
+} from '@/lib/judi'
+import { AttemptPips, JudiStrip, type JudiFx } from './JudiAttempts'
+import JudiGuess, { normalizeGameName } from './JudiGuess'
+import JudiHintList, { hintFor } from './JudiHints'
+import JudiResult from './JudiResult'
+import AnimatedCount from '@/components/AnimatedCount'
 import {
     JUDI_HOME_SCROLL_Y_KEY,
     getWindowScrollY,
@@ -17,22 +35,7 @@ import {
 } from '@/lib/judi-home-scroll'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import confetti from 'canvas-confetti'
-import {
-    ArrowLeft,
-    ArrowRight,
-    Building2,
-    CalendarDays,
-    Check,
-    ChevronDown,
-    Lock,
-    Maximize2,
-    Search,
-    SkipForward,
-    Tags,
-    ThumbsUp,
-    Users,
-    X,
-} from 'lucide-react'
+import { AlertCircle, ArrowLeft, ArrowRight, CalendarX2, Check, ChevronDown, Clock, ImageOff, Maximize2, RefreshCw, X } from 'lucide-react'
 import { Dialog } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import './judi.css'
@@ -67,11 +70,6 @@ type JudiProgress = JudiProgressRecord & {
     nombre?: string | null
     header_image?: string | null
     appid?: number | null
-}
-
-type GuessOption = {
-    id: number
-    name: string
 }
 
 type MonthGroup = {
@@ -295,10 +293,11 @@ function getLocalProgressRaw(): Record<string, JudiProgress> {
     }
 }
 
-function getLocalGuessesRaw(): Record<string, string[]> {
+/** Intentos de invitados por fecha: texto = fallo, null = salto (los antiguos solo guardaban los nombres). */
+function getLocalGuessesRaw(): Record<string, (string | null)[]> {
     try {
         const raw = localStorage.getItem('judi_intentos')
-        return raw ? (JSON.parse(raw) as Record<string, string[]>) : {}
+        return raw ? (JSON.parse(raw) as Record<string, (string | null)[]>) : {}
     } catch {
         return {}
     }
@@ -310,18 +309,9 @@ function readLocalProgressForGame(game: { fecha: string }, raw: Record<string, J
     return key ? raw[key] : undefined
 }
 
-function readLocalGuessesForGame(game: { fecha: string }, raw: Record<string, string[]>): string[] {
+function readLocalGuessesForGame(game: { fecha: string }, raw: Record<string, (string | null)[]>): (string | null)[] {
     const key = findJudiLocalKey(raw, game.fecha)
     return (key ? raw[key] : undefined) ?? []
-}
-
-function normalizeGameName(value: string) {
-    return value
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, ' ')
-        .trim()
 }
 
 /** Fase desbloqueada según el progreso (igual que hubgames_judi_phase): fase5 → 6, …, fase1 → 2, nada → 1. */
@@ -341,42 +331,17 @@ const JUDI_ATTEMPT_SLOTS = 6
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const
 
-type PipState = 'empty' | 'miss' | 'hit'
-
-function listPipStates(failed: number): PipState[] {
-    const f = Math.min(Math.max(0, failed), JUDI_ATTEMPT_SLOTS)
-    return Array.from({ length: JUDI_ATTEMPT_SLOTS }, (_, i) => (i < f ? 'miss' : 'empty'))
+/** Intentos de un día del listado: solo sabemos cuántos fallaste (fase1..fase6), sin orden ni saltos. */
+function recordSlots(game: GameRecord): JudiSlot[] {
+    const failed = getFailedAttempts(game as JudiProgressRecord)
+    const state: JudiDayState = game.completado ? 'won' : game.fase6 ? 'lost' : 'playing'
+    const attempts: JudiAttempt[] = Array.from({ length: failed }, () => ({ kind: 'miss', name: null }))
+    return attemptSlots(state, attempts)
 }
 
-function gamePipStates(gameState: 'playing' | 'won' | 'lost', lives: number): PipState[] {
-    const failed = Math.min(JUDI_ATTEMPT_SLOTS, Math.max(0, JUDI_ATTEMPT_SLOTS - lives))
-    return Array.from({ length: JUDI_ATTEMPT_SLOTS }, (_, i) => {
-        if (gameState === 'lost') return 'miss'
-        if (gameState === 'won') {
-            // Sin fallos: todo en verde (celebración); si no, fallos en rojo + acierto en verde.
-            if (failed === 0) return 'hit'
-            return i < failed ? 'miss' : i === failed ? 'hit' : 'empty'
-        }
-        return i < failed ? 'miss' : 'empty'
-    })
-}
-
-function AttemptPips({ states, size = 'md' }: { states: PipState[]; size?: 'sm' | 'md' }) {
-    const misses = states.filter((s) => s === 'miss').length
-    return (
-        <div className={`jd-pips jd-pips--${size}`} role="img" aria-label={`${misses} de ${JUDI_ATTEMPT_SLOTS} intentos fallados`}>
-            {states.map((state, i) => (
-                <motion.span
-                    key={i}
-                    className={`jd-pip jd-pip--${state}`}
-                    initial={false}
-                    animate={state === 'empty' ? { scale: 1 } : { scale: [1, 1.35, 1] }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                />
-            ))}
-        </div>
-    )
-}
+/** Historial de intentos de la partida abierta. */
+type History = { attempts: JudiAttempt[]; names: string[]; exact: boolean }
+const EMPTY_HISTORY: History = { attempts: [], names: [], exact: true }
 
 type TileStatus = 'won' | 'lost' | 'progress' | 'new'
 
@@ -405,7 +370,6 @@ function MysteryArt({ big = false }: { big?: boolean }) {
 function GameTile({ game, onPlay }: { game: GameRecord; onPlay: (game: GameRecord) => void }) {
     const status = getTileStatus(game)
     const finished = status === 'won' || status === 'lost'
-    const failed = getFailedAttempts(game as JudiProgressRecord)
     const isToday = isJudiGameForCurrentDailyDate(game)
     const title = finished ? game.nombre ?? STATUS_LABEL[status] : STATUS_LABEL[status]
 
@@ -437,7 +401,7 @@ function GameTile({ game, onPlay }: { game: GameRecord; onPlay: (game: GameRecor
                                 {status === 'won' ? `+${game.puntos ?? 0} pts` : '0 pts'}
                             </span>
                         ) : status === 'progress' ? (
-                            <AttemptPips states={listPipStates(failed)} size="sm" />
+                            <AttemptPips slots={recordSlots(game)} size="sm" />
                         ) : (
                             <span className="jd-tile__play">Jugar</span>
                         )}
@@ -445,6 +409,56 @@ function GameTile({ game, onPlay }: { game: GameRecord; onPlay: (game: GameRecor
                 </span>
             </button>
         </li>
+    )
+}
+
+/** Hoy no hay JUDI publicado (no se pudo preparar): se ofrece el último día. */
+function NoTodayCard({ last, onPlay }: { last: GameRecord | null; onPlay: (game: GameRecord) => void }) {
+    return (
+        <section className="jd-today jd-today--none" aria-label="Juego del día">
+            <div className="jd-today__art jd-today__art--empty" aria-hidden>
+                <CalendarX2 />
+            </div>
+            <div className="jd-today__body">
+                <div className="jd-today__meta">
+                    <span className="jd-today__date">{new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Madrid' })}</span>
+                    <span className="hg-chip jd-chip--plain">Sin JUDI</span>
+                </div>
+                <p className="jd-today__name">Hoy no hay JUDI</p>
+                <p className="jd-today__text">No se ha podido preparar el juego de hoy. Mientras, juega cualquier día del historial.</p>
+                {last && (
+                    <div className="jd-today__foot">
+                        <Button variant="secondary" onClick={() => onPlay(last)}>
+                            Jugar el último (#{last.id})
+                            <ArrowRight size={18} data-icon="inline-end" aria-hidden />
+                        </Button>
+                    </div>
+                )}
+            </div>
+        </section>
+    )
+}
+
+/** No se pudo leer la lista de JUDI. */
+function LoadErrorCard({ title, text, onRetry, onBack }: { title: string; text: string; onRetry: () => void; onBack?: () => void }) {
+    return (
+        <section className="jd-error hg-enter" role="alert">
+            <span className="jd-error__icon hg-tint ko" aria-hidden>
+                <AlertCircle />
+            </span>
+            <h2>{title}</h2>
+            <p>{text}</p>
+            <div className="jd-error__acts">
+                <Button onClick={onRetry}>
+                    <RefreshCw aria-hidden /> Reintentar
+                </Button>
+                {onBack && (
+                    <Button variant="secondary" onClick={onBack}>
+                        <ArrowLeft aria-hidden /> Volver al historial
+                    </Button>
+                )}
+            </div>
+        </section>
     )
 }
 
@@ -493,22 +507,21 @@ function TodayCard({
                 </div>
                 <p className="jd-today__name">{finished ? game.nombre ?? STATUS_LABEL[status] : '¿Lo reconoces?'}</p>
                 <div className="jd-today__pips">
-                    <AttemptPips
-                        states={
-                            status === 'won'
-                                ? gamePipStates('won', JUDI_ATTEMPT_SLOTS - failed)
-                                : status === 'lost'
-                                    ? gamePipStates('lost', 0)
-                                    : listPipStates(failed)
-                        }
-                    />
-                    <span className="jd-today__pips-label">
-                        {status === 'won'
-                            ? `+${game.puntos ?? 0} puntos`
-                            : status === 'lost'
-                                ? 'Sin puntos'
-                                : `${JUDI_ATTEMPT_SLOTS - failed} intentos restantes`}
-                    </span>
+                    <AttemptPips slots={recordSlots(game)} />
+                    {status === 'won' ? (
+                        <span className="jd-today__pips-label">
+                            <b className="jd-today__pts">+{game.puntos ?? 0} puntos</b> · en la fase {failed + 1}
+                        </span>
+                    ) : status === 'lost' ? (
+                        <span className="jd-today__pips-label">Sin puntos</span>
+                    ) : (
+                        <>
+                            <span className="jd-today__pips-label">
+                                Quedan <b>{JUDI_ATTEMPT_SLOTS - failed}</b>
+                            </span>
+                            <span className="jd-stake hg-tint st-todos">+{pointsAtStake(failed)} si aciertas</span>
+                        </>
+                    )}
                 </div>
                 <div className="jd-today__foot">
                     <Button size="lg" onClick={() => onPlay(game)} data-play>
@@ -581,19 +594,24 @@ export default function JudiClient() {
     const [selectedGame, setSelectedGame] = useState<GameData | null>(null)
     const [highestUnlockedPhase, setHighestUnlockedPhase] = useState(1)
     const [activeViewedPhase, setActiveViewedPhase] = useState(1)
-    const [lives, setLives] = useState(6)
-    const [searchQuery, setSearchQuery] = useState('')
-    const [searchResults, setSearchResults] = useState<GuessOption[]>([])
-    const [searchLoading, setSearchLoading] = useState(false)
-    const [showDropdown, setShowDropdown] = useState(false)
+    /** Intentos de la partida abierta (fallos y saltos en orden, si el servidor lo sabe). */
+    const [history, setHistory] = useState<History>(EMPTY_HISTORY)
     const [guessSubmitting, setGuessSubmitting] = useState(false)
+    /** Lo que se está comprobando (null = saltar); también para «Reintentar». */
+    const [pendingGuess, setPendingGuess] = useState<{ guess: string | null } | null>(null)
     const [guessError, setGuessError] = useState<string | null>(null)
     const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing')
-    const [wrongGuesses, setWrongGuesses] = useState<string[]>([])
+    /** Lo que acaba de pasar (para animar ese intento, la pista nueva y el resultado); null al volver a entrar. */
+    const [fx, setFx] = useState<JudiFx | null>(null)
+    /** La partida no se pudo cargar (en vez de quedarse en el listado sin decir nada). */
+    const [gameLoadError, setGameLoadError] = useState<GameRecord | null>(null)
+    const [listError, setListError] = useState(false)
+    /** Captura que no ha cargado (fase). */
+    const [brokenCapture, setBrokenCapture] = useState<number | null>(null)
+    const [captureRetry, setCaptureRetry] = useState(0)
     const [captureZoomOpen, setCaptureZoomOpen] = useState(false)
     const swipeBlockClickRef = useRef(false)
     const touchStartRef = useRef<{ x: number; y: number } | null>(null)
-    const winConfettiFiredRef = useRef(false)
     const loadUserAndGamesRef = useRef<() => Promise<void>>(async () => {})
     /** Último scroll del listado; el cleanup no puede usar window.scrollY al desmontar (el router ya lo ha puesto en 0). */
     const lastHomeScrollYRef = useRef(0)
@@ -609,7 +627,7 @@ export default function JudiClient() {
     const [listFilter, setListFilter] = useState<ListFilter>(() => readFilterSession())
     /** Contador para el destello rojo de la captura al fallar. */
     const [flashKey, setFlashKey] = useState(0)
-    const [guessScope, animateGuess] = useAnimate<HTMLDivElement>()
+    const fxCounter = useRef(0)
     /** Dirección de la transición entre capturas (1 = siguiente, -1 = anterior). */
     const phaseDirRef = useRef(1)
     const lastPhaseRef = useRef(activeViewedPhase)
@@ -714,27 +732,14 @@ export default function JudiClient() {
         })
     }, [games])
 
-    useEffect(() => {
-        if (searchQuery.length < 2) {
-            setSearchResults([])
-            return
-        }
-        const timer = setTimeout(async () => {
-            setSearchLoading(true)
-            const { data } = await supabase.rpc('hubgames_judi_search_pool', { p_query: searchQuery })
-            setSearchResults((data || []).map((item: { steam_appid: number; game_name: string }) => ({ id: item.steam_appid, name: item.game_name })))
-            setSearchLoading(false)
-        }, 300)
-        return () => clearTimeout(timer)
-    }, [searchQuery])
-
     const loadUserAndGames = async () => {
         loadUserAndGamesRef.current = loadUserAndGames
         setLoading(true)
         const { data: { user: authUser } } = await safeGetUser()
         setUser(authUser)
         // Solo los días ya publicados (hasta hoy en Madrid), con tu progreso. Nombre y portada, solo de los terminados.
-        const { data: rows } = await supabase.rpc('hubgames_judi_list')
+        const { data: rows, error: listErr } = await supabase.rpc('hubgames_judi_list')
+        setListError(Boolean(listErr))
         const rawLocal = authUser ? {} : getLocalProgressRaw()
 
         setGames((rows ?? []).map((row) => {
@@ -769,23 +774,23 @@ export default function JudiClient() {
         loadingRef.current = true
         setLoading(true)
         setCaptureZoomOpen(false)
-        setSearchQuery('')
-        setSearchResults([])
-        setShowDropdown(false)
-        setWrongGuesses([])
+        setHistory(EMPTY_HISTORY)
         setGuessError(null)
+        setPendingGuess(null)
+        setFx(null)
+        setGameLoadError(null)
+        setBrokenCapture(null)
 
         const { data: { user: authUser } } = await safeGetUser()
         let day: JudiDay | null
         let progress: JudiProgress | undefined
-        let savedWrongGuesses: string[] = []
+        let localAttempts: (string | null)[] = []
         if (authUser) {
             const { data } = await supabase.rpc('hubgames_judi_get_day', { p_id: game.id })
             day = parseJudiDay(data)
-            savedWrongGuesses = day?.guesses ?? []
         } else {
             progress = readLocalProgressForGame(game, getLocalProgressRaw())
-            savedWrongGuesses = readLocalGuessesForGame(game, getLocalGuessesRaw())
+            localAttempts = readLocalGuessesForGame(game, getLocalGuessesRaw())
             const finished = Boolean(progress?.completado || progress?.fase6)
             const phase = finished ? 6 : phaseFromProgress(progress)
             const { data } = await supabase.rpc('hubgames_judi_get_day', { p_id: game.id, p_phase: phase })
@@ -802,6 +807,10 @@ export default function JudiClient() {
         }
 
         if (!day) {
+            // Antes se quedaba en el listado sin decir nada: ahora, la partida con su error y «Reintentar».
+            setGameLoadError(game)
+            setSelectedGame(null)
+            setView('game')
             setLoading(false)
             return
         }
@@ -815,24 +824,21 @@ export default function JudiClient() {
         const state: JudiDay['state'] = authUser
             ? day.state
             : progress?.completado ? 'won' : progress?.fase6 ? 'lost' : 'playing'
+        // Intentos gastados: los fallos de fase1..fase6 (el acierto no marca fase).
+        const failed = authUser ? (day.failed ?? 0) : getFailedAttempts((progress ?? {}) as JudiProgressRecord)
+        setHistory(
+            authUser
+                ? attemptHistory({ attempts: day.attempts, guesses: day.guesses, failed })
+                : attemptHistory({ attempts: localAttempts, failed })
+        )
 
-        setWrongGuesses(savedWrongGuesses)
-        if (state === 'won') {
-            setGameState('won')
+        if (state === 'won' || state === 'lost') {
+            setGameState(state)
             setHighestUnlockedPhase(6)
-            setActiveViewedPhase(6)
-            // Vidas = intentos restantes; los fallos vienen de fase1..fase5 (el acierto no marca faseN).
-            const failedOnWin = authUser ? day.failed ?? 0 : getFailedAttempts(progress as JudiProgressRecord)
-            setLives(JUDI_ATTEMPT_SLOTS - failedOnWin)
-        } else if (state === 'lost') {
-            setGameState('lost')
-            setHighestUnlockedPhase(6)
-            setActiveViewedPhase(6)
-            setLives(0)
+            setActiveViewedPhase(state === 'won' ? Math.min(failed + 1, 6) : 6)
         } else {
             setHighestUnlockedPhase(day.phase)
             setActiveViewedPhase(day.phase)
-            setLives(7 - day.phase)
             setGameState('playing')
         }
 
@@ -849,29 +855,22 @@ export default function JudiClient() {
         localStorage.setItem('judi_progress', JSON.stringify(next))
     }
 
-    const saveLocalGuesses = (gameRef: { id: number; fecha: string }, guesses: string[]) => {
+    const saveLocalGuesses = (gameRef: { id: number; fecha: string }, guesses: (string | null)[]) => {
         const guessesData = getLocalGuessesRaw()
         const next = writeJudiLocal(guessesData, gameRef.fecha, gameRef.id, guesses)
         if (guesses.length === 0) delete next[gameRef.fecha]
         localStorage.setItem('judi_intentos', JSON.stringify(next))
     }
 
-    /** Feedback de fallo: sacudida del buscador + destello en la captura. */
-    const signalMiss = () => {
-        setFlashKey((k) => k + 1)
-        if (guessScope.current) {
-            void animateGuess(guessScope.current, { x: [0, -12, 10, -7, 5, -2, 0] }, { duration: 0.5, ease: 'easeOut' })
-        }
-    }
-
     /**
-     * Envía un intento al servidor (#39); `guess` null = saltar. Con sesión, el servidor guarda el progreso; sin sesión,
-     * solo lo comprueba y el progreso se guarda en localStorage.
+     * Envía un intento al servidor (#39); `guess` null = saltar. Con sesión, el servidor guarda el progreso (y, con la
+     * migración de saltos, cada intento en orden); sin sesión, solo lo comprueba y el progreso se guarda en localStorage.
      */
     const sendAttempt = async (guess: string | null) => {
         if (!selectedGame || gameState !== 'playing' || guessSubmitting) return
         const game = selectedGame.juego
         setGuessSubmitting(true)
+        setPendingGuess({ guess })
         setGuessError(null)
         try {
             const { data: { user: authUser } } = await safeGetUser()
@@ -883,42 +882,45 @@ export default function JudiClient() {
                 setGuessError('No se ha podido comprobar el intento. Inténtalo de nuevo.')
                 return
             }
+            setPendingGuess(null)
             if (day.result === 'duplicate') return
 
             const reveal = { nombre: day.nombre, header_image: day.headerImage, appid: day.appid }
-            if (day.nombre) {
-                setSelectedGame((prev) => (prev ? { ...prev, juego: { ...prev.juego, ...reveal } } : prev))
-            }
-            setSelectedGame((prev) => (prev ? { ...prev, hints: day.hints, captureCount: day.captureCount } : prev))
-            setSearchQuery('')
-            setSearchResults([])
-            setShowDropdown(false)
+            setSelectedGame((prev) =>
+                prev ? { ...prev, juego: day.nombre ? { ...prev.juego, ...reveal } : prev.juego, hints: day.hints, captureCount: day.captureCount } : prev
+            )
+            const slot = history.attempts.length
+            fxCounter.current += 1
 
             if (day.state === 'won') {
                 setGameState('won')
-                if (!authUser) {
-                    saveLocalProgress(game, { completado: true, ...reveal })
-                    saveLocalGuesses(game, [])
-                }
+                setFx({ kind: 'win', slot, n: fxCounter.current })
+                if (!authUser) saveLocalProgress(game, { completado: true, ...reveal })
                 return
             }
 
-            signalMiss()
-            if (guess) {
-                const nextGuesses = [...wrongGuesses, guess]
-                setWrongGuesses(nextGuesses)
-                if (!authUser) saveLocalGuesses(game, nextGuesses)
+            // Fallo o salto: el intento nuevo. Si el servidor ya los cuenta en orden, manda él; si no, se añade aquí.
+            const attempt: JudiAttempt = guess ? { kind: 'miss', name: guess } : { kind: 'skip', name: null }
+            const fromServer = authUser ? attemptHistory({ attempts: day.attempts, guesses: day.guesses, failed: day.failed ?? slot + 1 }) : null
+            const next: History = fromServer?.exact
+                ? fromServer
+                : { attempts: [...history.attempts, attempt], names: guess ? [...history.names, guess] : history.names, exact: history.exact }
+            setHistory(next)
+            if (!authUser) {
+                saveLocalGuesses(game, [...readLocalGuessesForGame(game, getLocalGuessesRaw()).slice(0, slot), guess])
             }
+            if (guess) setFlashKey((k) => k + 1)
+
             if (day.state === 'lost') {
                 setHighestUnlockedPhase(6)
-                setLives(0)
                 setGameState('lost')
+                setFx({ kind: 'lost', slot, n: fxCounter.current })
                 if (!authUser) saveLocalProgress(game, { fase6: true, ...reveal })
             } else {
                 if (!authUser) saveLocalProgress(game, { [`fase${highestUnlockedPhase}`]: true })
+                setFx({ kind: guess ? 'miss' : 'skip', slot, n: fxCounter.current })
                 setHighestUnlockedPhase(day.phase)
                 setActiveViewedPhase(day.phase)
-                setLives(7 - day.phase)
             }
         } finally {
             setGuessSubmitting(false)
@@ -929,12 +931,11 @@ export default function JudiClient() {
     const submitGuess = async (rawGuess: string) => {
         const guessText = rawGuess.trim()
         if (!guessText) return
-        const alreadyGuessed = wrongGuesses.some((guess) => normalizeGameName(guess) === normalizeGameName(guessText))
-        if (alreadyGuessed) return
+        if (history.names.some((g) => normalizeGameName(g) === normalizeGameName(guessText))) return
         await sendAttempt(guessText)
     }
 
-    /** Consume un intento sin elegir título (misma lógica que fallar, sin guardar nombre en intentos). */
+    /** Consume un intento sin elegir título: abre la siguiente captura y pista, como fallar. */
     const skipAttempt = async () => {
         await sendAttempt(null)
     }
@@ -982,27 +983,26 @@ export default function JudiClient() {
     }
 
     useEffect(() => {
-        if (gameState !== 'won') {
-            winConfettiFiredRef.current = false
-            return
-        }
-        if (winConfettiFiredRef.current) return
-        winConfettiFiredRef.current = true
+        if (fx?.kind !== 'win') return
         const id = window.setTimeout(() => {
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-            const colors = systemConfettiColors()
+            const card = document.querySelector('.jd-result')?.getBoundingClientRect()
+            const origin =
+                card && card.bottom > 0 && card.top < window.innerHeight
+                    ? { x: (card.left + card.width / 2) / window.innerWidth, y: Math.min(0.9, (card.top + 60) / window.innerHeight) }
+                    : { y: 0.6 }
             void confetti({
                 particleCount: 90,
                 spread: 70,
-                origin: { y: 0.6 },
-                colors,
+                origin,
+                colors: systemConfettiColors(),
                 ticks: 180,
                 scalar: 0.9,
                 disableForReducedMotion: true,
             })
         }, 120)
         return () => window.clearTimeout(id)
-    }, [gameState])
+    }, [fx])
 
     useEffect(() => {
         if (view !== 'game' || !selectedGame) return
@@ -1116,29 +1116,9 @@ export default function JudiClient() {
         lastPhaseRef.current = activeViewedPhase
     }
 
-    const h = selectedGame?.hints
-    const hints = h
-        ? [
-            { phase: 2, label: 'Géneros', value: h.generos ?? 'N/D', icon: Tags },
-            {
-                phase: 3,
-                label: 'Pico de jugadores (Steam)',
-                value: h.ccu != null ? h.ccu.toLocaleString('es-ES') : 'N/D',
-                icon: Users,
-            },
-            {
-                phase: 4,
-                label: 'Reseñas positivas (Steam)',
-                value: h.positivas != null ? `${h.positivas} %` : 'N/D',
-                icon: ThumbsUp,
-            },
-            { phase: 5, label: 'Año de lanzamiento', value: h.anio ?? 'N/D', icon: CalendarDays },
-            { phase: 6, label: 'Estudio', value: h.estudio ?? 'N/D', icon: Building2 },
-        ]
-        : []
-    const activeHint = hints.find((h) => h.phase === activeViewedPhase)
+    const viewedHint = selectedGame && activeViewedPhase <= highestUnlockedPhase ? hintFor(selectedGame.hints, activeViewedPhase) : null
 
-    const heroGame = games.find((g) => isJudiGameForCurrentDailyDate(g)) ?? games[0] ?? null
+    const todayGame = games.find((g) => isJudiGameForCurrentDailyDate(g)) ?? null
 
     const toggleYear = (year: string) => {
         setAccordion((prev) => {
@@ -1173,21 +1153,23 @@ export default function JudiClient() {
     const goBack = () => {
         setCaptureZoomOpen(false)
         setView('start')
-        setSearchQuery('')
-        setSearchResults([])
-        setShowDropdown(false)
+        setGameLoadError(null)
+        setFx(null)
         router.push('/judi', { scroll: false })
         void loadUserAndGames()
     }
 
-    const pipStates = gamePipStates(gameState, lives)
-    const failedNow = Math.min(JUDI_ATTEMPT_SLOTS, Math.max(0, JUDI_ATTEMPT_SLOTS - lives))
-    const earnedPoints = gameState === 'won' ? Math.max(JUDI_ATTEMPT_SLOTS - failedNow, 1) : 0
+    const slots = attemptSlots(gameState, history.attempts)
+    const failedNow = Math.min(JUDI_ATTEMPT_SLOTS, history.attempts.length)
+    const attemptsLeft = JUDI_ATTEMPT_SLOTS - failedNow
+    /** Fase recién abierta por un fallo o un salto (su miniatura y su pista se animan). */
+    const freshPhase = fx && (fx.kind === 'miss' || fx.kind === 'skip') ? fx.slot + 2 : null
     const nextPendingGame = selectedGame
         ? games.find((g) => !g.completado && !g.fase6 && g.id !== selectedGame.juego.id) ?? null
         : null
-    const currentCapture =
-        selectedGame && selectedGame.captureCount > 0 ? judiCaptureUrl(selectedGame.juego.id, activeViewedPhase) : undefined
+    const captureUrl = (phase: number) =>
+        selectedGame && selectedGame.captureCount > 0 ? `${judiCaptureUrl(selectedGame.juego.id, phase)}${captureRetry ? `?r=${captureRetry}` : ''}` : undefined
+    const currentCapture = captureUrl(activeViewedPhase)
 
     const filterCounts: Record<ListFilter, number> = {
         all: games.length,
@@ -1226,7 +1208,17 @@ export default function JudiClient() {
                         </div>
                     </header>
 
-                    <TodayCard game={heroGame} countdown={formatHmsCountdown(dailyCountdownMs)} onPlay={(g) => void startJuego(g)} />
+                    {listError ? (
+                        <LoadErrorCard
+                            title="No se ha podido cargar JUDI"
+                            text="Comprueba tu conexión y vuelve a probar. Tus partidas no se han perdido."
+                            onRetry={() => void loadUserAndGames()}
+                        />
+                    ) : todayGame ? (
+                        <TodayCard game={todayGame} countdown={formatHmsCountdown(dailyCountdownMs)} onPlay={(g) => void startJuego(g)} />
+                    ) : games.length > 0 ? (
+                        <NoTodayCard last={games[0] ?? null} onPlay={(g) => void startJuego(g)} />
+                    ) : null}
 
                     <dl className="jd-kpis" aria-label="Tus estadísticas">
                         {statTiles.map((tile) => (
@@ -1373,44 +1365,59 @@ export default function JudiClient() {
                     </section>
                 </>
             ) : (
-                selectedGame && (
+                gameLoadError ? (
+                    <section className="jd-game">
+                        <div className="jd-game__top">
+                            <button type="button" className="hg-icon-btn jd-back" onClick={goBack} aria-label="Volver al historial">
+                                <ArrowLeft size={18} aria-hidden />
+                            </button>
+                            <div className="jd-game__title">
+                                <h1 className="jd-game__heading">JUDI #{gameLoadError.id}</h1>
+                                <p className="jd-game__date">{formatLongDate(gameLoadError.fecha)}</p>
+                            </div>
+                        </div>
+                        <LoadErrorCard
+                            title={`No se ha podido cargar el JUDI #${gameLoadError.id}`}
+                            text="Puede que se haya cortado la conexión. Tu progreso está guardado: vuelve a probar en un momento."
+                            onRetry={() => void startJuego(gameLoadError)}
+                            onBack={goBack}
+                        />
+                    </section>
+                ) : selectedGame && (
                     <>
                         <section className={`jd-game${playingDailyGame ? ' jd-game--today' : ''}`}>
-                            <div className="jd-game__top">
+                            <div className="jd-game__top hg-enter" style={{ '--i': 0 } as CSSProperties}>
                                 <button type="button" className="hg-icon-btn jd-back" onClick={goBack} aria-label="Volver al historial">
                                     <ArrowLeft size={18} aria-hidden />
                                 </button>
                                 <div className="jd-game__title">
                                     <h1 className="jd-game__heading">
                                         JUDI #{selectedGame.juego.id}
-                                        <span className={`hg-chip${playingDailyGame ? ' hg-chip--playing' : ''}`}>
-                                            {playingDailyGame ? 'Juego de hoy' : 'Archivo'}
-                                        </span>
+                                        {playingDailyGame ? (
+                                            <span className="hg-chip hg-tint st-todos">
+                                                <Clock aria-hidden /> Juego de hoy
+                                            </span>
+                                        ) : (
+                                            <span className="hg-chip jd-chip--plain">Archivo</span>
+                                        )}
                                     </h1>
                                     <p className="jd-game__date">{formatLongDate(selectedGame.juego.fecha)}</p>
                                 </div>
                                 <div className="jd-game__right">
-                                    <div className="jd-lives">
-                                        <span className="jd-lives__label">Intentos</span>
-                                        <AttemptPips states={pipStates} />
-                                    </div>
                                     {gameState === 'playing' ? (
-                                        <Button
-                                            size="sm"
-                                            variant="secondary"
-                                            onClick={() => void skipAttempt()}
-                                            disabled={guessSubmitting}
-                                            title="Saltar intento: pierdes una vida sin elegir título (no se guarda en tus fallos)"
-                                        >
-                                            <SkipForward aria-hidden />
-                                            Saltar
-                                        </Button>
-                                    ) : null}
+                                        <span className="jd-lives">
+                                            Quedan{' '}
+                                            <AnimatedCount value={attemptsLeft} className={`jd-lives__n${attemptsLeft <= 2 ? ' is-low' : ''}`} />{' '}
+                                            {attemptsLeft === 1 ? 'intento' : 'intentos'}
+                                        </span>
+                                    ) : (
+                                        <AttemptPips slots={slots} fx={fx} />
+                                    )}
                                 </div>
                             </div>
 
-                            <div className="jd-game__grid">
-                                <div className="jd-stage-col">
+                            <div className={`jd-game__grid${gameState !== 'playing' ? ' is-finished' : ''}`}>
+                                <div className="jd-stage-col hg-enter" style={{ '--i': 1 } as CSSProperties}>
                                     <div
                                         className="jd-stage"
                                         role="region"
@@ -1419,7 +1426,7 @@ export default function JudiClient() {
                                         onTouchEnd={onCaptureTouchEnd}
                                     >
                                         <AnimatePresence initial={false} custom={phaseDirRef.current}>
-                                            {currentCapture && (
+                                            {currentCapture && brokenCapture !== activeViewedPhase && (
                                                 <motion.img
                                                     key={`${activeViewedPhase}-${currentCapture}`}
                                                     src={currentCapture}
@@ -1432,6 +1439,7 @@ export default function JudiClient() {
                                                     animate="center"
                                                     exit="exit"
                                                     transition={{ duration: 0.25, ease: EASE_OUT }}
+                                                    onError={() => setBrokenCapture(activeViewedPhase)}
                                                 />
                                             )}
                                         </AnimatePresence>
@@ -1440,7 +1448,23 @@ export default function JudiClient() {
                                                 <MysteryArt big />
                                             </div>
                                         )}
-                                        {selectedGame.captureCount > 0 && (
+                                        {brokenCapture === activeViewedPhase && (
+                                            <div className="jd-stage__broken">
+                                                <ImageOff aria-hidden />
+                                                <span>La captura {activeViewedPhase} no carga.</span>
+                                                <Button
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    onClick={() => {
+                                                        setBrokenCapture(null)
+                                                        setCaptureRetry((n) => n + 1)
+                                                    }}
+                                                >
+                                                    <RefreshCw aria-hidden /> Reintentar
+                                                </Button>
+                                            </div>
+                                        )}
+                                        {selectedGame.captureCount > 0 && brokenCapture !== activeViewedPhase && (
                                             <button type="button" className="jd-stage__zoom" onClick={onCaptureImageClick} aria-label="Ampliar captura">
                                                 <span className="jd-stage__zoom-icon">
                                                     <Maximize2 size={16} aria-hidden />
@@ -1462,191 +1486,78 @@ export default function JudiClient() {
                                                 />
                                             )}
                                         </AnimatePresence>
-                                        {activeHint && (
-                                            <div key={activeHint.phase} className="jd-stage__hint">
-                                                <span className="jd-stage__hint-label">{activeHint.label}</span>
-                                                <span className="jd-stage__hint-value">{activeHint.value}</span>
+                                        {viewedHint && (
+                                            <div key={activeViewedPhase} className="jd-stage__hint">
+                                                <span className="jd-stage__hint-label">{viewedHint.label}</span>
+                                                <span className="jd-stage__hint-value">{viewedHint.value}</span>
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="jd-phases" role="tablist" aria-label="Fases">
-                                        {[1, 2, 3, 4, 5, 6].map((phase) => {
-                                            const isActive = phase === activeViewedPhase
-                                            const isLocked = phase > highestUnlockedPhase && gameState === 'playing'
-                                            return (
-                                                <button
-                                                    key={phase}
-                                                    type="button"
-                                                    role="tab"
-                                                    aria-selected={isActive}
-                                                    aria-label={isLocked ? `Fase ${phase} (bloqueada)` : `Fase ${phase}`}
-                                                    disabled={isLocked}
-                                                    onClick={() => setActiveViewedPhase(phase)}
-                                                    className="jd-phase"
-                                                >
-                                                    {isLocked ? <Lock size={13} aria-hidden /> : phase}
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
+                                    <JudiStrip
+                                        slots={slots}
+                                        viewed={activeViewedPhase}
+                                        captureUrl={captureUrl}
+                                        onView={setActiveViewedPhase}
+                                        fx={fx}
+                                        unlocked={freshPhase}
+                                    />
                                     <p className="jd-keyhint">
-                                        <kbd className="hg-kbd">←</kbd> <kbd className="hg-kbd">→</kbd> para cambiar de captura
+                                        <span>
+                                            {gameState === 'playing' ? (
+                                                <>
+                                                    Intento <b>{failedNow + 1}</b> de 6
+                                                </>
+                                            ) : (
+                                                'Todas las capturas abiertas'
+                                            )}
+                                        </span>
+                                        <span className="jd-keyhint__keys">
+                                            <kbd className="hg-kbd">←</kbd> <kbd className="hg-kbd">→</kbd> para cambiar de captura
+                                        </span>
                                     </p>
                                 </div>
 
-                                <aside className="jd-panel">
+                                <aside className="jd-panel hg-enter" style={{ '--i': 2 } as CSSProperties}>
                                     {gameState === 'playing' ? (
-                                        <div className="jd-guess-block">
-                                            <label className="jd-panel__title" htmlFor="judi-guess">
-                                                ¿Qué juego es?
-                                            </label>
-                                            <div ref={guessScope} className="jd-guess">
-                                                <Search size={16} className="jd-guess__icon" aria-hidden />
-                                                <input
-                                                    id="judi-guess"
-                                                    type="text"
-                                                    className="hg-input jd-guess__input"
-                                                    value={searchQuery}
-                                                    onChange={(e) => { setSearchQuery(e.target.value); setShowDropdown(true) }}
-                                                    onFocus={() => { if (searchResults.length > 0) setShowDropdown(true) }}
-                                                    onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter' && searchQuery.trim().length >= 2 && !guessSubmitting) {
-                                                            e.preventDefault()
-                                                            void submitGuess(searchQuery.trim())
-                                                        }
-                                                    }}
-                                                    placeholder={guessSubmitting ? 'Comprobando…' : 'Escribe el nombre del juego'}
-                                                    disabled={guessSubmitting}
-                                                    autoComplete="off"
-                                                />
-                                                {searchLoading && <span className="jd-guess__spinner" aria-hidden />}
-                                                {showDropdown && searchResults.length > 0 && (
-                                                    <div className="jd-guess__dropdown soft-scrollbar">
-                                                        {searchResults.map((option) => {
-                                                            const alreadyGuessed = wrongGuesses.some((g) => normalizeGameName(g) === normalizeGameName(option.name))
-                                                            return (
-                                                                <button
-                                                                    key={option.id}
-                                                                    type="button"
-                                                                    disabled={alreadyGuessed}
-                                                                    className="jd-guess__option"
-                                                                    onMouseDown={(e) => e.preventDefault()}
-                                                                    onClick={() => { if (!alreadyGuessed) { void submitGuess(option.name); setShowDropdown(false) } }}
-                                                                >
-                                                                    <span>{option.name}</span>
-                                                                    {alreadyGuessed && <X size={14} aria-label="Ya probado" />}
-                                                                </button>
-                                                            )
-                                                        })}
-                                                    </div>
-                                                )}
-                                                {showDropdown && searchQuery.length >= 2 && searchResults.length === 0 && !searchLoading && (
-                                                    <div className="jd-guess__dropdown jd-guess__dropdown--empty">Sin resultados</div>
-                                                )}
-                                            </div>
-                                            {guessError && (
-                                                <p className="alert alert--error jd-guess__error" role="alert">
-                                                    {guessError}
-                                                </p>
-                                            )}
-                                            <p className="jd-guess__help">Cada fallo desbloquea una captura y una pista nuevas.</p>
-                                            {wrongGuesses.length > 0 && (
-                                                <ul className="jd-wrong" aria-label="Intentos fallados">
-                                                    {wrongGuesses.map((guess, index) => (
-                                                        <li key={`${guess}-${index}`} className="jd-wrong__chip">
-                                                            <X size={12} strokeWidth={2.75} aria-hidden />
-                                                            {guess}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            )}
-                                        </div>
+                                        <JudiGuess
+                                            tried={history.names}
+                                            attempts={history.attempts}
+                                            exact={history.exact}
+                                            stake={pointsAtStake(failedNow)}
+                                            checking={guessSubmitting}
+                                            checkingName={pendingGuess?.guess ?? null}
+                                            error={guessError}
+                                            missKey={fx && fx.kind === 'miss' ? fx.n : 0}
+                                            freshAttempt={fx && (fx.kind === 'miss' || fx.kind === 'skip') ? fx.slot : null}
+                                            onSubmit={(name) => void submitGuess(name)}
+                                            onSkip={() => void skipAttempt()}
+                                            onRetry={() => void sendAttempt(pendingGuess?.guess ?? null)}
+                                        />
                                     ) : (
-                                        <motion.div
-                                            className={`jd-result jd-result--${gameState}`}
-                                            initial={{ opacity: 0, y: 8 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.25, ease: EASE_OUT }}
-                                            role="status"
-                                        >
-                                            <div className="jd-result__head">
-                                                <span className="jd-result__icon" aria-hidden>
-                                                    {gameState === 'won' ? <Check size={18} strokeWidth={3} /> : <X size={18} strokeWidth={3} />}
-                                                </span>
-                                                <p className="jd-result__status">
-                                                    {gameState === 'won'
-                                                        ? failedNow === 0
-                                                            ? 'Acertado a la primera'
-                                                            : `Acertado en el intento ${failedNow + 1}`
-                                                        : 'Fallado'}
-                                                </p>
-                                                <p className="jd-result__pts">
-                                                    {gameState === 'won' ? `+${earnedPoints}` : '0'}
-                                                    <small>puntos</small>
-                                                </p>
-                                            </div>
-                                            <div className="jd-result__game">
-                                                {selectedGame.juego.header_image && <img src={selectedGame.juego.header_image} alt="" />}
-                                                <div>
-                                                    <span className="jd-result__label">El juego era</span>
-                                                    <p className="jd-result__name">
-                                                        {selectedGame.juego.nombre}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="jd-result__actions">
-                                                <Button variant="secondary" onClick={goBack}>
-                                                    <ArrowLeft size={15} data-icon="inline-start" aria-hidden />
-                                                    Historial
-                                                </Button>
-                                                {nextPendingGame && (
-                                                    <Button onClick={() => playNext(nextPendingGame)}>
-                                                        Siguiente reto
-                                                        <ArrowRight size={15} data-icon="inline-end" aria-hidden />
-                                                    </Button>
-                                                )}
-                                            </div>
-                                            <JudiFinishActions
-                                                game={selectedGame.juego}
-                                                appid={selectedGame.juego.appid ?? null}
-                                                state={gameState}
-                                                failed={failedNow}
-                                                loggedIn={!!user}
-                                            />
-                                        </motion.div>
+                                        <JudiResult
+                                            key={`${selectedGame.juego.id}-${gameState}`}
+                                            state={gameState}
+                                            attempts={history.attempts}
+                                            exact={history.exact}
+                                            slots={slots}
+                                            game={selectedGame.juego}
+                                            hints={selectedGame.hints}
+                                            animate={fx?.kind === 'win' || fx?.kind === 'lost'}
+                                            countdown={playingDailyGame ? formatHmsCountdown(dailyCountdownMs) : null}
+                                            onBack={goBack}
+                                            onNext={nextPendingGame ? () => playNext(nextPendingGame) : null}
+                                        />
                                     )}
 
-                                    <div className="jd-hints">
-                                        <h2 className="jd-panel__title">Pistas</h2>
-                                        <ul className="jd-hints__list">
-                                            {hints.map((hint) => {
-                                                const unlocked = hint.phase <= highestUnlockedPhase
-                                                const Icon = hint.icon
-                                                return (
-                                                    <li key={hint.phase}>
-                                                        <button
-                                                            type="button"
-                                                            className={`jd-hint${unlocked ? '' : ' is-locked'}${activeViewedPhase === hint.phase ? ' is-active' : ''}`}
-                                                            disabled={!unlocked}
-                                                            aria-pressed={unlocked ? activeViewedPhase === hint.phase : undefined}
-                                                            onClick={() => setActiveViewedPhase(hint.phase)}
-                                                        >
-                                                            <span className="jd-hint__icon">{unlocked ? <Icon size={15} aria-hidden /> : <Lock size={13} aria-hidden />}</span>
-                                                            <span className="jd-hint__text">
-                                                                <span className="jd-hint__label">{hint.label}</span>
-                                                                <span className="jd-hint__value">
-                                                                    {unlocked ? hint.value : 'Bloqueada'}
-                                                                </span>
-                                                            </span>
-                                                            <span className="jd-hint__phase">Fase {hint.phase}</span>
-                                                        </button>
-                                                    </li>
-                                                )
-                                            })}
-                                        </ul>
-                                    </div>
+                                    <JudiHintList
+                                        hints={selectedGame.hints}
+                                        unlockedPhase={highestUnlockedPhase}
+                                        viewed={activeViewedPhase}
+                                        playing={gameState === 'playing'}
+                                        fresh={freshPhase}
+                                        onView={setActiveViewedPhase}
+                                    />
                                 </aside>
                             </div>
                         </section>
