@@ -1,152 +1,48 @@
 /* ── Wishlist y precios (#35, #36, #37) ──
-   La fila es la compartida de styles/lists.css (.hg-row); aquí, precio, mínimos y avisos. */
-
-/* Precio actual: descuento en verde como texto, precio original tachado y precio final. */
-.price-now {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.6rem;
-  white-space: nowrap;
-}
-
-.price-now--none {
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
-.price-now__cut {
-  color: var(--success);
-  font-size: 0.875rem;
-  font-weight: 700;
-}
-
-.price-now__amounts {
-  display: grid;
-  justify-items: end;
-  line-height: 1.2;
-}
-
-.price-now__amounts s {
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-
-.price-now__amounts strong {
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.price-lows {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.15rem 0.75rem;
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-
-.price-lows__hit {
-  color: var(--foreground);
-  font-weight: 600;
-}
-
-.price-lows__source {
-  display: inline-grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  margin: -4px 0;
-  border-radius: 6px;
-  color: var(--muted);
-}
-
-.price-lows__source:hover {
-  color: var(--foreground);
-  background: var(--surface-2);
-}
-
-/* ── /wishlist ── */
-.wish-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.wish-toolbar .lib-select {
-  min-width: 190px;
-}
-
-.hg-row.wish-row {
-  grid-template-columns: 112px minmax(0, 1fr) 160px 116px;
-}
-
-.wish-row .price-now {
-  justify-self: end;
-}
-
-.wish-row__info {
-  gap: 3px;
-}
-
-.wish-row__meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.15rem 0.75rem;
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
-.wish-row__alert {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.wish-row__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 2px;
-}
-
-.wish-row__actions .hg-button {
-  width: 36px;
-  height: 36px;
-  color: var(--muted);
-}
-
-.wish-row__actions .hg-button:hover {
-  color: var(--foreground);
-}
-
-.wish-attribution {
-  margin: 0.5rem 0 0;
-  color: var(--muted);
-  font-size: 0.75rem;
-  text-align: center;
-}
-
-.wish-attribution a {
-  color: var(--muted);
-}
-
-/* Bloque de precio en la ficha /juego */
-.juego-price {
-  display: grid;
-  gap: 0.5rem;
-  justify-items: start;
-}
-
-.juego-price .price-now__amounts {
-  justify-items: start;
-}
+   La fila es la compartida de styles/lists.css (.hg-row); aquí, la de /wishlist (nota, duración, €/h, veredicto y
+   regla de precios), el aviso de precio y el precio compacto de la biblioteca. */
 
 /* ── Aviso de precio (#37): popover con opciones planas ── */
 .price-alert__trigger.is-off {
   color: var(--muted);
+}
+
+/* Aviso propio: campana en cobalto con un punto (en verde si el precio de hoy ya lo cumple) */
+.hg-button.price-alert__trigger.is-set {
+  color: var(--primary);
+}
+
+.hg-button.price-alert__trigger.is-met {
+  color: var(--sc-top);
+}
+
+.price-alert__dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+/* Al guardar un aviso, la campana se balancea y el punto aparece con un pop */
+.price-alert__trigger.is-swing svg {
+  transform-origin: 50% 3px;
+  animation: wl-bell-swing 0.7s var(--ease-out);
+}
+
+.price-alert__trigger.is-swing .price-alert__dot {
+  animation: hg-pop-in 0.26s var(--ease-out) 0.15s backwards;
+}
+
+@keyframes wl-bell-swing {
+  15% { transform: rotate(16deg); }
+  35% { transform: rotate(-12deg); }
+  55% { transform: rotate(7deg); }
+  75% { transform: rotate(-3deg); }
+  100% { transform: rotate(0); }
 }
 
 .price-alert {
@@ -172,7 +68,8 @@
 
 .price-alert__mode {
   display: grid;
-  gap: 1px;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 1px 8px;
   padding: 0.5rem 0.65rem;
   border: 0;
   border-radius: var(--radius-sm);
@@ -193,6 +90,35 @@
 .price-alert__mode:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: -2px;
+}
+
+.price-alert__mode-icon {
+  grid-row: span 2;
+  width: 15px;
+  height: 15px;
+  margin-top: 2px;
+  color: var(--muted);
+}
+
+.price-alert__mode.is-active .price-alert__mode-icon {
+  color: var(--primary);
+}
+
+.price-alert__now {
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.price-alert__hit {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.price-alert__hit.is-yes {
+  color: var(--sc-top);
+  font-weight: 600;
 }
 
 .price-alert__mode-label {
@@ -255,49 +181,6 @@
   gap: 0.4rem;
 }
 
-@media (max-width: 640px) {
-  .wish-toolbar > *,
-  .wish-toolbar .lib-select {
-    flex: 1 1 100%;
-  }
-
-  .wish-toolbar .hg-seg__opt {
-    flex: 1;
-  }
-
-  .hg-row.wish-row {
-    grid-template-columns: 96px minmax(0, 1fr) auto;
-    align-items: start;
-  }
-
-  .wish-row__info {
-    grid-column: 2 / -1;
-  }
-
-  .wish-row .price-now {
-    grid-column: 1 / 3;
-    grid-row: 2;
-    align-self: center;
-    justify-self: start;
-  }
-
-  .wish-row .price-now__amounts {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.5rem;
-  }
-
-  .wish-row__actions {
-    grid-column: 3;
-    grid-row: 2;
-  }
-
-  .wish-row__actions .hg-button {
-    width: 44px;
-    height: 44px;
-  }
-}
-
 /* Precio compacto de las filas de la biblioteca: descuento a la izquierda, precio y mínimo en dos líneas */
 .price-tag {
   display: grid;
@@ -346,4 +229,774 @@
 .price-tag--none {
   color: var(--muted);
   font-size: 0.8125rem;
+}
+
+.price-alert__trigger {
+  position: relative;
+}
+
+/* ══ /wishlist ══
+   Fila de un pendiente sin comprar: cápsula, nombre (y su lista si está en la Biblioteca), duración, notas y €/h;
+   precio con veredicto y regla; franja con el veredicto (amarillo en mínimo, ámbar si ha estado más barato). */
+.wish-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.wl .page-subtitle b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+/* Filtros: icono con su color y contador (amarillo sólido en mínimo histórico, verde en oferta, cobalto con aviso) */
+.wl-filters .hg-seg__opt {
+  min-height: 32px;
+  padding: 0 0.7rem;
+}
+
+.hg-seg__icon {
+  display: inline-flex;
+}
+
+.wl-f-ic {
+  color: var(--muted);
+}
+
+.wl-f-ic.is-deal {
+  color: var(--warning);
+}
+
+.wl-f-ic.sc-top,
+.wl-f-ic.st-todos {
+  color: var(--c);
+}
+
+.hg-seg__count.wl-cnt {
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 12%, transparent);
+  color: var(--muted);
+  font-size: 0.71875rem;
+  font-weight: 700;
+}
+
+.hg-seg__count.wl-cnt.hg-tint {
+  background: color-mix(in srgb, var(--c) var(--tint), transparent);
+  color: var(--c);
+}
+
+.hg-seg__count.wl-cnt.is-deal {
+  background: var(--deal);
+  color: var(--deal-foreground);
+}
+
+.wl-cnt.is-zero {
+  opacity: 0.55;
+}
+
+.wl-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.wl-sort .lib-select {
+  min-width: 210px;
+  height: 38px;
+}
+
+/* Lista: cada fila en un .wl-item que se pliega al quitarla */
+.wl-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wl-item {
+  display: grid;
+  grid-template-rows: 1fr;
+  min-width: 0;
+  transition: grid-template-rows 0.24s var(--ease-out), margin 0.24s var(--ease-out);
+}
+
+.wl-item > .hg-row {
+  min-height: 0;
+}
+
+.hg-row.wl-row {
+  grid-template-columns: 112px minmax(0, 1fr) 236px auto;
+  gap: 1.1rem;
+  min-height: 84px;
+  padding: 10px 10px 10px 16px;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, opacity 0.2s var(--ease-out), transform 0.2s var(--ease-out);
+}
+
+.hg-row.wl-row::before {
+  content: '';
+  position: absolute;
+  inset: -1px auto -1px -1px;
+  width: 4px;
+  border-radius: var(--radius) 0 0 var(--radius);
+  background: var(--stripe, transparent);
+}
+
+.wl-row.v-low {
+  --stripe: var(--deal);
+}
+
+.wl-row.v-sale {
+  --stripe: var(--sc-mid);
+}
+
+.wl-row .hg-row__cover img {
+  transition: transform 0.2s var(--ease-out);
+}
+
+.wl-row:hover .hg-row__cover img {
+  transform: scale(1.05);
+}
+
+.wl-main {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.wl-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.wl-name .hg-row__link {
+  min-width: 0;
+  font-size: 0.9375rem;
+}
+
+.wl-lib {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.wl-lib .hg-chip {
+  padding: 1px 8px 1px 6px;
+  font-size: 0.71875rem;
+  gap: 4px;
+}
+
+.wl-lib .hg-chip svg {
+  width: 11px;
+  height: 11px;
+}
+
+.wl-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.wl-meta--sub {
+  font-size: 0.75rem;
+}
+
+.wl-mc,
+.wl-rev {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.wl-mc__lbl {
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.wl-eph {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.wl-alert {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 6px;
+  font-size: 0.71875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.wl-alert svg,
+.wl-soon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.wl-alert.is-off {
+  padding: 0;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.wl-alert.is-new {
+  animation: hg-pop-in 0.26s var(--ease-out) 0.1s backwards;
+}
+
+.wl-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+/* Precio: descuento, precio de hoy y el de antes; veredicto; regla */
+.wl-price {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.wl-price__now {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.wl-cut {
+  align-self: center;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.78125rem;
+  font-weight: 700;
+}
+
+.wl-big {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.wl-was {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.wl-verdict {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.wl-verdict__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.wl-verdict__tag svg {
+  width: 12px;
+  height: 12px;
+}
+
+.wl-plain {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.wl-price--none {
+  justify-items: end;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.wl-price--none b {
+  color: var(--foreground);
+  font-size: 0.9375rem;
+}
+
+/* Regla pequeña: de lo más barato que ha estado (izquierda) al precio normal (derecha) */
+.wl-rule {
+  display: grid;
+  gap: 3px;
+  padding-top: 3px;
+}
+
+.wl-rule__track {
+  position: relative;
+  height: 6px;
+  margin: 0 5px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: clip;
+  overflow-clip-margin: 9px;
+}
+
+.wl-rule__low {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--lw);
+  border-radius: 999px 0 0 999px;
+  background: var(--deal);
+  transform-origin: left;
+}
+
+.wl-rule__pos {
+  position: absolute;
+  inset: 0;
+  transform: translateX(var(--p));
+  pointer-events: none;
+}
+
+.wl-rule__dot {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 13px;
+  height: 13px;
+  border: 2.5px solid var(--surface);
+  border-radius: 50%;
+  background: var(--foreground);
+  box-shadow: 0 0 0 1px var(--border-hover);
+  translate: -50% -50%;
+}
+
+.wl-rule.is-low .wl-rule__dot {
+  background: var(--deal);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--deal-foreground) 45%, transparent);
+}
+
+.wl-rule__labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.wl-rule__labels b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.wl-rule--none {
+  color: var(--muted);
+  font-size: 0.6875rem;
+  text-align: right;
+}
+
+/* Acciones: aviso, tienda y quitar (los de Steam no tienen papelera: dejan su hueco) */
+.wl-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.wl-actions .hg-button.hg-button--icon-only {
+  width: 36px;
+  height: 36px;
+  color: var(--muted);
+}
+
+.wl-actions .hg-button:hover {
+  color: var(--foreground);
+}
+
+.wl-actions .hg-button.price-alert__trigger.is-set {
+  color: var(--primary);
+}
+
+.wl-actions .hg-button.price-alert__trigger.is-met {
+  color: var(--sc-top);
+}
+
+.wl-actions .hg-button.wl-trash:hover {
+  color: var(--danger);
+}
+
+.wl-actions__gap {
+  width: 36px;
+  height: 36px;
+}
+
+/* Quitar: la fila se desliza y se apaga, y luego se cierra el hueco */
+.wl-item.is-leaving > .wl-row {
+  opacity: 0;
+  transform: translateX(28px);
+}
+
+.wl-item.is-collapsing {
+  grid-template-rows: 0fr;
+  margin-bottom: -6px;
+}
+
+.wl-item.is-collapsing > .wl-row {
+  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+}
+
+/* Deshacer: vuelve a su sitio con el cursor de selección que se apaga */
+.wl-item.is-back {
+  animation: hg-enter 0.32s var(--ease-out);
+}
+
+.wl-item.is-back > .wl-row {
+  animation: wl-back 1.2s var(--ease-out);
+}
+
+@keyframes wl-back {
+  from { box-shadow: 0 0 0 3px var(--cursor); }
+}
+
+/* Vacíos */
+.wl-empty {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.6rem 1rem;
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.wl-empty__ic {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.wl-empty__ic svg {
+  width: 20px;
+  height: 20px;
+}
+
+.wl-empty__ic.is-deal {
+  background: var(--deal);
+  color: var(--deal-foreground);
+}
+
+.wl-empty__ic .wl-f-ic {
+  color: inherit;
+}
+
+.wl-empty p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.wl-empty p b {
+  display: block;
+  color: var(--foreground);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.wl-empty__acts {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Cargando: esqueleto con la forma de las filas */
+.wl-skel {
+  display: block;
+  border-radius: 6px;
+  background: var(--surface-2);
+  animation: wl-skel 1.2s ease-in-out infinite alternate;
+}
+
+.wl-skel--cover {
+  height: 52px;
+}
+
+.wl-skel--bar {
+  width: min(560px, 100%);
+  height: 38px;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes wl-skel {
+  to { opacity: 0.45; }
+}
+
+.wl-skel-row {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr) 200px;
+  gap: 1.1rem;
+  align-items: center;
+  min-height: 84px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.wl-skel-row__lines,
+.wl-skel-row__price {
+  display: grid;
+  gap: 8px;
+}
+
+.wl-skel-row__price {
+  justify-items: end;
+}
+
+.wish-attribution {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.wish-attribution a {
+  color: var(--muted);
+}
+
+/* ── Microanimaciones de /wishlist ──
+   Entrada (solo al llegar, .is-entering): filas escalonadas, contadores con pop, el mínimo histórico destella en
+   amarillo y su sello salta, el tramo amarillo de la regla crece y el punto se desliza desde el precio normal.
+   Al filtrar, fundido cruzado (.wl-swap) y solo el punto, más corto. */
+.wl.is-entering .wl-item {
+  animation: hg-enter 0.32s var(--ease-out) backwards;
+  animation-delay: calc(min(var(--i, 0), 8) * 30ms);
+}
+
+.wl.is-entering .wl-filters .wl-cnt {
+  animation: hg-pop-in 0.26s var(--ease-out) backwards;
+  animation-delay: 120ms;
+}
+
+.wl.is-entering .wl-row.v-low {
+  animation: wl-deal-flash 1s var(--ease-out) backwards;
+  animation-delay: calc(380ms + min(var(--i, 0), 8) * 30ms);
+}
+
+.wl.is-entering .wl-row.v-low .hg-deal {
+  animation: wl-deal-pop 0.5s var(--ease-out) backwards;
+  animation-delay: calc(380ms + min(var(--i, 0), 8) * 30ms);
+}
+
+.wl.is-entering .wl-rule__low {
+  animation: hg-bar-fill 0.4s var(--ease-out) backwards;
+  animation-delay: calc(150ms + min(var(--i, 0), 8) * 30ms);
+}
+
+.wl.is-entering .wl-rule__pos {
+  animation: wl-dot-slide 0.6s var(--ease-out) backwards;
+  animation-delay: calc(200ms + min(var(--i, 0), 8) * 30ms);
+}
+
+.wl:not(.is-entering) .wl-swap {
+  animation: wl-fade 0.2s var(--ease-out);
+}
+
+.wl:not(.is-entering) .wl-swap .wl-rule__pos {
+  animation: wl-dot-slide 0.45s var(--ease-out) backwards;
+}
+
+@keyframes wl-deal-flash {
+  from { background-color: color-mix(in srgb, var(--deal) 38%, var(--surface)); }
+}
+
+@keyframes wl-deal-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  55% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes wl-dot-slide {
+  from { transform: translateX(100%); }
+}
+
+@keyframes wl-fade {
+  from { opacity: 0; }
+}
+
+/* ── ~1000 px: la columna del precio se estrecha ── */
+@media (max-width: 1100px) {
+  .hg-row.wl-row {
+    grid-template-columns: 112px minmax(0, 1fr) 210px auto;
+    gap: 0.9rem;
+  }
+
+  .wl-rev__label {
+    display: none;
+  }
+}
+
+/* ── Móvil: cápsula y nombre arriba; precio, veredicto y regla a todo el ancho debajo, con las acciones a 44 px ── */
+@media (max-width: 640px) {
+  .wish-toolbar {
+    gap: 8px;
+  }
+
+  .wish-toolbar > .hg-seg {
+    max-width: 100%;
+  }
+
+  .wl-filters .hg-seg__opt {
+    min-height: 38px;
+  }
+
+  .wl-sort {
+    width: 100%;
+  }
+
+  .wl-sort .lib-select {
+    flex: 1;
+    height: 44px;
+    min-width: 0;
+  }
+
+  .hg-row.wl-row {
+    grid-template-columns: 96px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "cover main main"
+      "price price act";
+    gap: 10px 12px;
+    padding: 10px 8px 8px 14px;
+    align-items: start;
+  }
+
+  .wl-row .hg-row__cover {
+    grid-area: cover;
+  }
+
+  .wl-main {
+    grid-area: main;
+    gap: 4px;
+  }
+
+  .wl-price {
+    grid-area: price;
+    align-self: center;
+  }
+
+  .wl-actions {
+    grid-area: act;
+    align-self: end;
+  }
+
+  .wl-actions .hg-button.hg-button--icon-only,
+  .wl-actions__gap {
+    width: 44px;
+    height: 44px;
+  }
+
+  .wl-price__now,
+  .wl-verdict {
+    justify-content: flex-start;
+  }
+
+  .wl-price__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+  }
+
+  .wl-price--none {
+    justify-items: start;
+  }
+
+  .wl-rule--none {
+    text-align: left;
+  }
+
+  .wl-rev__label,
+  .wl-mc__lbl {
+    display: none;
+  }
+
+  .wl-name {
+    flex-wrap: wrap;
+    gap: 4px 8px;
+  }
+
+  .wl-name .hg-row__link {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-size: 0.875rem;
+    line-height: 1.3;
+    white-space: normal;
+  }
+
+  .wl-empty {
+    grid-template-columns: 1fr;
+  }
+
+  .wl-empty__acts {
+    grid-column: 1;
+  }
+
+  .wl-skel-row {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+
+  .wl-skel-row__price {
+    display: none;
+  }
+
+  .wl-skel--cover {
+    height: 45px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wl-skel {
+    animation: none;
+  }
+
+  .wl-item,
+  .hg-row.wl-row {
+    transition: none;
+  }
 }

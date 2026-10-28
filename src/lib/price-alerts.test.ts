@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { alertLabel, alertPayload, decideAlert, meetsAlert, parseEuros, type AlertGame, type PriceAlert } from './price-alerts'
+import { alertLabel, alertTarget, alertPayload, decideAlert, meetsAlert, parseEuros, type AlertGame, type PriceAlert } from './price-alerts'
 
 function game(over: Partial<AlertGame> = {}): AlertGame {
     return { appid: 620, name: 'Portal 2', price_initial: 999, price_final: 999, discount_percent: 0, steam_low: 199, ...over }
@@ -45,7 +45,7 @@ describe('avisos de precio (#37)', () => {
         assert.equal(p.url, '/juego/620')
         assert.match(p.title, /^Portal 2 a 1,99\s€ \(-80%\)$/)
         assert.match(alertPayload(game({ price_final: 450, discount_percent: 55 }), alert({ mode: 'precio', target_price: 500 })).body, /precio objetivo \(5,00\s€\)/)
-        assert.equal(alertLabel(alert({ mode: 'descuento', target_discount: 75 })), 'Aviso con -75% o más')
+        assert.equal(alertLabel(alert({ mode: 'descuento', target_discount: 75 })), 'Aviso con -75 % o más')
     })
 
     it('lee euros escritos a mano', () => {
@@ -54,5 +54,16 @@ describe('avisos de precio (#37)', () => {
         assert.equal(parseEuros('7.5'), 750)
         assert.equal(parseEuros('abc'), null)
         assert.equal(parseEuros('1,999'), null)
+    })
+})
+
+describe('alertTarget', () => {
+    it('objetivo corto de un aviso propio; nada con el de por defecto o apagado', () => {
+        const base = { target_price: null, target_discount: null, last_notified_price: null }
+        assert.equal(alertTarget({ ...base, mode: 'precio', target_price: 400 })?.replace(/\s/g, ' '), '≤ 4,00 €')
+        assert.equal(alertTarget({ ...base, mode: 'descuento', target_discount: 30 }), '-30 % o más')
+        assert.equal(alertTarget({ ...base, mode: 'minimo' }), null)
+        assert.equal(alertTarget({ ...base, mode: 'off' }), null)
+        assert.equal(alertTarget(null), null)
     })
 })

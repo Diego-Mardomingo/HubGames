@@ -40,11 +40,20 @@ export async function POST(request: NextRequest) {
         if (error) return NextResponse.json({ error: 'No se pudo guardar la ficha' }, { status: 500 })
     }
 
+    // Deshacer en /wishlist: vuelve con su fecha de alta de antes (solo una fecha válida que no sea futura).
+    const restoredAt = typeof body?.restore?.date_added === 'string' ? Date.parse(body.restore.date_added) : NaN
+    const restore = Number.isFinite(restoredAt) && restoredAt <= Date.now() ? new Date(restoredAt).toISOString() : null
+
     // Si ya estaba (por ejemplo, desde Steam) se deja como estaba.
     const { error } = await admin
         .from('hubgames_user_wishlist')
-        .upsert({ user_id: user.id, appid, source: 'manual' }, { onConflict: 'user_id,appid', ignoreDuplicates: true })
+        .upsert(
+            { user_id: user.id, appid, source: 'manual', ...(restore ? { date_added: restore } : {}) },
+            { onConflict: 'user_id,appid', ignoreDuplicates: true },
+        )
     if (error) return NextResponse.json({ error: 'No se pudo guardar' }, { status: 500 })
+    // Al deshacer, el precio sigue guardado: no hace falta pedirlo otra vez.
+    if (restore) return NextResponse.json({ ok: true })
 
     // El precio no es imprescindible: si falla, llegará con la sincronización diaria.
     await refreshPrices(admin, [appid]).catch((e) => console.error('wishlist: precios', appid, e))

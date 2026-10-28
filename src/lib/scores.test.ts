@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { metacriticScore, pricePosition, priceVerdict, ratingLabel, ratingTier, steamReviewScore } from './scores'
+import { costPerHourTier, euroPerHour, metacriticScore, pricePosition, priceRule, priceVerdict, ratingLabel, ratingTier, steamReviewScore } from './scores'
 
 const price = (p: Partial<Parameters<typeof priceVerdict>[0]>) => ({ price_final: 1000, discount_percent: 0, steam_low: null, all_low: null, ...p })
 
@@ -51,5 +51,25 @@ describe('precio', () => {
         assert.equal(pricePosition(2000, 2815, 5999), 0)
         assert.equal(pricePosition(5999, 5999, 5999), null)
         assert.equal(pricePosition(null, 1, 2), null)
+    })
+})
+
+describe('regla de precios y €/h', () => {
+    it('priceRule: posición de hoy, tramo del mínimo de Steam, suelo y precio normal', () => {
+        assert.deepEqual(priceRule({ price_initial: 5999, price_final: 2099, steam_low: 2099, all_low: 1799 }), {
+            position: 7,
+            steamLowAt: 7,
+            floor: 1799,
+            regular: 5999,
+        })
+        assert.equal(priceRule({ price_initial: 2299, price_final: 2299, steam_low: null, all_low: null }), null)
+        assert.equal(priceRule({ price_initial: null, price_final: null, steam_low: 999, all_low: null }), null)
+    })
+
+    it('€/h y su color', () => {
+        assert.equal(euroPerHour(2000, 1200), 1)
+        assert.equal(euroPerHour(null, 600), null)
+        assert.equal(euroPerHour(999, null), null)
+        assert.deepEqual([0.8, 1.5, 3, 6].map(costPerHourTier), ['top', 'good', 'mid', 'bad'])
     })
 })

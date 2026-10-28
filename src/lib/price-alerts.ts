@@ -103,7 +103,7 @@ export function summaryPayload(count: number): PushPayload {
 export function alertLabel(alert: PriceAlert | null): string {
     const a = alert ?? DEFAULT_ALERT
     if (a.mode === 'precio' && a.target_price !== null) return `Aviso si baja de ${formatPrice(a.target_price)}`
-    if (a.mode === 'descuento' && a.target_discount !== null) return `Aviso con -${a.target_discount}% o más`
+    if (a.mode === 'descuento' && a.target_discount !== null) return `Aviso con -${a.target_discount} % o más`
     if (a.mode === 'off') return 'Sin avisos'
     return 'Aviso en mínimo histórico'
 }
@@ -113,4 +113,11 @@ export function parseEuros(input: string): number | null {
     const clean = input.trim().replace('€', '').trim().replace(',', '.')
     if (!/^\d+(\.\d{1,2})?$/.test(clean)) return null
     return Math.round(Number(clean) * 100)
+}
+
+/** Objetivo de un aviso propio en corto («≤ 4,00 €», «-30 % o más»), o null si es el de por defecto o está apagado. */
+export function alertTarget(alert: PriceAlert | null): string | null {
+    if (alert?.mode === 'precio' && alert.target_price !== null) return `≤ ${formatPrice(alert.target_price)}`
+    if (alert?.mode === 'descuento' && alert.target_discount !== null) return `-${alert.target_discount} % o más`
+    return null
 }

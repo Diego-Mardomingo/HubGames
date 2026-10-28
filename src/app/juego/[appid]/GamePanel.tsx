@@ -40,7 +40,7 @@ import { DURATION_SOURCE_LABEL, achievementPercent, type GameDuration } from '@/
 import { isPerfect } from '@/lib/tracker-rules'
 import { GAME_GOALS, GOAL_LABELS, goalProgress, parseGoal, type GameGoal } from '@/lib/game-goal'
 import { addToWishlist, formatPrice, itadUrl, removeFromWishlist } from '@/lib/wishlist'
-import { pricePosition, priceVerdict, ratingTier, type ScoreTier } from '@/lib/scores'
+import { costPerHourTier, euroPerHour as euroPerHourOf, priceRule, priceVerdict, ratingTier } from '@/lib/scores'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -361,14 +361,6 @@ function DurationTrack({ played, duration, done }: { played: number; duration: G
 const SHORT = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
 const when = (iso: string | null) => (iso ? SHORT.format(new Date(iso)) : null)
 
-/** €/h de historia: barato en verde, caro en rojo. */
-function costPerHourTier(eurosPerHour: number): ScoreTier {
-    if (eurosPerHour <= 1) return 'top'
-    if (eurosPerHour <= 2) return 'good'
-    if (eurosPerHour <= 4) return 'mid'
-    return 'bad'
-}
-
 function BuyPanel({ duration, achievementsTotal, storeUrl }: Props) {
     const { appid, state, reload } = useGame()
     const [pending, setPending] = useState<'favorite' | 'pending' | 'wish' | null>(null)
@@ -392,7 +384,7 @@ function BuyPanel({ duration, achievementsTotal, storeUrl }: Props) {
     }
 
     const story = duration.main
-    const euroPerHour = price?.price_final && story ? price.price_final / 100 / (story / 60) : null
+    const euroPerHour = euroPerHourOf(price?.price_final ?? null, story)
 
     return (
         <div className="juego-buy">
@@ -494,10 +486,7 @@ function PriceBlock({ price }: { price: PriceData }) {
     }
     const onSale = (price.discount_percent ?? 0) > 0
     const verdict = priceVerdict(price)
-    const floor = price.all_low ?? price.steam_low
-    const regular = price.price_initial ?? price.price_final
-    const position = pricePosition(price.price_final, floor, regular)
-    const steamLowAt = floor !== null && price.steam_low !== null ? pricePosition(price.steam_low, floor, regular) : null
+    const rule = priceRule(price)
 
     return (
         <>
@@ -521,12 +510,12 @@ function PriceBlock({ price }: { price: PriceData }) {
                 </p>
             ) : null}
 
-            {position !== null && (
-                <div className="juego-range" aria-label={`Precio de hoy entre el mínimo (${formatPrice(floor)}) y el precio normal (${formatPrice(regular)})`}>
-                    <div className="juego-range__track" style={{ '--low': `${steamLowAt ?? 0}%` } as CSSVars}>
+            {rule !== null && (
+                <div className="juego-range" aria-label={`Precio de hoy entre el mínimo (${formatPrice(rule.floor)}) y el precio normal (${formatPrice(rule.regular)})`}>
+                    <div className="juego-range__track" style={{ '--low': `${rule.steamLowAt}%` } as CSSVars}>
                         <span
-                            className={`juego-range__pt${position < 15 ? ' is-start' : position > 85 ? ' is-end' : ''}`}
-                            style={{ left: `${position}%` }}
+                            className={`juego-range__pt${rule.position < 15 ? ' is-start' : rule.position > 85 ? ' is-end' : ''}`}
+                            style={{ left: `${rule.position}%` }}
                         >
                             <b>Hoy {formatPrice(price.price_final)}</b>
                         </span>
@@ -534,11 +523,11 @@ function PriceBlock({ price }: { price: PriceData }) {
                     <div className="juego-range__labels">
                         <span>
                             Mínimo
-                            <b>{formatPrice(floor)}</b>
+                            <b>{formatPrice(rule.floor)}</b>
                         </span>
                         <span>
                             Precio normal
-                            <b>{formatPrice(regular)}</b>
+                            <b>{formatPrice(rule.regular)}</b>
                         </span>
                     </div>
                 </div>
