@@ -111,7 +111,7 @@ function Verdict({ game }: { game: WishlistGame }) {
 
 /**
  * Regla de precios pequeña (la de la ficha): de lo más barato que ha estado en cualquier tienda al precio normal, con el
- * tramo amarillo hasta el mínimo de Steam y un punto en el precio de hoy. La tienda va en el título.
+ * tramo amarillo hasta el mínimo de Steam y un punto en el precio de hoy. Si el mínimo es de otra tienda, se nombra.
  */
 function PriceRuleMini({ game, low }: { game: WishlistGame; low: boolean }) {
     const rule = priceRule(game)
@@ -120,6 +120,8 @@ function PriceRuleMini({ game, low }: { game: WishlistGame; low: boolean }) {
     }
     const shop = game.all_low !== null && game.all_low_shop ? ` en ${game.all_low_shop}` : game.all_low === null ? ' en Steam' : ''
     const tip = `Hoy ${formatPrice(game.price_final)} · lo más barato: ${formatPrice(rule.floor)}${shop} · precio normal ${formatPrice(rule.regular)}`
+    // Si otra tienda lo ha tenido más barato que Steam, se dice: «Mínimo histórico» habla solo de Steam.
+    const otherShop = game.all_low !== null && game.steam_low !== null && game.all_low < game.steam_low ? (game.all_low_shop ?? 'otra tienda') : null
     return (
         <div className={`wl-rule${low ? ' is-low' : ''}`} title={tip} role="img" aria-label={tip}>
             <div className="wl-rule__track" style={{ '--lw': `${rule.steamLowAt}%` } as CSSVars}>
@@ -129,8 +131,11 @@ function PriceRuleMini({ game, low }: { game: WishlistGame; low: boolean }) {
                 </span>
             </div>
             <div className="wl-rule__labels" aria-hidden>
-                <span>
-                    Mín. <b>{formatPrice(rule.floor)}</b>
+                <span className="wl-rule__min">
+                    <span>
+                        Mín. <b>{formatPrice(rule.floor)}</b>
+                    </span>
+                    {otherShop && <span className="wl-rule__shop">en {otherShop}</span>}
                 </span>
                 <span>
                     Normal <b>{formatPrice(rule.regular)}</b>

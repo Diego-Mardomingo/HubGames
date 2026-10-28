@@ -552,6 +552,7 @@
 /* Regla pequeña: de lo más barato que ha estado (izquierda) al precio normal (derecha) */
 .wl-rule {
   display: grid;
+  min-width: 0;
   gap: 3px;
   padding-top: 3px;
 }
@@ -602,12 +603,28 @@
 
 .wl-rule__labels {
   display: flex;
+  min-width: 0;
   justify-content: space-between;
   gap: 6px;
   color: var(--muted);
   font-size: 0.6875rem;
   line-height: 1.2;
   white-space: nowrap;
+}
+
+/* Si el mínimo es de otra tienda, su nombre va debajo («en Epic Games Store») y se recorta si no cabe */
+.wl-rule__min {
+  display: grid;
+  min-width: 0;
+}
+
+.wl-rule__shop {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wl-rule__labels > span:last-child {
+  flex-shrink: 0;
 }
 
 .wl-rule__labels b {
