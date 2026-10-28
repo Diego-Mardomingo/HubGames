@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ArrowRight, Award, Check, ChevronDown, CircleHelp, Clock, ThumbsUp, Undo2 } from 'lucide-react'
 import {
@@ -46,6 +47,8 @@ const TINT_MS = 200
 const TOAST_MS = 5000
 const DONE_MS = 1400
 const CLOSE_MS = 300
+/** Tras la última salida o vuelo, el resto del Inicio (En curso, cifras…) se pone al día con el servidor. */
+const REFRESH_MS = 600
 const EASE_OUT = [0.22, 1, 0.36, 1] as const
 
 const SHORT_DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', timeZone: 'Europe/Madrid' })
@@ -231,12 +234,19 @@ export default function SuggestionsPanel({ games: initial, now }: { games: Libra
     const [answered, setAnswered] = useState(false)
     const [closing, setClosing] = useState(false)
     const [closed, setClosed] = useState(false)
+    /** Juegos respondidos aquí (sin deshacer): el refresco del Inicio no los devuelve ni reinicia el panel. */
+    const [handled, setHandled] = useState<ReadonlySet<number>>(new Set())
     if (source !== sourceKey) {
         setSource(sourceKey)
-        setList(initial)
-        setAnswered(false)
-        setClosing(false)
-        setClosed(false)
+        const fresh = initial.filter((g) => !handled.has(g.appid))
+        const known = new Set(list.map((g) => g.appid))
+        setList(fresh)
+        // Solo si llegan sugerencias nuevas (una sincronización) se vuelve a empezar.
+        if (fresh.some((g) => !known.has(g.appid))) {
+            setAnswered(false)
+            setClosing(false)
+            setClosed(false)
+        }
     }
 
     const [expanded, setExpanded] = useState(false)
@@ -255,6 +265,25 @@ export default function SuggestionsPanel({ games: initial, now }: { games: Libra
     /** Posición del resto del Inicio antes de quitar el panel, para que suba sin saltar (FLIP). */
     const flipRef = useRef<Map<Element, number> | null>(null)
     const seq = useRef(0)
+    const router = useRouter()
+    const refreshTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+    /** Refresca el Inicio cuando acaba la animación; una respuesta nueva lo aplaza para no pisar sus contadores. */
+    function refreshSoon() {
+        clearTimeout(refreshTimer.current)
+        refreshTimer.current = setTimeout(() => router.refresh(), REFRESH_MS)
+    }
+    useEffect(() => () => clearTimeout(refreshTimer.current), [])
+
+    function markHandled(appid: number, on: boolean) {
+        clearTimeout(refreshTimer.current)
+        setHandled((h) => {
+            const next = new Set(h)
+            if (on) next.add(appid)
+            else next.delete(appid)
+            return next
+        })
+    }
 
     const evidence = useMemo(() => new Map(list.map((g) => [g.appid, suggestionEvidence(g, now)])), [list, now])
     const groups = useMemo(() => groupSuggestions(list), [list])
@@ -314,7 +343,10 @@ export default function SuggestionsPanel({ games: initial, now }: { games: Libra
 
     /** La ficha vuela del botón «sí» al atajo de la lista; al llegar, los contadores cambian (sin atajo visible, al momento). */
     function launchFlight(game: LibraryGame, kind: Suggestion) {
-        const land = () => announceListMove(game.status, kind)
+        const land = () => {
+            announceListMove(game.status, kind)
+            refreshSoon()
+        }
         const button = document.querySelector(`[data-sg-yes="${game.appid}"]`)
         const target = listShortcut(kind)
         if (reduce || !button || !target) {
@@ -368,6 +400,7 @@ export default function SuggestionsPanel({ games: initial, now }: { games: Libra
         } finally {
             setPending(null)
         }
+        markHandled(game.appid, true)
         leave(game, 'pausado', () => setToast({ id: ++seq.current, type: 'pausado', game, snapshot }))
     }
 
@@ -385,7 +418,11 @@ export default function SuggestionsPanel({ games: initial, now }: { games: Libra
             setPending(null)
         }
         setAnswered(true)
-        const show = () => setToast({ id: ++seq.current, type: 'descartado', game, evidence: evidence.get(game.appid) ?? null })
+        markHandled(game.appid, true)
+        const show = () => {
+            setToast({ id: ++seq.current, type: 'descartado', game, evidence: evidence.get(game.appid) ?? null })
+            refreshSoon()
+        }
         if (reduce) {
             forget(game.appid)
             show()
@@ -405,6 +442,7 @@ export default function SuggestionsPanel({ games: initial, now }: { games: Libra
         if (!t) return
         setToast(null)
         const { game } = t
+        markHandled(game.appid, false)
         setList((l) => [...l.filter((g) => g.appid !== game.appid), game])
         setClosing(false)
         setClosed(false)
@@ -416,6 +454,7 @@ export default function SuggestionsPanel({ games: initial, now }: { games: Libra
         try {
             if (t.type === 'pausado') await restoreGames([t.snapshot])
             else await restoreSuggestion(game.appid, game.suggestion ?? 'completado', game.suggestion_dismissed_at)
+            refreshSoon()
         } catch (e) {
             setError(`No se pudo deshacer: ${e instanceof Error ? e.message : 'error al guardar'}`)
         }
@@ -646,6 +685,7 @@ export default function SuggestionsPanel({ games: initial, now }: { games: Libra
                 }}
                 onSaved={() => {
                     completedRef.current = completing
+                    if (completing) markHandled(completing.appid, true)
                 }}
             />
         </>
