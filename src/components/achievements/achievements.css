@@ -28,104 +28,6 @@
   color: var(--foreground);
 }
 
-.logros__empty {
-  display: grid;
-  justify-items: start;
-  gap: 0.75rem;
-  margin: 0;
-  padding: 1rem 1.25rem;
-  color: var(--muted);
-  font-size: 0.875rem;
-}
-
-.logros__empty p {
-  margin: 0;
-}
-
-/* ── Resumen de un juego: progreso, dificultad y enlaces ── */
-.ach-summary {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: 1.25rem;
-  padding: 1.1rem 1.25rem;
-}
-
-.ach-summary__progress {
-  display: grid;
-  gap: 0.5rem;
-  align-content: start;
-}
-
-.ach-summary__count {
-  margin: 0;
-  font-size: 1.625rem;
-  font-weight: 700;
-  font-variant-numeric: proportional-nums;
-  letter-spacing: -0.02em;
-}
-
-.ach-summary__count small {
-  margin-left: 0.4rem;
-  color: var(--muted);
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.ach-summary__bar {
-  display: block;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  overflow: hidden;
-}
-
-.ach-summary__bar span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--primary);
-}
-
-.ach-summary__side {
-  display: grid;
-  gap: 0.5rem;
-  align-content: start;
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
-.ach-summary__side p {
-  margin: 0;
-}
-
-.ach-summary__links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-}
-
-.ach-summary__links a {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--primary);
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.ach-summary__links a:hover {
-  text-decoration: underline;
-}
-
-.ach-summary__points {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
 /* Dificultad: el color de la rareza equivalente (fácil = común … muy difícil = legendaria). */
 .ach-difficulty {
   --c: var(--rar-comun);
@@ -136,71 +38,12 @@
   font-weight: 600;
 }
 
-.ach-difficulty--facil { --c: var(--rar-comun); }
-.ach-difficulty--asequible { --c: var(--rar-poco); }
-.ach-difficulty--exigente { --c: var(--rar-rara); }
-.ach-difficulty--dificil { --c: var(--rar-epica); }
-.ach-difficulty--muy_dificil { --c: var(--rar-leg); }
-
-/* ── Filtros de un juego: control segmentado + ordenación ── */
-.ach-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.ach-sort {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
 .heatmap__year {
   width: auto;
   min-width: 96px;
   height: 36px;
   gap: 0.5rem;
   font-size: 0.8125rem;
-}
-
-/* Conseguidos por rareza: punto con el color, nombre y recuento en tinta de texto. */
-.ach-tiers {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem 1rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
-.ach-tiers li {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-
-.ach-tiers li::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--c);
-}
-
-.ach-tiers__name {
-  margin-right: 0.125rem;
-}
-
-.ach-tiers b {
-  color: var(--foreground);
-  font-weight: 600;
 }
 
 /* ── Un logro (sobre .hg-ach) ── */
