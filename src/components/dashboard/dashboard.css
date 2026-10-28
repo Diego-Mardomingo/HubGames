@@ -1062,94 +1062,6 @@ a.dash-list:hover .dash-list__icon {
   margin-top: 1.5rem;
 }
 
-/* Ventana de biblioteca de ejemplo (la única sombra: flota sobre la página) */
-.land-win {
-  min-width: 0;
-  padding: 1rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
-}
-
-.land-win__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
-
-.land-win__title {
-  font-weight: 700;
-}
-
-.land-win__tag {
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-
-.land-win__rail {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 0.75rem;
-}
-
-.dash-list--mini {
-  height: 30px;
-  padding: 0 10px 0 4px;
-  background: var(--background);
-  font-size: 0.78125rem;
-}
-
-.dash-list--mini .dash-list__icon {
-  width: 22px;
-  height: 22px;
-}
-
-.land-win .hg-row {
-  grid-template-columns: 88px minmax(0, 1fr) auto auto;
-  gap: 0.75rem;
-  background: var(--background);
-}
-
-.land-win .hg-row:hover {
-  border-color: var(--border);
-  box-shadow: none;
-}
-
-.land-win .hg-row__cover {
-  width: 88px;
-  height: 41px;
-}
-
-.land-win .hg-row > .hg-row__prog {
-  width: 120px;
-}
-
-.land-win .hg-row__prog-label {
-  justify-content: flex-end;
-}
-
-.land-win .price-tag {
-  font-size: 0.75rem;
-}
-
-.land-swap {
-  display: inline-flex;
-  justify-self: end;
-  animation: hg-count-pop 0.3s var(--ease-out);
-}
-
-.land-flash {
-  animation: hg-count-pop 0.3s var(--ease-out), land-deal 0.7s var(--ease-out);
-}
-
-@keyframes land-deal {
-  40% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--deal) 50%, transparent); }
-  100% { box-shadow: 0 0 0 10px transparent; }
-}
-
 /* Tarjetas de lo que hace */
 .land-cards {
   display: grid;
@@ -1311,19 +1223,6 @@ a.dash-list:hover .dash-list__icon {
   transition: background-color 0.3s, color 0.3s;
 }
 
-.land-unlock.is-locked {
-  --c: var(--border-hover);
-}
-
-.land-unlock.is-locked .hg-ach__icon {
-  background: var(--surface-2);
-  color: var(--muted);
-}
-
-.land-unlock.is-locked .hg-ach__name {
-  color: var(--muted);
-}
-
 .land-tries {
   display: flex;
   flex-wrap: wrap;
@@ -1390,18 +1289,6 @@ a.dash-list:hover .dash-list__icon {
     gap: 1.75rem;
   }
 
-  .land-win .hg-row {
-    grid-template-columns: 112px minmax(0, 1fr) auto auto;
-  }
-
-  .land-win .hg-row > .hg-row__prog {
-    width: 170px;
-  }
-
-  .land-win .hg-row__cover {
-    width: 112px;
-    height: 52px;
-  }
 }
 
 @media (max-width: 960px) {
@@ -1538,43 +1425,6 @@ a.dash-list:hover .dash-list__icon {
     padding: 0.5rem 0 3rem;
   }
 
-  .land-win {
-    padding: 0.75rem;
-    border-radius: var(--radius-lg);
-  }
-
-  .land-win__rail {
-    flex-wrap: nowrap;
-    overflow: hidden;
-  }
-
-  .land-win .hg-row {
-    grid-template-columns: 76px minmax(0, 1fr) auto;
-    grid-template-areas: 'cover main chip' 'cover extra extra';
-    row-gap: 6px;
-  }
-
-  .land-win .hg-row__cover {
-    grid-area: cover;
-    width: 76px;
-    height: 36px;
-  }
-
-  .land-win .hg-row__main {
-    grid-area: main;
-  }
-
-  .land-win .hg-row > .hg-row__prog {
-    display: none;
-  }
-
-  .land-win .hg-row > .price-tag {
-    grid-area: extra;
-  }
-
-  .land-win .hg-row > :last-child {
-    grid-area: chip;
-  }
 }
 
 /* Cola y «Qué jugar»: «Sin comprar» baja a otra línea antes que recortar el nombre */

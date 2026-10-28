@@ -6,7 +6,8 @@ import { supabase } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
 import { USERNAME_MIN, passwordRules, usernameIssue } from '@/lib/profile'
-import { PfSection, SaveButton, enter, type Notify, type SaveState } from './Section'
+import { SaveButton, type SaveState } from '@/components/SaveButton'
+import { PfSection, enter, type Notify } from './Section'
 
 type Availability = 'idle' | 'short' | 'checking' | 'free' | 'taken'
 
@@ -180,7 +181,7 @@ export default function AccountSetting({
                         </li>
                     </ul>
                 </div>
-                <div key={shake} className={`pf-row__control pf-row__control--stack${shake ? ' pf-shake' : ''}`} role="group" aria-labelledby="pf-pass-label">
+                <div key={shake} className={`pf-row__control pf-row__control--stack${shake ? ' hg-shake' : ''}`} role="group" aria-labelledby="pf-pass-label">
                     <label htmlFor="perfil-pass-new" className="sr-only">
                         Nueva contraseña
                     </label>

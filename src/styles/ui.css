@@ -319,7 +319,8 @@
 }
 
 /* Botón guardando: el spinner ocupa el sitio del icono y el botón no se apaga tanto como uno desactivado sin más. */
-.hg-button.is-loading > svg:not(.hg-spin) {
+.hg-button.is-loading > svg:not(.hg-spin),
+.hg-button.is-loading > .hg-button__swap > svg {
   display: none;
 }
 .hg-button.is-loading:disabled {

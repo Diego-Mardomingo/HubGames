@@ -1,0 +1,186 @@
+/* ══════════════════════════════════════════════════════════════════
+   Vista previa del producto «en acción» (LibraryPreview): portada sin sesión, login y registro.
+   Se mueve aquí desde dashboard.css (antes .land-win, .land-swap, .land-flash, .land-unlock) sin cambiar su aspecto.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Ventana de biblioteca de ejemplo (la única sombra: flota sobre la página) */
+.pv-win {
+  min-width: 0;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+  user-select: none;
+}
+
+.pv-win__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.pv-win__title {
+  font-weight: 700;
+}
+
+.pv-win__tag {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.pv-win__rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.dash-list--mini {
+  height: 30px;
+  padding: 0 10px 0 4px;
+  background: var(--background);
+  font-size: 0.78125rem;
+}
+
+.dash-list--mini .dash-list__icon {
+  width: 22px;
+  height: 22px;
+}
+
+.pv-win .hg-row {
+  grid-template-columns: 88px minmax(0, 1fr) auto auto;
+  gap: 0.75rem;
+  background: var(--background);
+}
+
+.pv-win .hg-row:hover {
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+.pv-win .hg-row__cover {
+  width: 88px;
+  height: 41px;
+}
+
+.pv-win .hg-row > .hg-row__prog {
+  width: 120px;
+}
+
+.pv-win .hg-row__prog-label {
+  justify-content: flex-end;
+}
+
+.pv-win .price-tag {
+  font-size: 0.75rem;
+}
+
+/* Sin marco ni cabecera (vista previa reducida del móvil en el login) */
+.pv-win--bare {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Chip de Hades II: a la derecha; al pasar a Jugando, salta */
+.pv-chip {
+  display: inline-flex;
+  justify-self: end;
+}
+
+.pv-swap {
+  animation: hg-count-pop 0.3s var(--ease-out);
+}
+
+/* Mínimo histórico que destella */
+.pv-flash {
+  animation: hg-count-pop 0.3s var(--ease-out), pv-deal 0.7s var(--ease-out);
+}
+
+@keyframes pv-deal {
+  40% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--deal) 50%, transparent); }
+  100% { box-shadow: 0 0 0 10px transparent; }
+}
+
+/* Logro que te falta y se desbloquea */
+.pv-unlock .hg-ach__icon {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.pv-unlock.is-locked {
+  --c: var(--border-hover);
+}
+
+.pv-unlock.is-locked .hg-ach__icon {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.pv-unlock.is-locked .hg-ach__name {
+  color: var(--muted);
+}
+
+@media (max-width: 1240px) {
+  .pv-win .hg-row {
+    grid-template-columns: 112px minmax(0, 1fr) auto auto;
+  }
+
+  .pv-win .hg-row > .hg-row__prog {
+    width: 170px;
+  }
+
+  .pv-win .hg-row__cover {
+    width: 112px;
+    height: 52px;
+  }
+}
+
+@media (max-width: 640px) {
+  .pv-win {
+    padding: 0.75rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .pv-win__rail {
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+
+  .pv-win .hg-row {
+    grid-template-columns: 76px minmax(0, 1fr) auto;
+    grid-template-areas: 'cover main chip' 'cover extra extra';
+    row-gap: 6px;
+  }
+
+  .pv-win .hg-row__cover {
+    grid-area: cover;
+    width: 76px;
+    height: 36px;
+  }
+
+  .pv-win .hg-row__main {
+    grid-area: main;
+  }
+
+  .pv-win .hg-row > .hg-row__prog {
+    display: none;
+  }
+
+  .pv-win .hg-row > .price-tag {
+    grid-area: extra;
+  }
+
+  .pv-win .hg-row > :last-child {
+    grid-area: chip;
+  }
+
+  .pv-win--bare {
+    padding: 0;
+    border-radius: 0;
+  }
+}
