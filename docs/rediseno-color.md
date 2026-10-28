@@ -176,14 +176,16 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
 
 ### 6. Estadísticas
 
-- [ ] **Estadísticas del año** — `/estadisticas` · `src/app/estadisticas/page.tsx`, `YearView.tsx`, `stats.css`
+- 🎨 **Estadísticas del año** — `/estadisticas` · `src/app/estadisticas/page.tsx`, `YearView.tsx`, `stats.css`
   - Hoy: horas jugadas, logros por mes, completados, tu nota, notas, lo que más jugaste, géneros, juegos al 100 %.
   - Ideas: gráficas con la paleta de listas (juegos por estado), notas con la escala `--sc-*`, logros por mes apilados por rareza, tiles de cifras como la ficha. Seguir el skill `dataviz` para los gráficos.
   - Animación: barras y donuts que crecen al entrar en pantalla, cifras que cuentan, transición entre años con fundido cruzado, tooltips que aparecen sin salto.
-- [ ] **Resumen anual (Wrapped)** — `/estadisticas/resumen` · `resumen/page.tsx`, `Wrapped.tsx`, y la imagen para compartir `src/app/api/estadisticas/resumen/imagen/route.tsx`
+  - Mockup: `docs/mockups/estadisticas.html` (pendiente de visto bueno)
+- 🎨 **Resumen anual (Wrapped)** — `/estadisticas/resumen` · `resumen/page.tsx`, `Wrapped.tsx`, y la imagen para compartir `src/app/api/estadisticas/resumen/imagen/route.tsx`
   - Hoy: horas, juego del año, top 5, logro más raro, mejor racha, en números, compartir.
   - Ideas: es la página más «de celebración»: aquí cabe más presencia del color (logro más raro con su rareza a lo grande, juego del año con imagen grande como la ficha, top 5 con su nota en color). La imagen OG debe seguir el mismo diseño (solo valores escritos, sin variables).
   - Animación: la página con más movimiento de la web: bloques que se revelan uno a uno al hacer scroll, horas que cuentan, el logro más raro con su destello de rareza, top 5 que aparece en orden inverso (del 5 al 1).
+  - Mockup: `docs/mockups/resumen-anual.html` (pendiente de visto bueno)
 
 ### 7. Cuenta
 

@@ -1,0 +1,1032 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Resumen anual (Wrapped) · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --success: #1a7743; --warning: #8e5e18;
+  --sc-top: #1a7743; --sc-good: #4d7c0f; --sc-mid: #8e5e18; --sc-bad: #c7243b;
+  --rar-comun: #8a8f98; --rar-poco: #2e9e5b; --rar-rara: #2f6fe0; --rar-epica: #8b4fd8; --rar-leg: #c98a0b; --rar-ink: 62%;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-rejugable: #9c3c08; --st-completado: #1a7743;
+  --st-abandonado: #c7243b; --st-yajugado: #5c5b06; --st-descartado: #6b7280; --st-otros: #931f8f; --st-favorito: #c2255c; --st-sinfinal: #6741d9;
+  --on-done: #ffffff;
+  --tint: 12%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --success: #4cc97e; --warning: #f2b53a;
+  --sc-top: #4cc97e; --sc-good: #a9d15b; --sc-mid: #f2b53a; --sc-bad: #f26b7e;
+  --rar-comun: #9aa0aa; --rar-poco: #4cc97e; --rar-rara: #5b93ff; --rar-epica: #b07cff; --rar-leg: #f2b53a; --rar-ink: 100%;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-rejugable: #ff9a5c; --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e; --st-yajugado: #d2cf5c; --st-descartado: #8a919e; --st-otros: #eb84f8; --st-favorito: #f783ac; --st-sinfinal: #b197fc;
+  --on-done: #0b1f13;
+  --tint: 14%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; color: inherit; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; padding: 10px 32px; background: var(--background); border-bottom: 1px solid var(--border); }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.8125rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.doc-var { display: inline-flex; align-items: center; gap: 4px; padding: 3px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: .8125rem; font-weight: 600; }
+.doc-var > span { padding: 0 6px 0 4px; color: var(--muted); }
+.doc-var button { height: 28px; min-width: 30px; border: 0; border-radius: 6px; background: transparent; font-weight: 700; }
+.doc-var button[aria-pressed='true'] { background: var(--primary-glow); color: var(--primary); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 3px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 100ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: hidden; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 60ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.vlabel { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.9375rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--surface-2); }
+.vlabel em { color: var(--success); font-style: normal; font-size: .8125rem; font-weight: 600; }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; text-align: left; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nv-count { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px 0 6px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; line-height: 1; }
+.nv-count .i { font-size: 12px; stroke-width: 2.4; }
+.nv-count.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-3); color: var(--foreground); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.nv-dot { position: absolute; display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; font-size: 0.625rem; font-weight: 700; line-height: 1; box-shadow: 0 0 0 2px var(--ring-bg, var(--background)); }
+.nv-dot.hg-tint { background: color-mix(in srgb, var(--c) calc(var(--tint) + 6%), var(--ring-bg, var(--background))); }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); --ring-bg: var(--surface); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+.m-tab .nv-dot { top: -8px; left: calc(50% + 7px); }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.m-page { padding: 1.25rem 1rem 110px; }
+
+/* ══ Piezas compartidas (copia de src/styles/lists.css) ══ */
+.st-todos { --c: var(--primary); } .st-bandeja { --c: var(--st-bandeja); } .st-pendiente { --c: var(--st-pendiente); }
+.st-jugando { --c: var(--st-jugando); } .st-pausado { --c: var(--st-pausado); } .st-rejugable { --c: var(--st-rejugable); } .st-completado { --c: var(--st-completado); }
+.st-abandonado { --c: var(--st-abandonado); } .st-yajugado { --c: var(--st-yajugado); } .st-otros { --c: var(--st-otros); }
+.st-favorito { --c: var(--st-favorito); } .st-sin_final { --c: var(--st-sinfinal); }
+.sc-top { --c: var(--sc-top); } .sc-good { --c: var(--sc-good); } .sc-mid { --c: var(--sc-mid); } .sc-bad { --c: var(--sc-bad); }
+.rar-comun { --c: var(--rar-comun); } .rar-poco { --c: var(--rar-poco); } .rar-rara { --c: var(--rar-rara); } .rar-epica { --c: var(--rar-epica); } .rar-leg { --c: var(--rar-leg); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.st-pausado, .hg-tint.sc-mid { color: var(--warn-ink); }
+.hg-tint[class*='rar-'] { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+.rar-ink { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; transition: background .15s, border-color .15s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { border-color: var(--border-hover); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.w-mob .btn { height: 44px; }
+
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.78125rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 13px; }
+.hg-chip--sm { padding: 1px 8px 1px 6px; font-size: .71875rem; gap: 4px; }
+.hg-chip--sm .i { font-size: 11px; }
+.hg-flag { display: inline-grid; flex: none; place-items: center; width: 20px; height: 20px; border-radius: 6px; font-size: 12px; }
+.hg-bar { position: relative; display: block; height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.hg-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--c, var(--primary)); transform-origin: left; }
+
+/* Tiles (Tile / .hg-tile) */
+.hg-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.w-mob .hg-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hg-tile { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+.w-mob .hg-tile { padding: 12px; }
+.hg-tile dt { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.hg-tile__icon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; font-size: 13px; }
+.hg-tile dd { margin: 0; min-width: 0; }
+.hg-tile__value { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; font-variant-numeric: proportional-nums; }
+.w-mob .hg-tile__value { font-size: 1.375rem; }
+.hg-tile__value small { color: var(--muted); font-size: .875rem; font-weight: 500; letter-spacing: 0; }
+.hg-tile__note { color: var(--muted); font-size: .78125rem; }
+.hg-tile__note b { color: var(--foreground); font-weight: 600; }
+
+.sec-head { display: flex; align-items: center; gap: .625rem; min-height: 2rem; }
+.sec-head__icon { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 8px; font-size: 16px; }
+.sec-head h2 { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec-head__count { color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.sec-head__end { margin-left: auto; }
+
+/* ══ /estadisticas/resumen ══ */
+.wr { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; max-width: 1040px; margin: 0 auto; }
+.w-mob .wr { gap: 1rem; }
+.wr-back { display: inline-flex; align-items: center; gap: .35rem; justify-self: start; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.wr-back:hover { color: var(--foreground); }
+.wr-block { position: relative; min-width: 0; padding: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); }
+.w-mob .wr-block { padding: 1.1rem 1rem 1.15rem; border-radius: var(--radius-lg); }
+.wr-block > .sec-head { margin-bottom: 1rem; }
+.wr-note { margin: 0; color: var(--muted); font-size: .875rem; }
+.w-mob .wr-note { font-size: .8125rem; }
+.wr-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; }
+.w-mob .wr-pair { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+
+/* Cabecera: el año en grande, la frase y las acciones */
+.wr-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 1rem 2rem; padding: .5rem 0 .75rem; }
+.w-mob .wr-hero { grid-template-columns: minmax(0, 1fr); padding: 0 0 .25rem; }
+.wr-hero__kicker { margin: 0; color: var(--muted); font-size: 1rem; font-weight: 600; }
+.wr-hero__year { margin: 0; font-size: 7.5rem; font-weight: 800; letter-spacing: -0.05em; line-height: .92; font-variant-numeric: proportional-nums; }
+.w-mob .wr-hero__year { font-size: 5rem; }
+.wr-hero__year .d { display: inline-block; }
+.wr-hero__lead { margin: .75rem 0 0; max-width: 46ch; font-size: 1.125rem; }
+.w-mob .wr-hero__lead { font-size: 1rem; }
+.wr-hero__lead b { font-weight: 700; }
+.wr-hero__side { display: grid; gap: .75rem; justify-items: end; }
+.w-mob .wr-hero__side { justify-items: stretch; }
+.wr-years { display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.wr-years a { display: grid; place-items: center; min-width: 52px; height: 32px; padding: 0 10px; border-radius: 6px; color: var(--muted); font-size: .8125rem; font-weight: 600; }
+.wr-years a:hover { color: var(--foreground); }
+.wr-years a.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.w-mob .wr-years { overflow-x: auto; }
+.w-mob .wr-years a { height: 40px; flex: 1; }
+
+/* Horas: cifra protagonista + meses */
+.wr-hours { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 2rem; align-items: end; }
+.w-mob .wr-hours { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+.wr-big { margin: 0; font-size: 5rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: proportional-nums; }
+.w-mob .wr-big { font-size: 3.75rem; }
+.wr-big small { margin-left: .15em; font-size: .45em; font-weight: 700; letter-spacing: -0.01em; color: var(--muted); }
+.wr-big--md { font-size: 3.25rem; }
+.w-mob .wr-big--md { font-size: 2.75rem; }
+.wr-facts { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: .875rem 0 .5rem; padding: 0; list-style: none; }
+.wr-fact { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px; background: var(--surface-2); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.wr-fact b { font-weight: 700; }
+.wr-fact .i { font-size: 13px; color: var(--muted); }
+.wr-fact.hg-tint .i { color: inherit; }
+
+.wr-months { position: relative; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 2px; align-items: end; height: 168px; }
+.w-mob .wr-months { height: 120px; }
+.wr-m { position: relative; display: grid; grid-template-rows: 1fr auto; height: 100%; gap: 6px; cursor: default; }
+.wr-m__track { position: relative; display: flex; align-items: flex-end; }
+.wr-m__bar { width: 100%; max-width: 40px; margin: 0 auto; height: var(--h); border-radius: 4px 4px 0 0; background: var(--surface-3); transform-origin: bottom; transition: background .15s; }
+.wr-m.is-peak .wr-m__bar { background: var(--primary); }
+.wr-m:hover .wr-m__bar, .wr-m:focus-visible .wr-m__bar { background: color-mix(in srgb, var(--primary) 55%, var(--surface-3)); }
+.wr-m.is-peak:hover .wr-m__bar { background: var(--primary-hover); }
+.wr-m__lbl { color: var(--muted); font-size: .6875rem; font-weight: 500; text-align: center; }
+.wr-m.is-peak .wr-m__lbl { color: var(--foreground); font-weight: 700; }
+.wr-m__peak { position: absolute; left: 50%; bottom: calc(var(--h) + 6px); transform: translateX(-50%); font-size: .75rem; font-weight: 700; white-space: nowrap; }
+.wr-tip { position: absolute; left: 50%; bottom: calc(var(--h) + 8px); z-index: 2; transform: translate(-50%, 4px); padding: 5px 9px; border-radius: 8px; background: var(--foreground); color: var(--background); font-size: .75rem; font-weight: 600; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .12s, transform .12s var(--ease-out); }
+.wr-m:hover .wr-tip, .wr-m:focus-visible .wr-tip { opacity: 1; transform: translate(-50%, 0); }
+.wr-m:hover .wr-m__peak, .wr-m:focus-visible .wr-m__peak { opacity: 0; }
+.wr-months-cap { margin: .5rem 0 0; color: var(--muted); font-size: .75rem; }
+
+/* Juego del año */
+.wr-goty { display: grid; gap: 1.25rem; }
+.wr-goty__hero { position: relative; display: block; aspect-ratio: 1920 / 620; border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-2); }
+.wr-goty__hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block; }
+.w-mob .wr-goty__hero { aspect-ratio: 460 / 215; }
+.wr-goty__body { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem 2rem; align-items: start; }
+.w-mob .wr-goty__body { grid-template-columns: minmax(0, 1fr); }
+.wr-goty__name { margin: 0; font-size: 2.25rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.w-mob .wr-goty__name { font-size: 1.625rem; }
+.wr-goty__name a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
+.wr-goty__chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: .6rem; }
+.wr-goty__share { display: grid; gap: 8px; min-width: 260px; }
+.w-mob .wr-goty__share { min-width: 0; }
+.wr-goty__share p { margin: 0; display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; font-size: .8125rem; color: var(--muted); }
+.wr-goty__share p b { color: var(--foreground); font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: proportional-nums; }
+.wr-goty__share .hg-bar { height: 8px; }
+.wr-goty .wr-facts { margin: 0; }
+/* Variante B: imagen a la izquierda */
+.wr-goty--b { grid-template-columns: 340px minmax(0, 1fr); align-items: center; }
+.wr-goty--b .wr-goty__hero { aspect-ratio: 460 / 215; }
+.wr-goty--b .wr-goty__body { grid-template-columns: minmax(0, 1fr); gap: .875rem; }
+.wr-goty--b .wr-goty__name { font-size: 1.875rem; }
+.w-mob .wr-goty--b { grid-template-columns: 120px minmax(0, 1fr); gap: .875rem; align-items: start; }
+.w-mob .wr-goty--b .wr-goty__name { font-size: 1.25rem; }
+.w-mob .wr-goty--b .wr-goty__share, .w-mob .wr-goty--b .wr-facts { grid-column: 1 / -1; }
+.w-mob .wr-goty--b .wr-goty__body { display: contents; }
+
+/* Nota con su color */
+.wr-score { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px; font-size: .8125rem; font-weight: 600; white-space: nowrap; }
+.wr-score b { font-weight: 800; }
+.wr-score.is-none { background: var(--surface-2); color: var(--muted); }
+
+/* Top 5 · A filas con barra */
+.wr-top { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.wr-top li { position: relative; display: grid; grid-template-columns: 44px 112px minmax(0, 1fr) 132px; align-items: center; gap: 1rem; min-height: 72px; padding: 8px 14px 8px 8px; border-radius: var(--radius); background: var(--background); transition: box-shadow .15s; }
+.wr-top li:hover, .wr-top li:has(:focus-visible) { box-shadow: 0 0 0 3px var(--cursor); }
+.wr-top__pos { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; text-align: center; color: var(--muted); font-variant-numeric: proportional-nums; }
+.wr-top li.is-first .wr-top__pos { color: var(--primary); }
+.wr-top__cover { display: block; width: 112px; height: 52px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.wr-top__cover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s var(--ease-out); }
+.wr-top li:hover .wr-top__cover img { transform: scale(1.05); }
+.wr-top__main { display: grid; gap: 6px; min-width: 0; }
+.wr-top__line { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.wr-top__name { overflow: hidden; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.wr-top__name::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.wr-top__name:focus-visible { outline: none; }
+.wr-top__barline { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: .8125rem; color: var(--muted); }
+.wr-top__barline b { color: var(--foreground); font-weight: 700; }
+.wr-top .hg-bar { height: 6px; }
+.wr-top .wr-score { justify-self: end; }
+.w-mob .wr-top li { grid-template-columns: 26px 72px minmax(0, 1fr); grid-template-areas: 'p c m' 'p s s'; gap: 6px 10px; padding: 8px 10px 10px 6px; }
+.w-mob .wr-top__pos { grid-area: p; align-self: start; padding-top: 6px; font-size: 1.25rem; }
+.w-mob .wr-top__cover { grid-area: c; width: 72px; height: 34px; }
+.w-mob .wr-top__main { grid-area: m; }
+.w-mob .wr-top .wr-score { grid-area: s; justify-self: start; height: 26px; }
+.w-mob .wr-top__line .hg-chip, .w-mob .wr-top__line .hg-flag { display: none; }
+
+/* Top 5 · B podio */
+.wr-pod { display: grid; grid-template-columns: 1fr 1.25fr 1fr; gap: 10px; align-items: end; }
+.wr-pod__card { position: relative; display: grid; gap: 8px; padding: 8px 8px 12px; border-radius: var(--radius-lg); background: var(--background); text-align: center; transition: box-shadow .15s; }
+.wr-pod__card:hover { box-shadow: 0 0 0 3px var(--cursor); }
+.wr-pod__card img { width: 100%; aspect-ratio: 460 / 215; object-fit: cover; border-radius: 8px; display: block; }
+.wr-pod__card .wr-top__pos { font-size: 2rem; line-height: 1; }
+.wr-pod__card.p1 .wr-top__pos { color: var(--primary); font-size: 2.75rem; }
+.wr-pod__card .wr-top__name { font-size: .9375rem; }
+.wr-pod__card .wr-score { justify-self: center; }
+.wr-pod__card .hours { color: var(--muted); font-size: .8125rem; }
+.wr-pod__card .hours b { color: var(--foreground); }
+.wr-pod__step { display: block; border-radius: 8px 8px 0 0; background: var(--surface-2); }
+.wr-pod-rest { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
+.wr-pod-rest li { position: relative; display: grid; grid-template-columns: 26px 64px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 6px 10px 6px 6px; border-radius: var(--radius); background: var(--background); font-size: .875rem; }
+.wr-pod-rest img { width: 64px; height: 30px; border-radius: 4px; object-fit: cover; display: block; }
+.wr-pod-rest .wr-top__pos { font-size: 1.125rem; }
+.w-mob .wr-pod { grid-template-columns: 1fr 1fr; }
+.w-mob .wr-pod__card.p1 { grid-column: 1 / -1; order: -1; }
+.w-mob .wr-pod__step { display: none; }
+.w-mob .wr-pod-rest { grid-template-columns: 1fr; }
+
+/* Logro más raro */
+.wr-rare { position: relative; display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 1.5rem; align-items: center; padding: 1.25rem 1.5rem 1.25rem 1.25rem; border-radius: var(--radius-lg); background: color-mix(in srgb, var(--c) 7%, var(--surface)); box-shadow: inset 4px 0 0 var(--c); overflow: hidden; }
+.w-mob .wr-rare { grid-template-columns: 64px minmax(0, 1fr); gap: .875rem 1rem; padding: 1rem 1rem 1rem .875rem; }
+.wr-rare__icon { position: relative; display: grid; place-items: center; width: 96px; height: 96px; border-radius: 18px; background: color-mix(in srgb, var(--c) 18%, var(--surface)); color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: 44px; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 55%, transparent); }
+.w-mob .wr-rare__icon { width: 64px; height: 64px; border-radius: 14px; font-size: 30px; }
+.wr-rare__icon .i { stroke-width: 1.75; }
+.wr-rare__ring { position: absolute; inset: -2px; border-radius: inherit; border: 2px solid var(--c); opacity: 0; pointer-events: none; }
+.wr-spark { position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px; border-radius: 2px; background: var(--c); opacity: 0; pointer-events: none; }
+.wr-spark:nth-child(odd) { width: 5px; height: 5px; margin: -2.5px; border-radius: 50%; }
+.wr-rare__name { margin: 0; font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .wr-rare__name { font-size: 1.25rem; }
+.wr-rare__desc { margin: .3rem 0 0; color: var(--muted); font-size: .9375rem; }
+.w-mob .wr-rare__desc { font-size: .8125rem; }
+.wr-rare__ctx { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: .6rem; color: var(--muted); font-size: .8125rem; }
+.wr-rare__ctx img { width: 48px; height: 22px; border-radius: 3px; object-fit: cover; }
+.wr-rare__ctx a { color: var(--foreground); font-weight: 600; }
+.wr-rare__ctx a:hover { text-decoration: underline; }
+.wr-rare__pct { display: grid; justify-items: end; gap: 4px; text-align: right; }
+.w-mob .wr-rare__pct { grid-column: 1 / -1; justify-items: start; text-align: left; grid-template-columns: auto auto; align-items: baseline; gap: 4px 10px; }
+.wr-rare__pct strong { font-size: 3.25rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: proportional-nums; }
+.w-mob .wr-rare__pct strong { font-size: 2.25rem; }
+.wr-rare__pct span { color: var(--muted); font-size: .8125rem; }
+.wr-rare__pct .hg-chip { justify-self: end; }
+.w-mob .wr-rare__pct .hg-chip { justify-self: start; }
+.wr-rare__pct span.wr-rare__of { max-width: 18ch; }
+.w-mob .wr-rare__pct span.wr-rare__of { grid-column: 1 / -1; max-width: none; }
+
+/* Logros del año por rareza: una barra apilada y su leyenda con cifras */
+.wr-tiers { margin-top: 1.25rem; }
+.wr-tiers__head { display: flex; justify-content: space-between; gap: 1rem; margin: 0 0 .5rem; font-size: .875rem; font-weight: 600; }
+.wr-tiers__head span { color: var(--muted); font-weight: 500; }
+.wr-stack { display: flex; gap: 2px; height: 14px; border-radius: 999px; overflow: hidden; }
+.wr-stack span { background: var(--c); min-width: 4px; }
+.wr-legend { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: .6rem 0 0; padding: 0; list-style: none; font-size: .8125rem; color: var(--muted); }
+.wr-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.wr-legend li::before { content: ''; width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+.wr-legend b { color: var(--foreground); font-weight: 700; }
+
+/* Racha */
+.wr-streak { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 1rem; }
+.wr-streak span { width: 14px; height: 14px; border-radius: 3px; background: var(--primary); }
+.wr-streak span.is-edge { box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--primary); }
+.wr-streak em { align-self: center; margin-left: 4px; color: var(--muted); font-size: .75rem; font-style: normal; }
+
+/* Completados del año */
+.wr-done { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.w-mob .wr-done { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.wr-done li { position: relative; display: grid; gap: 6px; padding: 6px 6px 8px; border-radius: var(--radius); background: var(--background); transition: box-shadow .15s; }
+.wr-done li:hover { box-shadow: 0 0 0 3px var(--cursor); }
+.wr-done img { width: 100%; aspect-ratio: 460 / 215; object-fit: cover; border-radius: 6px; display: block; }
+.wr-done a { overflow: hidden; padding: 0 2px; font-size: .8125rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.wr-done a::after { content: ''; position: absolute; inset: 0; }
+.wr-done .wr-score { height: 24px; padding: 0 8px; font-size: .75rem; justify-self: start; }
+.wr-done time { padding: 0 2px; color: var(--muted); font-size: .71875rem; }
+
+/* Compartir */
+.wr-share { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 1.5rem; align-items: center; }
+.w-mob .wr-share { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+.og-fit { position: relative; width: 100%; aspect-ratio: 1200 / 630; overflow: hidden; border-radius: 12px; box-shadow: 0 0 0 1px var(--border); }
+.og-fit > .og { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform: scale(var(--s, .5)); }
+.wr-share__side { display: grid; gap: .75rem; }
+.wr-share__side p { margin: 0; color: var(--muted); font-size: .8125rem; }
+.wr-share__side .btn { width: 100%; }
+.wr-toast { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--success-glow, color-mix(in srgb, var(--success) 12%, transparent)); color: var(--success); font-size: .8125rem; font-weight: 600; }
+.wr-toast .i { font-size: 16px; }
+.wr-toast .i path { stroke-dasharray: 30; animation: hg-draw .3s var(--ease-out) backwards .1s; }
+.wr-toast { animation: in-up .24s var(--ease-out); }
+.btn.is-busy .i { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes hg-draw { from { stroke-dashoffset: 30; } }
+
+/* Vacío y año con poco */
+.wr-empty { display: grid; justify-items: center; gap: .75rem; padding: 3rem 1.5rem; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); }
+.wr-empty__icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 14px; font-size: 26px; }
+.wr-empty h2 { margin: 0; font-size: 1.25rem; }
+.wr-empty p { margin: 0; max-width: 44ch; color: var(--muted); }
+.wr-empty__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+
+/* ══ Imagen para compartir (OG): estilos en línea con valores escritos; aquí solo el marco ══ */
+.og { width: 1200px; height: 630px; font-family: 'Onest', sans-serif; font-variant-numeric: proportional-nums; }
+.og-sizer { width: 1200px; max-width: 100%; }
+
+/* ══ Microanimaciones ══ */
+/* Bloques que se revelan al llegar con el scroll (una vez); dentro, cada pieza tiene su entrada */
+[data-reveal] { transition: opacity .5s var(--ease-out), transform .5s var(--ease-out); }
+.anim [data-reveal]:not(.is-in) { opacity: 0; transform: translateY(28px); }
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } }
+@keyframes fade-in { from { opacity: 0; } }
+/* Año: dígitos que caen uno a uno */
+.is-in .wr-hero__year .d { animation: digit .5s var(--ease-out) backwards; animation-delay: calc(var(--k) * 70ms); }
+@keyframes digit { from { opacity: 0; transform: translateY(-24px); } }
+.is-in .wr-hero__lead, .is-in .wr-hero__side { animation: in-up .4s var(--ease-out) backwards .35s; }
+/* Horas: meses que crecen desde abajo, el pico al final con su etiqueta */
+.is-in .wr-m__bar { animation: grow-y .5s var(--ease-out) backwards; animation-delay: calc(200ms + var(--k) * 30ms); }
+@keyframes grow-y { from { transform: scaleY(0); } }
+.is-in .wr-m__peak { animation: fade-in .3s var(--ease-out) backwards .9s; }
+.is-in .wr-hours .wr-fact { animation: in-up .3s var(--ease-out) backwards; animation-delay: calc(700ms + var(--k) * 60ms); }
+/* Juego del año: la imagen se descubre y la barra de su parte del año se rellena */
+.is-in .wr-goty__hero img { animation: hero-in .9s var(--ease-out) backwards .1s; }
+@keyframes hero-in { from { opacity: 0; transform: scale(1.06); } }
+.is-in .wr-goty__name { animation: in-up .4s var(--ease-out) backwards .3s; }
+.is-in .wr-goty__chips > *, .is-in .wr-goty .wr-fact { animation: pop-in .26s var(--ease-out) backwards; animation-delay: calc(450ms + var(--k, 0) * 40ms); }
+.is-in .wr-goty__share .hg-bar > span { animation: bar-fill .7s var(--ease-out) backwards .5s; }
+@keyframes bar-fill { from { transform: scaleX(0); } }
+@keyframes pop-in { from { opacity: 0; transform: scale(.6); } }
+/* Top 5 en orden inverso: del 5 al 1; el 1 llega el último con un pop */
+.is-in .wr-top li { animation: top-in .42s var(--ease-out) backwards; animation-delay: calc(150ms + (var(--n) - 1 - var(--k)) * 160ms); }
+@keyframes top-in { from { opacity: 0; transform: translateX(-24px); } }
+.is-in .wr-top li .hg-bar > span { animation: bar-fill .5s var(--ease-out) backwards; animation-delay: calc(300ms + (var(--n) - 1 - var(--k)) * 160ms); }
+.is-in .wr-top li.is-first { animation: top-first .6s var(--ease-out) backwards; animation-delay: calc(150ms + (var(--n) - 1) * 160ms); }
+@keyframes top-first { 0% { opacity: 0; transform: scale(.92); } 60% { opacity: 1; transform: scale(1.02); box-shadow: 0 0 0 3px var(--primary); } 100% { box-shadow: 0 0 0 0 transparent; } }
+.is-in .wr-top li.is-first .wr-top__pos { animation: pop-in .35s var(--ease-out) backwards; animation-delay: calc(350ms + (var(--n) - 1) * 160ms); }
+.is-in .wr-pod > *, .is-in .wr-pod-rest li { animation: in-up .42s var(--ease-out) backwards; animation-delay: calc(150ms + (var(--n) - 1 - var(--k)) * 160ms); }
+.is-in .wr-pod__step { animation: grow-y .5s var(--ease-out) backwards; animation-delay: calc(150ms + (var(--n) - 1 - var(--k)) * 160ms); }
+/* Logro más raro: entra el icono, destella su rareza, el anillo se abre y saltan chispas (≈ 1 s) */
+.is-in .wr-rare__icon { animation: rare-icon .7s var(--ease-out) backwards .2s; }
+@keyframes rare-icon { 0% { opacity: 0; transform: scale(.4) rotate(-12deg); } 55% { opacity: 1; transform: scale(1.12) rotate(3deg); } }
+.is-in .wr-rare.is-flash { animation: rare-flash 1s var(--ease-out) backwards .45s; }
+@keyframes rare-flash { from { background-color: color-mix(in srgb, var(--c) 34%, var(--surface)); } }
+.is-in .is-flash .wr-rare__ring { animation: ring .8s var(--ease-out) .5s; }
+@keyframes ring { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(1.7); } }
+.is-in .is-flash .wr-spark { animation: spark .8s var(--ease-out) .5s; }
+@keyframes spark { 0% { opacity: 1; transform: rotate(var(--a)) translateX(30px) scale(1); } 100% { opacity: 0; transform: rotate(var(--a)) translateX(var(--d, 80px)) scale(.4); } }
+.is-in .wr-rare__pct strong { animation: in-up .4s var(--ease-out) backwards .55s; }
+.is-in .wr-rare__pct .hg-chip { animation: pop-in .3s var(--ease-out) backwards .8s; }
+.is-in .wr-stack { animation: stack-grow .7s var(--ease-out) backwards .6s; }
+@keyframes stack-grow { from { clip-path: inset(0 100% 0 0 round 999px); } to { clip-path: inset(0 0 0 0 round 999px); } }
+/* Racha: los días se encienden en cadena */
+.is-in .wr-streak span { animation: pop-in .26s var(--ease-out) backwards; animation-delay: calc(250ms + var(--k) * 25ms); }
+/* Tiles y completados: escalonado corto */
+.is-in .hg-tile, .is-in .wr-done li { animation: in-up .32s var(--ease-out) backwards; animation-delay: calc(100ms + min(var(--k, 0), 8) * 40ms); }
+.is-in .wr-done .wr-score { animation: pop-in .26s var(--ease-out) backwards; animation-delay: calc(350ms + min(var(--k, 0), 8) * 40ms); }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+  .anim [data-reveal]:not(.is-in) { opacity: 1; transform: none; }
+}
+.q-list li { margin: 6px 0; }
+.q-list .rec { color: var(--success); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Resumen anual (Wrapped)</h1>
+  <div class="doc-bar__actions">
+    <span class="doc-var" data-var="goty"><span>Juego del año</span><button type="button" data-v="A" aria-pressed="true">A</button><button type="button" data-v="B" aria-pressed="false">B</button></span>
+    <span class="doc-var" data-var="top"><span>Top 5</span><button type="button" data-v="A" aria-pressed="true">A</button><button type="button" data-v="B" aria-pressed="false">B</button></span>
+    <span class="doc-var" data-var="og"><span>Imagen</span><button type="button" data-v="A" aria-pressed="true">A</button><button type="button" data-v="B" aria-pressed="false">B</button></span>
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p>Hoy el resumen es una columna de bloques grises iguales («Horas jugadas», «Tu juego del año», «Tu top 5», «Tu logro más raro», «Tu mejor racha», «En números», «Compártelo») con el año en cobalto y una cápsula pequeña. Se lee, pero no se celebra nada. Es la página más «de fiesta» de la web, así que aquí se permite más color y movimiento que en ninguna otra, siempre con los colores que ya significan algo y <b>sin quitar nada</b>: siguen las horas (medidas o «≈ aproximadas»), el juego del año, el top 5, el logro más raro, la racha, las cifras y compartir o descargar la imagen.</p>
+  <ul>
+    <li><b>Cabecera con el año a lo grande</b> (texto, no imagen), la frase de siempre («46 juegos con actividad, sobre todo rol») y, a la derecha, <b>Compartir</b> (para no tener que bajar hasta el final) y un <b>selector de año</b> con los de <code>availableYears</code>.</li>
+    <li><b>Horas como cifra protagonista</b> (la única de la página a ese tamaño) que cuenta hasta su valor, con dos equivalencias («≈ 2,5 h al día», «38 días enteros») y <b>las horas mes a mes</b>: columnas grises con <b>el mes más fuerte en cobalto</b> y su cifra (forma «énfasis» del skill <code>dataviz</code>: un dato es el titular, el resto es contexto). Cada mes tiene tooltip al pasar o enfocar. Solo si las horas son medidas; si son aproximadas, no hay meses y se dice.</li>
+    <li><b>Juego del año como la ficha</b>: el arte grande de Steam (<code>library_hero</code>, el mismo de <code>Media.tsx</code>, sin texto encima ni velos), el nombre grande, su <code>StatusChip</code> y <code>MarkFlags</code>, <b>tu nota con su color y su palabra</b> (<code>ratingTier</code> / <code>ratingLabel</code>), Metacritic con color, los logros que le sacaste ese año y <b>qué parte de tu año fue</b> (barra cobalto).</li>
+    <li><b>Top 5 con color</b>: posición grande (el 1 en cobalto), cápsula, chip de su lista, horas con barra relativa al primero y <b>tu nota en color</b> («—» si no tiene). Aparece <b>del 5 al 1</b>.</li>
+    <li><b>Logro más raro a lo grande con su rareza</b>: el bloque se tiñe de su color (franja, icono, porcentaje gigante con su chip «Legendaria»), con la descripción, el juego y el día. Debajo, <b>tus logros del año por rareza</b> (barra apilada con la leyenda y las cifras, colores <code>--rar-*</code>). Si es épico o legendario, destella al llegar; si no, entra tranquilo.</li>
+    <li><b>Racha</b> con un cuadrado por día que se encienden en cadena (hasta 31; más, «+N»), y <b>En números</b> con los <code>Tile</code> de la ficha: logros (Sin final), completados (Completado), al 100 % (Completado) y <b>nota media</b> con su color.</li>
+    <li><b>Nuevo: «Lo que completaste»</b>: las cápsulas de los juegos completados ese año con su nota en color y la fecha (ya lo calcula <code>yearStats</code>; hoy solo se enseña la cifra). Ver pregunta 4.</li>
+    <li><b>Imagen para compartir rediseñada</b> con el mismo lenguaje (ver el marco de 1200 × 630): horas en grande, cuatro cifras con su icono tintado, juego del año con su cápsula y nota en color, y el logro más raro con su franja de rareza. Solo valores escritos, solo flexbox (lo que entiende Satori).</li>
+    <li><b>Año con poco</b>: los bloques que no tienen datos desaparecen (sin meses si las horas son aproximadas, «Tus 2 más jugados» en vez de top 5, sin racha si es de 1 día…) y nunca se ve un bloque vacío. <b>Año sin nada</b>: vacío con icono, frase y botones a otros años.</li>
+  </ul>
+
+  <h3>Variantes (botones arriba: cambian todos los marcos)</h3>
+  <ul>
+    <li><b>Juego del año · A</b> imagen grande arriba, como la ficha (<em>recomendada</em>: es el momento de la página) · <b>B</b> cápsula de tienda a la izquierda y datos a la derecha (más compacto).</li>
+    <li><b>Top 5 · A</b> filas con barra (<em>recomendada</em>: se compara de un vistazo y en móvil funciona igual) · <b>B</b> podio con los 3 primeros en tarjetas y el 4 y el 5 debajo.</li>
+    <li><b>Imagen · A</b> siempre en oscuro (<em>recomendada</em>: es lo que hace hoy, destaca en redes y los colores de rareza lucen más) · <b>B</b> en claro (se generaría con el tema de quien la pide).</li>
+  </ul>
+
+  <h3>Datos</h3>
+  <ul>
+    <li><b>Ya disponibles</b> en <code>buildWrapped</code>: año, horas y si son medidas, top 5 con horas, logro más raro (con % e icono), racha con fechas, logros, completados, al 100 %, juegos con actividad, género principal.</li>
+    <li><b>Derivados sin consultas nuevas</b> (todo sale de <code>loadStatsInput</code>, que ya trae <code>hubgames_library</code> con <code>select('*')</code> y todos los logros): estado, marcas, nota y Metacritic de cada juego del top (ampliar <code>TopGame</code>); logros de ese año por juego y por rareza (contar <code>unlocks</code> por <code>appid</code> y <code>rarityTier</code>); fecha del logro más raro (<code>unlocktime</code>); horas por mes (sumar <code>daily</code> por mes, solo si <code>hoursMeasured</code>); nota media y lista de completados (<code>YearStats.averageRating</code> y <code>completed</code>, hoy no pasan a <code>Wrapped</code>); equivalencias (horas / días del año).</li>
+    <li><b>Un cambio pequeño de consulta, sin migración</b>: la <b>descripción</b> del logro más raro necesita añadir <code>description</code> al <code>select</code> de <code>hubgames_achievements</code> en <code>stats-db.ts</code> (la columna ya existe).</li>
+    <li>Iconos de logro: en el mockup, el trofeo; en la app, el icono de Steam (<code>achievementIconUrl</code>) como hoy, con el marco de su rareza.</li>
+    <li>Imagen: <code>ImageResponse</code> usa hoy <code>sans-serif</code>; para que se parezca a la web hay que pasarle Onest (TTF en <code>fonts</code>). La cápsula del juego del año (<code>header_image</code>) ya se carga hoy como fondo.</li>
+  </ul>
+
+  <h3>Microanimaciones (la página con más movimiento de la web; «Repetir entrada» arriba)</h3>
+  <ul>
+    <li><b>Bloques que se revelan al hacer scroll</b>, una sola vez: suben 28 px y aparecen cuando entran en pantalla (<code>IntersectionObserver</code>), y entonces arranca la animación de dentro. <span class="t">500 ms · ease-out.</span></li>
+    <li><b>El año cae dígito a dígito</b> y luego la frase. <span class="t">500 ms, 70 ms entre dígitos.</span></li>
+    <li><b>Horas que cuentan</b> desde 0 (<code>CountUp</code> con más duración aquí) y meses que crecen desde abajo; la etiqueta del mes más fuerte aparece al final. <span class="t">cifra 1,1 s · columnas 500 ms, 30 ms entre ellas.</span></li>
+    <li><b>Juego del año</b>: la imagen se descubre (fundido y escala de 1,06 a 1), el nombre sube, chips y datos saltan y la barra de «tu año» se rellena. <span class="t">900 / 400 / 260 / 700 ms.</span></li>
+    <li><b>Top 5 del 5 al 1</b>: cada fila entra desde la izquierda; <b>el 1 llega el último</b> con un pop y el cursor cobalto un instante. <span class="t">420 ms por fila, 160 ms entre filas (excepción a los 30 ms: aquí el orden es el mensaje).</span></li>
+    <li><b>Logro más raro</b>: el icono entra girando, el bloque <b>destella con el color de su rareza</b>, un anillo se abre y saltan 12 chispas de su color; el porcentaje sube y el chip salta. Solo épico y legendario (como <code>.hg-rar-flash</code>). La barra por rareza crece de izquierda a derecha. <span class="t">≈ 1 s en total.</span></li>
+    <li><b>Racha</b>: los días se encienden en cadena. <b>Tiles</b> y <b>completados</b> con escalonado corto y la nota que salta. <span class="t">260 ms, 25–40 ms entre elementos.</span></li>
+    <li><b>Compartir</b>: el botón pasa a «Preparando…» con icono que gira y, al terminar, aviso con check que se dibuja («Imagen descargada» en escritorio; en móvil se abre el menú de compartir del sistema). <span class="t">300 ms.</span></li>
+    <li><b>Hover</b>: cursor de selección en filas, tarjetas y completados, cápsula que se acerca un 5 %; tooltip de cada mes. Con <b>movimiento reducido</b> todo está visible desde el principio y nada se mueve (interruptor arriba).</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px (prueba en vivo)</h2>
+  <p>Año completo con horas medidas (2025). Baja con el scroll para ver cómo se revela cada bloque. Prueba el hover del top 5 y de los meses, y «Compartir imagen».</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="f-desk"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Una columna. Año grande a 5rem, selector de año a lo ancho, top 5 con la nota en su propia línea, tiles en 2 × 2; todo lo pulsable mide 44 px o más.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px" id="f-mob"></div><p class="frame-cap">2025, el mismo año que en escritorio.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-low"></div><p class="frame-cap">Año con poco (2021): 14 h aproximadas (sin meses), 2 juegos (sin top 5: «Tus 2 más jugados»), 12 logros, el más raro es poco común (entra sin destello), racha de 2 días, 1 completado.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-empty"></div><p class="frame-cap">Año sin nada (2019): vacío con acciones.</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Imagen para compartir · 1200 × 630</h2>
+  <p>Lo que genera <code>/api/estadisticas/resumen/imagen</code>, a tamaño real. Solo valores escritos (sin variables) y solo flexbox, como exige <code>ImageResponse</code>; colores de los tokens del tema oscuro (A) o claro (B). No cambia con el botón de tema de este documento.</p>
+  <div class="scroller"><div class="og-sizer" id="f-og"></div></div>
+  <p class="frame-cap" style="margin-top:16px">Año con poco, misma plantilla: sin top, sin rareza destacada si no hay porcentaje.</p>
+  <div class="scroller" style="margin-top:8px"><div class="og-sizer" id="f-og-low" style="width:600px"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes lado a lado</h2>
+  <p>Mismos datos (2025). Los botones de arriba cambian también los marcos grandes.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="vlabel"><b>A</b> Juego del año · imagen grande <em>recomendada</em></div><div class="frame w-desk" style="width:700px;padding:20px" id="f-goty-a"></div></div>
+    <div><div class="vlabel"><b>B</b> Juego del año · cápsula al lado</div><div class="frame w-desk" style="width:700px;padding:20px" id="f-goty-b"></div></div>
+  </div></div>
+  <div class="scroller" style="margin-top:24px"><div class="row-frames">
+    <div><div class="vlabel"><b>A</b> Top 5 · filas con barra <em>recomendada</em></div><div class="frame w-desk" style="width:700px;padding:20px" id="f-top-a"></div></div>
+    <div><div class="vlabel"><b>B</b> Top 5 · podio</div><div class="frame w-desk" style="width:700px;padding:20px" id="f-top-b"></div></div>
+  </div></div>
+</section>
+
+<section class="note sec">
+  <h2>Preguntas para aprobarlo</h2>
+  <ol class="q-list">
+    <li><b>Juego del año: A (imagen grande arriba, como la ficha) o B (cápsula al lado)?</b> <span class="rec">Recomiendo A</span>: es el momento de la página y la imagen ya existe (<code>library_hero</code>, con la cápsula como respaldo, igual que en la ficha).</li>
+    <li><b>Top 5: A (filas con barra) o B (podio)?</b> <span class="rec">Recomiendo A</span>: compara horas de un vistazo, es el mismo dibujo que las filas del resto de la web y en móvil no cambia. El podio queda vistoso pero esconde las diferencias.</li>
+    <li><b>Imagen para compartir: A siempre oscura o B con el tema de quien la pide?</b> <span class="rec">Recomiendo A</span>: una sola imagen reconocible; los colores de rareza y nota lucen más sobre oscuro y no depende de la cookie del tema.</li>
+    <li><b>¿Añadimos el bloque «Lo que completaste»</b> (cápsulas con nota en color y fecha)? <span class="rec">Recomiendo sí</span>: no necesita consultas nuevas y es lo más «tuyo» del año; con más de 12, «Ver los N» lleva a las estadísticas.</li>
+    <li><b>¿Añadimos la descripción del logro más raro?</b> Es añadir <code>description</code> al <code>select</code> de <code>stats-db.ts</code> (sin migración). <span class="rec">Recomiendo sí</span>: el nombre solo («Calor extremo») no dice por qué es difícil.</li>
+    <li><b>¿Selector de año en la cabecera?</b> Hoy solo se llega desde las estadísticas con <code>?year=</code>. <span class="rec">Recomiendo sí</span>, con los años de <code>availableYears</code> (como mucho los 5 últimos y «Más» si hay más).</li>
+    <li><b>Año en curso</b>: ¿decimos «hasta hoy, 28 de octubre» en la cabecera y en la imagen? <span class="rec">Recomiendo sí</span>: un resumen de 2026 en octubre no es el año entero y la imagen circula sin contexto.</li>
+    <li><b>Revelado al hacer scroll</b>: ¿una vez por visita (no se repite al subir y bajar)? <span class="rec">Recomiendo sí</span>, como el resto de entradas de la web; con movimiento reducido todo visible desde el principio.</li>
+    <li><b>Top 5 del 5 al 1 con 160 ms entre filas</b> (la regla general es ≤ 30 ms): ¿aceptamos la excepción solo aquí? <span class="rec">Recomiendo sí</span>: el orden inverso es lo que crea la expectación; total ≈ 1,1 s y el contenido es pulsable desde el primer momento.</li>
+    <li><b>Fuente de la imagen</b>: ¿cargamos Onest en <code>ImageResponse</code> (hoy usa <code>sans-serif</code>)? <span class="rec">Recomiendo sí</span>, con los TTF 400/700/800 incluidos en el repositorio, para que la imagen sea la web.</li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide, los mismos que usa la app) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  infinity: '<path d="M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8"/>',
+  share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+  back: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+  flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+  calendar: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+  crown: '<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/>',
+  loader: '<path d="M21 12a9 9 0 1 1-6.219-8.56"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const reduced = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+
+/* ── Navegación (resumen de la implementada), con Estadísticas activo ── */
+function sidebar() {
+  const pill = (k) => k === 'lib' ? `<span class="nv-count hg-tint st-bandeja">${ic('inbox')}4</span>` : '';
+  const link = (k, label, icon) => `<a href="#" class="nv-link ${k === 'stats' ? 'active' : ''}">${ic(icon)}<span class="nv-link__label">${label}</span>${pill(k)}</a>`;
+  const groups = [`<div class="nv-group">${link('home', 'Inicio', 'home')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('lib', 'Biblioteca', 'library')}${link('ach', 'Logros', 'award')}${link('wish', 'Wishlist', 'heart')}${link('stats', 'Estadísticas', 'chart')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('judi', 'JUDI', 'gamepad')}${link('rank', 'Ranking', 'trophy')}</div>`];
+  const theme = `<div class="theme-toggle"><span class="on">${ic('sun')}</span><span>${ic('moon')}</span><span>${ic('monitor')}</span></div>`;
+  const account = `<a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>diego</span><span class="nv-account__meta">Ver perfil</span></span></a>`;
+  return `<aside class="nv-side"><a href="#" class="nv-brand">${logo(22)}</a><span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span><nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}${account}</div></aside>`;
+}
+function mobileChrome(body) {
+  const tabs = [['home', 'Inicio', 'home'], ['lib', 'Biblioteca', 'library'], ['ach', 'Logros', 'award'], ['judi', 'JUDI', 'gamepad'], ['rank', 'Ranking', 'trophy'], ['perfil', 'Perfil', 'user']];
+  const dot = (k) => k === 'lib' ? `<span class="nv-dot hg-tint st-bandeja">4</span>` : '';
+  const tabbar = tabs.map(([k, l, i]) => `<a href="#" class="m-tab"><span class="m-tab__icon">${ic(i)}${dot(k)}</span><span class="m-tab__label">${l}</span></a>`).join('');
+  const top = `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon">${ic('sun')}</span><span class="m-icon"><span class="nv-avatar">D</span></span></div></header>`;
+  return `${top}<div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+const desktopChrome = (body) => sidebar() + `<div class="page"><div class="page-in">${body}</div></div>`;
+
+/* ── Utilidades ── */
+const IMG = (id) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`;
+const HERO = (id) => `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${id}/library_hero.jpg`;
+const ST = { jugando: ['play', 'Jugando'], rejugable: ['repeat', 'Rejugable'], completado: ['flag', 'Completado'], yajugado: ['history', 'Ya jugado'] };
+const chip = (s) => `<span class="hg-chip hg-chip--sm hg-tint st-${s}">${ic(ST[s][0])}${ST[s][1]}</span>`;
+const flags = (g) => (g.fav ? `<span class="hg-flag hg-tint st-favorito" title="Favorito">${ic('heart')}</span>` : '') + (g.endless ? `<span class="hg-flag hg-tint st-sin_final" title="Sin final">${ic('infinity')}</span>` : '');
+const RAR = { comun: 'Común', poco: 'Poco común', rara: 'Rara', epica: 'Épica', leg: 'Legendaria' };
+const tier = (p) => (p < 1 ? 'leg' : p < 5 ? 'epica' : p < 15 ? 'rara' : p < 40 ? 'poco' : 'comun');
+const num = (v) => v.toLocaleString('es-ES');
+const dec = (v) => String(v).replace('.', ',');
+const rTier = (r) => (r >= 9 ? 'top' : r >= 7 ? 'good' : r >= 5 ? 'mid' : 'bad');
+const rLabel = (r) => (r >= 9 ? 'Imprescindible' : r >= 7 ? 'Muy bueno' : r >= 5 ? 'Correcto' : 'Flojo');
+const mcTier = (s) => (s >= 75 ? 'top' : s >= 50 ? 'mid' : 'bad');
+const mcLabel = (s) => (s >= 75 ? 'Aclamado' : s >= 50 ? 'Mixto' : 'Malo');
+const score = (r) => r == null ? `<span class="wr-score is-none" title="Sin nota">${ic('star')}—</span>` : `<span class="wr-score hg-tint sc-${rTier(r)}">${ic('star')}<b>${dec(r)}</b> ${rLabel(r)}</span>`;
+const count = (v, dur) => `<span data-count="${v}"${dur ? ` data-dur="${dur}"` : ''}>${num(v)}</span>`;
+const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const MONTHS_L = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+/* ── Datos de ejemplo ── */
+const Y25 = {
+  year: 2025, years: [2026, 2025, 2024, 2023, 2022], measured: true, hours: 912, active: 46, genre: 'rol',
+  months: [64, 71, 102, 58, 49, 66, 88, 131, 77, 69, 62, 75],
+  top: [
+    { id: 1086940, name: "Baldur's Gate 3", h: 214, st: 'completado', fav: true, r: 10, mc: 96, ach: 44 },
+    { id: 1245620, name: 'ELDEN RING', h: 168, st: 'completado', fav: true, r: 9.5, mc: 94, ach: 31 },
+    { id: 1145350, name: 'Hades II', h: 96, st: 'jugando', r: null, mc: 95, ach: 38 },
+    { id: 2379780, name: 'Balatro', h: 88, st: 'rejugable', endless: true, r: null, mc: 90, ach: 27 },
+    { id: 1903340, name: 'Clair Obscur: Expedition 33', h: 61, st: 'completado', r: 9, mc: 92, ach: 41 },
+  ],
+  rarest: { name: 'Calor extremo', desc: 'Escapa del Inframundo con 32 de calor en el Pacto de Castigo.', game: 'Hades II', gid: 1145350, p: 0.4, date: '14 de marzo' },
+  tiers: { comun: 301, poco: 236, rara: 128, epica: 52, leg: 17 },
+  unlocks: 734, perfect: 3, avg: 8.3,
+  streak: { len: 23, start: '2 de agosto', end: '24 de agosto' },
+  done: [
+    [1086940, "Baldur's Gate 3", 10, '19 ene'], [1245620, 'ELDEN RING', 9.5, '2 mar'], [1569580, 'Blue Prince', 9, '30 abr'],
+    [1903340, 'Clair Obscur: Expedition 33', 9, '21 may'], [2677660, 'Indiana Jones and the Great Circle', 8.5, '28 jun'], [1627720, 'Lies of P', 6.5, '24 ago'],
+    [1030300, 'Hollow Knight: Silksong', 9.5, '22 sep'], [2001120, 'Split Fiction', 8, '18 oct'], [1716740, 'Starfield', 4.5, '7 dic'],
+  ],
+};
+const Y21 = {
+  year: 2021, years: [2026, 2025, 2024, 2023, 2022, 2021], measured: false, hours: 14, active: 2, genre: 'puzles',
+  top: [
+    { id: 620, name: 'Portal 2', h: 11, st: 'completado', r: 9, mc: 95, ach: 9 },
+    { id: 837470, name: 'Untitled Goose Game', h: 3, st: 'yajugado', r: null, mc: 81, ach: 3 },
+  ],
+  rarest: { name: 'Pensando con portales', desc: 'Completa la cámara de pruebas 18 sin usar el cubo.', game: 'Portal 2', gid: 620, p: 28.4, date: '3 de abril' },
+  tiers: { comun: 9, poco: 3 },
+  unlocks: 12, perfect: 0, avg: 9,
+  streak: { len: 2, start: '3 de abril', end: '4 de abril' },
+  done: [[620, 'Portal 2', 9, '4 abr']],
+};
+
+/* ── Bloques ── */
+function hero(d, mob) {
+  const list = d.years.slice(0, 5).includes(d.year) ? d.years.slice(0, 5) : [...d.years.slice(0, 4), d.year];
+  const yrs = list.map((y) => `<a href="#" class="${y === d.year ? 'on' : ''}">${y}</a>`).join('');
+  const digits = String(d.year).split('').map((c, k) => `<span class="d" style="--k:${k}">${c}</span>`).join('');
+  return `<a href="#" class="wr-back">${ic('back')} Estadísticas de ${d.year}</a>
+  <header class="wr-hero is-in" data-reveal>
+    <div>
+      <p class="wr-hero__kicker">Tu resumen del año</p>
+      <h1 class="wr-hero__year" aria-label="${d.year}">${digits}</h1>
+      <p class="wr-hero__lead"><b>${d.active} ${d.active === 1 ? 'juego' : 'juegos'}</b> con actividad, sobre todo <b>${d.genre}</b>. Esto es lo que dio de sí.</p>
+    </div>
+    <div class="wr-hero__side">
+      <nav class="wr-years" aria-label="Año">${yrs}</nav>
+      <button class="btn btn--primary" type="button" data-share>${ic('share')} Compartir imagen</button>
+    </div>
+  </header>`;
+}
+function hoursBlock(d) {
+  const perDayH = d.hours / 365;
+  const perDay = perDayH >= 1 ? `${dec(perDayH.toFixed(1))} h` : `${Math.max(1, Math.round(perDayH * 60))} min`;
+  const days = Math.round(d.hours / 24);
+  const approx = d.measured ? '' : '≈ ';
+  let months = '';
+  if (d.measured) {
+    const max = Math.max(...d.months); const peak = d.months.indexOf(max);
+    months = `<div><div class="wr-months" role="img" aria-label="Horas por mes; el mes más fuerte, ${MONTHS_L[peak]}, con ${max} h">${d.months.map((h, k) => `
+      <div class="wr-m ${k === peak ? 'is-peak' : ''}" tabindex="0" style="--k:${k};--h:${Math.round(h / max * 100)}%" aria-label="${MONTHS_L[k]}: ${h} h">
+        <div class="wr-m__track"><div class="wr-m__bar"></div>${k === peak ? `<span class="wr-m__peak">${h} h</span>` : ''}<span class="wr-tip">${MONTHS_L[k][0].toUpperCase() + MONTHS_L[k].slice(1)} · ${h} h</span></div>
+        <span class="wr-m__lbl">${MONTHS[k]}</span></div>`).join('')}</div>
+      <p class="wr-months-cap">Horas por mes · ${MONTHS_L[peak]} fue tu mes más fuerte</p></div>`;
+  }
+  return `<section class="wr-block" data-reveal>
+    <div class="sec-head"><span class="sec-head__icon hg-tint st-todos">${ic('clock')}</span><h2>Horas jugadas</h2></div>
+    <div class="wr-hours" ${d.measured ? '' : 'style="grid-template-columns:minmax(0,1fr)"'}>
+      <div>
+        <p class="wr-big">${approx}${count(d.hours, 1100)}<small>h</small></p>
+        <ul class="wr-facts">
+          <li class="wr-fact" style="--k:0">${ic('clock')}<span><b>≈ ${perDay}</b> al día</span></li>
+          ${days >= 1 ? `<li class="wr-fact" style="--k:1">${ic('calendar')}<span><b>${days}</b> ${days === 1 ? 'día entero' : 'días enteros'}</span></li>` : ''}
+        </ul>
+        <p class="wr-note">${d.measured ? 'Medidas día a día con tu historial de horas.' : 'Aproximadas: las horas de cada juego, repartidas entre los años de sus logros. Sin historial de ese año no hay reparto por meses.'}</p>
+      </div>
+      ${months}
+    </div>
+  </section>`;
+}
+function gotyBlock(d, v) {
+  const g = d.top[0];
+  const share = Math.round(g.h / d.hours * 100);
+  const approx = d.measured ? '' : '≈ ';
+  const facts = `<ul class="wr-facts">
+      <li style="--k:0">${score(g.r)}</li>
+      ${g.mc ? `<li class="wr-fact hg-tint sc-${mcTier(g.mc)}" style="--k:1"><b>${g.mc}</b> Metacritic · ${mcLabel(g.mc)}</li>` : ''}
+      <li class="wr-fact" style="--k:2">${ic('award')}<span><b>${g.ach}</b> logros este año</span></li>
+    </ul>`;
+  const shareBar = `<div class="wr-goty__share"><p><span>Tu año en este juego</span><b>${approx}${g.h} h</b></p><span class="hg-bar"><span style="width:${share}%"></span></span><p><span>el <b style="font-size:inherit;font-weight:700">${share} %</b> de tus horas de ${d.year}</span></p></div>`;
+  const img = v === 'B' ? IMG(g.id) : HERO(g.id);
+  return `<section class="wr-block" data-reveal>
+    <div class="sec-head"><span class="sec-head__icon hg-tint st-todos">${ic('crown')}</span><h2>Tu juego del año</h2></div>
+    <div class="wr-goty ${v === 'B' ? 'wr-goty--b' : ''}">
+      <a href="#" class="wr-goty__hero" tabindex="-1"><img src="${img}" alt="" onerror="this.onerror=null;this.src='${IMG(g.id)}'"></a>
+      <div class="wr-goty__body">
+        <div>
+          <h3 class="wr-goty__name"><a href="#">${g.name}</a></h3>
+          <div class="wr-goty__chips"><span style="--k:0">${chip(g.st)}</span>${g.fav ? `<span style="--k:1">${flags(g)}</span>` : ''}</div>
+        </div>
+        ${shareBar}
+        ${facts}
+      </div>
+    </div>
+  </section>`;
+}
+function topBlock(d, v) {
+  if (d.top.length < 2) return '';
+  const n = d.top.length; const max = d.top[0].h; const approx = d.measured ? '' : '≈ ';
+  const title = n >= 5 ? 'Tu top 5' : `Tus ${n} más jugados`;
+  let body;
+  if (v === 'B' && n >= 3) {
+    const card = (g, i, cls, step) => `<div class="wr-pod__card ${cls}" style="--k:${i}"><span class="wr-top__pos">${i + 1}</span><img src="${IMG(g.id)}" alt=""><a href="#" class="wr-top__name" title="${g.name}">${g.name}</a><span class="hours"><b>${approx}${g.h} h</b></span>${score(g.r)}<span class="wr-pod__step" style="height:${step}px;--k:${i}"></span></div>`;
+    body = `<div class="wr-pod" style="--n:${n}">${card(d.top[1], 1, 'p2', 28)}${card(d.top[0], 0, 'p1 is-first', 56)}${card(d.top[2], 2, 'p3', 12)}</div>
+      <ol class="wr-pod-rest" style="--n:${n}">${d.top.slice(3).map((g, j) => `<li style="--k:${j + 3}"><span class="wr-top__pos">${j + 4}</span><img src="${IMG(g.id)}" alt=""><a href="#" class="wr-top__name">${g.name}</a><span><b>${approx}${g.h} h</b></span></li>`).join('')}</ol>`;
+  } else {
+    body = `<ol class="wr-top" style="--n:${n}">${d.top.map((g, k) => `
+      <li class="${k === 0 ? 'is-first' : ''}" style="--k:${k}">
+        <span class="wr-top__pos">${k + 1}</span>
+        <span class="wr-top__cover"><img src="${IMG(g.id)}" alt=""></span>
+        <span class="wr-top__main">
+          <span class="wr-top__line"><a href="#" class="wr-top__name" title="${g.name}">${g.name}</a>${chip(g.st)}${flags(g)}</span>
+          <span class="wr-top__barline"><span class="hg-bar"><span style="width:${Math.round(g.h / max * 100)}%"></span></span><b>${approx}${g.h} h</b></span>
+        </span>
+        ${score(g.r)}
+      </li>`).join('')}</ol>`;
+  }
+  return `<section class="wr-block" data-reveal>
+    <div class="sec-head"><span class="sec-head__icon hg-tint st-todos">${ic('trophy')}</span><h2>${title}</h2><span class="sec-head__count">por horas</span></div>
+    ${body}
+  </section>`;
+}
+function rareBlock(d) {
+  const r = d.rarest; const t = tier(r.p); const flash = t === 'epica' || t === 'leg';
+  const sparks = flash ? Array.from({ length: 12 }, (_, k) => `<span class="wr-spark" style="--a:${k * 30 + (k % 2 ? 12 : 0)}deg;--d:${k % 2 ? 70 : 92}px"></span>`).join('') : '';
+  const keys = Object.keys(d.tiers); const total = keys.reduce((s, k) => s + d.tiers[k], 0);
+  return `<section class="wr-block" data-reveal>
+    <div class="sec-head"><span class="sec-head__icon hg-tint rar-${t}">${ic('trophy')}</span><h2>Tu logro más raro</h2></div>
+    <div class="wr-rare rar-${t} ${flash ? 'is-flash' : ''}">
+      <span class="wr-rare__icon">${ic('trophy')}<span class="wr-rare__ring"></span>${sparks}</span>
+      <div>
+        <p class="wr-rare__name">${r.name}</p>
+        <p class="wr-rare__desc">${r.desc}</p>
+        <p class="wr-rare__ctx"><img src="${IMG(r.gid)}" alt=""><a href="#">${r.game}</a><span>· el ${r.date}</span></p>
+      </div>
+      <div class="wr-rare__pct">
+        <strong class="rar-ink">${dec(r.p)} %</strong>
+        <span class="hg-chip hg-tint rar-${t}">${ic('trophy')}${RAR[t]}</span>
+        <span class="wr-rare__of">de los jugadores lo tiene</span>
+      </div>
+    </div>
+    <div class="wr-tiers">
+      <p class="wr-tiers__head">Tus logros de ${d.year} por rareza <span>${num(total)} logros</span></p>
+      <div class="wr-stack" role="img" aria-label="${keys.map((k) => `${RAR[k]}: ${d.tiers[k]}`).join(', ')}">${keys.map((k) => `<span class="rar-${k}" style="flex:${d.tiers[k]}" title="${RAR[k]}: ${d.tiers[k]}"></span>`).join('')}</div>
+      <ul class="wr-legend">${keys.map((k) => `<li class="rar-${k}">${RAR[k]} <b>${num(d.tiers[k])}</b></li>`).join('')}</ul>
+    </div>
+  </section>`;
+}
+function streakBlock(d) {
+  const s = d.streak; if (s.len < 2) return '';
+  const shown = Math.min(s.len, 31);
+  const sq = Array.from({ length: shown }, (_, k) => `<span class="${k === 0 || k === shown - 1 ? 'is-edge' : ''}" style="--k:${k}"></span>`).join('');
+  return `<section class="wr-block" data-reveal>
+    <div class="sec-head"><span class="sec-head__icon hg-tint st-todos">${ic('flame')}</span><h2>Tu mejor racha</h2></div>
+    <p class="wr-big wr-big--md">${count(s.len)}<small>días</small></p>
+    <p class="wr-note">Seguidos con logros o partidas, del ${s.start} al ${s.end}.</p>
+    <div class="wr-streak" aria-hidden="true">${sq}${s.len > 31 ? `<em>+${s.len - 31}</em>` : ''}</div>
+  </section>`;
+}
+function numbersBlock(d, mob) {
+  const avg = d.avg;
+  return `<section class="wr-block" data-reveal>
+    <div class="sec-head"><span class="sec-head__icon hg-tint st-todos">${ic('chart')}</span><h2>En números</h2></div>
+    <dl class="hg-tiles" style="grid-template-columns:repeat(${mob ? 2 : 2},minmax(0,1fr))">
+      <div class="hg-tile st-sin_final" style="--k:0"><dt><span class="hg-tile__icon hg-tint">${ic('award')}</span>Logros</dt><dd class="hg-tile__value">${count(d.unlocks)}</dd></div>
+      <div class="hg-tile st-completado" style="--k:1"><dt><span class="hg-tile__icon hg-tint">${ic('flag')}</span>Completados</dt><dd class="hg-tile__value">${count(d.done.length)}</dd></div>
+      <div class="hg-tile st-completado" style="--k:2"><dt><span class="hg-tile__icon hg-tint">${ic('check')}</span>Al 100 %</dt><dd class="hg-tile__value">${count(d.perfect)}</dd></div>
+      <div class="hg-tile sc-${rTier(avg)}" style="--k:3"><dt><span class="hg-tile__icon hg-tint">${ic('star')}</span>Nota media</dt><dd class="hg-tile__value" style="color:color-mix(in srgb, var(--c) 85%, var(--foreground))">${dec(avg)}</dd><dd class="hg-tile__note">${rLabel(avg)}</dd></div>
+    </dl>
+  </section>`;
+}
+function doneBlock(d) {
+  if (!d.done.length) return '';
+  return `<section class="wr-block" data-reveal>
+    <div class="sec-head"><span class="sec-head__icon hg-tint st-completado">${ic('flag')}</span><h2>Lo que completaste</h2><span class="sec-head__count">${d.done.length}</span></div>
+    <ul class="wr-done">${d.done.map(([id, name, r, date], k) => `<li style="--k:${k}"><img src="${IMG(id)}" alt=""><a href="#" title="${name}">${name}</a>${score(r).replace(/ (Imprescindible|Muy bueno|Correcto|Flojo)/, '<span class="sr-only"> $1</span>')}<time>${date}</time></li>`).join('')}</ul>
+  </section>`;
+}
+function shareBlock(d, v) {
+  return `<section class="wr-block" data-reveal>
+    <div class="sec-head"><span class="sec-head__icon hg-tint st-todos">${ic('share')}</span><h2>Compártelo</h2></div>
+    <div class="wr-share">
+      <div class="og-fit">${og(d, v)}</div>
+      <div class="wr-share__side">
+        <p>Una imagen de 1200 × 630 con tu año. Solo la puedes generar tú: son tus datos.</p>
+        <button class="btn btn--primary" type="button" data-share>${ic('share')} Compartir imagen</button>
+        <a class="btn btn--secondary" href="#" data-download>${ic('download')} Descargar</a>
+        <div class="wr-share__msg" role="status"></div>
+      </div>
+    </div>
+  </section>`;
+}
+function page(d, v, mob) {
+  return `<div class="wr">${hero(d, mob)}${hoursBlock(d)}${gotyBlock(d, v.goty)}${topBlock(d, v.top)}${rareBlock(d)}
+    <div class="wr-pair">${streakBlock(d)}${numbersBlock(d, mob)}</div>${doneBlock(d)}${shareBlock(d, v.og)}</div>`;
+}
+function emptyPage() {
+  return `<div class="wr"><a href="#" class="wr-back">${ic('back')} Estadísticas de 2019</a>
+    <div class="wr-empty"><span class="wr-empty__icon hg-tint st-bandeja">${ic('calendar')}</span><h2>Nada que resumir en 2019</h2>
+    <p>Ese año no hay horas, logros ni juegos completados. Prueba con otro año.</p>
+    <div class="wr-empty__actions"><a href="#" class="btn btn--primary">Ver 2025</a><a href="#" class="btn btn--secondary">Volver a las estadísticas</a></div></div></div>`;
+}
+
+/* ── Imagen para compartir: estilos en línea y valores escritos (como ImageResponse), solo flexbox ── */
+const OGC = {
+  A: { bg: '#15171c', surface: '#1e2129', s2: '#282c36', text: '#e8eaee', muted: '#9aa1ae', primary: '#7b9bff', sinfinal: '#b197fc', done: '#4cc97e', top: '#4cc97e', good: '#a9d15b', mid: '#f2b53a', bad: '#f26b7e', rar: { comun: '#9aa0aa', poco: '#4cc97e', rara: '#5b93ff', epica: '#b07cff', leg: '#f2b53a' }, tintA: '24', rarText: (c) => c },
+  B: { bg: '#eef0f3', surface: '#ffffff', s2: '#e4e7ec', text: '#1b1f27', muted: '#5d6472', primary: '#2453ff', sinfinal: '#6741d9', done: '#1a7743', top: '#1a7743', good: '#4d7c0f', mid: '#8e5e18', bad: '#c7243b', rar: { comun: '#8a8f98', poco: '#2e9e5b', rara: '#2f6fe0', epica: '#8b4fd8', leg: '#c98a0b' }, tintA: '1f', rarText: (c) => ({ '#c98a0b': '#8a5f10', '#8a8f98': '#5f646d', '#2e9e5b': '#226e42', '#2f6fe0': '#2453b0', '#8b4fd8': '#6a3aa8' }[c] || c) },
+};
+function ogIcon(name, color, size = 22) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${P[name]}</svg>`;
+}
+function og(d, v = 'A') {
+  const C = OGC[v]; const g = d.top[0]; const r = d.rarest; const t = tier(r.p); const rc = C.rar[t];
+  const sc = g.r == null ? null : C[rTier(g.r)];
+  const approx = d.measured ? '' : '≈ ';
+  const stat = (icon, color, value, label) => `<div style="display:flex;flex-direction:column;gap:6px;flex:1;padding:16px 18px;border-radius:14px;background:${C.surface}">
+      <div style="display:flex;align-items:center;gap:8px;font-size:18px;color:${C.muted}"><div style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:${color}${C.tintA}">${ogIcon(icon, color, 17)}</div>${label}</div>
+      <div style="display:flex;font-size:40px;font-weight:700;letter-spacing:-1px;color:${C.text}">${value}</div></div>`;
+  return `<div class="og" style="display:flex;flex-direction:column;justify-content:space-between;padding:52px 56px;background:${C.bg};color:${C.text}">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:baseline;font-size:28px;font-weight:700;letter-spacing:-0.5px">Hub<span style="color:${C.primary}">Games</span></div>
+      <div style="display:flex;font-size:22px;color:${C.muted}">Mi resumen de ${d.year}</div>
+    </div>
+    <div style="display:flex;gap:40px;align-items:flex-end">
+      <div style="display:flex;flex-direction:column;flex:1">
+        <div style="display:flex;font-size:26px;color:${C.muted}">Horas jugadas</div>
+        <div style="display:flex;align-items:baseline;font-size:132px;font-weight:800;letter-spacing:-6px;line-height:1;color:${C.text}">${approx}${num(d.hours)}<span style="font-size:56px;letter-spacing:-1px;margin-left:10px;color:${C.muted}">h</span></div>
+        <div style="display:flex;font-size:24px;margin-top:10px;color:${C.muted}">${d.active} juegos con actividad, sobre todo ${d.genre}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;width:440px">
+        <div style="display:flex;gap:14px;align-items:center;padding:12px;border-radius:14px;background:${C.surface}">
+          <img src="${IMG(g.id)}" width="150" height="70" style="width:150px;height:70px;border-radius:8px;object-fit:cover" alt="">
+          <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:0">
+            <div style="display:flex;font-size:17px;color:${C.muted}">Juego del año · ${approx}${g.h} h</div>
+            <div style="display:flex;font-size:26px;font-weight:700;letter-spacing:-0.5px;line-height:1.1">${g.name}</div>
+            ${sc ? `<div style="display:flex;align-items:center;gap:6px;font-size:18px;font-weight:700;color:${sc}">${ogIcon('star', sc, 16)}${dec(g.r)} · ${rLabel(g.r)}</div>` : ''}
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:center;padding:12px 14px 12px 12px;border-radius:14px;background:${C.surface};border-left:5px solid ${rc}">
+          <div style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:12px;background:${rc}${C.tintA}">${ogIcon('trophy', C.rarText(rc), 28)}</div>
+          <div style="display:flex;flex-direction:column;gap:2px;flex:1">
+            <div style="display:flex;font-size:17px;color:${C.muted}">Logro más raro · ${r.game}</div>
+            <div style="display:flex;font-size:24px;font-weight:700;letter-spacing:-0.3px">${r.name}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end">
+            <div style="display:flex;font-size:30px;font-weight:800;color:${C.rarText(rc)}">${dec(r.p)} %</div>
+            <div style="display:flex;font-size:16px;font-weight:600;color:${C.rarText(rc)}">${RAR[t]}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:14px">
+      ${stat('award', C.sinfinal, num(d.unlocks), 'Logros')}
+      ${stat('flag', C.done, d.done.length, 'Completados')}
+      ${stat('check', C.done, d.perfect, 'Al 100 %')}
+      ${stat('flame', C.primary, `${d.streak.len} días`, 'Mejor racha')}
+    </div>
+  </div>`;
+}
+
+/* ── Montaje ── */
+const V = { goty: 'A', top: 'A', og: 'A' };
+function mount(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
+function render() {
+  mount('f-desk', desktopChrome(page(Y25, V, false)));
+  mount('f-mob', mobileChrome(page(Y25, V, true)));
+  mount('f-mob-low', mobileChrome(page(Y21, V, true)));
+  mount('f-mob-empty', mobileChrome(emptyPage()));
+  mount('f-og', `<div class="og-fit" style="border-radius:0">${og(Y25, V.og)}</div>`);
+  mount('f-og-low', `<div class="og-fit">${og(Y21, V.og)}</div>`);
+  mount('f-goty-a', `<div class="wr">${gotyBlock(Y25, 'A')}</div>`);
+  mount('f-goty-b', `<div class="wr">${gotyBlock(Y25, 'B')}</div>`);
+  mount('f-top-a', `<div class="wr">${topBlock(Y25, 'A')}</div>`);
+  mount('f-top-b', `<div class="wr">${topBlock(Y25, 'B')}</div>`);
+  fitOg();
+}
+/* La imagen de 1200 × 630 se escala a su hueco */
+function fitOg() { document.querySelectorAll('.og-fit').forEach((f) => f.style.setProperty('--s', f.clientWidth / 1200)); }
+new ResizeObserver(fitOg).observe(document.body);
+
+/* ── Cifras que cuentan (CountUp) ── */
+function countUp(root) {
+  root.querySelectorAll('[data-count]').forEach((el) => {
+    const to = +el.dataset.count;
+    if (reduced()) { el.textContent = num(to); return; }
+    const t0 = performance.now(); const dur = +(el.dataset.dur || 450);
+    const step = (t) => { const k = Math.min(1, (t - t0) / dur); const e = 1 - Math.pow(1 - k, 3); el.textContent = num(Math.round(to * e)); if (k < 1) requestAnimationFrame(step); };
+    el.textContent = '0'; requestAnimationFrame(step);
+  });
+}
+
+/* ── Revelado al hacer scroll (una vez) ── */
+let io;
+function reveal(b) { b.classList.add('is-in'); countUp(b); }
+function entry() {
+  if (io) io.disconnect();
+  const all = location.hash.includes('all');
+  document.querySelectorAll('.frame').forEach((f) => {
+    f.classList.toggle('anim', !reduced() && !all);
+    f.querySelectorAll('[data-reveal]').forEach((b) => b.classList.remove('is-in'));
+  });
+  void document.body.offsetWidth;
+  if (reduced() || all) { document.querySelectorAll('[data-reveal]').forEach(reveal); return; }
+  io = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) { reveal(e.target); io.unobserve(e.target); } }), { threshold: 0.2, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('[data-reveal]').forEach((b) => io.observe(b));
+}
+
+/* ── Compartir (simulado: en la app, fetch de la imagen + navigator.share o descarga) ── */
+document.addEventListener('click', (e) => {
+  const sh = e.target.closest('[data-share], [data-download]');
+  if (!sh) return;
+  e.preventDefault();
+  const frame = sh.closest('.frame');
+  const mob = !!sh.closest('.w-mob');
+  const msgBox = frame && frame.querySelector('.wr-share__msg');
+  const isShare = sh.hasAttribute('data-share');
+  const label = sh.innerHTML;
+  sh.classList.add('is-busy'); sh.setAttribute('aria-busy', 'true');
+  sh.innerHTML = `${ic('loader')} Preparando…`;
+  setTimeout(() => {
+    sh.classList.remove('is-busy'); sh.removeAttribute('aria-busy'); sh.innerHTML = label;
+    const text = isShare && mob ? 'Se abre el menú de compartir del sistema' : 'Imagen descargada · hubgames-2025.png';
+    if (msgBox) {
+      msgBox.innerHTML = `<p class="wr-toast">${ic('check')} ${text}</p>`;
+      if (sh.closest('.wr-hero')) msgBox.closest('.wr-block').scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'center' });
+    }
+  }, reduced() ? 0 : 700);
+});
+
+/* ── Controles del documento ── */
+document.querySelectorAll('.doc-var').forEach((g) => g.addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  V[g.dataset.var] = b.dataset.v;
+  g.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  render(); entry();
+}));
+document.getElementById('replay-btn').addEventListener('click', () => { window.scrollTo({ top: 0 }); entry(); });
+const rmBtn = document.getElementById('rm-btn');
+rmBtn.addEventListener('click', () => { const on = document.documentElement.classList.toggle('rm'); rmBtn.setAttribute('aria-pressed', String(on)); rmBtn.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`; entry(); });
+const themeBtn = document.getElementById('theme-btn');
+function setTheme(t) { document.documentElement.dataset.theme = t; themeBtn.setAttribute('aria-pressed', String(t === 'dark')); themeBtn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro'; }
+themeBtn.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+if (location.hash.includes('dark')) setTheme('dark');
+if (location.hash.includes('rm')) { document.documentElement.classList.add('rm'); rmBtn.setAttribute('aria-pressed', 'true'); rmBtn.textContent = 'Movimiento reducido: sí'; }
+render();
+const solo = /solo=([\w-]+)/.exec(location.hash);
+if (solo) { const f = document.getElementById(solo[1]); document.body.innerHTML = ''; document.body.style.padding = '0'; document.body.appendChild(f); f.style.borderRadius = '0'; fitOg(); }
+entry();
+</script>
+</body>
+</html>
