@@ -10,10 +10,6 @@
   padding-bottom: 4rem;
 }
 
-.dash .suggestions {
-  max-width: none;
-}
-
 /* Tonos que no son listas: JUDI y ritmo de las metas (mismos que la navegación) */
 .dash-ok { --c: var(--success); }
 .dash-ko { --c: var(--danger); }

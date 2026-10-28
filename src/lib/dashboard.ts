@@ -164,6 +164,22 @@ export function listCounts(games: Pick<LibraryGame, 'status'>[], unowned: Pick<L
     return out
 }
 
+/**
+ * Un juego cambia de lista sin recargar el Inicio (panel de sugerencias): baja el contador de `from` y sube el de `to`
+ * (`n` negativo para deshacer). Las listas que no tienen atajo se ignoran; nunca baja de 0.
+ */
+export function moveListCount(
+    counts: Record<ListCountKey, number>,
+    from: string,
+    to: string,
+    n: number = 1,
+): Record<ListCountKey, number> {
+    const out = { ...counts }
+    if (from in out) out[from as ListCountKey] = Math.max(0, out[from as ListCountKey] - n)
+    if (to in out) out[to as ListCountKey] = Math.max(0, out[to as ListCountKey] + n)
+    return out
+}
+
 export type JudiWeekState = 'ok' | 'ko' | 'hoy' | 'sin_jugar' | 'sin_juego'
 
 const WEEKDAY = ['D', 'L', 'M', 'X', 'J', 'V', 'S']

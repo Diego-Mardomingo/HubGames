@@ -956,24 +956,154 @@
   }
 }
 
-/* ── Sugerencias de la sincronización (#18), en el Inicio ── */
+/* ── Panel de sugerencias (#18), en el Inicio · docs/mockups/sugerencias.html ──
+   Agrupado por la lista de destino (Completado verde, Pausado ámbar): franja y botón «sí» con su color, la prueba de por
+   qué se pregunta con el color de lo que demuestra, ficha que vuela al atajo de la lista y aviso con Deshacer. */
 
-.suggestions {
-  display: grid;
-  gap: 0.75rem;
-  width: 100%;
-  max-width: 640px;
-  padding: 1.1rem 1.25rem 1.25rem;
+/* El ámbar como texto no llega a 4,5:1 en claro: se oscurece (como en dashboard.css) */
+.sg,
+.sg-toast,
+.sg-token {
+  --pause-ink: color-mix(in srgb, var(--st-pausado) 80%, var(--foreground));
 }
 
-.suggestions__title {
+[data-theme='dark'] .sg,
+[data-theme='dark'] .sg-toast,
+[data-theme='dark'] .sg-token {
+  --pause-ink: var(--st-pausado);
+}
+
+.sg {
+  display: grid;
+  gap: 0.875rem;
+  min-width: 0;
+  padding: 1.1rem 1.25rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transform-origin: top;
+}
+
+.sg.is-closing {
+  animation: sg-close 0.3s var(--ease-out) forwards;
+}
+
+@keyframes sg-close {
+  to { opacity: 0; transform: translateY(-6px) scale(0.985); }
+}
+
+.sg > .alert {
+  margin: 0;
+}
+
+.sg-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 2rem;
+}
+
+.sg-head__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.sg-head__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.sg-head h2 {
   margin: 0;
   font-size: 1.0625rem;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
 
-.suggestions__list {
+.sg-head__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.sg-head__end {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.sg-sum {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 9px 0 7px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sg-sum svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Grupo: la pregunta con el icono y el color de la lista de destino */
+.sg-group {
+  display: grid;
+  gap: 6px;
+}
+
+.sg-group + .sg-group {
+  margin-top: 0.5rem;
+}
+
+.sg-group__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 2px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.sg-group__icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+}
+
+.sg-group__icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.sg-group__n {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.sg-group__rule {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.sg-list {
+  position: relative;
   display: grid;
   gap: 6px;
   margin: 0;
@@ -981,58 +1111,569 @@
   list-style: none;
 }
 
-.suggestion {
+/* Fila: franja del color de la lista de destino, cápsula, nombre, prueba con color y contexto */
+.sg-row {
+  position: relative;
   display: grid;
   grid-template-columns: 112px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 1rem;
-  padding: 8px 12px 8px 8px;
+  gap: 14px;
+  min-height: 76px;
+  padding: 9px 12px 9px 10px;
+  border: 1px solid transparent;
   border-radius: var(--radius);
   background: var(--background);
+  transition: background-color 0.2s var(--ease-out), border-color 0.2s var(--ease-out), box-shadow 0.15s;
 }
 
-.suggestion__cover {
-  display: block;
+.sg-row::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: -1px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--c);
+}
+
+.sg-row:hover,
+.sg-row:focus-within {
+  box-shadow: 0 0 0 3px var(--cursor);
+}
+
+/* Saliendo hacia su lista: se tiñe de su color */
+.sg-row.is-going {
+  background: color-mix(in srgb, var(--c) var(--tint), var(--surface));
+  border-color: color-mix(in srgb, var(--c) 45%, var(--border));
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.sg-row.is-dismissing {
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/* Vuelve con Deshacer: entra y el cursor se apaga */
+.sg-row.is-back {
+  animation: hg-enter 0.32s var(--ease-out) backwards, sg-back 1.2s var(--ease-out);
+}
+
+@keyframes sg-back {
+  from { box-shadow: 0 0 0 3px var(--cursor); }
+}
+
+.hg-row__cover.sg-cover {
   width: 112px;
   height: 52px;
-  border-radius: 6px;
-  object-fit: cover;
-  background: var(--surface-2);
 }
 
-.suggestion__text {
+.sg-main {
   display: grid;
-  gap: 1px;
+  gap: 3px;
   min-width: 0;
 }
 
-.suggestion__text p {
-  margin: 0;
+.sg-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
-.suggestion__question {
-  color: var(--muted);
+.sg-link {
+  overflow: hidden;
+  border-radius: 4px;
+  color: var(--foreground);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sg-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* La prueba: por qué te lo preguntamos, con el color de lo que demuestra */
+.sg-ev {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-width: 0;
   font-size: 0.8125rem;
 }
 
-.suggestion__game {
+.sg-ev__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.sg-ev__item > svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.sg-ev__txt {
+  color: var(--foreground);
+}
+
+.sg-ev__txt b {
+  font-weight: 700;
+}
+
+.sg-ev--done,
+.sg-ev--done .sg-ev__txt b {
+  color: var(--st-completado);
+}
+
+.sg-ev--idle,
+.sg-ev--idle .sg-ev__txt b {
+  color: var(--pause-ink);
+}
+
+.sg-ev--done .sg-ev__txt,
+.sg-ev--idle .sg-ev__txt {
+  color: var(--foreground);
+}
+
+.sg-ev__sub {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.sg-short {
+  display: none;
+}
+
+.sg-plus {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Anillo de logros (el de la ficha, en pequeño): se cierra al llegar */
+.sg-ring {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  rotate: -90deg;
+}
+
+.sg-ring circle {
+  fill: none;
+  stroke-width: 3.2;
+}
+
+.sg-ring__track {
+  stroke: color-mix(in srgb, var(--st-completado) 20%, transparent);
+}
+
+.sg-ring__fill {
+  stroke: var(--st-completado);
+  stroke-dasharray: 44;
+  stroke-linecap: round;
+}
+
+.is-entering .sg-ring__fill {
+  animation: sg-ring-in 0.5s var(--ease-out) backwards;
+  animation-delay: calc(120ms + min(var(--i, 0), 8) * 30ms);
+}
+
+@keyframes sg-ring-in {
+  from { stroke-dashoffset: 44; }
+}
+
+/* Barra frente a la meta: cobalto hasta llegar, verde al pasarla; la marca es la meta */
+.sg-bar {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 52px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.sg-bar > span {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--primary);
+  transform: scaleX(var(--f));
+  transform-origin: left;
+}
+
+.sg-bar.is-over > span {
+  background: var(--st-completado);
+}
+
+.sg-bar > i {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  left: calc(var(--m) * 100% - 1px);
+  width: 2px;
+  border-radius: 1px;
+  background: var(--foreground);
+  opacity: 0.55;
+}
+
+.is-entering .sg-bar > span {
+  animation: sg-bar-in 0.45s var(--ease-out) backwards;
+  animation-delay: calc(120ms + min(var(--i, 0), 8) * 30ms);
+}
+
+@keyframes sg-bar-in {
+  from { transform: scaleX(0); }
+}
+
+/* Contexto: dónde está ahora, horas, logros y puntuaciones con color */
+.sg-ctx {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.sg-now {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.sg-ctx .hg-chip {
+  padding: 1px 8px 1px 6px;
+  font-size: 0.6875rem;
+}
+
+.sg-ctx .hg-chip svg {
+  width: 11px;
+  height: 11px;
+}
+
+.sg-m {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.sg-m svg {
+  width: 12px;
+  height: 12px;
+}
+
+.sg-m b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.sg-rev {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.sg-rev b {
+  font-weight: 700;
+}
+
+.sg-rev svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Acciones: la respuesta «sí» con el color y el icono de la lista de destino */
+.sg-acts {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 6px;
+}
+
+.hg-button.sg-yes {
+  border: 0;
+}
+
+.hg-button.sg-yes.hg-tint:hover {
+  background: color-mix(in srgb, var(--c) calc(var(--tint) + 9%), transparent);
+}
+
+.sg .hg-tint.st-pausado,
+.sg-toast .hg-tint.st-pausado {
+  color: var(--pause-ink);
+}
+
+.sg-yes svg {
+  transition: transform 0.18s var(--ease-out);
+}
+
+.sg-yes.st-completado svg {
+  transform-origin: 15% 90%;
+}
+
+.sg-yes.st-completado:hover svg {
+  animation: sg-wave 0.5s var(--ease-out);
+}
+
+@keyframes sg-wave {
+  40% { transform: rotate(-12deg); }
+}
+
+.sg-yes.st-pausado:hover svg {
+  transform: scale(1.12);
+}
+
+.hg-button.sg-more {
+  justify-self: start;
+  color: var(--muted);
+}
+
+.hg-button.sg-more:hover {
+  color: var(--foreground);
+}
+
+/* Todo al día: el check se dibuja antes de que el panel se pliegue */
+.sg-done {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 6px 2px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  animation: sg-fade 0.2s var(--ease-out);
+}
+
+.sg-done__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  animation: sg-pop 0.26s var(--ease-out);
+}
+
+.sg-done__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.sg-done__icon .hg-draw path {
+  animation-delay: 0.12s;
+}
+
+.sg-done b {
+  color: var(--foreground);
+}
+
+@keyframes sg-fade {
+  from { opacity: 0; }
+}
+
+@keyframes sg-pop {
+  from { opacity: 0; transform: scale(0.7); }
+}
+
+/* Ficha que vuela a su lista en la cabecera del Inicio */
+.sg-token {
+  position: fixed;
+  z-index: 70;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 10px 0 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c) 22%, var(--surface));
+  color: var(--c);
+  box-shadow: var(--shadow-lg);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.sg-token.st-pausado {
+  color: var(--pause-ink);
+}
+
+.sg-token svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Aviso con Deshacer: flota abajo, centrado en el contenido */
+.sg-float {
+  position: fixed;
+  right: 0;
+  bottom: 1.25rem;
+  left: var(--side-w);
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding: 0 12px;
+  pointer-events: none;
+}
+
+.sg-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 8px 8px 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  font-size: 0.8125rem;
+  pointer-events: auto;
+}
+
+.sg-toast__txt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  min-width: 0;
+}
+
+.sg-toast__txt > b {
   overflow: hidden;
+  max-width: 260px;
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.suggestion__meta {
+.sg-toast__txt > svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--muted);
+}
+
+.sg-toast__line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sg-toast__txt small {
+  display: block;
+  width: 100%;
   color: var(--muted);
   font-size: 0.75rem;
 }
 
-.suggestion__actions {
-  display: flex;
-  gap: 0.5rem;
+.sg-toast__undo {
+  flex: none;
+}
+
+@media (max-width: 768px) {
+  .sg-float {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    padding: 0 8px;
+  }
+
+  .sg-toast {
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  .sg-toast__txt > b {
+    max-width: 150px;
+  }
+}
+
+/* Móvil: cápsula pequeña, la prueba bajo el nombre y los dos botones a 44 px en su propia fila */
+@media (max-width: 640px) {
+  .sg {
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .sg-head__end,
+  .sg-group__rule,
+  .sg-mc,
+  .sg-rev__label,
+  .sg-m--last,
+  .sg-long {
+    display: none;
+  }
+
+  .sg-short {
+    display: inline;
+  }
+
+  .sg-row {
+    grid-template-columns: 72px minmax(0, 1fr);
+    align-items: start;
+    gap: 4px 12px;
+    padding: 10px;
+  }
+
+  .hg-row__cover.sg-cover {
+    width: 72px;
+    height: 34px;
+    margin-top: 2px;
+  }
+
+  .sg-ev {
+    gap: 3px 8px;
+  }
+
+  .sg-ev__item {
+    min-width: 0;
+    white-space: normal;
+  }
+
+  .sg-bar {
+    width: 36px;
+  }
+
+  .sg-acts {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 8px;
+  }
+
+  .sg-acts .hg-button {
+    height: 44px;
+  }
+
+  .hg-button.sg-more {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-row {
+    transition: none;
+  }
 }
 
 /* Insignia "100 %": todos los logros desbloqueados. */
@@ -1759,23 +2400,6 @@
 
   .game-search__skel > i:last-child {
     display: none;
-  }
-
-  .suggestion {
-    grid-template-columns: 96px minmax(0, 1fr);
-  }
-
-  .suggestion__cover {
-    width: 96px;
-    height: 45px;
-  }
-
-  .suggestion__actions {
-    grid-column: 1 / -1;
-  }
-
-  .suggestion__actions > * {
-    flex: 1;
   }
 }
 
