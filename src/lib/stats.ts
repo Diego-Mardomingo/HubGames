@@ -10,6 +10,8 @@ export interface StatsUnlock {
     global_percent: number | null
     display_name: string | null
     icon: string | null
+    /** Descripción del logro (opcional: solo la usa el logro más raro de /estadisticas). */
+    description?: string | null
 }
 
 export interface StatsDaily {
@@ -92,7 +94,7 @@ export interface YearStats {
     year: number
     completed: CompletedGame[]
     averageRating: number | null
-    /** Juegos completados con cada nota, de 0 a 10 (redondeada). */
+    /** Juegos completados con cada nota, de 0 a 10 (por abajo: 9 y 9,5 van a la columna 9, como `ratingTier`). */
     ratingHistogram: number[]
     /** true si el historial de horas cubre el año entero: las horas son medidas, no aproximadas. */
     hoursMeasured: boolean
@@ -105,11 +107,18 @@ export interface YearStats {
     perfect: StatsGame[]
     /** Juegos con actividad en el año: logros, completados, horas o última partida. */
     activeGames: number
+    /** Los appid de esos juegos (para «Tus listas» en /estadisticas). */
+    active: number[]
     genres: { name: string; count: number }[]
     topGames: TopGame[]
     rarest: StatsUnlock | null
     /** Racha más larga de días seguidos con logros o con horas medidas. */
     bestStreak: Streak
+}
+
+/** Columna del histograma de notas: por abajo (un 4,5 es «Flojo» y va al 4), entre 0 y 10. */
+export function ratingBucket(rating: number): number {
+    return Math.min(10, Math.max(0, Math.floor(rating)))
 }
 
 function toGame(g: LibraryGame): StatsGame {
@@ -130,7 +139,7 @@ export function yearStats(input: StatsInput, year: number, approx = approxMinute
         .map((g) => ({ ...toGame(g), rating: g.rating === null ? null : Number(g.rating), completed_at: g.completed_at }))
     const rated = completed.filter((g) => g.rating !== null)
     const ratingHistogram = Array.from({ length: 11 }, () => 0)
-    for (const g of rated) ratingHistogram[Math.min(10, Math.max(0, Math.round(g.rating!)))]++
+    for (const g of rated) ratingHistogram[ratingBucket(g.rating!)]++
 
     const unlocks = input.unlocks.filter((u) => inYear(u.unlocktime))
     const unlocksByMonth = Array.from({ length: 12 }, () => 0)
@@ -191,6 +200,7 @@ export function yearStats(input: StatsInput, year: number, approx = approxMinute
         unlocksByMonth,
         perfect,
         activeGames: active.size,
+        active: [...active],
         genres: [...genreCount.entries()]
             .map(([name, count]) => ({ name, count }))
             .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'es')),

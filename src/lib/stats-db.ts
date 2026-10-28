@@ -22,7 +22,7 @@ export async function loadStatsInput(supabase: Client, userId: string): Promise<
         all((from, to) =>
             supabase
                 .from('hubgames_achievements')
-                .select('appid, apiname, unlocktime, global_percent, display_name, icon')
+                .select('appid, apiname, unlocktime, global_percent, display_name, icon, description')
                 .eq('user_id', userId)
                 .eq('achieved', true)
                 .not('unlocktime', 'is', null)
@@ -47,6 +47,7 @@ export async function loadStatsInput(supabase: Client, userId: string): Promise<
                 global_percent: u.global_percent === null ? null : Number(u.global_percent),
                 display_name: u.display_name,
                 icon: u.icon,
+                description: u.description,
             })) satisfies StatsUnlock[],
         daily: daily.flatMap((d) => (d.appid !== null && d.date && d.minutes !== null ? [{ appid: d.appid, date: d.date, minutes: d.minutes }] : [])),
         historyStart: first.data?.date ?? null,

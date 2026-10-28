@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Estadísticas del año · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --success: #1a7743; --warning: #8e5e18;
+  --sc-top: #1a7743; --sc-good: #4d7c0f; --sc-mid: #8e5e18; --sc-bad: #c7243b;
+  --rar-comun: #8a8f98; --rar-poco: #2e9e5b; --rar-rara: #2f6fe0; --rar-epica: #8b4fd8; --rar-leg: #c98a0b; --rar-ink: 62%;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-rejugable: #9c3c08; --st-completado: #1a7743;
+  --st-abandonado: #c7243b; --st-yajugado: #5c5b06; --st-descartado: #6b7280; --st-otros: #931f8f; --st-favorito: #c2255c; --st-sinfinal: #6741d9;
+  --on-done: #ffffff;
+  --tint: 12%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --success: #4cc97e; --warning: #f2b53a;
+  --sc-top: #4cc97e; --sc-good: #a9d15b; --sc-mid: #f2b53a; --sc-bad: #f26b7e;
+  --rar-comun: #9aa0aa; --rar-poco: #4cc97e; --rar-rara: #5b93ff; --rar-epica: #b07cff; --rar-leg: #f2b53a; --rar-ink: 100%;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-rejugable: #ff9a5c; --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e; --st-yajugado: #d2cf5c; --st-descartado: #8a919e; --st-otros: #eb84f8; --st-favorito: #f783ac; --st-sinfinal: #b197fc;
+  --on-done: #0b1f13;
+  --tint: 14%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; color: inherit; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.doc-seg { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); font-size: .8125rem; }
+.doc-seg > span { padding: 0 8px; color: var(--muted); font-weight: 600; }
+.doc-seg button { height: 32px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-weight: 600; }
+.doc-seg button[aria-pressed='true'] { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 100ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: clip; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 60ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.vlabel { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.9375rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--surface-2); }
+.vlabel em { color: var(--success); font-style: normal; font-size: .8125rem; font-weight: 600; }
+.vframe { padding: 20px; }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; text-align: left; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nv-count { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px 0 6px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; line-height: 1; }
+.nv-count .i { font-size: 12px; stroke-width: 2.4; }
+.nv-count.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-3); color: var(--foreground); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.m-page { padding: 1.25rem 1rem 110px; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.page-title { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .page-title { font-size: 1.625rem; }
+.page-subtitle { margin: .35rem 0 0; color: var(--muted); font-size: .9375rem; }
+.w-mob .page-head .btn { width: 100%; }
+
+/* ══ Piezas compartidas (copia de src/styles/lists.css) ══ */
+.st-todos { --c: var(--primary); } .st-bandeja { --c: var(--st-bandeja); } .st-pendiente { --c: var(--st-pendiente); }
+.st-jugando { --c: var(--st-jugando); } .st-pausado { --c: var(--st-pausado); } .st-rejugable { --c: var(--st-rejugable); } .st-completado { --c: var(--st-completado); }
+.st-abandonado { --c: var(--st-abandonado); } .st-yajugado { --c: var(--st-yajugado); } .st-descartado { --c: var(--st-descartado); } .st-otros { --c: var(--st-otros); }
+.st-favorito { --c: var(--st-favorito); } .st-sin_final { --c: var(--st-sinfinal); }
+.sc-top { --c: var(--sc-top); } .sc-good { --c: var(--sc-good); } .sc-mid { --c: var(--sc-mid); } .sc-bad { --c: var(--sc-bad); }
+.rar-comun { --c: var(--rar-comun); } .rar-poco { --c: var(--rar-poco); } .rar-rara { --c: var(--rar-rara); } .rar-epica { --c: var(--rar-epica); } .rar-leg { --c: var(--rar-leg); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.st-pausado, .hg-tint.sc-mid { color: var(--warn-ink); }
+.hg-tint[class*='rar-'] { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+.rar-ink { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+.neutral { --c: var(--muted); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; transition: background .15s, border-color .15s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { border-color: var(--border-hover); }
+.btn--ghost { background: transparent; color: var(--muted); }
+.btn--ghost:hover { background: var(--surface-2); color: var(--foreground); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.w-mob .btn, .w-mob .btn--sm { height: 44px; }
+
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.78125rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 13px; }
+.hg-chip--sm { padding: 1px 8px 1px 6px; font-size: .71875rem; gap: 4px; }
+.hg-chip--sm .i { font-size: 11px; }
+.hg-flag { display: inline-grid; flex: none; place-items: center; width: 20px; height: 20px; border-radius: 6px; font-size: 12px; }
+.hg-score { display: inline-flex; align-items: baseline; gap: 6px; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: .875rem; white-space: nowrap; }
+.hg-score small { font-size: .71875rem; font-weight: 600; }
+
+/* Segmentado con fondo deslizante (Segmented) */
+.hg-seg { position: relative; display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.hg-seg__opt { position: relative; display: inline-grid; place-items: center; min-width: 64px; height: 32px; padding: 0 14px; border: 0; border-radius: 6px; background: none; color: var(--muted); font-size: .875rem; font-weight: 600; z-index: 1; transition: color .15s; }
+.hg-seg__opt:hover { color: var(--foreground); }
+.hg-seg__opt[aria-current='page'] { color: var(--foreground); }
+.hg-seg__thumb { position: absolute; top: 3px; bottom: 3px; left: 0; width: 0; border-radius: 6px; background: var(--surface); box-shadow: var(--shadow-sm); transition: transform .22s var(--ease-out), width .22s var(--ease-out); }
+.w-mob .hg-seg__opt { height: 40px; }
+
+/* Tiles (Tile / .hg-tile) */
+.hg-tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.w-mob .hg-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.w-mob .hg-tiles > :last-child { grid-column: 1 / -1; }
+.hg-tile { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+.w-mob .hg-tile { padding: 12px; }
+.hg-tile dt { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.hg-tile__icon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; font-size: 13px; }
+.hg-tile dd { margin: 0; min-width: 0; }
+.hg-tile__value { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; font-variant-numeric: proportional-nums; }
+.w-mob .hg-tile__value { font-size: 1.375rem; }
+.hg-tile__value small { color: var(--muted); font-size: .875rem; font-weight: 500; letter-spacing: 0; }
+.hg-tile__value .word { margin-left: 6px; font-size: .8125rem; font-weight: 600; letter-spacing: 0; color: color-mix(in srgb, var(--c) 80%, var(--foreground)); }
+.hg-tile__note { display: flex; align-items: center; gap: 4px; overflow: hidden; color: var(--muted); font-size: .78125rem; white-space: nowrap; }
+.hg-tile__note .i { font-size: 12px; }
+.w-mob .hg-tile__note { white-space: normal; }
+
+/* Cabeceras de sección con icono tintado */
+.sec-head { display: flex; align-items: center; gap: .625rem; min-height: 2rem; flex-wrap: wrap; }
+.sec-head__icon { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 8px; font-size: 16px; }
+.sec-head h2 { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
+.sec-head__count { color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.sec-head__end { margin-left: auto; display: flex; align-items: center; gap: .5rem; }
+.panel { position: relative; min-width: 0; padding: 1.1rem 1.25rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.w-mob .panel { padding: 1rem; }
+.panel > .sec-head { margin-bottom: 1rem; }
+.dash-empty { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .5rem 1rem; padding: 1rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.dash-empty__icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; font-size: 19px; }
+.dash-empty p { margin: 0; color: var(--muted); font-size: .875rem; }
+.dash-empty p b { display: block; color: var(--foreground); font-weight: 600; }
+.dash-empty .btn { grid-column: 2; justify-self: start; }
+.p-empty { margin: 0; padding: .75rem 0 .25rem; color: var(--muted); font-size: .875rem; }
+.p-empty a { color: var(--foreground); text-decoration: underline; }
+
+/* ══ /estadisticas ══ */
+.stats { display: grid; gap: 1.25rem; }
+.stats-years-row { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.stats-years-row .hint { color: var(--muted); font-size: .8125rem; }
+.stats-body { display: grid; gap: 1.25rem; transition: opacity .2s var(--ease-out); }
+.stats-body.is-busy { opacity: .5; pointer-events: none; }
+.stats-body.is-out { opacity: 0; transition-duration: .12s; }
+.stats-hours-note { margin: -.5rem 0 0; color: var(--muted); font-size: .8125rem; display: flex; gap: 6px; align-items: flex-start; }
+.stats-hours-note .i { margin-top: 3px; font-size: 13px; }
+.stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; align-items: start; }
+.stats-grid .wide { grid-column: 1 / -1; }
+.w-mob .stats-grid { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+
+/* Gráfico de columnas */
+.ch { --h: 200px; position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; }
+.w-mob .ch { --h: 160px; column-gap: 4px; }
+.ch__axis { position: relative; height: var(--h); min-width: 18px; color: var(--muted); font-size: .6875rem; }
+.ch__axis span { position: absolute; right: 0; transform: translateY(50%); line-height: 1; }
+.ch__plot { position: relative; height: var(--h); }
+.ch__grid i { position: absolute; left: 0; right: 0; height: 1px; background: var(--border); }
+.ch__grid i:first-child { background: var(--border-hover); }
+.ch__cols, .ch__x { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); }
+.ch__cols { position: absolute; inset: 0; }
+.ch__x { grid-column: 2; margin-top: 6px; color: var(--muted); font-size: .71875rem; text-align: center; }
+.w-mob .ch__x { font-size: .625rem; }
+.ch__x span.is-future { opacity: .55; }
+.col { position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%; border-radius: 6px; outline: none; }
+.col:focus-visible { box-shadow: inset 0 0 0 2px var(--ring); }
+.col__bar { width: min(24px, 58%); display: flex; flex-direction: column-reverse; gap: 2px; border-radius: 4px 4px 0 0; overflow: hidden; transform-origin: bottom; transform: scaleY(0); transition: transform .45s var(--ease-out), opacity .15s; transition-delay: calc(min(var(--i, 0), 12) * 25ms), 0s; }
+.col__bar > i { display: block; flex: var(--v) 1 0; min-height: 2px; background: var(--c); }
+.col__bar.solo { background: var(--c, var(--primary)); }
+.col.is-future::after { content: ''; position: absolute; left: 50%; bottom: 0; width: min(24px, 58%); height: 2px; transform: translateX(-50%); border-radius: 2px; background: var(--surface-3); }
+.is-in .col__bar { transform: scaleY(1); }
+.ch__cols:hover .col:not(:hover) .col__bar, .ch__cols:focus-within .col:not(:focus-visible) .col__bar { opacity: .5; }
+.col__val { position: absolute; left: 50%; transform: translate(-50%, 4px); font-size: .75rem; font-weight: 700; white-space: nowrap; opacity: 0; transition: opacity .2s, transform .2s var(--ease-out); transition-delay: .45s; }
+.is-in .col__val { opacity: 1; transform: translate(-50%, 0); }
+.ch-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: .875rem 0 0; padding: 0; list-style: none; color: var(--muted); font-size: .78125rem; }
+.ch-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.ch-legend b { color: var(--foreground); font-weight: 600; }
+.sw { display: inline-block; flex: none; width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+
+/* Reparto del año por rareza (variante B), la barra de /logros */
+.rar-strip { display: grid; gap: 8px; margin-bottom: 1rem; }
+.rar-strip__bar { display: flex; gap: 2px; height: 10px; border-radius: 999px; overflow: hidden; background: var(--surface-2); clip-path: inset(0 100% 0 0 round 999px); transition: clip-path .6s var(--ease-out); }
+.is-in .rar-strip__bar { clip-path: inset(0 0 0 0 round 999px); }
+.rar-strip__bar i { flex: var(--v) 1 0; min-width: 3px; background: var(--c); }
+.rar-strip .ch-legend { margin: 0; }
+
+/* Tooltip: un solo globo por gráfico que se desliza de una columna a otra (sin salto) */
+.tip { position: absolute; top: 0; left: 0; z-index: 20; display: grid; gap: 3px; min-width: 132px; max-width: 240px; padding: 8px 10px; border-radius: 8px; background: var(--foreground); color: var(--background); font-size: .75rem; line-height: 1.35; pointer-events: none; box-shadow: var(--shadow-lg); opacity: 0; transform: translate(var(--x, 0), calc(var(--y, 0) + 4px)); transition: opacity .12s, transform .14s var(--ease-out); }
+.tip.is-on { opacity: 1; transform: translate(var(--x, 0), var(--y, 0)); }
+.tip.no-move { transition: opacity .12s; }
+.tip__v { font-size: .875rem; font-weight: 700; }
+.tip__k { opacity: .78; }
+.tip__row { display: flex; align-items: center; gap: 6px; }
+.tip__row::before { content: ''; width: 10px; height: 2px; border-radius: 2px; background: var(--c); flex: none; }
+.tip__row b { margin-left: auto; padding-left: 10px; }
+
+/* Tabla de un gráfico */
+.ch-table { width: 100%; border-collapse: collapse; font-size: .8125rem; }
+.ch-table th, .ch-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+.ch-table th:first-child, .ch-table td:first-child { text-align: left; }
+.ch-table thead th { color: var(--muted); font-weight: 600; font-size: .75rem; }
+.ch-table tfoot td { font-weight: 700; border-bottom: 0; }
+.ch-table .sw { margin-right: 6px; vertical-align: -1px; }
+.ch-table-wrap { overflow-x: auto; }
+.swap { animation: fade-in .22s var(--ease-out); }
+
+/* Notas (histograma en la escala --sc-*) */
+.notes-sum { display: flex; flex-wrap: wrap; gap: 6px; margin-top: .875rem; }
+
+/* Listas: A donut, B barra + filas */
+.lists-a { display: grid; grid-template-columns: 168px minmax(0, 1fr); align-items: center; gap: 1.5rem; }
+.w-mob .lists-a { grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 1rem; }
+.donut { position: relative; width: 168px; height: 168px; }
+.donut svg { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+.donut circle { fill: none; stroke-width: 16; }
+.donut .seg { stroke: var(--c); stroke-dasharray: 0 100; transition: stroke-dasharray .6s var(--ease-out), opacity .15s; transition-delay: calc(var(--i) * 70ms), 0s; cursor: default; }
+.donut .track { stroke: var(--surface-2); }
+.donut:hover .seg:not(:hover) { opacity: .5; }
+.donut__c { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; pointer-events: none; }
+.donut__c b { font-size: 1.75rem; font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: proportional-nums; }
+.donut__c > span { color: var(--muted); font-size: .75rem; }
+.lrows { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; width: 100%; }
+.lrow { position: relative; display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr) 4.5rem; align-items: center; gap: 12px; min-height: 36px; padding: 0 8px; border-radius: var(--radius-sm); transition: background .15s; }
+.w-mob .lrow { min-height: 44px; grid-template-columns: minmax(0, 132px) minmax(0, 1fr) 4rem; gap: 8px; }
+.lrow:hover, .lrow:focus-within, .lrow.is-hot { background: var(--surface-2); }
+.lrow a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.lrow a:focus-visible { outline: none; }
+.lrow:has(a:focus-visible) { box-shadow: 0 0 0 3px var(--cursor); }
+.lrow__n { text-align: right; font-weight: 600; font-size: .875rem; }
+.lrow__n small { color: var(--muted); font-weight: 500; font-size: .75rem; margin-left: 4px; }
+.lrow .hbar { height: 6px; }
+.lists-a .lrow { grid-template-columns: minmax(0, 1fr) 4.5rem; }
+.lists-b .stack { display: flex; gap: 2px; height: 12px; margin: .25rem 0 1rem; border-radius: 999px; overflow: hidden; clip-path: inset(0 100% 0 0 round 999px); transition: clip-path .6s var(--ease-out); }
+.is-in .lists-b .stack { clip-path: inset(0 0 0 0 round 999px); }
+.lists-b .stack i { flex: var(--v) 1 0; background: var(--c); transition: opacity .15s; }
+.lists-b .stack.is-hot i:not(.is-hot) { opacity: .35; }
+.lists-foot { margin: .75rem 0 0; color: var(--muted); font-size: .75rem; }
+
+/* Barras horizontales (más jugados, géneros) */
+.hbars { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.hbars li { display: grid; gap: 5px; }
+.hbars__label { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: .875rem; }
+.hbars__label > a, .hbars__label > span.nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; min-width: 0; }
+.hbars__label > a:hover { text-decoration: underline; }
+.hbars__label .v { margin-left: auto; color: var(--muted); font-weight: 600; white-space: nowrap; padding-left: 8px; }
+.hbars__cap { flex: none; width: 46px; height: 22px; border-radius: 4px; object-fit: cover; background: var(--surface-2); }
+.hbar { display: block; height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.hbar > span { display: block; height: 100%; width: var(--w); border-radius: 0 4px 4px 0; background: var(--c, var(--primary)); transform-origin: left; transform: scaleX(0); transition: transform .45s var(--ease-out); transition-delay: calc(min(var(--i, 0), 8) * 30ms); }
+.is-in .hbar > span { transform: scaleX(1); }
+
+/* Completados */
+.done { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.done li { position: relative; display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 52px; padding: 6px 8px; border-radius: var(--radius-sm); transition: background .15s, box-shadow .15s; }
+.done li:hover, .done li:focus-within { background: var(--surface-2); }
+.done li:has(a:focus-visible) { box-shadow: 0 0 0 3px var(--cursor); }
+.done img { width: 72px; height: 34px; border-radius: 5px; object-fit: cover; background: var(--surface-2); display: block; }
+.done__main { display: grid; min-width: 0; }
+.done__name { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.done__name a { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; font-size: .875rem; }
+.done__name a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.done__name a:focus-visible { outline: none; }
+.done__meta { color: var(--muted); font-size: .75rem; }
+.done .hg-score { justify-self: end; }
+.done .none { color: var(--muted); font-weight: 600; }
+.w-mob .done .hg-score small { display: none; }
+.w-mob .done li { grid-template-columns: 64px minmax(0, 1fr) auto; }
+.w-mob .done img { width: 64px; height: 30px; }
+.more { display: flex; justify-content: center; margin-top: .5rem; }
+
+/* Juegos al 100 % y logro más raro */
+.covers { display: grid; grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.w-mob .covers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.covers a { position: relative; display: block; border-radius: 6px; overflow: hidden; aspect-ratio: 460 / 215; background: var(--surface-2); transition: box-shadow .15s; }
+.covers a:hover, .covers a:focus-visible { box-shadow: 0 0 0 3px var(--cursor); outline: none; }
+.covers img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s var(--ease-out); }
+.covers a:hover img { transform: scale(1.04); }
+.seal { position: absolute; right: 6px; bottom: 6px; padding: 1px 7px; border-radius: 999px; background: var(--st-completado); color: var(--on-done); font-size: .6875rem; font-weight: 700; }
+.rarest { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.rarest p { margin: 0 0 .5rem; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.hg-ach { --c: var(--muted); position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: .75rem; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: inset 3px 0 0 var(--c); overflow: hidden; }
+.hg-ach.rar-leg { --c: var(--rar-leg); } .hg-ach.rar-epica { --c: var(--rar-epica); }
+.hg-ach__icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--c) 16%, transparent); color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: 18px; }
+.hg-ach__body { display: grid; min-width: 0; }
+.hg-ach__name { font-size: .875rem; font-weight: 600; }
+.hg-ach__ctx { color: var(--muted); font-size: .8125rem; }
+.hg-ach__pct { display: grid; justify-items: end; font-size: .8125rem; font-weight: 600; }
+.hg-ach__pct small { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: .71875rem; }
+
+/* Esqueleto (cargando) */
+.sk { display: block; border-radius: 8px; background: var(--surface-2); animation: sk 1.2s ease-in-out infinite alternate; }
+@keyframes sk { from { opacity: 1; } to { opacity: .45; } }
+.sk-tile { height: 98px; border-radius: 12px; }
+.sk-panel { height: 280px; border-radius: var(--radius-lg); }
+
+/* ══ Entrada con intención (.hg-enter de lists.css) ══ */
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rar-flash { 0% { box-shadow: inset 3px 0 0 var(--c), 0 0 0 0 color-mix(in srgb, var(--c) 0%, transparent); } 30% { box-shadow: inset 3px 0 0 var(--c), 0 0 0 4px color-mix(in srgb, var(--c) 40%, transparent); } 100% { box-shadow: inset 3px 0 0 var(--c), 0 0 0 0 transparent; } }
+@keyframes pop { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+.anim .hg-enter { animation: in-up .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+.panel[data-io] { opacity: 0; transform: translateY(8px); transition: opacity .32s var(--ease-out), transform .32s var(--ease-out); }
+.panel[data-io].is-in { opacity: 1; transform: none; }
+.is-in .hg-rar-flash { animation: rar-flash .9s var(--ease-out) .4s backwards; }
+.is-in .seal { animation: pop .3s var(--ease-out) backwards; animation-delay: calc(.35s + var(--i, 0) * 60ms); }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+html.rm .sk { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+  .sk { animation: none !important; }
+  .panel[data-io] { opacity: 1; transform: none; }
+}
+.anim-list li { margin: 3px 0; }
+.qs li { margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Estadísticas del año</h1>
+  <div class="doc-bar__actions">
+    <span class="doc-seg" role="group" aria-label="Variante de logros por mes"><span>Logros por mes</span><button type="button" data-vm="A" aria-pressed="false">A · apilado por rareza</button><button type="button" data-vm="B" aria-pressed="true">B · cobalto + reparto</button></span>
+    <span class="doc-seg" role="group" aria-label="Variante de listas"><span>Listas</span><button type="button" data-vl="A" aria-pressed="false">A · donut</button><button type="button" data-vl="B" aria-pressed="true">B · barra + filas</button></span>
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p>Hoy la página tiene todo lo necesario (cinco cifras con la diferencia con el año anterior, logros por mes, completados, notas, lo que más jugaste, géneros y juegos al 100 % con el logro más raro), pero todo es cobalto o gris: las notas no tienen el color de la ficha, los completados son una lista sin portada ni palabra, y no se ve en qué listas acabaron los juegos del año. La propuesta mantiene los mismos paneles y les da el lenguaje de la Biblioteca y la Ficha:</p>
+  <ul>
+    <li><b>Tiles de cifras</b> (<code>Tile</code>, como en la ficha y en <code>/logros</code>): Completados y Juegos al 100 % en el verde de Completado, Horas en Jugando, Logros en Sin final (como el tile de <code>/logros</code>) y la nota media con el color y la palabra de su nivel (<code>ratingTier</code>, «8,1 Muy bueno»). La diferencia con el año anterior va con flecha y en gris: subir o bajar no es ni bueno ni malo (menos horas no es «peor»).</li>
+    <li><b>Panel nuevo «Tus listas»</b>: en qué lista está hoy cada juego con actividad del año, con el color, icono y nombre de cada lista y cada fila enlazada a esa lista de la Biblioteca.</li>
+    <li><b>Notas con la escala <code>--sc-*</code></b>: cada columna del 0 al 10 con el color de su nivel y, debajo, cuántos «Imprescindible / Muy bueno / Correcto / Flojo».</li>
+    <li><b>Logros por mes con la rareza</b> (dos variantes, abajo) y los meses que aún no han llegado en hueco, en vez de columnas a cero.</li>
+    <li><b>Completados como filas</b>: cápsula, fecha, horas, Favorito y tu nota con su color y palabra. Seis a la vista y «Ver N más».</li>
+    <li><b>Lo que más jugaste</b> con su cápsula y su <code>StatusChip</code>; <b>Juegos al 100 %</b> con el sello verde de <code>/logros</code>; el <b>logro más raro</b> como <code>AchievementItem</code> con su rareza, que destella si es épico o legendario.</li>
+    <li><b>Selector de año</b> como el segmentado con fondo deslizante (<code>Segmented</code>). Al cambiar, el contenido se queda a media opacidad mientras carga (sin esqueleto ni salto) y luego hace un fundido cruzado.</li>
+    <li>Cada gráfico tiene su <b>tabla</b> («Ver tabla») y un tooltip que también sale con el teclado: ningún valor depende solo del color ni del ratón.</li>
+  </ul>
+
+  <h3>Decisiones que tienes que tomar (los interruptores de arriba cambian todos los marcos)</h3>
+  <ul>
+    <li><b>Logros por mes · A apilado por rareza</b> (lo que pide la idea: cada columna partida en común → legendaria) o <b>B cobalto + reparto</b> (<i>recomendada</i>): columnas de una sola serie en cobalto y, encima, el reparto del año por rareza con la barra de <code>/logros</code>; el tooltip de cada mes da su reparto. Pasé el validador del skill <code>dataviz</code> a los tokens de rareza como paleta apilada y <b>no pasan</b>: rara y épica quedan a ΔE 1,6 con deuteranopía (2,8 en oscuro) y a 13,1 con visión normal (mínimo 15), y en un mes típico épicas y legendarias son 1–3 de 60, así que en la columna salen como rayas de 2 px. B enseña lo mismo (reparto + meses) sin pedir que distingas cinco colores en tiras finas.</li>
+    <li><b>Listas · A donut</b> (con el total en el centro y la leyenda como filas) o <b>B barra + filas</b> (<i>recomendada</i>): una barra apilada fina y una fila por lista con icono, nombre, barra y cifra, como el raíl de la Biblioteca. Los colores de lista tampoco pasan como paleta categórica (Rejugable/Pausado ΔE 8,1 en oscuro, Bandeja/Pendiente 7,4 en claro): con 6–8 listas, el donut obliga a emparejar color y leyenda; las filas comparan mejor por longitud y llevan siempre icono y nombre.</li>
+  </ul>
+
+  <h3>Datos</h3>
+  <ul>
+    <li><b>Ya disponibles</b> (<code>loadStatsInput</code>, que ya carga <code>hubgames_library</code> entera con <code>select('*')</code>, <code>hubgames_achievements</code>, <code>hubgames_playtime_daily</code> y la primera foto): todo lo de hoy.</li>
+    <li><b>Derivados sin consultas nuevas</b> (cambios en <code>yearStats</code>): rareza por mes (<code>global_percent</code> de cada desbloqueo + <code>rarityTier</code>); reparto por lista de los juegos con actividad (<code>status</code> de la biblioteca); en los completados, horas totales (<code>playtime_forever</code>) y Favorito (<code>favorite</code>); estado de los juegos del top (<code>status</code>); reparto de notas por nivel (<code>ratingTier</code>).</li>
+    <li><b>Ojo con «Tus listas»</b>: no hay historial de estados, así que es la lista <b>de hoy</b> de los juegos que tuvieron actividad ese año (lo dice el pie del panel). Para un año pasado no es «cómo acabó el año», sino «dónde están ahora».</li>
+    <li><b>Detalle del histograma de notas</b>: hoy redondea (<code>Math.round</code>), así que un 4,5 (Flojo) cae en la columna 5 (Correcto) y el color no cuadraría. Propongo agrupar con <code>Math.floor</code> (columna «9» = 9 y 9,5), que coincide con los umbrales de <code>ratingTier</code>.</li>
+    <li><b>Nada necesita migración.</b> Lo único que no se puede hacer sin datos nuevos es «horas por mes» de años sin historial: la foto diaria de horas solo existe desde el 14 de septiembre de 2026 en este ejemplo, por eso no está (ver preguntas).</li>
+    <li>En el mockup los números son inventados pero coherentes (los totales cuadran con los meses y las listas) y las portadas son las cápsulas reales de Steam.</li>
+  </ul>
+
+  <h3>Microanimaciones (pruébalas en el marco de 1440 px; «Repetir entrada» arriba)</h3>
+  <ul class="anim-list">
+    <li><b>Cifras que cuentan</b> (<code>CountUp</code>) desde 0 al llegar y, al cambiar de año, desde el valor del año anterior al nuevo. <span class="t">450 ms, ease-out.</span></li>
+    <li><b>Tiles y paneles que entran</b> con el escalonado de <code>.hg-enter</code>; los paneles, cuando llegan a la pantalla con el scroll (una vez). <span class="t">320 ms · 30 ms entre elementos, solo los 8 primeros.</span></li>
+    <li><b>Columnas que crecen</b> desde la base (<code>scaleY</code>) al entrar el panel en pantalla, en cadena por meses, y la etiqueta del máximo aparece al terminar. <span class="t">450 ms · 25 ms entre columnas.</span></li>
+    <li><b>Barras que se rellenan</b> (top, géneros, filas de listas; <code>.hg-bar--fill</code>) y <b>barras apiladas que se descubren</b> de izquierda a derecha (<code>clip-path</code>, como la de <code>/logros</code>). <span class="t">450 / 600 ms.</span></li>
+    <li><b>Donut que se dibuja</b> segmento a segmento (variante A, <code>stroke-dasharray</code>). <span class="t">600 ms · 70 ms entre segmentos.</span></li>
+    <li><b>Cambio de año</b>: el segmentado desliza su fondo; el contenido baja a media opacidad mientras llega el año (sin esqueleto ni salto), sale en 120 ms y entra en 220 ms, y las columnas y barras vuelven a crecer. <span class="t">220 + 120 + 220 ms.</span></li>
+    <li><b>Tooltips sin salto</b>: un solo globo por gráfico que aparece con un fundido y 4 px de subida y, al pasar a la columna de al lado, se desliza en vez de desaparecer y volver a salir; nunca empuja el contenido y no se sale del panel. Las demás columnas se apagan al 50 %. <span class="t">120–140 ms.</span></li>
+    <li><b>Logro más raro</b> con el destello de su rareza (<code>.hg-rar-flash</code>) y <b>sellos «100 %»</b> que saltan (<code>.hg-pop-in</code>). <span class="t">900 / 300 ms.</span></li>
+    <li>Con <b>movimiento reducido</b> todo aparece ya hecho, sin escalonados (interruptor arriba). El esqueleto de carga deja de latir.</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px (prueba en vivo)</h2>
+  <p>Hoy es miércoles 28 de octubre de 2026. Prueba: cambiar de año (2026, 2025 y 2024, este casi vacío y sin año anterior con el que comparar), pasar el ratón o tabular por las columnas, el donut o las filas de listas, «Ver tabla» y «Ver 3 más».</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="f-desk"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Una columna. Tiles en 2 × 2 y la nota media a lo ancho; columnas más estrechas con los meses abreviados; todo lo pulsable mide 44 px o más.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px" id="f-mob"></div><p class="frame-cap">2026, en vivo (también cambia de año).</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-empty"></div><p class="frame-cap">Año sin actividad (cuenta nueva sincronizada en 2026 con los juegos sin jugar): tiles a cero y <b>un solo vacío con acción</b> en vez de seis paneles vacíos. Con un solo año no se enseña el selector.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-load"></div><p class="frame-cap">Cargando (<code>loading.tsx</code>): esqueleto con la forma de la página, que late suave. Solo en la primera carga; al cambiar de año se mantiene el año anterior a media opacidad.</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · logros por mes</h2>
+  <p>Mismos datos (2026). Pasa el ratón por las columnas: en las dos, el tooltip da el reparto del mes por rareza.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="vlabel"><b>A</b> Apilado por rareza</div><div class="frame w-desk vframe" style="width:640px" id="f-m-a"></div></div>
+    <div><div class="vlabel"><b>B</b> Cobalto + reparto del año <em>recomendada</em></div><div class="frame w-desk vframe" style="width:640px" id="f-m-b"></div></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · tus listas</h2>
+  <p>Los 31 juegos con actividad en 2026, según su lista de hoy.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="vlabel"><b>A</b> Donut</div><div class="frame w-desk vframe" style="width:560px" id="f-l-a"></div></div>
+    <div><div class="vlabel"><b>B</b> Barra + filas <em>recomendada</em></div><div class="frame w-desk vframe" style="width:560px" id="f-l-b"></div></div>
+  </div></div>
+</section>
+
+<section class="sec note" id="questions">
+  <h2>Preguntas</h2>
+  <ol class="qs">
+    <li><b>Logros por mes: ¿A apilado por rareza o B cobalto + reparto del año?</b> Recomiendo <b>B</b>: los colores de rareza no pasan el validador como paleta apilada (rara y épica casi iguales con daltonismo) y épicas y legendarias quedan en rayas de 2 px; B da el reparto en la barra de <code>/logros</code> y el detalle de cada mes en el tooltip y en la tabla.</li>
+    <li><b>Tus listas: ¿A donut o B barra + filas?</b> Recomiendo <b>B</b>: con 6–8 listas el donut obliga a emparejar color y leyenda, y las filas son las del raíl de la Biblioteca (icono, nombre, cifra) y enlazan a cada lista.</li>
+    <li><b>¿Te vale que «Tus listas» sea la lista de hoy de los juegos del año?</b> Recomiendo <b>sí</b>, con el pie que lo explica. Saber en qué lista estaba cada juego el 31 de diciembre pediría guardar un historial de estados (tabla y migración nuevas); no compensa para este panel.</li>
+    <li><b>Diferencias con el año anterior en gris (con flecha) en vez de verde/rojo.</b> Recomiendo <b>gris</b>: «menos horas» o «menos logros» no es malo, y el verde y el rojo ya significan Completado y Abandonado.</li>
+    <li><b>Histograma de notas con <code>Math.floor</code> en vez de <code>Math.round</code></b> (para que un 4,5 caiga en «4 · Flojo» y su color cuadre con <code>ratingTier</code>). Recomiendo <b>sí</b>; cambia un detalle de <code>yearStats</code> y su test.</li>
+    <li><b>Año sin actividad: un solo vacío con acción en vez de seis paneles vacíos</b>, y sin selector si solo hay un año. Recomiendo <b>sí</b>.</li>
+    <li><b>¿Añadimos «Horas por mes»?</b> Solo hay horas diarias desde que se guarda la foto (aquí, desde el 14 de septiembre de 2026); para el resto de años las horas son una aproximación anual y no se pueden repartir por mes. Recomiendo <b>no por ahora</b> y volver a ello cuando haya un año entero medido (2027).</li>
+    <li><b>¿«Mejor racha del año» como sexto tile?</b> <code>yearStats</code> ya la calcula (<code>bestStreak</code>) y hoy solo sale en el Resumen anual. Recomiendo <b>no</b>: es del Resumen y del Historial de logros, y cinco tiles caben en una fila a 1440 px.</li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide, los mismos que usa la app) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+  pause: '<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
+  repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  circlex: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  eyeoff: '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+  shapes: '<path d="M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1Z"/><rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17.5" cy="17.5" r="3.5"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  star: '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+  tag: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+  gem: '<path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/>',
+  up: '<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',
+  down: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
+  equal: '<line x1="5" x2="19" y1="9" y2="9"/><line x1="5" x2="19" y1="15" y2="15"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+  sparkles: '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',
+  table: '<path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  chevd: '<path d="m6 9 6 6 6-6"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+function sidebar() {
+  const link = (k, label, icon, pill = '') => `<a href="#" class="nv-link ${k === 'stats' ? 'active' : ''}">${ic(icon)}<span class="nv-link__label">${label}</span>${pill}</a>`;
+  const groups = [`<div class="nv-group">${link('home', 'Inicio', 'home')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('lib', 'Biblioteca', 'library', `<span class="nv-count hg-tint st-bandeja">${ic('inbox')}2</span>`)}${link('ach', 'Logros', 'award')}${link('wish', 'Wishlist', 'heart')}${link('stats', 'Estadísticas', 'chart')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('judi', 'JUDI', 'gamepad')}${link('rank', 'Ranking', 'trophy')}</div>`];
+  const theme = `<div class="theme-toggle"><span class="on">${ic('sun')}</span><span>${ic('moon')}</span><span>${ic('monitor')}</span></div>`;
+  const account = `<a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>diego</span><span class="nv-account__meta">Ver perfil</span></span></a>`;
+  return `<aside class="nv-side"><a href="#" class="nv-brand">${logo(22)}</a><span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span><nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}${account}</div></aside>`;
+}
+function mobileChrome(body) {
+  const tabs = [['Inicio', 'home'], ['Biblioteca', 'library'], ['Logros', 'award'], ['JUDI', 'gamepad'], ['Ranking', 'trophy'], ['Perfil', 'user']];
+  const tabbar = tabs.map(([l, i]) => `<a href="#" class="m-tab"><span class="m-tab__icon">${ic(i)}</span><span>${l}</span></a>`).join('');
+  return `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon">${ic('sun')}</span><span class="m-icon"><span class="nv-avatar">D</span></span></div></header><div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+
+/* ── Utilidades ── */
+const IMG = (id) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`;
+const n = (v) => v.toLocaleString('es-ES');
+const dec = (v) => String(v).replace('.', ',');
+const plural = (v, one, many) => `${n(v)} ${v === 1 ? one : many}`;
+const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sept', 'oct', 'nov', 'dic'];
+const MES_L = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const MES_1 = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+const TIERS = ['comun', 'poco', 'rara', 'epica', 'leg'];
+const RAR = { comun: 'Común', poco: 'Poco común', rara: 'Rara', epica: 'Épica', leg: 'Legendaria' };
+const RAR_PL = { comun: ['común', 'comunes'], poco: ['poco común', 'poco comunes'], rara: ['rara', 'raras'], epica: ['épica', 'épicas'], leg: ['legendaria', 'legendarias'] };
+const ST = { bandeja: ['inbox', 'Bandeja'], pendiente: ['bookmark', 'Pendiente'], jugando: ['play', 'Jugando'], pausado: ['pause', 'Pausado'], rejugable: ['repeat', 'Rejugable'], completado: ['flag', 'Completado'], abandonado: ['circlex', 'Abandonado'], yajugado: ['history', 'Ya jugado'], descartado: ['eyeoff', 'Descartado'], otros: ['shapes', 'Otros'] };
+const ST_ORDER = Object.keys(ST);
+const chip = (s) => `<span class="hg-chip hg-chip--sm hg-tint st-${s}">${ic(ST[s][0])}${ST[s][1]}</span>`;
+const tierOf = (r) => (r >= 9 ? 'top' : r >= 7 ? 'good' : r >= 5 ? 'mid' : 'bad');
+const WORD = { top: 'Imprescindible', good: 'Muy bueno', mid: 'Correcto', bad: 'Flojo' };
+const DAYF = (iso) => { const [, m, d] = iso.split('-').map(Number); return `${d} ${MES[m - 1]}`; };
+
+/* ── Datos de ejemplo (coherentes: los totales cuadran) ── */
+function split(t, k) {
+  // reparto típico por rareza, con algo de variación por mes
+  const leg = t ? Math.round(t * (0.012 + (k % 3) * 0.008)) : 0;
+  const epica = Math.round(t * (0.05 + (k % 2) * 0.02));
+  const rara = Math.round(t * (0.16 + (k % 4) * 0.02));
+  const poco = Math.round(t * 0.3);
+  return [t - leg - epica - rara - poco, poco, rara, epica, leg];
+}
+const months = (arr) => arr.map((t, k) => (t === null ? null : split(t, k)));
+const DATA = {
+  2026: {
+    measured: false, approxH: 412, measuredH: 96, since: '14 sept',
+    months: months([38, 54, 96, 41, 22, 63, 47, 29, 71, 88, null, null]),
+    completed: [
+      { id: 1145360, name: 'Hades', d: '2026-02-08', r: 9.5, h: 96, fav: true },
+      { id: 367520, name: 'Hollow Knight', d: '2026-03-16', r: 9, h: 58, fav: true },
+      { id: 620, name: 'Portal 2', d: '2026-04-19', r: 8.5, h: 14 },
+      { id: 753640, name: 'Outer Wilds', d: '2026-06-03', r: 9.5, h: 22, fav: true },
+      { id: 1092790, name: 'Inscryption', d: '2026-07-02', r: 7.5, h: 18 },
+      { id: 1135690, name: 'Unpacking', d: '2026-08-28', r: 8, h: 6 },
+      { id: 553420, name: 'TUNIC', d: '2026-09-14', r: 6.5, h: 15 },
+      { id: 383870, name: 'Firewatch', d: '2026-09-30', r: 4.5, h: 5 },
+      { id: 504230, name: 'Celeste', d: '2026-10-12', r: 10, h: 41, fav: true },
+    ],
+    perfect: [[504230, 'Celeste'], [1135690, 'Unpacking'], [1145360, 'Hades'], [620, 'Portal 2']],
+    top: [[1145350, 'Hades II', 74 * 60, 'jugando'], [2379780, 'Balatro', 61 * 60, 'rejugable'], [413150, 'Stardew Valley', 48 * 60, 'rejugable'], [1245620, 'ELDEN RING', 41 * 60, 'rejugable'], [1030300, 'Hollow Knight: Silksong', 33 * 60, 'jugando']],
+    genres: [['Indie', 22], ['Acción', 17], ['Aventura', 14], ['Rol', 9], ['Casual', 6], ['Estrategia', 4], ['Simuladores', 3], ['Carreras', 1]],
+    lists: { bandeja: 2, pendiente: 1, jugando: 5, pausado: 4, rejugable: 7, completado: 9, abandonado: 3 },
+    rarest: { name: 'Calor extremo', game: 'Hades', p: 0.4, t: 'leg', desc: 'Escapa con 32 de calor en el Pacto de Castigo.' },
+  },
+  2025: {
+    measured: false, approxH: 356, measuredH: 0,
+    months: months([22, 31, 45, 52, 18, 27, 33, 61, 40, 29, 24, 30]),
+    completed: [
+      { id: 292030, name: 'The Witcher 3: Wild Hunt - Complete Edition', d: '2025-03-22', r: 9, h: 112 },
+      { id: 632470, name: 'Disco Elysium - The Final Cut', d: '2025-05-11', r: 9.5, h: 38, fav: true },
+      { id: 1055540, name: 'A Short Hike', d: '2025-08-14', r: 8.5, h: 4 },
+      { id: 653530, name: 'Return of the Obra Dinn', d: '2025-09-02', r: 9, h: 11 },
+      { id: 972660, name: 'Spiritfarer', d: '2025-11-20', r: 7, h: 29 },
+      { id: 1850570, name: 'DEATH STRANDING DIRECTOR\'S CUT', d: '2025-12-28', r: 6, h: 47 },
+    ],
+    perfect: [[1055540, 'A Short Hike'], [653530, 'Return of the Obra Dinn']],
+    top: [[292030, 'The Witcher 3: Wild Hunt - Complete Edition', 88 * 60, 'completado'], [413150, 'Stardew Valley', 52 * 60, 'rejugable'], [588650, 'Dead Cells', 39 * 60, 'rejugable'], [1850570, 'DEATH STRANDING DIRECTOR\'S CUT', 31 * 60, 'completado'], [632470, 'Disco Elysium - The Final Cut', 30 * 60, 'completado']],
+    genres: [['Indie', 15], ['Aventura', 13], ['Acción', 11], ['Rol', 8], ['Casual', 5], ['Simuladores', 2]],
+    lists: { pendiente: 1, pausado: 5, rejugable: 6, completado: 6, abandonado: 4, descartado: 2 },
+    rarest: { name: 'Marcha de la muerte', game: 'The Witcher 3: Wild Hunt - Complete Edition', p: 3.9, t: 'epica', desc: 'Termina el juego en Marcha de la muerte.' },
+  },
+  2024: {
+    measured: false, approxH: 118, measuredH: 0,
+    months: months([0, 0, 0, 0, 0, 0, 0, 0, 12, 23, 17, 12]),
+    completed: [{ id: 304430, name: 'INSIDE', d: '2024-11-03', r: 8, h: 4 }],
+    perfect: [],
+    top: [[413150, 'Stardew Valley', 61 * 60, 'rejugable'], [588650, 'Dead Cells', 38 * 60, 'rejugable'], [304430, 'INSIDE', 4 * 60, 'completado']],
+    genres: [['Indie', 6], ['Acción', 4], ['Aventura', 3], ['Simuladores', 1]],
+    lists: { rejugable: 2, completado: 1, abandonado: 2, yajugado: 3 },
+    rarest: null,
+  },
+};
+const EMPTY = { measured: false, approxH: 0, measuredH: 0, months: months([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, null]), completed: [], perfect: [], top: [], genres: [], lists: {}, rarest: null };
+
+function summary(D) {
+  if (!D) return null;
+  const rated = D.completed.filter((g) => g.r != null);
+  const avg = rated.length ? Math.round((rated.reduce((s, g) => s + g.r, 0) / rated.length) * 10) / 10 : null;
+  const unlocks = D.months.reduce((s, m) => s + (m ? m.reduce((a, b) => a + b, 0) : 0), 0);
+  return { completed: D.completed.length, hours: D.approxH, unlocks, perfect: D.perfect.length, avg, active: Object.values(D.lists).reduce((a, b) => a + b, 0) };
+}
+
+/* ── Escala redonda del eje (niceScale de YearView) ── */
+function niceScale(max) {
+  if (max <= 0) return { top: 1, ticks: [0] };
+  const raw = max / 4, mag = 10 ** Math.floor(Math.log10(raw)), norm = raw / mag;
+  const step = Math.max(1, (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10) * mag);
+  const top = Math.ceil(max / step) * step;
+  return { top, ticks: Array.from({ length: top / step + 1 }, (_, i) => i * step) };
+}
+
+/* ── Piezas ── */
+function secHead(cls, icon, title, count, end = '') {
+  return `<div class="sec-head"><span class="sec-head__icon hg-tint ${cls}">${ic(icon)}</span><h2>${title}</h2>${count ? `<span class="sec-head__count">${count}</span>` : ''}${end ? `<div class="sec-head__end">${end}</div>` : ''}</div>`;
+}
+function diffNote(cur, prev, prevYear, unit = '', isDec = false) {
+  if (prev == null || cur == null) return `<dd class="hg-tile__note">Sin datos de ${prevYear}</dd>`;
+  const d = Math.round((cur - prev) * 10) / 10;
+  if (d === 0) return `<dd class="hg-tile__note">${ic('equal')}Igual que en ${prevYear}</dd>`;
+  const v = isDec ? dec(Math.abs(d)) : n(Math.abs(d));
+  return `<dd class="hg-tile__note">${ic(d > 0 ? 'up' : 'down')}<span>${d > 0 ? '+' : '−'}${v}${unit} vs ${prevYear}</span></dd>`;
+}
+function count(to, opts = {}) {
+  const { from = 0, decimals = 0, prefix = '', suffix = '' } = opts;
+  const txt = decimals ? dec(to.toFixed(decimals)) : n(to);
+  return `<span class="cu" data-to="${to}" data-from="${from}" data-dec="${decimals}" data-pre="${prefix}" data-suf="${suffix}" aria-label="${prefix}${txt}${suffix}">${prefix}${txt}${suffix}</span>`;
+}
+function tiles(st, s, p) {
+  const py = st.year - 1;
+  const from = (k) => (st.from ? st.from[k] ?? 0 : 0);
+  const avgTier = s.avg != null ? tierOf(s.avg) : null;
+  return `<dl class="hg-tiles">
+    <div class="hg-tile st-completado hg-enter" style="--i:0"><dt><span class="hg-tile__icon hg-tint">${ic('flag')}</span>Completados</dt><dd class="hg-tile__value">${count(s.completed, { from: from('completed') })}</dd>${diffNote(s.completed, p?.completed, py)}</div>
+    <div class="hg-tile st-jugando hg-enter" style="--i:1"><dt><span class="hg-tile__icon hg-tint">${ic('clock')}</span>Horas (aprox.)</dt><dd class="hg-tile__value">${count(s.hours, { from: from('hours'), prefix: s.hours ? '≈ ' : '', suffix: ' h' })}</dd>${diffNote(s.hours, p?.hours, py, ' h')}</div>
+    <div class="hg-tile st-sin_final hg-enter" style="--i:2"><dt><span class="hg-tile__icon hg-tint">${ic('award')}</span>Logros</dt><dd class="hg-tile__value">${count(s.unlocks, { from: from('unlocks') })}</dd>${diffNote(s.unlocks, p?.unlocks, py)}</div>
+    <div class="hg-tile st-completado hg-enter" style="--i:3"><dt><span class="hg-tile__icon hg-tint">${ic('trophy')}</span>Juegos al 100 %</dt><dd class="hg-tile__value">${count(s.perfect, { from: from('perfect') })}</dd>${diffNote(s.perfect, p?.perfect, py)}</div>
+    <div class="hg-tile ${avgTier ? `sc-${avgTier}` : 'neutral'} hg-enter" style="--i:4"><dt><span class="hg-tile__icon hg-tint">${ic('star')}</span>Nota media</dt><dd class="hg-tile__value">${s.avg != null ? `${count(s.avg, { from: from('avg'), decimals: 1 })}<span class="word">${WORD[avgTier]}</span>` : '<small>—</small>'}</dd>${diffNote(s.avg, p?.avg, py, '', true)}</div>
+  </dl>`;
+}
+
+/* Logros por mes */
+function monthsChart(st, D) {
+  const totals = D.months.map((m) => (m ? m.reduce((a, b) => a + b, 0) : null));
+  const total = totals.reduce((s, t) => s + (t ?? 0), 0);
+  const head = secHead('st-sin_final', 'award', 'Logros por mes', `${n(total)} en ${st.year}`, total ? `<button class="btn btn--ghost btn--sm js-table" type="button" aria-pressed="${st.table ? 'true' : 'false'}">${ic(st.table ? 'chart' : 'table')}${st.table ? 'Ver gráfico' : 'Ver tabla'}</button>` : '');
+  if (!total) return `<section class="panel wide" data-io>${head}<p class="p-empty">Ningún logro desbloqueado en ${st.year}.</p></section>`;
+  const yearT = TIERS.map((_, k) => D.months.reduce((s, m) => s + (m ? m[k] : 0), 0));
+  if (st.table) {
+    const rows = D.months.map((m, i) => `<tr><td>${MES_L[i][0].toUpperCase() + MES_L[i].slice(1)}</td><td>${m ? n(totals[i]) : '—'}</td>${TIERS.map((_, k) => `<td>${m ? n(m[k]) : '—'}</td>`).join('')}</tr>`).join('');
+    return `<section class="panel wide is-in" data-io>${head}<div class="ch-table-wrap swap"><table class="ch-table"><caption class="sr-only">Logros por mes y rareza en ${st.year}</caption><thead><tr><th>Mes</th><th>Total</th>${TIERS.map((t) => `<th><span class="sw rar-${t}"></span>${RAR[t]}</th>`).join('')}</tr></thead><tbody>${rows}</tbody><tfoot><tr><td>${st.year}</td><td>${n(total)}</td>${yearT.map((v) => `<td>${n(v)}</td>`).join('')}</tr></tfoot></table></div></section>`;
+  }
+  const max = Math.max(...totals.map((t) => t ?? 0));
+  const { top, ticks } = niceScale(max);
+  const peak = totals.indexOf(max);
+  const pc = (v) => `${(v / top) * 100}%`;
+  const vB = st.vm === 'B';
+  const cols = D.months.map((m, i) => {
+    const t = totals[i];
+    if (m === null) return `<div class="col is-future" tabindex="0" data-m="${i}" aria-label="${MES_L[i]}: aún no ha llegado"></div>`;
+    const bar = !t ? '' : vB
+      ? `<div class="col__bar solo" style="height:${pc(t)};--i:${i}"></div>`
+      : `<div class="col__bar" style="height:${pc(t)};--i:${i}">${m.map((v, k) => (v ? `<i class="rar-${TIERS[k]}" style="--v:${v}"></i>` : '')).join('')}</div>`;
+    const val = i === peak ? `<span class="col__val" style="bottom:calc(${pc(t)} + 4px)">${n(t)}</span>` : '';
+    return `<div class="col" tabindex="0" data-m="${i}" aria-label="${MES_L[i]}: ${plural(t, 'logro', 'logros')}">${bar}${val}</div>`;
+  }).join('');
+  const legend = `<ul class="ch-legend">${TIERS.map((t, k) => `<li><span class="sw rar-${t}"></span>${RAR[t]} <b>${n(yearT[k])}</b></li>`)[vB ? 'slice' : 'reverse']().join('')}</ul>`;
+  const strip = vB ? `<div class="rar-strip"><div class="rar-strip__bar" role="img" aria-label="Reparto del año por rareza">${TIERS.map((t, k) => (yearT[k] ? `<i class="rar-${t}" style="--v:${yearT[k]}"></i>` : '')).join('')}</div>${legend}</div>` : '';
+  const labels = st.mob ? MES_1 : MES;
+  return `<section class="panel wide" data-io data-chart="months">${head}${strip}
+    <div class="ch" style="--n:12">
+      <div class="ch__axis" aria-hidden="true">${ticks.map((t) => `<span style="bottom:${pc(t)}">${n(t)}</span>`).join('')}</div>
+      <div class="ch__plot"><div class="ch__grid" aria-hidden="true">${ticks.map((t) => `<i style="bottom:${pc(t)}"></i>`).join('')}</div><div class="ch__cols" style="--n:12">${cols}</div></div>
+      <div class="ch__x" style="--n:12" aria-hidden="true">${labels.map((l, i) => `<span class="${D.months[i] === null ? 'is-future' : ''}">${l}</span>`).join('')}</div>
+    </div>${vB ? '' : legend}<div class="tip" role="presentation"></div></section>`;
+}
+
+/* Notas: histograma 0–10 con la escala --sc-* (agrupadas con floor) */
+function notesChart(st, D, s) {
+  const head = secHead(s.avg != null ? `sc-${tierOf(s.avg)}` : 'neutral', 'star', 'Notas', s.avg != null ? `Media ${dec(s.avg)}` : '');
+  const rated = D.completed.filter((g) => g.r != null);
+  if (!rated.length) return `<section class="panel" data-io>${head}<p class="p-empty">Sin notas en ${st.year}: se ponen al completar un juego.</p></section>`;
+  const hist = Array.from({ length: 11 }, () => []);
+  rated.forEach((g) => hist[Math.floor(g.r)].push(g));
+  const max = Math.max(...hist.map((h) => h.length));
+  const { top, ticks } = niceScale(max);
+  const pc = (v) => `${(v / top) * 100}%`;
+  const cols = hist.map((h, i) => `<div class="col" tabindex="0" data-note="${i}" aria-label="Nota ${i}: ${plural(h.length, 'juego', 'juegos')}">${h.length ? `<div class="col__bar solo sc-${tierOf(i)}" style="height:${pc(h.length)};--i:${i}"></div>` : ''}</div>`).join('');
+  const byTier = { top: 0, good: 0, mid: 0, bad: 0 };
+  rated.forEach((g) => byTier[tierOf(g.r)]++);
+  const sum = Object.entries(byTier).filter(([, v]) => v).map(([t, v]) => `<span class="hg-chip hg-chip--sm hg-tint sc-${t}">${v} ${WORD[t]}</span>`).join('');
+  return `<section class="panel" data-io data-chart="notes">${head}
+    <div class="ch" style="--n:11;--h:${st.mob ? 130 : 150}px">
+      <div class="ch__axis" aria-hidden="true">${ticks.map((t) => `<span style="bottom:${pc(t)}">${t}</span>`).join('')}</div>
+      <div class="ch__plot"><div class="ch__grid" aria-hidden="true">${ticks.map((t) => `<i style="bottom:${pc(t)}"></i>`).join('')}</div><div class="ch__cols" style="--n:11">${cols}</div></div>
+      <div class="ch__x" style="--n:11" aria-hidden="true">${hist.map((_, i) => `<span>${i}</span>`).join('')}</div>
+    </div><div class="notes-sum">${sum}</div><div class="tip" role="presentation"></div></section>`;
+}
+
+/* Tus listas */
+function listsPanel(st, D) {
+  const entries = ST_ORDER.filter((k) => D.lists[k]).map((k) => [k, D.lists[k]]);
+  const total = entries.reduce((s, [, v]) => s + v, 0);
+  const head = secHead('neutral', 'library', 'Tus listas', `${plural(total, 'juego', 'juegos')} con actividad`);
+  if (!total) return `<section class="panel" data-io>${head}<p class="p-empty">Sin juegos con actividad en ${st.year}.</p></section>`;
+  const max = Math.max(...entries.map(([, v]) => v));
+  const pctS = (v) => `${Math.round((v / total) * 100)} %`;
+  const foot = `<p class="lists-foot">Según la lista en la que está hoy cada juego.</p>`;
+  if (st.vl === 'A') {
+    let acc = 0; const gap = 0.9;
+    const segs = entries.map(([k, v], i) => { const len = (v / total) * 100; const s = `<circle class="seg st-${k}" cx="60" cy="60" r="48" pathLength="100" data-k="${k}" data-len="${Math.max(len - gap, 0.4)}" style="--i:${i};stroke-dashoffset:${-acc}" tabindex="0" aria-label="${ST[k][1]}: ${plural(v, 'juego', 'juegos')}"></circle>`; acc += len; return s; }).join('');
+    const rows = entries.map(([k, v], i) => `<li class="lrow" data-k="${k}"><a href="#">${chip(k)}</a><span class="lrow__n">${v}<small>${pctS(v)}</small></span></li>`).join('');
+    return `<section class="panel" data-io data-chart="lists">${head}<div class="lists-a"><div class="donut"><svg viewBox="0 0 120 120" aria-hidden="false"><circle class="track" cx="60" cy="60" r="48"></circle>${segs}</svg><div class="donut__c"><b>${count(total)}</b><span>juegos</span></div></div><ul class="lrows">${rows}</ul></div>${foot}<div class="tip" role="presentation"></div></section>`;
+  }
+  const stack = entries.map(([k, v]) => `<i class="st-${k}" data-k="${k}" style="--v:${v}"></i>`).join('');
+  const rows = entries.map(([k, v], i) => `<li class="lrow" data-k="${k}"><a href="#">${chip(k)}</a><span class="hbar st-${k}"><span style="--w:${(v / max) * 100}%;--i:${i}"></span></span><span class="lrow__n">${v}<small>${pctS(v)}</small></span></li>`).join('');
+  return `<section class="panel" data-io data-chart="lists">${head}<div class="lists-b"><div class="stack" role="img" aria-label="Reparto por lista">${stack}</div><ul class="lrows">${rows}</ul></div>${foot}</section>`;
+}
+
+function completedPanel(st, D) {
+  const head = secHead('st-completado', 'flag', 'Completados', `${D.completed.length} en ${st.year}`);
+  if (!D.completed.length) return `<section class="panel" data-io>${head}<p class="p-empty">Ningún juego completado en ${st.year}. Márcalos como completados desde la <a href="#">biblioteca</a> o su ficha.</p></section>`;
+  const list = st.allDone ? D.completed : D.completed.slice(0, 6);
+  const rows = list.map((g, i) => {
+    const t = g.r != null ? tierOf(g.r) : null;
+    return `<li><img src="${IMG(g.id)}" alt="" loading="lazy"><span class="done__main"><span class="done__name"><a href="#">${g.name}</a>${g.fav ? `<span class="hg-flag hg-tint st-favorito" title="Favorito">${ic('heart')}</span>` : ''}</span><span class="done__meta">${DAYF(g.d)} · ${g.h} h</span></span>${t ? `<span class="hg-score hg-tint sc-${t}" title="Tu nota">${dec(g.r)}<small>${WORD[t]}</small></span>` : '<span class="none">—</span>'}</li>`;
+  }).join('');
+  const more = D.completed.length > 6 && !st.allDone ? `<div class="more"><button class="btn btn--ghost btn--sm js-more" type="button">${ic('chevd')}Ver ${D.completed.length - 6} más</button></div>` : '';
+  return `<section class="panel" data-io>${head}<ul class="done">${rows}</ul>${more}</section>`;
+}
+const fmtH = (m) => `${n(Math.round(m / 60))} h`;
+function topPanel(st, D) {
+  const head = secHead('st-jugando', 'play', 'Lo que más jugaste', 'Horas aproximadas');
+  if (!D.top.length) return `<section class="panel" data-io>${head}<p class="p-empty">Sin horas registradas en ${st.year}.</p></section>`;
+  const max = D.top[0][2];
+  return `<section class="panel" data-io>${head}<ol class="hbars">${D.top.map(([id, name, m, s], i) => `<li><span class="hbars__label"><img class="hbars__cap" src="${IMG(id)}" alt="" loading="lazy"><a href="#" title="${name}">${name}</a>${st.mob ? '' : chip(s)}<span class="v">${fmtH(m)}</span></span><span class="hbar"><span style="--w:${(m / max) * 100}%;--i:${i}"></span></span></li>`).join('')}</ol></section>`;
+}
+function genresPanel(st, D, s) {
+  const head = secHead('neutral', 'tag', 'Géneros', `${s.active} juegos con actividad`);
+  if (!D.genres.length) return `<section class="panel" data-io>${head}<p class="p-empty">Sin juegos con actividad en ${st.year}.</p></section>`;
+  const max = D.genres[0][1];
+  return `<section class="panel" data-io>${head}<ol class="hbars">${D.genres.map(([g, v], i) => `<li><span class="hbars__label"><span class="nm">${g}</span><span class="v">${plural(v, 'juego', 'juegos')}</span></span><span class="hbar"><span style="--w:${(v / max) * 100}%;--i:${i}"></span></span></li>`).join('')}</ol></section>`;
+}
+function perfectPanel(st, D) {
+  const head = secHead('st-completado', 'trophy', 'Juegos al 100 %', `Último logro en ${st.year}`);
+  const covers = D.perfect.length ? `<ul class="covers">${D.perfect.map(([id, name], i) => `<li><a href="#" title="${name}" aria-label="Logros de ${name}"><img src="${IMG(id)}" alt="" loading="lazy"><span class="seal" style="--i:${i}">100 %</span></a></li>`).join('')}</ul>` : `<p class="p-empty">Ningún juego completado al 100 % en ${st.year}.</p>`;
+  const r = D.rarest;
+  const rare = r ? `<div class="rarest"><p>Tu logro más raro del año</p><div class="hg-ach rar-${r.t} ${r.t === 'leg' || r.t === 'epica' ? 'hg-rar-flash' : ''}"><span class="hg-ach__icon">${ic('trophy')}</span><span class="hg-ach__body"><span class="hg-ach__name">${r.name}</span><span class="hg-ach__ctx">${r.game} · ${r.desc}</span></span><span class="hg-ach__pct">${dec(r.p)} %<small>${RAR[r.t]}</small></span></div></div>` : '';
+  return `<section class="panel" data-io>${head}${covers}${rare}</section>`;
+}
+
+function yearSel(st) {
+  if (st.years.length < 2) return '';
+  return `<div class="stats-years-row"><nav class="hg-seg" aria-label="Año"><span class="hg-seg__thumb" aria-hidden="true"></span>${st.years.map((y) => `<a href="#" class="hg-seg__opt" data-year="${y}" ${y === st.year ? 'aria-current="page"' : ''}>${y}</a>`).join('')}</nav></div>`;
+}
+function bodyHTML(st) {
+  if (st.loading) {
+    return `<div class="stats-body"><div class="hg-tiles">${'<span class="sk sk-tile"></span>'.repeat(5)}</div><div class="stats-grid">${'<span class="sk sk-panel wide"></span><span class="sk sk-panel"></span><span class="sk sk-panel"></span>'}</div></div>`;
+  }
+  const D = st.empty ? EMPTY : DATA[st.year];
+  const s = summary(D), p = st.empty ? null : summary(DATA[st.year - 1]);
+  const hoursNote = s.hours ? `<p class="stats-hours-note">${ic('info')}<span>Horas aproximadas: las de cada juego se reparten entre los años en que desbloqueaste sus logros (o el de la última partida si no tiene).${D.measuredH ? ` Medidas desde que se guarda tu historial (${D.since}): ${D.measuredH} h.` : ''}</span></p>` : '';
+  if (st.empty) {
+    return `<div class="stats-body">${tiles(st, s, p)}<div class="dash-empty hg-enter" style="--i:5"><span class="dash-empty__icon hg-tint st-jugando">${ic('chart')}</span><p><b>Aún no hay actividad en ${st.year}.</b>Cuando juegues, consigas logros o completes un juego, tu año aparecerá aquí.</p><a href="#" class="btn btn--secondary btn--sm">${ic('refresh')}Sincronizar con Steam</a></div></div>`;
+  }
+  return `<div class="stats-body">${tiles(st, s, p)}${hoursNote}
+    <div class="stats-grid">
+      ${monthsChart(st, D)}
+      ${listsPanel(st, D)}
+      ${notesChart(st, D, s)}
+      ${completedPanel(st, D)}
+      ${topPanel(st, D)}
+      ${genresPanel(st, D, s)}
+      ${perfectPanel(st, D)}
+    </div></div>`;
+}
+function pageHTML(st) {
+  const D = st.empty ? EMPTY : DATA[st.year];
+  const s = st.loading ? null : summary(D);
+  const sub = st.loading ? '&nbsp;' : s.active ? `${s.active} juegos con actividad, comparado con ${st.year - 1}.` : `Sin actividad registrada en ${st.year}.`;
+  return `<div class="stats"><header class="page-head"><div><h1 class="page-title">Tu ${st.year} en juegos</h1><p class="page-subtitle">${sub}</p></div>${st.empty ? '' : `<a href="#" class="btn btn--primary">${ic('sparkles')}Ver tu resumen de ${st.year}</a>`}</header>
+    ${st.loading ? '' : yearSel(st)}<div class="js-body">${bodyHTML(st)}</div></div>`;
+}
+
+/* ── Marcos ── */
+const FR = {};
+const VM = { v: 'B' }, VL = { v: 'B' };
+function mk(id, o) { FR[id] = { id, year: 2026, years: [2026, 2025, 2024], mob: false, kind: 'page', ...o }; }
+mk('f-desk', {});
+mk('f-mob', { mob: true });
+mk('f-mob-empty', { mob: true, empty: true, years: [2026] });
+mk('f-mob-load', { mob: true, loading: true });
+mk('f-m-a', { kind: 'months', vmFix: 'A' });
+mk('f-m-b', { kind: 'months', vmFix: 'B' });
+mk('f-l-a', { kind: 'lists', vlFix: 'A' });
+mk('f-l-b', { kind: 'lists', vlFix: 'B' });
+
+function renderFrame(id, anim = true) {
+  const st = FR[id]; const el = document.getElementById(id);
+  st.vm = st.vmFix ?? VM.v; st.vl = st.vlFix ?? VL.v;
+  let html;
+  if (st.kind === 'months') html = `<div class="stats-grid" style="grid-template-columns:1fr">${monthsChart(st, DATA[2026])}</div>`;
+  else if (st.kind === 'lists') html = `<div class="stats-grid" style="grid-template-columns:1fr">${listsPanel(st, DATA[2026])}</div>`;
+  else html = st.mob ? mobileChrome(pageHTML(st)) : sidebar() + `<div class="page"><div class="page-in">${pageHTML(st)}</div></div>`;
+  el.innerHTML = html;
+  el.classList.toggle('anim', anim);
+  if (st.mob) el.style.minHeight = '844px';
+  placeThumb(el, false);
+  enter(el, st);
+}
+function placeThumb(root, animate = true) {
+  root.querySelectorAll('.hg-seg').forEach((seg) => {
+    const th = seg.querySelector('.hg-seg__thumb'); const cur = seg.querySelector('[aria-current="page"]');
+    if (!th || !cur) return;
+    if (!animate) th.style.transition = 'none';
+    th.style.width = `${cur.offsetWidth}px`; th.style.transform = `translateX(${cur.offsetLeft}px)`;
+    if (!animate) { th.offsetWidth; th.style.transition = ''; }
+  });
+}
+
+/* Paneles que entran al llegar con el scroll (una vez) */
+const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { show(e.target); io.unobserve(e.target); } }), { threshold: 0.2 }) : null;
+function show(panel) {
+  panel.classList.add('is-in');
+  panel.querySelectorAll('.donut .seg').forEach((c) => { c.style.strokeDasharray = `${c.dataset.len} ${100 - c.dataset.len}`; });
+  countUp(panel);
+}
+function enter(root, st) {
+  countUp(root.querySelector('.hg-tiles') ?? document.createElement('div'));
+  root.querySelectorAll('[data-io]').forEach((p) => { if (rm() || !io) show(p); else io.observe(p); });
+}
+function countUp(root) {
+  root.querySelectorAll('.cu').forEach((el) => {
+    if (el.closest('.panel') && el.closest('.panel') !== root && !root.classList.contains('panel') && !root.classList.contains('hg-tiles')) return;
+    const to = +el.dataset.to, from = +el.dataset.from, d = +el.dataset.dec, pre = el.dataset.pre, suf = el.dataset.suf;
+    const fmt = (v) => `${pre}${d ? dec(v.toFixed(d)) : n(Math.round(v))}${suf}`;
+    if (rm() || from === to) { el.textContent = fmt(to); return; }
+    const t0 = performance.now(), dur = 450;
+    el.textContent = fmt(from);
+    const step = (t) => { const k = Math.min(1, (t - t0) / dur); const e = 1 - (1 - k) ** 3; el.textContent = fmt(from + (to - from) * e); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
+}
+
+/* Cambio de año: se queda a media opacidad mientras carga, fundido cruzado y vuelta a crecer */
+function changeYear(st, y) {
+  if (y === st.year || st.busy) return;
+  const el = document.getElementById(st.id);
+  const prevS = summary(DATA[st.year]);
+  st.busy = true; st.allDone = false; st.table = false;
+  el.querySelectorAll('.hg-seg__opt').forEach((o) => o.toggleAttribute('aria-current', +o.dataset.year === y));
+  el.querySelectorAll('.hg-seg__opt[aria-current]').forEach((o) => o.setAttribute('aria-current', 'page'));
+  placeThumb(el);
+  const body = el.querySelector('.stats-body');
+  const fast = rm();
+  body.classList.add('is-busy');
+  setTimeout(() => {
+    body.classList.add('is-out');
+    setTimeout(() => {
+      st.year = y; st.from = { completed: prevS.completed, hours: prevS.hours, unlocks: prevS.unlocks, perfect: prevS.perfect, avg: prevS.avg ?? 0 };
+      const D = DATA[y]; const s = summary(D);
+      el.querySelector('.page-title').textContent = `Tu ${y} en juegos`;
+      el.querySelector('.page-subtitle').textContent = `${s.active} juegos con actividad, comparado con ${y - 1}.`;
+      const btn = el.querySelector('.page-head .btn'); if (btn) btn.lastChild.textContent = `Ver tu resumen de ${y}`;
+      el.classList.remove('anim');
+      el.querySelector('.js-body').innerHTML = bodyHTML(st);
+      const nb = el.querySelector('.stats-body');
+      nb.classList.add('is-out'); nb.offsetWidth; nb.classList.remove('is-out');
+      enter(el, st);
+      st.from = null; st.busy = false;
+    }, fast ? 0 : 120);
+  }, fast ? 0 : 350);
+}
+
+/* ── Tooltip: un globo por gráfico que se desliza sin salto ── */
+function tipFor(col) {
+  const panel = col.closest('.panel'); const st = FR[col.closest('.frame').id];
+  const D = st.empty ? EMPTY : DATA[st.kind === 'page' ? st.year : 2026];
+  if (col.dataset.m != null) {
+    const m = D.months[+col.dataset.m]; const name = MES_L[+col.dataset.m];
+    if (!m) return `<span class="tip__v">Aún no</span><span class="tip__k">${name[0].toUpperCase() + name.slice(1)} de ${st.year}</span>`;
+    const t = m.reduce((a, b) => a + b, 0);
+    const rows = TIERS.map((x, k) => [x, m[k]]).reverse().filter(([, v]) => v).map(([x, v]) => `<span class="tip__row rar-${x}">${RAR[x]}<b>${v}</b></span>`).join('');
+    return `<span class="tip__v">${plural(t, 'logro', 'logros')}</span><span class="tip__k">${name[0].toUpperCase() + name.slice(1)} de ${st.year}</span>${rows}`;
+  }
+  if (col.dataset.note != null) {
+    const i = +col.dataset.note; const games = D.completed.filter((g) => g.r != null && Math.floor(g.r) === i);
+    return `<span class="tip__v">${plural(games.length, 'juego', 'juegos')}</span><span class="tip__k">Nota ${i} · ${WORD[tierOf(i)]}</span>${games.map((g) => `<span class="tip__row sc-${tierOf(i)}">${g.name}<b>${dec(g.r)}</b></span>`).join('')}`;
+  }
+  if (col.dataset.k) {
+    const k = col.dataset.k; const v = D.lists[k]; const tot = Object.values(D.lists).reduce((a, b) => a + b, 0);
+    return `<span class="tip__v">${plural(v, 'juego', 'juegos')}</span><span class="tip__row st-${k}">${ST[k][1]}<b>${Math.round((v / tot) * 100)} %</b></span>`;
+  }
+  return '';
+}
+function showTip(mark) {
+  const panel = mark.closest('.panel'); const tip = panel?.querySelector('.tip'); if (!tip) return;
+  const html = tipFor(mark); if (!html) return;
+  const wasOn = tip.classList.contains('is-on');
+  tip.innerHTML = html;
+  const pr = panel.getBoundingClientRect(), mr = mark.getBoundingClientRect();
+  const bar = mark.querySelector('.col__bar') ?? mark;
+  const br = bar.getBoundingClientRect();
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let x = mr.left - pr.left + mr.width / 2 - tw / 2;
+  x = Math.max(8, Math.min(x, pr.width - tw - 8));
+  let topEdge = (mark.classList.contains('is-future') || !mark.querySelector('.col__bar')) && mark.classList.contains('col') ? mr.bottom - 8 : br.top;
+  let y = topEdge - pr.top - th - 10;
+  if (y < 4) y = 4;
+  if (!wasOn) { tip.classList.add('no-move'); }
+  tip.style.setProperty('--x', `${x}px`); tip.style.setProperty('--y', `${y}px`);
+  if (!wasOn) { tip.offsetWidth; tip.classList.add('is-on'); requestAnimationFrame(() => tip.classList.remove('no-move')); }
+}
+function hideTip(panel) { panel?.querySelector('.tip')?.classList.remove('is-on'); }
+document.addEventListener('pointerover', (e) => {
+  const m = e.target.closest('.col, .donut .seg'); if (m) showTip(m);
+  const r = e.target.closest('.lrow'); if (r) hot(r, true);
+});
+document.addEventListener('pointerout', (e) => {
+  const m = e.target.closest('.ch__cols, .donut svg'); if (m && !m.contains(e.relatedTarget)) hideTip(m.closest('.panel'));
+  const r = e.target.closest('.lrow'); if (r && !r.contains(e.relatedTarget)) hot(r, false);
+});
+document.addEventListener('focusin', (e) => { const m = e.target.closest('.col, .donut .seg'); if (m) showTip(m); });
+document.addEventListener('focusout', (e) => { const m = e.target.closest('.col, .donut .seg'); if (m) hideTip(m.closest('.panel')); });
+// Fila de lista: resalta su tramo de la barra apilada (B) o su segmento del donut (A)
+function hot(row, on) {
+  const panel = row.closest('.panel'); const k = row.dataset.k;
+  const stack = panel.querySelector('.stack');
+  if (stack) { stack.classList.toggle('is-hot', on); stack.querySelectorAll('i').forEach((i) => i.classList.toggle('is-hot', on && i.dataset.k === k)); }
+  panel.querySelectorAll('.donut .seg').forEach((c) => { c.style.opacity = on && c.dataset.k !== k ? '.35' : ''; });
+}
+
+/* ── Clics ── */
+document.addEventListener('click', (e) => {
+  const y = e.target.closest('.hg-seg__opt[data-year]');
+  if (y) { e.preventDefault(); changeYear(FR[y.closest('.frame').id], +y.dataset.year); return; }
+  const tb = e.target.closest('.js-table');
+  if (tb) { const st = FR[tb.closest('.frame').id]; st.table = !st.table; const old = tb.closest('.panel'); const D = DATA[st.kind === 'page' ? st.year : 2026]; const wrap = document.createElement('div'); wrap.innerHTML = monthsChart(st, D); const nw = wrap.firstElementChild; old.replaceWith(nw); show(nw); nw.querySelector('.js-table').focus(); return; }
+  const more = e.target.closest('.js-more');
+  if (more) { const st = FR[more.closest('.frame').id]; st.allDone = true; const old = more.closest('.panel'); const D = DATA[st.year]; const wrap = document.createElement('div'); wrap.innerHTML = completedPanel(st, D); const nw = wrap.firstElementChild; nw.classList.add('is-in'); nw.querySelectorAll('.done li').forEach((li, i) => { if (i >= 6) { li.classList.add('hg-enter'); li.style.setProperty('--i', i - 6); } }); old.replaceWith(nw); document.getElementById(st.id).classList.add('anim'); return; }
+  if (e.target.closest('a[href="#"]')) e.preventDefault();
+});
+
+/* ── Controles del documento ── */
+function renderAll(anim = true) { Object.keys(FR).forEach((id) => { const st = FR[id]; st.table = false; st.allDone = false; renderFrame(id, anim); }); }
+document.getElementById('theme-btn').addEventListener('click', (e) => {
+  const dark = document.documentElement.dataset.theme !== 'dark';
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  e.currentTarget.setAttribute('aria-pressed', String(dark));
+  e.currentTarget.textContent = dark ? 'Tema claro' : 'Tema oscuro';
+});
+document.getElementById('rm-btn').addEventListener('click', (e) => {
+  const on = document.documentElement.classList.toggle('rm');
+  e.currentTarget.setAttribute('aria-pressed', String(on));
+  e.currentTarget.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`;
+  renderAll();
+});
+document.getElementById('replay-btn').addEventListener('click', () => { Object.values(FR).forEach((st) => { if (st.kind === 'page' && !st.empty && !st.loading) { st.year = 2026; } }); renderAll(); });
+document.querySelectorAll('[data-vm]').forEach((b) => b.addEventListener('click', () => { VM.v = b.dataset.vm; document.querySelectorAll('[data-vm]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); renderAll(); }));
+document.querySelectorAll('[data-vl]').forEach((b) => b.addEventListener('click', () => { VL.v = b.dataset.vl; document.querySelectorAll('[data-vl]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); renderAll(); }));
+
+renderAll();
+document.fonts?.ready.then(() => Object.keys(FR).forEach((id) => placeThumb(document.getElementById(id), false)));
+</script>
+</body>
+</html>
