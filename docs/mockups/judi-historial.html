@@ -1,0 +1,1204 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · JUDI, tus estadísticas e historial · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --rar-leg: #c98a0b; --rar-ink: 62%;
+  --st-completado: #1a7743; --st-pendiente: #0b7285;
+  --deal: #f5c400; --deal-foreground: #2b2100; --tint: 12%;
+  --on-done: #ffffff;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --rar-leg: #f2b53a; --rar-ink: 100%;
+  --st-completado: #4cc97e; --st-pendiente: #3bc9db;
+  --deal: #ffd43b; --deal-foreground: #221a00; --tint: 14%;
+  --on-done: #0b1f13;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; color: inherit; cursor: pointer; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after, html.theme-anim body {
+  transition: background-color .3s var(--ease-out), color .3s var(--ease-out), border-color .3s var(--ease-out), fill .3s, stroke .3s, box-shadow .3s var(--ease-out) !important;
+}
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.doc-group { display: inline-flex; align-items: center; gap: 4px; padding-right: 8px; margin-right: 4px; border-right: 1px solid var(--border); }
+.doc-group > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.doc-btn--sm { height: 32px; padding: 0 10px; font-size: .8125rem; }
+.doc-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: .71875rem; font-weight: 700; vertical-align: 2px; }
+.doc-tag--new { background: var(--primary-glow); color: var(--primary); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.note table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: .8125rem; }
+.note th, .note td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.note th { color: var(--muted); font-weight: 600; }
+.qs li { margin: 8px 0; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 120ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: clip; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 56ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.grid-frames { display: grid; grid-template-columns: repeat(2, 600px); gap: 24px; align-items: start; }
+.grid-frames.cols { grid-template-columns: repeat(3, 420px); }
+.vlabel { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.875rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 7px; background: var(--surface-2); }
+.tests { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 0; }
+.tests > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.tests > button[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.col-frame { padding: 16px; }
+.sw { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 4px; vertical-align: -4px; font-size: 11px; }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nav-ind { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px 0 5px; border-radius: 999px; font-size: .71875rem; font-weight: 700; }
+.nav-ind .i { font-size: 11px; }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-2); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.nav-cta { display: flex; align-items: center; justify-content: center; gap: .5rem; height: 40px; border-radius: var(--radius-sm); color: var(--primary-foreground); background: var(--primary); font-size: .875rem; font-weight: 600; }
+.nav-cta .i { font-size: 16px; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); }
+.m-tab.active::before { content: ''; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--cursor); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+.m-tab__badge { position: absolute; top: -3px; right: -7px; width: 9px; height: 9px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px var(--surface); }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.m-page { padding: 1rem 1rem 110px; }
+.page-title { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .page-title { font-size: 1.625rem; }
+.page-subtitle { margin: 4px 0 0; color: var(--muted); font-size: .9375rem; max-width: 70ch; }
+
+/* ══ Piezas compartidas (lists.css / globals.css) ══ */
+.st-todos { --c: var(--primary); }
+.ok { --c: var(--success); } .ko { --c: var(--danger); } .warn { --c: var(--warning); } .neutral { --c: var(--muted); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.warn { color: var(--warn-ink); }
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; background: none; transition: background-color .2s var(--ease-out), border-color .15s, color .2s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { background: var(--surface-2); border-color: var(--border-hover); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.w-mob .btn--sm, .w-col .btn--sm { height: 40px; }
+.btn .i-go { transition: transform .16s var(--ease-out); }
+.btn:hover .i-go { transform: translateX(3px); }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 12px; }
+.hg-chip--plain { background: var(--surface-2); color: var(--muted); }
+
+/* Intentos (AttemptPips, ya en src/app/judi/JudiAttempts.tsx): siempre con icono */
+.jd-pips { display: inline-flex; gap: 4px; flex: none; }
+.jd-pip { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: 12px; }
+.jd-pip .i { stroke-width: 2.75; }
+.jd-pip.is-current { background: var(--primary-glow); box-shadow: inset 0 0 0 2px var(--primary); }
+.jd-pip.is-miss { background: var(--danger); color: var(--danger-foreground); }
+.jd-pip.is-skip { background: var(--surface-3); color: var(--foreground); }
+.jd-pip.is-hit { background: var(--success); color: var(--on-done); }
+.jd-pips--sm { gap: 3px; }
+.jd-pips--sm .jd-pip { width: 16px; height: 16px; border-radius: 4px; font-size: 10px; }
+.jd-stake { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px 0 7px; border-radius: 999px; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+.jd-stake .i { font-size: 12px; }
+/* «Tus intentos» de la partida (.jd-try) */
+.jd-tries { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.jd-try { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 28px; padding: 3px 10px 3px 4px; border-radius: 999px; font-size: .78125rem; font-weight: 600; }
+.jd-try__n { display: inline-grid; place-items: center; width: 20px; height: 20px; flex: none; border-radius: 50%; font-size: .6875rem; }
+.jd-try__n .i { font-size: 11px; stroke-width: 3; }
+.jd-try.is-miss { background: var(--danger-glow); color: var(--danger); }
+.jd-try.is-miss .jd-try__n { background: var(--danger); color: var(--danger-foreground); }
+.jd-try.is-skip { background: var(--surface-2); color: var(--muted); }
+.jd-try.is-skip .jd-try__n { background: var(--surface-3); color: var(--foreground); }
+.jd-try.is-hit { background: var(--success-glow); color: var(--success); }
+.jd-try.is-hit .jd-try__n { background: var(--success); color: var(--on-done); }
+.jd-try > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Tarjeta «Juego del día» (ya rediseñada en PR #114) */
+.jd-today { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.w-col .jd-today, .w-mob .jd-today { grid-template-columns: 1fr; }
+.jd-today__art { position: relative; aspect-ratio: 16 / 9; background: var(--surface-2); overflow: hidden; }
+.w-desk .jd-today__art { aspect-ratio: auto; min-height: 220px; }
+.jd-today__art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.jd-plate { position: absolute; z-index: 2; top: 12px; left: 12px; padding: 4px 10px; font-size: .8125rem; background: rgba(12, 14, 18, 0.72); color: #fff; border-radius: var(--radius-sm); }
+.jd-today__body { display: grid; align-content: center; gap: .625rem; padding: 1.125rem 1.25rem; min-width: 0; }
+.jd-today__meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .78125rem; }
+.jd-today__name { margin: 0; font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; }
+.jd-today__name.is-q { color: var(--muted); }
+.jd-today__line { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0; color: var(--muted); font-size: .8125rem; }
+.jd-today__line b { color: var(--foreground); }
+.jd-today__foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: .25rem; }
+.jd-count { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: .8125rem; }
+.jd-count b { color: var(--foreground); font-weight: 700; }
+.jd-count .i { font-size: 14px; }
+
+/* ══ JUDI · estadísticas e historial (propuesta) ══ */
+.jh { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+.w-mob .jh { gap: 1.25rem; }
+.sec-head { display: flex; align-items: center; gap: .625rem; min-height: 2rem; flex-wrap: wrap; }
+.sec-head__icon { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 8px; font-size: 16px; }
+.sec-head h2, .sec-head h3 { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
+.sec-head h3 { font-size: 1rem; }
+.sec-head__count { color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.sec-hint { margin: -.4rem 0 0 2.5rem; color: var(--muted); font-size: .8125rem; }
+.w-mob .sec-hint, .w-col .sec-hint { margin-left: 0; }
+.panel { min-width: 0; padding: 1.1rem 1.25rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.w-mob .panel, .w-col .panel { padding: 1rem; }
+.panel > .sec-head { margin-bottom: .875rem; }
+
+/* Cifras: Tile + CountUp (src/components/Tile.tsx) */
+.jh-stats { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: stretch; }
+.w-col .jh-stats, .w-mob .jh-stats, .w-mid .jh-stats { grid-template-columns: minmax(0, 1fr); }
+.hg-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.w-col .hg-tiles, .w-mob .hg-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hg-tile { position: relative; display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); transition: box-shadow .15s, border-color .15s; }
+.w-mob .hg-tile, .w-col .hg-tile { padding: 12px; }
+.hg-tile dt { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.hg-tile__icon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; font-size: 13px; flex: none; }
+.hg-tile dd { margin: 0; min-width: 0; }
+.hg-tile__value { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .hg-tile__value, .w-col .hg-tile__value { font-size: 1.375rem; }
+.hg-tile__value small { color: var(--muted); font-size: .875rem; font-weight: 500; letter-spacing: 0; }
+.hg-tile__note { display: block; margin-top: 2px; overflow: hidden; color: var(--muted); font-size: .78125rem; text-overflow: ellipsis; white-space: nowrap; }
+.w-mob .hg-tile__note, .w-col .hg-tile__note { white-space: normal; }
+.hg-tile__note b { color: var(--foreground); font-weight: 600; }
+.hg-tile__note a { text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 2px; }
+.hg-tile__note a:hover { color: var(--foreground); }
+.hg-tile.is-hoverable:hover, .hg-tile.is-hoverable:focus-visible { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); outline: none; }
+.streak-tile.is-off .hg-tile__icon { background: var(--surface-2); color: var(--muted); }
+.streak-tile.is-off .hg-tile__value { color: var(--muted); }
+.best-tile .hg-tile__icon { background: var(--surface-2); color: var(--foreground); }
+.best-tile .is-same { color: var(--primary); font-weight: 600; }
+.flame path { fill: color-mix(in srgb, var(--c) 28%, transparent); }
+.streak-tile.is-off .flame path { fill: none; }
+.risk { display: inline-flex; align-items: center; gap: 4px; color: var(--warn-ink); font-weight: 600; }
+.risk .i { font-size: 13px; }
+.streak-tile.is-risk { border-color: color-mix(in srgb, var(--warning) 45%, var(--border)); }
+/* % de acierto: barra aciertos / fallos como en el panel JUDI del perfil */
+.acc-bar { display: flex; gap: 2px; height: 6px; margin: 8px 0 2px; border-radius: 3px; overflow: hidden; background: var(--surface-2); }
+.acc-bar span { display: block; height: 100%; transform-origin: left; }
+.acc-bar .w { background: var(--success); } .acc-bar .l { background: var(--danger); }
+
+/* En qué intento aciertas */
+.ds { display: grid; align-content: start; }
+.ds-rows { display: grid; gap: 7px; }
+.ds-row { display: grid; grid-template-columns: 94px minmax(0, 1fr) 32px; align-items: center; gap: 10px; font-size: .8125rem; }
+.ds-lbl { display: flex; align-items: baseline; gap: 6px; white-space: nowrap; font-weight: 600; }
+.ds-lbl small { color: var(--muted); font-size: .71875rem; font-weight: 500; }
+.ds-track { position: relative; height: 18px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.ds-fill { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: color-mix(in srgb, var(--success) 55%, var(--surface-2)); transform-origin: left; }
+.ds-row.is-top .ds-fill { background: var(--success); }
+.ds-row.is-lost .ds-fill { background: var(--danger); }
+.ds-row.is-lost .ds-lbl { color: var(--danger); }
+.ds-row.is-lost .ds-lbl .i { font-size: 12px; stroke-width: 3; }
+.ds-n { text-align: right; font-weight: 700; }
+.ds-sep { height: 1px; margin: 3px 0; background: var(--border); }
+.ds-foot { margin: .875rem 0 0; color: var(--muted); font-size: .8125rem; }
+.ds-foot b { color: var(--foreground); }
+
+/* Vacíos (patrón del Inicio) */
+.dash-empty { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .5rem 1rem; padding: 1rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.dash-empty__icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; font-size: 19px; }
+.dash-empty p { margin: 0; color: var(--muted); font-size: .875rem; }
+.dash-empty p b { display: block; color: var(--foreground); font-weight: 600; }
+.dash-empty .btn { grid-column: 2; justify-self: start; }
+.jd-nudge { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding: 10px 14px; border-radius: var(--radius); background: var(--surface-2); font-size: .8125rem; }
+.jd-nudge p { margin: 0; flex: 1 1 260px; }
+
+/* Historial */
+.jh-hist { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+.jh-hist__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1rem; }
+.jh-hist__head > div { display: grid; gap: .5rem; min-width: 0; }
+
+/* Segmentado con icono, contador y fondo deslizante (src/components/Segmented.tsx) */
+.hg-seg { position: relative; display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); max-width: 100%; }
+.w-mob .hg-seg, .w-col .hg-seg, .w-mid .hg-seg { overflow-x: auto; scrollbar-width: none; justify-self: start; }
+.hg-seg__opt { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 32px; padding: 0 .7rem; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; transition: color .15s; }
+.w-mob .hg-seg__opt, .w-col .hg-seg__opt { min-height: 40px; }
+.hg-seg__opt:hover { color: var(--foreground); }
+.hg-seg__opt[aria-pressed='true'] { color: var(--foreground); font-weight: 600; }
+.hg-seg__opt > * { position: relative; z-index: 1; }
+.hg-seg__opt .i { font-size: 14px; }
+.hg-seg__thumb { position: absolute; z-index: 0; top: 3px; left: 0; height: calc(100% - 6px); border-radius: 6px; background: var(--surface); box-shadow: var(--shadow-sm); transition: transform .22s var(--ease-out), width .22s var(--ease-out); }
+.f-ic { display: inline-flex; }
+.f-ic.ok { color: var(--success); } .f-ic.ko { color: var(--danger); } .f-ic.ac { color: var(--primary); } .f-ic.ne { color: var(--muted); }
+.cnt { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; font-size: .71875rem; font-weight: 700; color: var(--muted); background: color-mix(in srgb, var(--muted) 12%, transparent); }
+.cnt.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); }
+.cnt.is-zero { opacity: .55; }
+
+/* Mapa del año (ActivityHeatmap en modo «año») con el resultado de cada día */
+.hm { display: grid; gap: .75rem; }
+.hm-scroll { overflow-x: auto; padding: 3px; margin: -3px; scrollbar-width: thin; }
+.hm-body { display: grid; grid-template-columns: 22px minmax(0, 1fr); column-gap: 6px; min-width: 760px; }
+.w-desk .hm-body { min-width: 0; }
+.hm-months { grid-column: 2; display: grid; grid-template-columns: repeat(var(--weeks), minmax(0, 1fr)); column-gap: 3px; margin-bottom: 4px; color: var(--muted); font-size: .6875rem; }
+.hm-months span { grid-row: 1; white-space: nowrap; }
+.hm-wd { display: grid; grid-template-rows: repeat(7, minmax(0, 1fr)); gap: 3px; color: var(--muted); font-size: .6875rem; }
+.hm-wd span { display: flex; align-items: center; line-height: 1; }
+.hm-grid { display: grid; grid-template-columns: repeat(var(--weeks), minmax(0, 1fr)); grid-template-rows: repeat(7, auto); grid-auto-flow: column; gap: 3px; border-radius: 4px; }
+.w-desk .hm-grid { gap: 3px; }
+.hm-grid i { position: relative; display: block; aspect-ratio: 1; border-radius: 3px; background: var(--surface-2); transition: opacity .2s var(--ease-out), transform .15s; }
+.w-desk .hm-grid i { aspect-ratio: auto; height: 15px; }
+.hm-grid i.s-won { background: var(--success); }
+.hm-grid i.s-lost { background: color-mix(in srgb, var(--danger) var(--tint), var(--surface)); box-shadow: inset 0 0 0 2px var(--danger); }
+.hm-grid i.s-progress::after { content: ''; position: absolute; inset: 30%; border-radius: 50%; background: var(--primary); }
+.hm-grid i.is-none { background: transparent; }
+.hm-grid i.is-future { background: transparent; box-shadow: inset 0 0 0 1px var(--border); }
+.hm-grid i.is-out { visibility: hidden; }
+.hm-grid i.is-today { outline: 2px solid var(--foreground); outline-offset: 1px; }
+.hm-grid i[data-id] { cursor: pointer; }
+.hm-grid i[data-id]:hover, .hm-grid i.is-sel { outline: 2px solid var(--foreground); outline-offset: 1px; transform: scale(1.15); z-index: 1; }
+.hm-grid i.is-dim { opacity: .2; }
+.hm-grid.is-spot i:not(.is-spot) { opacity: .2; }
+.hm-grid.is-spot i.is-spot { outline: 2px solid var(--primary); outline-offset: 1px; }
+.hm-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; color: var(--muted); font-size: .75rem; }
+.hm-key { display: inline-flex; align-items: center; gap: 6px; }
+.hm-key i { position: relative; display: inline-block; width: 11px; height: 11px; border-radius: 3px; background: var(--surface-2); }
+.hm-key i.s-won { background: var(--success); }
+.hm-key i.s-lost { background: color-mix(in srgb, var(--danger) var(--tint), var(--surface)); box-shadow: inset 0 0 0 2px var(--danger); }
+.hm-key i.s-progress::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--primary); }
+.hm-key i.is-none { background: transparent; box-shadow: inset 0 0 0 1px var(--border); }
+.hm-foot__end { margin-left: auto; }
+.w-mob .hm-foot__end, .w-col .hm-foot__end { margin-left: 0; }
+
+/* Meses plegables */
+.js-list { display: grid; gap: 10px; transition: opacity .12s var(--ease-out); }
+.js-list.is-out { opacity: 0; }
+.mo { display: grid; }
+.mo__head { display: grid; grid-template-columns: 18px minmax(0, 150px) minmax(80px, 1fr) auto; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: left; font-size: .875rem; transition: border-color .15s, box-shadow .15s; }
+.mo__head:hover { border-color: var(--border-hover); }
+.w-mob .mo__head, .w-col .mo__head { grid-template-columns: 18px auto minmax(40px, 1fr); grid-template-areas: 'chev label count' 'chev bar bar'; row-gap: 6px; padding: 8px 12px; }
+.w-mob .mo__head .i, .w-col .mo__head .i { grid-area: chev; } .w-mob .mo__label, .w-col .mo__label { grid-area: label; } .w-mob .mo__bar, .w-col .mo__bar { grid-area: bar; } .w-mob .mo__count, .w-col .mo__count { grid-area: count; justify-self: end; }
+.mo__head .i { font-size: 16px; color: var(--muted); transition: transform .25s var(--ease-out); transform: rotate(-90deg); }
+.mo.is-open .mo__head .i { transform: none; }
+.mo__label { font-weight: 700; white-space: nowrap; }
+.mo__label small { margin-left: 6px; color: var(--muted); font-weight: 500; font-size: .75rem; }
+.mo__bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--surface-2); }
+.mo__bar span { height: 100%; }
+.mo__bar .w { background: var(--success); } .mo__bar .l { background: var(--danger); } .mo__bar .p { background: var(--primary); }
+.mo__count { color: var(--muted); font-size: .8125rem; white-space: nowrap; }
+.mo__count b { color: var(--foreground); }
+.mo__body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s var(--ease-out); }
+.mo.is-open .mo__body { grid-template-rows: 1fr; }
+.mo__inner { min-height: 0; overflow: hidden; }
+.mo__inner > ul { padding: 8px 3px 4px; }
+
+/* Día · variante A: fila */
+.dy-list { list-style: none; margin: 0; display: grid; gap: 6px; }
+.dy { --c: transparent; position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: box-shadow .15s, border-color .15s, opacity .2s; }
+.dy::before { content: ''; position: absolute; left: -1px; top: -1px; bottom: -1px; width: 4px; border-radius: var(--radius) 0 0 var(--radius); background: var(--c); }
+.dy.s-won { --c: var(--success); } .dy.s-lost { --c: var(--danger); } .dy.s-progress { --c: var(--primary); }
+.dy.s-new { background: transparent; border-style: dashed; border-color: var(--border-hover); }
+.dy:hover, .dy:focus-within { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.dy.is-today:not(:hover):not(:focus-within) { border-color: var(--border-hover); }
+.dy__row { position: relative; display: grid; grid-template-columns: 50px 92px minmax(0, 1fr) auto 46px 40px; align-items: center; gap: 14px; min-height: 62px; padding: 8px 10px 8px 16px; }
+.dy.s-new .dy__row > .dy__act { grid-column: 4 / -1; justify-self: end; }
+.dy__date { display: grid; justify-items: center; line-height: 1.1; }
+.dy__date b { font-size: 1.125rem; font-weight: 700; }
+.dy__date span { color: var(--muted); font-size: .71875rem; font-weight: 500; }
+.dy__date .today { display: inline-block; margin-top: 3px; padding: 1px 6px; border-radius: 999px; background: var(--primary); color: var(--primary-foreground); font-size: .6875rem; font-weight: 700; }
+.dy__cover { position: relative; display: block; width: 92px; height: 43px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.dy__cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.mys { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 1.125rem; font-weight: 700; }
+.dy__main { display: grid; gap: 1px; min-width: 0; }
+.dy__name { overflow: hidden; font-size: .9375rem; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
+.dy__name::after { content: ''; position: absolute; inset: 0; z-index: 1; border-radius: var(--radius); }
+.dy__name:focus-visible { outline: none; }
+.dy__name.is-q { color: var(--muted); font-weight: 500; }
+.dy__meta { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 8px; color: var(--muted); font-size: .8125rem; }
+.dy__res { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; white-space: nowrap; }
+.dy__res .i { font-size: 13px; stroke-width: 3; }
+.dy__res.ok { color: var(--success); } .dy__res.ko { color: var(--danger); } .dy__res.ac { color: var(--primary); }
+.dy__sub { display: none; }
+.dy__pts { justify-self: end; font-weight: 700; font-size: .9375rem; white-space: nowrap; }
+.dy__pts.ok { color: var(--success); } .dy__pts.ne { color: var(--muted); font-weight: 600; }
+.dy__more, .dy__act { position: relative; z-index: 2; }
+.dy__more { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted); font-size: 17px; transition: background-color .15s, color .15s; }
+.dy__more:hover { background: var(--surface-2); color: var(--foreground); }
+.dy__more .i { transition: transform .25s var(--ease-out); }
+.dy.is-open .dy__more .i { transform: rotate(180deg); }
+.dy__detail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .26s var(--ease-out); }
+.dy.is-open .dy__detail { grid-template-rows: 1fr; }
+.dy__detail > div { min-height: 0; overflow: hidden; }
+.dy__dbody { display: grid; gap: 8px; margin: 0 12px 0 16px; padding: 10px 0 12px; border-top: 1px solid var(--border); opacity: 0; transition: opacity .2s var(--ease-out); }
+.dy.is-open .dy__dbody { opacity: 1; transition-delay: .06s; }
+.dy__dnote { margin: 0; color: var(--muted); font-size: .8125rem; }
+.dy__dnote b { color: var(--foreground); font-weight: 600; }
+.dy__dfoot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.dy.is-flash::after { content: ''; position: absolute; inset: -1px; border-radius: var(--radius); box-shadow: 0 0 0 3px var(--cursor); pointer-events: none; animation: flash 1.1s var(--ease-out) forwards; }
+@keyframes flash { 0%, 55% { opacity: 1; } 100% { opacity: 0; } }
+/* Fila en columna estrecha y móvil: pips y puntos bajo el nombre */
+.w-mob .dy__row, .w-col .dy__row { grid-template-columns: 36px 72px minmax(0, 1fr) auto; gap: 10px; padding: 8px 4px 8px 12px; align-items: center; }
+.w-mob .dy__cover, .w-col .dy__cover { width: 72px; height: 34px; }
+.w-mob .dy__date b, .w-col .dy__date b { font-size: 1rem; }
+.w-mob .dy__name, .w-col .dy__name { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: .875rem; line-height: 1.3; }
+.w-mob .dy__row > .dy__pips, .w-mob .dy__row > .dy__pts, .w-col .dy__row > .dy__pips, .w-col .dy__row > .dy__pts { display: none; }
+.w-mob .dy__sub, .w-col .dy__sub { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
+.w-mob .dy__sub .dy__pts, .w-col .dy__sub .dy__pts { font-size: .8125rem; }
+.w-mob .dy__more, .w-col .dy__more { width: 44px; height: 44px; }
+.w-mob .dy.s-new .dy__row > .dy__act, .w-col .dy.s-new .dy__row > .dy__act { grid-column: 4; margin-right: 6px; }
+.w-mob .dy__dbody, .w-col .dy__dbody { margin: 0 10px 0 12px; }
+.w-mob .dy__row .dy__meta > span:last-child:not(:first-child), .w-col .dy__row .dy__meta > span:last-child:not(:first-child) { display: none; }
+
+/* Día · variante B: tarjeta */
+.dc-grid { list-style: none; margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.w-col .dc-grid, .w-mob .dc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.dc { --c: transparent; position: relative; display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: box-shadow .15s, border-color .15s; }
+.dc.s-won { --c: var(--success); } .dc.s-lost { --c: var(--danger); } .dc.s-progress { --c: var(--primary); }
+.dc.s-new { background: transparent; border-style: dashed; border-color: var(--border-hover); }
+.dc:hover, .dc:focus-within { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.dc__art { position: relative; aspect-ratio: 460 / 215; background: var(--surface-2); }
+.dc__art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.dc__art::after { content: ''; position: absolute; inset: auto 0 0 0; height: 4px; background: var(--c); }
+.dc__body { display: grid; gap: 4px; padding: 8px 10px 10px; min-width: 0; }
+.dc__meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; color: var(--muted); font-size: .75rem; }
+.dc__meta .today { padding: 0 6px; border-radius: 999px; background: var(--primary); color: var(--primary-foreground); font-weight: 700; }
+.dc__name { overflow: hidden; font-size: .875rem; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
+.dc__name::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+.dc__name.is-q { color: var(--muted); font-weight: 500; }
+.dc__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; min-height: 22px; min-width: 0; }
+.dc__body > * { min-width: 0; }
+.dc__foot .dy__res { font-size: .78125rem; }
+
+.jh-empty { display: grid; justify-items: center; gap: .5rem; padding: 2rem 1rem; text-align: center; color: var(--muted); font-size: .875rem; border: 1px dashed var(--border-hover); border-radius: var(--radius-lg); }
+.jh-empty .dash-empty__icon { margin-bottom: 2px; }
+.jh-empty p { margin: 0; } .jh-empty p b { display: block; color: var(--foreground); }
+
+.toast { position: absolute; left: 50%; bottom: 24px; z-index: 30; display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius); background: var(--foreground); color: var(--background); font-size: .8125rem; font-weight: 600; box-shadow: var(--shadow-lg); transform: translateX(-50%); animation: toast-in .2s var(--ease-out); white-space: nowrap; }
+.w-mob .toast { bottom: 96px; }
+.toast.is-out { animation: toast-out .16s var(--ease-out) forwards; }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 8px); } }
+@keyframes toast-out { to { opacity: 0; transform: translate(-50%, 8px); } }
+
+/* ══ Microanimaciones ══ */
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes pop { from { opacity: 0; transform: scale(.5); } }
+@keyframes grow { from { transform: scaleX(0); } }
+@keyframes flame-on { 0% { transform: scale(.6); opacity: .3; } 60% { transform: scale(1.18); opacity: 1; } 100% { transform: none; } }
+.anim .hg-enter { animation: in-up .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+.anim .hm-grid i:not(.is-out) { animation: fade-in .3s var(--ease-out) backwards; animation-delay: calc(120ms + var(--w, 0) * 7ms); }
+.anim .ds-fill { animation: grow .45s var(--ease-out) backwards; animation-delay: calc(180ms + var(--i, 0) * 30ms); }
+.anim .acc-bar span { animation: grow .45s var(--ease-out) backwards; animation-delay: 200ms; }
+.anim .acc-bar .l { animation-delay: 260ms; }
+.anim .flame { animation: flame-on .7s var(--ease-out) backwards .25s; }
+.anim .risk { animation: in-up .3s var(--ease-out) backwards .5s; }
+.anim .hg-seg .cnt { animation: pop .26s var(--ease-out) backwards; animation-delay: calc(140ms + var(--i, 0) * 30ms); }
+.anim .dy, .anim .dc, .swap .dy, .swap .dc { animation: in-up .3s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+.swap .dy, .swap .dc { animation-duration: .22s; }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · JUDI, tus estadísticas e historial</h1>
+  <div class="doc-bar__actions">
+    <div class="doc-group" role="group" aria-label="Variante del historial"><span>Historial</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="h" data-val="A" aria-pressed="true">A · Mapa del año + meses (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="h" data-val="B" aria-pressed="false">B · Solo meses</button>
+    </div>
+    <div class="doc-group" role="group" aria-label="Variante del día"><span>Días</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="r" data-val="A" aria-pressed="true">A · Filas (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="r" data-val="B" aria-pressed="false">B · Tarjetas</button>
+    </div>
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p><b>Hoy</b>, debajo de la tarjeta «Juego del día» hay cuatro cifras grises sin icono (puntos, acertados, días de racha, precisión) y un historial en acordeón por años y meses con tarjetas de cápsula grande, una barra verde/roja por mes y filtros «Todos / Pendientes / Acertados / Fallados» sin color. No se ve de un vistazo cómo vas (¿cuál es tu mejor racha?, ¿en qué intento sueles acertar?), la racha no avisa si hoy la puedes perder y los días no dicen en qué intento acertaste. La propuesta aplica el vocabulario de la partida (PR #114: acierto verde con check, fallo rojo con aspa, saltado neutro, en curso cobalto) a las cifras y al historial, sin cambiar las reglas.</p>
+  <ul>
+    <li><b>Seis tiles con icono y color</b> (<code>Tile</code> + <code>CountUp</code>): racha actual en cobalto con su llama (como el historial de logros) y el aviso ámbar «Acierta el de hoy para llegar a 7» si hoy está sin jugar; mejor racha con sus fechas o «Es la actual»; acertados («de 171 jugados»); % de acierto con la barra aciertos/fallos del perfil; media de intentos al acertar; puntos con tu puesto en el ranking. Al pasar por un tile de racha, el mapa enciende esos días.</li>
+    <li><b>«En qué intento aciertas»</b>: una barra por intento (1.º +6 … 6.º +1) y «Sin acertar» en rojo, al estilo Wordle. Sale exacto de lo que ya tenemos (las fases marcadas de cada partida), también para las partidas antiguas.</li>
+    <li><b>Historial con el resultado de cada día</b> (punto de decisión 1): <b>A</b> un mapa del año (el de <code>ActivityHeatmap</code> en modo año) con cada día en verde (acertado), con borde rojo (fallado), punto cobalto (en curso), gris (sin jugar) o hueco (sin JUDI), pulsable para ir a ese día; y debajo los meses plegables. <b>B</b> solo los meses (como hoy, con su barra).</li>
+    <li><b>Cada día</b> (punto de decisión 2): <b>A</b> una fila con franja de su color, fecha, cápsula (o «?» si no lo has terminado: el nombre sigue sin revelarse), «Acertado en el intento 3», los 6 intentos (<code>AttemptPips</code>) y los puntos; se despliega para ver «Tus intentos» en orden. <b>B</b> tarjetas con cápsula grande (las de hoy, con el color y los intentos).</li>
+    <li><b>Filtros con color y contador</b> (<code>Segmented</code>): Todos, Acertados (verde), Fallados (rojo), En curso (cobalto) y Sin jugar (gris). Hoy «Pendientes» mezcla los empezados y los no jugados. Al filtrar, el mapa apaga los días que no entran.</li>
+    <li><b>Partidas antiguas sin orden</b>: hasta la migración de hoy no se guardaban los saltos y al acertar se borraban los fallos, así que en esas partidas los no aciertos salen en rojo y al desplegar se dice: «De antes del 28 de octubre: sin orden ni saltos». Con la migración ya aplicada, desde hoy cada partida guarda su orden.</li>
+    <li><b>Estados</b>: pocos días, ninguno (un vacío con «Jugar el de hoy» en lugar de seis ceros), filtro sin resultados, invitado (sin puesto, con el aviso de iniciar sesión) y la racha a punto de perderse.</li>
+  </ul>
+
+  <h3>De dónde sale cada dato (sin datos inventados)</h3>
+  <table>
+    <thead><tr><th>Dato</th><th>Fuente</th><th>Coste</th></tr></thead>
+    <tbody>
+      <tr><td>Estado de cada día, intento en el que acertaste, puntos, nombre y cápsula (solo terminados)</td><td><code>hubgames_judi_list()</code>: <code>completado</code> + <code>fase1..fase6</code> de <code>hubgames_judi_fases_usuario</code> y <code>nombre</code> / <code>header_image</code> de <code>hubgames_lista_videojuegos_judi</code> + <code>hubgames_juegos_steam</code>. El intento del acierto = fallos + 1 (exacto también en partidas antiguas)</td><td>Ya se carga</td></tr>
+      <tr><td>Rachas (actual, mejor y sus fechas), acertados, % de acierto, media de intentos, «En qué intento aciertas», mapa, contadores</td><td>Cálculo en el cliente sobre la misma lista (la racha como hoy: días de JUDI seguidos acertados; el de hoy sin terminar no la rompe)</td><td>0 consultas</td></tr>
+      <tr><td>Puesto en el ranking</td><td><code>hubgames_judi_ranking_rows</code> + <code>buildRanking</code>, como el perfil y <code>/ranking</code>. Hoy son 296 filas (2 jugadores × días jugados); crece con jugadores × días</td><td>1 RPC más (barata hoy)</td></tr>
+      <tr><td>Saltos y nombres de cada intento (iconos de saltado en la fila y «Tus intentos» al desplegar)</td><td><span class="doc-tag doc-tag--new">Propuesta</span> que <code>hubgames_judi_list()</code> devuelva también <code>attempts</code> (agregado de <code>hubgames_judi_intentos</code> del usuario, como ya hace <code>hubgames_judi_get_day</code>). Hoy hay 169 filas en total. Alternativa sin migración: pedir <code>hubgames_judi_get_day</code> al desplegar cada día, y entonces las filas no distinguen saltos (pregunta 3)</td><td>Migración pequeña, o 1 RPC por día desplegado</td></tr>
+      <tr><td>Invitado</td><td><code>localStorage</code>, como hoy (progreso y nombres de intentos); sin puesto</td><td>—</td></tr>
+    </tbody>
+  </table>
+  <p class="t">Datos reales a 28 de octubre: 269 días publicados desde el 1 de febrero, 2 jugadores, como mucho 171 partidas de un usuario, 169 intentos guardados y 0 saltos (la migración de saltos es de hoy). El mockup usa esas cifras. Sin tokens nuevos: <code>--success</code>, <code>--danger</code>, cobalto, neutros y <code>--warning</code> para el aviso de racha. Texto sobre verde sólido con <code>--on-done</code> y sobre rojo con <code>--danger-foreground</code>, como en la partida. En el mapa, fallado y acertado se distinguen también por la forma (relleno frente a borde) y en curso por el punto, para no depender del rojo y el verde.</p>
+
+  <h3>Microanimaciones (pruébalas en los marcos)</h3>
+  <ul>
+    <li><b>Tiles que cuentan</b> (<code>CountUp</code>, 450 ms), la barra de acierto que crece (450 ms, <code>scaleX</code>), la llama que se enciende (700 ms) y el aviso de racha que entra después (300 ms).</li>
+    <li><b>Mapa que se pinta por semanas</b> (fundido de 300 ms, 7 ms entre semanas) y barras de «En qué intento aciertas» que crecen en cadena (450 ms, 30 ms).</li>
+    <li><b>Días que entran escalonados</b> (subir 8 px y aparecer, 300 ms, 30 ms entre los 8 primeros; el resto, de golpe). Al abrir un mes, sus días entran igual.</li>
+    <li><b>Filtros</b>: el fondo se desliza (220 ms), la lista se funde (120 ms fuera, 220 ms dentro con escalonado) y el mapa apaga los días que no entran (200 ms). Los contadores hacen pop al llegar.</li>
+    <li><b>Desplegar un día o un mes</b>: altura con <code>grid-template-rows</code> (260–300 ms, como los meses del historial de logros), contenido que funde y chevrón que gira.</li>
+    <li><b>Pulsar un día del mapa</b>: abre su mes, baja hasta la fila y la marca con el cursor un segundo.</li>
+    <li>Hover: cursor de selección en filas, tiles de racha y casillas. Con <b>movimiento reducido</b> (botón arriba o el sistema) todo aparece en su estado final.</li>
+  </ul>
+
+  <h3>Piezas que se reutilizan</h3>
+  <ul>
+    <li><code>Tile</code>, <code>CountUp</code>, <code>.hg-tiles</code>; la llama, el aviso y el «spot» del mapa de <code>HistorialView</code> (<code>streakAtRisk</code> como idea); la barra aciertos/fallos de <code>JudiPanel</code> del perfil.</li>
+    <li><code>ActivityHeatmap</code> en modo año (<code>onPick</code>, <code>decorate</code> para la clase de cada casilla, <code>renderTip</code>).</li>
+    <li><code>Segmented</code> (icono, contador con <code>AnimatedCount</code>, fondo con <code>layoutId</code>), <code>.hg-enter</code>, <code>.hg-bar--fill</code>, <code>.hg-pop-in</code>, <code>.dash-empty</code>, las cabeceras <code>.dash-sec__head</code>.</li>
+    <li>De la partida: <code>AttemptPips</code> (<code>size="sm"</code>), <code>attemptSlots</code>, <code>attemptHistory</code> (el «sin orden»), <code>pointsAtStake</code>, los chips <code>.jd-try</code> de «Tus intentos» y la tarjeta «Juego del día».</li>
+    <li>Nuevo: la lógica pura de las cifras (<code>judiStats</code>: rachas con fechas, media, reparto por intento, contadores) en <code>src/lib/judi.ts</code> con tests, sustituyendo el <code>useMemo</code> de <code>JudiClient</code>; la fila de día como componente (<code>JudiDayRow</code>).</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px · en vivo</h2>
+  <p>Tus datos con la forma real: 269 días, 171 jugados. Prueba los filtros, pulsa un día del mapa, pasa por los tiles de racha, abre y cierra meses, despliega un día con el chevrón y cambia de estado con los atajos.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="f-desk"></div></div>
+  <div class="tests" data-frame="f-desk"><span>Estado:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="risk" aria-pressed="true">Hoy sin jugar (racha en riesgo)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="won">Hoy acertado</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="progress">Hoy en curso</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="few">Pocos días</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="none">Ninguno</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="guest">Invitado</button>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Estados · columna estrecha</h2>
+  <p>A 420 px (tableta o ventana estrecha): tiles en dos columnas, pips y puntos bajo el nombre.</p>
+  <div class="scroller"><div class="grid-frames cols" id="states"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · lado a lado</h2>
+  <p><b>Historial A · Mapa del año + meses</b>: el año entero de un vistazo (cuántos días juegas, dónde se cortan las rachas, qué meses dejaste sin jugar) y cada casilla lleva a su día. <b>Historial B · Solo meses</b>: lo de hoy, con la barra de cada mes. Recomiendo <b>A</b>: con 269 días los meses plegados no cuentan la historia, y la pieza ya existe (el modo año del historial de logros); en móvil el mapa se desplaza en horizontal y abre en la semana de hoy.</p>
+  <div class="scroller"><div class="grid-frames" id="var-h"></div></div>
+  <p style="margin-top:24px"><b>Días A · Filas</b>: un día por línea con fecha, cápsula pequeña, resultado, intentos y puntos; caben ~10 por pantalla y se leen como una lista. <b>Días B · Tarjetas</b>: la rejilla de hoy con cápsula grande, el color en la franja y los intentos al pie. Recomiendo <b>A</b>: la guía pide cápsulas pequeñas fuera de la ficha, la fila deja sitio para «Acertado en el intento 3» y los puntos, y se puede desplegar; B luce más con pocos días, pero un mes son 31 tarjetas y la mitad son «?» sin jugar.</p>
+  <div class="scroller"><div class="grid-frames" id="var-r"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Barra superior y pestañas con JUDI activa y su indicador del día. Todo lo pulsable mide 44 px; el mapa se desplaza en horizontal y arranca en la semana de hoy.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px" id="f-mob"></div><p class="frame-cap"><b>Hoy sin jugar</b>: tarjeta del día, racha con el aviso ámbar, «En qué intento aciertas» y el historial con octubre abierto.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-2"></div><p class="frame-cap"><b>Hoy acertado, nombres largos y un día desplegado</b>: los nombres parten en dos líneas (Divinity: Original Sin 2 - Definitive Edition, Warhammer 40,000: Space Marine 2) y la partida de hoy enseña «Tus intentos» en orden, con el salto.</p></div>
+  </div></div>
+</section>
+
+<section class="sec note" id="questions">
+  <h2>Preguntas para Diego</h2>
+  <ol class="qs">
+    <li><b>Historial: A (mapa del año + meses) o B (solo meses).</b> Recomiendo <b>A</b>.</li>
+    <li><b>Días: A (filas) o B (tarjetas).</b> Recomiendo <b>A</b>.</li>
+    <li><b>Saltos y nombres en el historial</b> <span class="doc-tag doc-tag--new">Propuesta</span>: ¿añadimos <code>attempts</code> a <code>hubgames_judi_list()</code> (migración pequeña, una lista agregada por día desde <code>hubgames_judi_intentos</code>) para que cada fila distinga saltos y «Tus intentos» se vea al desplegar sin esperar? Recomiendo <b>sí</b>. La alternativa sin migración es pedir el día al desplegarlo (<code>hubgames_judi_get_day</code>), y entonces las filas cerradas pintan todos los no aciertos en rojo.</li>
+    <li><b>Racha</b>: hoy se cuenta por <b>días de JUDI</b> seguidos acertados, juegues cuando juegues (si recuperas un día pasado que te faltaba, la racha «se arregla»). ¿Lo dejamos así o la contamos por el día en que jugaste (con <code>fecha_completado</code>, que ya se guarda pero no llega al cliente)? Recomiendo <b>dejarla así</b>: es lo que ve hoy el ranking y el perfil, y es más amable.</li>
+    <li><b>Un día en curso o sin jugar rompe la racha</b> (como hoy), salvo el de hoy. ¿Te vale? Recomiendo <b>sí</b>.</li>
+    <li><b>Puesto en el ranking en el tile de puntos</b>: una RPC más (la del perfil). Con dos jugadores, «1.º de 2» dice poco; ¿lo ponemos igualmente o solo los puntos con un enlace al ranking? Recomiendo <b>ponerlo</b>, enlazado a <code>/ranking</code>: se paga solo una vez por visita.</li>
+    <li><b>«Pendientes» se parte en «En curso» y «Sin jugar»</b>. ¿Te vale? Recomiendo <b>sí</b>: son cosas distintas (uno ya te ha costado intentos) y cada uno tiene su color.</li>
+    <li><b>Mes abierto al llegar</b>: solo el mes en curso (como hoy), y se recuerda lo que abras durante la sesión. ¿O todos los meses abiertos? Recomiendo <b>solo el actual</b>.</li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  arrowr: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  skip: '<polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+  flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  percent: '<line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+  layers: '<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
+  chevd: '<path d="m6 9 6 6 6-6"/>',
+  history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  bars: '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16h8"/><path d="M7 11h12"/><path d="M7 6h3"/>',
+  cdash: '<path d="M10.1 2.182a10 10 0 0 1 3.8 0"/><path d="M13.9 21.818a10 10 0 0 1-3.8 0"/><path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"/><path d="M2.182 13.9a10 10 0 0 1 0-3.8"/><path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"/><path d="M21.818 10.1a10 10 0 0 1 0 3.8"/><path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"/><path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"/>',
+  filterx: '<path d="M13.013 3H2l8 9.46V19l4 2v-8.54l.9-1.055"/><path d="m22 3-5 5"/><path d="m17 3 5 5"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wait = (ms) => new Promise((r) => setTimeout(r, rm() ? 0 : ms));
+const n = (v) => v.toLocaleString('es-ES');
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/><path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+
+/* ── Fechas ── */
+const DAY = 864e5;
+const dt = (y, m, d) => Date.UTC(y, m, d);
+const T0 = dt(2026, 1, 1), TODAY = dt(2026, 9, 28), MISSING = dt(2026, 3, 13), MIGRATION = dt(2026, 9, 28);
+const WD = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+const WDL = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const MON3 = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sept', 'oct', 'nov', 'dic'];
+const U = (t) => new Date(t);
+const dLong = (t) => `${U(t).getUTCDate()} de ${MONTHS[U(t).getUTCMonth()]}`;
+const dShort = (t) => `${WD[U(t).getUTCDay()]} ${U(t).getUTCDate()} ${MON3[U(t).getUTCMonth()]}`;
+function dRange(a, b) {
+  if (a === b) return dLong(a);
+  const A = U(a), B = U(b);
+  if (A.getUTCMonth() === B.getUTCMonth()) return `${A.getUTCDate()}–${B.getUTCDate()} de ${MONTHS[B.getUTCMonth()]}`;
+  return `${dLong(a)} – ${dLong(b)}`;
+}
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/* ── Juegos reales (cápsulas de Steam) ── */
+const HDR = (appid) => `https://cdn.akamai.steamstatic.com/steam/apps/${appid}/header.jpg`;
+const GAMES = [
+  ['Hades', 1145360], ['Dead Cells', 588650], ['Celeste', 504230], ['Ori and the Blind Forest', 261570], ['Stardew Valley', 413150], ['Terraria', 105600],
+  ['ELDEN RING', 1245620], ['DARK SOULS III', 374320], ['Sekiro: Shadows Die Twice', 814380], ['Cuphead', 268910], ['Slay the Spire', 646570],
+  ['The Binding of Isaac: Rebirth', 250900], ['Risk of Rain 2', 632360], ['TUNIC', 553420], ["Death's Door", 894020], ['INSIDE', 304430], ['LIMBO', 48000],
+  ['GRIS', 683320], ['Katana ZERO', 460950], ['Resident Evil 7 Biohazard', 418370], ['The Witcher 3: Wild Hunt', 292030], ['Cyberpunk 2077', 1091500],
+  ['Portal 2', 620], ['Half-Life 2', 220], ["Baldur's Gate 3", 1086940], ['Red Dead Redemption 2', 1174180], ['Valheim', 892970], ['Subnautica', 264710],
+  ["No Man's Sky", 275850], ['God of War', 1593500], ['Resident Evil 4', 2050650], ['Crusader Kings III', 1158310], ["Sid Meier's Civilization VI", 289070],
+  ['Balatro', 2379780], ['Vampire Survivors', 1794680], ['Factorio', 427520], ['Satisfactory', 526870], ['Black Myth: Wukong', 2358720],
+  ['ARMORED CORE VI FIRES OF RUBICON', 1888160], ['The Elder Scrolls V: Skyrim Special Edition', 489830], ['Kingdom Come: Deliverance II', 1771300],
+  ['METAL GEAR SOLID V: THE PHANTOM PAIN', 287700], ['Ori and the Will of the Wisps', 1057090], ['Hades II', 1145350], ['Hogwarts Legacy', 990080],
+  ['Middle-earth: Shadow of War', 356190], ['STAR WARS Jedi: Fallen Order', 1172380], ['Rust', 252490], ['Half-Life: Alyx', 546560], ['Portal', 400],
+];
+const OVR = {
+  [dt(2026, 9, 28)]: ['Hollow Knight', 367520],
+  [dt(2026, 9, 27)]: ['Celeste', 504230],
+  [dt(2026, 9, 26)]: ['Divinity: Original Sin 2 - Definitive Edition', 435150],
+  [dt(2026, 9, 25)]: ['Outer Wilds', 753640],
+  [dt(2026, 9, 24)]: ['Warhammer 40,000: Space Marine 2', 2183900],
+  [dt(2026, 9, 23)]: ['Disco Elysium - The Final Cut', 632470],
+  [dt(2026, 9, 21)]: ['Planescape: Torment: Enhanced Edition', 466300],
+};
+const WRONG = ['Dead Cells', 'Ori and the Blind Forest', 'Salt and Sanctuary', 'Blasphemous', 'ENDER LILIES: Quietus of the Knights', 'Axiom Verge', 'Hyper Light Drifter',
+  'Celeste', 'Hades', 'TUNIC', "Death's Door", 'Pillars of Eternity', 'The Outer Worlds', 'Spelunky 2', 'Pathologic 2', 'Kentucky Route Zero: TV Edition'];
+
+function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function pickW(r, w) { const s = w.reduce((a, b) => a + b, 0); let x = r() * s; for (let i = 0; i < w.length; i++) { x -= w[i]; if (x < 0) return i; } return w.length - 1; }
+function sample(arr, k, r) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a.slice(0, k); }
+
+/* Datos con la forma de hubgames_judi_list() (+ attempts propuesto). exactFrom: desde cuándo hay orden de intentos. */
+function makeData(cfg) {
+  const r = rng(cfg.seed ?? 11);
+  const days = []; let id = 544; let gi = 0;
+  for (let t = T0; t <= TODAY; t += DAY) {
+    if (t === MISSING) continue;
+    const isToday = t === TODAY;
+    let s = 'new';
+    if (cfg.played === 'many') {
+      if ((t >= dt(2026, 9, 22) && t < TODAY) || (t >= dt(2026, 6, 3) && t <= dt(2026, 6, 13))) s = 'won';
+      else if ([dt(2026, 9, 21), dt(2026, 6, 14), dt(2026, 6, 2)].includes(t)) s = 'lost';
+      else if (!isToday) { const p = r(); s = p < 0.355 ? 'new' : p < 0.37 ? 'progress' : p < 0.79 ? 'won' : 'lost'; }
+    } else if (cfg.played === 'few') {
+      if (t === dt(2026, 9, 25) || t === dt(2026, 9, 27)) s = 'won'; else if (t === dt(2026, 9, 26)) s = 'lost';
+    }
+    if (isToday) s = cfg.today || 'new';
+    const g = OVR[t] || GAMES[(gi++ * 7) % GAMES.length];
+    let failed = 0;
+    if (s === 'won') failed = pickW(r, [22, 26, 20, 14, 10, 8]);
+    if (s === 'lost') failed = 6;
+    if (s === 'progress') failed = 1 + Math.floor(r() * 3);
+    const day = { id: id++, t, s, failed, name: g[0], appid: g[1], exact: t >= (cfg.exactFrom ?? MIGRATION), attempts: null, known: [] };
+    const fixed = cfg.fixed && cfg.fixed[t];
+    if (fixed) Object.assign(day, fixed);
+    else if (s !== 'new' && day.exact) {
+      const names = sample(WRONG.filter((w) => w !== day.name), 6, r);
+      day.attempts = Array.from({ length: failed }, (_, i) => (r() < 0.25 ? { k: 'skip', name: null } : { k: 'miss', name: names[i] }));
+    } else if (s === 'lost' || s === 'progress') {
+      day.known = sample(WRONG.filter((w) => w !== day.name), Math.max(0, failed - Math.floor(r() * 3)), r);
+    }
+    days.push(day);
+  }
+  return days;
+}
+const FIX_WON = { [TODAY]: { failed: 2, attempts: [{ k: 'miss', name: 'Dead Cells' }, { k: 'skip', name: null }] } };
+const FIX_PROG = { [TODAY]: { failed: 1, attempts: [{ k: 'miss', name: 'Ori and the Blind Forest' }] } };
+
+/* ── Lógica (propuesta para src/lib/judi.ts: judiStats) ── */
+const pointsOf = (d) => (d.s === 'won' ? Math.max(6 - d.failed, 1) : 0);
+function slotsOf(d) {
+  const f = d.s === 'new' ? 0 : Math.min(d.failed, 6);
+  const at = d.attempts && d.attempts.length === f ? d.attempts : Array.from({ length: f }, () => ({ k: 'miss', name: null }));
+  return Array.from({ length: 6 }, (_, i) => {
+    if (i < f) return at[i];
+    if (d.s === 'won' && i === f) return { k: 'hit' };
+    if (d.s === 'progress' && i === f) return { k: 'current' };
+    return { k: d.s === 'won' ? 'open' : 'locked' };
+  });
+}
+function judiStats(days) {
+  let wins = 0, losses = 0, points = 0, sumAtt = 0, progress = 0, unplayed = 0;
+  const dist = [0, 0, 0, 0, 0, 0];
+  for (const d of days) {
+    if (d.s === 'won') { wins++; points += pointsOf(d); sumAtt += d.failed + 1; dist[d.failed]++; }
+    else if (d.s === 'lost') losses++; else if (d.s === 'progress') progress++; else unplayed++;
+  }
+  const today = days[days.length - 1];
+  const todayOpen = today && today.t === TODAY && (today.s === 'new' || today.s === 'progress');
+  const streakIds = [];
+  for (let i = days.length - 1; i >= 0; i--) {
+    const d = days[i];
+    if (d.t === TODAY && todayOpen) continue;
+    if (d.s !== 'won') break;
+    streakIds.push(d.id);
+  }
+  const streak = streakIds.length;
+  const streakFrom = streak ? days.find((d) => d.id === streakIds[streak - 1]).t : null;
+  let best = 0, bestIds = [], run = [], bestFrom = null, bestTo = null;
+  for (const d of days) {
+    if (d.s === 'won') run.push(d); else run = [];
+    if (run.length > best) { best = run.length; bestIds = run.map((x) => x.id); bestFrom = run[0].t; bestTo = run[run.length - 1].t; }
+  }
+  const played = wins + losses;
+  return {
+    wins, losses, points, progress, unplayed, played, dist, streak, streakIds, streakFrom, best, bestIds, bestFrom, bestTo,
+    bestIsCurrent: streak > 0 && streak === best && bestIds.includes(streakIds[0]),
+    risk: streak > 0 && todayOpen, acc: played ? Math.round((wins / played) * 100) : 0, avg: wins ? sumAtt / wins : null,
+  };
+}
+const FILTERS = [
+  { k: 'all', label: 'Todos' },
+  { k: 'won', label: 'Acertados', icon: 'check', fc: 'ok', cc: 'ok' },
+  { k: 'lost', label: 'Fallados', icon: 'x', fc: 'ko', cc: 'ko' },
+  { k: 'progress', label: 'En curso', icon: 'play', fc: 'ac', cc: 'st-todos' },
+  { k: 'new', label: 'Sin jugar', icon: 'cdash', fc: 'ne', cc: '' },
+];
+const matches = (d, f) => f === 'all' || d.s === f;
+
+/* ── Marcos ── */
+const VAR = { h: 'A', r: 'A' };
+const FR = {};
+const PRESETS = {
+  risk: () => ({ cfg: { played: 'many', today: 'new' }, rank: '1.º de 2' }),
+  won: () => ({ cfg: { played: 'many', today: 'won', fixed: FIX_WON }, rank: '1.º de 2' }),
+  progress: () => ({ cfg: { played: 'many', today: 'progress', fixed: FIX_PROG }, rank: '1.º de 2' }),
+  few: () => ({ cfg: { played: 'few', today: 'new' }, rank: '2.º de 2' }),
+  none: () => ({ cfg: { played: 'none', today: 'new' }, rank: null }),
+  guest: () => ({ cfg: { played: 'few', today: 'new' }, rank: null, guest: true }),
+};
+function mk(id, layout, preset, extra = {}) {
+  FR[id] = { id, layout, init: { preset, extra } };
+  load(FR[id], preset, extra);
+}
+function load(st, preset, extra = {}) {
+  const p = PRESETS[preset]();
+  Object.assign(st, { preset, filter: 'all', open: new Set(), expanded: new Set(), guest: false, part: 'all', forceH: null, forceR: null, rank: null }, p, extra);
+  st.days = makeData(st.cfg);
+  st.S = judiStats(st.days);
+  const k = monthKey(TODAY);
+  st.open = new Set(extra.open || [k]);
+}
+const vh = (st) => st.forceH || VAR.h;
+const vr = (st) => st.forceR || VAR.r;
+const monthKey = (t) => `${U(t).getUTCFullYear()}-${String(U(t).getUTCMonth()).padStart(2, '0')}`;
+const todayOf = (st) => st.days[st.days.length - 1];
+
+/* ── Navegación ── */
+function navInd(st) {
+  const d = todayOf(st);
+  if (d.s === 'won') return { cls: 'ok', word: 'Acertado', icon: 'check' };
+  if (d.s === 'lost') return { cls: 'ko', word: 'Fallado', icon: 'x' };
+  return { cls: 'warn', word: 'Hoy', icon: 'clock' };
+}
+function sidebar(st) {
+  const ind = navInd(st);
+  const link = (label, icon, active = false, extra = '') => `<a href="#" class="nv-link${active ? ' active' : ''}">${ic(icon)}<span class="nv-link__label">${label}</span>${extra}</a>`;
+  const groups = [`<div class="nv-group">${link('Inicio', 'home')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('Biblioteca', 'library')}${link('Logros', 'award')}${link('Wishlist', 'heart')}${link('Estadísticas', 'chart')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('JUDI', 'gamepad', true, `<span class="nav-ind hg-tint ${ind.cls}">${ic(ind.icon)}${ind.word}</span>`)}${link('Ranking', 'trophy')}</div>`];
+  const dark = document.documentElement.dataset.theme === 'dark';
+  const theme = `<div class="theme-toggle">${['sun', 'moon', 'monitor'].map((i, k) => `<span class="${(dark ? 1 : 0) === k ? 'on' : ''}">${ic(i)}</span>`).join('')}</div>`;
+  const account = st.guest ? `<a href="#" class="nav-cta">${ic('login')}<span>Iniciar sesión</span></a>`
+    : `<a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>diego</span><span class="nv-account__meta">Ver perfil</span></span></a>`;
+  return `<aside class="nv-side"><a href="#" class="nv-brand">${logo(22)}</a><span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span><nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}${account}</div></aside>`;
+}
+function mobileChrome(st, body) {
+  const ind = navInd(st);
+  const tabs = [['Inicio', 'home'], ['Biblioteca', 'library'], ['Logros', 'award'], ['JUDI', 'gamepad'], ['Ranking', 'trophy'], ['Perfil', 'user']];
+  const tabbar = tabs.map(([l, i]) => `<a href="#" class="m-tab ${l === 'JUDI' ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}${l === 'JUDI' ? `<span class="m-tab__badge ${ind.cls}" title="${ind.word}"></span>` : ''}</span><span>${l}</span></a>`).join('');
+  const dark = document.documentElement.dataset.theme === 'dark';
+  return `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon">${ic(dark ? 'moon' : 'sun')}</span><span class="m-icon"><span class="nv-avatar">${st.guest ? ic('user') : 'D'}</span></span></div></header><div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+
+/* ── Piezas ── */
+const SLOT_ICON = { miss: 'x', skip: 'skip', hit: 'check' };
+function pipsHTML(d, size = 'sm') {
+  const s = slotsOf(d);
+  const m = s.filter((x) => x.k === 'miss').length, k = s.filter((x) => x.k === 'skip').length;
+  const label = `${m} ${m === 1 ? 'fallado' : 'fallados'}${k ? ` y ${k} ${k === 1 ? 'saltado' : 'saltados'}` : ''}${d.s === 'won' ? ', acertado' : ''} de 6 intentos`;
+  return `<span class="jd-pips jd-pips--${size}" role="img" aria-label="${label}">${s.map((x) => `<span class="jd-pip is-${x.k}">${SLOT_ICON[x.k] ? ic(SLOT_ICON[x.k]) : ''}</span>`).join('')}</span>`;
+}
+function todayCard(st) {
+  const d = todayOf(st);
+  const chip = d.s === 'won' ? `<span class="hg-chip hg-tint ok">${ic('check')}Acertado</span>` : d.s === 'progress' ? `<span class="hg-chip hg-tint st-todos">${ic('play')}En curso</span>` : `<span class="hg-chip hg-tint warn">${ic('clock')}Sin jugar</span>`;
+  const name = d.s === 'won' ? `<p class="jd-today__name">${esc(d.name)}</p>` : `<p class="jd-today__name is-q">¿Lo reconoces?</p>`;
+  const line = d.s === 'won'
+    ? `<p class="jd-today__line">${pipsHTML(d, 'md')}<span style="white-space:nowrap"><b style="color:var(--primary)">+${pointsOf(d)} puntos</b> · en el intento ${d.failed + 1}</span></p>`
+    : `<p class="jd-today__line">${pipsHTML(d, 'md')}<span style="white-space:nowrap">Quedan <b>${6 - d.failed}</b></span><span class="jd-stake hg-tint st-todos">${ic('trophy')}+${Math.max(6 - d.failed, 1)} si aciertas</span></p>`;
+  const cta = d.s === 'won' ? 'Ver resultado' : d.s === 'progress' ? 'Continuar partida' : 'Jugar ahora';
+  const art = d.s === 'won' ? HDR(d.appid) : 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/367520/ss_5384f9f8b96a0b9934b2bc35a4058376211636d2.600x338.jpg';
+  return `<section class="jd-today hg-enter" style="--i:0" aria-label="Juego del día"><div class="jd-today__art"><img src="${art}" alt="" onerror="this.style.visibility='hidden'">${d.s !== 'won' ? `<span class="jd-plate">Captura ${d.failed + 1} de 6</span>` : ''}</div><div class="jd-today__body">
+    <div class="jd-today__meta"><span>JUDI #${d.id} · miércoles, 28 de octubre</span>${chip}</div>${name}${line}
+    <div class="jd-today__foot"><button type="button" class="btn ${d.s === 'won' ? 'btn--secondary' : 'btn--primary'}" data-act="open" data-id="${d.id}">${cta}${ic('arrowr', 'i-go')}</button><span class="jd-count">${ic('clock')}<b>9:14:32</b> para el siguiente</span></div></div></section>`;
+}
+
+function countSpan(v, dec = 0, suf = '') { return `<span class="js-count" data-to="${v}" data-dec="${dec}" data-suf="${suf}">${fmtNum(v, dec)}${suf}</span>`; }
+function fmtNum(v, dec) { return v.toLocaleString('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec }); }
+
+function tilesHTML(st) {
+  const S = st.S;
+  const streakOff = S.streak === 0;
+  const streakNote = S.risk ? `<span class="risk">${ic('clock')}Acierta el de hoy para llegar a ${S.streak + 1}</span>`
+    : streakOff ? (todayOf(st).s === 'lost' ? 'Se cortó hoy. Mañana empiezas otra' : 'Acierta el de hoy para empezar una')
+    : `Desde el <b>${dLong(S.streakFrom)}</b>`;
+  const bestNote = S.best === 0 ? 'Aún no hay ninguna' : S.bestIsCurrent ? '<span class="is-same">Es la actual</span>' : dRange(S.bestFrom, S.bestTo);
+  const total = S.wins + S.losses;
+  const tiles = [
+    `<div class="hg-tile streak-tile is-hoverable st-todos ${streakOff ? 'is-off' : ''} ${S.risk ? 'is-risk' : ''}" tabindex="0" data-spot="streak"><dt><span class="hg-tile__icon hg-tint st-todos flame">${ic('flame')}</span>Racha actual</dt><dd><span class="hg-tile__value">${countSpan(S.streak)} <small>${S.streak === 1 ? 'día' : 'días'}</small></span><span class="hg-tile__note">${streakNote}</span></dd></div>`,
+    `<div class="hg-tile best-tile is-hoverable" tabindex="0" data-spot="best"><dt><span class="hg-tile__icon">${ic('award')}</span>Mejor racha</dt><dd><span class="hg-tile__value">${countSpan(S.best)} <small>${S.best === 1 ? 'día' : 'días'}</small></span><span class="hg-tile__note">${bestNote}</span></dd></div>`,
+    `<div class="hg-tile"><dt><span class="hg-tile__icon hg-tint ok">${ic('check')}</span>Acertados</dt><dd><span class="hg-tile__value">${countSpan(S.wins)}</span><span class="hg-tile__note">de <b>${n(total)}</b> jugados${S.progress ? ` · ${S.progress} en curso` : ''}</span></dd></div>`,
+    `<div class="hg-tile"><dt><span class="hg-tile__icon hg-tint ok">${ic('percent')}</span>De acierto</dt><dd><span class="hg-tile__value">${countSpan(S.acc, 0, ' %')}</span><span class="acc-bar" role="img" aria-label="${S.wins} acertados y ${S.losses} fallados">${total ? `<span class="w" style="width:${(S.wins / total) * 100}%"></span><span class="l" style="width:${(S.losses / total) * 100}%"></span>` : ''}</span><span class="hg-tile__note">${n(S.losses)} ${S.losses === 1 ? 'fallado' : 'fallados'}</span></dd></div>`,
+    `<div class="hg-tile"><dt><span class="hg-tile__icon hg-tint st-todos">${ic('layers')}</span>Media de intentos</dt><dd><span class="hg-tile__value">${S.avg === null ? '—' : countSpan(Math.round(S.avg * 10) / 10, 1)}</span><span class="hg-tile__note">${S.avg === null ? 'Cuando aciertes alguno' : 'Intento medio en el que aciertas'}</span></dd></div>`,
+    `<div class="hg-tile"><dt><span class="hg-tile__icon hg-tint st-todos">${ic('trophy')}</span>Puntos</dt><dd><span class="hg-tile__value">${countSpan(S.points)}</span><span class="hg-tile__note">${st.guest ? '<a href="#">Inicia sesión</a> para entrar en el ranking' : st.rank ? `<a href="#"><b>${st.rank}</b> en el ranking</a>` : 'Aún fuera del ranking'}</span></dd></div>`,
+  ];
+  return `<dl class="hg-tiles" aria-label="Tus estadísticas de JUDI">${tiles.map((t, i) => t.replace('class="hg-tile', `style="--i:${i + 1}" class="hg-enter hg-tile`)).join('')}</dl>`;
+}
+function distHTML(st) {
+  const S = st.S;
+  const max = Math.max(1, ...S.dist, S.losses);
+  const top = S.dist.indexOf(Math.max(...S.dist));
+  const rows = S.dist.map((c, i) => `<div class="ds-row ${i === top && c > 0 ? 'is-top' : ''}"><span class="ds-lbl">${i + 1}.º <small>+${6 - i}</small></span><span class="ds-track"><span class="ds-fill" style="width:${(c / max) * 100}%;--i:${i}"></span></span><span class="ds-n">${c}</span></div>`).join('');
+  const lost = `<div class="ds-sep"></div><div class="ds-row is-lost"><span class="ds-lbl">${ic('x')} Sin acertar</span><span class="ds-track"><span class="ds-fill" style="width:${(S.losses / max) * 100}%;--i:6"></span></span><span class="ds-n">${S.losses}</span></div>`;
+  const foot = S.wins ? `<p class="ds-foot">Sueles acertar en el <b>intento ${top + 1}</b>${top === 0 ? ', con la primera captura' : ''}.</p>` : '';
+  return `<section class="panel ds hg-enter" style="--i:7" aria-labelledby="${st.id}-ds"><div class="sec-head"><span class="sec-head__icon hg-tint ok">${ic('bars')}</span><h3 id="${st.id}-ds">En qué intento aciertas</h3></div><div class="ds-rows" role="list">${rows}${lost}</div>${foot}</section>`;
+}
+function emptyStats() {
+  return `<div class="dash-empty hg-enter" style="--i:1"><span class="dash-empty__icon hg-tint st-todos">${ic('flame')}</span><p><b>Aún no has jugado ningún JUDI</b>Acierta el de hoy y empieza tu racha. También puedes jugar cualquier día pasado.</p><button type="button" class="btn btn--primary btn--sm" data-act="open" data-id="812">Jugar el de hoy${ic('arrowr', 'i-go')}</button></div>`;
+}
+
+/* Mapa del año */
+function mapHTML(st) {
+  const byT = new Map(st.days.map((d) => [d.t, d]));
+  const y0 = dt(2026, 0, 1), y1 = dt(2026, 11, 31);
+  const startDow = (U(y0).getUTCDay() + 6) % 7; // lunes = 0
+  const start = y0 - startDow * DAY;
+  const weeks = Math.ceil((y1 - start + DAY) / (7 * DAY));
+  const cells = []; const months = [];
+  for (let w = 0; w < weeks; w++) {
+    for (let k = 0; k < 7; k++) {
+      const t = start + (w * 7 + k) * DAY;
+      const D = U(t);
+      if (D.getUTCDate() === 1 && D.getUTCFullYear() === 2026) months.push(`<span style="grid-column:${w + 1}">${cap(MON3[D.getUTCMonth()])}</span>`);
+      if (t < y0 || t > y1) { cells.push(`<i class="is-out"></i>`); continue; }
+      const d = byT.get(t);
+      const today = t === TODAY ? ' is-today' : '';
+      if (t > TODAY) { cells.push(`<i class="is-future" style="--w:${w}" title="${dShort(t)}"></i>`); continue; }
+      if (!d) { cells.push(`<i class="is-none${today}" style="--w:${w}" title="${dShort(t)} · sin JUDI"></i>`); continue; }
+      const word = d.s === 'won' ? `acertado en el intento ${d.failed + 1}` : d.s === 'lost' ? 'fallado' : d.s === 'progress' ? 'en curso' : 'sin jugar';
+      const dim = st.filter !== 'all' && d.s !== st.filter ? ' is-dim' : '';
+      cells.push(`<i class="s-${d.s}${today}${dim}" style="--w:${w}" data-id="${d.id}" data-s="${d.s}" title="${dShort(t)} · #${d.id} · ${word}"></i>`);
+    }
+  }
+  const S = st.S;
+  return `<div class="hm">
+    <div class="hm-scroll"><div class="hm-body" style="--weeks:${weeks}"><div class="hm-months">${months.join('')}</div>
+      <div class="hm-wd" aria-hidden="true"><span>L</span><span></span><span>X</span><span></span><span>V</span><span></span><span></span></div>
+      <div class="hm-grid" tabindex="0" role="grid" aria-label="Tu año en JUDI: ${S.wins} acertados, ${S.losses} fallados, ${S.unplayed} sin jugar. Pulsa un día para ir a él.">${cells.join('')}</div></div></div>
+    <div class="hm-foot"><span class="hm-key"><i class="s-won"></i>Acertado</span><span class="hm-key"><i class="s-lost"></i>Fallado</span><span class="hm-key"><i class="s-progress"></i>En curso</span><span class="hm-key"><i></i>Sin jugar</span><span class="hm-key"><i class="is-none"></i>Sin JUDI</span><span class="hm-foot__end">${n(S.wins + S.losses)} de ${n(st.days.length)} días jugados en 2026</span></div>
+  </div>`;
+}
+
+function filtersHTML(st) {
+  const c = { all: st.days.length, won: st.S.wins, lost: st.S.losses, progress: st.S.progress, new: st.S.unplayed };
+  return `<div class="hg-seg hg-seg--slide" role="group" aria-label="Filtrar días"><span class="hg-seg__thumb" aria-hidden="true"></span>${FILTERS.map((f, i) =>
+    `<button type="button" class="hg-seg__opt" data-act="filter" data-filter="${f.k}" aria-pressed="${st.filter === f.k}">${f.icon ? `<span class="f-ic ${f.fc}">${ic(f.icon)}</span>` : ''}<span>${f.label}</span><span class="cnt ${f.cc ? `hg-tint ${f.cc}` : ''} ${c[f.k] ? '' : 'is-zero'}" style="--i:${i}">${n(c[f.k])}</span></button>`).join('')}</div>`;
+}
+
+function resText(d) {
+  if (d.s === 'won') return `<span class="dy__res ok">${ic('check')}${d.failed === 0 ? 'Acertado a la primera' : `Acertado en el intento ${d.failed + 1}`}</span>`;
+  if (d.s === 'lost') return `<span class="dy__res ko">${ic('x')}Fallado</span>`;
+  if (d.s === 'progress') return `<span class="dy__res ac">${ic('play')}En curso · quedan ${6 - d.failed}</span>`;
+  return `<span>+${Math.max(6 - d.failed, 1)} si aciertas</span>`;
+}
+function ptsHTML(d) { return d.s === 'won' ? `<span class="dy__pts ok">+${pointsOf(d)}</span>` : d.s === 'lost' ? `<span class="dy__pts ne">0</span>` : `<span class="dy__pts ne"></span>`; }
+function coverHTML(d, cls) { return d.s === 'won' || d.s === 'lost' ? `<span class="${cls}"><img src="${HDR(d.appid)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'"></span>` : `<span class="${cls}"><span class="mys">?</span></span>`; }
+function detailHTML(d) {
+  const tries = [];
+  let note = '';
+  if (d.attempts && d.attempts.length === d.failed) {
+    d.attempts.forEach((a, i) => tries.push(a.k === 'skip'
+      ? `<li class="jd-try is-skip"><span class="jd-try__n">${ic('skip')}</span><span>${i + 1}.º · Saltado</span></li>`
+      : `<li class="jd-try is-miss"><span class="jd-try__n">${ic('x')}</span><span>${i + 1}.º · ${esc(a.name)}</span></li>`));
+    if (d.s === 'won') tries.push(`<li class="jd-try is-hit"><span class="jd-try__n">${ic('check')}</span><span>${d.failed + 1}.º · ${esc(d.name)}</span></li>`);
+    const m = d.attempts.filter((a) => a.k === 'miss').length, k = d.failed - m;
+    note = d.s === 'won' ? (d.failed === 0 ? 'Con solo la primera captura.' : `Tras ${[m && `${m} ${m === 1 ? 'fallo' : 'fallos'}`, k && `${k} ${k === 1 ? 'saltado' : 'saltados'}`].filter(Boolean).join(' y ')}.`)
+      : d.s === 'lost' ? 'Sin dar con él en los 6 intentos.' : `Llevas ${d.failed} ${d.failed === 1 ? 'intento' : 'intentos'}; puedes seguir cuando quieras.`;
+  } else {
+    if (d.s === 'won') {
+      tries.push(`<li class="jd-try is-hit"><span class="jd-try__n">${ic('check')}</span><span>${d.failed + 1}.º · ${esc(d.name)}</span></li>`);
+      note = d.failed === 0 ? 'Con solo la primera captura.' : `<b>De antes del 28 de octubre</b>: ${d.failed} ${d.failed === 1 ? 'intento' : 'intentos'} sin acertar, sin orden ni nombres (antes se borraban al acertar).`;
+    } else {
+      d.known.forEach((nm) => tries.push(`<li class="jd-try is-miss"><span class="jd-try__n">${ic('x')}</span><span>${esc(nm)}</span></li>`));
+      note = `<b>De antes del 28 de octubre</b>: ${d.failed} ${d.failed === 1 ? 'intento' : 'intentos'} sin acertar, sin orden ni saltos${d.known.length ? `; estos son los nombres que se guardaron` : ''}.`;
+    }
+  }
+  const btn = d.s === 'progress' ? 'Seguir la partida' : 'Ver la partida';
+  return `<div class="dy__detail"><div><div class="dy__dbody"><p class="dy__dnote">${note}</p>${tries.length ? `<ul class="jd-tries" aria-label="Tus intentos">${tries.join('')}</ul>` : ''}<div class="dy__dfoot"><span class="dy__dnote">JUDI #${d.id} · ${WDL[U(d.t).getUTCDay()]}, ${dLong(d.t)}</span><button type="button" class="btn btn--secondary btn--sm" data-act="open" data-id="${d.id}">${btn}${ic('arrowr', 'i-go')}</button></div></div></div></div>`;
+}
+function rowHTML(d, i, st) {
+  const isToday = d.t === TODAY;
+  const date = `<span class="dy__date"><b>${U(d.t).getUTCDate()}</b><span>${WD[U(d.t).getUTCDay()]}</span>${isToday ? '<span class="today">Hoy</span>' : ''}</span>`;
+  const done = d.s === 'won' || d.s === 'lost';
+  const name = done ? esc(d.name) : d.s === 'progress' ? '¿Lo reconoces?' : 'Sin jugar';
+  const label = `JUDI #${d.id}, ${dShort(d.t)}: ${done ? `${esc(d.name)}, ${d.s === 'won' ? `acertado en el intento ${d.failed + 1}` : 'fallado'}` : name.toLowerCase()}`;
+  const open = st.expanded.has(d.id);
+  if (d.s === 'new') {
+    return `<li class="dy s-new ${isToday ? 'is-today' : ''}" style="--i:${i}" data-id="${d.id}"><div class="dy__row">${date}${coverHTML(d, 'dy__cover')}<span class="dy__main"><a href="#" class="dy__name is-q" data-act="open" data-id="${d.id}" aria-label="${label}">Sin jugar</a><span class="dy__meta">${resText(d)}<span>#${d.id}</span></span></span><button type="button" class="btn ${isToday ? 'btn--primary' : 'btn--secondary'} btn--sm dy__act" data-act="open" data-id="${d.id}">Jugar</button></div></li>`;
+  }
+  return `<li class="dy s-${d.s} ${isToday ? 'is-today' : ''} ${open ? 'is-open' : ''}" style="--i:${i}" data-id="${d.id}"><div class="dy__row">${date}${coverHTML(d, 'dy__cover')}
+    <span class="dy__main"><a href="#" class="dy__name ${done ? '' : 'is-q'}" data-act="open" data-id="${d.id}" aria-label="${label}">${name}</a><span class="dy__meta">${resText(d)}<span>#${d.id}</span></span><span class="dy__sub">${pipsHTML(d)}${ptsHTML(d)}</span></span>
+    <span class="dy__pips">${pipsHTML(d)}</span>${ptsHTML(d)}
+    <button type="button" class="dy__more" data-act="more" aria-expanded="${open}" aria-label="${open ? 'Ocultar' : 'Ver'} tus intentos del #${d.id}">${ic('chevd')}</button></div>${detailHTML(d)}</li>`;
+}
+function cardHTML(d, i) {
+  const isToday = d.t === TODAY;
+  const done = d.s === 'won' || d.s === 'lost';
+  const name = done ? esc(d.name) : d.s === 'progress' ? '¿Lo reconoces?' : 'Sin jugar';
+  const foot = d.s === 'new' ? `<span class="dy__meta">${resText(d)}</span><button type="button" class="btn btn--secondary btn--sm dy__act" style="position:relative;z-index:2" data-act="open" data-id="${d.id}">Jugar</button>`
+    : `${d.s === 'won' ? `<span class="dy__res ok">${ic('check')}+${pointsOf(d)}</span>` : d.s === 'lost' ? `<span class="dy__res ko">${ic('x')}0 pts</span>` : `<span class="dy__res ac">${ic('play')}Quedan ${6 - d.failed}</span>`}${pipsHTML(d)}`;
+  return `<li class="dc s-${d.s}" style="--i:${i}" data-id="${d.id}">${coverHTML(d, 'dc__art')}<div class="dc__body"><span class="dc__meta"><span>${isToday ? '<span class="today">Hoy</span>' : dShort(d.t)}</span><span>#${d.id}</span></span><a href="#" class="dc__name ${done ? '' : 'is-q'}" data-act="open" data-id="${d.id}">${name}</a><span class="dc__foot">${foot}</span></div></li>`;
+}
+function listHTML(st) {
+  const shown = st.days.filter((d) => matches(d, st.filter));
+  if (!shown.length) {
+    const f = FILTERS.find((x) => x.k === st.filter);
+    const txt = { won: 'Ningún día acertado todavía', lost: 'Ningún día fallado. Así se juega', progress: 'Ningún día a medias', new: 'Has jugado todos los días' }[st.filter];
+    return `<div class="jh-empty"><span class="dash-empty__icon hg-tint ${f.cc || 'neutral'}">${ic(f.icon || 'filterx')}</span><p><b>${txt}</b>Nada en «${f.label}».</p><button type="button" class="btn btn--secondary btn--sm" data-act="filter" data-filter="all">Ver todos los días</button></div>`;
+  }
+  const groups = new Map();
+  for (const d of [...st.days].reverse()) {
+    const k = monthKey(d.t);
+    if (!groups.has(k)) groups.set(k, { k, t: d.t, all: [], shown: [] });
+    const g = groups.get(k); g.all.push(d); if (matches(d, st.filter)) g.shown.push(d);
+  }
+  const list = [...groups.values()].filter((g) => g.shown.length);
+  if (![...st.open].some((k) => list.some((g) => g.k === k))) st.open.add(list[0].k);
+  const f = FILTERS.find((x) => x.k === st.filter);
+  return list.map((g) => {
+    const w = g.all.filter((d) => d.s === 'won').length, l = g.all.filter((d) => d.s === 'lost').length, p = g.all.filter((d) => d.s === 'progress').length, tot = g.all.length;
+    const isOpen = st.open.has(g.k);
+    const ONE = { won: 'acertado', lost: 'fallado', progress: 'en curso', new: 'sin jugar' };
+    const count = st.filter === 'all' ? `<b>${w}</b> de ${tot} acertados` : `<b>${g.shown.length}</b> ${g.shown.length === 1 ? ONE[st.filter] : f.label.toLowerCase()}`;
+    const items = vr(st) === 'A' ? `<ul class="dy-list">${g.shown.map((d, i) => rowHTML(d, i, st)).join('')}</ul>` : `<ul class="dc-grid">${g.shown.map((d, i) => cardHTML(d, i)).join('')}</ul>`;
+    const label = cap(MONTHS[U(g.t).getUTCMonth()]);
+    return `<div class="mo ${isOpen ? 'is-open' : ''}" data-mo="${g.k}"><button type="button" class="mo__head" data-act="mo" aria-expanded="${isOpen}">${ic('chevd')}<span class="mo__label">${label}${g.k === monthKey(TODAY) ? '<small>este mes</small>' : ''}</span><span class="mo__bar" role="img" aria-label="${w} acertados, ${l} fallados, ${p} en curso y ${tot - w - l - p} sin jugar"><span class="w" style="width:${(w / tot) * 100}%"></span><span class="l" style="width:${(l / tot) * 100}%"></span><span class="p" style="width:${(p / tot) * 100}%"></span></span><span class="mo__count">${count}</span></button><div class="mo__body"><div class="mo__inner">${items}</div></div></div>`;
+  }).join('');
+}
+function histHTML(st) {
+  const S = st.S;
+  return `<section class="jh-hist hg-enter" style="--i:8" aria-labelledby="${st.id}-h">
+    <div class="jh-hist__head"><div><div class="sec-head"><span class="sec-head__icon hg-tint st-todos">${ic('history')}</span><h2 id="${st.id}-h">Historial</h2><span class="sec-head__count">${n(st.days.length)} días · ${n(S.wins + S.losses)} jugados</span></div><p class="sec-hint">Puedes jugar cualquier día pasado.</p></div></div>
+    ${vh(st) === 'A' ? `<div class="panel">${mapHTML(st)}</div>` : ''}
+    ${filtersHTML(st)}
+    <div class="js-list">${listHTML(st)}</div>
+  </section>`;
+}
+function pageHTML(st) {
+  const none = st.S.wins + st.S.losses + st.S.progress === 0;
+  const head = `<header class="hg-enter" style="--i:0"><h1 class="page-title">JUDI</h1><p class="page-subtitle">Adivina el videojuego del día con 6 capturas y 5 pistas. Cuanto antes aciertes, más puntos sumas en el ranking.</p></header>`;
+  const stats = none ? emptyStats() : `<div class="jh-stats">${tilesHTML(st)}${distHTML(st)}</div>`;
+  const nudge = st.guest ? `<div class="jd-nudge hg-enter" style="--i:7"><p><b>Guarda tu progreso y compite.</b> Tus partidas se guardan solo en este dispositivo hasta que inicies sesión.</p><button type="button" class="btn btn--secondary btn--sm">Iniciar sesión</button></div>` : '';
+  if (st.part === 'hist') return `<div class="jh">${histHTML(st)}</div>`;
+  return `<div class="jh">${head}${todayCard(st)}${stats}${nudge}${histHTML(st)}</div>`;
+}
+function frameHTML(st) {
+  const body = pageHTML(st);
+  if (st.layout === 'desk') return `${sidebar(st)}<div class="page"><div class="page-in">${body}</div></div>`;
+  if (st.layout === 'mob') return mobileChrome(st, body);
+  return `<div class="col-frame">${body}</div>`;
+}
+
+/* ── Render y animación ── */
+const animTimers = {};
+function renderFrame(id, anim = false) {
+  const st = FR[id]; const el = document.getElementById(id); if (!el) return;
+  el.classList.remove('anim');
+  el.innerHTML = frameHTML(st);
+  placeThumb(el, false);
+  el.querySelectorAll('.hm-scroll').forEach((s) => { s.scrollLeft = s.scrollWidth; });
+  if (anim) {
+    void el.offsetWidth; el.classList.add('anim');
+    el.querySelectorAll('.js-count').forEach(countUp);
+    clearTimeout(animTimers[id]); animTimers[id] = setTimeout(() => el.classList.remove('anim'), 1600);
+  }
+}
+function countUp(el) {
+  const to = Number(el.dataset.to) || 0, dec = Number(el.dataset.dec) || 0, suf = el.dataset.suf || '';
+  if (rm() || to === 0) { el.textContent = fmtNum(to, dec) + suf; return; }
+  const t0 = performance.now(), dur = 450;
+  const tick = (t) => { const p = Math.min(1, (t - t0) / dur); const e = 1 - Math.pow(1 - p, 3); el.textContent = fmtNum(dec ? Math.round(to * e * 10) / 10 : Math.round(to * e), dec) + suf; if (p < 1) requestAnimationFrame(tick); };
+  el.textContent = fmtNum(0, dec) + suf; requestAnimationFrame(tick);
+}
+function placeThumb(scope, animate = true) {
+  scope.querySelectorAll('.hg-seg--slide').forEach((seg) => {
+    const on = seg.querySelector('[aria-pressed="true"]'); const th = seg.querySelector('.hg-seg__thumb'); if (!on || !th) return;
+    if (!animate) th.style.transition = 'none';
+    th.style.width = `${on.offsetWidth}px`; th.style.transform = `translateX(${on.offsetLeft}px)`;
+    if (!animate) { void th.offsetWidth; th.style.transition = ''; }
+  });
+}
+function toast(el, text) {
+  el.querySelectorAll('.toast').forEach((t) => t.remove());
+  const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = text; el.appendChild(t);
+  setTimeout(() => { t.classList.add('is-out'); setTimeout(() => t.remove(), 200); }, 1800);
+}
+
+async function setFilter(st, f) {
+  if (st.filter === f) return;
+  st.filter = f;
+  const el = document.getElementById(st.id);
+  el.querySelectorAll('[data-act="filter"][data-filter]').forEach((b) => { if (b.closest('.hg-seg')) b.setAttribute('aria-pressed', String(b.dataset.filter === f)); });
+  placeThumb(el, true);
+  el.querySelectorAll('.hm-grid i[data-id]').forEach((c) => c.classList.toggle('is-dim', f !== 'all' && c.dataset.s !== f));
+  const list = el.querySelector('.js-list');
+  list.classList.remove('swap'); list.classList.add('is-out');
+  await wait(120);
+  list.innerHTML = listHTML(st);
+  list.classList.remove('is-out'); void list.offsetWidth; list.classList.add('swap');
+  setTimeout(() => list.classList.remove('swap'), 700);
+}
+async function gotoDay(st, id) {
+  const d = st.days.find((x) => x.id === id); if (!d) return;
+  const el = document.getElementById(st.id);
+  if (!matches(d, st.filter)) await setFilter(st, 'all');
+  const k = monthKey(d.t);
+  const mo = el.querySelector(`.mo[data-mo="${k}"]`);
+  if (mo && !mo.classList.contains('is-open')) { st.open.add(k); mo.classList.add('is-open'); mo.querySelector('.mo__head').setAttribute('aria-expanded', 'true'); await wait(300); }
+  el.querySelectorAll('.hm-grid i.is-sel').forEach((c) => c.classList.remove('is-sel'));
+  el.querySelector(`.hm-grid i[data-id="${id}"]`)?.classList.add('is-sel');
+  const row = el.querySelector(`.js-list [data-id="${id}"]`); if (!row) return;
+  row.scrollIntoView({ block: 'center', behavior: rm() ? 'auto' : 'smooth' });
+  row.classList.remove('is-flash'); void row.offsetWidth; row.classList.add('is-flash');
+  setTimeout(() => row.classList.remove('is-flash'), 1200);
+}
+
+document.addEventListener('click', (e) => {
+  const frame = e.target.closest('.frame'); if (!frame || !FR[frame.id]) return;
+  const st = FR[frame.id];
+  const cell = e.target.closest('.hm-grid i[data-id]');
+  if (cell) { gotoDay(st, Number(cell.dataset.id)); return; }
+  const a = e.target.closest('[data-act]'); if (!a) return;
+  e.preventDefault();
+  const act = a.dataset.act;
+  if (act === 'filter') setFilter(st, a.dataset.filter);
+  if (act === 'mo') {
+    const mo = a.closest('.mo'); const open = !mo.classList.contains('is-open');
+    mo.classList.toggle('is-open', open); a.setAttribute('aria-expanded', String(open));
+    if (open) { st.open.add(mo.dataset.mo); const ul = mo.querySelector('ul'); if (ul) { ul.classList.remove('swap'); void ul.offsetWidth; ul.classList.add('swap'); } }
+    else st.open.delete(mo.dataset.mo);
+  }
+  if (act === 'more') {
+    const li = a.closest('.dy'); const id = Number(li.dataset.id); const open = !li.classList.contains('is-open');
+    li.classList.toggle('is-open', open); a.setAttribute('aria-expanded', String(open));
+    a.setAttribute('aria-label', `${open ? 'Ocultar' : 'Ver'} tus intentos del #${id}`);
+    open ? st.expanded.add(id) : st.expanded.delete(id);
+  }
+  if (act === 'open') {
+    const d = st.days.find((x) => x.id === Number(a.dataset.id));
+    toast(frame, d ? `Abriría la partida #${d.id} (${dShort(d.t)})` : 'Abriría la partida');
+  }
+});
+/* Tiles de racha: encienden sus días en el mapa */
+function spot(tile, on) {
+  const frame = tile.closest('.frame'); const st = FR[frame?.id]; if (!st) return;
+  const grid = frame.querySelector('.hm-grid'); if (!grid) return;
+  const ids = new Set(tile.dataset.spot === 'streak' ? st.S.streakIds : st.S.bestIds);
+  grid.classList.toggle('is-spot', on && ids.size > 0);
+  grid.querySelectorAll('i[data-id]').forEach((c) => c.classList.toggle('is-spot', on && ids.has(Number(c.dataset.id))));
+}
+['mouseover', 'focusin'].forEach((ev) => document.addEventListener(ev, (e) => { const t = e.target.closest('[data-spot]'); if (t && !t.contains(e.relatedTarget)) spot(t, true); }));
+['mouseout', 'focusout'].forEach((ev) => document.addEventListener(ev, (e) => { const t = e.target.closest('[data-spot]'); if (t && !t.contains(e.relatedTarget)) spot(t, false); }));
+
+/* ── Marcos del documento ── */
+mk('f-desk', 'desk', 'risk');
+const STATES = [
+  ['few', 'Pocos días', 'Llevas tres días: dos acertados y uno fallado. La racha es de 1 y hoy está sin jugar; el mapa casi vacío ya dice que hay muchos días por jugar.', 'few', {}],
+  ['none', 'Ninguno', 'Sin partidas: un vacío con una acción en vez de seis ceros, y el historial con los 269 días sin jugar (todos se pueden jugar).', 'none', {}],
+  ['zero', 'Filtro sin resultados', 'Con pocos días y el filtro «En curso» (0): frase, icono del filtro y «Ver todos los días».', 'few', { part: 'hist', filter: 'progress' }],
+  ['old', 'Partidas antiguas sin orden', 'Octubre desplegado en dos días de antes de la migración: el fallado guarda solo los nombres que se guardaron; el acertado, solo el intento del acierto.', 'risk', { part: 'hist', forceH: 'B', expand: [dt(2026, 9, 21), dt(2026, 9, 23)] }],
+  ['exact', 'Partidas con orden', 'Ilustración: así se verán cuando la migración lleve un tiempo (aquí, como si llevara todo octubre). Saltos neutros en su sitio y «Tus intentos» en orden.', 'won', { part: 'hist', forceH: 'B', cfgExtra: { exactFrom: dt(2026, 9, 1) }, expand: [TODAY, dt(2026, 9, 26)] }],
+  ['guest', 'Invitado', 'Sin sesión, los datos salen de localStorage como hoy: sin puesto (con «Inicia sesión» en el tile de puntos) y el aviso de guardar el progreso.', 'guest', {}],
+];
+document.getElementById('states').innerHTML = STATES.map(([k, t, d], i) => `<div><div class="vlabel"><b>${i + 1}</b>${t}</div><div class="frame w-col" style="width:420px" id="s-${k}"></div><p class="frame-cap">${d}</p></div>`).join('');
+function mkExtra(id, layout, preset, x) {
+  mk(id, layout, preset, x);
+  const st = FR[id];
+  if (x.cfgExtra) { Object.assign(st.cfg, x.cfgExtra); st.days = makeData(st.cfg); st.S = judiStats(st.days); }
+  if (x.expand) x.expand.forEach((t) => { const d = st.days.find((y) => y.t === t); if (d) st.expanded.add(d.id); });
+}
+STATES.forEach(([k, , , preset, x]) => mkExtra(`s-${k}`, 'col', preset, x));
+document.getElementById('var-h').innerHTML = [['A', 'Historial A · Mapa del año + meses (recomendada)'], ['B', 'Historial B · Solo meses']].map(([v, t]) => `<div><div class="vlabel"><b>${v}</b>${t}</div><div class="frame w-col w-mid" style="width:600px" id="vh-${v}"></div></div>`).join('');
+document.getElementById('var-r').innerHTML = [['A', 'Días A · Filas (recomendada)'], ['B', 'Días B · Tarjetas']].map(([v, t]) => `<div><div class="vlabel"><b>${v}</b>${t}</div><div class="frame w-col w-mid" style="width:600px" id="vr-${v}"></div></div>`).join('');
+mkExtra('vh-A', 'col', 'risk', { part: 'hist', forceH: 'A', forceR: 'A' });
+mkExtra('vh-B', 'col', 'risk', { part: 'hist', forceH: 'B', forceR: 'A' });
+mkExtra('vr-A', 'col', 'risk', { part: 'hist', forceH: 'B', forceR: 'A' });
+mkExtra('vr-B', 'col', 'risk', { part: 'hist', forceH: 'B', forceR: 'B' });
+mkExtra('f-mob', 'mob', 'risk', {});
+mkExtra('f-mob-2', 'mob', 'won', { part: 'hist', cfgExtra: { exactFrom: MIGRATION }, expand: [TODAY] });
+
+function renderAll(anim = true) { Object.keys(FR).forEach((id) => renderFrame(id, anim)); }
+
+document.querySelectorAll('.tests').forEach((box) => box.addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-preset]'); if (!b) return;
+  const st = FR[box.dataset.frame];
+  load(st, b.dataset.preset);
+  box.querySelectorAll('[data-preset]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  renderFrame(st.id, true);
+}));
+document.querySelectorAll('[data-var]').forEach((b) => b.addEventListener('click', () => {
+  VAR[b.dataset.var] = b.dataset.val;
+  document.querySelectorAll(`[data-var="${b.dataset.var}"]`).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  Object.keys(FR).forEach((id) => renderFrame(id, true));
+}));
+function setTheme(t) {
+  const html = document.documentElement;
+  if (!rm()) { html.classList.add('theme-anim'); setTimeout(() => html.classList.remove('theme-anim'), 320); }
+  html.dataset.theme = t;
+  const btn = document.getElementById('theme-btn'); btn.setAttribute('aria-pressed', String(t === 'dark')); btn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro';
+  Object.keys(FR).forEach((id) => {
+    const el = document.getElementById(id);
+    el.querySelectorAll('.theme-toggle span').forEach((s, k) => s.classList.toggle('on', (t === 'dark' ? 1 : 0) === k));
+  });
+}
+document.getElementById('theme-btn').addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+document.getElementById('rm-btn').addEventListener('click', (e) => {
+  const on = document.documentElement.classList.toggle('rm');
+  e.currentTarget.setAttribute('aria-pressed', String(on));
+  e.currentTarget.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`;
+});
+document.getElementById('replay-btn').addEventListener('click', () => {
+  Object.values(FR).forEach((st) => { const x = st.init.extra; mkExtra(st.id, st.layout, st.init.preset, x); });
+  document.querySelectorAll('.tests [data-preset]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.preset === 'risk')));
+  renderAll(true);
+});
+
+renderAll(true);
+document.fonts?.ready.then(() => document.querySelectorAll('.frame').forEach((f) => placeThumb(f, false)));
+</script>
+</body>
+</html>

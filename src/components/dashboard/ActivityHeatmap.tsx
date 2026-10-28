@@ -44,6 +44,10 @@ interface Props {
     range?: boolean
     /** Dónde abre el mapa si se desplaza en horizontal (por defecto, al final: lo más reciente). */
     startAt?: 'start' | 'end'
+    /** Leyenda propia en lugar de «menos … más» (JUDI: acertado, fallado…). */
+    legend?: ReactNode
+    /** Resumen para lectores de pantalla en lugar del de horas y logros. */
+    summary?: string
 }
 
 interface Tip {
@@ -77,6 +81,8 @@ export default function ActivityHeatmap({
     weekdays = false,
     range = true,
     startAt = 'end',
+    legend,
+    summary,
 }: Props) {
     const id = useId()
     const scrollRef = useRef<HTMLDivElement>(null)
@@ -262,13 +268,15 @@ export default function ActivityHeatmap({
             </div>
 
             <div className="heat__foot">
-                <span className="heat__legend" aria-hidden>
-                    menos
-                    {LEVELS.map((l) => (
-                        <i key={l} data-l={l} />
-                    ))}
-                    más
-                </span>
+                {legend ?? (
+                    <span className="heat__legend" aria-hidden>
+                        menos
+                        {LEVELS.map((l) => (
+                            <i key={l} data-l={l} />
+                        ))}
+                        más
+                    </span>
+                )}
                 {range && <span>{rangeLabel(map.from, map.to)}</span>}
                 {footer}
             </div>
@@ -276,7 +284,7 @@ export default function ActivityHeatmap({
             {!preview && (
                 <>
                     <p id={`${id}-summary`} className="sr-only">
-                        {heatmapSummary(map)}
+                        {summary ?? heatmapSummary(map)}
                     </p>
                     <p className="sr-only" aria-live="polite">
                         {announced}
