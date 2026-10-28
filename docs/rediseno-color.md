@@ -152,14 +152,17 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
   - Animación: puntuación de cazador que cuenta, reparto por rareza que crece, hitos que se encienden, logros legendarios y épicos con un destello breve de su color al aparecer.
   - Mockup: `docs/mockups/logros.html` (aprobados los hitos B · tres series con todos los escalones y los logros fáciles A · lista plana con el chip de la lista de cada juego; se mantiene el panel «Puntuación de cazador» con el reparto por rareza y el top 5 aunque el tile ya da el total; «N fáciles» en «Cerca del 100 %» sale de la consulta de fáciles, limitada a 300)
   - Hecho en la rama `Diego-Mardomingo/rediseno-logros`, commit `f138a60`. `computeMilestones` devuelve también las series completas (`series`), y se añaden `seriesProgress`, `unlockedByRarity`, `thisMonth` y `countByGame` en `src/lib/achievements.ts`; la vista pasa a `src/app/logros/LogrosView.tsx` y los hitos a `Milestones.tsx`. `AchievementItem` acepta `index` (entrada escalonada y destello de épicos y legendarios) y funde el nombre al revelar un logro oculto.
-- [ ] **Logros de un juego** — `/juego/[appid]/logros` · `src/app/juego/[appid]/logros/page.tsx`, `GameAchievements.tsx`
+- [x] **Logros de un juego** — `/juego/[appid]/logros` · `src/app/juego/[appid]/logros/page.tsx`, `GameAchievements.tsx`
   - Hoy: progreso, puntos por rareza, conseguidos por rareza y filtros; ya usa rarezas.
   - Ideas: alinearla con la sección de logros de la ficha (anillo, columnas por rareza), cabecera con la cápsula, el estado del juego y vuelta a la ficha; filtros con el color de cada rareza.
   - Animación: anillo de progreso que se rellena, filtros con fondo activo deslizante y la lista que se reordena (no salta) al filtrar.
-- [ ] **Historial de logros** — `/logros/historial` · `src/app/logros/historial/page.tsx`
+  - Mockup: `docs/mockups/logros-juego.html` (aprobada la variante A · el filtro de rareza vive en las columnas del resumen, con chip «Épica ×» en la barra y filas de 44 px en móvil; cabecera con cápsula 184 × 86, `StatusChip`, marcas, horas y último logro; «Guías de Steam» como botón; filtro de rareza combinado con el de estado, con contadores cruzados y los «Sin dato» solo en «Todas»; anillo con pulso y sello «100 %»; lista que se reordena con `layout`, solo fundido con más de 150 logros)
+  - Hecho en la rama `Diego-Mardomingo/rediseno-logros-juego`, commit `00d53a9`. Lógica pura en `src/lib/game-achievements.ts` (`filterAchievements`, `stateCounts`, `matchesRarity`, `rarityColumns`, `lastUnlock`, `DIFFICULTY_TIERS`) con tests; resumen en `AchievementsSummary.tsx` y estilos `.gl-*` en `logros-juego.css`. Una consulta nueva y barata a tu fila de `hubgames_library` para la cabecera. `AchievementItem` acepta `as="div"` para ir dentro de un `motion.li`.
+- 🎨 **Historial de logros** — `/logros/historial` · `src/app/logros/historial/page.tsx`
   - Hoy: mapa de desbloqueos por día, rachas, línea temporal por mes y día.
   - Ideas: cada desbloqueo de la línea temporal con su rareza (punto o franja), resumen por mes con reparto de rareza, racha actual y mejor racha como tiles.
   - Animación: mapa que se pinta, racha con una llama o indicador que se enciende, meses que se despliegan al hacer scroll o al pulsar.
+  - Mockup: `docs/mockups/historial-logros.html` (pendiente de visto bueno: meses A abiertos / B plegables, recomendada B; día A detalle / B compacto, recomendada A)
 
 ### 5. Wishlist y precios
 

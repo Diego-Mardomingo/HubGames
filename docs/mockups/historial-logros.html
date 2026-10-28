@@ -1,0 +1,1191 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Historial de logros · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --success: #1a7743; --warning: #8e5e18;
+  --rar-comun: #8a8f98; --rar-poco: #2e9e5b; --rar-rara: #2f6fe0; --rar-epica: #8b4fd8; --rar-leg: #c98a0b; --rar-ink: 62%;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-rejugable: #9c3c08; --st-completado: #1a7743;
+  --st-abandonado: #c7243b; --st-yajugado: #5c5b06; --st-descartado: #6b7280; --st-otros: #931f8f; --st-favorito: #c2255c; --st-sinfinal: #6741d9;
+  --tint: 12%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --success: #4cc97e; --warning: #f2b53a;
+  --rar-comun: #9aa0aa; --rar-poco: #4cc97e; --rar-rara: #5b93ff; --rar-epica: #b07cff; --rar-leg: #f2b53a; --rar-ink: 100%;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-rejugable: #ff9a5c; --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e; --st-yajugado: #d2cf5c; --st-descartado: #8a919e; --st-otros: #eb84f8; --st-favorito: #f783ac; --st-sinfinal: #b197fc;
+  --tint: 14%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; color: inherit; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul { margin: 0; padding-left: 20px; }
+.note li { margin: 3px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 100ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: hidden; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 60ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.vlabel { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.9375rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--surface-2); }
+.vlabel em { color: var(--success); font-style: normal; font-size: .8125rem; font-weight: 600; }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; text-align: left; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nv-count { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px 0 6px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; line-height: 1; }
+.nv-count .i { font-size: 12px; stroke-width: 2.4; }
+.nv-count.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.theme-btn { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 18px; }
+.nv-side:not(.is-compact) .theme-btn, .is-compact .theme-toggle { display: none; }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-3); color: var(--foreground); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.nv-side.is-compact { width: 72px; align-items: center; padding: 1.25rem 0.75rem 1rem; }
+.is-compact .hg-wordmark, .is-compact .nv-link__label, .is-compact .nv-search__label, .is-compact .nv-kbd,
+.is-compact .nv-account__text, .is-compact .nv-group__title { display: none; }
+.is-compact .nv-brand { padding: 0.25rem 0; }
+.is-compact .nv-menu { align-items: center; gap: 0; }
+.is-compact .nv-group { align-items: center; }
+.is-compact .nv-group + .nv-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.is-compact .nv-link, .is-compact .nv-search { width: 44px; height: 44px; padding: 0; justify-content: center; }
+.is-compact .nv-link > .nv-count { display: none; }
+.is-compact .nv-account { width: 44px; padding: 0; justify-content: center; }
+.is-compact .nv-foot { align-items: center; }
+.nv-dot { position: absolute; display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; font-size: 0.625rem; font-weight: 700; line-height: 1; box-shadow: 0 0 0 2px var(--ring-bg, var(--background)); }
+.nv-dot.hg-tint { background: color-mix(in srgb, var(--c) calc(var(--tint) + 6%), var(--ring-bg, var(--background))); }
+.nv-dot.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.is-compact .nv-dot { top: -3px; right: -7px; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); --ring-bg: var(--surface); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); background: var(--primary-glow); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+.m-tab .nv-dot { top: -8px; left: calc(50% + 7px); }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.page.is-compact { margin-left: 72px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.w-mid .page-in { padding: 1.75rem 1.75rem 2.5rem; }
+.m-page { padding: 1.25rem 1rem 110px; }
+.page-title { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .page-title { font-size: 1.625rem; }
+.page-subtitle { margin: .35rem 0 0; color: var(--muted); font-size: .9375rem; }
+
+/* ══ Piezas compartidas (copia de src/styles/lists.css) ══ */
+.st-todos { --c: var(--primary); } .st-bandeja { --c: var(--st-bandeja); } .st-pendiente { --c: var(--st-pendiente); }
+.st-jugando { --c: var(--st-jugando); } .st-pausado { --c: var(--st-pausado); } .st-rejugable { --c: var(--st-rejugable); } .st-completado { --c: var(--st-completado); }
+.st-abandonado { --c: var(--st-abandonado); } .st-yajugado { --c: var(--st-yajugado); } .st-otros { --c: var(--st-otros); }
+.st-favorito { --c: var(--st-favorito); } .st-sin_final { --c: var(--st-sinfinal); }
+.rar-comun { --c: var(--rar-comun); } .rar-poco { --c: var(--rar-poco); } .rar-rara { --c: var(--rar-rara); } .rar-epica { --c: var(--rar-epica); } .rar-leg { --c: var(--rar-leg); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.st-pausado { color: var(--warn-ink); }
+.hg-tint[class*='rar-'] { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+.rar-ink { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; transition: background .15s, border-color .15s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { border-color: var(--border-hover); }
+.btn--ghost { background: transparent; color: var(--muted); }
+.btn--ghost:hover { background: var(--surface-2); color: var(--foreground); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.w-mob .btn, .w-mob .btn--sm { height: 44px; }
+
+.hg-rows { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.hg-row { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: center; gap: 1rem; min-height: 68px; padding: 8px 12px 8px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: box-shadow .15s ease, border-color .15s ease; }
+.hg-row:hover, .hg-row:has(:focus-visible) { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.hg-row.lib-row::before { content: ''; position: absolute; inset: -1px auto -1px -1px; width: 4px; border-radius: var(--radius) 0 0 var(--radius); background: var(--c); }
+.hg-row__cover { position: relative; display: block; width: 112px; height: 52px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.hg-row__cover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s var(--ease-out); }
+.hg-row:hover .hg-row__cover img { transform: scale(1.05); }
+.hg-row__main { display: grid; gap: 4px; min-width: 0; }
+.hg-row__link { overflow: hidden; color: var(--foreground); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.hg-row__link::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.hg-row__link:focus-visible { outline: none; }
+.hg-row a:not(.hg-row__link), .hg-row button { position: relative; z-index: 1; }
+.hg-row__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; color: var(--muted); font-size: 0.8125rem; min-width: 0; }
+.lib-meta { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.lib-meta .i { font-size: 13px; }
+.hg-row__prog { display: grid; gap: 6px; font-size: 0.8125rem; }
+.hg-row__prog-label { display: flex; justify-content: space-between; gap: 0.5rem; color: var(--muted); white-space: nowrap; }
+.hg-row__prog-label b { color: var(--foreground); font-weight: 600; }
+.hg-bar { position: relative; display: block; height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.hg-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--c, var(--primary)); transform-origin: left; }
+.hg-row .hg-bar > span { background: var(--primary); }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.78125rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 13px; }
+.hg-chip--sm { padding: 1px 8px 1px 6px; font-size: .71875rem; gap: 4px; }
+.hg-chip--sm .i { font-size: 11px; }
+.hg-flag { display: inline-grid; flex: none; place-items: center; width: 20px; height: 20px; border-radius: 6px; font-size: 12px; }
+
+.hg-achs { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.hg-ach { --c: var(--muted); position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 0.75rem; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: inset 3px 0 0 var(--c); overflow: hidden; }
+.hg-ach__icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--c) 16%, transparent); color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: 18px; }
+.hg-ach.rar-comun { --c: var(--rar-comun); } .hg-ach.rar-poco { --c: var(--rar-poco); } .hg-ach.rar-rara { --c: var(--rar-rara); } .hg-ach.rar-epica { --c: var(--rar-epica); } .hg-ach.rar-leg { --c: var(--rar-leg); }
+.hg-ach.is-locked .hg-ach__icon { background: var(--surface-2); color: var(--muted); }
+.hg-ach__body { display: grid; min-width: 0; }
+.hg-ach__name { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 0; font-size: 0.875rem; font-weight: 600; line-height: 1.3; }
+.hg-ach__desc, .hg-ach__ctx { margin: 2px 0 0; color: var(--muted); font-size: 0.8125rem; line-height: 1.4; }
+.hg-ach__ctx { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
+.hg-ach__ctx a:hover { color: var(--foreground); text-decoration: underline; }
+.hg-ach__pct { display: grid; justify-items: end; align-self: start; gap: 1px; padding-top: 1px; font-size: 0.8125rem; font-weight: 600; white-space: nowrap; text-align: right; }
+.hg-ach__pct small { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: 0.71875rem; font-weight: 600; }
+.ach-howto, .ach-date { margin-top: 3px; display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: .75rem; font-weight: 500; }
+.ach-howto:hover { color: var(--foreground); text-decoration: underline; }
+.ach-howto .i { font-size: 13px; }
+.ach-secret { color: var(--muted); font-style: italic; font-weight: 500; }
+.ach-reveal { display: inline-flex; align-items: center; gap: 4px; min-height: 24px; padding: 0 8px; border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--muted); font-size: .75rem; font-weight: 500; }
+.ach-reveal:hover { color: var(--foreground); border-color: var(--border-hover); }
+.ach-reveal .i { font-size: 12px; }
+
+.hg-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.w-mob .hg-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hg-card { position: relative; display: grid; align-content: start; gap: 8px; min-width: 0; padding: 6px 6px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: box-shadow .15s ease, border-color .15s ease; }
+.hg-card:hover, .hg-card:has(:focus-visible) { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.hg-card__cover { position: relative; display: block; aspect-ratio: 460 / 215; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.hg-card__cover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s var(--ease-out); }
+.hg-card:hover .hg-card__cover img { transform: scale(1.05); }
+.hg-card__body { display: grid; gap: 3px; min-width: 0; padding: 0 4px; }
+.hg-card__link { overflow: hidden; color: var(--foreground); font-size: 0.875rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.hg-card__link::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.hg-card__link:focus-visible { outline: none; }
+.hg-card__meta { display: flex; flex-wrap: wrap; gap: 0 8px; color: var(--muted); font-size: 0.75rem; }
+
+/* Tiles (Tile / .hg-tile) */
+.hg-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.w-mob .hg-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hg-tile { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+.w-mob .hg-tile { padding: 12px; }
+.hg-tile dt { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.hg-tile__icon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; font-size: 13px; }
+.hg-tile dd { margin: 0; min-width: 0; }
+.hg-tile__value { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .hg-tile__value { font-size: 1.375rem; }
+.w-mob .hg-tile__note { white-space: normal; }
+.hg-tile__value small { color: var(--muted); font-size: .875rem; font-weight: 500; letter-spacing: 0; }
+.hg-tile__value--tinted { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+.hg-tile__note { overflow: hidden; color: var(--muted); font-size: .78125rem; text-overflow: ellipsis; white-space: nowrap; }
+.hg-tile__note b { color: var(--foreground); font-weight: 600; }
+.hg-tile__note a:hover { color: var(--foreground); text-decoration: underline; }
+
+/* Cabeceras de sección con icono tintado (como en el Inicio) */
+.sec-block { display: grid; gap: .75rem; align-content: start; min-width: 0; }
+.sec-head { display: flex; align-items: center; gap: .625rem; min-height: 2rem; }
+.sec-head__icon { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 8px; font-size: 16px; }
+.sec-head h2, .sec-head h3 { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
+.sec-head h3 { font-size: 1rem; }
+.sec-head__count { color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.sec-head__end { margin-left: auto; display: flex; align-items: center; gap: .75rem; }
+.sec-hint { margin: -.4rem 0 0 2.5rem; color: var(--muted); font-size: .8125rem; }
+.w-mob .sec-hint { margin-left: 0; }
+.panel { min-width: 0; padding: 1.1rem 1.25rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.w-mob .panel { padding: 1rem; }
+.panel > .sec-head { margin-bottom: .875rem; }
+.more { justify-self: center; }
+.dash-link { color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.dash-link:hover { color: var(--foreground); text-decoration: underline; }
+
+/* Vacíos: icono con el color de la sección, texto corto y una acción */
+.dash-empty { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .5rem 1rem; padding: 1rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.dash-empty__icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; font-size: 19px; }
+.dash-empty p { margin: 0; color: var(--muted); font-size: .875rem; }
+.dash-empty p b { display: block; color: var(--foreground); font-weight: 600; }
+.dash-empty .btn { grid-column: 2; justify-self: start; }
+
+/* ══ /logros/historial ══ */
+.frame { overflow: clip; }
+/* Sin contenedor de scroll para que la cabecera fija del mes (variante A) funcione en el documento */
+.scroller { overflow: visible; }
+.hist { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+.w-mob .hist { gap: 1.25rem; }
+.back { display: inline-flex; align-items: center; gap: .35rem; min-height: 28px; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.back:hover { color: var(--foreground); }
+.back .i { font-size: 14px; }
+.w-mob .back { min-height: 44px; }
+
+/* Tiles: los de /logros (superficie con borde) */
+.hg-tile__note button.lk { padding: 0; border: 0; background: none; color: inherit; font: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 2px; }
+.hg-tile__note button.lk:hover { color: var(--foreground); }
+.hg-tile.is-hoverable { cursor: default; transition: box-shadow .15s, border-color .15s; }
+.hg-tile.is-hoverable:hover, .hg-tile.is-hoverable:focus-visible { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); outline: none; }
+.streak-tile.is-off .hg-tile__icon { background: var(--surface-2); color: var(--muted); }
+.streak-tile.is-off .hg-tile__value { color: var(--muted); }
+.best-tile .hg-tile__icon { background: var(--surface-2); color: var(--foreground); }
+.best-tile .is-same { color: var(--primary); font-weight: 600; }
+.risk { display: inline-flex; align-items: center; gap: 4px; color: var(--warn-ink); font-weight: 600; }
+.risk .i { font-size: 13px; }
+.flame .i { overflow: visible; }
+.flame path { fill: color-mix(in srgb, var(--c) 28%, transparent); }
+.streak-tile.is-off .flame path { fill: none; }
+.rare-tile .hg-tile__icon { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+
+/* Mapa del año (escala del acento, como el Inicio) */
+.hm-panel { display: grid; gap: .9rem; }
+.hm-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; }
+.hm-head .sec-head { flex: 1; min-width: 0; flex-wrap: wrap; }
+.w-mob .hm-head .sec-head { flex-basis: 100%; }
+.w-mob .hm-head .sec-head__count { flex-basis: 100%; margin: -6px 0 0 40px; }
+.w-mob .hm-head .year-sel, .w-mob .hm-head .year-sel select { width: 100%; }
+.year-sel { position: relative; display: inline-flex; align-items: center; }
+.year-sel select { appearance: none; height: 36px; min-width: 104px; padding: 0 34px 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font: inherit; font-size: .8125rem; font-weight: 600; cursor: pointer; }
+.year-sel select:hover { border-color: var(--border-hover); }
+.year-sel .i { position: absolute; right: 10px; pointer-events: none; color: var(--muted); font-size: 15px; }
+.w-mob .year-sel select { height: 44px; }
+.hm-scroll { overflow-x: auto; padding: 3px; margin: -3px; scrollbar-width: thin; }
+.hm-body { display: grid; grid-template-columns: 22px minmax(0, 1fr); column-gap: 6px; min-width: 760px; }
+.w-mob .hm-body { min-width: 720px; }
+.hm-months { grid-column: 2; display: grid; grid-template-columns: repeat(var(--weeks), minmax(0, 1fr)); column-gap: 3px; margin-bottom: 4px; color: var(--muted); font-size: .6875rem; }
+.hm-months span { grid-row: 1; white-space: nowrap; }
+.hm-wd { display: grid; grid-template-rows: repeat(7, minmax(0, 1fr)); gap: 3px; color: var(--muted); font-size: .6875rem; }
+.hm-wd span { display: flex; align-items: center; line-height: 1; }
+.hm-grid { display: grid; grid-template-columns: repeat(var(--weeks), minmax(0, 1fr)); grid-template-rows: repeat(7, auto); grid-auto-flow: column; gap: 3px; border-radius: 4px; }
+.hm-grid:focus-visible { outline-offset: 4px; }
+.hm-grid i { display: block; aspect-ratio: 1; border-radius: 3px; background: var(--surface-2); transition: opacity .15s, transform .15s; }
+.hm-panel [data-l='1'] { background: color-mix(in srgb, var(--primary) 28%, var(--surface-2)); }
+.hm-panel [data-l='2'] { background: color-mix(in srgb, var(--primary) 52%, var(--surface-2)); }
+.hm-panel [data-l='3'] { background: color-mix(in srgb, var(--primary) 76%, var(--surface-2)); }
+.hm-panel [data-l='4'] { background: var(--primary); }
+.hm-grid i.is-out { visibility: hidden; }
+.hm-grid i.is-future { background: transparent; box-shadow: inset 0 0 0 1px var(--border); }
+.hm-grid i.is-today { outline: 2px solid var(--foreground); outline-offset: 1px; }
+.hm-grid i[data-n]:not([data-n='0']) { cursor: pointer; }
+.hm-grid i[data-n]:not([data-n='0']):hover, .hm-grid i.is-active { outline: 2px solid var(--foreground); outline-offset: 1px; }
+.hm-grid i.is-selected { outline: 2px solid var(--foreground); outline-offset: 1px; transform: scale(1.15); }
+/* Al pasar por una racha: el resto del mapa se apaga y la racha se queda */
+.hm-grid.is-spot i:not(.is-spot) { opacity: .25; }
+.hm-grid.is-spot i.is-spot { outline: 2px solid var(--primary); outline-offset: 1px; }
+.hm-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.25rem; color: var(--muted); font-size: .75rem; }
+.hm-legend { display: inline-flex; align-items: center; gap: 3px; }
+.hm-legend i { width: 11px; height: 11px; border-radius: 3px; background: var(--surface-2); }
+.hm-legend i:first-of-type { margin-left: .35rem; } .hm-legend i:last-of-type { margin-right: .35rem; }
+.hm-foot__end { margin-left: auto; }
+.w-mob .hm-foot__end { margin-left: 0; }
+.hm-tip { position: absolute; z-index: 20; display: grid; gap: 2px; max-width: 260px; padding: 7px 10px; border-radius: 8px; background: var(--foreground); color: var(--background); font-size: .75rem; line-height: 1.35; pointer-events: none; box-shadow: var(--shadow-lg); transform: translate(-50%, calc(-100% - 8px)); opacity: 0; transition: opacity .12s; }
+.hm-tip.is-on { opacity: 1; }
+.hm-tip b { font-weight: 700; }
+.hm-tip span { opacity: .8; }
+
+/* Filtro de un día */
+.tl-filter { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; padding: 8px 8px 8px 14px; border-radius: var(--radius); background: var(--primary-glow); font-size: .875rem; }
+.tl-filter .i { color: var(--primary); font-size: 16px; }
+.tl-filter > span { display: inline-flex; align-items: center; gap: 8px; }
+.tl-filter .btn { margin-left: auto; }
+.w-mob .tl-filter .btn { margin-left: 0; }
+
+/* Reparto por rareza (barra apilada + leyenda) */
+.rar-sum { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+.rar-bar { display: flex; gap: 2px; flex: none; width: 200px; height: 6px; border-radius: 999px; overflow: hidden; background: var(--surface-2); }
+.w-mob .rar-bar { width: 100%; }
+.rar-bar span { background: var(--c); }
+.rar-legend { display: flex; flex-wrap: wrap; gap: 2px 12px; margin: 0; padding: 0; list-style: none; color: var(--muted); font-size: .75rem; }
+.rar-legend li { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.rar-legend li::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.rar-legend b { color: var(--foreground); font-weight: 600; }
+.w-mob .rar-legend .is-low { display: none; }
+
+/* Línea temporal */
+.tl { display: grid; gap: 1.5rem; scroll-margin-top: 80px; }
+.tl-wrap { display: grid; gap: 1rem; }
+.tl-days { display: grid; margin: 0; padding: 0; list-style: none; }
+.tl-day { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 1rem; }
+.w-mob .tl-day { grid-template-columns: 34px minmax(0, 1fr); gap: .7rem; }
+.tl-date { display: grid; justify-items: end; align-content: start; margin: 0; padding-top: .05rem; line-height: 1.1; }
+.tl-date b { font-size: 1.375rem; font-weight: 700; letter-spacing: -0.02em; }
+.w-mob .tl-date b { font-size: 1.125rem; }
+.tl-date span { color: var(--muted); font-size: .75rem; }
+.tl-date em { margin-top: 4px; font-style: normal; color: var(--primary); font-size: .6875rem; font-weight: 700; }
+.tl-body { position: relative; display: grid; gap: .75rem; min-width: 0; padding: .1rem 0 1.5rem 1.25rem; border-left: 2px solid var(--border); }
+.w-mob .tl-body { padding-left: .9rem; }
+.tl-day:last-child .tl-body { padding-bottom: .25rem; }
+/* El punto del día con el color de su logro más raro */
+.tl-dot { position: absolute; top: .4rem; left: -7px; width: 12px; height: 12px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px var(--dot-bg, var(--background)); }
+.tl-day.is-high .tl-dot { top: .3rem; left: -9px; width: 16px; height: 16px; box-shadow: 0 0 0 3px var(--dot-bg, var(--background)), 0 0 0 5px color-mix(in srgb, var(--c) 30%, transparent); }
+.tl-day__title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.tl-day__title b { color: var(--foreground); font-weight: 600; }
+.tl-day__title .rar-ink { font-weight: 600; }
+.tl-ms { display: inline-flex; align-items: center; gap: 8px; justify-self: start; margin: 0; padding: 5px 12px 5px 6px; border-radius: 999px; font-size: .8125rem; }
+.tl-ms .hg-tile__icon { width: 22px; height: 22px; border-radius: 999px; font-size: 12px; }
+.tl-ms span { color: var(--muted); }
+.tl-ms b { color: var(--foreground); }
+
+/* Un juego dentro del día */
+.tl-game { display: grid; gap: .5rem; min-width: 0; }
+.tl-ghead { position: relative; display: flex; align-items: center; gap: 6px 10px; min-width: 0; flex-wrap: wrap; }
+.tl-ghead img { width: 64px; height: 30px; flex: none; border-radius: 4px; object-fit: cover; display: block; background: var(--surface-2); }
+.w-mob .tl-ghead img { width: 56px; height: 26px; }
+.tl-gname { min-width: 0; max-width: 100%; overflow: hidden; font-size: .875rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.tl-gname:hover { text-decoration: underline; }
+.tl-gcount { color: var(--muted); font-size: .8125rem; white-space: nowrap; }
+.w-mob .tl-ghead .hg-chip { order: 3; }
+.stamp { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 9px 0 7px; border-radius: 999px; background: var(--st-completado); color: #fff; font-size: .71875rem; font-weight: 700; white-space: nowrap; }
+[data-theme='dark'] .stamp { color: #0b1f13; }
+.stamp .i { font-size: 12px; stroke-width: 2.8; }
+.hg-ach .ach-time { margin-top: 3px; color: var(--muted); font-size: .75rem; font-weight: 500; }
+.w-mob .hg-ach { grid-template-columns: 40px minmax(0, 1fr); }
+.w-mob .hg-ach__pct { grid-column: 2; display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .6rem; justify-items: start; text-align: left; }
+.w-mob .hg-ach .ach-time { margin-top: 0; }
+.tl-more { justify-self: start; }
+.is-hidden { display: none !important; }
+
+/* Día · B compacto: una fila por juego con sus logros como iconos */
+.tl-crow { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; grid-template-areas: 'c h b' 'c i b'; align-items: center; gap: 6px 12px; padding: 8px 10px 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.w-mob .tl-crow { grid-template-columns: 56px minmax(0, 1fr); grid-template-areas: 'c h' 'i i' 'b b'; }
+.tl-crow > img { grid-area: c; align-self: start; width: 64px; height: 30px; border-radius: 4px; object-fit: cover; display: block; margin-top: 2px; }
+.w-mob .tl-crow > img { width: 56px; height: 26px; }
+.tl-crow__head { grid-area: h; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-width: 0; }
+.tl-icons { grid-area: i; display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.tl-ic { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 7px; background: color-mix(in srgb, var(--c) 16%, transparent); box-shadow: inset 0 -3px 0 var(--c); color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: 14px; }
+.tl-crow__rare { grid-column: 2; color: var(--muted); font-size: .75rem; }
+.w-mob .tl-crow__rare { grid-column: 1 / -1; }
+.tl-crow__rare b { color: var(--foreground); font-weight: 600; }
+.tl-crow__btn { grid-area: b; }
+.tl-crow.is-open { padding: 10px; }
+.tl-crow.is-open .tl-crow__list { grid-column: 1 / -1; }
+
+/* Meses · A abiertos: cabecera fija con el resumen */
+.tl-month { display: grid; gap: .9rem; }
+.tl-mhead { position: sticky; top: var(--bar-h, 63px); z-index: 3; display: grid; gap: 6px; padding: 10px 0; background: var(--background); border-bottom: 1px solid var(--border); }
+.tl-mhead__top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px .6rem; }
+.tl-mhead h2 { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; }
+
+/* Meses · B plegables: una tarjeta por mes */
+.tl-mcard { --dot-bg: var(--surface); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.tl-mcard__btn { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 6px 12px; width: 100%; padding: 14px 16px; border: 0; border-radius: var(--radius-lg); background: transparent; text-align: left; transition: background .15s; }
+.w-mob .tl-mcard__btn { grid-template-columns: 20px minmax(0, 1fr); padding: 12px; min-height: 64px; }
+.tl-mcard__btn:hover { background: color-mix(in srgb, var(--surface-2) 55%, transparent); }
+.tl-mcard__chev { font-size: 18px; color: var(--muted); transition: transform .25s var(--ease-out); }
+.tl-mcard.is-open .tl-mcard__chev { transform: rotate(90deg); }
+.tl-mcard__title { display: grid; gap: 6px; min-width: 0; }
+.tl-mcard__name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px .6rem; }
+.tl-mcard__name h2 { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; }
+.tl-mcard__games { display: flex; align-items: center; gap: 4px; color: var(--muted); font-size: .75rem; font-weight: 600; }
+.w-mob .tl-mcard__games { display: none; }
+.tl-mcard__games img { width: 52px; height: 24px; border-radius: 4px; object-fit: cover; display: block; }
+.tl-mcard__body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s var(--ease-out); }
+.tl-mcard.is-open .tl-mcard__body { grid-template-rows: 1fr; }
+.tl-mcard__inner { min-height: 0; overflow: hidden; }
+.tl-mcard__days { padding: 8px 16px 16px 4px; border-top: 1px solid var(--border); opacity: 0; transition: opacity .2s; }
+.w-mob .tl-mcard__days { padding: 10px 12px 14px 0; }
+.tl-mcard.is-open .tl-mcard__days { opacity: 1; transition: opacity .25s .08s; }
+.tl-mcard__days .tl-days { padding-top: 10px; }
+.tl-mcard__days .hg-ach, .tl-mcard__days .tl-crow { background: var(--background); }
+
+/* Variantes (marcos pequeños) */
+.vframe { padding: 20px; }
+
+/* Interruptores de variante en la barra del documento */
+.doc-seg { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); font-size: .8125rem; }
+.doc-seg > span { padding: 0 8px; color: var(--muted); font-weight: 600; }
+.doc-seg button { height: 32px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-weight: 600; }
+.doc-seg button[aria-pressed='true'] { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+
+/* ══ Microanimaciones ══ */
+.entering [data-in] { animation: in-up .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes pop-in { from { opacity: 0; transform: scale(.5); } }
+/* Mapa que se pinta por semanas */
+.paint .hm-grid i:not(.is-out) { animation: heat-in .2s var(--ease-out) backwards; animation-delay: calc(120ms + var(--w) * 6ms); }
+@keyframes heat-in { from { opacity: 0; transform: scale(.4); } }
+/* La racha actual se enciende en el mapa, día a día, al terminar de pintarse */
+.paint .hm-grid i.is-streak { animation: heat-in .2s var(--ease-out) backwards, streak-pop .38s var(--ease-out) backwards; animation-delay: calc(120ms + var(--w) * 6ms), calc(560ms + var(--s) * 70ms); }
+@keyframes streak-pop { 0% { transform: scale(1); } 45% { transform: scale(1.45); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--primary); } 100% { transform: scale(1); } }
+/* Llama que se enciende después de contar */
+.entering .streak-tile:not(.is-off) .flame { animation: flame-on .7s var(--ease-out) backwards .45s; }
+.entering .streak-tile:not(.is-off) .flame path { animation: flame-fill .7s var(--ease-out) backwards .45s; }
+@keyframes flame-on { 0% { transform: scale(.7); background: var(--surface-2); color: var(--muted); } 45% { transform: scale(1.18) rotate(-6deg); } 70% { transform: scale(.96) rotate(3deg); } 100% { transform: scale(1); } }
+@keyframes flame-fill { 0%, 30% { fill: transparent; } }
+.entering .rare-tile .hg-tile__icon { animation: tile-flash .9s var(--ease-out) backwards .45s; }
+@keyframes tile-flash { 0% { transform: scale(.6); } 35% { transform: scale(1.18); background: color-mix(in srgb, var(--c) 45%, transparent); } }
+/* Meses que aparecen al llegar a ellos con el scroll (una sola vez) */
+.tl-unit { opacity: 1; }
+.tl-unit.is-wait { opacity: 0; transform: translateY(10px); }
+.tl-unit.is-seen { animation: in-up .36s var(--ease-out) backwards; }
+.tl-unit.is-seen .rar-bar { animation: bar-grow .6s var(--ease-out) backwards .12s; }
+@keyframes bar-grow { from { clip-path: inset(0 100% 0 0 round 999px); } to { clip-path: inset(0 0 0 0 round 999px); } }
+.tl-unit.is-seen .tl-day.anim { animation: in-up .3s var(--ease-out) backwards; animation-delay: calc(140ms + min(var(--i, 0), 8) * 30ms); }
+.tl-unit.is-seen .tl-day.anim .tl-dot, .tl-open .tl-day.anim .tl-dot { animation: pop-in .26s var(--ease-out) backwards; animation-delay: calc(220ms + min(var(--i, 0), 8) * 30ms); }
+/* Al desplegar un mes: días escalonados */
+.tl-open .tl-day.anim { animation: in-up .3s var(--ease-out) backwards; animation-delay: calc(80ms + min(var(--i, 0), 8) * 30ms); }
+/* Épicos y legendarios: destello de su color */
+.flashing .hg-ach.is-flash { animation: rar-flash .9s var(--ease-out) backwards; animation-delay: calc(380ms + min(var(--i, 0), 8) * 30ms); }
+.flashing .tl-ic.is-flash { animation: ic-flash .9s var(--ease-out) backwards; animation-delay: calc(380ms + min(var(--i, 0), 8) * 30ms); }
+@keyframes rar-flash { from { background-color: color-mix(in srgb, var(--c) 30%, var(--surface)); } }
+@keyframes ic-flash { 0% { transform: scale(.7); } 35% { transform: scale(1.15); background: color-mix(in srgb, var(--c) 45%, transparent); } }
+.flashing .stamp { animation: pop-in .3s var(--ease-out) backwards .5s; }
+/* Cambio de filtro o de año: fundido cruzado corto */
+.swap { animation: fade-in .22s var(--ease-out); }
+.is-new { animation: in-up .28s var(--ease-out) backwards; animation-delay: calc(var(--j, 0) * 25ms); }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+html.rm .tl-unit.is-wait { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+  .tl-unit.is-wait { opacity: 1; transform: none; }
+}
+.anim-list li { margin: 3px 0; }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Historial de logros</h1>
+  <div class="doc-bar__actions">
+    <span class="doc-seg" role="group" aria-label="Variante de meses"><span>Meses</span><button type="button" data-vm="A" aria-pressed="false">A · abiertos</button><button type="button" data-vm="B" aria-pressed="true">B · plegables</button></span>
+    <span class="doc-seg" role="group" aria-label="Variante del día"><span>Día</span><button type="button" data-vd="A" aria-pressed="true">A · detalle</button><button type="button" data-vd="B" aria-pressed="false">B · compacto</button></span>
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p>Hoy el historial funciona (mapa del año, rachas, línea temporal por mes y día, filtro por día, selector de año y «Ver días anteriores»), pero las rachas son texto suelto encima del mapa, el punto de cada día es siempre cobalto y los meses son solo un título con un número. La propuesta mantiene todo lo que hace la página y le da la jerarquía de <code>/logros</code>:</p>
+  <ul>
+    <li><b>Cuatro tiles arriba</b> (<code>Tile</code>, como en <code>/logros</code>): <b>logros del año elegido</b> (Sin final, como el tile de Logros) con los días con logros y el día más intenso, que se puede pulsar; <b>racha actual</b> (cobalto, el color de progreso, con una llama que se enciende) con desde cuándo y el aviso «Consigue uno hoy para no perderla» si la racha viene de ayer; <b>mejor racha</b> con sus fechas («Es la actual» si coinciden); y <b>el logro más raro del año</b> con su rareza, como el tile «Tu logro más raro».</li>
+    <li><b>Las rachas en el mapa</b>: al pasar el ratón (o el foco) por los tiles de racha, el resto del mapa se apaga y se quedan solo sus días. Al llegar, los días de la racha actual se encienden uno tras otro.</li>
+    <li><b>Mapa con el patrón de <code>ActivityHeatmap</code></b>: misma escala de cobalto que el Inicio, tooltip con el día, cuántos logros y los raros (p. ej. «1 épica · 2 raras»), hoy con contorno y los días que faltan del año en hueco. Un solo tab-stop recorrible con flechas e Intro para filtrar, en vez de 365 botones.</li>
+    <li><b>Cada día con su rareza</b>: el punto de la línea toma el color del logro más raro del día (más grande y con anillo si es épico o legendario), y el título dice «5 logros · 41 pts · 1 épica · 2 raras». Cada logro sigue siendo un <code>AchievementItem</code> con su franja y su %, y en vez de la fecha (ya está en el día) enseña la hora.</li>
+    <li><b>Cada juego del día con su cápsula, su lista</b> (<code>StatusChip</code> y <code>MarkFlags</code>) y cuántos logros consiguió ese día. Si ese día lo dejó <b>al 100 %</b>, el sello verde de <code>/logros</code>; si ese día alcanzaste un <b>hito</b> (1.000 logros, 10 juegos al 100 %, primer legendario…), una píldora con el color de su serie, igual que en los hitos de <code>/logros</code>.</li>
+    <li><b>Resumen por mes</b>: logros, días con logros, puntos de cazador y el reparto por rareza (barra apilada y leyenda, como la puntuación de cazador).</li>
+    <li>Un día con muchos logros de un mismo juego enseña los 5 primeros y «Ver N más» (un 100 % de golpe no llena la pantalla).</li>
+  </ul>
+
+  <h3>Decisiones que tienes que tomar (los interruptores de arriba cambian los marcos de 1440 y 390 px)</h3>
+  <ul>
+    <li><b>Meses · A abiertos</b> (como hoy: todos los días seguidos, con la cabecera del mes fija arriba al hacer scroll y paginado por 15 días) o <b>B plegables</b> (recomendada): una tarjeta por mes con su resumen; el mes en curso abierto y el resto plegados, se despliegan al pulsar. Con B el historial entero cabe en unas pocas pantallas y se puede ir a «mayo de 2024» sin pasar por 400 logros; los meses entran con la animación al llegar a ellos con el scroll. Pagina por 6 meses («Ver meses anteriores»).</li>
+    <li><b>Día · A detalle</b> (recomendada; como hoy: cada logro con nombre, descripción, % y rareza) o <b>B compacto</b>: una fila por juego con sus logros como iconos con la franja de su rareza, el más raro nombrado y «Ver los N» para desplegar el detalle. B es más denso pero esconde los nombres detrás de un toque; con meses plegables ya no hace falta tanto ahorro.</li>
+  </ul>
+
+  <h3>Datos</h3>
+  <ul>
+    <li><b>Ya disponibles</b> (<code>loadUnlockedAchievements</code> y <code>loadLibrary</code>, que ya se cargan): todo lo de hoy, más el estado y las marcas de cada juego (<code>status</code>, <code>favorite</code>, <code>endless</code>) y la cápsula (<code>appid</code>).</li>
+    <li><b>Derivados sin consultas nuevas</b>: rareza y puntos de cada logro (<code>rarityTier</code>, <code>achievementPoints</code>), reparto por mes y por día, el más raro del año, el día más intenso, la hora (<code>unlocktime</code>), si la racha está en riesgo (<code>streak.current.end</code> es ayer), el 100 % de cada juego (su último desbloqueo, como en <code>computeMilestones</code>) y los hitos con fecha (<code>computeMilestones(...).reached</code>).</li>
+    <li><b>Nuevo, mínimo</b>: helpers puros en <code>achievement-history.ts</code> (<code>byMonth</code> pasa a la librería con su resumen, <code>busiestDay</code>, <code>rarestOf</code>). El mapa pasa a usar el patrón de un solo tab-stop de <code>ActivityHeatmap</code> (o a reutilizarlo con un modo «año» y celdas pulsables).</li>
+    <li>En el mockup los iconos de logro son trofeos (en la app, los de Steam de <code>AchievementItem</code>) y los datos de años anteriores son generados (se repiten nombres de logro).</li>
+  </ul>
+
+  <h3>Microanimaciones (pruébalas en el marco de 1440 px; «Repetir entrada» arriba)</h3>
+  <ul class="anim-list">
+    <li><b>Mapa que se pinta</b> por semanas de izquierda a derecha, como el del Inicio; al cambiar de año, se vuelve a pintar. <span class="t">200 ms por celda · 6 ms entre semanas.</span></li>
+    <li><b>Racha que se enciende</b>: tras pintarse el mapa, los días de la racha actual laten uno tras otro con un anillo cobalto, y la llama del tile se enciende (se rellena y se mece una vez). <span class="t">380 ms por día, 70 ms entre ellos · llama 700 ms.</span></li>
+    <li><b>Tiles que cuentan</b> (<code>CountUp</code>) y el icono del más raro que destella con su rareza (como en <code>/logros</code>). <span class="t">450 / 900 ms.</span></li>
+    <li><b>Meses que aparecen al llegar</b> con el scroll (una vez): la tarjeta sube, el reparto por rareza crece y los días entran escalonados. <b>Desplegar un mes</b>: la tarjeta se abre en altura, el chevrón gira y los días entran en cascada. <span class="t">360 ms · barra 600 ms · apertura 300 ms · 30 ms entre días, solo los 8 primeros.</span></li>
+    <li><b>Destello de rareza</b> en los épicos y legendarios (<code>.hg-rar-flash</code>) y <b>sello del 100 %</b> que salta (<code>.hg-pop-in</code>). <span class="t">900 / 300 ms.</span></li>
+    <li><b>Pulsar un día</b> del mapa: la celda crece un poco, la línea temporal hace un fundido cruzado al filtro y la página baja hasta él. <span class="t">220 ms.</span></li>
+    <li><b>Hover</b> en los tiles de racha: el resto del mapa se apaga. <span class="t">150 ms.</span></li>
+    <li>Con <b>movimiento reducido</b> todo es instantáneo y los meses están visibles desde el principio (interruptor arriba).</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px (prueba en vivo)</h2>
+  <p>Hoy es miércoles 28 de octubre de 2026. Prueba: pasar por los tiles de racha, pulsar días del mapa (o Tab hasta el mapa y flechas + Intro), «máx. 14 el 14 mar» del primer tile, cambiar de año, desplegar meses, «Ver N más» y los interruptores de variante de arriba.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="f-desk"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Una columna. Tiles en 2 × 2, el mapa se desplaza en horizontal y abre en los meses más recientes, y los logros pasan el % debajo del nombre. Todo lo pulsable mide 44 px o más.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px" id="f-mob"></div><p class="frame-cap">Datos normales.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-risk"></div><p class="frame-cap">Racha en riesgo: 3 días hasta ayer y hoy aún ninguno. El aviso va en ámbar (<code>--warning</code>) con icono.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-empty"></div><p class="frame-cap">Cuenta nueva sin desbloqueos: tiles a cero, mapa vacío y un vacío con acción.</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Casos límite · ~1000 px, barra plegada</h2>
+  <p>Año 2025 elegido y el 14 de agosto de 2025 filtrado: ese día A Short Hike llegó al 100 % y con él el hito «10 juegos al 100 %». La racha actual y la mejor no dependen del año (los tiles de logros y del más raro, sí). Nombres largos en 2025 (<i>The Witcher 3: Wild Hunt - Complete Edition</i>).</p>
+  <div class="scroller"><div class="frame w-mid" style="width:1000px" id="f-edge"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · meses</h2>
+  <p>Mismos datos (octubre y septiembre de 2026). En A, el resumen del mes se queda fijo arriba mientras bajas por sus días; en B, cada mes es una tarjeta que se despliega (pulsa septiembre).</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="vlabel"><b>A</b> Meses abiertos</div><div class="frame w-desk vframe" style="width:640px" id="f-m-a"></div></div>
+    <div><div class="vlabel"><b>B</b> Meses plegables <em>recomendada</em></div><div class="frame w-desk vframe" style="width:640px" id="f-m-b"></div></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · logros de un día</h2>
+  <p>El martes 27 de octubre: 5 logros en dos juegos.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="vlabel"><b>A</b> Detalle <em>recomendada</em></div><div class="frame w-desk vframe" style="width:640px" id="f-d-a"></div></div>
+    <div><div class="vlabel"><b>B</b> Compacto</div><div class="frame w-desk vframe" style="width:640px" id="f-d-b"></div></div>
+  </div></div>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide, los mismos que usa la app) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+  pause: '<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
+  repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  circlex: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  hourglass: '<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
+  target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+  video: '<path d="M10 7.75a.75.75 0 0 1 1.142-.638l3.664 2.249a.75.75 0 0 1 0 1.278l-3.664 2.25a.75.75 0 0 1-1.142-.64z"/><path d="M12 17v4"/><path d="M8 21h8"/><rect x="2" y="3" width="20" height="14" rx="2"/>',
+  gem: '<path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/>',
+  zap: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+  up: '<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',
+  infinity: '<path d="M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8"/>',
+  sparkles: '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm');
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+
+/* ── Navegación (resumen de la implementada), con Logros activo ── */
+function sidebar(o) {
+  const c = o.compact;
+  const pill = (k) => k === 'lib' && o.tray ? (c ? `<span class="nv-dot hg-tint st-bandeja">${o.tray}</span>` : `<span class="nv-count hg-tint st-bandeja">${ic('inbox')}${o.tray}</span>`) : '';
+  const link = (k, label, icon) => `<a href="#" class="nv-link ${k === 'ach' ? 'active' : ''}" title="${label}">${ic(icon)}<span class="nv-link__label">${label}</span>${pill(k)}</a>`;
+  const groups = [`<div class="nv-group">${link('home', 'Inicio', 'home')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('lib', 'Biblioteca', 'library')}${link('ach', 'Logros', 'award')}${link('wish', 'Wishlist', 'heart')}${link('stats', 'Estadísticas', 'chart')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('judi', 'JUDI', 'gamepad')}${link('rank', 'Ranking', 'trophy')}</div>`];
+  const theme = `<span class="theme-btn">${ic('sun')}</span><div class="theme-toggle"><span class="on">${ic('sun')}</span><span>${ic('moon')}</span><span>${ic('monitor')}</span></div>`;
+  const account = `<a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>diego</span><span class="nv-account__meta">Ver perfil</span></span></a>`;
+  return `<aside class="nv-side ${c ? 'is-compact' : ''}"><a href="#" class="nv-brand">${logo(22)}</a><span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span><nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}${account}</div></aside>`;
+}
+function mobileChrome(o, body) {
+  const tabs = [['home', 'Inicio', 'home'], ['lib', 'Biblioteca', 'library'], ['ach', 'Logros', 'award'], ['judi', 'JUDI', 'gamepad'], ['rank', 'Ranking', 'trophy'], ['perfil', 'Perfil', 'user']];
+  const dot = (k) => k === 'lib' && o.tray ? `<span class="nv-dot hg-tint st-bandeja">${o.tray}</span>` : '';
+  const tabbar = tabs.map(([k, l, i]) => `<a href="#" class="m-tab ${k === 'ach' ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}${dot(k)}</span><span class="m-tab__label">${l}</span></a>`).join('');
+  const top = `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon">${ic('sun')}</span><span class="m-icon"><span class="nv-avatar">D</span></span></div></header>`;
+  return `${top}<div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+function desktopChrome(o, body) {
+  return sidebar(o) + `<div class="page ${o.compact ? 'is-compact' : ''}"><div class="page-in">${body}</div></div>`;
+}
+Object.assign(P, {
+  flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  medal: '<path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><path d="M11 12 5.12 2.2"/><path d="m13 12 5.88-9.8"/><path d="M8 7h8"/><circle cx="12" cy="17" r="5"/><path d="M12 18v-2h-.5"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  calendar: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
+  chevr: '<path d="m9 18 6-6-6-6"/>',
+  chevd: '<path d="m6 9 6 6 6-6"/>',
+  arrowl: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+});
+
+/* ── Utilidades ── */
+const IMG = (id) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`;
+const ST = { jugando: ['play', 'Jugando'], pendiente: ['bookmark', 'Pendiente'], pausado: ['pause', 'Pausado'], rejugable: ['repeat', 'Rejugable'], completado: ['flag', 'Completado'], abandonado: ['circlex', 'Abandonado'], yajugado: ['history', 'Ya jugado'] };
+const chip = (s) => `<span class="hg-chip hg-chip--sm hg-tint st-${s}">${ic(ST[s][0])}${ST[s][1]}</span>`;
+const RAR = { comun: 'Común', poco: 'Poco común', rara: 'Rara', epica: 'Épica', leg: 'Legendaria' };
+const RAR_PL = { comun: ['común', 'comunes'], poco: ['poco común', 'poco comunes'], rara: ['rara', 'raras'], epica: ['épica', 'épicas'], leg: ['legendaria', 'legendarias'] };
+const TIERS = ['comun', 'poco', 'rara', 'epica', 'leg'];
+const tier = (p) => (p < 1 ? 'leg' : p < 5 ? 'epica' : p < 15 ? 'rara' : p < 40 ? 'poco' : 'comun');
+const pct = (p) => `${p < 10 ? p.toFixed(1).replace('.', ',') : Math.round(p)} %`;
+const pts = (p) => Math.max(1, Math.round(10 * Math.log10(100 / Math.min(Math.max(p, 0.1), 100))));
+const n = (v) => v.toLocaleString('es-ES');
+const plural = (v, one, many) => `${n(v)} ${v === 1 ? one : many}`;
+const flags = (g) => (g.fav ? `<span class="hg-flag hg-tint st-favorito" title="Favorito">${ic('heart')}</span>` : '') + (g.endless ? `<span class="hg-flag hg-tint st-sin_final" title="Sin final">${ic('infinity')}</span>` : '');
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/* ── Fechas (día local AAAA-MM-DD, como achievement-history.ts) ── */
+const TODAY = '2026-10-28';
+const key = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const parse = (k) => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d, 12); };
+const addDays = (d, x) => { const o = new Date(d); o.setDate(o.getDate() + x); return o; };
+const F_LONG = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+const F_SHORT = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' });
+const F_SHORTY = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+const F_WD = new Intl.DateTimeFormat('es-ES', { weekday: 'short' });
+const F_MY = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' });
+const long = (k) => F_LONG.format(parse(k));
+const short = (k) => F_SHORT.format(parse(k)).replace('.', '');
+const shortY = (k) => F_SHORTY.format(parse(k)).replace('.', '');
+const monthName = (m) => cap(F_MY.format(parse(`${m}-01`)));
+const hhmm = (t) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sept', 'oct', 'nov', 'dic'];
+
+/* ── Juegos y logros de ejemplo ── */
+const G = {
+  hades2: { id: 1145350, name: 'Hades II', st: 'jugando', ach: [['Primera huida', 'Llega a la superficie por primera vez.', 62.1], ['Bruja aprendiz', 'Completa 10 rituales en la Encrucijada.', 48.3], ['Cuchillas gemelas', 'Gana una partida con las Cuchillas de Lim y Oros.', 21.4], ['Favor de Hécate', 'Mejora una carta del Tarot al máximo.', 17.8], ['Cosecha de la noche', 'Recoge 50 recursos con la pala.', 44.2], ['Sin rasguños', 'Derrota a Hécate sin recibir daño.', 3.2], ['Mano firme', 'Gana con 4 de Pavor activos.', 8.7], ['Familiar fiel', 'Desbloquea a Frinos.', 35.6], ['Caldero lleno', 'Lanza 25 conjuros en el Caldero.', 12.4], ['Rompeprofecías', 'Cumple 20 profecías.', 6.1], ['Hija de la noche', 'Derrota a Cronos.', 14.9], ['Medianoche eterna', 'Gana con 16 de Pavor.', 0.7]] },
+  celeste: { id: 504230, name: 'Celeste', st: 'completado', fav: true, ach: [['Fresa de la cumbre', 'Consigue la fresa del capítulo 7.', 18.6], ['Corazón de cristal', 'Encuentra la cara B del capítulo 4.', 9.4], ['Sin morir', 'Termina el capítulo 1 sin morir.', 7.2], ['Cara C', 'Completa una cara C.', 5.8], ['Corazón dorado', 'Termina el capítulo 9 «Adiós».', 2.1], ['Núcleo', 'Termina el capítulo 8.', 11.3], ['175 fresas', 'Consigue 175 fresas.', 4.4], ['Granjero de fresas', 'Consigue todas las fresas de un capítulo.', 22.7]] },
+  silksong: { id: 1030300, name: 'Hollow Knight: Silksong', st: 'jugando', ach: [['Hilo de seda', 'Aprende tu primera habilidad de seda.', 71.2], ['Pharloom', 'Llega a la Ciudadela.', 38.4], ['Costurera', 'Completa 10 encargos.', 26.1], ['Cazadora', 'Llena la mitad del diario de cazadora.', 13.5], ['Canción de campana', 'Toca todas las campanas.', 29.9], ['Sin descanso', 'Derrota a la Última Jueza.', 19.7], ['Tejedora', 'Consigue todas las herramientas rojas.', 4.6], ['Aguja maestra', 'Mejora la aguja al máximo.', 8.2]] },
+  balatro: { id: 2379780, name: 'Balatro', st: 'rejugable', endless: true, ach: [['Escalera real', 'Juega una escalera real.', 12.1], ['Ante 8', 'Gana una partida.', 41.5], ['Bancarrota', 'Ten -20 $.', 23.4], ['Tarjeta dorada', 'Gana con la Baraja de oro.', 6.3], ['Sin descartes', 'Gana una ciega sin descartar.', 33.2], ['Cinco de un palo', 'Juega un repóker de color.', 9.8], ['Ante 12', 'Llega al ante 12 en modo infinito.', 2.7], ['Coleccionista', 'Descubre todos los comodines.', 0.9], ['Pila de fichas', 'Consigue 1.000.000 de fichas en una mano.', 16.5]] },
+  unpacking: { id: 1135690, name: 'Unpacking', st: 'completado', ach: [['Primer piso', 'Termina el nivel de 1997.', 89.2], ['Cepillo de dientes', 'Coloca el cepillo en su sitio.', 64.1], ['Libros por color', 'Ordena la estantería por colores.', 18.3], ['Todo en su sitio', 'Completa un nivel sin fallos.', 27.6], ['Fotógrafa', 'Haz 20 fotos.', 12.4], ['Final', 'Termina el juego.', 58.9], ['Pegatinas', 'Consigue todas las pegatinas.', 8.9]] },
+  stardew: { id: 413150, name: 'Stardew Valley', st: 'rejugable', endless: true, ach: [['Granjero novato', 'Envía 15 cosechas distintas.', 58.7], ['Cultivador', 'Gana 15.000 g.', 36.8], ['Pescador', 'Pesca 10 tipos de peces.', 42.3], ['Gourmet', 'Cocina 10 recetas.', 30.5], ['Popular', 'Haz 5 amigos.', 51.2], ['Casa grande', 'Mejora la casa 2 veces.', 27.4], ['Maestro pescador', 'Pesca todos los peces.', 5.6], ['Millonario', 'Gana 1.000.000 g.', 9.2], ['Perfección', 'Llega al 100 % de perfección.', 1.8]] },
+  elden: { id: 1245620, name: 'ELDEN RING', st: 'rejugable', ach: [['Margit', 'Derrota a Margit, el Augurio Caído.', 71.5], ['Godrick', 'Derrota a Godrick el Injertado.', 64.8], ['Rennala', 'Derrota a Rennala, Reina de la Luna Llena.', 44.9], ['Radahn', 'Derrota al general Radahn.', 39.7], ['Mohg', 'Derrota a Mohg, Señor de la Sangre.', 30.1], ['Era de las Estrellas', 'Consigue el final de Ranni.', 17.3], ['Malenia', 'Derrota a Malenia, Espada de Miquella.', 13.6], ['Archimago', 'Domina todos los hechizos.', 7.9], ['Señor de Elden', 'Consigue todos los finales.', 4.4]] },
+  deadcells: { id: 588650, name: 'Dead Cells', st: 'rejugable', endless: true, ach: [['Ahí te quedas', 'Mata 1.000 enemigos.', 45.2], ['Colector', 'Desbloquea 50 objetos.', 31.8], ['Rey', 'Derrota a La Mano del Rey.', 24.7], ['Primera célula', 'Derrota al Guardián con 1 célula.', 20.3], ['Sin tocar', 'Termina un bioma sin recibir daño.', 12.6], ['Velocista', 'Termina una partida en menos de 30 minutos.', 4.1], ['Cinco células', 'Derrota al Guardián con 5 células.', 1.2]] },
+  cuphead: { id: 268910, name: 'Cuphead', st: 'pausado', ach: [['Primera moneda', 'Consigue una moneda.', 88.1], ['Isla 1', 'Derrota a los jefes de la Isla 1.', 55.2], ['Rango A', 'Consigue un rango A en un jefe.', 28.9], ['Diablo', 'Derrota al Diablo.', 22.4], ['Experto', 'Derrota a un jefe en experto.', 15.3], ['Pacifista', 'Termina un nivel de correr sin disparar.', 6.4], ['Rango S en todo', 'Consigue la S en todos los jefes en experto.', 0.6]] },
+  hk: { id: 367520, name: 'Hollow Knight', st: 'completado', fav: true, ach: [['Falso caballero', 'Derrota al Falso Caballero.', 82.3], ['Viajero intrépido', 'Visita las Profundidades Verdes y los Páramos Fúngicos.', 71.4], ['Hornet', 'Derrota a Hornet en Enverdia.', 68.4], ['Coleccionista de máscaras', 'Encuentra 4 fragmentos de máscara.', 55.1], ['Maestro de las almas', 'Consigue todos los hechizos.', 18.2], ['Soñador', 'Consigue 1.800 esencias.', 9.9], ['Panteón', 'Completa el Panteón del Maestro.', 6.7], ['Alma de acero', 'Completa el juego en modo Alma de Acero.', 0.9]] },
+  hades: { id: 1145360, name: 'Hades', st: 'completado', fav: true, ach: [['Escapa', 'Escapa del Inframundo.', 58.2], ['Hermano de armas', 'Mejora un arma infernal.', 33.4], ['Relación divina', 'Maximiza la relación con un dios.', 27.5], ['Calor 8', 'Escapa con 8 de calor.', 19.6], ['Pesca mayor', 'Pesca en todos los biomas.', 16.9], ['Corazón de Aquiles', 'Completa la historia de Aquiles.', 14.1], ['Calor 16', 'Escapa con 16 de calor.', 6.9], ['Fin del cuento', 'Ve el epílogo.', 4.8], ['Calor extremo', 'Escapa con 32 de calor en el Pacto de Castigo.', 0.4]] },
+  witcher: { id: 292030, name: 'The Witcher 3: Wild Hunt - Complete Edition', st: 'completado', ach: [['Sin dejar rastro', 'Completa «La Isla de las Nieblas» sin ser detectado.', 66.2], ['Sopa de setas', 'Cocina una receta con seis ingredientes distintos.', 52.3], ['Lobo blanco', 'Termina el juego.', 36.4], ['Sangre y vino', 'Termina la expansión.', 21.2], ['Gwent maestro', 'Gana todas las cartas de Gwent.', 11.8], ['Marcha de la muerte', 'Termina en Marcha de la muerte.', 3.9]] },
+  sekiro: { id: 814380, name: 'Sekiro: Shadows Die Twice - GOTY Edition', st: 'pausado', ach: [['Shinobi', 'Derrota a Genichiro.', 51.3], ['Mono guardián', 'Derrota al Mono Guardián.', 38.7], ['Isshin', 'Derrota a Isshin el Santo de la Espada.', 22.1], ['Shinobi supremo', 'Consigue todos los trofeos.', 3.6]] },
+  outerwilds: { id: 753640, name: 'Outer Wilds', st: 'completado', fav: true, ach: [['Primer viaje', 'Despega por primera vez.', 91.2], ['Fin', 'Ve el final.', 29.5], ['Arqueóloga', 'Lee todos los textos nómai.', 14.2], ['Ojo de halcón', 'Encuentra todos los secretos de los mundos.', 9.8]] },
+  portal2: { id: 620, name: 'Portal 2', st: 'completado', ach: [['Wheatley', 'Termina el capítulo 8.', 57.2], ['Pájaro', 'Alimenta al pájaro.', 19.8], ['Profesor de física', 'Termina el modo cooperativo sin morir.', 11.3]] },
+  ashorthike: { id: 1055540, name: 'A Short Hike', st: 'completado', ach: [['Cima', 'Llega a la cima.', 74.2], ['Voley', 'Gana al voley de playa.', 30.2], ['Plumas doradas', 'Consigue 20 plumas doradas.', 22.8], ['Pesca', 'Pesca todos los peces.', 11.4]] },
+};
+const PERFECT = { celeste: '2026-10-12', unpacking: '2026-08-28', ashorthike: '2025-08-14' };
+const OVR = {
+  '2026-10-28': [['hades2', ['Familiar fiel', 'Caldero lleno', 'Rompeprofecías']]],
+  '2026-10-27': [['hades2', ['Mano firme', 'Cuchillas gemelas', 'Cosecha de la noche']], ['silksong', ['Cazadora', 'Canción de campana']]],
+  '2026-10-26': [['silksong', ['Costurera', 'Pharloom', 'Hilo de seda']]],
+  '2026-10-25': [['balatro', ['Sin descartes', 'Escalera real']], ['hades2', ['Favor de Hécate']]],
+  '2026-10-24': [['hades2', ['Sin rasguños', 'Hija de la noche']]],
+  '2026-10-23': [['balatro', ['Cinco de un palo', 'Pila de fichas', 'Bancarrota', 'Ante 8']]],
+  '2026-10-20': [['balatro', ['Ante 12']]],
+  '2026-10-19': [['balatro', ['Tarjeta dorada']]],
+  '2026-10-17': [['hades2', ['Bruja aprendiz', 'Primera huida']]],
+  '2026-10-14': [['stardew', ['Pescador']]],
+  '2026-10-12': [['celeste', ['Corazón dorado', '175 fresas', 'Cara C']]],
+  '2026-10-11': [['celeste', ['Granjero de fresas', 'Núcleo']]],
+  '2026-10-09': [['celeste', ['Fresa de la cumbre', 'Corazón de cristal']]],
+  '2026-10-05': [['celeste', ['Sin morir']]],
+  '2026-10-03': [['stardew', ['Popular', 'Gourmet']]],
+  '2026-10-01': [['balatro', ['Coleccionista']]],
+  '2026-08-28': [['unpacking', ['Pegatinas', 'Final', 'Fotógrafa']]],
+  '2026-03-14': [['hk', ['Alma de acero', 'Panteón', 'Soñador', 'Maestro de las almas', 'Coleccionista de máscaras', 'Hornet', 'Viajero intrépido', 'Falso caballero']], ['deadcells', ['Velocista', 'Sin tocar', 'Primera célula', 'Rey', 'Colector', 'Ahí te quedas']]],
+  '2026-02-03': [['hades', ['Calor extremo', 'Calor 16']]],
+  '2025-08-14': [['ashorthike', ['Pesca', 'Plumas doradas', 'Voley', 'Cima']]],
+};
+const FOCUS26 = { '01': ['stardew', 'hades'], '02': ['hades', 'cuphead'], '03': ['hades', 'hk'], '04': ['hk', 'deadcells'], '05': ['cuphead', 'balatro'], '06': ['deadcells', 'elden'], '07': ['elden', 'stardew'], '08': ['unpacking', 'stardew'], '09': ['balatro', 'silksong', 'hades2'] };
+const OLD = ['witcher', 'sekiro', 'outerwilds', 'portal2', 'hk', 'hades', 'stardew', 'deadcells', 'cuphead', 'elden'];
+function focusFor(k) {
+  const y = +k.slice(0, 4), m = k.slice(5, 7);
+  if (y === 2026) return FOCUS26[m] ?? ['stardew'];
+  if (y === 2025 && m === '08') return ['ashorthike', 'witcher'];
+  const mi = y * 12 + +m;
+  return [OLD[mi % 10], OLD[(mi * 3 + 1) % 10]];
+}
+
+// Los logros de los días escritos a mano no se repiten en los generados
+const USED = new Set(Object.values(OVR).flatMap((d) => d.flatMap(([g, names]) => names.map((nm) => `${g}|${nm}`))));
+function buildData(o = {}) {
+  let s = 17; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  const idx = {}; const days = new Map();
+  let run = 0;
+  if (!o.empty) for (let d = new Date(2022, 0, 1, 12); key(d) <= TODAY; d = addDays(d, 1)) {
+    const k = key(d);
+    let entry = null;
+    if (OVR[k]) entry = OVR[k].map(([g, names]) => ({ g, achs: names.map((nm) => G[g].ach.find((a) => a[0] === nm)) }));
+    else if (k < '2026-10-01') {
+      const wk = d.getDay() === 0 || d.getDay() === 6;
+      let active = rnd() < (wk ? 0.55 : 0.34);
+      const forced = k >= '2026-02-12' && k <= '2026-03-02';
+      if (forced) active = true;
+      if (k === '2026-02-11' || k === '2026-03-03' || (!forced && run >= 9)) active = false;
+      if (active) {
+        let c = 1 + Math.floor(rnd() * rnd() * 7); if (wk && rnd() > 0.7) c += 3;
+        const focus = focusFor(k).filter((g) => !PERFECT[g] || PERFECT[g] > k);
+        const two = focus.length > 1 && c > 2 && rnd() > 0.5;
+        const first = focus[Math.floor(rnd() * focus.length)];
+        const games = two ? [first, focus.find((g) => g !== first)] : [first];
+        const split = two ? [Math.ceil(c / 2), Math.floor(c / 2)] : [c];
+        entry = games.map((g, gi) => ({ g, achs: Array.from({ length: split[gi] }, () => { do { idx[g] = (idx[g] ?? -1) + 1; } while (USED.has(`${g}|${G[g].ach[idx[g] % G[g].ach.length][0]}`) && G[g].ach.some((a) => !USED.has(`${g}|${a[0]}`))); return G[g].ach[idx[g] % G[g].ach.length]; }).reverse() }));
+      }
+    }
+    if (o.risk && (k === '2026-10-28' || k === '2026-10-24')) entry = null;
+    if (entry) {
+      let t = 23 * 60 + 40 - Math.floor(rnd() * 200);
+      entry.forEach((ge) => { ge.achs = ge.achs.map((a) => { const out = { name: a[0], desc: a[1], p: a[2], t: Math.max(t, 30) }; t -= 4 + Math.floor(rnd() * 40); return out; }); });
+      days.set(k, entry); run++;
+    } else run = 0;
+  }
+  const keys = [...days.keys()].sort().reverse();
+  const counts = new Map(keys.map((k) => [k, days.get(k).reduce((x, ge) => x + ge.achs.length, 0)]));
+  // Rachas, igual que streaks() de achievement-history.ts
+  let best = { len: 0 }, cur = { len: 0 };
+  [...keys].reverse().forEach((k) => {
+    const cont = cur.end && key(addDays(parse(cur.end), 1)) === k;
+    cur = cont ? { len: cur.len + 1, start: cur.start, end: k } : { len: 1, start: k, end: k };
+    if (cur.len > best.len) best = { ...cur };
+  });
+  const yest = key(addDays(parse(TODAY), -1));
+  const current = cur.end === TODAY || cur.end === yest ? cur : { len: 0, lastEnd: cur.end };
+  // Hitos con fecha (computeMilestones): número de logros, juegos al 100 % y primeros épico y legendario
+  const ms = new Map(); const addMs = (k, m) => { if (!ms.has(k)) ms.set(k, []); ms.get(k).push(m); };
+  let total = 0, epic = false, leg = false;
+  [...keys].reverse().forEach((k) => {
+    const list = days.get(k).flatMap((ge) => ge.achs);
+    [100, 500, 1000, 2500].forEach((v) => { if (total < v && total + list.length >= v) addMs(k, [`${n(v)} logros`, 'st-sin_final', 'award']); });
+    total += list.length;
+    if (!epic && list.some((a) => a.p < 5)) { epic = true; addMs(k, ['Primer logro épico', 'rar-epica', 'trophy']); }
+    if (!leg && list.some((a) => a.p < 1)) { leg = true; addMs(k, ['Primer logro legendario', 'rar-leg', 'trophy']); }
+  });
+  if (days.has('2025-08-14')) addMs('2025-08-14', ['10 juegos al 100 %', 'st-completado', 'flag']);
+  return { days, keys, counts, total, streak: { current, best }, ms };
+}
+const DATA = buildData();
+const DATA_RISK = buildData({ risk: true });
+const DATA_EMPTY = buildData({ empty: true });
+
+/* ── Cálculos derivados ── */
+function unlocksOf(D, pred) { const out = []; D.keys.forEach((k) => { if (pred(k)) D.days.get(k).forEach((ge) => ge.achs.forEach((a) => out.push({ ...a, g: ge.g, k }))); }); return out; }
+function tally(list) { const t = Object.fromEntries(TIERS.map((x) => [x, 0])); list.forEach((a) => t[tier(a.p)]++); return t; }
+function notable(t) { return ['leg', 'epica', 'rara'].filter((x) => t[x]).map((x) => `<span class="rar-${x} rar-ink">${t[x]} ${RAR_PL[x][t[x] === 1 ? 0 : 1]}</span>`).join(' · '); }
+function notableText(t) { return ['leg', 'epica', 'rara'].filter((x) => t[x]).map((x) => `${t[x]} ${RAR_PL[x][t[x] === 1 ? 0 : 1]}`).join(' · '); }
+function monthStats(D, m) {
+  const ks = D.keys.filter((k) => k.startsWith(m));
+  const list = unlocksOf(D, (k) => k.startsWith(m));
+  const byGame = {}; list.forEach((a) => (byGame[a.g] = (byGame[a.g] ?? 0) + 1));
+  return { days: ks, total: list.length, pts: list.reduce((x, a) => x + pts(a.p), 0), t: tally(list), games: Object.entries(byGame).sort((a, b) => b[1] - a[1]).map(([g]) => g) };
+}
+function rarSum(t, total) {
+  const bar = TIERS.filter((x) => t[x]).map((x) => `<span class="rar-${x}" style="flex:${t[x]}" title="${RAR[x]}: ${t[x]}"></span>`).join('');
+  const legend = TIERS.map((x) => (t[x] ? `<li class="rar-${x} ${x === 'comun' || x === 'poco' ? 'is-low' : ''}">${RAR[x]} <b>${t[x]}</b></li>` : '')).join('');
+  return `<div class="rar-sum"><span class="rar-bar" role="img" aria-label="Reparto por rareza de ${plural(total, 'logro', 'logros')}">${bar}</span><ul class="rar-legend">${legend}</ul></div>`;
+}
+
+/* ── Piezas ── */
+function secHead(cls, icon, title, cnt, tag = 'h2') {
+  return `<div class="sec-head"><span class="sec-head__icon hg-tint ${cls}">${ic(icon)}</span><${tag}>${title}</${tag}>${cnt ? `<span class="sec-head__count">${cnt}</span>` : ''}</div>`;
+}
+const count = (v) => `<span data-count="${v}">${n(v)}</span>`;
+
+function tilesHTML(st) {
+  const D = st.D, y = String(st.year);
+  const yl = unlocksOf(D, (k) => k.startsWith(y));
+  const yk = D.keys.filter((k) => k.startsWith(y));
+  const busy = yk.reduce((b, k) => (!b || D.counts.get(k) > D.counts.get(b) ? k : b), null);
+  const rare = yl.reduce((b, a) => (!b || a.p < b.p ? a : b), null);
+  const { current: c, best: b } = D.streak;
+  const risk = c.len > 0 && c.end !== TODAY;
+  const todayN = D.counts.get(TODAY) ?? 0;
+  const t1 = `<div class="hg-tile st-sin_final"><dt><span class="hg-tile__icon hg-tint">${ic('award')}</span>Logros en ${y}</dt><dd class="hg-tile__value">${count(yl.length)}</dd><dd class="hg-tile__note">${busy ? `en ${yk.length} días · máx. <button type="button" class="lk" data-day="${busy}" title="Ver el ${long(busy)}"><b>${D.counts.get(busy)}</b> el ${short(busy)}</button>` : 'ningún día con logros'}</dd></div>`;
+  const cNote = risk ? `<span class="risk">${ic('alert')}Consigue uno hoy para no perderla</span>`
+    : c.len ? `desde el ${short(c.start)} · hoy, <b>${todayN}</b>` : c.lastEnd ? `la última acabó el ${short(c.lastEnd)}` : 'consigue un logro hoy para empezarla';
+  const t2 = `<div class="hg-tile st-todos streak-tile ${c.len ? 'is-hoverable' : 'is-off'}" ${c.len ? 'tabindex="0" data-spot="current"' : ''} aria-label="Racha actual: ${plural(c.len, 'día', 'días')}"><dt><span class="hg-tile__icon hg-tint flame">${ic('flame')}</span>Racha actual</dt><dd class="hg-tile__value">${count(c.len)} <small>${c.len === 1 ? 'día' : 'días'}</small></dd><dd class="hg-tile__note">${cNote}</dd></div>`;
+  const same = c.len && c.len === b.len && c.start === b.start;
+  const bNote = !b.len ? 'todavía ninguna' : same ? `<span class="is-same">Es la actual</span> · desde el ${short(b.start)}` : `${shortY(b.start).replace(/ \d{4}$/, '')} – ${shortY(b.end)}`;
+  const t3 = `<div class="hg-tile best-tile ${b.len ? 'is-hoverable' : ''}" ${b.len ? 'tabindex="0" data-spot="best"' : ''} aria-label="Mejor racha: ${plural(b.len, 'día', 'días')}"><dt><span class="hg-tile__icon">${ic('medal')}</span>Mejor racha</dt><dd class="hg-tile__value">${count(b.len)} <small>${b.len === 1 ? 'día' : 'días'}</small></dd><dd class="hg-tile__note">${bNote}</dd></div>`;
+  const rt = rare ? tier(rare.p) : null;
+  const t4 = rare
+    ? `<div class="hg-tile rar-${rt} rare-tile"><dt><span class="hg-tile__icon hg-tint rar-${rt}">${ic('trophy')}</span>El más raro de ${y}</dt><dd class="hg-tile__value hg-tile__value--tinted">${pct(rare.p)} <small>${RAR[rt]}</small></dd><dd class="hg-tile__note" title="${rare.name} · ${G[rare.g].name}"><b>${rare.name}</b> · <button type="button" class="lk" data-day="${rare.k}">${short(rare.k)}</button> · ${G[rare.g].name}</dd></div>`
+    : `<div class="hg-tile rare-tile"><dt><span class="hg-tile__icon" style="background:var(--surface-2);color:var(--muted)">${ic('trophy')}</span>El más raro de ${y}</dt><dd class="hg-tile__value" style="color:var(--muted)">—</dd><dd class="hg-tile__note">sin logros este año</dd></div>`;
+  return `<dl class="hg-tiles" data-in style="--i:1">${t1}${t2}${t3}${t4}</dl>`;
+}
+
+/* Semanas de lunes a domingo del año (heatmapWeeks) */
+function weeksOf(year) {
+  const first = new Date(year, 0, 1, 12), last = new Date(year, 11, 31, 12);
+  const start = addDays(first, -((first.getDay() + 6) % 7)), end = addDays(last, 6 - ((last.getDay() + 6) % 7));
+  const weeks = [];
+  for (let d = start; d <= end; d = addDays(d, 1)) { if ((d.getDay() + 6) % 7 === 0) weeks.push([]); weeks[weeks.length - 1].push({ k: key(d), inYear: d.getFullYear() === year }); }
+  return weeks;
+}
+const level = (c) => (c <= 0 ? 0 : c === 1 ? 1 : c <= 3 ? 2 : c <= 7 ? 3 : 4);
+function heatHTML(st) {
+  const D = st.D, y = st.year, weeks = weeksOf(y);
+  const c = D.streak.current; const sIdx = (k) => (c.len && k >= c.start && k <= c.end ? Math.round((parse(k) - parse(c.start)) / 864e5) : -1);
+  let cells = '', months = '';
+  weeks.forEach((w, wi) => {
+    w.forEach((cell) => {
+      if (!cell.inYear) { cells += '<i class="is-out" aria-hidden="true"></i>'; return; }
+      const cnt = D.counts.get(cell.k) ?? 0; const fut = cell.k > TODAY; const si = sIdx(cell.k);
+      const cls = [fut && 'is-future', cell.k === TODAY && 'is-today', si >= 0 && 'is-streak', st.sel === cell.k && 'is-selected'].filter(Boolean).join(' ');
+      cells += `<i data-k="${cell.k}" data-n="${fut ? '' : cnt}" data-l="${level(cnt)}" class="${cls}" style="--w:${wi}${si >= 0 ? `;--s:${si}` : ''}"></i>`;
+    });
+    const f = w.find((x) => x.inYear); const prev = weeks[wi - 1]?.find((x) => x.inYear);
+    if (f && (!prev || prev.k.slice(5, 7) !== f.k.slice(5, 7))) months += `<span style="grid-column-start:${wi + 1}">${MES[+f.k.slice(5, 7) - 1]}</span>`;
+  });
+  const total = unlocksOf(D, (k) => k.startsWith(String(y))).length;
+  const years = [...new Set([2026, ...D.keys.map((k) => +k.slice(0, 4))])].sort((a, b) => b - a);
+  const sel = `<label class="year-sel"><span class="sr-only">Año</span><select data-year>${years.map((v) => `<option ${v === y ? 'selected' : ''}>${v}</option>`).join('')}</select>${ic('chevd')}</label>`;
+  return `<section class="panel hm-panel paint" data-in style="--i:2" aria-label="Desbloqueos por día en ${y}">
+    <div class="hm-head">${secHead('st-todos', 'calendar', 'Desbloqueos por día', `${plural(total, 'logro', 'logros')} en ${y}`)}${sel}</div>
+    <div class="hm-scroll"><div class="hm-body" style="--weeks:${weeks.length}">
+      <div class="hm-months" aria-hidden="true">${months}</div>
+      <div class="hm-wd" aria-hidden="true"><span>L</span><span></span><span>X</span><span></span><span>V</span><span></span><span>D</span></div>
+      <div class="hm-grid" tabindex="0" role="application" aria-label="Días de ${y}. Usa las flechas para moverte e Intro para ver los logros de un día.">${cells}</div>
+    </div></div>
+    <div class="hm-foot"><span class="hm-legend" aria-hidden="true">menos<i data-l="0"></i><i data-l="1"></i><i data-l="2"></i><i data-l="3"></i><i data-l="4"></i>más</span><span>Pulsa un día para ver solo sus logros.</span></div>
+  </section>`;
+}
+
+/* Un logro (AchievementItem con la hora en vez de la fecha) */
+function achItem(a, i, hidden) {
+  const t = tier(a.p); const flash = t === 'leg' || t === 'epica' ? 'is-flash' : '';
+  return `<li class="hg-ach rar-${t} ${flash} ${hidden ? 'is-hidden' : ''}" style="--i:${i}">
+    <span class="hg-ach__icon">${ic('trophy')}</span>
+    <div class="hg-ach__body"><p class="hg-ach__name">${a.name}</p><p class="hg-ach__desc">${a.desc}</p></div>
+    <div class="hg-ach__pct"><span>${pct(a.p)}<span class="sr-only"> de jugadores</span></span><small>${RAR[t]}</small><time class="ach-time">${hhmm(a.t)}</time></div>
+  </li>`;
+}
+function gameHead(ge, k, extra = '') {
+  const g = G[ge.g]; const done = PERFECT[ge.g] === k;
+  return `<img src="${IMG(g.id)}" alt=""><a href="#" class="tl-gname" title="${g.name}">${g.name}</a>${chip(g.st)}${flags(g)}<span class="tl-gcount">${plural(ge.achs.length, 'logro', 'logros')}</span>${done ? `<span class="stamp" title="Ese día conseguiste todos sus logros">${ic('check')}100 %</span>` : ''}${extra}`;
+}
+const LIMIT = 5;
+function gameA(ge, k) {
+  const more = ge.achs.length - LIMIT;
+  return `<div class="tl-game"><div class="tl-ghead">${gameHead(ge, k)}</div>
+    <ul class="hg-achs">${ge.achs.map((a, i) => achItem(a, i, i >= LIMIT)).join('')}</ul>
+    ${more > 0 ? `<button type="button" class="btn btn--ghost btn--sm tl-more" data-gmore>${ic('chevd')}Ver ${more} más de ${G[ge.g].name.length > 24 ? 'este juego' : G[ge.g].name}</button>` : ''}</div>`;
+}
+function gameB(ge, k) {
+  const g = G[ge.g]; const done = PERFECT[ge.g] === k;
+  const rare = ge.achs.reduce((b, a) => (a.p < b.p ? a : b)); const rt = tier(rare.p);
+  const icons = ge.achs.map((a, i) => { const t = tier(a.p); return `<li class="tl-ic rar-${t} ${t === 'leg' || t === 'epica' ? 'is-flash' : ''}" style="--i:${i}" title="${a.name} · ${pct(a.p)} ${RAR[t]} · ${hhmm(a.t)}">${ic('trophy')}<span class="sr-only">${a.name}, ${pct(a.p)}, ${RAR[t]}</span></li>`; }).join('');
+  return `<div class="tl-crow"><img src="${IMG(g.id)}" alt="">
+    <div class="tl-crow__head"><a href="#" class="tl-gname" title="${g.name}">${g.name}</a>${chip(g.st)}${flags(g)}<span class="tl-gcount">${plural(ge.achs.length, 'logro', 'logros')}</span>${done ? `<span class="stamp">${ic('check')}100 %</span>` : ''}</div>
+    <ul class="tl-icons" aria-label="Logros del día">${icons}</ul>
+    <p class="tl-crow__rare" style="margin:0">El más raro: <b>${rare.name}</b> · ${pct(rare.p)} <span class="rar-${rt} rar-ink" style="font-weight:600">${RAR[rt]}</span></p>
+    <button type="button" class="btn btn--ghost btn--sm tl-crow__btn" data-gopen aria-expanded="false">${ic('chevd')}${ge.achs.length === 1 ? 'Ver el logro' : `Ver los ${ge.achs.length}`}</button></div>`;
+}
+function dayHTML(st, k, i, cls = '') {
+  const D = st.D; const entry = D.days.get(k); const list = entry.flatMap((ge) => ge.achs);
+  const t = tally(list); const rarest = list.reduce((b, a) => (a.p < b.p ? a : b)); const rt = tier(rarest.p);
+  const d = parse(k); const tag = k === TODAY ? 'Hoy' : k === key(addDays(parse(TODAY), -1)) ? 'Ayer' : '';
+  const ms = (D.ms.get(k) ?? []).map(([l, c, icn]) => `<p class="tl-ms hg-tint ${c}" style="background:color-mix(in srgb, var(--c) var(--tint), transparent)"><span class="hg-tile__icon hg-tint ${c}">${ic(icn)}</span><b>${l}</b><span>· hito</span></p>`).join('');
+  const games = entry.map((ge) => (st.vd === 'B' ? gameB(ge, k) : gameA(ge, k))).join('');
+  return `<li class="tl-day rar-${rt} ${rt === 'leg' || rt === 'epica' ? 'is-high' : ''} ${cls}" style="--i:${i}" data-dk="${k}">
+    <p class="tl-date" aria-hidden="true"><b>${d.getDate()}</b><span>${F_WD.format(d).replace('.', '')}</span>${tag ? `<em>${tag}</em>` : ''}</p>
+    <div class="tl-body"><span class="tl-dot" title="El más raro del día: ${RAR[rt]}"></span>
+      <h3 class="tl-day__title"><span class="sr-only">${cap(long(k))}: </span><span><b>${plural(list.length, 'logro', 'logros')}</b> · ${n(list.reduce((x, a) => x + pts(a.p), 0))} pts</span>${notable(t) ? `<span>${notable(t)}</span>` : ''}</h3>
+      ${ms}${games}</div></li>`;
+}
+function monthA(st, m, days, opts) {
+  const s = monthStats(st.D, m);
+  return `<section class="tl-month tl-unit ${opts.wait ? 'is-wait' : ''}" data-m="${m}" aria-label="${monthName(m)}">
+    <header class="tl-mhead"><div class="tl-mhead__top"><h2>${monthName(m)}</h2><span class="sec-head__count">${plural(s.total, 'logro', 'logros')} · ${plural(s.days.length, 'día', 'días')} · ${n(s.pts)} pts</span></div>${rarSum(s.t, s.total)}</header>
+    <ol class="tl-days">${days.map((k, i) => dayHTML(st, k, i, opts.newSet?.has(k) ? 'is-new' : opts.wait ? 'anim' : '')).join('')}</ol></section>`;
+}
+function monthB(st, m, opts) {
+  const s = monthStats(st.D, m); const open = st.open.has(m) || !!st.sel;
+  const days = st.sel ? [st.sel] : s.days;
+  const caps = s.games.slice(0, 3).map((g) => `<img src="${IMG(G[g].id)}" alt="" title="${G[g].name}">`).join('') + (s.games.length > 3 ? `<span>+${s.games.length - 3}</span>` : '');
+  return `<section class="tl-mcard tl-unit ${open ? 'is-open' : ''} ${opts.wait ? 'is-wait' : ''} ${opts.isNew ? 'is-new' : ''}" data-m="${m}" style="--j:${opts.j ?? 0}">
+    <button type="button" class="tl-mcard__btn" data-month="${m}" aria-expanded="${open}"><span class="tl-mcard__chev">${ic('chevr')}</span>
+      <span class="tl-mcard__title"><span class="tl-mcard__name"><h2>${monthName(m)}</h2><span class="sec-head__count">${plural(s.total, 'logro', 'logros')} · ${plural(s.days.length, 'día', 'días')} · ${n(s.pts)} pts</span></span>${rarSum(s.t, s.total)}</span>
+      <span class="tl-mcard__games" aria-hidden="true">${caps}</span></button>
+    <div class="tl-mcard__body"><div class="tl-mcard__inner">${open ? `<div class="tl-mcard__days"><ol class="tl-days">${days.map((k, i) => dayHTML(st, k, i, opts.wait ? 'anim' : '')).join('')}</ol></div>` : ''}</div></div></section>`;
+}
+function tlHTML(st, opts = {}) {
+  const D = st.D;
+  if (!D.keys.length) return `<section class="tl" aria-label="Desbloqueos por día"><div class="dash-empty"><span class="dash-empty__icon hg-tint st-sin_final">${ic('award')}</span><p><b>Aún no hay desbloqueos.</b>Cuando consigas logros en Steam y sincronices, aparecerán aquí día a día.</p><a href="#" class="btn btn--secondary btn--sm">${ic('refresh')} Sincronizar con Steam</a></div></section>`;
+  const filter = st.sel ? `<p class="tl-filter" style="margin:0"><span>${ic('calendar')}Solo el ${long(st.sel)} · <b>${plural(D.counts.get(st.sel), 'logro', 'logros')}</b></span><button type="button" class="btn btn--secondary btn--sm" data-clear>${ic('x')} Ver todos los días</button></p>` : '';
+  let body = '';
+  const wait = opts.wait !== false;
+  if (st.vm === 'A') {
+    const ks = st.sel ? [st.sel] : (st.only ? D.keys.filter((k) => st.only.some((m) => k.startsWith(m))) : D.keys.slice(0, st.visDays));
+    const groups = []; ks.forEach((k) => { const m = k.slice(0, 7); const last = groups[groups.length - 1]; if (last && last.m === m) last.days.push(k); else groups.push({ m, days: [k] }); });
+    body = groups.map((g) => monthA(st, g.m, g.days, { wait: wait && !g.days.some((k) => opts.newSet?.has(k)) && !opts.keep?.has(g.m), newSet: opts.newSet })).join('');
+    if (!st.sel && !st.only && D.keys.length > st.visDays) body += `<button type="button" class="btn btn--secondary more" data-moredays>Ver días anteriores</button>`;
+  } else {
+    const months = [...new Set(D.keys.map((k) => k.slice(0, 7)))];
+    const ms = st.sel ? [st.sel.slice(0, 7)] : (st.only ?? months.slice(0, st.visMonths));
+    body = ms.map((m, j) => monthB(st, m, { wait: wait && !opts.keep?.has(m) && !opts.newMonths?.has(m), isNew: opts.newMonths?.has(m), j })).join('');
+    if (!st.sel && !st.only && months.length > st.visMonths) body += `<button type="button" class="btn btn--secondary more" data-moremonths>Ver meses anteriores</button>`;
+  }
+  return `<section class="tl" aria-label="Desbloqueos por día">${filter}<div class="tl-wrap">${body}</div></section>`;
+}
+function head(st) {
+  const D = st.D;
+  return `<header data-in style="--i:0"><a href="#" class="back">${ic('arrowl')} Logros</a><h1 class="page-title">Historial</h1><p class="page-subtitle">${plural(D.total, 'logro', 'logros')} en ${plural(D.keys.length, 'día', 'días')} distintos.</p></header>`;
+}
+function pageHTML(st) {
+  return `<div class="hist">${head(st)}<div class="js-tiles">${tilesHTML(st)}</div><div class="js-heat">${heatHTML(st)}</div><div class="js-tl">${tlHTML(st)}</div></div><div class="hm-tip" role="presentation"></div>`;
+}
+
+/* ── Marcos ── */
+const FR = {};
+const VM = { v: 'B' }, VD = { v: 'A' };
+function mk(id, o) { FR[id] = { id, D: o.D ?? DATA, year: o.year ?? 2026, sel: o.sel ?? null, vm: o.vm ?? VM.v, vd: o.vd ?? VD.v, live: !!o.live, visDays: 15, visMonths: 6, open: new Set(o.open ?? ['2026-10']), only: o.only, kind: o.kind ?? 'page', chrome: o.chrome, compact: o.compact, active: -1 }; }
+mk('f-desk', { live: true, chrome: 'desk' });
+mk('f-mob', { live: true, chrome: 'mob' });
+mk('f-mob-risk', { live: true, chrome: 'mob', D: DATA_RISK });
+mk('f-mob-empty', { live: true, chrome: 'mob', D: DATA_EMPTY });
+mk('f-edge', { chrome: 'desk', compact: true, year: 2025, sel: '2025-08-14', vm: 'B', vd: 'A', open: [] });
+mk('f-m-a', { kind: 'tl', vm: 'A', vd: 'A', only: ['2026-10', '2026-09'] });
+mk('f-m-b', { kind: 'tl', vm: 'B', vd: 'A', only: ['2026-10', '2026-09'] });
+mk('f-d-a', { kind: 'day', vd: 'A' });
+mk('f-d-b', { kind: 'day', vd: 'B' });
+
+function renderFrame(id) {
+  const st = FR[id]; const el = document.getElementById(id);
+  let html;
+  if (st.kind === 'tl') html = `<div class="hist">${`<div class="js-tl">${tlHTML(st)}</div>`}</div>`;
+  else if (st.kind === 'day') html = `<div class="hist"><div class="js-tl"><ol class="tl-days">${dayHTML(st, '2026-10-27', 0)}</ol></div></div>`;
+  else if (st.chrome === 'mob') html = mobileChrome({ tray: 14 }, pageHTML(st));
+  else html = desktopChrome({ tray: 14, compact: st.compact }, pageHTML(st));
+  el.innerHTML = html;
+  scrollHeat(el, st);
+  observe(el);
+}
+function scrollHeat(el, st) { el.querySelectorAll('.hm-scroll').forEach((s) => { s.scrollLeft = st.year === 2026 ? s.scrollWidth : 0; }); }
+
+/* Meses que aparecen al llegar a ellos (una vez) */
+const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { seen(e.target); io.unobserve(e.target); } }), { rootMargin: '0px 0px -60px 0px' }) : null;
+function seen(u) { u.classList.remove('is-wait'); u.classList.add('is-seen'); }
+function observe(root) { root.querySelectorAll('.tl-unit.is-wait').forEach((u) => (rm() || !io ? seen(u) : io.observe(u))); }
+
+/* ── Cifras que cuentan (CountUp) ── */
+function countUp(root) {
+  root.querySelectorAll('[data-count]').forEach((el) => {
+    const to = +el.dataset.count;
+    if (rm() || to === 0) { el.textContent = n(to); return; }
+    const t0 = performance.now(); const dur = 450;
+    const step = (t) => { const k = Math.min(1, (t - t0) / dur); const e = 1 - Math.pow(1 - k, 3); el.textContent = n(Math.round(to * e)); if (k < 1) requestAnimationFrame(step); };
+    el.textContent = '0'; requestAnimationFrame(step);
+  });
+}
+const timers = {};
+function entry(id) {
+  const f = document.getElementById(id);
+  f.classList.remove('entering', 'flashing'); void f.offsetWidth; f.classList.add('entering', 'flashing'); countUp(f);
+  clearTimeout(timers[id]); timers[id] = setTimeout(() => f.classList.remove('entering', 'flashing'), 2200);
+}
+function entryAll() { Object.keys(FR).forEach((id) => { renderFrame(id); entry(id); }); }
+
+/* ── Interacciones ── */
+const stOf = (el) => FR[el.closest('.frame')?.id];
+function rerenderTL(st, opts = {}) {
+  const f = document.getElementById(st.id); const box = f.querySelector('.js-tl');
+  box.innerHTML = st.kind === 'tl' || st.kind === 'page' ? tlHTML(st, opts) : box.innerHTML;
+  if (opts.swap) { box.classList.remove('swap'); void box.offsetWidth; box.classList.add('swap'); }
+  observe(box);
+}
+function rerenderTop(st) {
+  const f = document.getElementById(st.id);
+  f.querySelector('.js-tiles').innerHTML = tilesHTML(st);
+  f.querySelector('.js-heat').innerHTML = heatHTML(st);
+  scrollHeat(f, st); countUp(f.querySelector('.js-tiles'));
+  f.querySelectorAll('.js-heat [data-in], .js-tiles [data-in]').forEach((x) => x.removeAttribute('data-in'));
+}
+function selectDay(st, k) {
+  st.sel = st.sel === k ? null : k;
+  if (st.sel && +st.sel.slice(0, 4) !== st.year) { st.year = +st.sel.slice(0, 4); rerenderTop(st); }
+  const f = document.getElementById(st.id);
+  f.querySelectorAll('.hm-grid i').forEach((c) => c.classList.toggle('is-selected', c.dataset.k === st.sel));
+  rerenderTL(st, { swap: true, wait: false });
+  const tl = f.querySelector('.tl');
+  if (tl && st.sel) tl.scrollIntoView({ behavior: rm() ? 'auto' : 'smooth', block: 'start' });
+}
+function toggleMonth(st, m, card) {
+  const open = !card.classList.contains('is-open');
+  if (open) st.open.add(m); else st.open.delete(m);
+  const inner = card.querySelector('.tl-mcard__inner');
+  if (open && !inner.firstChild) {
+    const s = monthStats(st.D, m);
+    inner.innerHTML = `<div class="tl-mcard__days tl-open"><ol class="tl-days">${s.days.map((k, i) => dayHTML(st, k, i, 'anim')).join('')}</ol></div>`;
+    void card.offsetWidth;
+  }
+  card.classList.toggle('is-open', open);
+  card.querySelector('.tl-mcard__btn').setAttribute('aria-expanded', String(open));
+}
+document.addEventListener('click', (e) => {
+  const st = stOf(e.target); if (!st) return;
+  const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault();
+  const dayBtn = e.target.closest('[data-day]'); if (dayBtn) return selectDay(st, dayBtn.dataset.day);
+  const cell = e.target.closest('.hm-grid i[data-k]'); if (cell) { if (+cell.dataset.n > 0) selectDay(st, cell.dataset.k); return; }
+  if (e.target.closest('[data-clear]')) { st.sel = null; document.getElementById(st.id).querySelectorAll('.hm-grid i.is-selected').forEach((c) => c.classList.remove('is-selected')); rerenderTL(st, { swap: true, wait: false, keep: new Set(st.D.keys.map((k) => k.slice(0, 7))) }); return; }
+  const mb = e.target.closest('[data-month]'); if (mb) return toggleMonth(st, mb.dataset.month, mb.closest('.tl-mcard'));
+  if (e.target.closest('[data-moredays]')) {
+    const old = new Set(st.D.keys.slice(0, st.visDays)); st.visDays += 15;
+    const newSet = new Set(st.D.keys.slice(0, st.visDays).filter((k) => !old.has(k)));
+    rerenderTL(st, { wait: false, newSet, keep: new Set([...old].map((k) => k.slice(0, 7))) });
+    document.getElementById(st.id).querySelectorAll('.tl-day.is-new').forEach((d, j) => d.style.setProperty('--j', Math.min(j, 8)));
+    return;
+  }
+  if (e.target.closest('[data-moremonths]')) {
+    const months = [...new Set(st.D.keys.map((k) => k.slice(0, 7)))];
+    const keep = new Set(months.slice(0, st.visMonths)); st.visMonths += 6;
+    const newMonths = new Set(months.slice(0, st.visMonths).filter((m) => !keep.has(m)));
+    rerenderTL(st, { keep, newMonths });
+    return;
+  }
+  const gm = e.target.closest('[data-gmore]');
+  if (gm) { gm.previousElementSibling.querySelectorAll('.is-hidden').forEach((li, j) => { li.classList.remove('is-hidden'); li.classList.add('is-new'); li.style.setProperty('--j', Math.min(j, 8)); }); gm.remove(); return; }
+  const go = e.target.closest('[data-gopen]');
+  if (go) {
+    const row = go.closest('.tl-crow'); const open = !row.classList.contains('is-open');
+    row.classList.toggle('is-open', open); go.setAttribute('aria-expanded', String(open));
+    if (open) {
+      const k = row.closest('.tl-day').dataset.dk; const name = row.querySelector('.tl-gname').textContent;
+      const ge = st.D.days.get(k).find((x) => G[x.g].name === name);
+      row.insertAdjacentHTML('beforeend', `<ul class="hg-achs tl-crow__list">${ge.achs.map((x, i) => achItem(x, i)).join('')}</ul>`);
+      row.querySelectorAll('.tl-crow__list .hg-ach').forEach((li, j) => { li.classList.add('is-new'); li.style.setProperty('--j', Math.min(j, 8)); });
+      go.innerHTML = `${ic('chevd')}Ocultar`; go.querySelector('.i').style.transform = 'rotate(180deg)';
+    } else { row.querySelector('.tl-crow__list')?.remove(); const c = row.querySelectorAll('.tl-ic').length; go.innerHTML = `${ic('chevd')}${c === 1 ? 'Ver el logro' : `Ver los ${c}`}`; }
+  }
+});
+document.addEventListener('change', (e) => {
+  const s = e.target.closest('[data-year]'); if (!s) return; const st = stOf(s);
+  st.year = +s.value; rerenderTop(st);
+  const sel = document.getElementById(st.id).querySelector('[data-year]'); sel?.focus();
+});
+
+/* Racha en el mapa: al pasar por su tile, el resto se apaga */
+function spot(tile, on) {
+  const st = stOf(tile); if (!st) return; const grid = document.getElementById(st.id).querySelector('.hm-grid'); if (!grid) return;
+  const s = tile.dataset.spot === 'current' ? st.D.streak.current : st.D.streak.best;
+  grid.classList.toggle('is-spot', on && s.len > 0);
+  grid.querySelectorAll('i[data-k]').forEach((c) => c.classList.toggle('is-spot', on && c.dataset.k >= s.start && c.dataset.k <= s.end));
+}
+document.addEventListener('mouseover', (e) => { const t = e.target.closest('[data-spot]'); if (t && !t.contains(e.relatedTarget)) spot(t, true); });
+document.addEventListener('mouseout', (e) => { const t = e.target.closest('[data-spot]'); if (t && !t.contains(e.relatedTarget)) spot(t, false); });
+document.addEventListener('focusin', (e) => { const t = e.target.closest('[data-spot]'); if (t) spot(t, true); });
+document.addEventListener('focusout', (e) => { const t = e.target.closest('[data-spot]'); if (t) spot(t, false); });
+
+/* Tooltip del mapa y teclado (un solo tab-stop, como ActivityHeatmap) */
+function tipText(st, k) {
+  const fut = k > TODAY; const cnt = st.D.counts.get(k) ?? 0;
+  if (fut) return `<b>${cap(long(k))}</b><span>Aún no ha llegado</span>`;
+  if (!cnt) return `<b>Sin logros</b><span>${long(k)}</span>`;
+  const t = tally(st.D.days.get(k).flatMap((ge) => ge.achs)); const nt = notableText(t);
+  return `<b>${plural(cnt, 'logro', 'logros')}${nt ? ` · ${nt}` : ''}</b><span>${long(k)}</span>`;
+}
+function showTip(cell) {
+  const f = cell.closest('.frame'); const st = FR[f.id]; const tip = f.querySelector('.hm-tip'); if (!tip) return;
+  const r = cell.getBoundingClientRect(), fr = f.getBoundingClientRect();
+  tip.innerHTML = tipText(st, cell.dataset.k);
+  tip.style.left = `${Math.min(Math.max(r.left - fr.left + r.width / 2, 120), fr.width - 120)}px`; tip.style.top = `${r.top - fr.top}px`;
+  tip.classList.add('is-on');
+}
+function hideTip(f) { f.querySelector('.hm-tip')?.classList.remove('is-on'); }
+document.addEventListener('mouseover', (e) => { const c = e.target.closest('.hm-grid i[data-k]'); if (c) showTip(c); });
+document.addEventListener('mouseout', (e) => { if (e.target.closest('.hm-grid') && !e.relatedTarget?.closest?.('.hm-grid')) hideTip(e.target.closest('.frame')); });
+document.addEventListener('keydown', (e) => {
+  const grid = e.target.closest?.('.hm-grid'); if (!grid) return;
+  const st = stOf(grid); const cells = [...grid.children];
+  const valid = (i) => cells[i] && cells[i].dataset.k;
+  if (st.active < 0 || !valid(st.active)) { const t = cells.findIndex((c) => c.dataset.k === (st.sel ?? (st.year === 2026 ? TODAY : `${st.year}-12-31`))); st.active = t >= 0 ? t : cells.findIndex((c) => c.dataset.k); }
+  const mv = { ArrowUp: -1, ArrowDown: 1, ArrowLeft: -7, ArrowRight: 7 }[e.key];
+  if (mv) { e.preventDefault(); let nx = st.active + mv; while (cells[nx] && !valid(nx)) nx += mv > 0 ? 1 : -1; if (valid(nx)) st.active = nx; }
+  else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const c = cells[st.active]; if (+c.dataset.n > 0) { selectDay(st, c.dataset.k); return; } }
+  else return;
+  cells.forEach((c, i) => c.classList.toggle('is-active', i === st.active));
+  showTip(cells[st.active]);
+});
+document.addEventListener('focusout', (e) => { const g = e.target.closest?.('.hm-grid'); if (g) { g.querySelectorAll('.is-active').forEach((c) => c.classList.remove('is-active')); hideTip(g.closest('.frame')); } });
+
+/* ── Controles del documento ── */
+document.querySelectorAll('[data-vm]').forEach((b) => b.addEventListener('click', () => { VM.v = b.dataset.vm; document.querySelectorAll('[data-vm]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); Object.values(FR).filter((s) => s.live).forEach((s) => { s.vm = VM.v; renderFrame(s.id); }); }));
+document.querySelectorAll('[data-vd]').forEach((b) => b.addEventListener('click', () => { VD.v = b.dataset.vd; document.querySelectorAll('[data-vd]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); Object.values(FR).filter((s) => s.live).forEach((s) => { s.vd = VD.v; renderFrame(s.id); }); }));
+document.getElementById('replay-btn').addEventListener('click', entryAll);
+const rmBtn = document.getElementById('rm-btn');
+rmBtn.addEventListener('click', () => { const on = document.documentElement.classList.toggle('rm'); rmBtn.setAttribute('aria-pressed', String(on)); rmBtn.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`; if (on) document.querySelectorAll('.tl-unit.is-wait').forEach(seen); });
+const themeBtn = document.getElementById('theme-btn');
+function setTheme(t) { document.documentElement.dataset.theme = t; themeBtn.setAttribute('aria-pressed', String(t === 'dark')); themeBtn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro'; }
+themeBtn.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+if (location.hash.includes('dark')) setTheme('dark');
+if (location.hash.includes('rm')) { document.documentElement.classList.add('rm'); rmBtn.setAttribute('aria-pressed', 'true'); rmBtn.textContent = 'Movimiento reducido: sí'; }
+const setBar = () => document.documentElement.style.setProperty('--bar-h', `${document.querySelector('.doc-bar').offsetHeight}px`);
+setBar(); window.addEventListener('resize', setBar);
+const solo = /solo=([\w-]+)/.exec(location.hash);
+entryAll();
+if (solo) { const f = document.getElementById(solo[1]); document.body.innerHTML = ''; document.body.style.padding = '0'; document.body.appendChild(f); f.style.borderRadius = '0'; scrollHeat(f, FR[f.id]); document.documentElement.style.setProperty('--bar-h', '0px'); }
+</script>
+</body>
+</html>
