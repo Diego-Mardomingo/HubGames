@@ -39,6 +39,9 @@ export async function loadJudiToday(signedIn: boolean): Promise<JudiTodayState> 
     return judiTodayState(Boolean(day), signedIn ? day : localProgress(today))
 }
 
+/** Se lanza al quitar o devolver un juego de la wishlist: la navegación vuelve a contar sus mínimos. */
+export const WISHLIST_CHANGED_EVENT = 'hubgames:wishlist-changed'
+
 /** Juego de la wishlist en mínimo histórico: lo justo para el indicador de la navegación y el buscador (Ctrl + K). */
 export type WishlistDeal = Pick<WishlistGame, 'appid' | 'name' | 'header_image' | 'steamspy_userscore'> & PriceData
 

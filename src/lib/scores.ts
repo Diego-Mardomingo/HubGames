@@ -71,3 +71,40 @@ export function pricePosition(now: number | null, low: number | null, regular: n
     if (now === null || low === null || regular === null || regular <= low) return null
     return Math.round(Math.min(100, Math.max(0, ((now - low) / (regular - low)) * 100)))
 }
+
+/** Datos de la regla de precios (ficha y wishlist). */
+export interface PriceRule {
+    /** Precio de hoy (0-100) entre lo más barato que ha estado en cualquier tienda (0) y el precio normal (100). */
+    position: number
+    /** Hasta dónde llega el mínimo de Steam en la regla (el tramo amarillo), 0 si no hay. */
+    steamLowAt: number
+    /** Lo más barato que ha estado (cualquier tienda; si no hay, Steam) y el precio normal, en céntimos. */
+    floor: number
+    regular: number
+}
+
+type RuleFields = Pick<PriceFields, 'price_final' | 'steam_low' | 'all_low'> & { price_initial: number | null }
+
+/** Regla de precios de un juego: null si falta el precio, el mínimo o no hay recorrido entre los dos. */
+export function priceRule(game: RuleFields): PriceRule | null {
+    const floor = game.all_low ?? game.steam_low
+    const regular = game.price_initial ?? game.price_final
+    const position = pricePosition(game.price_final, floor, regular)
+    if (position === null || floor === null || regular === null) return null
+    const steamLowAt = game.steam_low !== null ? (pricePosition(game.steam_low, floor, regular) ?? 0) : 0
+    return { position, steamLowAt, floor, regular }
+}
+
+/** € por hora de historia (precio en céntimos, historia en minutos). null si falta alguno o es gratis. */
+export function euroPerHour(priceCents: number | null, storyMinutes: number | null): number | null {
+    if (!priceCents || !storyMinutes) return null
+    return priceCents / 100 / (storyMinutes / 60)
+}
+
+/** €/h de historia: barato en verde, caro en rojo. */
+export function costPerHourTier(eurosPerHour: number): ScoreTier {
+    if (eurosPerHour <= 1) return 'top'
+    if (eurosPerHour <= 2) return 'good'
+    if (eurosPerHour <= 4) return 'mid'
+    return 'bad'
+}

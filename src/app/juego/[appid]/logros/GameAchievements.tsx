@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useId, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ArrowLeft, BookOpen, Clock, FilterX, LogIn, Trophy, X } from 'lucide-react'
@@ -19,7 +19,7 @@ import { formatHours } from '@/lib/format'
 import type { GameStatus } from '@/lib/tracker'
 import { Button } from '@/components/ui/button'
 import Loader from '@/components/Loader'
-import AnimatedCount from '@/components/AnimatedCount'
+import Segmented from '@/components/Segmented'
 import AchievementItem from '@/components/achievements/AchievementItem'
 import GameCover from '@/components/tracker/GameCover'
 import { MarkFlags, StatusChip } from '@/components/tracker/status'
@@ -55,42 +55,6 @@ const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', 
 type CSSVars = React.CSSProperties & Record<`--${string}`, string | number>
 /** Posición en la entrada escalonada (`.hg-enter`, styles/lists.css). */
 const enter = (i: number): CSSVars => ({ '--i': i })
-
-/** Control segmentado con el fondo activo que se desliza (`layoutId`) y, si se pasan, contadores que saltan. */
-function Segmented<T extends string>({
-    value,
-    options,
-    labels,
-    onChange,
-    counts,
-    scroll,
-    ...aria
-}: {
-    value: T
-    options: T[]
-    labels: Record<T, string>
-    onChange: (v: T) => void
-    counts?: Record<T, number>
-    scroll?: boolean
-    'aria-label'?: string
-    'aria-labelledby'?: string
-}) {
-    const id = useId()
-    const reduce = useReducedMotion()
-    return (
-        <div className={`hg-seg hg-seg--slide${scroll ? ' hg-seg--scroll' : ''}`} role="group" {...aria}>
-            {options.map((o) => (
-                <button key={o} type="button" className={`hg-seg__opt${value === o ? ' is-active' : ''}`} aria-pressed={value === o} onClick={() => onChange(o)}>
-                    {value === o && (
-                        <motion.span layoutId={`${id}-thumb`} className="hg-seg__thumb" transition={{ duration: reduce ? 0 : 0.22, ease: EASE_OUT }} />
-                    )}
-                    <span className="hg-seg__text">{labels[o]}</span>
-                    {counts && <AnimatedCount value={counts[o]} className="hg-seg__count hg-seg__text" />}
-                </button>
-            ))}
-        </div>
-    )
-}
 
 /** Página de logros de un juego (#25): cabecera con tu lista, resumen como el de la ficha, filtros de estado y rareza y lista. */
 export default function GameAchievements({ appid, name, headerImage }: Props) {

@@ -1233,6 +1233,11 @@ export type Database = {
           all_low: number | null
           all_low_shop: string | null
           all_low_at: string | null
+          metacritic_score: number | null
+          steamspy_median_forever: number | null
+          hltb_main: number | null
+          hltb_main_extra: number | null
+          hltb_completionist: number | null
         }
         Insert: {
           user_id?: string | null
@@ -1259,6 +1264,11 @@ export type Database = {
           all_low?: number | null
           all_low_shop?: string | null
           all_low_at?: string | null
+          metacritic_score?: number | null
+          steamspy_median_forever?: number | null
+          hltb_main?: number | null
+          hltb_main_extra?: number | null
+          hltb_completionist?: number | null
         }
         Update: {
           user_id?: string | null
@@ -1285,6 +1295,11 @@ export type Database = {
           all_low?: number | null
           all_low_shop?: string | null
           all_low_at?: string | null
+          metacritic_score?: number | null
+          steamspy_median_forever?: number | null
+          hltb_main?: number | null
+          hltb_main_extra?: number | null
+          hltb_completionist?: number | null
         }
         Relationships: []
       }

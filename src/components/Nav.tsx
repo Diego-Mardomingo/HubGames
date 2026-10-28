@@ -31,7 +31,7 @@ import {
 import { countTray, TRACKER_CHANGED_EVENT } from '@/lib/tracker'
 import { JUDI_CHANGED_EVENT } from '@/lib/judi'
 import type { JudiTodayState } from '@/lib/dashboard'
-import { loadJudiToday, loadWishlistDeals, type WishlistDeal } from '@/lib/nav-status'
+import { WISHLIST_CHANGED_EVENT, loadJudiToday, loadWishlistDeals, type WishlistDeal } from '@/lib/nav-status'
 import { isSidebarCollapsed, setSidebarCollapsed, subscribeSidebar } from '@/lib/sidebar'
 import GameSearch, { openGameSearch } from '@/components/tracker/GameSearch'
 import SearchShortcut, { useSearchShortcut } from '@/components/tracker/SearchShortcut'
@@ -131,13 +131,19 @@ export default function Nav() {
         }
     }, [user, pathname])
 
-    // Juegos de la wishlist en mínimo histórico: al iniciar sesión y al navegar (los precios se actualizan a diario).
+    // Juegos de la wishlist en mínimo histórico: al iniciar sesión, al navegar (los precios se actualizan a diario) y al
+    // quitar o devolver uno en /wishlist.
     // La misma lista llega al buscador, que la enseña antes de escribir.
     useEffect(() => {
         if (!user) return
         let cancelled = false
-        loadWishlistDeals().then((list) => { if (!cancelled) setDealGames(list) })
-        return () => { cancelled = true }
+        const refresh = () => loadWishlistDeals().then((list) => { if (!cancelled) setDealGames(list) })
+        refresh()
+        window.addEventListener(WISHLIST_CHANGED_EVENT, refresh)
+        return () => {
+            cancelled = true
+            window.removeEventListener(WISHLIST_CHANGED_EVENT, refresh)
+        }
     }, [user, pathname])
 
     // JUDI de hoy: con o sin sesión, al navegar y tras cada intento.
