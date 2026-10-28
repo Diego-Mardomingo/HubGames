@@ -10,7 +10,7 @@ export interface StatsUnlock {
     global_percent: number | null
     display_name: string | null
     icon: string | null
-    /** Descripción del logro (opcional: solo la usa el logro más raro de /estadisticas). */
+    /** Descripción del logro (opcional: solo la usan el logro más raro de /estadisticas y del resumen anual). */
     description?: string | null
 }
 

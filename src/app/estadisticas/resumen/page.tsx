@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { ArrowLeft, Calendar } from 'lucide-react'
 import { createServerClient } from '@/lib/supabase/server'
 import { loadStatsInput } from '@/lib/stats-db'
-import { availableYears, buildWrapped, hasWrapped, madridYear, yearStats } from '@/lib/stats'
+import { availableYears, hasWrapped, madridYear } from '@/lib/stats'
+import { buildWrappedView, otherYearWithData } from '@/lib/wrapped'
+import { Button } from '@/components/ui/button'
 import Wrapped from './Wrapped'
 import '@/styles/lists.css'
-import '../stats.css'
+import './resumen.css'
 
 export const metadata: Metadata = {
     title: 'Tu resumen del año',
@@ -27,19 +30,34 @@ export default async function ResumenPage({ searchParams }: { searchParams: Prom
     const years = availableYears(input)
     const requested = Number((await searchParams).year)
     const year = years.includes(requested) ? requested : madridYear(new Date().toISOString())
-    const data = buildWrapped(yearStats(input, year), input.games)
+    const data = buildWrappedView(input, year)
 
     if (!hasWrapped(data)) {
+        const other = otherYearWithData(input, years, year)
         return (
-            <div className="wrapped">
-                <p className="hg-empty">
-                    Sin horas, logros ni juegos completados en {year}: no hay nada que resumir.{' '}
-                    <Link href={`/estadisticas?year=${year}`} className="link">
-                        Volver a las estadísticas
-                    </Link>
-                </p>
+            <div className="wr">
+                <Link href={`/estadisticas?year=${year}`} className="wr-back">
+                    <ArrowLeft aria-hidden /> Estadísticas de {year}
+                </Link>
+                <div className="wr-empty">
+                    <span className="wr-empty__icon hg-tint st-bandeja">
+                        <Calendar aria-hidden />
+                    </span>
+                    <h1>Nada que resumir en {year}</h1>
+                    <p>Ese año no hay horas, logros ni juegos completados.{other ? ' Prueba con otro año.' : ''}</p>
+                    <div className="wr-empty__actions">
+                        {other && (
+                            <Button asChild>
+                                <Link href={`/estadisticas/resumen?year=${other}`}>Ver {other}</Link>
+                            </Button>
+                        )}
+                        <Button asChild variant={other ? 'secondary' : 'default'}>
+                            <Link href={`/estadisticas?year=${year}`}>Volver a las estadísticas</Link>
+                        </Button>
+                    </div>
+                </div>
             </div>
         )
     }
-    return <Wrapped data={data} />
+    return <Wrapped key={year} data={data} years={years} />
 }
