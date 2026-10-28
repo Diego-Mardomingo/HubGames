@@ -47,7 +47,9 @@ describe('estadísticas por año (#32)', () => {
         const s = yearStats(input, 2025)
         assert.deepEqual(s.completed.map((g) => g.appid), [1, 2])
         assert.equal(s.averageRating, 7.8)
-        assert.equal(s.ratingHistogram[8], 2)
+        // Por abajo, como ratingTier: el 7,5 va a la columna 7.
+        assert.equal(s.ratingHistogram[8], 1)
+        assert.equal(s.ratingHistogram[7], 1)
         assert.equal(s.unlocks, 2)
         assert.equal(s.unlocksByMonth[0], 1)
         assert.equal(s.unlocksByMonth[6], 1)

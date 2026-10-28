@@ -1,11 +1,12 @@
-/* ── Estadísticas por año (#32) ──
-   Un solo sistema de gráficos: una serie por gráfico en el acento, rejilla y ejes en filetes discretos,
-   etiquetas en tinta de texto y la rareza solo donde el dato es de rareza. */
+/* ── Estadísticas del año (#32, rediseño con color) ──
+   Tiles como la ficha, paneles del Inicio (.dash-panel, .dash-sec__*) y gráficos de una serie: logros por mes en cobalto
+   con el reparto del año por rareza (la barra de /logros), notas con la escala --sc-*, listas con su color. Cada panel
+   entra una vez al llegar con el scroll (.st-panel.is-in) y, hasta entonces, sus animaciones esperan. */
 
 .stats {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 1.5rem;
+  gap: 1.25rem;
   padding-bottom: 5rem;
 }
 
@@ -13,521 +14,875 @@
   margin-bottom: 0;
 }
 
-.stats-years {
+.st-years {
   justify-self: start;
 }
 
-/* Cifras del año: texto grande + etiqueta, en un panel con filetes entre columnas. */
-.stats-summary {
-  display: grid;
-  gap: 0.625rem;
+.st-stage {
+  transition: opacity 0.12s var(--ease-out);
 }
 
-.stats-kpis {
+.st-stage.is-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.st-body {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+}
+
+/* Cambio de año: el nuevo entra con un fundido (las cifras cuentan desde las del año anterior, sin volver a subir) */
+.st-swap {
+  animation: st-fade 0.22s var(--ease-out);
+}
+
+.st-body.st-swap > .st-tiles .hg-enter {
+  animation: none;
+}
+
+@keyframes st-fade {
+  from { opacity: 0; }
+}
+
+/* ── Tiles: cinco en una fila; 2 × 2 y la nota media a lo ancho por debajo de 860 px ── */
+.st-tiles {
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  margin: 0;
-  padding: 1.125rem 0;
+}
+
+.st-tiles > div {
+  display: grid;
+  min-width: 0;
+}
+
+.st-tiles .hg-tile {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
 }
 
-.stats-kpi {
+.st-neutral {
+  --c: var(--muted);
+}
+
+.st-tile__word {
+  margin-left: 6px;
+  color: color-mix(in srgb, var(--c) 80%, var(--foreground));
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.st-diff {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  padding: 0 1.25rem;
-  border-left: 1px solid var(--border);
+  align-items: center;
+  gap: 4px;
 }
 
-.stats-kpi:first-child {
-  border-left: 0;
+.st-diff svg {
+  flex: none;
+  width: 12px;
+  height: 12px;
 }
 
-.stats-kpi dt {
-  order: 2;
+.st-hours-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: -0.5rem 0 0;
   color: var(--muted);
   font-size: 0.8125rem;
 }
 
-.stats-kpi dd {
-  margin: 0;
+.st-hours-note svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+  margin-top: 3px;
 }
 
-.stats-kpi__value {
-  order: 1;
-  font-size: 1.75rem;
-  font-weight: 700;
-  font-variant-numeric: proportional-nums;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  white-space: nowrap;
-}
-
-.stats-kpi__diff {
-  order: 3;
-  margin-top: 0.25rem !important;
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-
-.stats-kpi__diff--up::before,
-.stats-kpi__diff--down::before {
-  display: inline-block;
-  margin-right: 0.3rem;
-  font-size: 0.625rem;
-}
-
-.stats-kpi__diff--up::before {
-  content: '▲';
-  color: var(--success);
-}
-
-.stats-kpi__diff--down::before {
-  content: '▼';
-  color: var(--danger);
-}
-
-.stats-note {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-
-/* Paneles */
-.stats-grid {
+/* ── Paneles ── */
+.st-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1.25rem;
   align-items: start;
 }
 
-.stats-panel {
-  display: grid;
-  gap: 1rem;
-  min-width: 0;
-  padding: 1.125rem 1.25rem 1.25rem;
+.st-panel {
+  position: relative;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.32s var(--ease-out), transform 0.32s var(--ease-out);
 }
 
-.stats-panel--wide {
+.st-panel.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Hasta que el panel llega a la pantalla, sus animaciones (columnas, barras, sellos, destello) esperan */
+.st-panel:not(.is-in),
+.st-panel:not(.is-in) * {
+  animation-play-state: paused !important;
+}
+
+.st-panel--wide {
   grid-column: 1 / -1;
 }
 
-.stats-panel__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.25rem 0.75rem;
-}
-
-.stats-panel__title {
-  margin: 0;
-  font-size: 1.0625rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-.stats-panel__hint {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
-.stats-empty {
+.st-empty {
   margin: 0;
   color: var(--muted);
   font-size: 0.875rem;
 }
 
-.stats-empty a,
+.st-empty a,
 .stats .hg-empty a {
-  color: var(--primary);
-  font-weight: 500;
+  color: var(--foreground);
 }
 
-/* ── Columnas (logros por mes, notas) ── */
-.stats-chart {
-  --plot: 180px;
+.st-foot {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* ── Gráfico de columnas (Columns.tsx) ── */
+.st-ch {
+  --h: 200px;
+  position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.625rem;
-  margin-top: 0.75rem;
+  column-gap: 8px;
 }
 
-.stats-chart__axis {
+.st-ch__axis {
   position: relative;
-  height: var(--plot);
-  min-width: 1.5rem;
+  min-width: 18px;
+  height: var(--h);
   color: var(--muted);
   font-size: 0.6875rem;
-  text-align: right;
 }
 
-.stats-chart__axis span {
+.st-ch__axis span {
   position: absolute;
   right: 0;
   transform: translateY(50%);
   line-height: 1;
 }
 
-.stats-cols {
+.st-ch__plot {
   position: relative;
-  display: grid;
-  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  height: var(--h);
 }
 
-/* Rejilla: filetes de 1 px, un paso fuera de la superficie; el de la base algo más marcado. */
-.stats-chart__grid {
+.st-ch__grid i {
   position: absolute;
-  inset: 0 0 auto;
-  height: var(--plot);
-  pointer-events: none;
-}
-
-.stats-chart__grid i {
-  position: absolute;
-  inset-inline: 0;
+  left: 0;
+  right: 0;
   height: 1px;
-  background: var(--surface-2);
+  background: var(--border);
 }
 
-.stats-chart__grid i:first-child {
+.st-ch__grid i:first-child {
   background: var(--border-hover);
 }
 
-.stats-cols__item {
-  position: relative;
+.st-ch__cols,
+.st-ch__x {
   display: grid;
-  grid-template-rows: var(--plot) auto;
-  gap: 0.375rem;
-  min-width: 0;
-  outline: none;
-  cursor: default;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
 }
 
-.stats-cols__track {
+.st-ch__cols {
+  position: absolute;
+  inset: 0;
+}
+
+.st-ch__x {
+  grid-column: 2;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.71875rem;
+  text-align: center;
+}
+
+.st-ch__x .is-future {
+  opacity: 0.55;
+}
+
+.st-ch__short {
+  display: none;
+}
+
+.st-col {
   position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  border-radius: 6px 6px 0 0;
-  transition: background 0.15s;
+  height: 100%;
+  border-radius: 6px;
+  outline: none;
 }
 
-.stats-cols__item:hover .stats-cols__track,
-.stats-cols__item:focus-visible .stats-cols__track {
-  background: color-mix(in srgb, var(--surface-2) 55%, transparent);
+.st-col:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ring);
 }
 
-.stats-cols__item:focus-visible .stats-cols__track {
-  box-shadow: 0 0 0 2px var(--ring);
-}
-
-.stats-cols__bar {
+.st-col__bar {
   position: relative;
-  width: min(62%, 24px);
+  width: min(24px, 58%);
   min-height: 2px;
   border-radius: 4px 4px 0 0;
-  background: var(--primary);
-  transition: background 0.15s;
+  background: var(--c, var(--primary));
+  transform-origin: bottom;
+  transition: opacity 0.15s;
+  animation: st-grow 0.45s var(--ease-out) backwards;
+  animation-delay: calc(min(var(--i, 0), 12) * 25ms);
 }
 
-.stats-cols__item:hover .stats-cols__bar,
-.stats-cols__item:focus-visible .stats-cols__bar {
-  background: var(--primary-hover);
+@keyframes st-grow {
+  from { transform: scaleY(0); }
 }
 
-.stats-cols__value {
+.st-col.is-future::after {
+  content: '';
   position: absolute;
-  bottom: calc(100% + 4px);
   left: 50%;
+  bottom: 0;
+  width: min(24px, 58%);
+  height: 2px;
+  border-radius: 2px;
+  background: var(--surface-3);
   transform: translateX(-50%);
-  color: var(--foreground);
-  font-size: 0.75rem;
-  font-weight: 600;
-  white-space: nowrap;
 }
 
-.stats-cols__item:hover .stats-cols__value,
-.stats-cols__item:focus-visible .stats-cols__value {
-  visibility: hidden;
+.st-ch__cols.is-hot .st-col:not(.is-active) .st-col__bar {
+  opacity: 0.5;
 }
 
-.stats-cols__label {
-  color: var(--muted);
-  font-size: 0.75rem;
-  text-align: center;
-}
-
-/* Tooltip de cada columna: el valor manda, en tinta invertida. */
-.stats-tip {
+.st-col__val {
   position: absolute;
   left: 50%;
-  z-index: 2;
-  padding: 5px 8px;
-  border-radius: 6px;
+  bottom: calc(100% + 4px);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  animation: st-fade-up 0.2s var(--ease-out) backwards 0.45s;
+}
+
+@keyframes st-fade-up {
+  from { opacity: 0; transform: translate(-50%, 4px); }
+}
+
+/* Un solo globo por gráfico: aparece con un fundido y se desliza de una columna a otra (sin salto) */
+.st-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  display: grid;
+  gap: 3px;
+  min-width: 132px;
+  max-width: 240px;
+  padding: 8px 10px;
+  border-radius: 8px;
   background: var(--foreground);
   color: var(--background);
   font-size: 0.75rem;
-  font-weight: 600;
-  white-space: nowrap;
-  transform: translateX(-50%);
-  opacity: 0;
+  line-height: 1.35;
   pointer-events: none;
-  transition: opacity 0.1s;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translate(var(--x, 0), calc(var(--y, 0) + 4px));
+  transition: opacity 0.12s, transform 0.14s var(--ease-out);
 }
 
-.stats-cols__item:hover .stats-tip,
-.stats-cols__item:focus-visible .stats-tip {
+.st-tip.is-on {
   opacity: 1;
+  transform: translate(var(--x, 0), var(--y, 0));
 }
 
-.stats-chart__grid + .stats-cols__item .stats-tip {
-  left: 0;
-  transform: none;
+.st-tip.no-move {
+  transition: opacity 0.12s;
 }
 
-.stats-cols__item:last-child .stats-tip {
-  left: auto;
-  right: 0;
-  transform: none;
+.st-tip__v {
+  font-size: 0.875rem;
+  font-weight: 700;
 }
 
-/* ── Barras horizontales (más jugados, géneros): etiqueta y valor directos, barra fina anclada a la izquierda ── */
-.stats-bars {
+.st-tip__k {
+  opacity: 0.78;
+}
+
+.st-tip__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.st-tip__row::before {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--c, currentColor);
+}
+
+.st-tip__row--none::before {
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.st-tip__name {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-tip__row b {
+  margin-left: auto;
+  padding-left: 10px;
+}
+
+/* Reparto por rareza (la barra de /logros, .lg-stack) y leyenda */
+.st-rarity {
   display: grid;
-  gap: 0.75rem;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.lg-stack.st-stack {
+  height: 10px;
+  margin-top: 0;
+  background: var(--surface-2);
+}
+
+.st-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 0.78125rem;
+}
+
+.st-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.st-legend b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.st-sw {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--c);
+}
+
+/* Tabla de un gráfico («Ver tabla») */
+.st-table-wrap {
+  overflow-x: auto;
+}
+
+.st-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.st-table th,
+.st-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.st-table th:first-child {
+  text-align: left;
+}
+
+.st-table thead th {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.st-table tbody th {
+  font-weight: 500;
+}
+
+.st-table tfoot th,
+.st-table tfoot td {
+  border-bottom: 0;
+  font-weight: 700;
+}
+
+.st-table .st-sw {
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+
+/* Notas */
+.st-notes-sum {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 0.875rem;
+}
+
+.st-notes-sum .hg-chip {
+  padding-left: 10px;
+}
+
+/* ── Tus listas: barra apilada fina y una fila por lista ── */
+.lg-stack.st-stack--lists {
+  height: 12px;
+  margin: 0.25rem 0 1rem;
+}
+
+.st-stack--lists span {
+  transition: opacity 0.15s;
+}
+
+.st-stack--lists.is-hot span:not(.is-hot) {
+  opacity: 0.35;
+}
+
+.st-lrows {
+  display: grid;
+  gap: 2px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.stats-bars li {
-  display: grid;
-  gap: 0.375rem;
-}
-
-.stats-bars__label {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
-  font-size: 0.875rem;
-}
-
-.stats-bars__label > :first-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.stats-bars__label a {
-  color: var(--foreground);
-  text-decoration: none;
-}
-
-.stats-bars__label a:hover {
-  text-decoration: underline;
-}
-
-.stats-bars__value {
-  flex: none;
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
-.stats-bars__bar {
-  display: block;
-  height: 8px;
-  min-width: 4px;
-  border-radius: 0 4px 4px 0;
-  background: var(--primary);
-}
-
-.stats-bars li:hover .stats-bars__bar {
-  background: var(--primary-hover);
-}
-
-/* ── Completados: filas con cápsula pequeña y cursor de selección ── */
-.stats-games {
-  display: grid;
-  gap: 4px;
-  margin: 0 -0.5rem;
-  padding: 0;
-  list-style: none;
-}
-
-.stats-games li {
+.st-lrow {
   position: relative;
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 150px) minmax(0, 1fr) 4.5rem;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.375rem 0.5rem;
-  border-radius: var(--radius);
-  transition: box-shadow 0.15s ease;
+  gap: 12px;
+  min-height: 36px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
 }
 
-.stats-games li:hover,
-.stats-games li:has(:focus-visible) {
-  box-shadow: 0 0 0 3px var(--cursor);
-}
-
-.stats-games__cover {
-  position: relative;
-  display: block;
-  width: 96px;
-  height: 45px;
-  border-radius: 6px;
-  overflow: hidden;
+.st-lrow:hover,
+.st-lrow:focus-within {
   background: var(--surface-2);
 }
 
-.stats-games__cover .game-cover--empty span,
-.stats-covers .game-cover--empty span {
-  display: none;
-}
-
-.stats-games__name {
-  display: grid;
-  min-width: 0;
-  font-size: 0.875rem;
-}
-
-.stats-games__name a {
-  overflow: hidden;
-  color: var(--foreground);
-  font-weight: 600;
+.st-lrow a {
+  justify-self: start;
+  color: inherit;
   text-decoration: none;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.stats-games__name a::after {
+.st-lrow a::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
 }
 
-.stats-games__name a:focus-visible {
+.st-lrow a:focus-visible {
   outline: none;
 }
 
-.stats-games__name small {
-  color: var(--muted);
-  font-size: 0.78125rem;
+.st-lrow:has(a:focus-visible) {
+  box-shadow: 0 0 0 3px var(--cursor);
 }
 
-.stats-games__rating {
-  min-width: 2.5rem;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  font-size: 0.8125rem;
+.st-lrow__bar span {
+  background: var(--c);
+}
+
+.st-lrow__n {
+  font-size: 0.875rem;
   font-weight: 600;
-  text-align: center;
+  text-align: right;
 }
 
-/* ── Al 100 %: rejilla de cápsulas pequeñas ── */
-.stats-covers {
+.st-lrow__n small {
+  margin-left: 4px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ── Barras horizontales (lo que más jugaste, géneros) ── */
+.st-hbars {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-hbars li {
+  display: grid;
+  gap: 5px;
+}
+
+.st-hbars__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 0.875rem;
+}
+
+.st-hbars__name {
+  overflow: hidden;
+  min-width: 0;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+a.st-hbars__name:hover {
+  text-decoration: underline;
+}
+
+.st-hbars__chip {
+  display: inline-flex;
+  flex: none;
+}
+
+.st-hbars__chip .hg-chip {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  font-size: 0.71875rem;
+}
+
+.st-hbars__v {
+  margin-left: auto;
+  padding-left: 8px;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.hg-bar.st-hbar {
+  height: 8px;
+}
+
+/* Cápsulas pequeñas */
+.st-cover {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 72px;
+  height: 34px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.st-cover--sm {
+  width: 46px;
+  height: 22px;
+  border-radius: 4px;
+}
+
+.st-cover .game-cover--empty span,
+.st-covers .game-cover--empty span {
+  display: none;
+}
+
+/* ── Completados ── */
+.st-done {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-done li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.st-done li:hover,
+.st-done li:focus-within {
+  background: var(--surface-2);
+}
+
+.st-done li:has(a:focus-visible) {
+  box-shadow: 0 0 0 3px var(--cursor);
+}
+
+.st-done__main {
+  display: grid;
+  min-width: 0;
+}
+
+.st-done__name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.st-done__name a {
+  overflow: hidden;
+  color: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-done__name a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.st-done__name a:focus-visible {
+  outline: none;
+}
+
+.st-done__meta {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.st-done__none {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.hg-score.st-score {
+  align-items: baseline;
+  gap: 6px;
+  height: auto;
+  padding: 2px 8px;
+  font-size: 0.875rem;
+}
+
+.st-score small {
+  font-size: 0.71875rem;
+  font-weight: 600;
+}
+
+.st-more {
+  display: flex;
+  margin: 0.5rem auto 0;
+}
+
+/* ── Juegos al 100 % y logro más raro ── */
+.st-covers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
   gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.stats-covers a {
+.st-covers a {
   position: relative;
   display: block;
   aspect-ratio: 460 / 215;
   border-radius: 6px;
   overflow: hidden;
   background: var(--surface-2);
-  transition: box-shadow 0.15s ease;
+  transition: box-shadow 0.15s;
 }
 
-.stats-covers a:hover,
-.stats-covers a:focus-visible {
+.st-covers a:hover,
+.st-covers a:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--cursor);
 }
 
-.stats-rarest {
-  display: grid;
-  gap: 0.5rem;
-  max-width: 560px;
+.st-covers .game-cover img {
+  transition: transform 0.2s var(--ease-out);
 }
 
-.stats-rarest__title {
-  margin: 0;
+.st-covers a:hover .game-cover img {
+  transform: scale(1.04);
+}
+
+.st-seal {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  z-index: 1;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--st-completado);
+  color: var(--on-done);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.st-rarest {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.st-rarest__title {
+  margin: 0 0 0.5rem;
   color: var(--muted);
   font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+/* ── Esqueleto de la primera carga (loading.tsx) ── */
+.st-sk {
+  display: block;
+  border-radius: 8px;
+  background: var(--surface-2);
+  animation: st-sk 1.2s ease-in-out infinite alternate;
+}
+
+.st-sk--title {
+  width: 260px;
+  max-width: 70%;
+  height: 2.25rem;
+}
+
+.st-sk--line {
+  width: 320px;
+  max-width: 85%;
+  height: 1rem;
+  margin-top: 0.5rem;
+}
+
+.st-sk--tile {
+  height: 98px;
+  border-radius: 12px;
+}
+
+.st-sk--panel {
+  height: 280px;
+  border-radius: var(--radius-lg);
+}
+
+@keyframes st-sk {
+  to { opacity: 0.45; }
 }
 
 @media (max-width: 900px) {
-  .stats-kpis {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    row-gap: 1.125rem;
-  }
-
-  .stats-kpi:nth-child(4) {
-    border-left: 0;
-  }
-
-  .stats-grid {
+  .st-grid {
     grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
   }
 }
 
-@media (max-width: 560px) {
-  .stats-kpis {
+@media (max-width: 860px) {
+  .st-tiles {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .stats-kpi {
-    padding: 0 1rem;
+  .st-tiles > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .stats .page-head .hg-button {
+    width: 100%;
   }
 
-  .stats-kpi:nth-child(4) {
-    border-left: 1px solid var(--border);
+  .st-tiles .hg-tile {
+    padding: 12px;
   }
 
-  .stats-kpi:nth-child(odd) {
-    border-left: 0;
+  .st-tiles .hg-tile__value {
+    font-size: 1.375rem;
   }
 
-  .stats-kpi__value {
-    font-size: 1.5rem;
+  .st-ch {
+    --h: 160px;
+    column-gap: 4px;
   }
 
-  .stats-panel {
-    padding: 1rem;
-  }
-
-  .stats-chart {
-    --plot: 150px;
-    gap: 0.375rem;
-  }
-
-  .stats-cols__label {
+  .st-ch__x {
     font-size: 0.625rem;
   }
 
-  .stats-games li {
-    grid-template-columns: 80px minmax(0, 1fr) auto;
+  .st-ch__long {
+    display: none;
   }
 
-  .stats-games__cover {
-    width: 80px;
-    height: 37px;
+  .st-ch__short {
+    display: inline;
+  }
+
+  .st-lrow {
+    grid-template-columns: minmax(0, 132px) minmax(0, 1fr) 4rem;
+    gap: 8px;
+    min-height: 44px;
+  }
+
+  .st-hbars__chip {
+    display: none;
+  }
+
+  .st-done li {
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+  }
+
+  .st-done .st-cover {
+    width: 64px;
+    height: 30px;
+  }
+
+  .st-score small {
+    display: none;
+  }
+
+  .st-covers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .st-more {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-panel {
+    opacity: 1;
+    transform: none;
+  }
+
+  .st-sk {
+    animation: none;
   }
 }
 
@@ -893,16 +1248,6 @@
   .wrapped-share__actions > * {
     flex: 1 1 auto;
     min-height: 44px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .stats-cols__track,
-  .stats-cols__bar,
-  .stats-tip,
-  .stats-games li,
-  .stats-covers a {
-    transition: none;
   }
 }
 
