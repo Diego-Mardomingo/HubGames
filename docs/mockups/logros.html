@@ -1,0 +1,919 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Logros (resumen) · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --success: #1a7743; --warning: #8e5e18;
+  --rar-comun: #8a8f98; --rar-poco: #2e9e5b; --rar-rara: #2f6fe0; --rar-epica: #8b4fd8; --rar-leg: #c98a0b; --rar-ink: 62%;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-rejugable: #9c3c08; --st-completado: #1a7743;
+  --st-abandonado: #c7243b; --st-yajugado: #5c5b06; --st-descartado: #6b7280; --st-otros: #931f8f; --st-favorito: #c2255c; --st-sinfinal: #6741d9;
+  --tint: 12%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --success: #4cc97e; --warning: #f2b53a;
+  --rar-comun: #9aa0aa; --rar-poco: #4cc97e; --rar-rara: #5b93ff; --rar-epica: #b07cff; --rar-leg: #f2b53a; --rar-ink: 100%;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-rejugable: #ff9a5c; --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e; --st-yajugado: #d2cf5c; --st-descartado: #8a919e; --st-otros: #eb84f8; --st-favorito: #f783ac; --st-sinfinal: #b197fc;
+  --tint: 14%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; color: inherit; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul { margin: 0; padding-left: 20px; }
+.note li { margin: 3px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 100ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: hidden; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 60ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.vlabel { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.9375rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--surface-2); }
+.vlabel em { color: var(--success); font-style: normal; font-size: .8125rem; font-weight: 600; }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; text-align: left; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nv-count { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px 0 6px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; line-height: 1; }
+.nv-count .i { font-size: 12px; stroke-width: 2.4; }
+.nv-count.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.theme-btn { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 18px; }
+.nv-side:not(.is-compact) .theme-btn, .is-compact .theme-toggle { display: none; }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-3); color: var(--foreground); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.nv-side.is-compact { width: 72px; align-items: center; padding: 1.25rem 0.75rem 1rem; }
+.is-compact .hg-wordmark, .is-compact .nv-link__label, .is-compact .nv-search__label, .is-compact .nv-kbd,
+.is-compact .nv-account__text, .is-compact .nv-group__title { display: none; }
+.is-compact .nv-brand { padding: 0.25rem 0; }
+.is-compact .nv-menu { align-items: center; gap: 0; }
+.is-compact .nv-group { align-items: center; }
+.is-compact .nv-group + .nv-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.is-compact .nv-link, .is-compact .nv-search { width: 44px; height: 44px; padding: 0; justify-content: center; }
+.is-compact .nv-link > .nv-count { display: none; }
+.is-compact .nv-account { width: 44px; padding: 0; justify-content: center; }
+.is-compact .nv-foot { align-items: center; }
+.nv-dot { position: absolute; display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; font-size: 0.625rem; font-weight: 700; line-height: 1; box-shadow: 0 0 0 2px var(--ring-bg, var(--background)); }
+.nv-dot.hg-tint { background: color-mix(in srgb, var(--c) calc(var(--tint) + 6%), var(--ring-bg, var(--background))); }
+.nv-dot.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.is-compact .nv-dot { top: -3px; right: -7px; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); --ring-bg: var(--surface); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); background: var(--primary-glow); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+.m-tab .nv-dot { top: -8px; left: calc(50% + 7px); }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.page.is-compact { margin-left: 72px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.w-mid .page-in { padding: 1.75rem 1.75rem 2.5rem; }
+.m-page { padding: 1.25rem 1rem 110px; }
+.page-title { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .page-title { font-size: 1.625rem; }
+.page-subtitle { margin: .35rem 0 0; color: var(--muted); font-size: .9375rem; }
+
+/* ══ Piezas compartidas (copia de src/styles/lists.css) ══ */
+.st-todos { --c: var(--primary); } .st-bandeja { --c: var(--st-bandeja); } .st-pendiente { --c: var(--st-pendiente); }
+.st-jugando { --c: var(--st-jugando); } .st-pausado { --c: var(--st-pausado); } .st-rejugable { --c: var(--st-rejugable); } .st-completado { --c: var(--st-completado); }
+.st-abandonado { --c: var(--st-abandonado); } .st-yajugado { --c: var(--st-yajugado); } .st-otros { --c: var(--st-otros); }
+.st-favorito { --c: var(--st-favorito); } .st-sin_final { --c: var(--st-sinfinal); }
+.rar-comun { --c: var(--rar-comun); } .rar-poco { --c: var(--rar-poco); } .rar-rara { --c: var(--rar-rara); } .rar-epica { --c: var(--rar-epica); } .rar-leg { --c: var(--rar-leg); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.st-pausado { color: var(--warn-ink); }
+.hg-tint[class*='rar-'] { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+.rar-ink { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; transition: background .15s, border-color .15s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { border-color: var(--border-hover); }
+.btn--ghost { background: transparent; color: var(--muted); }
+.btn--ghost:hover { background: var(--surface-2); color: var(--foreground); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.w-mob .btn, .w-mob .btn--sm { height: 44px; }
+
+.hg-rows { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.hg-row { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: center; gap: 1rem; min-height: 68px; padding: 8px 12px 8px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: box-shadow .15s ease, border-color .15s ease; }
+.hg-row:hover, .hg-row:has(:focus-visible) { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.hg-row.lib-row::before { content: ''; position: absolute; inset: -1px auto -1px -1px; width: 4px; border-radius: var(--radius) 0 0 var(--radius); background: var(--c); }
+.hg-row__cover { position: relative; display: block; width: 112px; height: 52px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.hg-row__cover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s var(--ease-out); }
+.hg-row:hover .hg-row__cover img { transform: scale(1.05); }
+.hg-row__main { display: grid; gap: 4px; min-width: 0; }
+.hg-row__link { overflow: hidden; color: var(--foreground); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.hg-row__link::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.hg-row__link:focus-visible { outline: none; }
+.hg-row a:not(.hg-row__link), .hg-row button { position: relative; z-index: 1; }
+.hg-row__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; color: var(--muted); font-size: 0.8125rem; min-width: 0; }
+.lib-meta { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.lib-meta .i { font-size: 13px; }
+.hg-row__prog { display: grid; gap: 6px; font-size: 0.8125rem; }
+.hg-row__prog-label { display: flex; justify-content: space-between; gap: 0.5rem; color: var(--muted); white-space: nowrap; }
+.hg-row__prog-label b { color: var(--foreground); font-weight: 600; }
+.hg-bar { position: relative; display: block; height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.hg-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--c, var(--primary)); transform-origin: left; }
+.hg-row .hg-bar > span { background: var(--primary); }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.78125rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 13px; }
+.hg-chip--sm { padding: 1px 8px 1px 6px; font-size: .71875rem; gap: 4px; }
+.hg-chip--sm .i { font-size: 11px; }
+.hg-flag { display: inline-grid; flex: none; place-items: center; width: 20px; height: 20px; border-radius: 6px; font-size: 12px; }
+
+.hg-achs { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.hg-ach { --c: var(--muted); position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 0.75rem; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: inset 3px 0 0 var(--c); overflow: hidden; }
+.hg-ach__icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--c) 16%, transparent); color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: 18px; }
+.hg-ach.rar-comun { --c: var(--rar-comun); } .hg-ach.rar-poco { --c: var(--rar-poco); } .hg-ach.rar-rara { --c: var(--rar-rara); } .hg-ach.rar-epica { --c: var(--rar-epica); } .hg-ach.rar-leg { --c: var(--rar-leg); }
+.hg-ach.is-locked .hg-ach__icon { background: var(--surface-2); color: var(--muted); }
+.hg-ach__body { display: grid; min-width: 0; }
+.hg-ach__name { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 0; font-size: 0.875rem; font-weight: 600; line-height: 1.3; }
+.hg-ach__desc, .hg-ach__ctx { margin: 2px 0 0; color: var(--muted); font-size: 0.8125rem; line-height: 1.4; }
+.hg-ach__ctx { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
+.hg-ach__ctx a:hover { color: var(--foreground); text-decoration: underline; }
+.hg-ach__pct { display: grid; justify-items: end; align-self: start; gap: 1px; padding-top: 1px; font-size: 0.8125rem; font-weight: 600; white-space: nowrap; text-align: right; }
+.hg-ach__pct small { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); font-size: 0.71875rem; font-weight: 600; }
+.ach-howto, .ach-date { margin-top: 3px; display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: .75rem; font-weight: 500; }
+.ach-howto:hover { color: var(--foreground); text-decoration: underline; }
+.ach-howto .i { font-size: 13px; }
+.ach-secret { color: var(--muted); font-style: italic; font-weight: 500; }
+.ach-reveal { display: inline-flex; align-items: center; gap: 4px; min-height: 24px; padding: 0 8px; border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--muted); font-size: .75rem; font-weight: 500; }
+.ach-reveal:hover { color: var(--foreground); border-color: var(--border-hover); }
+.ach-reveal .i { font-size: 12px; }
+
+.hg-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.w-mob .hg-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hg-card { position: relative; display: grid; align-content: start; gap: 8px; min-width: 0; padding: 6px 6px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: box-shadow .15s ease, border-color .15s ease; }
+.hg-card:hover, .hg-card:has(:focus-visible) { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.hg-card__cover { position: relative; display: block; aspect-ratio: 460 / 215; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.hg-card__cover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s var(--ease-out); }
+.hg-card:hover .hg-card__cover img { transform: scale(1.05); }
+.hg-card__body { display: grid; gap: 3px; min-width: 0; padding: 0 4px; }
+.hg-card__link { overflow: hidden; color: var(--foreground); font-size: 0.875rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.hg-card__link::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.hg-card__link:focus-visible { outline: none; }
+.hg-card__meta { display: flex; flex-wrap: wrap; gap: 0 8px; color: var(--muted); font-size: 0.75rem; }
+
+/* Tiles (Tile / .hg-tile) */
+.hg-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.w-mob .hg-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hg-tile { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+.w-mob .hg-tile { padding: 12px; }
+.hg-tile dt { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.hg-tile__icon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; font-size: 13px; }
+.hg-tile dd { margin: 0; min-width: 0; }
+.hg-tile__value { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .hg-tile__value { font-size: 1.375rem; }
+.w-mob .hg-tile__note { white-space: normal; }
+.hg-tile__value small { color: var(--muted); font-size: .875rem; font-weight: 500; letter-spacing: 0; }
+.hg-tile__value--tinted { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+.hg-tile__note { overflow: hidden; color: var(--muted); font-size: .78125rem; text-overflow: ellipsis; white-space: nowrap; }
+.hg-tile__note b { color: var(--foreground); font-weight: 600; }
+.hg-tile__note a:hover { color: var(--foreground); text-decoration: underline; }
+
+/* Cabeceras de sección con icono tintado (como en el Inicio) */
+.sec-block { display: grid; gap: .75rem; align-content: start; min-width: 0; }
+.sec-head { display: flex; align-items: center; gap: .625rem; min-height: 2rem; }
+.sec-head__icon { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 8px; font-size: 16px; }
+.sec-head h2, .sec-head h3 { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
+.sec-head h3 { font-size: 1rem; }
+.sec-head__count { color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.sec-head__end { margin-left: auto; display: flex; align-items: center; gap: .75rem; }
+.sec-hint { margin: -.4rem 0 0 2.5rem; color: var(--muted); font-size: .8125rem; }
+.w-mob .sec-hint { margin-left: 0; }
+.panel { min-width: 0; padding: 1.1rem 1.25rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.w-mob .panel { padding: 1rem; }
+.panel > .sec-head { margin-bottom: .875rem; }
+.more { justify-self: center; }
+.dash-link { color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.dash-link:hover { color: var(--foreground); text-decoration: underline; }
+
+/* Vacíos: icono con el color de la sección, texto corto y una acción */
+.dash-empty { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .5rem 1rem; padding: 1rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.dash-empty__icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; font-size: 19px; }
+.dash-empty p { margin: 0; color: var(--muted); font-size: .875rem; }
+.dash-empty p b { display: block; color: var(--foreground); font-weight: 600; }
+.dash-empty .btn { grid-column: 2; justify-self: start; }
+
+/* ══ /logros ══ */
+.logros { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.75rem; }
+.w-mob .logros { gap: 1.5rem; }
+.lg-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+
+/* Puntuación de cazador: reparto por rareza + juegos con más puntos */
+.hunt { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.25rem; align-items: stretch; }
+.w-mid .hunt, .w-mob .hunt { grid-template-columns: minmax(0, 1fr); }
+.score-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; }
+.w-mob .score-top { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+.score-big { display: flex; align-items: baseline; gap: .5rem; margin: 0; }
+.score-big strong { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+.score-big small { color: var(--muted); font-size: .875rem; font-weight: 500; }
+.score-delta { display: inline-flex; align-items: center; gap: 4px; margin-left: .25rem; color: var(--success); font-size: .8125rem; font-weight: 600; }
+.score-delta .i { font-size: 13px; stroke-width: 2.6; }
+.score-formula { margin: .5rem 0 0; color: var(--muted); font-size: .8125rem; max-width: 52ch; }
+.rar-stack { display: flex; gap: 2px; height: 12px; margin-top: 1rem; border-radius: 999px; overflow: hidden; }
+.rar-stack span { background: var(--c); }
+.rar-table { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: .875rem 0 0; padding: 0; list-style: none; }
+.w-mob .rar-table { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.rar-cell { display: grid; gap: 1px; padding: 8px 10px 9px; border-radius: 10px; background: color-mix(in srgb, var(--c) 8%, transparent); box-shadow: inset 0 3px 0 var(--c); }
+.w-mob .rar-cell { grid-template-columns: 1fr auto auto; align-items: baseline; gap: 12px; padding: 8px 2px 8px 12px; border-radius: 0; background: none; box-shadow: inset 3px 0 0 var(--c); border-top: 1px solid var(--border); }
+.w-mob .rar-cell:first-child { border-top: 0; }
+.rar-cell__name { font-size: .75rem; font-weight: 600; }
+.rar-cell__n { font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; }
+.w-mob .rar-cell__n { font-size: .9375rem; }
+.rar-cell__pts { color: var(--muted); font-size: .75rem; }
+.rar-cell__thr { color: var(--muted); font-size: .6875rem; }
+.w-mob .rar-cell__thr { display: none; }
+
+.top-games { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; counter-reset: top; }
+.top-game { position: relative; display: grid; grid-template-columns: 22px 64px minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: .8125rem; }
+.top-game__pos { color: var(--muted); font-weight: 600; text-align: right; }
+.top-game img { width: 64px; height: 30px; border-radius: 4px; object-fit: cover; display: block; }
+.top-game__name { display: grid; gap: 4px; min-width: 0; }
+.top-game__name a { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.top-game__name a::after { content: ''; position: absolute; inset: -4px; border-radius: 8px; }
+.top-game:hover { }
+.top-game:hover .top-game__name a { text-decoration: underline; }
+.top-game .hg-bar { height: 4px; }
+.top-game .hg-bar > span { background: var(--primary); }
+.top-game__pts { font-weight: 700; white-space: nowrap; }
+.top-game__pts small { color: var(--muted); font-weight: 500; }
+
+/* Hitos · A (lista, como hoy, con el color de su serie) */
+.ms-list { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.ms-item { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: .65rem; align-items: center; font-size: .875rem; }
+.ms-item__icon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; font-size: 14px; }
+.ms-item time, .ms-item__prog { color: var(--muted); font-size: .75rem; white-space: nowrap; }
+.ms-item.is-pending .ms-item__icon { background: transparent; outline: 1.5px dashed color-mix(in srgb, var(--c) 70%, transparent); outline-offset: -1.5px; }
+.ms-item.is-pending .ms-item__label { color: var(--muted); }
+.ms-item__prog { display: inline-flex; align-items: center; gap: .5rem; }
+.ms-item__prog .hg-bar { width: 72px; height: 4px; }
+.ms-sep { margin: .35rem 0 .1rem; color: var(--muted); font-size: .75rem; font-weight: 600; }
+
+/* Hitos · B (series con nodos que se encienden) */
+.ms-series { display: grid; gap: 1.1rem; }
+.ms-s { display: grid; gap: 6px; }
+.ms-s__head { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; font-size: .8125rem; }
+.ms-s__head b { display: inline-flex; align-items: center; gap: 6px; font-size: .875rem; }
+.ms-s__head b .i { font-size: 14px; color: color-mix(in srgb, var(--c) 85%, var(--foreground)); }
+[data-theme='dark'] .ms-s__head b .i { color: var(--c); }
+.ms-s__head span { color: var(--muted); }
+.ms-s__head span strong { color: var(--foreground); font-weight: 600; }
+.ms-track { position: relative; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); padding-top: 2px; }
+.ms-line { position: absolute; top: 15px; left: calc(50% / var(--n)); right: calc(50% / var(--n)); height: 3px; border-radius: 2px; background: var(--surface-2); }
+.ms-line > span { position: absolute; inset: 0; border-radius: inherit; background: var(--c); transform-origin: left; transform: scaleX(var(--p)); }
+.ms-node { position: relative; display: grid; justify-items: center; gap: 4px; min-width: 0; text-align: center; }
+.ms-dot { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--surface-2); box-shadow: 0 0 0 3px var(--surface); color: var(--muted); font-size: 13px; }
+.ms-dot .i { stroke-width: 2.6; }
+.ms-node.is-lit .ms-dot { background: color-mix(in srgb, var(--c) 22%, var(--surface)); color: color-mix(in srgb, var(--c) 85%, var(--foreground)); }
+[data-theme='dark'] .ms-node.is-lit .ms-dot { color: var(--c); }
+.ms-node.is-next .ms-dot { background: var(--surface); outline: 2px dashed color-mix(in srgb, var(--c) 75%, transparent); outline-offset: -2px; color: color-mix(in srgb, var(--c) 85%, var(--foreground)); }
+.ms-node__label { color: var(--muted); font-size: .71875rem; font-weight: 600; white-space: nowrap; }
+.ms-node.is-lit .ms-node__label, .ms-node.is-next .ms-node__label { color: var(--foreground); }
+.ms-node__date { margin-top: -3px; color: var(--muted); font-size: .65625rem; white-space: nowrap; }
+.w-mob .ms-node__date { display: none; }
+.ms-last { display: flex; align-items: center; gap: .5rem; margin: 0 0 1rem; padding: 8px 10px; border-radius: 10px; background: var(--surface-2); font-size: .8125rem; }
+.ms-last .i { font-size: 15px; color: color-mix(in srgb, var(--c) 85%, var(--foreground)); }
+[data-theme='dark'] .ms-last .i { color: var(--c); }
+.ms-last span { color: var(--muted); }
+
+/* Secciones de cazador */
+.hunt-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.75rem; align-items: start; }
+.w-mid .hunt-grid, .w-mob .hunt-grid { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+.game-line { grid-template-columns: 96px minmax(0, 1fr) 112px; gap: .875rem; }
+.game-line .hg-row__cover { width: 96px; height: 45px; }
+.w-mob .game-line { grid-template-columns: 88px minmax(0, 1fr); grid-template-areas: 'c m' 'p p'; row-gap: 8px; gap: .75rem; padding: 8px 10px 10px 12px; }
+.w-mob .game-line .hg-row__cover { width: 88px; height: 41px; grid-area: c; }
+.w-mob .game-line > .hg-row__main { grid-area: m; } .w-mob .game-line > .hg-row__prog { grid-area: p; }
+.w-mob .game-line .hg-row__prog { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+.w-mob .game-line .hg-row__prog .hg-bar { grid-row: 1; grid-column: 1; }
+.easy-tag { display: inline-flex; align-items: center; gap: 4px; color: var(--foreground); font-weight: 500; white-space: nowrap; }
+.easy-tag::before { content: ''; width: 7px; height: 7px; border-radius: 2px; background: var(--rar-comun); }
+.left-n { color: var(--foreground); font-weight: 500; }
+.ago .i { color: var(--warn-ink); }
+
+/* Logros fáciles · B (agrupados por juego) */
+.easy-groups { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.easy-g { padding: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.easy-g__head { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 2px 4px 8px; }
+.easy-g__head img { width: 64px; height: 30px; border-radius: 4px; object-fit: cover; display: block; }
+.easy-g__name { display: grid; min-width: 0; font-size: .875rem; }
+.easy-g__name a { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.easy-g__name a:hover { text-decoration: underline; }
+.easy-g__name span { color: var(--muted); font-size: .75rem; }
+.easy-g .hg-ach { padding: 7px 10px; grid-template-columns: 32px minmax(0, 1fr) auto; gap: .6rem; background: var(--background); border-color: transparent; }
+.easy-g .hg-ach__icon { width: 32px; height: 32px; font-size: 15px; }
+.easy-g .hg-achs { gap: 4px; }
+.w-mob .easy-g__head { grid-template-columns: 56px minmax(0, 1fr); }
+.w-mob .easy-g__head img { width: 56px; height: 26px; }
+.w-mob .easy-g__head .hg-chip { grid-column: 2; justify-self: start; }
+
+/* Juegos al 100 % */
+.perfect-badge { position: absolute; right: 6px; top: 6px; z-index: 1; display: inline-flex; align-items: center; gap: 3px; height: 20px; padding: 0 7px 0 5px; border-radius: 999px; background: var(--st-completado); color: var(--surface); font-size: .6875rem; font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+[data-theme='dark'] .perfect-badge { color: #0b1f13; }
+.perfect-badge .i { font-size: 11px; stroke-width: 2.8; }
+.hg-card__meta .pts { color: var(--foreground); font-weight: 600; }
+
+/* ══ Microanimaciones (en la app: .hg-enter, .hg-bar--fill, .hg-rar-flash, .hg-pop-in, CountUp) ══ */
+.entering [data-in] { animation: in-up .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } }
+.entering .hg-bar > span { animation: bar-fill .45s var(--ease-out) backwards; animation-delay: calc(150ms + min(var(--i, 0), 8) * 30ms); }
+@keyframes bar-fill { from { transform: scaleX(0); } }
+/* Reparto por rareza que crece de izquierda a derecha y celdas que suben */
+.entering .rar-stack { animation: stack-grow .6s var(--ease-out) backwards .15s; }
+@keyframes stack-grow { from { clip-path: inset(0 100% 0 0 round 999px); } to { clip-path: inset(0 0 0 0 round 999px); } }
+.entering .rar-cell { animation: in-up .3s var(--ease-out) backwards; animation-delay: calc(250ms + var(--k) * 60ms); }
+/* Hitos que se encienden: línea que avanza y nodos que se iluminan en orden */
+.entering .ms-line > span { animation: line-fill .6s var(--ease-out) backwards .2s; }
+@keyframes line-fill { from { transform: scaleX(0); } }
+.entering .ms-node.is-lit .ms-dot { animation: node-lit .36s var(--ease-out) backwards; animation-delay: calc(220ms + var(--k) * 110ms); }
+@keyframes node-lit { 0% { background: var(--surface-2); color: var(--muted); transform: scale(.7); } 60% { transform: scale(1.15); } }
+.entering .ms-node.is-next .ms-dot { animation: fade-in .3s var(--ease-out) backwards .7s; }
+.entering .ms-item:not(.is-pending) .ms-item__icon { animation: node-lit .36s var(--ease-out) backwards; animation-delay: calc(200ms + var(--i) * 60ms); }
+@keyframes fade-in { from { opacity: 0; } }
+/* Logros épicos y legendarios: destello breve de su color */
+.entering .hg-ach.is-flash { animation: in-up .32s var(--ease-out) backwards, rar-flash .9s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms), calc(350ms + min(var(--i, 0), 8) * 30ms); }
+@keyframes rar-flash { from { background-color: color-mix(in srgb, var(--c) 30%, var(--surface)); } }
+.entering .rare-tile .hg-tile__icon { animation: tile-flash .9s var(--ease-out) backwards .45s; }
+@keyframes tile-flash { 0% { transform: scale(.6); } 35% { transform: scale(1.18); background: color-mix(in srgb, var(--c) 45%, transparent); } }
+/* Sello del 100 % que salta */
+.entering .perfect-badge { animation: pop-in .26s var(--ease-out) backwards; animation-delay: calc(300ms + min(var(--i, 0), 8) * 30ms); }
+@keyframes pop-in { from { opacity: 0; transform: scale(.5); } }
+/* Filas nuevas al pulsar «Ver más» */
+.is-new { animation: in-up .28s var(--ease-out) backwards; animation-delay: calc(var(--j, 0) * 25ms); }
+.is-new .hg-bar > span { animation: bar-fill .4s var(--ease-out) backwards; animation-delay: calc(100ms + var(--j, 0) * 25ms); }
+.reveal-in { animation: fade-in .2s var(--ease-out); }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+}
+.anim-list li { margin: 3px 0; }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Logros (resumen)</h1>
+  <div class="doc-bar__actions">
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p>La página ya tenía todo lo útil para cazar logros, pero era un muro de texto neutro: la puntuación era una cifra suelta, los hitos una lista gris y las secciones no se distinguían. La propuesta le da la jerarquía de la ficha <b>sin quitar nada</b> (puntuación, top de juegos, hitos, Cerca del 100 %, Logros fáciles, Olvidados, Más raros y Juegos al 100 %, con sus «Ver más», «Cómo conseguirlo», «Revelar» y «Ver historial»).</p>
+  <ul>
+    <li><b>Cabecera con cuatro tiles</b> (<code>Tile</code>, como Ficha e Inicio): <b>puntos de cazador</b> (cobalto, el de progreso) con lo ganado este mes; <b>logros</b> (Sin final, como en la ficha) con los juegos y los de este mes; <b>juegos al 100 %</b> (Completado) con el último; y <b>tu logro más raro</b> con su rareza en color, nombre y juego.</li>
+    <li><b>Puntuación de cazador explicada con el reparto por rareza</b>: la barra apilada del resumen de logros de la ficha, pero a lo ancho, con una celda por rareza: cuántos tienes, cuántos puntos aportan y su umbral. Se entiende de dónde salen los puntos sin leer la fórmula (que sigue debajo). Al lado, los <b>5 juegos con más puntos</b> con cápsula y barra relativa al primero.</li>
+    <li><b>Hitos con el color de su serie</b>: logros (Sin final), juegos al 100 % (Completado), primer épico y primer legendario (su rareza). Ver variantes.</li>
+    <li><b>Cada sección con icono y color</b>: Cerca del 100 % → Completado (bandera), Logros fáciles → cobalto (diana: es una acción, «ve a por ellos»), Olvidados → Pausado (reloj de arena), Más raros → Legendaria (trofeo), Juegos al 100 % → Completado.</li>
+    <li><b>Filas de juego como en la Biblioteca</b>: franja y <code>StatusChip</code> de su lista (un «Olvidado» puede estar Pausado, Completado o Abandonado; ahora se ve), <code>MarkFlags</code>, barra de progreso con «30 / 31 · 97 %». En Cerca del 100 %, cuántos de los que te faltan son <b>fáciles</b>.</li>
+    <li><b>Juegos al 100 %</b>: tarjeta con sello «100 %» verde, fecha del 100 % y puntos que te dio.</li>
+    <li><b>Vacíos con acción</b> (patrón de «Estados vacíos»): icono con el color de la sección, una frase y un botón; si no tienes ninguno al 100 %, te dice cuál tienes más cerca.</li>
+  </ul>
+
+  <h3>Decisiones que tienes que tomar</h3>
+  <ul>
+    <li><b>Hitos · A lista</b> (como hoy, con color: alcanzados con fecha y el siguiente de cada serie con barra) o <b>B series</b> (recomendada): tres «carriles» —Logros, Juegos al 100 %, Rarezas— con todos sus escalones como nodos; los alcanzados se encienden, la línea avanza hasta donde estás y el siguiente va con borde discontinuo. Se ve el camino entero y la animación «hitos que se encienden» sale sola. Los marcos grandes usan B.</li>
+    <li><b>Logros fáciles · A lista plana</b> (recomendada; como hoy: el juego en la línea de contexto, ahora con su chip de lista) o <b>B agrupados por juego</b>: cabecera con cápsula y «3 fáciles · te faltan 7», y debajo sus logros. B ayuda a decidir «a qué juego voy», pero repite mucho de Cerca del 100 % y ocupa más. Los marcos grandes usan A.</li>
+  </ul>
+
+  <h3>Datos</h3>
+  <ul>
+    <li><b>Ya disponibles</b> (de <code>loadLibrary</code>, <code>loadUnlockedAchievements</code> y <code>loadEasyMissing</code>): todo lo de hoy, más el estado y las marcas de cada juego (<code>status</code>, <code>favorite</code>, <code>endless</code> ya vienen en <code>LibraryGame</code>).</li>
+    <li><b>Derivados sin consultas nuevas</b>: reparto por rareza y puntos por rareza (<code>rarityTier</code> + <code>achievementPoints</code> sobre los desbloqueados), logros y puntos de este mes (por <code>unlocktime</code>), fecha del 100 % (<code>last_unlock_at</code>), puntos de cada juego al 100 % (<code>pointsByGame</code>), «N fáciles» por juego (contar <code>easy</code> por <code>appid</code>; ojo, <code>loadEasyMissing</code> trae como mucho 300, de sobra) y el «más cerca del 100 %» del vacío (<code>near[0]</code>).</li>
+    <li><b>Nuevo, mínimo</b> (solo variante B de hitos): <code>computeMilestones</code> tiene que devolver también los escalones futuros de cada serie (hoy solo devuelve el siguiente); son las constantes <code>COUNT_MILESTONES</code> y <code>PERFECT_MILESTONES</code>, sin consultas.</li>
+    <li>Iconos de logro: en el mockup, trofeo/candado; en la app, los iconos de Steam de <code>AchievementItem</code> como hoy.</li>
+  </ul>
+
+  <h3>Microanimaciones (pruébalas en el marco de 1440 px; «Repetir entrada» arriba)</h3>
+  <ul class="anim-list">
+    <li><b>Puntos, logros y juegos al 100 % que cuentan</b> desde 0 (<code>CountUp</code>), también las cifras de cada rareza. <span class="t">450 ms · ease-out.</span></li>
+    <li><b>Reparto por rareza que crece</b> de izquierda a derecha y celdas que suben una tras otra. <span class="t">barra 600 ms (<code>clip-path</code>) · celdas 300 ms, 60 ms entre ellas.</span></li>
+    <li><b>Hitos que se encienden</b>: la línea de cada serie avanza hasta tu posición y los nodos alcanzados se iluminan en orden con un pequeño pop; el siguiente aparece después. <span class="t">línea 600 ms · nodos 360 ms, 110 ms entre ellos.</span></li>
+    <li><b>Destello de rareza</b> en tus logros épicos y legendarios (<code>.hg-rar-flash</code>) y en el icono del tile «El más raro». <span class="t">900 ms, una vez.</span></li>
+    <li><b>Filas y tarjetas</b> con entrada escalonada (<code>.hg-enter</code>) y <b>barras que se rellenan</b> (<code>.hg-bar--fill</code>); el sello «100 %» salta (<code>.hg-pop-in</code>). <span class="t">320 / 450 / 260 ms · 30 ms entre filas, solo las 8 primeras.</span></li>
+    <li><b>«Ver más»</b>: las filas nuevas entran con el mismo escalonado (las ya visibles no se mueven). <b>«Revelar»</b> un logro oculto: fundido del nombre. <span class="t">280 / 200 ms.</span></li>
+    <li><b>Hover</b>: cursor de selección y cápsula que se acerca un 5 % (ya existe). <span class="t">150–200 ms.</span></li>
+    <li>Con <b>movimiento reducido</b> todo es instantáneo (interruptor arriba).</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px (prueba en vivo)</h2>
+  <p>Hitos en variante B, Logros fáciles en variante A. Prueba «Ver más», «Revelar» en el logro oculto y el hover de filas y tarjetas.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="f-desk"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Una columna. Tiles en 2 × 2, reparto por rareza como lista con franja, barra de progreso de cada juego en su propia línea; todo lo pulsable mide 44 px o más.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px" id="f-mob"></div><p class="frame-cap">Datos normales.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-new"></div><p class="frame-cap">Recién empezado: 23 logros en 3 juegos, ninguno al 100 % ni olvidado.</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Casos límite · ~1000 px, barra plegada</h2>
+  <p>Cuenta nueva: sin épicos ni legendarios (reparto solo con común y poco común), una sola fila en Cerca del 100 %, Olvidados vacío y ningún juego al 100 % (el vacío te dice cuál tienes más cerca). A esta anchura las secciones van en una columna.</p>
+  <div class="scroller"><div class="frame w-mid" style="width:1000px" id="f-edge"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · hitos</h2>
+  <p>Mismos datos: 1873 logros, 14 juegos al 100 %, primer épico y primer legendario ya conseguidos.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="vlabel"><b>A</b> Lista con color (como hoy)</div><div class="frame w-desk" style="width:520px;padding:20px" id="f-ms-a"></div></div>
+    <div><div class="vlabel"><b>B</b> Series con nodos <em>recomendada</em></div><div class="frame w-desk" style="width:520px;padding:20px" id="f-ms-b"></div></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · logros fáciles que te faltan</h2>
+  <p>Los mismos 6 primeros logros (de más a menos común).</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="vlabel"><b>A</b> Lista plana <em>recomendada</em></div><div class="frame w-desk" style="width:560px;padding:20px" id="f-easy-a"></div></div>
+    <div><div class="vlabel"><b>B</b> Agrupados por juego</div><div class="frame w-desk" style="width:560px;padding:20px" id="f-easy-b"></div></div>
+  </div></div>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide, los mismos que usa la app) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+  pause: '<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
+  repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  circlex: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  hourglass: '<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
+  target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+  video: '<path d="M10 7.75a.75.75 0 0 1 1.142-.638l3.664 2.249a.75.75 0 0 1 0 1.278l-3.664 2.25a.75.75 0 0 1-1.142-.64z"/><path d="M12 17v4"/><path d="M8 21h8"/><rect x="2" y="3" width="20" height="14" rx="2"/>',
+  gem: '<path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/>',
+  zap: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+  up: '<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',
+  infinity: '<path d="M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8"/>',
+  sparkles: '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm');
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+
+/* ── Navegación (resumen de la implementada), con Logros activo ── */
+function sidebar(o) {
+  const c = o.compact;
+  const pill = (k) => k === 'lib' && o.tray ? (c ? `<span class="nv-dot hg-tint st-bandeja">${o.tray}</span>` : `<span class="nv-count hg-tint st-bandeja">${ic('inbox')}${o.tray}</span>`) : '';
+  const link = (k, label, icon) => `<a href="#" class="nv-link ${k === 'ach' ? 'active' : ''}" title="${label}">${ic(icon)}<span class="nv-link__label">${label}</span>${pill(k)}</a>`;
+  const groups = [`<div class="nv-group">${link('home', 'Inicio', 'home')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('lib', 'Biblioteca', 'library')}${link('ach', 'Logros', 'award')}${link('wish', 'Wishlist', 'heart')}${link('stats', 'Estadísticas', 'chart')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('judi', 'JUDI', 'gamepad')}${link('rank', 'Ranking', 'trophy')}</div>`];
+  const theme = `<span class="theme-btn">${ic('sun')}</span><div class="theme-toggle"><span class="on">${ic('sun')}</span><span>${ic('moon')}</span><span>${ic('monitor')}</span></div>`;
+  const account = `<a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>diego</span><span class="nv-account__meta">Ver perfil</span></span></a>`;
+  return `<aside class="nv-side ${c ? 'is-compact' : ''}"><a href="#" class="nv-brand">${logo(22)}</a><span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span><nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}${account}</div></aside>`;
+}
+function mobileChrome(o, body) {
+  const tabs = [['home', 'Inicio', 'home'], ['lib', 'Biblioteca', 'library'], ['ach', 'Logros', 'award'], ['judi', 'JUDI', 'gamepad'], ['rank', 'Ranking', 'trophy'], ['perfil', 'Perfil', 'user']];
+  const dot = (k) => k === 'lib' && o.tray ? `<span class="nv-dot hg-tint st-bandeja">${o.tray}</span>` : '';
+  const tabbar = tabs.map(([k, l, i]) => `<a href="#" class="m-tab ${k === 'ach' ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}${dot(k)}</span><span class="m-tab__label">${l}</span></a>`).join('');
+  const top = `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon">${ic('sun')}</span><span class="m-icon"><span class="nv-avatar">D</span></span></div></header>`;
+  return `${top}<div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+function desktopChrome(o, body) {
+  return sidebar(o) + `<div class="page ${o.compact ? 'is-compact' : ''}"><div class="page-in">${body}</div></div>`;
+}
+
+/* ── Utilidades ── */
+const IMG = (id) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`;
+const ST = { jugando: ['play', 'Jugando'], pendiente: ['bookmark', 'Pendiente'], pausado: ['pause', 'Pausado'], rejugable: ['repeat', 'Rejugable'], completado: ['flag', 'Completado'], abandonado: ['circlex', 'Abandonado'], yajugado: ['history', 'Ya jugado'] };
+const chip = (s, sm = true) => `<span class="hg-chip ${sm ? 'hg-chip--sm' : ''} hg-tint st-${s}">${ic(ST[s][0])}${ST[s][1]}</span>`;
+const RAR = { comun: 'Común', poco: 'Poco común', rara: 'Rara', epica: 'Épica', leg: 'Legendaria' };
+const THR = { comun: '≥ 40 %', poco: '< 40 %', rara: '< 15 %', epica: '< 5 %', leg: '< 1 %' };
+const tier = (p) => (p < 1 ? 'leg' : p < 5 ? 'epica' : p < 15 ? 'rara' : p < 40 ? 'poco' : 'comun');
+const pct = (p) => `${String(p).replace('.', ',')} %`;
+const n = (v) => v.toLocaleString('es-ES'); // como la app: 1873, 11.327
+const flags = (g) => (g.fav ? `<span class="hg-flag hg-tint st-favorito" title="Favorito">${ic('heart')}</span>` : '') + (g.endless ? `<span class="hg-flag hg-tint st-sin_final" title="Sin final">${ic('infinity')}</span>` : '');
+const count = (v) => `<span data-count="${v}">${n(v)}</span>`;
+
+/* ── Datos de ejemplo ── */
+const FULL = {
+  ach: 1873, games: 86, perfect: 14, points: 11327, ptsMonth: 212, achMonth: 38,
+  lastPerfect: 'Celeste', lastPerfectDate: '12 oct',
+  rarest: { name: 'Calor extremo', game: 'Hades', p: 0.4 },
+  tiers: { comun: [812, 1624], poco: [604, 3624], rara: [291, 3201], epica: [129, 2064], leg: [37, 814] },
+  top: [[1245620, 'ELDEN RING', 612], [367520, 'Hollow Knight', 488], [292030, 'The Witcher 3: Wild Hunt - Complete Edition', 455], [1145360, 'Hades', 431], [504230, 'Celeste', 402]],
+  ms: {
+    count: { cur: 1873, steps: [[100, '9 abr 2019'], [500, '2 nov 2020'], [1000, '3 mar 2023'], [2500], [5000], [10000]] },
+    perfect: { cur: 14, steps: [[1, '21 jun 2018'], [10, '14 ago 2025'], [25], [50], [100]] },
+    rare: [['Primer logro épico', 'epica', '7 nov 2019'], ['Primer logro legendario', 'leg', '2 feb 2024']],
+    last: ['10 juegos al 100 %', '14 ago 2025', 'st-completado', 'flag'],
+  },
+};
+const NEAR = [
+  { id: 753640, name: 'Outer Wilds', st: 'completado', ach: [30, 31], easy: 0, fav: true },
+  { id: 620, name: 'Portal 2', st: 'completado', ach: [48, 51], easy: 1 },
+  { id: 1145360, name: 'Hades', st: 'completado', ach: [46, 49], easy: 0, fav: true },
+  { id: 268910, name: 'Cuphead', st: 'pausado', ach: [31, 36], easy: 0 },
+  { id: 367520, name: 'Hollow Knight', st: 'completado', ach: [56, 63], easy: 2, fav: true },
+  { id: 1245620, name: 'ELDEN RING', st: 'rejugable', ach: [34, 42], easy: 1 },
+  { id: 292030, name: 'The Witcher 3: Wild Hunt - Complete Edition', st: 'completado', ach: [66, 78], easy: 4 },
+  { id: 632470, name: 'Disco Elysium - The Final Cut', st: 'yajugado', ach: [32, 45], easy: 3 },
+  { id: 588650, name: 'Dead Cells', st: 'rejugable', ach: [80, 122], easy: 0, endless: true },
+  { id: 553420, name: 'TUNIC', st: 'completado', ach: [10, 17], easy: 2 },
+  { id: 972660, name: 'Spiritfarer: Farewell Edition', st: 'completado', ach: [24, 40], easy: 5 },
+  { id: 379720, name: 'DOOM', st: 'completado', ach: [33, 54], easy: 6 },
+  { id: 219150, name: 'Hotline Miami', st: 'completado', ach: [22, 36], easy: 2 },
+];
+const NEAR_TOTAL = 23;
+const FORGOTTEN = [
+  { id: 413150, name: 'Stardew Valley', st: 'rejugable', ach: [33, 40], ago: 'hace 5 meses', endless: true },
+  { id: 814380, name: 'Sekiro: Shadows Die Twice - GOTY Edition', st: 'pausado', ach: [27, 34], ago: 'hace 7 meses' },
+  { id: 374320, name: 'DARK SOULS III', st: 'abandonado', ach: [31, 43], ago: 'hace 1 año' },
+  { id: 646570, name: 'Slay the Spire', st: 'rejugable', ach: [30, 46], ago: 'hace 4 meses', endless: true },
+  { id: 1092790, name: 'Inscryption', st: 'abandonado', ach: [12, 19], ago: 'hace 2 años' },
+  { id: 105600, name: 'Terraria', st: 'yajugado', ach: [52, 88], ago: 'hace 3 años', endless: true },
+];
+const FORGOTTEN_TOTAL = 11;
+const EASY = [
+  { name: 'Viajero intrépido', desc: 'Visita las Profundidades Verdes y los Páramos Fúngicos.', game: 'Hollow Knight', gid: 367520, st: 'completado', p: 71.4 },
+  { name: 'Sin dejar rastro', desc: 'Completa «La Isla de las Nieblas» sin ser detectado.', game: 'The Witcher 3: Wild Hunt - Complete Edition', gid: 292030, st: 'completado', p: 66.2 },
+  { name: 'Logro oculto', hidden: true, real: 'Conversación pendiente', desc: 'Habla con Wheatley después de la caída.', game: 'Portal 2', gid: 620, st: 'completado', p: 63.8 },
+  { name: 'Cazador de cabezas', desc: 'Consigue un trofeo de cada Señor Supremo.', game: 'ELDEN RING', gid: 1245620, st: 'rejugable', p: 58.9 },
+  { name: 'Coleccionista de máscaras', desc: 'Encuentra 4 fragmentos de máscara.', game: 'Hollow Knight', gid: 367520, st: 'completado', p: 55.1 },
+  { name: 'Detective de bolsillo', desc: 'Resuelve el caso del ahorcado con Kim.', game: 'Disco Elysium - The Final Cut', gid: 632470, st: 'yajugado', p: 52.7 },
+  { name: 'Sopa de setas', desc: 'Cocina una receta con seis ingredientes distintos.', game: 'The Witcher 3: Wild Hunt - Complete Edition', gid: 292030, st: 'completado', p: 52.3 },
+  { name: 'Sin pausa', desc: 'Termina la Fase 1 de cualquier jefe sin recibir daño.', game: 'Cuphead', gid: 268910, st: 'pausado', p: 51.9 },
+  { name: 'Una noche en el Martinaise', desc: 'Duerme en el hostal por primera vez.', game: 'Disco Elysium - The Final Cut', gid: 632470, st: 'yajugado', p: 51.6 },
+  { name: 'Viaje por el valle', desc: 'Llega a la cima de la montaña.', game: 'TUNIC', gid: 553420, st: 'completado', p: 51.2 },
+];
+const EASY_TOTAL = 47;
+const RARE = [
+  { name: 'Calor extremo', desc: 'Escapa con 32 de calor en el Pacto de Castigo.', game: 'Hades', p: 0.4, date: '3 feb 2026' },
+  { name: 'Rango S en todo', desc: 'Consigue la calificación S en todos los jefes en modo experto.', game: 'Cuphead', p: 0.6, date: '18 dic 2024' },
+  { name: 'Alma de acero', desc: 'Completa el juego en modo Alma de Acero.', game: 'Hollow Knight', p: 0.9, date: '2 feb 2024' },
+  { name: 'Corazón dorado', desc: 'Termina el capítulo 9 «Adiós».', game: 'Celeste', p: 2.1, date: '12 oct 2026' },
+  { name: 'Shinobi supremo', desc: 'Consigue todos los trofeos.', game: 'Sekiro: Shadows Die Twice - GOTY Edition', p: 3.6, date: '30 mar 2025' },
+  { name: 'Señor de Elden', desc: 'Consigue todos los finales.', game: 'ELDEN RING', p: 4.4, date: '11 jun 2025' },
+  { name: 'Archimago', desc: 'Domina todos los hechizos de la Academia de Raya Lucaria.', game: 'ELDEN RING', p: 7.9, date: '2 may 2025' },
+  { name: 'Ojo de halcón', desc: 'Encuentra todos los secretos de los mundos de la Tierra.', game: 'Outer Wilds', p: 9.8, date: '14 jul 2023' },
+  { name: 'Profesor de física', desc: 'Termina el modo cooperativo sin morir.', game: 'Portal 2', p: 11.3, date: '29 ago 2021' },
+  { name: 'Mazo de cristal', desc: 'Gana una partida con la baraja de cristal.', game: 'Balatro', p: 13.7, date: '22 sept 2026' },
+];
+const PERFECT = [
+  [504230, 'Celeste', 32, '12 oct 2026', 402], [1135690, 'Unpacking', 33, '28 ago 2026', 96], [1055540, 'A Short Hike', 9, '14 ago 2025', 41],
+  [653530, 'Return of the Obra Dinn', 13, '3 jun 2025', 88], [460950, 'Katana ZERO', 22, '19 feb 2025', 148], [387290, 'Ori and the Blind Forest: Definitive Edition', 41, '7 dic 2024', 311],
+  [501300, 'What Remains of Edith Finch', 4, '12 sept 2024', 11], [837470, 'Untitled Goose Game', 20, '30 may 2024', 72], [683320, 'GRIS', 22, '2 abr 2024', 138],
+  [1049410, 'Superliminal', 21, '18 ene 2024', 101], [304430, 'INSIDE', 14, '11 nov 2023', 97], [383870, 'Firewatch', 11, '6 jul 2022', 44],
+  [400, 'Portal', 15, '25 dic 2019', 62], [48000, 'LIMBO', 12, '21 jun 2018', 66],
+];
+
+const NEW = {
+  ach: 23, games: 3, perfect: 0, points: 61, ptsMonth: 61, achMonth: 23,
+  rarest: { name: 'El primer amanecer', game: 'Celeste', p: 31.2 },
+  tiers: { comun: [17, 34], poco: [6, 27] },
+  top: [[504230, 'Celeste', 38], [413150, 'Stardew Valley', 17], [1145350, 'Hades II', 6]],
+  ms: { count: { cur: 23, steps: [[100], [500], [1000], [2500], [5000], [10000]] }, perfect: { cur: 0, steps: [[1], [10], [25], [50], [100]] }, rare: [['Primer logro épico', 'epica'], ['Primer logro legendario', 'leg']], last: null },
+  near: [{ id: 504230, name: 'Celeste', st: 'jugando', ach: [18, 32], easy: 3 }], nearTotal: 1,
+  easy: EASY.slice(0, 3).map((a, i) => ({ ...a, game: ['Celeste', 'Stardew Valley', 'Celeste'][i], gid: [504230, 413150, 504230][i], st: ['jugando', 'rejugable', 'jugando'][i], name: ['Paseo por la ciudad', 'Granjero novato', 'Fresas al vuelo'][i], desc: ['Termina el capítulo 2.', 'Envía 15 cosechas distintas.', 'Consigue 20 fresas.'][i], hidden: false })), easyTotal: 3,
+  forgotten: [], forgottenTotal: 0,
+  rare: [
+    { name: 'El primer amanecer', desc: 'Termina el capítulo 3.', game: 'Celeste', p: 31.2, date: '24 oct 2026' },
+    { name: 'Cultivador', desc: 'Gana 15.000 g.', game: 'Stardew Valley', p: 36.8, date: '20 oct 2026' },
+    { name: 'Primer escape', desc: 'Escapa del Inframundo por primera vez.', game: 'Hades II', p: 52.4, date: '27 oct 2026' },
+  ],
+  perfectList: [],
+};
+const FULLV = { ...FULL, near: NEAR, nearTotal: NEAR_TOTAL, easy: EASY, easyTotal: EASY_TOTAL, forgotten: FORGOTTEN, forgottenTotal: FORGOTTEN_TOTAL, rare: RARE, perfectList: PERFECT };
+
+/* ── Piezas ── */
+function secHead(cls, icon, title, cnt, end = '', tag = 'h2') {
+  return `<div class="sec-head"><span class="sec-head__icon hg-tint ${cls}">${ic(icon)}</span><${tag}>${title}</${tag}>${cnt !== null ? `<span class="sec-head__count">${cnt}</span>` : ''}${end ? `<span class="sec-head__end">${end}</span>` : ''}</div>`;
+}
+function emptyBox(cls, icon, title, text, btn) {
+  return `<div class="dash-empty"><span class="dash-empty__icon hg-tint ${cls}">${ic(icon)}</span><p><b>${title}</b>${text}</p>${btn ? `<a href="#" class="btn btn--secondary btn--sm">${btn}</a>` : ''}</div>`;
+}
+function head(d) {
+  return `<header class="lg-head" data-in style="--i:0"><div><h1 class="page-title">Logros</h1><p class="page-subtitle">${n(d.ach)} logros desbloqueados en ${d.games} juegos, ${d.perfect} al 100 %.</p></div>
+    <a href="#" class="btn btn--secondary">${ic('history')} Ver historial</a></header>`;
+}
+function tiles(d) {
+  const rt = tier(d.rarest.p);
+  return `<dl class="hg-tiles" data-in style="--i:1">
+    <div class="hg-tile st-todos"><dt><span class="hg-tile__icon hg-tint">${ic('zap')}</span>Puntos de cazador</dt><dd class="hg-tile__value">${count(d.points)}</dd><dd class="hg-tile__note"><b>+${n(d.ptsMonth)}</b> este mes</dd></div>
+    <div class="hg-tile st-sin_final"><dt><span class="hg-tile__icon hg-tint">${ic('award')}</span>Logros</dt><dd class="hg-tile__value">${count(d.ach)}</dd><dd class="hg-tile__note">en ${d.games} juegos · <b>+${d.achMonth}</b> este mes</dd></div>
+    <div class="hg-tile st-completado"><dt><span class="hg-tile__icon hg-tint">${ic('flag')}</span>Juegos al 100 %</dt><dd class="hg-tile__value">${count(d.perfect)}</dd><dd class="hg-tile__note">${d.lastPerfect ? `el último, <a href="#"><b>${d.lastPerfect}</b></a> · ${d.lastPerfectDate}` : 'todavía ninguno'}</dd></div>
+    <div class="hg-tile rar-${rt} rare-tile"><dt><span class="hg-tile__icon hg-tint rar-${rt}">${ic('trophy')}</span>Tu logro más raro</dt><dd class="hg-tile__value hg-tile__value--tinted">${pct(d.rarest.p)} <small>${RAR[rt]}</small></dd><dd class="hg-tile__note" title="${d.rarest.name} · ${d.rarest.game}"><b>${d.rarest.name}</b> · ${d.rarest.game}</dd></div>
+  </dl>`;
+}
+function scorePanel(d) {
+  const keys = Object.keys(d.tiers);
+  const stack = keys.map((k) => `<span class="rar-${k}" style="flex:${d.tiers[k][0]}" title="${RAR[k]}: ${d.tiers[k][0]}"></span>`).join('');
+  const cells = keys.map((k, i) => `<li class="rar-cell rar-${k}" style="--k:${i}"><span class="rar-cell__name rar-ink">${RAR[k]}</span><span class="rar-cell__n">${count(d.tiers[k][0])}</span><span class="rar-cell__pts">${n(d.tiers[k][1])} pts</span><span class="rar-cell__thr">${THR[k]} de jugadores</span></li>`).join('');
+  const max = d.top[0][2];
+  const top = d.top.map(([id, name, pts], i) => `<li class="top-game" data-in style="--i:${i + 2}"><span class="top-game__pos">${i + 1}</span><img src="${IMG(id)}" alt=""><span class="top-game__name"><a href="#" title="${name}">${name}</a><span class="hg-bar"><span style="width:${Math.round(pts / max * 100)}%"></span></span></span><span class="top-game__pts">${pts} <small>pts</small></span></li>`).join('');
+  return `<div class="sec-block" style="gap:1.25rem">
+    <section class="panel">
+      ${secHead('st-todos', 'zap', 'Puntuación de cazador', `${n(d.points)} puntos`)}
+      <div>
+          <p class="score-formula" style="margin-top:-.25rem">De dónde salen tus puntos. Cada logro vale más cuanto menos gente lo tiene: 3 puntos uno del 50 %, 10 uno del 10 %, 20 uno del 1 % y hasta 30.</p>
+      </div>
+      <div class="rar-stack" role="img" aria-label="Tus logros por rareza">${stack}</div>
+      <ul class="rar-table" aria-label="Tus logros y puntos por rareza">${cells}</ul>
+    </section>
+    <section class="panel">
+      ${secHead('st-todos', 'trophy', 'Juegos con más puntos', null, '', 'h3')}
+      <ol class="top-games">${top}</ol>
+    </section>
+  </div>`;
+}
+/* Hitos · A: lista con el color de la serie */
+function milestonesA(d) {
+  const m = d.ms; const reached = []; const next = [];
+  m.count.steps.forEach(([v, date]) => date && reached.push([`${n(v)} logros`, date, 'st-sin_final', 'award']));
+  m.perfect.steps.forEach(([v, date]) => date && reached.push([v === 1 ? 'Primer juego al 100 %' : `${v} juegos al 100 %`, date, 'st-completado', 'flag']));
+  m.rare.forEach(([l, t, date]) => date ? reached.push([l, date, `rar-${t}`, 'trophy']) : next.push([l, null, `rar-${t}`, 'trophy']));
+  const ord = { '9 abr 2019': 1, '2 nov 2020': 3, '3 mar 2023': 4, '21 jun 2018': 0, '14 ago 2025': 6, '7 nov 2019': 2, '2 feb 2024': 5 };
+  reached.sort((a, b) => (ord[b[1]] ?? 0) - (ord[a[1]] ?? 0));
+  const nc = m.count.steps.find(([v]) => v > m.count.cur)[0]; const np = m.perfect.steps.find(([v]) => v > m.perfect.cur)[0];
+  next.unshift([`${n(nc)} logros`, [m.count.cur, nc], 'st-sin_final', 'award'], [np === 1 ? 'Primer juego al 100 %' : `${np} juegos al 100 %`, [m.perfect.cur, np], 'st-completado', 'flag']);
+  const li = ([l, x, cls, icon], i, pending) => pending
+    ? `<li class="ms-item is-pending ${cls}" style="--i:${i}"><span class="ms-item__icon hg-tint ${cls}">${ic(icon)}</span><span class="ms-item__label">${l}</span>${x ? `<span class="ms-item__prog"><span>${n(x[0])} / ${n(x[1])}</span><span class="hg-bar ${cls}" style="--i:${i}"><span style="width:${Math.round(x[0] / x[1] * 100)}%;background:var(--c)"></span></span></span>` : '<span class="ms-item__prog">Pendiente</span>'}</li>`
+    : `<li class="ms-item ${cls}" style="--i:${i}"><span class="ms-item__icon hg-tint ${cls}">${ic(icon)}</span><span class="ms-item__label">${l}</span><time>${x}</time></li>`;
+  return `<section class="panel">${secHead('st-completado', 'flag', 'Hitos', null)}
+    ${reached.length ? `<ul class="ms-list">${reached.map((r, i) => li(r, i, false)).join('')}</ul><p class="ms-sep">Siguientes</p>` : ''}
+    <ul class="ms-list">${next.map((r, i) => li(r, i, true)).join('')}</ul></section>`;
+}
+/* Hitos · B: series con nodos */
+function series(cls, icon, title, cur, steps, fmt, curTxt) {
+  const lit = steps.filter(([v]) => v <= cur).length; const N = steps.length;
+  let pos = 0;
+  if (lit >= N) pos = 1;
+  else { const prev = lit ? steps[lit - 1][0] : 0; const nx = steps[lit][0]; const part = (cur - prev) / (nx - prev); pos = Math.max(0, (lit - 1 + (lit ? part : 0)) / (N - 1)); }
+  const nodes = steps.map(([v, date], i) => {
+    const st = i < lit ? 'is-lit' : i === lit ? 'is-next' : '';
+    return `<div class="ms-node ${st}" style="--k:${i}" ${date ? `title="Conseguido el ${date}"` : ''}><span class="ms-dot">${i < lit ? ic('check') : ''}</span><span class="ms-node__label">${fmt(v)}</span>${date ? `<span class="ms-node__date">${date.replace(/^\d+ /, '')}</span>` : ''}</div>`;
+  }).join('');
+  const nx = steps[lit];
+  const right = nx ? `<span><strong>${n(cur)}</strong> · te faltan ${n(nx[0] - cur)} para ${fmt(nx[0])}</span>` : '<span>Completada</span>';
+  return `<div class="ms-s ${cls}"><div class="ms-s__head"><b>${ic(icon)}${title}</b>${curTxt ?? right}</div>
+    <div class="ms-track" style="--n:${N}"><span class="ms-line"><span style="--p:${pos.toFixed(3)}"></span></span>${nodes}</div></div>`;
+}
+function milestonesB(d) {
+  const m = d.ms;
+  const rareSteps = m.rare.map(([l, t, date]) => ({ l, t, date }));
+  const rareLit = rareSteps.filter((r) => r.date).length;
+  const rare = `<div class="ms-s rar-leg"><div class="ms-s__head"><b>${ic('trophy')}Rarezas</b><span>${rareLit === 2 ? 'Completada' : rareLit === 1 ? 'Te falta el primer legendario' : 'Aún sin épicos ni legendarios'}</span></div>
+    <div class="ms-track" style="--n:2"><span class="ms-line rar-epica"><span style="--p:${rareLit === 2 ? 1 : 0}"></span></span>${rareSteps.map((r, i) => `<div class="ms-node rar-${r.t} ${r.date ? 'is-lit' : i === rareLit ? 'is-next' : ''}" style="--k:${i}" ${r.date ? `title="Conseguido el ${r.date}"` : ''}><span class="ms-dot">${r.date ? ic('check') : ''}</span><span class="ms-node__label">${r.l.replace('Primer logro ', 'Primer ')}</span>${r.date ? `<span class="ms-node__date">${r.date}</span>` : ''}</div>`).join('')}</div></div>`;
+  const last = m.last ? `<p class="ms-last ${m.last[2]}">${ic(m.last[3])}<b>${m.last[0]}</b><span>· último hito, ${m.last[1]}</span></p>` : '';
+  return `<section class="panel">${secHead('st-completado', 'flag', 'Hitos', null)}${last}
+    <div class="ms-series">
+      ${series('st-sin_final', 'award', 'Logros', m.count.cur, m.count.steps, (v) => n(v))}
+      ${series('st-completado', 'flag', 'Juegos al 100 %', m.perfect.cur, m.perfect.steps, (v) => String(v))}
+      ${rare}
+    </div></section>`;
+}
+function gameLine(g, i, detail, cls = '') {
+  const p = Math.floor(g.ach[0] / g.ach[1] * 100);
+  return `<li class="hg-row lib-row game-line st-${g.st} ${cls}" data-in style="--i:${i}">
+    <span class="hg-row__cover"><img src="${IMG(g.id)}" alt=""></span>
+    <span class="hg-row__main"><a href="#" class="hg-row__link" title="${g.name}">${g.name}</a><span class="hg-row__meta">${chip(g.st)}${flags(g)}${detail}</span></span>
+    <span class="hg-row__prog"><span class="hg-row__prog-label"><span><b>${g.ach[0]}</b> / ${g.ach[1]}</span><span>${p} %</span></span><span class="hg-bar" style="--i:${i}"><span style="width:${p}%"></span></span></span>
+  </li>`;
+}
+const nearDetail = (g) => { const left = g.ach[1] - g.ach[0]; return `<span class="left-n">${left === 1 ? 'Te falta 1' : `Te faltan ${left}`}</span>${g.easy ? `<span class="easy-tag" title="Logros que tiene más de la mitad de los jugadores">${g.easy} ${g.easy === 1 ? 'fácil' : 'fáciles'}</span>` : ''}`; };
+const forgotDetail = (g) => `<span class="lib-meta ago">${ic('hourglass')}${g.ago}</span>`;
+function more(total, shown, key) { return total > shown ? `<button class="btn btn--ghost btn--sm more" type="button" data-more="${key}" data-shown="${shown}">Ver más (${total - shown})</button>` : ''; }
+function nearSection(d) {
+  const body = d.near.length
+    ? `<ul class="hg-rows" aria-label="Juegos cerca del 100 %">${d.near.slice(0, 8).map((g, i) => gameLine(g, i, nearDetail(g))).join('')}</ul>${more(d.nearTotal, Math.min(8, d.near.length), 'near')}`
+    : emptyBox('st-completado', 'flag', 'Ningún juego por encima de la mitad.', 'Cuando pases del 50 % de logros de un juego, aparecerá aquí.', null);
+  return `<section class="sec-block" data-in style="--i:3">${secHead('st-completado', 'flag', 'Cerca del 100 %', d.nearTotal)}<p class="sec-hint">Al menos la mitad de los logros. Los que menos te faltan, primero.</p>${body}</section>`;
+}
+function achItem(a, i, opts = {}) {
+  const t = tier(a.p); const locked = !a.date;
+  const flash = !locked && (t === 'leg' || t === 'epica') ? 'is-flash' : '';
+  const name = a.hidden ? `<span class="ach-secret">Logro oculto</span><button type="button" class="ach-reveal" data-reveal="${a.real}" data-desc="${a.desc}">${ic('eye')} Revelar</button>` : a.name;
+  const ctx = opts.noGame ? '' : `<p class="hg-ach__ctx"><a href="#">${a.game}</a>${opts.chip && a.st ? chip(a.st) : ''}</p>`;
+  const end = locked ? `<a class="ach-howto" href="#" title="Buscar en YouTube cómo conseguirlo">${ic('video')} Cómo conseguirlo</a>` : `<time class="ach-date">${a.date}</time>`;
+  return `<li class="hg-ach rar-${t} ${locked ? 'is-locked' : ''} ${flash}" data-in style="--i:${i}">
+    <span class="hg-ach__icon">${ic(locked ? 'lock' : 'trophy')}</span>
+    <div class="hg-ach__body"><p class="hg-ach__name">${name}</p>${a.hidden ? '' : `<p class="hg-ach__desc">${a.desc}</p>`}${ctx}</div>
+    <div class="hg-ach__pct"><span>${pct(a.p)}<span class="sr-only"> de jugadores</span></span><small>${RAR[t]}</small>${end}</div>
+  </li>`;
+}
+function easyListA(list, start = 0) { return list.map((a, i) => achItem(a, i + start, { chip: true })).join(''); }
+function easyGroupsB(list) {
+  const groups = [];
+  list.forEach((a) => { let g = groups.find((x) => x.gid === a.gid); if (!g) groups.push(g = { gid: a.gid, game: a.game, st: a.st, items: [] }); g.items.push(a); });
+  const left = { 367520: 7, 292030: 12, 620: 3, 1245620: 8, 632470: 13, 268910: 5 };
+  return `<ul class="easy-groups">${groups.map((g, i) => `<li class="easy-g" data-in style="--i:${i}"><div class="easy-g__head"><img src="${IMG(g.gid)}" alt=""><span class="easy-g__name"><a href="#" title="${g.game}">${g.game}</a><span>${g.items.length} ${g.items.length === 1 ? 'fácil' : 'fáciles'} · te faltan ${left[g.gid] ?? 4}</span></span>${chip(g.st)}</div><ul class="hg-achs">${g.items.map((a, j) => achItem(a, i, { noGame: true })).join('')}</ul></li>`).join('')}</ul>`;
+}
+function easySection(d, v = 'A') {
+  const body = d.easy.length
+    ? (v === 'A' ? `<ul class="hg-achs" data-list="easy">${easyListA(d.easy.slice(0, 8))}</ul>${more(d.easyTotal, Math.min(8, d.easy.length), 'easy')}` : easyGroupsB(d.easy))
+    : emptyBox('st-todos', 'target', 'No te queda ninguno fácil.', 'Todos los que tiene más de la mitad de los jugadores ya son tuyos.', null);
+  return `<section class="sec-block" data-in style="--i:4">${secHead('st-todos', 'target', 'Logros fáciles que te faltan', d.easyTotal)}<p class="sec-hint">Los tiene más de la mitad de los jugadores y tú no.</p>${body}</section>`;
+}
+function forgottenSection(d) {
+  const body = d.forgotten.length
+    ? `<ul class="hg-rows" aria-label="Juegos olvidados">${d.forgotten.slice(0, 8).map((g, i) => gameLine(g, i, forgotDetail(g))).join('')}</ul>${more(d.forgottenTotal, Math.min(8, d.forgotten.length), 'forgotten')}`
+    : emptyBox('st-pausado', 'hourglass', 'Nada olvidado.', 'Ningún juego a medias lleva más de 90 días sin tocarse.', null);
+  return `<section class="sec-block" data-in style="--i:5">${secHead('st-pausado', 'hourglass', 'Olvidados', d.forgottenTotal)}<p class="sec-hint">Más de la mitad de los logros y sin tocarlos desde hace más de 90 días.</p>${body}</section>`;
+}
+function rareSection(d) {
+  return `<section class="sec-block" data-in style="--i:6">${secHead('rar-leg', 'trophy', 'Tus logros más raros', d.rare.length)}<p class="sec-hint">Los que menos jugadores tienen.</p><ul class="hg-achs">${d.rare.map((a, i) => achItem(a, i)).join('')}</ul></section>`;
+}
+function perfectSection(d) {
+  let body;
+  if (d.perfectList.length) {
+    body = `<ul class="hg-cards" aria-label="Juegos al 100 %">${d.perfectList.map(([id, name, tot, date, pts], i) => `<li class="hg-card" data-in style="--i:${i}"><span class="hg-card__cover"><img src="${IMG(id)}" alt=""><span class="perfect-badge" style="--i:${i}">${ic('check')}100 %</span></span><span class="hg-card__body"><a href="#" class="hg-card__link" title="${name}">${name}</a><span class="hg-card__meta"><span>${tot} logros</span><span class="pts">${pts} pts</span><span>${date}</span></span></span></li>`).join('')}</ul>`;
+  } else {
+    const g = d.near[0];
+    body = emptyBox('st-completado', 'flag', 'Todavía ningún juego al 100 %.', g ? ` El que tienes más cerca es <b style="display:inline">${g.name}</b>: te faltan ${g.ach[1] - g.ach[0]}.` : '', g ? `${ic('award')} Ver sus logros` : null);
+  }
+  return `<section class="sec-block" data-in style="--i:7">${secHead('st-completado', 'flag', 'Juegos al 100 %', d.perfectList.length)}<p class="sec-hint">Todos los logros desbloqueados. El más reciente, primero.</p>${body}</section>`;
+}
+function page(d, o = {}) {
+  const ms = (o.ms ?? 'B') === 'A' ? milestonesA(d) : milestonesB(d);
+  return `<div class="logros">${head(d)}${tiles(d)}
+    <div class="hunt" data-in style="--i:2">${scorePanel(d)}${ms}</div>
+    <div class="hunt-grid">${nearSection(d)}${easySection(d, o.easy ?? 'A')}${forgottenSection(d)}${rareSection(d)}</div>
+    ${perfectSection(d)}</div>`;
+}
+
+/* ── Montaje ── */
+function mount(id, html) { const el = document.getElementById(id); el.innerHTML = html; return el; }
+mount('f-desk', desktopChrome({ tray: 14 }, page(FULLV, { w: 'desk' })));
+mount('f-mob', mobileChrome({ tray: 14 }, page(FULLV, { w: 'mob' })));
+mount('f-mob-new', mobileChrome({ tray: 3 }, page(NEW, { w: 'mob' })));
+mount('f-edge', desktopChrome({ tray: 3, compact: true }, page(NEW, { w: 'mid' })));
+mount('f-ms-a', milestonesA(FULLV));
+mount('f-ms-b', milestonesB(FULLV));
+mount('f-easy-a', `<div class="logros">${easySection({ ...FULLV, easy: EASY.slice(0, 6) }, 'A').replace(/<button[^>]*data-more[^>]*>.*?<\/button>/, '')}</div>`);
+mount('f-easy-b', `<div class="logros">${easySection({ ...FULLV, easy: EASY.slice(0, 6) }, 'B')}</div>`);
+
+/* ── Cifras que cuentan (CountUp) ── */
+function countUp(root) {
+  root.querySelectorAll('[data-count]').forEach((el) => {
+    const to = +el.dataset.count;
+    if (rm()) { el.textContent = n(to); return; }
+    const t0 = performance.now(); const dur = 450;
+    const step = (t) => { const k = Math.min(1, (t - t0) / dur); const e = 1 - Math.pow(1 - k, 3); el.textContent = n(Math.round(to * e)); if (k < 1) requestAnimationFrame(step); };
+    el.textContent = '0'; requestAnimationFrame(step);
+  });
+}
+function entry() {
+  document.querySelectorAll('.frame').forEach((f) => { f.classList.remove('entering'); void f.offsetWidth; f.classList.add('entering'); countUp(f); });
+}
+
+/* ── Interacciones: «Ver más» y «Revelar» ── */
+const POOL = { near: () => NEAR, forgotten: () => FORGOTTEN, easy: () => EASY };
+const TOTAL = { near: NEAR_TOTAL, forgotten: FORGOTTEN_TOTAL, easy: EASY_TOTAL };
+document.addEventListener('click', (e) => {
+  const mb = e.target.closest('[data-more]');
+  if (mb) {
+    const key = mb.dataset.more; const shown = +mb.dataset.shown; const list = mb.previousElementSibling;
+    // En el mockup se repiten los ejemplos para simular la página siguiente (en la app: +16 de verdad).
+    const pool = POOL[key](); const add = Math.min(16, TOTAL[key] - shown);
+    const tmp = document.createElement('ul');
+    const items = Array.from({ length: add }, (_, j) => pool[(shown + j) % pool.length]);
+    tmp.innerHTML = key === 'easy' ? easyListA(items.map((a) => ({ ...a, hidden: false })), 0)
+      : items.map((g, j) => gameLine(g, j, key === 'near' ? nearDetail(g) : forgotDetail(g))).join('');
+    [...tmp.children].forEach((li, j) => { li.removeAttribute('data-in'); li.classList.add('is-new'); li.style.setProperty('--j', Math.min(j, 8)); list.appendChild(li); });
+    const now = shown + add;
+    if (now >= TOTAL[key]) mb.remove(); else { mb.dataset.shown = now; mb.textContent = `Ver más (${TOTAL[key] - now})`; }
+    return;
+  }
+  const rv = e.target.closest('[data-reveal]');
+  if (rv) {
+    const nameP = rv.closest('.hg-ach__name');
+    nameP.innerHTML = `<span class="reveal-in">${rv.dataset.reveal}</span>`;
+    nameP.insertAdjacentHTML('afterend', `<p class="hg-ach__desc reveal-in">${rv.dataset.desc}</p>`);
+  }
+});
+
+/* ── Controles del documento ── */
+document.getElementById('replay-btn').addEventListener('click', entry);
+const rmBtn = document.getElementById('rm-btn');
+rmBtn.addEventListener('click', () => { const on = document.documentElement.classList.toggle('rm'); rmBtn.setAttribute('aria-pressed', String(on)); rmBtn.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`; });
+const themeBtn = document.getElementById('theme-btn');
+function setTheme(t) { document.documentElement.dataset.theme = t; themeBtn.setAttribute('aria-pressed', String(t === 'dark')); themeBtn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro'; }
+themeBtn.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+if (location.hash.includes('dark')) setTheme('dark');
+if (location.hash.includes('rm')) document.documentElement.classList.add('rm');
+const solo = /solo=([\w-]+)/.exec(location.hash);
+if (solo) { const f = document.getElementById(solo[1]); document.body.innerHTML = ''; document.body.style.padding = '0'; document.body.appendChild(f); f.style.borderRadius = '0'; }
+entry();
+</script>
+</body>
+</html>

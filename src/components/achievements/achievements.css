@@ -309,143 +309,531 @@
   text-decoration: underline;
 }
 
-/* ── /logros: puntuación, hitos y vistas de cazador (#26, #27) ── */
-.score {
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: 1.75rem;
-  padding: 1.1rem 1.25rem 1.25rem;
+/* ── /logros: tiles, puntuación de cazador, hitos y vistas de cazador (#26, #27) ── */
+
+/* Tiles sobre el fondo de la página: superficie con borde, como los paneles */
+.lg-tiles .hg-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
 }
 
-.score__main {
-  display: grid;
-  gap: 0.6rem;
-  align-content: start;
-}
-
-.score__title,
-.milestones__title {
-  margin: 0;
-  font-size: 1.0625rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-.score__total {
-  margin: 0;
-  font-size: 2.25rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-
-.score__total small {
-  margin-left: 0.4rem;
-  color: var(--muted);
-  font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: 0;
-}
-
-.score__formula {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
-.score__top {
-  display: grid;
-  gap: 2px;
-  margin: 0.25rem 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.8125rem;
-}
-
-.score__top li {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.35rem 0;
-  border-top: 1px solid var(--border);
-}
-
-.score__top a {
+.lg-tiles .hg-tile__note {
   overflow: hidden;
-  color: var(--foreground);
-  white-space: nowrap;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lg-tiles .hg-tile__note b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.lg-tiles .hg-tile__note a {
+  color: inherit;
   text-decoration: none;
 }
 
-.score__top a:hover {
+.lg-tiles .hg-tile__note a:hover {
+  color: var(--foreground);
   text-decoration: underline;
 }
 
-.score__top span {
-  flex-shrink: 0;
-  color: var(--muted);
+/* Tu logro más raro: icono y cifra con la tinta de su rareza; el icono destella al llegar */
+.lg-rare-tile .hg-tile__icon,
+.lg-rare-tile .hg-tile__value--tinted {
+  color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground));
 }
 
-.milestones {
-  display: grid;
-  gap: 0.6rem;
-  align-content: start;
-}
-
-.milestones__list {
-  display: grid;
-  gap: 0.45rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.milestone {
-  display: grid;
-  grid-template-columns: 26px minmax(0, 1fr) auto;
-  gap: 0.6rem;
-  align-items: center;
-  font-size: 0.875rem;
-}
-
-.milestone__icon {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-sm);
-  background: var(--primary-glow);
-  color: var(--primary);
-}
-
-.milestone.is-pending .milestone__icon {
+.lg-rare-tile:not([style]) .hg-tile__icon {
   background: var(--surface-2);
   color: var(--muted);
 }
 
-.milestone.is-pending .milestone__label {
-  color: var(--muted);
+.lg-rare-tile[style] .hg-tile__icon {
+  animation: lg-tile-flash 0.9s var(--ease-out) backwards 0.45s;
 }
 
-.milestone time,
-.milestone__progress {
+@keyframes lg-tile-flash {
+  0% { transform: scale(0.6); }
+  35% { transform: scale(1.18); background: color-mix(in srgb, var(--c) 45%, transparent); }
+}
+
+/* Paneles y cabeceras de sección con icono tintado (como en el Inicio) */
+.lg-panel {
+  min-width: 0;
+  padding: 1.1rem 1.25rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.lg-panel > .lg-sec__head {
+  margin-bottom: 0.875rem;
+}
+
+.lg-panel__note {
+  margin: 0.75rem 0 0;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.lg-sec {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.lg-sec__head {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 2rem;
+  min-width: 0;
+}
+
+.lg-sec__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+}
+
+.lg-sec__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Rareza como tinte (Tus logros más raros): en claro, mezclada con el texto para llegar a 4,5:1 */
+.hg-tint.rar-leg {
+  --c: var(--rar-leg);
+  color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground));
+}
+
+.lg-sec__title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
-.milestone__progress {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
+.lg-sec__title--sm {
+  font-size: 1rem;
 }
 
-.milestone__progress .hg-bar {
-  width: 72px;
+.lg-sec__count {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lg-sec__hint {
+  margin: -0.4rem 0 0 2.5rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+/* Vacío: icono con el color de la sección, una frase y, si hay, una acción */
+.lg-empty {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.lg-empty__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.lg-empty__icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.lg-empty p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.lg-empty p > b {
+  display: block;
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.lg-empty p > b.lg-inline {
+  display: inline;
+}
+
+.lg-empty__action {
+  grid-column: 2;
+}
+
+/* Puntuación de cazador: reparto por rareza (barra apilada + una celda por rareza) y juegos con más puntos */
+.lg-hunt {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.lg-hunt__col {
+  display: grid;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.lg-score__formula {
+  max-width: 64ch;
+  margin: -0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.lg-stack {
+  display: flex;
+  gap: 2px;
+  height: 12px;
+  margin-top: 1rem;
+  border-radius: 999px;
+  overflow: hidden;
+  animation: lg-stack-grow 0.6s var(--ease-out) backwards 0.15s;
+}
+
+.lg-stack span {
+  min-width: 3px;
+  background: var(--c);
+}
+
+@keyframes lg-stack-grow {
+  from { clip-path: inset(0 100% 0 0 round 999px); }
+  to { clip-path: inset(0 0 0 0 round 999px); }
+}
+
+.lg-rar-table {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 8px;
+  margin: 0.875rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lg-rar-cell {
+  display: grid;
+  align-content: start;
+  gap: 1px;
+  min-width: 0;
+  padding: 8px 10px 9px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--c) 8%, transparent);
+  box-shadow: inset 0 3px 0 var(--c);
+  animation: hg-enter 0.3s var(--ease-out) backwards;
+  animation-delay: calc(250ms + var(--k, 0) * 60ms);
+}
+
+.lg-rar-cell__name {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.lg-rar-cell__n {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.lg-rar-cell__pts {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.lg-rar-cell__thr {
+  color: var(--muted);
+  font-size: 0.6875rem;
+}
+
+.lg-top {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lg-top__game {
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8125rem;
+}
+
+.lg-top__pos {
+  color: var(--muted);
+  font-weight: 600;
+  text-align: right;
+}
+
+.lg-top__cover {
+  position: relative;
+  display: block;
+  width: 64px;
+  height: 30px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.lg-top__cover .game-cover--empty span {
+  display: none;
+}
+
+.lg-top__name {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.lg-top__name a {
+  overflow: hidden;
+  color: var(--foreground);
+  font-weight: 600;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Toda la línea abre los logros del juego */
+.lg-top__name a::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 8px;
+}
+
+.lg-top__game:hover .lg-top__name a,
+.lg-top__name a:focus-visible {
+  text-decoration: underline;
+}
+
+.lg-top__name .hg-bar {
   height: 4px;
 }
 
+.lg-top__pts {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.lg-top__pts small {
+  color: var(--muted);
+  font-size: inherit;
+  font-weight: 500;
+}
+
+/* Hitos: tres series con todos sus escalones como nodos; la línea llega hasta donde vas */
+.rar-epica { --c: var(--rar-epica); }
+.rar-leg { --c: var(--rar-leg); }
+
+.lg-ms-last {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  font-size: 0.8125rem;
+}
+
+.lg-ms-last svg {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  color: color-mix(in srgb, var(--c) 85%, var(--foreground));
+}
+
+.lg-ms-last span {
+  color: var(--muted);
+}
+
+.lg-ms-series {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.lg-ms {
+  display: grid;
+  gap: 6px;
+}
+
+.lg-ms__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 0.5rem;
+  margin: 0;
+  font-size: 0.8125rem;
+}
+
+.lg-ms__head b {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+}
+
+.lg-ms__head b svg {
+  width: 14px;
+  height: 14px;
+  color: color-mix(in srgb, var(--c) 85%, var(--foreground));
+}
+
+.lg-ms__head span {
+  color: var(--muted);
+}
+
+.lg-ms__head strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+[data-theme='dark'] .lg-ms-last svg,
+[data-theme='dark'] .lg-ms__head b svg {
+  color: var(--c);
+}
+
+.lg-ms__track {
+  position: relative;
+  padding-top: 2px;
+}
+
+.lg-ms__nodes {
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lg-ms__line {
+  position: absolute;
+  top: 15px;
+  left: calc(50% / var(--n));
+  right: calc(50% / var(--n));
+  height: 3px;
+  border-radius: 2px;
+  background: var(--surface-2);
+}
+
+.lg-ms__line > span {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--c);
+  transform-origin: left;
+  transform: scaleX(var(--p));
+  animation: lg-line-fill 0.6s var(--ease-out) backwards 0.2s;
+}
+
+@keyframes lg-line-fill {
+  from { transform: scaleX(0); }
+}
+
+.lg-ms__node {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  text-align: center;
+}
+
+.lg-ms__dot {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  box-shadow: 0 0 0 3px var(--surface);
+  color: var(--muted);
+}
+
+.lg-ms__dot svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.6;
+}
+
+.lg-ms__node.is-lit .lg-ms__dot {
+  background: color-mix(in srgb, var(--c) 22%, var(--surface));
+  color: color-mix(in srgb, var(--c) 85%, var(--foreground));
+  animation: lg-node-lit 0.36s var(--ease-out) backwards;
+  animation-delay: calc(220ms + var(--k, 0) * 110ms);
+}
+
+[data-theme='dark'] .lg-ms__node.is-lit .lg-ms__dot {
+  color: var(--c);
+}
+
+@keyframes lg-node-lit {
+  0% { background: var(--surface-2); color: var(--muted); transform: scale(0.7); }
+  60% { transform: scale(1.15); }
+}
+
+.lg-ms__node.is-next .lg-ms__dot {
+  background: var(--surface);
+  outline: 2px dashed color-mix(in srgb, var(--c) 75%, transparent);
+  outline-offset: -2px;
+  animation: lg-fade-in 0.3s var(--ease-out) backwards 0.7s;
+}
+
+@keyframes lg-fade-in {
+  from { opacity: 0; }
+}
+
+.lg-ms__label {
+  color: var(--muted);
+  font-size: 0.71875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lg-ms__node.is-lit .lg-ms__label,
+.lg-ms__node.is-next .lg-ms__label {
+  color: var(--foreground);
+}
+
+.lg-ms__date {
+  margin-top: -3px;
+  color: var(--muted);
+  font-size: 0.65625rem;
+  white-space: nowrap;
+}
+
+/* Secciones de cazador */
 .hunt-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -453,8 +841,111 @@
   align-items: start;
 }
 
+/* Filas de juego como en la Biblioteca (franja y chip de su lista) */
 .hg-row.game-line {
-  grid-template-columns: 112px minmax(0, 1fr) minmax(90px, 120px);
+  grid-template-columns: 96px minmax(0, 1fr) 112px;
+  gap: 0.875rem;
+  padding-left: 14px;
+}
+
+.game-line .hg-row__cover {
+  width: 96px;
+  height: 45px;
+}
+
+.game-line .hg-chip,
+.ach-item__context .hg-chip {
+  gap: 4px;
+  padding: 1px 8px 1px 6px;
+  font-size: 0.71875rem;
+}
+
+.game-line .hg-chip svg,
+.ach-item__context .hg-chip svg {
+  width: 11px;
+  height: 11px;
+}
+
+.lg-left {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.lg-easy-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--foreground);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.lg-easy-tag::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--rar-comun);
+}
+
+.lg-ago svg {
+  color: var(--warn-ink, var(--warning));
+}
+
+/* Logros con el juego y su lista en la línea de contexto */
+.ach-item__context:has(.hg-chip) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 8px;
+}
+
+/* Juegos al 100 %: sello verde que salta, puntos y fecha */
+.lg-perfect-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+  padding: 0 7px 0 5px;
+  border-radius: 999px;
+  background: var(--st-completado);
+  color: var(--on-done);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+.lg-perfect-badge svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 2.8;
+}
+
+.hg-card__meta.lg-perfect-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+  white-space: normal;
+}
+
+.lg-pts {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+/* Logro oculto revelado: el nombre aparece con un fundido */
+.ach-item__revealed {
+  animation: lg-fade-in 0.2s var(--ease-out);
+}
+
+/* Épicos y legendarios: entrada escalonada y, a la vez, destello de su rareza */
+.hg-ach.hg-enter.hg-rar-flash {
+  animation: hg-enter 0.32s var(--ease-out) backwards, hg-rar-flash 0.9s var(--ease-out) backwards;
+  animation-delay: calc(min(var(--i, 0), 8) * 30ms), calc(350ms + min(var(--i, 0), 8) * 30ms);
 }
 
 /* ── /logros/historial: mapa del año y línea temporal (#28) ── */
@@ -705,18 +1196,21 @@ button.heatmap__cell:focus-visible {
 }
 
 /* ── Responsive ── */
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
+  .lg-hunt,
   .hunt-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hunt-grid {
+    gap: 1.5rem;
   }
 }
 
 @media (max-width: 720px) {
-  .ach-summary,
-  .score {
+  .ach-summary {
     grid-template-columns: minmax(0, 1fr);
   }
-
 }
 
 @media (max-width: 640px) {
@@ -724,12 +1218,90 @@ button.heatmap__cell:focus-visible {
     gap: 1.5rem;
   }
 
+  /* Fila de juego: cápsula y nombre arriba, barra de progreso a lo ancho debajo */
   .hg-row.game-line {
-    grid-template-columns: 96px minmax(0, 1fr);
+    grid-template-columns: 88px minmax(0, 1fr);
+    grid-template-areas: 'c m' 'p p';
+    row-gap: 8px;
+    column-gap: 0.75rem;
+    padding: 8px 10px 10px 12px;
   }
 
-  .hg-row.game-line .hg-row__prog {
-    grid-column: 2;
+  .game-line .hg-row__cover {
+    grid-area: c;
+    width: 88px;
+    height: 41px;
+  }
+
+  .game-line > .hg-row__main {
+    grid-area: m;
+  }
+
+  .game-line > .hg-row__prog {
+    grid-area: p;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .game-line .hg-row__prog .hg-bar {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .lg-sec__hint {
+    margin-left: 0;
+  }
+
+  .lg-panel {
+    padding: 1rem;
+  }
+
+  .lg-panel > .lg-sec__head {
+    flex-wrap: wrap;
+  }
+
+  /* Reparto por rareza como lista con franja */
+  .lg-rar-table {
+    grid-auto-flow: row;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .lg-rar-cell {
+    grid-template-columns: 1fr auto auto;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 2px 8px 12px;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+    background: none;
+    box-shadow: inset 3px 0 0 var(--c);
+  }
+
+  .lg-rar-cell:first-child {
+    border-top: 0;
+  }
+
+  .lg-rar-cell__n {
+    font-size: 0.9375rem;
+  }
+
+  .lg-rar-cell__thr,
+  .lg-ms__date {
+    display: none;
+  }
+
+  .lg-tiles .hg-tile {
+    padding: 12px;
+  }
+
+  .lg-tiles .hg-tile__value {
+    font-size: 1.375rem;
+  }
+
+  .lg-tiles .hg-tile__note {
+    white-space: normal;
   }
 
   .hg-ach.ach-item {
@@ -770,15 +1342,15 @@ button.heatmap__cell:focus-visible {
   .tl-day__body {
     padding-left: 0.9rem;
   }
-
-  .milestone__progress .hg-bar {
-    display: none;
-  }
 }
 
 /* Móvil: objetivos táctiles de 44 px (el botón de revelar crece solo en su área táctil) */
 @media (max-width: 768px) {
   .logros__back {
+    min-height: 44px;
+  }
+
+  .hg-more {
     min-height: 44px;
   }
 

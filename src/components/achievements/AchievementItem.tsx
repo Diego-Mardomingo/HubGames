@@ -9,7 +9,7 @@ import { achievementIconUrl } from '@/lib/steam-icon'
 
 const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
 
-type CSSVars = React.CSSProperties & Record<`--${string}`, string>
+type CSSVars = React.CSSProperties & Record<`--${string}`, string | number>
 
 interface Props {
     achievement: Achievement
@@ -18,23 +18,30 @@ interface Props {
     context?: React.ReactNode
     /** Oculta la fecha de desbloqueo (en el historial ya está en el encabezado del día). */
     hideDate?: boolean
+    /** Posición en la entrada escalonada (`.hg-enter`); los épicos y legendarios conseguidos, además, destellan. */
+    index?: number
 }
 
 /**
  * Un logro: icono tintado y borde izquierdo con el color de su rareza, nombre, descripción, % global con el nombre de
  * la rareza y fecha. Los ocultos bloqueados no enseñan el nombre hasta pulsar.
  */
-export default function AchievementItem({ achievement: a, gameName, context, hideDate }: Props) {
+export default function AchievementItem({ achievement: a, gameName, context, hideDate, index }: Props) {
     const [revealed, setRevealed] = useState(false)
     const secret = a.hidden && !a.achieved && !revealed
     const name = a.display_name ?? a.apiname
     const icon = achievementIconUrl(a.achieved ? a.icon : (a.icongray ?? a.icon))
     const tier = rarityTier(a.global_percent)
+    const entering = index !== undefined
+    const flash = entering && a.achieved && (tier === 'epica' || tier === 'leg')
+    const style: CSSVars = {}
+    if (tier) style['--c'] = rarityColor(tier)
+    if (entering) style['--i'] = index
 
     return (
         <li
-            className={`hg-ach ach-item ${a.achieved ? 'is-unlocked' : 'is-locked'}`}
-            style={tier ? ({ '--c': rarityColor(tier) } as CSSVars) : undefined}
+            className={['hg-ach ach-item', a.achieved ? 'is-unlocked' : 'is-locked', entering && 'hg-enter', flash && 'hg-rar-flash'].filter(Boolean).join(' ')}
+            style={tier || entering ? style : undefined}
         >
             <span className="hg-ach__icon ach-item__icon">
                 {/* <img>: iconos del CDN de Steam; next/image gastaría transformaciones de Vercel Hobby. */}
@@ -55,11 +62,13 @@ export default function AchievementItem({ achievement: a, gameName, context, hid
                                 <Eye size={12} aria-hidden /> Revelar
                             </button>
                         </>
+                    ) : revealed ? (
+                        <span className="ach-item__revealed">{name}</span>
                     ) : (
                         name
                     )}
                 </p>
-                {!secret && a.description && <p className="ach-item__desc">{a.description}</p>}
+                {!secret && a.description && <p className={revealed ? 'ach-item__desc ach-item__revealed' : 'ach-item__desc'}>{a.description}</p>}
                 {context && <p className="ach-item__context">{context}</p>}
             </div>
             <div className="hg-ach__pct ach-item__meta">

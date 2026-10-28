@@ -2,7 +2,7 @@
 // puntos e hitos. La rareza vive en rarity.ts. Sin acceso a la base de datos, con tests en achievements.test.ts.
 import type { Database } from './supabase/database.types'
 import type { LibraryGame } from './tracker'
-import { RARITY_TIERS, rarityTier } from './rarity'
+import { RARITY_TIERS, rarityTier, type RarityTier } from './rarity'
 
 type AchievementRow = Database['public']['Tables']['hubgames_achievements']['Row']
 
@@ -223,36 +223,71 @@ export interface Milestone {
     target?: number
 }
 
-const COUNT_MILESTONES = [100, 500, 1000, 2500, 5000, 10000]
-const PERFECT_MILESTONES = [1, 10, 25, 50, 100]
-const RARE_MILESTONES: { id: string; label: string; below: number }[] = [
-    { id: 'primer-epico', label: 'Primer logro épico', below: 5 },
-    { id: 'primer-legendario', label: 'Primer logro legendario', below: 1 },
+export const COUNT_MILESTONES = [100, 500, 1000, 2500, 5000, 10000]
+export const PERFECT_MILESTONES = [1, 10, 25, 50, 100]
+const RARE_MILESTONES: { id: string; label: string; below: number; tier: 'epica' | 'leg' }[] = [
+    { id: 'primer-epico', label: 'Primer logro épico', below: 5, tier: 'epica' },
+    { id: 'primer-legendario', label: 'Primer logro legendario', below: 1, tier: 'leg' },
 ]
 
 function perfectLabel(n: number): string {
     return n === 1 ? 'Primer juego al 100 %' : `${n} juegos al 100 %`
 }
 
+/** Un escalón de una serie de hitos: alcanzado (con fecha, si se sabe) o futuro. */
+export interface MilestoneStep {
+    id: string
+    value: number
+    label: string
+    reached: boolean
+    /** ISO del momento en que se alcanzó; null si aún no (o si Steam no da la fecha). */
+    date: string | null
+}
+
+/** Serie de hitos con todos sus escalones (los alcanzados y los futuros) y por dónde vas. */
+export interface MilestoneSeries {
+    current: number
+    steps: MilestoneStep[]
+}
+
+export interface RareMilestone {
+    id: string
+    label: string
+    tier: 'epica' | 'leg'
+    reached: boolean
+    date: string | null
+}
+
+export interface Milestones {
+    /** Alcanzados, el más reciente primero. */
+    reached: Milestone[]
+    /** El siguiente de cada serie. */
+    next: Milestone[]
+    /** Las tres series completas, para pintarlas como caminos: logros, juegos al 100 % y rarezas. */
+    series: { count: MilestoneSeries; perfect: MilestoneSeries; rare: RareMilestone[] }
+}
+
 /**
  * Hitos calculados hacia atrás con las fechas de desbloqueo: número de logros, juegos al 100 % y primeros logros
  * épicos (< 5 %) y legendarios (< 1 %). Un juego cuenta como 100 % desde su último desbloqueo. Devuelve los alcanzados
- * (el más reciente primero) y el siguiente de cada serie.
+ * (el más reciente primero), el siguiente de cada serie y las series enteras con los escalones futuros.
  */
 export function computeMilestones(
     unlocked: Pick<Achievement, 'appid' | 'achieved' | 'unlocktime' | 'global_percent'>[],
     games: Pick<LibraryGame, 'appid' | 'achievements_total' | 'achievements_unlocked'>[],
-): { reached: Milestone[]; next: Milestone[] } {
+): Milestones {
     const time = (iso: string | null) => (iso ? Date.parse(iso) : 0)
     const list = unlocked.filter((a) => a.achieved).sort((a, b) => time(a.unlocktime) - time(b.unlocktime))
     const reached: Milestone[] = []
     const next: Milestone[] = []
 
-    const nextCount = COUNT_MILESTONES.find((n) => n > list.length)
-    for (const n of COUNT_MILESTONES) {
-        if (n <= list.length) reached.push({ id: `logros-${n}`, label: `${n.toLocaleString('es-ES')} logros`, date: list[n - 1].unlocktime })
-    }
-    if (nextCount) next.push({ id: `logros-${nextCount}`, label: `${nextCount.toLocaleString('es-ES')} logros`, date: null, current: list.length, target: nextCount })
+    const countSteps: MilestoneStep[] = COUNT_MILESTONES.map((n) => {
+        const ok = n <= list.length
+        return { id: `logros-${n}`, value: n, label: `${n.toLocaleString('es-ES')} logros`, reached: ok, date: ok ? list[n - 1].unlocktime : null }
+    })
+    for (const s of countSteps) if (s.reached) reached.push({ id: s.id, label: s.label, date: s.date })
+    const nextCount = countSteps.find((s) => !s.reached)
+    if (nextCount) next.push({ id: nextCount.id, label: nextCount.label, date: null, current: list.length, target: nextCount.value })
 
     const lastUnlock = new Map<number, string | null>()
     for (const a of list) lastUnlock.set(a.appid, a.unlocktime)
@@ -260,18 +295,78 @@ export function computeMilestones(
         .filter((g) => (g.achievements_total ?? 0) > 0 && (g.achievements_unlocked ?? 0) >= (g.achievements_total ?? 0) && lastUnlock.has(g.appid))
         .map((g) => lastUnlock.get(g.appid) ?? null)
         .sort((a, b) => time(a) - time(b))
-    for (const n of PERFECT_MILESTONES) {
-        if (n <= perfectDates.length) reached.push({ id: `perfectos-${n}`, label: perfectLabel(n), date: perfectDates[n - 1] })
-    }
-    const nextPerfect = PERFECT_MILESTONES.find((n) => n > perfectDates.length)
-    if (nextPerfect) next.push({ id: `perfectos-${nextPerfect}`, label: perfectLabel(nextPerfect), date: null, current: perfectDates.length, target: nextPerfect })
+    const perfectSteps: MilestoneStep[] = PERFECT_MILESTONES.map((n) => {
+        const ok = n <= perfectDates.length
+        return { id: `perfectos-${n}`, value: n, label: perfectLabel(n), reached: ok, date: ok ? perfectDates[n - 1] : null }
+    })
+    for (const s of perfectSteps) if (s.reached) reached.push({ id: s.id, label: s.label, date: s.date })
+    const nextPerfect = perfectSteps.find((s) => !s.reached)
+    if (nextPerfect) next.push({ id: nextPerfect.id, label: nextPerfect.label, date: null, current: perfectDates.length, target: nextPerfect.value })
 
-    for (const m of RARE_MILESTONES) {
+    const rare: RareMilestone[] = RARE_MILESTONES.map((m) => {
         const first = list.find((a) => a.global_percent !== null && a.global_percent < m.below)
         if (first) reached.push({ id: m.id, label: m.label, date: first.unlocktime })
         else next.push({ id: m.id, label: m.label, date: null })
-    }
+        return { id: m.id, label: m.label, tier: m.tier, reached: !!first, date: first?.unlocktime ?? null }
+    })
 
     reached.sort((a, b) => time(b.date) - time(a.date))
-    return { reached, next }
+    return {
+        reached,
+        next,
+        series: { count: { current: list.length, steps: countSteps }, perfect: { current: perfectDates.length, steps: perfectSteps }, rare },
+    }
+}
+
+/**
+ * Hasta dónde llega la línea de una serie de hitos (0–1), con los escalones repartidos a la misma distancia: 0 en el
+ * primero, 1 en el último y, entre dos, la parte proporcional de lo que llevas. Sin el primero, 0.
+ */
+export function seriesProgress(current: number, values: number[]): number {
+    const n = values.length
+    if (n < 2) return current >= (values[0] ?? Infinity) ? 1 : 0
+    const lit = values.filter((v) => v <= current).length
+    if (lit === 0) return 0
+    if (lit >= n) return 1
+    const prev = values[lit - 1]
+    const part = (current - prev) / (values[lit] - prev)
+    return (lit - 1 + part) / (n - 1)
+}
+
+/** Tus logros desbloqueados por rareza (de común a legendaria, todas): cuántos y cuántos puntos dan. */
+export function unlockedByRarity(
+    unlocked: Pick<Achievement, 'achieved' | 'global_percent'>[],
+): { tier: RarityTier; count: number; points: number }[] {
+    const out = RARITY_TIERS.map((tier) => ({ tier, count: 0, points: 0 }))
+    for (const a of unlocked) {
+        const tier = a.achieved ? rarityTier(a.global_percent) : null
+        if (!tier) continue
+        const row = out[RARITY_TIERS.indexOf(tier)]
+        row.count++
+        row.points += achievementPoints(a.global_percent)
+    }
+    return out
+}
+
+/** Logros y puntos desbloqueados desde el día 1 del mes de `now` (hora local). */
+export function thisMonth(
+    unlocked: Pick<Achievement, 'achieved' | 'unlocktime' | 'global_percent'>[],
+    now: Date = new Date(),
+): { achievements: number; points: number } {
+    const start = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
+    let achievements = 0
+    let points = 0
+    for (const a of unlocked) {
+        if (!a.achieved || !a.unlocktime || Date.parse(a.unlocktime) < start) continue
+        achievements++
+        points += achievementPoints(a.global_percent)
+    }
+    return { achievements, points }
+}
+
+/** Cuántos logros de cada juego hay en una lista (por ejemplo, los fáciles que te faltan). */
+export function countByGame(list: Pick<Achievement, 'appid'>[]): Map<number, number> {
+    const out = new Map<number, number>()
+    for (const a of list) out.set(a.appid, (out.get(a.appid) ?? 0) + 1)
+    return out
 }

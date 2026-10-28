@@ -139,15 +139,18 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
   - Animación: la celebración principal de la web al confirmar (bandera de Completado que se planta, confeti breve o anillo que se cierra), estrellas o puntos de la nota que se encienden al elegirla.
   - Mockup: `docs/mockups/completar.html` (aprobadas la nota A · diez puntos con medios y la celebración 1 · bandera + anillo + chispas; a diferencia del mockup, Favorito y Sin final se muestran siempre; «Saltar este» deja el juego seleccionado en la bandeja)
   - Hecho en la rama `Diego-Mardomingo/rediseno-completar`, commit `9c846fd`. Añade `ratingLabel` / `RATING_LABELS` junto a `ratingTier` (palabra de tu nota), `src/lib/completion.ts` (teclas y puntero de la nota, avance del lote), el token `--on-done` y las marcas en `saveCompletion` y en Deshacer (`restoreGames`).
-- [ ] **Panel de sugerencias** — `src/components/tracker/SuggestionsPanel.tsx`
+- 🎨 **Panel de sugerencias** — `src/components/tracker/SuggestionsPanel.tsx`
   - Ideas: puntuaciones y precios con color, lista de destino con su color.
+  - Mockup: `docs/mockups/sugerencias.html`
 
 ### 4. Logros
 
-- [ ] **Logros (resumen)** — `/logros` · `src/app/logros/page.tsx`, `src/components/achievements/*`, `achievements.css`
+- [x] **Logros (resumen)** — `/logros` · `src/app/logros/page.tsx`, `src/components/achievements/*`, `achievements.css`
   - Hoy: puntuación de cazador, hitos, «Cerca del 100 %», «Logros fáciles que te faltan», «Olvidados», «Tus logros más raros», «Juegos al 100 %». La rareza ya está en `AchievementItem`, pero la página no tiene la jerarquía de la ficha.
   - Ideas: cabecera con tiles de cifras (puntos, logros, juegos al 100 %, el más raro) y un reparto por rareza como en el resumen de logros de la ficha; secciones con icono y color; filas de juego con barra de progreso y su estado de lista.
   - Animación: puntuación de cazador que cuenta, reparto por rareza que crece, hitos que se encienden, logros legendarios y épicos con un destello breve de su color al aparecer.
+  - Mockup: `docs/mockups/logros.html` (aprobados los hitos B · tres series con todos los escalones y los logros fáciles A · lista plana con el chip de la lista de cada juego; se mantiene el panel «Puntuación de cazador» con el reparto por rareza y el top 5 aunque el tile ya da el total; «N fáciles» en «Cerca del 100 %» sale de la consulta de fáciles, limitada a 300)
+  - Hecho en la rama `Diego-Mardomingo/rediseno-logros`, commit `f138a60`. `computeMilestones` devuelve también las series completas (`series`), y se añaden `seriesProgress`, `unlockedByRarity`, `thisMonth` y `countByGame` en `src/lib/achievements.ts`; la vista pasa a `src/app/logros/LogrosView.tsx` y los hitos a `Milestones.tsx`. `AchievementItem` acepta `index` (entrada escalonada y destello de épicos y legendarios) y funde el nombre al revelar un logro oculto.
 - [ ] **Logros de un juego** — `/juego/[appid]/logros` · `src/app/juego/[appid]/logros/page.tsx`, `GameAchievements.tsx`
   - Hoy: progreso, puntos por rareza, conseguidos por rareza y filtros; ya usa rarezas.
   - Ideas: alinearla con la sección de logros de la ficha (anillo, columnas por rareza), cabecera con la cápsula, el estado del juego y vuelta a la ficha; filtros con el color de cada rareza.
