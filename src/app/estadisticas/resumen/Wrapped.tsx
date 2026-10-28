@@ -433,8 +433,10 @@ function RareBlock({ data }: { data: WrappedView }) {
                         <span className="wr-rare__cover">
                             <GameCover appid={r.appid} name={r.game} headerImage={data.rarestHeader} variant="header" sizes="96px" />
                         </span>
-                        <Link href={`/juego/${r.appid}`}>{r.game ?? `App ${r.appid}`}</Link>
-                        <span>· el {dayLong(madridDay(r.unlocktime))}</span>
+                        {/* Juego y fecha juntos: si no caben, baja el bloque entero y no una línea que empieza por «·». */}
+                        <span>
+                            <Link href={`/juego/${r.appid}`}>{r.game ?? `App ${r.appid}`}</Link> · el {dayLong(madridDay(r.unlocktime))}
+                        </span>
                     </p>
                 </div>
                 <div className="wr-rare__pct">
