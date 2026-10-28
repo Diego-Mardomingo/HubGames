@@ -279,21 +279,21 @@ export type Database = {
           id: number
           id_lista_judi: number
           id_usuario: string
-          intento: string
+          intento: string | null
           created_at: string | null
         }
         Insert: {
           id?: number
           id_lista_judi: number
           id_usuario: string
-          intento: string
+          intento?: string | null
           created_at?: string | null
         }
         Update: {
           id?: number
           id_lista_judi?: number
           id_usuario?: string
-          intento?: string
+          intento?: string | null
           created_at?: string | null
         }
         Relationships: []
