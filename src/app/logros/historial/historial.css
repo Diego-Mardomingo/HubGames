@@ -1,0 +1,807 @@
+/* ── /logros/historial (#28): tiles del año y de rachas, mapa del año y línea temporal en meses plegables ──
+   Reutiliza los tiles y cabeceras de /logros (.lg-*, achievements.css), el mapa del Inicio (ActivityHeatmap, .heat* en
+   dashboard.css) y los logros compartidos (.hg-ach). Mockup: docs/mockups/historial-logros.html */
+
+.logros.hi {
+  gap: 1.5rem;
+}
+
+/* ── Tiles ── */
+.hi-lk {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.hi-lk:hover {
+  color: var(--foreground);
+}
+
+.hi-tiles .hg-tile.is-hoverable {
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.hi-tiles .hg-tile.is-hoverable:hover,
+.hi-tiles .hg-tile.is-hoverable:focus-visible {
+  border-color: transparent;
+  box-shadow: 0 0 0 3px var(--cursor);
+  outline: none;
+}
+
+/* Racha actual: cobalto (progreso) con una llama que se enciende; apagada sin racha */
+.hi-streak.is-off .hg-tile__icon {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.hi-streak.is-off .hg-tile__value {
+  color: var(--muted);
+}
+
+.hi-flame svg {
+  overflow: visible;
+}
+
+.hi-flame path {
+  fill: color-mix(in srgb, var(--c) 28%, transparent);
+}
+
+.hi-streak.is-off .hi-flame path {
+  fill: none;
+}
+
+.hi-streak:not(.is-off) .hi-flame {
+  animation: hi-flame-on 0.7s var(--ease-out) backwards 0.45s;
+}
+
+.hi-streak:not(.is-off) .hi-flame path {
+  animation: hi-flame-fill 0.7s var(--ease-out) backwards 0.45s;
+}
+
+@keyframes hi-flame-on {
+  0% { transform: scale(0.7); background: var(--surface-2); color: var(--muted); }
+  45% { transform: scale(1.18) rotate(-6deg); }
+  70% { transform: scale(0.96) rotate(3deg); }
+  100% { transform: scale(1); }
+}
+
+@keyframes hi-flame-fill {
+  0%, 30% { fill: transparent; }
+}
+
+.hi-risk {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  font-weight: 600;
+}
+
+[data-theme='dark'] .hi-risk {
+  color: var(--warning);
+}
+
+.hi-risk svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+}
+
+.hi-best .hg-tile__icon {
+  background: var(--surface-2);
+  color: var(--foreground);
+}
+
+.hi-same {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ── Mapa del año (ActivityHeatmap con weekdays y casillas pulsables) ── */
+.hi-heat {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.1rem 1.25rem 1rem;
+}
+
+.hi-heat__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.hi-heat__head .lg-sec__head {
+  flex: 1;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+/* Meses arriba y letras de los días a la izquierda */
+.hi-heat .heat__body {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  column-gap: 6px;
+  min-width: calc(var(--weeks) * 12px + 28px);
+}
+
+.hi-heat .heat__months {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0 0 4px;
+}
+
+.hi-heat .heat__wd {
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  grid-template-rows: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+  color: var(--muted);
+  font-size: 0.6875rem;
+}
+
+.hi-heat .heat__wd span {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.hi-heat .heat__grid {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.hi-heat .heat__foot {
+  margin-top: 0;
+}
+
+.hi-heat .heat__grid i {
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.hi-heat .heat__grid i.is-out {
+  visibility: hidden;
+}
+
+/* Los días del año que faltan, en hueco (en el Inicio no se ven) */
+.hi-heat .heat__grid i.is-future {
+  visibility: visible;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.hi-heat .heat__grid i.is-future:hover {
+  outline: none;
+}
+
+.hi-heat .heat__grid i.has-n {
+  cursor: pointer;
+}
+
+.hi-heat .heat__grid i.is-selected {
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+  transform: scale(1.15);
+}
+
+/* Al pasar por un tile de racha: el resto del mapa se apaga y la racha se queda */
+.hi-heat .heat__grid.is-spot i:not(.is-spot) {
+  opacity: 0.25;
+}
+
+.hi-heat .heat__grid.is-spot i.is-spot {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+/* La racha actual se enciende día a día cuando el mapa termina de pintarse */
+.hi-heat .heat__grid--paint i.is-streak {
+  animation: heat-in 0.2s var(--ease-out) backwards, hi-streak-pop 0.38s var(--ease-out) backwards;
+  animation-delay: calc(120ms + var(--w, 0) * 5ms), calc(560ms + min(var(--s, 0), 30) * 70ms);
+}
+
+@keyframes hi-streak-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.45); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--primary); }
+  100% { transform: scale(1); }
+}
+
+.hi-heat .heat__tip {
+  display: grid;
+  gap: 2px;
+  max-width: 280px;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.hi-heat .heat__tip b {
+  font-weight: 700;
+}
+
+.hi-heat .heat__tip span {
+  opacity: 0.8;
+}
+
+/* ── Filtro de un día ── */
+.hi-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin: 0;
+  padding: 8px 8px 8px 14px;
+  border-radius: var(--radius);
+  background: var(--primary-glow);
+  font-size: 0.875rem;
+}
+
+.hi-filter > span {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.hi-filter > span > svg {
+  width: 16px;
+  height: 16px;
+  color: var(--primary);
+}
+
+.hi-filter .hg-button {
+  margin-left: auto;
+}
+
+/* ── Línea temporal ── */
+.hi-tl {
+  display: grid;
+  gap: 1rem;
+  scroll-margin-top: 80px;
+}
+
+.hi-tl__wrap {
+  display: grid;
+  gap: 1rem;
+}
+
+.hi-swap {
+  animation: lg-fade-in 0.22s var(--ease-out);
+}
+
+/* Reparto por rareza: barra apilada y leyenda */
+.hi-rar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+}
+
+.hi-rar__bar {
+  display: flex;
+  flex: none;
+  gap: 2px;
+  width: 200px;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.hi-rar__bar span {
+  min-width: 3px;
+  background: var(--c);
+}
+
+.hi-rar__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.hi-rar__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.hi-rar__legend li::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.hi-rar__legend b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+/* Un mes: tarjeta plegable con su resumen */
+.hi-month {
+  --dot-bg: var(--surface);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.hi-month__head {
+  position: relative;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  transition: background 0.15s;
+}
+
+.hi-month__head:hover {
+  background: color-mix(in srgb, var(--surface-2) 55%, transparent);
+}
+
+.hi-month__head:has(:focus-visible) {
+  box-shadow: 0 0 0 3px var(--cursor);
+}
+
+.hi-month__chev {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transition: transform 0.25s var(--ease-out);
+}
+
+.hi-month.is-open .hi-month__chev {
+  transform: rotate(90deg);
+}
+
+.hi-month__title {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.hi-month__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 0.6rem;
+}
+
+.hi-month__name h2 {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* El botón ocupa toda la cabecera */
+.hi-month__btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.hi-month__btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.hi-month__btn:focus-visible {
+  outline: none;
+}
+
+.hi-month__games {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.hi-month__cover {
+  position: relative;
+  display: block;
+  width: 52px;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.hi-month__cover .game-cover--empty span {
+  display: none;
+}
+
+.hi-month__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s var(--ease-out);
+}
+
+.hi-month.is-open .hi-month__body {
+  grid-template-rows: 1fr;
+}
+
+.hi-month__inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.hi-month__days {
+  padding: 8px 16px 16px 4px;
+  border-top: 1px solid var(--border);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.hi-month.is-open .hi-month__days {
+  opacity: 1;
+  transition: opacity 0.25s 0.08s;
+}
+
+.hi-month__days .hg-ach {
+  background: var(--background);
+}
+
+/* Aparece al llegar con el scroll (una vez) y el reparto crece */
+.hi-month.is-wait {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.hi-month.is-seen {
+  animation: hg-enter 0.36s var(--ease-out) backwards;
+}
+
+.hi-month.is-seen .hi-rar__bar {
+  animation: lg-stack-grow 0.6s var(--ease-out) backwards 0.12s;
+}
+
+/* Días */
+.hi-days {
+  display: grid;
+  margin: 0;
+  padding: 10px 0 0;
+  list-style: none;
+}
+
+.hi-day {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 1rem;
+  animation: hg-enter 0.3s var(--ease-out) backwards;
+  animation-delay: calc(80ms + min(var(--i, 0), 8) * 30ms);
+}
+
+.hi-day__date {
+  display: grid;
+  justify-items: end;
+  align-content: start;
+  margin: 0;
+  padding-top: 0.05rem;
+  line-height: 1.1;
+}
+
+.hi-day__date b {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.hi-day__date span {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.hi-day__date em {
+  margin-top: 4px;
+  color: var(--primary);
+  font-size: 0.6875rem;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.hi-day__body {
+  position: relative;
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.1rem 0 1.5rem 1.25rem;
+  border-left: 2px solid var(--border);
+}
+
+.hi-day:last-child .hi-day__body {
+  padding-bottom: 0.25rem;
+}
+
+/* El punto del día con el color de su logro más raro (más grande y con anillo si es épico o legendario) */
+.hi-day__dot {
+  position: absolute;
+  top: 0.4rem;
+  left: -7px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 0 3px var(--dot-bg, var(--background));
+  animation: hg-pop-in 0.26s var(--ease-out) backwards;
+  animation-delay: calc(160ms + min(var(--i, 0), 8) * 30ms);
+}
+
+.hi-day.is-high .hi-day__dot {
+  top: 0.3rem;
+  left: -9px;
+  width: 16px;
+  height: 16px;
+  box-shadow: 0 0 0 3px var(--dot-bg, var(--background)), 0 0 0 5px color-mix(in srgb, var(--c) 30%, transparent);
+}
+
+.hi-day__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.hi-day__title b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.hi-day__title .rar-ink {
+  font-weight: 600;
+}
+
+/* Hito alcanzado ese día: píldora con el color de su serie */
+.hi-ms {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  margin: 0;
+  padding: 5px 12px 5px 6px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+}
+
+.hi-ms.hg-tint[class*='rar-'] {
+  color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground));
+}
+
+.hi-ms__icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c) var(--tint), transparent);
+}
+
+.hi-ms__icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.hi-ms > span:last-child {
+  color: var(--muted);
+}
+
+.hi-ms b {
+  color: var(--foreground);
+}
+
+/* Un juego dentro del día */
+.hi-game {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.hi-game__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  min-width: 0;
+}
+
+.hi-game__cover {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 64px;
+  height: 30px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.hi-game__cover .game-cover--empty span {
+  display: none;
+}
+
+.hi-game__name {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hi-game__name:hover {
+  text-decoration: underline;
+}
+
+.hi-game__head .hg-chip {
+  padding: 1px 8px 1px 6px;
+  font-size: 0.71875rem;
+  gap: 4px;
+}
+
+.hi-game__head .hg-chip svg {
+  width: 11px;
+  height: 11px;
+}
+
+.hi-game__count {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+/* Ese día lo dejaste al 100 %: el sello de /logros, que salta */
+.hi-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 9px 0 7px;
+  border-radius: 999px;
+  background: var(--st-completado);
+  color: var(--on-done);
+  font-size: 0.71875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.hi-stamp.hg-pop-in {
+  animation-delay: 0.5s;
+}
+
+.hi-stamp svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2.8;
+}
+
+.hi-more {
+  justify-self: start;
+}
+
+/* ── Móvil ── */
+@media (max-width: 640px) {
+  .logros.hi {
+    gap: 1.25rem;
+  }
+
+  .hi-heat {
+    padding: 1rem;
+  }
+
+  .hi-heat__head .lg-sec__head {
+    flex-basis: 100%;
+  }
+
+  .hi-heat__head .lg-sec__count {
+    flex-basis: 100%;
+    margin: -6px 0 0 40px;
+  }
+
+  .hi-heat__head .heatmap__year {
+    width: 100%;
+    height: 44px;
+  }
+
+  .hi-heat .heat__body {
+    min-width: 720px;
+  }
+
+  .hi-filter .hg-button {
+    margin-left: 0;
+  }
+
+  .hi-rar__bar {
+    width: 100%;
+  }
+
+  .hi-rar__legend .is-low {
+    display: none;
+  }
+
+  .hi-month__head {
+    grid-template-columns: 20px minmax(0, 1fr);
+    min-height: 64px;
+    padding: 12px;
+  }
+
+  .hi-month__games {
+    display: none;
+  }
+
+  .hi-month__days {
+    padding: 10px 12px 14px 0;
+  }
+
+  .hi-day {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 0.7rem;
+  }
+
+  .hi-day__date b {
+    font-size: 1.125rem;
+  }
+
+  .hi-day__body {
+    padding-left: 0.9rem;
+  }
+
+  .hi-game__cover {
+    width: 56px;
+    height: 26px;
+  }
+
+  .hi-game__head .hg-chip {
+    order: 3;
+  }
+}
+
+@media (max-width: 768px) {
+  .hi-more {
+    min-height: 44px;
+  }
+}
+
+/* Movimiento reducido: todo instantáneo y los meses visibles desde el principio */
+@media (prefers-reduced-motion: reduce) {
+  .hi-month.is-wait {
+    opacity: 1;
+    transform: none;
+  }
+
+  .hi-month__body,
+  .hi-month__days,
+  .hi-month__chev,
+  .hi-heat .heat__grid i {
+    transition: none;
+  }
+}

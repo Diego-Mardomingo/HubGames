@@ -25,6 +25,8 @@ export interface HeatDay {
     basis: 'horas' | 'logros' | null
     /** Días de la última semana que aún no han llegado: se dejan en blanco. */
     future: boolean
+    /** Relleno de otro año en el mapa de un año natural (historial): ni se ve ni se recorre. */
+    out?: boolean
 }
 
 export interface HeatMonth {
@@ -41,6 +43,8 @@ export interface Heatmap {
     /** Primer y último día con datos posibles (de lunes de la primera semana a hoy). */
     from: string
     to: string
+    /** false si el mapa no llega a hoy (un año pasado en el historial): el último día no se marca como hoy. */
+    hasToday?: boolean
     totals: { minutes: number; achievements: number; activeDays: number }
 }
 
