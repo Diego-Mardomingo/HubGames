@@ -1,66 +1,87 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { RefreshCw } from 'lucide-react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { Check, CircleCheck, Clock, EyeOff, Link2, Lock, RefreshCw, TriangleAlert, Unlink } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import type { Database } from '@/lib/supabase/database.types'
+import { STEAM_STATE_META, steamNeedsFix, steamState, timeAgo, type SteamState } from '@/lib/profile'
+import { PfSection, enter } from './Section'
 
-type SteamLink = Database['public']['Tables']['hubgames_user_steam']['Row']
+export type SteamLink = Database['public']['Tables']['hubgames_user_steam']['Row']
 
-const STATUS_MESSAGES: Record<string, { ok: boolean; text: string }> = {
-    ok: { ok: true, text: 'Steam vinculado correctamente.' },
-    privado: { ok: false, text: 'Steam vinculado, pero tu perfil es privado.' },
-    detalles_privados: { ok: false, text: 'Steam vinculado, pero los detalles de juego son privados.' },
-    desconocida: { ok: false, text: 'Steam vinculado, pero no se pudo leer tu perfil.' },
-    en_uso: { ok: false, text: 'Esa cuenta de Steam ya está vinculada a otro usuario.' },
-    error: { ok: false, text: 'No se pudo vincular Steam. Inténtalo de nuevo.' },
+type Msg = { tone: 'ok' | 'error' | 'warn'; text: string }
+
+/** Vuelta de /api/steam/link (?steam=…). Perfil o detalles privados no llevan mensaje: ya lo dice el estado con sus pasos. */
+const STATUS_MESSAGES: Record<string, Msg> = {
+    ok: { tone: 'ok', text: 'Steam vinculado correctamente.' },
+    desconocida: { tone: 'warn', text: 'Steam vinculado, pero no se pudo leer tu perfil.' },
+    en_uso: { tone: 'error', text: 'Esa cuenta de Steam ya está vinculada a otro usuario.' },
+    error: { tone: 'error', text: 'No se pudo vincular Steam. Inténtalo de nuevo.' },
 }
 
-const RELATIVE = new Intl.RelativeTimeFormat('es-ES', { numeric: 'auto' })
-
-/** "hace 5 minutos", "ayer"… Solo pasado: con relojes desfasados, nunca "dentro de…". */
-function timeAgo(iso: string): string {
-    const seconds = Math.min(0, Math.round((Date.parse(iso) - Date.now()) / 1000))
-    const units: [Intl.RelativeTimeFormatUnit, number][] = [['day', 86400], ['hour', 3600], ['minute', 60]]
-    for (const [unit, size] of units) {
-        if (Math.abs(seconds) >= size) return RELATIVE.format(Math.round(seconds / size), unit)
-    }
-    return 'hace un momento'
+const STATE_ICON: Record<SteamState, typeof CircleCheck> = {
+    ok: CircleCheck,
+    privado: Lock,
+    detalles: EyeOff,
+    desconocida: TriangleAlert,
+    none: Unlink,
 }
 
-export default function SteamSetting() {
-    const router = useRouter()
+const FIX_STEPS: Record<'privado' | 'detalles', { title: string; steps: ReactNode[] }> = {
+    privado: {
+        title: 'Tu perfil de Steam es privado: no podemos leer tus juegos.',
+        steps: [
+            <>
+                En Steam, abre <b>Editar perfil</b> → <b>Configuración de privacidad</b>.
+            </>,
+            <>
+                Pon <b>Mi perfil</b> y <b>Detalles de juego</b> en «Público».
+            </>,
+            <>Desmarca «Mantener siempre privado mi tiempo de juego total».</>,
+            <>Vuelve aquí y pulsa «Volver a comprobar».</>,
+        ],
+    },
+    detalles: {
+        title: 'Tus detalles de juego son privados: no vemos tus juegos ni tus horas.',
+        steps: [
+            <>
+                En Steam, <b>Editar perfil</b> → <b>Configuración de privacidad</b>: pon <b>Detalles de juego</b> en «Público».
+            </>,
+            <>Desmarca «Mantener siempre privado mi tiempo de juego total».</>,
+            <>Vuelve aquí y pulsa «Volver a comprobar».</>,
+        ],
+    },
+}
+
+function Alert({ msg }: { msg: Msg }) {
+    const Icon = msg.tone === 'ok' ? CircleCheck : msg.tone === 'warn' ? Clock : TriangleAlert
+    return (
+        <p className={`alert alert--${msg.tone} pf-alert`} role="status">
+            <Icon className={msg.tone === 'ok' ? 'hg-draw' : undefined} aria-hidden />
+            <span>{msg.text}</span>
+        </p>
+    )
+}
+
+/**
+ * Steam: lo que se hace con la cuenta (sincronizar, arreglar la privacidad, conectar). Su avatar y nombre están en la tarjeta
+ * de usuario y «Desvincular» en la zona «Salir». El color es su estado: verde conectada, ámbar si hay que arreglar algo, neutro sin vincular.
+ */
+export default function SteamSetting({ link, onLink, index }: { link: SteamLink | null; onLink: (link: SteamLink | null) => void; index: number }) {
     const params = useSearchParams()
-    const [link, setLink] = useState<SteamLink | null>(null)
-    const [loaded, setLoaded] = useState(false)
-    const [busy, setBusy] = useState(false)
     const [syncing, setSyncing] = useState(false)
-    const [syncMessage, setSyncMessage] = useState<{ ok: boolean; text: string } | null>(null)
+    const [synced, setSynced] = useState(false)
+    const [syncMessage, setSyncMessage] = useState<Msg | null>(null)
+    const doneTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
     const message = STATUS_MESSAGES[params.get('steam') ?? '']
+    const state = steamState(link)
+    const meta = STEAM_STATE_META[state]
+    const StateIcon = STATE_ICON[state]
+    const needsFix = steamNeedsFix(state)
 
-    useEffect(() => {
-        supabase
-            .from('hubgames_user_steam')
-            .select('*')
-            .maybeSingle()
-            .then(({ data }) => {
-                setLink(data)
-                setLoaded(true)
-            })
-    }, [params])
-
-    async function unlink() {
-        if (!window.confirm('¿Desvincular Steam? Se borrarán tus datos de Steam en HubGames.')) return
-        setBusy(true)
-        const res = await fetch('/api/steam/unlink', { method: 'POST' })
-        setBusy(false)
-        if (res.ok) {
-            setLink(null)
-            router.replace('/perfil')
-        }
-    }
+    useEffect(() => () => clearTimeout(doneTimer.current), [])
 
     async function syncNow() {
         setSyncing(true)
@@ -69,109 +90,113 @@ export default function SteamSetting() {
         const body = await res.json().catch(() => ({}))
         setSyncing(false)
         if (res.ok) {
-            setSyncMessage(
-                body.status === 'parcial'
-                    ? { ok: true, text: 'Sincronizado. Queda algo pendiente: se completará en la próxima sincronización.' }
-                    : { ok: true, text: 'Sincronizado.' },
-            )
+            if (body.status === 'parcial') {
+                setSyncMessage({ tone: 'ok', text: 'Sincronizado. Queda algo pendiente: se completará en la próxima sincronización.' })
+            }
+            setSynced(true)
+            clearTimeout(doneTimer.current)
+            doneTimer.current = setTimeout(() => setSynced(false), 1800)
             const { data } = await supabase.from('hubgames_user_steam').select('*').maybeSingle()
-            setLink(data)
+            onLink(data)
         } else if (res.status === 429) {
             const minutes = Math.max(1, Math.ceil((body.retryAfter ?? 60) / 60))
-            setSyncMessage({ ok: false, text: `Ya se sincronizó hace poco. Vuelve a intentarlo en ${minutes} min.` })
+            setSyncMessage({ tone: 'warn', text: `Ya se sincronizó hace poco. Vuelve a intentarlo en ${minutes} min.` })
         } else {
-            setSyncMessage({ ok: false, text: body.error ?? 'No se pudo sincronizar. Inténtalo de nuevo.' })
+            setSyncMessage({ tone: 'error', text: body.error ?? 'No se pudo sincronizar. Inténtalo de nuevo.' })
         }
     }
 
-    const needsFix = link && (link.visibility === 'privado' || link.visibility === 'detalles_privados')
+    const chip = (
+        <span key={state} className={`pf-state hg-tint ${meta.tone}`}>
+            <StateIcon aria-hidden />
+            {meta.label}
+        </span>
+    )
 
     return (
-        <section className="pf-section" aria-labelledby="pf-steam">
-            <h2 id="pf-steam" className="pf-section__title">
-                Steam
-            </h2>
-            <div className="pf-rows">
-                <div className="pf-row pf-row--inline">
-                    <div className="pf-row__text">
-                        <span className="pf-row__label">Cuenta de Steam</span>
-                        <p className="pf-row__desc">
-                            {!loaded
-                                ? 'Cargando…'
-                                : link
-                                  ? `${link.persona_name ?? link.steamid} · vinculada el ${new Date(link.linked_at).toLocaleDateString('es-ES')}`
-                                  : 'Conéctala para traer tus juegos y logros.'}
-                        </p>
+        <PfSection id="pf-steam" tone={meta.tone} icon={<Link2 />} title="Steam" end={chip} className={`pf-steam ${meta.tone}`} style={enter(index)}>
+            {!link ? (
+                <div className="pf-row">
+                    <div className="pf-connect">
+                        <span className="pf-connect__icon hg-tint st-todos" aria-hidden>
+                            <Link2 />
+                        </span>
+                        <div className="pf-row__text">
+                            <span className="pf-row__label">Conecta tu cuenta de Steam</span>
+                            <p className="pf-row__desc">Para traer tus juegos, horas y logros. Solo lectura: no publica nada en tu nombre.</p>
+                        </div>
+                        <Button asChild>
+                            <a href="/api/steam/link">
+                                <Link2 data-icon="inline-start" aria-hidden /> Conectar con Steam
+                            </a>
+                        </Button>
                     </div>
-                    {loaded && (
-                        <div className="pf-row__control">
-                            {link ? (
-                                <>
-                                    {needsFix && (
-                                        <Button asChild variant="secondary">
-                                            <a href="/api/steam/link">Volver a comprobar</a>
-                                        </Button>
-                                    )}
-                                    <Button type="button" variant="secondary" loading={busy} onClick={unlink}>
-                                        Desvincular
+                </div>
+            ) : (
+                <>
+                    {needsFix && (
+                        <div className="pf-row">
+                            <div className="pf-fix" role="alert">
+                                <p className="pf-fix__title">
+                                    <TriangleAlert aria-hidden />
+                                    {FIX_STEPS[state as 'privado' | 'detalles'].title}
+                                </p>
+                                <ol>
+                                    {FIX_STEPS[state as 'privado' | 'detalles'].steps.map((step, i) => (
+                                        <li key={i}>{step}</li>
+                                    ))}
+                                </ol>
+                                <div className="pf-fix__acts">
+                                    <Button asChild>
+                                        <a href="/api/steam/link">
+                                            <RefreshCw data-icon="inline-start" aria-hidden /> Volver a comprobar
+                                        </a>
                                     </Button>
-                                </>
-                            ) : (
-                                <Button asChild>
-                                    <a href="/api/steam/link">Conectar con Steam</a>
-                                </Button>
-                            )}
+                                </div>
+                            </div>
                         </div>
                     )}
-                </div>
-                {link && (
-                    <div className="pf-row pf-row--inline">
+                    <div className={`pf-row pf-row--inline${needsFix ? '' : ' pf-row--stack-sm'}`}>
                         <div className="pf-row__text">
                             <span className="pf-row__label">Última sincronización</span>
                             <p className="pf-row__desc">
                                 {link.last_sync_at ? (
-                                    <time dateTime={link.last_sync_at} title={new Date(link.last_sync_at).toLocaleString('es-ES')}>
+                                    <time key={link.last_sync_at} className="pf-time" dateTime={link.last_sync_at} title={new Date(link.last_sync_at).toLocaleString('es-ES')}>
                                         {timeAgo(link.last_sync_at)}
                                     </time>
                                 ) : (
                                     'Todavía no'
                                 )}
+                                {needsFix
+                                    ? ' · sin datos nuevos hasta que lo arregles'
+                                    : ` · vinculada el ${new Date(link.linked_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`}
                             </p>
                         </div>
                         {!needsFix && (
                             <div className="pf-row__control">
-                                <Button type="button" disabled={syncing} onClick={syncNow}>
-                                    <RefreshCw size={14} className={syncing ? 'hg-spin' : ''} aria-hidden />
-                                    {syncing ? 'Sincronizando…' : 'Sincronizar ahora'}
+                                <Button type="button" disabled={syncing || synced} onClick={syncNow} className={synced ? 'is-done' : undefined}>
+                                    {synced ? (
+                                        <>
+                                            <Check className="hg-draw" data-icon="inline-start" aria-hidden /> Sincronizado
+                                        </>
+                                    ) : (
+                                        <>
+                                            <RefreshCw className={syncing ? 'hg-spin' : undefined} data-icon="inline-start" aria-hidden />
+                                            {syncing ? 'Sincronizando…' : 'Sincronizar ahora'}
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         )}
                     </div>
-                )}
-                {(needsFix || message || syncMessage) && (
-                    <div className="pf-row pf-row--notes">
-                        {needsFix && (
-                            <p className="alert alert--error" role="alert">
-                                <span>
-                                    En Steam → Editar perfil → Configuración de privacidad: pon el perfil y los detalles del juego en{' '}
-                                    <strong>Público</strong> y desmarca «Mantener siempre privado mi tiempo de juego total». Después
-                                    vuelve a comprobar.
-                                </span>
-                            </p>
-                        )}
-                        {message && (
-                            <p className={`alert ${message.ok ? 'alert--ok' : 'alert--error'}`} role="status">
-                                {message.text}
-                            </p>
-                        )}
-                        {syncMessage && (
-                            <p className={`alert ${syncMessage.ok ? 'alert--ok' : 'alert--error'}`} role="status">
-                                {syncMessage.text}
-                            </p>
-                        )}
-                    </div>
-                )}
-            </div>
-        </section>
+                </>
+            )}
+            {(message || syncMessage) && (
+                <div className="pf-notes">
+                    {message && <Alert msg={message} />}
+                    {syncMessage && <Alert key={syncMessage.text} msg={syncMessage} />}
+                </div>
+            )}
+        </PfSection>
     )
 }
