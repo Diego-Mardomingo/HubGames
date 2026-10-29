@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { beatPercent, topWithSelf, type JudiStats } from '@/lib/profile'
 import { enter } from './Section'
 
-type Entry = { userId: string; username: string; points: number }
+type Entry = { userId: string; username: string; points: number; rank?: number }
 
 function Row({ entry, rank, self }: { entry: Entry; rank: number; self: boolean }) {
     return (
@@ -27,7 +27,7 @@ function Row({ entry, rank, self }: { entry: Entry; rank: number; self: boolean 
 
 /**
  * JUDI en un solo panel: tus cifras (puntos en cobalto, puesto, aciertos en verde, fallos en rojo, precisión, «Superas al N %»)
- * y el top 5 con tu fila resaltada, o tu puesto tras «···» si estás fuera. Trofeo y medallas en legendaria (el color del ranking).
+ * y el top 5 con tu fila resaltada, o tu puesto tras «···» si estás fuera. Trofeo en legendaria y medallas oro, plata y bronce (`--medal-*`, como /ranking).
  */
 export default function JudiPanel({ stats, ranking, userId, index }: { stats: JudiStats; ranking: Entry[]; userId: string; index: number }) {
     const { top, self, rank } = topWithSelf(ranking, userId)
@@ -125,7 +125,7 @@ export default function JudiPanel({ stats, ranking, userId, index }: { stats: Ju
             ) : (
                 <ol className="pf-top">
                     {top.map((entry, i) => (
-                        <Row key={entry.userId} entry={entry} rank={i + 1} self={entry.userId === userId} />
+                        <Row key={entry.userId} entry={entry} rank={entry.rank ?? i + 1} self={entry.userId === userId} />
                     ))}
                     {self && (
                         <>

@@ -1324,6 +1324,9 @@ export type Database = {
           fase6: boolean
           id_usuario: string
           username: string | null
+          /** Con 20261029180000_hubgames_judi_ranking_dia (sin aplicar aún, puede faltar). */
+          id_lista_judi?: number
+          dia?: string | null
         }[]
       }
       hubgames_judi_list: {

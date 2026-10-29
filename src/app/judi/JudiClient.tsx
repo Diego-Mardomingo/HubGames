@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase, safeGetUser } from '@/lib/supabase/client'
 import Loader from '@/components/Loader'
-import { buildRanking, getFailedAttempts, getPointsForRecord, type JudiProgressRecord } from '@/lib/judi-ranking'
+import { buildRanking, getFailedAttempts, getPointsForRecord, rankOf, type JudiProgressRecord } from '@/lib/judi-ranking'
 import {
     attemptHistory,
     attemptSlots,
@@ -457,9 +457,7 @@ async function loadRank(userId: string): Promise<JudiRank> {
         rows.push(...((data ?? []) as JudiProgressRecord[]))
         if (!data || data.length < 1000) break
     }
-    const ranking = buildRanking(rows)
-    const i = ranking.findIndex((r) => r.userId === userId)
-    return i < 0 ? null : { position: i + 1, total: ranking.length }
+    return rankOf(buildRanking(rows), userId)
 }
 
 function formatLongDate(date: string) {

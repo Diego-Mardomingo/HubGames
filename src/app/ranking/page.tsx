@@ -1,165 +1,133 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState, type CSSProperties } from 'react'
+import Link from 'next/link'
+import { Lock, LogIn, Play, RotateCw, TriangleAlert } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
-import { buildRanking, type JudiProgressRecord } from '@/lib/judi-ranking'
+import { buildRanking, rankingTrend, type JudiProgressRecord, type RankingEntry, type RankingTrend } from '@/lib/judi-ranking'
+import { madridDate } from '@/lib/activity-heatmap'
 import Loader from '@/components/Loader'
+import { Button } from '@/components/ui/button'
+import RankingView from './RankingView'
 import './ranking.css'
 
-type RankingRow = ReturnType<typeof buildRanking>[number]
+type State =
+    | { kind: 'loading' }
+    | { kind: 'guest' }
+    | { kind: 'error' }
+    | { kind: 'ready'; ranking: RankingEntry[]; trends: Map<string, RankingTrend> | null; userId: string }
 
-/** Inicial sobre superficie neutra: el color queda para las medallas y para resaltar tu fila. */
-function UserAvatar({ username, size, self = false }: { username: string; size: number; self?: boolean }) {
-    const initial = username[0]?.toUpperCase() || '?'
-    return (
-        <span className={`rk-avatar${self ? ' is-self' : ''}`} style={{ width: size, height: size, fontSize: size * 0.4 }} aria-hidden>
-            {initial}
-        </span>
-    )
+/** Todas las filas de la RPC (de 1000 en 1000). null si falla. */
+async function loadRows(): Promise<JudiProgressRecord[] | null> {
+    const rows: JudiProgressRecord[] = []
+    for (let from = 0; ; from += 1000) {
+        const { data, error } = await supabase.rpc('hubgames_judi_ranking_rows').range(from, from + 999)
+        if (error) return null
+        rows.push(...((data ?? []) as JudiProgressRecord[]))
+        if (!data || data.length < 1000) break
+    }
+    return rows
 }
 
-function winsLabel(wins: number) {
-    if (wins === 1) return '1 juego acertado'
-    return `${wins} juegos acertados`
+function Head() {
+    return (
+        <header className="page-head rk-head hg-enter">
+            <div>
+                <h1 className="page-title">Ranking</h1>
+                <p className="page-subtitle">Cuanto antes aciertes el juego del día, más puntos sumas.</p>
+            </div>
+        </header>
+    )
 }
 
 export default function RankingPage() {
-    const router = useRouter()
-    const [loading, setLoading] = useState(true)
-    const [leaderboard, setLeaderboard] = useState<RankingRow[]>([])
-    const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+    const [state, setState] = useState<State>({ kind: 'loading' })
+    // Sube con «Reintentar» para volver a cargar
+    const [attempt, setAttempt] = useState(0)
 
     useEffect(() => {
-        const loadRanking = async () => {
-            const { data: { session } } = await safeGetSession()
-            if (!session) { router.push('/login'); return }
-            setCurrentUserId(session.user.id)
-
-            const pageSize = 1000
-            const allRows: JudiProgressRecord[] = []
-            let from = 0
-            for (;;) {
-                const { data, error } = await supabase
-                    .rpc('hubgames_judi_ranking_rows')
-                    .range(from, from + pageSize - 1)
-                if (error) break
-                if (!data?.length) break
-                allRows.push(...(data as JudiProgressRecord[]))
-                if (data.length < pageSize) break
-                from += pageSize
+        let alive = true
+        const load = async () => {
+            const {
+                data: { session },
+            } = await safeGetSession()
+            if (!alive) return
+            // La RPC solo responde con sesión: sin ella, una tarjeta que explica por qué (en vez de mandar al login sin más)
+            if (!session) {
+                setState({ kind: 'guest' })
+                return
             }
-
-            setLeaderboard(buildRanking(allRows))
-            setLoading(false)
+            const rows = await loadRows()
+            if (!alive) return
+            if (!rows) {
+                setState({ kind: 'error' })
+                return
+            }
+            setState({
+                kind: 'ready',
+                ranking: buildRanking(rows),
+                // Sin la migración del día (20261029180000), las filas no lo traen y no hay tendencia
+                trends: rankingTrend(rows, madridDate(Date.now())),
+                userId: session.user.id,
+            })
         }
-        void loadRanking()
-    }, [router])
+        void load()
+        return () => {
+            alive = false
+        }
+    }, [attempt])
 
-    if (loading) {
-        return <Loader label="Cargando ranking" />
-    }
+    if (state.kind === 'loading') return <Loader label="Cargando ranking" />
 
-    const podium = leaderboard.slice(0, 3)
-    const rest = leaderboard.slice(3)
-    const selfIndex = leaderboard.findIndex((e) => e.userId === currentUserId)
-    const self = selfIndex >= 0 ? leaderboard[selfIndex] : null
-    const topPoints = leaderboard[0]?.points ?? 0
-    // En el DOM, por puesto; en pantalla, 2º · 1º · 3º (orden de CSS).
-    const podiumSlots = podium.map((entry, i) => ({ entry, rank: i + 1 }))
-
-    return (
-        <div className="rk">
-            <header className="page-head rk-head">
-                <div>
-                    <h1 className="page-title">Ranking</h1>
-                    <p className="page-subtitle">
-                        Cuanto antes aciertes el juego del día, más puntos sumas: 6 al primer intento, 1 al último.
+    if (state.kind === 'guest')
+        return (
+            <div className="rk">
+                <Head />
+                <div className="rk-empty hg-enter" style={{ '--i': 1 } as CSSProperties}>
+                    <span className="rk-empty__icon hg-tint st-todos" aria-hidden>
+                        <Lock />
+                    </span>
+                    <p>
+                        <b>El ranking es para jugadores con cuenta</b>
+                        Tus partidas como invitado se guardan solo en este dispositivo. Inicia sesión para guardarlas y competir.
                     </p>
+                    <div className="rk-empty__acts">
+                        <Button asChild>
+                            <Link href="/login">
+                                <LogIn data-icon="inline-start" aria-hidden /> Iniciar sesión
+                            </Link>
+                        </Button>
+                        <Button asChild variant="secondary">
+                            <Link href="/judi">
+                                <Play data-icon="inline-start" aria-hidden /> Jugar el de hoy
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
-                {self && (
-                    <dl className="rk-self">
-                        <div>
-                            <dt>tu posición</dt>
-                            <dd>{selfIndex + 1}º</dd>
-                        </div>
-                        <div>
-                            <dt>puntos</dt>
-                            <dd>{self.points.toLocaleString('es-ES')}</dd>
-                        </div>
-                        <div>
-                            <dt>acertados</dt>
-                            <dd>{self.wins.toLocaleString('es-ES')}</dd>
-                        </div>
-                    </dl>
-                )}
-            </header>
+            </div>
+        )
 
-            {leaderboard.length === 0 && (
-                <div className="hg-empty">
-                    <p>Aún no hay partidas terminadas.</p>
+    if (state.kind === 'error')
+        return (
+            <div className="rk">
+                <Head />
+                <div className="rk-empty hg-enter" role="alert" style={{ '--i': 1 } as CSSProperties}>
+                    <span className="rk-empty__icon hg-tint rk-ko" aria-hidden>
+                        <TriangleAlert />
+                    </span>
+                    <p>
+                        <b>No se pudo cargar el ranking</b>
+                        Comprueba la conexión y vuelve a intentarlo.
+                    </p>
+                    <Button variant="secondary" onClick={() => {
+                            setState({ kind: 'loading' })
+                            setAttempt((k) => k + 1)
+                        }}>
+                        <RotateCw data-icon="inline-start" aria-hidden /> Reintentar
+                    </Button>
                 </div>
-            )}
+            </div>
+        )
 
-            {podiumSlots.length > 0 && (
-                <ol className="rk-podium" aria-label="Podio">
-                    {podiumSlots.map(({ entry, rank }) => {
-                        const isSelf = entry.userId === currentUserId
-                        return (
-                            <li key={entry.userId} className={`rk-podium__item rk-podium__item--${rank}${isSelf ? ' is-self' : ''}`}>
-                                <span className="rk-medal" aria-label={`Puesto ${rank}`}>
-                                    {rank}
-                                </span>
-                                <UserAvatar username={entry.username} size={rank === 1 ? 56 : 48} self={isSelf} />
-                                <span className="rk-podium__name" title={entry.username}>
-                                    {entry.username}
-                                    {isSelf && <span className="hg-chip hg-chip--playing">Tú</span>}
-                                </span>
-                                <span className="rk-podium__pts">
-                                    <b>{entry.points.toLocaleString('es-ES')}</b> puntos
-                                </span>
-                                <span className="rk-podium__sub">
-                                    {winsLabel(entry.wins)} · {entry.accuracy} % de precisión
-                                </span>
-                            </li>
-                        )
-                    })}
-                </ol>
-            )}
-
-            {rest.length > 0 && (
-                <ol className="rk-list" start={4} aria-label="Clasificación">
-                    {rest.map((entry, index) => {
-                        const rank = index + 4
-                        const isSelf = entry.userId === currentUserId
-                        const pct = topPoints ? (entry.points / topPoints) * 100 : 0
-                        return (
-                            <li key={entry.userId} className={`rk-row${isSelf ? ' is-self' : ''}`}>
-                                <span className="rk-row__rank" aria-label={`Puesto ${rank}`}>
-                                    {rank}
-                                </span>
-                                <UserAvatar username={entry.username} size={36} self={isSelf} />
-                                <span className="rk-row__player">
-                                    <span className="rk-row__name" title={entry.username}>
-                                        <span className="rk-row__name-text">{entry.username}</span>
-                                        {isSelf && <span className="hg-chip hg-chip--playing">Tú</span>}
-                                    </span>
-                                    <span className="rk-row__sub">
-                                        {winsLabel(entry.wins)} · {entry.accuracy} % de precisión
-                                    </span>
-                                </span>
-                                <span className="hg-bar rk-row__bar" aria-hidden>
-                                    <span style={{ width: `${pct}%` }} />
-                                </span>
-                                <span className="rk-row__pts">
-                                    {entry.points.toLocaleString('es-ES')}
-                                    <small> pts</small>
-                                </span>
-                            </li>
-                        )
-                    })}
-                </ol>
-            )}
-        </div>
-    )
+    return <RankingView ranking={state.ranking} userId={state.userId} trends={state.trends} />
 }
