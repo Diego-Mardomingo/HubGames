@@ -591,12 +591,12 @@ function SearchBody({ deals, onNavigate }: { deals: WishlistDeal[]; onNavigate: 
             <ul className="game-search__results" aria-hidden>
                 {[0, 1, 2, 3].map((k) => (
                     <li key={k} className="game-search__skel">
-                        <i />
+                        <i className="hg-skel" />
                         <span>
-                            <i />
-                            <i />
+                            <i className="hg-skel" />
+                            <i className="hg-skel" />
                         </span>
-                        <i />
+                        <i className="hg-skel" />
                     </li>
                 ))}
             </ul>

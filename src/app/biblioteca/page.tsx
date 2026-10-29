@@ -82,7 +82,9 @@ import { metacriticScore, ratingTier } from '@/lib/scores'
 import { isPerfect } from '@/lib/tracker-rules'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import Loader from '@/components/Loader'
+import SkeletonSwap from '@/components/SkeletonSwap'
+import { Skeleton, SkeletonZone } from '@/components/ui/skeleton'
+import { RowSkeleton } from '@/components/skeletons'
 import KeyboardList from '@/components/KeyboardList'
 import GameCover from '@/components/tracker/GameCover'
 import GameMenu from '@/components/tracker/GameMenu'
@@ -149,9 +151,91 @@ function TabIcon({ tab }: { tab: LibraryTab }) {
     )
 }
 
+/**
+ * Esqueleto de la biblioteca: cabecera, raíl con sus listas (fijas: solo faltan los contadores), cabecera de la lista
+ * (de verdad si viene en la URL), filtros y filas. Lo usan el `Suspense` de `useSearchParams` y la carga de datos.
+ */
+function LibrarySkeleton({ tab }: { tab?: LibraryTab | null }) {
+    const HeadIcon = tab ? (tab === 'todos' ? Library : LIST_ICONS[tab]) : null
+    return (
+        <SkeletonZone label="Cargando la biblioteca">
+            <div className="biblioteca">
+                <header className="page-head">
+                    <div>
+                        <h1 className="page-title">Biblioteca</h1>
+                        <p className="page-subtitle">
+                            <Skeleton shape="text" w="34ch" />
+                        </p>
+                    </div>
+                    <div className="lib-head-actions">
+                        <Skeleton w={190} h={40} style={{ borderRadius: 'var(--radius-sm)' }} />
+                        <Skeleton w={118} h={40} style={{ borderRadius: 'var(--radius-sm)' }} />
+                    </div>
+                </header>
+                <div className="lib-layout">
+                    <nav className="lib-rail" aria-hidden>
+                        {RAIL.map((group) => (
+                            <div key={group.title ?? 'todos'} className="lib-rail__group">
+                                {group.title && <p className="lib-rail__title">{group.title}</p>}
+                                {group.tabs.map((t) => (
+                                    <span key={t} className={`lib-rail__item ${listClass(t)}`}>
+                                        <TabIcon tab={t} />
+                                        <span className="lib-rail__label">{TAB_LABELS[t]}</span>
+                                        <span className="lib-rail__count">
+                                            <Skeleton shape="text" w="2ch" />
+                                        </span>
+                                    </span>
+                                ))}
+                            </div>
+                        ))}
+                        <div className="lib-rail__group lib-rail__group--tray">
+                            <span className={`lib-rail__item ${listClass('bandeja')} lib-rail__item--tray`}>
+                                <TabIcon tab="bandeja" />
+                                <span className="lib-rail__label">{TAB_LABELS.bandeja}</span>
+                                <span className="lib-rail__count">
+                                    <Skeleton shape="text" w="2ch" />
+                                </span>
+                            </span>
+                        </div>
+                    </nav>
+                    <section className={`lib-main${tab ? ` ${listClass(tab)}` : ''}`}>
+                        <div className="lib-listhead">
+                            {HeadIcon && tab ? (
+                                <span className="lib-listhead__icon hg-tint">
+                                    <HeadIcon aria-hidden />
+                                </span>
+                            ) : (
+                                <Skeleton className="lib-listhead__icon" />
+                            )}
+                            <div className="lib-listhead__text">
+                                <h2>{tab ? TAB_LABELS[tab] : <Skeleton shape="text" w="9ch" />}</h2>
+                                <p>{tab ? TAB_HINTS[tab] : <Skeleton shape="text" w="30ch" />}</p>
+                            </div>
+                            <div className="lib-listhead__actions">
+                                <Skeleton w={76} h={36} style={{ borderRadius: 'var(--radius-sm)' }} />
+                                <Skeleton w={140} h={32} style={{ borderRadius: 'var(--radius-sm)' }} />
+                            </div>
+                        </div>
+                        <div className="lib-filters" aria-hidden>
+                            {[150, 150, 150, 150, 150].map((w, i) => (
+                                <Skeleton key={i} w={w} h={36} style={{ borderRadius: 'var(--radius-sm)' }} />
+                            ))}
+                        </div>
+                        <ul className="hg-rows lib-list">
+                            {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+                                <RowSkeleton key={i} i={i} className="lib-row" />
+                            ))}
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </SkeletonZone>
+    )
+}
+
 export default function BibliotecaPage() {
     return (
-        <Suspense fallback={<Loader label="Cargando biblioteca" />}>
+        <Suspense fallback={<SkeletonSwap skeleton={<LibrarySkeleton />} />}>
             <Biblioteca />
         </Suspense>
     )
@@ -167,7 +251,7 @@ function Biblioteca() {
     // undefined = cargando; null = sin lista de inicio.
     const [home, setHome] = useState<LibraryHome | null | undefined>(undefined)
     const [limit, setLimit] = useState(DEFAULT_PLAYING_LIMIT)
-    // Solo se pinta en el cliente (antes sale el Loader), así que se puede leer localStorage al iniciar.
+    // Solo se pinta en el cliente (antes sale el esqueleto), así que se puede leer localStorage al iniciar.
     const [view, setView] = useState<LibraryView>(() =>
         typeof window !== 'undefined' && localStorage.getItem(VIEW_KEY) === 'cuadricula' ? 'cuadricula' : 'lista',
     )
@@ -307,344 +391,347 @@ function Biblioteca() {
         }
     }
 
-    if (!games || home === undefined) return <Loader label="Cargando biblioteca" />
+    const skeleton = <LibrarySkeleton tab={param} />
+    if (!games || home === undefined) return <SkeletonSwap skeleton={skeleton} />
 
     const overLimit = counts.jugando > limit
     const HeadIcon = tab === 'todos' ? Library : LIST_ICONS[tab]
 
     return (
-        <div className="biblioteca">
-            <header className="page-head">
-                <div>
-                    <h1 className="page-title">Biblioteca</h1>
-                    <p className="page-subtitle">
-                        {counts.classified} {counts.classified === 1 ? 'juego clasificado' : 'juegos clasificados'}
-                        {counts.jugando > 0 && ` · ${counts.jugando} en curso`}
-                        {counts.unowned > 0 && ` · ${counts.unowned} ${counts.unowned === 1 ? 'pendiente' : 'pendientes'} sin comprar`}
+        <SkeletonSwap skeleton={skeleton}>
+            <div className="biblioteca">
+                <header className="page-head">
+                    <div>
+                        <h1 className="page-title">Biblioteca</h1>
+                        <p className="page-subtitle">
+                            {counts.classified} {counts.classified === 1 ? 'juego clasificado' : 'juegos clasificados'}
+                            {counts.jugando > 0 && ` · ${counts.jugando} en curso`}
+                            {counts.unowned > 0 && ` · ${counts.unowned} ${counts.unowned === 1 ? 'pendiente' : 'pendientes'} sin comprar`}
+                        </p>
+                    </div>
+                    <div className="lib-head-actions">
+                        <Button variant="secondary" onClick={openGameSearch} aria-keyshortcuts="Control+K">
+                            <Search aria-hidden /> Buscar juego <SearchShortcut className="hg-kbd lib-kbd" />
+                        </Button>
+                        <Button variant="secondary" asChild>
+                            <Link href="/wishlist">
+                                <Heart aria-hidden /> Wishlist
+                            </Link>
+                        </Button>
+                    </div>
+                </header>
+
+                {error && (
+                    <p className="alert alert--error" role="alert">
+                        {error}
                     </p>
-                </div>
-                <div className="lib-head-actions">
-                    <Button variant="secondary" onClick={openGameSearch} aria-keyshortcuts="Control+K">
-                        <Search aria-hidden /> Buscar juego <SearchShortcut className="hg-kbd lib-kbd" />
-                    </Button>
-                    <Button variant="secondary" asChild>
-                        <Link href="/wishlist">
-                            <Heart aria-hidden /> Wishlist
-                        </Link>
-                    </Button>
-                </div>
-            </header>
+                )}
 
-            {error && (
-                <p className="alert alert--error" role="alert">
-                    {error}
-                </p>
-            )}
-
-            <div className="lib-layout">
-                <nav className="lib-rail" aria-label="Listas">
-                    {RAIL.map((group) => (
-                        <div key={group.title ?? 'todos'} className="lib-rail__group">
-                            {group.title && <p className="lib-rail__title">{group.title}</p>}
-                            {group.tabs.map((t) => (
-                                <RailItem key={t} tab={t} count={counts[t]} current={tab === t} pinned={home?.tab === t} onSelect={changeTab} />
-                            ))}
-                        </div>
-                    ))}
-                    <div className="lib-rail__group lib-rail__group--tray">
-                        <Link href="/biblioteca/bandeja" className={`lib-rail__item ${listClass('bandeja')} lib-rail__item--tray`}>
-                            <TabIcon tab="bandeja" />
-                            <span className="lib-rail__label">{TAB_LABELS.bandeja}</span>
-                            <span className="lib-rail__count">{counts.bandeja}</span>
-                        </Link>
-                    </div>
-                </nav>
-
-                <section className={`lib-main ${listClass(tab)}`} aria-labelledby="lib-list-title">
-                    <div className="lib-listhead">
-                        <span className="lib-listhead__icon hg-tint">
-                            <HeadIcon aria-hidden />
-                        </span>
-                        <div className="lib-listhead__text">
-                            <h2 id="lib-list-title">{TAB_LABELS[tab]}</h2>
-                            <p>{TAB_HINTS[tab]}</p>
-                        </div>
-                        <div className="lib-listhead__actions">
-                            <div className="hg-seg" role="group" aria-label="Vista">
-                                <button type="button" className="hg-seg__opt" aria-pressed={view === 'lista'} onClick={() => changeView('lista')} title="Lista">
-                                    <List aria-hidden />
-                                    <span className="sr-only">Lista</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    className="hg-seg__opt"
-                                    aria-pressed={view === 'cuadricula'}
-                                    onClick={() => changeView('cuadricula')}
-                                    title="Rejilla"
-                                >
-                                    <LayoutGrid aria-hidden />
-                                    <span className="sr-only">Rejilla</span>
-                                </button>
+                <div className="lib-layout">
+                    <nav className="lib-rail" aria-label="Listas">
+                        {RAIL.map((group) => (
+                            <div key={group.title ?? 'todos'} className="lib-rail__group">
+                                {group.title && <p className="lib-rail__title">{group.title}</p>}
+                                {group.tabs.map((t) => (
+                                    <RailItem key={t} tab={t} count={counts[t]} current={tab === t} pinned={home?.tab === t} onSelect={changeTab} />
+                                ))}
                             </div>
-                            <Button
-                                size="sm"
-                                variant="secondary"
-                                className={`lib-pin${isHomeTab ? ' is-pinned' : ''}`}
-                                onClick={saveHome}
-                                loading={savingHome}
-                                disabled={isHomeTab && !homeChanged}
-                                title="La biblioteca se abrirá en esta lista, con este orden, filtros y vista"
-                            >
-                                <Pin aria-hidden />
-                                {isHomeTab ? (homeChanged ? 'Guardar en la de inicio' : 'Lista de inicio') : 'Fijar como inicio'}
-                            </Button>
+                        ))}
+                        <div className="lib-rail__group lib-rail__group--tray">
+                            <Link href="/biblioteca/bandeja" className={`lib-rail__item ${listClass('bandeja')} lib-rail__item--tray`}>
+                                <TabIcon tab="bandeja" />
+                                <span className="lib-rail__label">{TAB_LABELS.bandeja}</span>
+                                <span className="lib-rail__count">{counts.bandeja}</span>
+                            </Link>
                         </div>
-                    </div>
+                    </nav>
 
-                    {tab === 'jugando' && (
-                        <div className={`lib-limit ${overLimit ? 'is-over' : ''}`}>
-                            {overLimit ? (
-                                <p>
-                                    <AlertTriangle size={15} aria-hidden /> Tienes {counts.jugando} juegos a la vez y tu límite es {limit}.
-                                    ¿Pausas alguno?
-                                </p>
-                            ) : (
-                                <p>
-                                    {counts.jugando} de {limit} juegos a la vez.
-                                </p>
-                            )}
-                            <div className="lib-limit__stepper" role="group" aria-label="Límite de juegos en Jugando">
-                                <Button type="button" size="icon" variant="ghost" onClick={() => changeLimit(limit - 1)} disabled={limit <= 1} aria-label="Bajar el límite">
-                                    <Minus aria-hidden />
-                                </Button>
-                                <span aria-live="polite">Límite: {limit}</span>
-                                <Button type="button" size="icon" variant="ghost" onClick={() => changeLimit(limit + 1)} disabled={limit >= 20} aria-label="Subir el límite">
-                                    <Plus aria-hidden />
-                                </Button>
+                    <section className={`lib-main ${listClass(tab)}`} aria-labelledby="lib-list-title">
+                        <div className="lib-listhead">
+                            <span className="lib-listhead__icon hg-tint">
+                                <HeadIcon aria-hidden />
+                            </span>
+                            <div className="lib-listhead__text">
+                                <h2 id="lib-list-title">{TAB_LABELS[tab]}</h2>
+                                <p>{TAB_HINTS[tab]}</p>
                             </div>
-                        </div>
-                    )}
-
-                    <div className="lib-filters">
-                        {(mixedOwnership || filters.own !== 'todos') && (
-                            <div className="hg-seg" role="group" aria-label="Comprados o sin comprar">
-                                {(Object.keys(OWN_FILTER_LABELS) as OwnFilter[]).map((k) => (
+                            <div className="lib-listhead__actions">
+                                <div className="hg-seg" role="group" aria-label="Vista">
+                                    <button type="button" className="hg-seg__opt" aria-pressed={view === 'lista'} onClick={() => changeView('lista')} title="Lista">
+                                        <List aria-hidden />
+                                        <span className="sr-only">Lista</span>
+                                    </button>
                                     <button
-                                        key={k}
                                         type="button"
                                         className="hg-seg__opt"
-                                        aria-pressed={filters.own === k}
-                                        onClick={() => setFilters((f) => ({ ...f, own: k }))}
+                                        aria-pressed={view === 'cuadricula'}
+                                        onClick={() => changeView('cuadricula')}
+                                        title="Rejilla"
                                     >
-                                        {k === 'comprados' && <Check aria-hidden />}
-                                        {k === 'sin_comprar' && <ShoppingCart aria-hidden />}
-                                        {OWN_FILTER_LABELS[k]}
+                                        <LayoutGrid aria-hidden />
+                                        <span className="sr-only">Rejilla</span>
                                     </button>
-                                ))}
+                                </div>
+                                <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    className={`lib-pin${isHomeTab ? ' is-pinned' : ''}`}
+                                    onClick={saveHome}
+                                    loading={savingHome}
+                                    disabled={isHomeTab && !homeChanged}
+                                    title="La biblioteca se abrirá en esta lista, con este orden, filtros y vista"
+                                >
+                                    <Pin aria-hidden />
+                                    {isHomeTab ? (homeChanged ? 'Guardar en la de inicio' : 'Lista de inicio') : 'Fijar como inicio'}
+                                </Button>
+                            </div>
+                        </div>
+
+                        {tab === 'jugando' && (
+                            <div className={`lib-limit ${overLimit ? 'is-over' : ''}`}>
+                                {overLimit ? (
+                                    <p>
+                                        <AlertTriangle size={15} aria-hidden /> Tienes {counts.jugando} juegos a la vez y tu límite es {limit}.
+                                        ¿Pausas alguno?
+                                    </p>
+                                ) : (
+                                    <p>
+                                        {counts.jugando} de {limit} juegos a la vez.
+                                    </p>
+                                )}
+                                <div className="lib-limit__stepper" role="group" aria-label="Límite de juegos en Jugando">
+                                    <Button type="button" size="icon" variant="ghost" onClick={() => changeLimit(limit - 1)} disabled={limit <= 1} aria-label="Bajar el límite">
+                                        <Minus aria-hidden />
+                                    </Button>
+                                    <span aria-live="polite">Límite: {limit}</span>
+                                    <Button type="button" size="icon" variant="ghost" onClick={() => changeLimit(limit + 1)} disabled={limit >= 20} aria-label="Subir el límite">
+                                        <Plus aria-hidden />
+                                    </Button>
+                                </div>
                             </div>
                         )}
-                        <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
-                            <SelectTrigger className="lib-select" aria-label="Ordenar">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {sortsFor(tab).map((s) => (
-                                    <SelectItem key={s} value={s}>
-                                        {SORT_LABELS[s]}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        {options.genres.length > 0 && (
-                            <Select
-                                value={filters.genre ?? ALL}
-                                onValueChange={(v) => setFilters((f) => ({ ...f, genre: v === ALL ? null : v }))}
-                            >
-                                <SelectTrigger className={`lib-select${filters.genre ? ' is-set' : ''}`} aria-label="Género">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value={ALL}>Todos los géneros</SelectItem>
-                                    {options.genres.map((g) => (
-                                        <SelectItem key={g} value={g}>
-                                            {g}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-                        {options.years.length > 0 && (
-                            <Select
-                                value={filters.completedYear === null ? ALL : String(filters.completedYear)}
-                                onValueChange={(v) => setFilters((f) => ({ ...f, completedYear: v === ALL ? null : Number(v) }))}
-                            >
-                                <SelectTrigger className={`lib-select${filters.completedYear !== null ? ' is-set' : ''}`} aria-label="Año de completado">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value={ALL}>Cualquier año</SelectItem>
-                                    {options.years.map((y) => (
-                                        <SelectItem key={y} value={String(y)}>
-                                            Completados en {y}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-                        {(tab === 'completado' || tab === 'todos' || tab === 'abandonado' || tab === 'ya_jugado' || tab === 'favorito' || tab === 'sin_final') && (
-                            <Select
-                                value={filters.minRating === null ? ALL : String(filters.minRating)}
-                                onValueChange={(v) => setFilters((f) => ({ ...f, minRating: v === ALL ? null : Number(v) }))}
-                            >
-                                <SelectTrigger className={`lib-select${filters.minRating !== null ? ' is-set' : ''}`} aria-label="Nota mínima">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value={ALL}>Cualquier nota</SelectItem>
-                                    {[9, 8, 7, 5].map((n) => (
-                                        <SelectItem key={n} value={String(n)}>
-                                            Nota {n} o más
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-                        <Select
-                            value={filters.achievements}
-                            onValueChange={(v) => setFilters((f) => ({ ...f, achievements: v as AchievementFilter }))}
-                        >
-                            <SelectTrigger className={`lib-select${filters.achievements !== 'todos' ? ' is-set' : ''}`} aria-label="Logros">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {(Object.keys(ACHIEVEMENT_FILTER_LABELS) as AchievementFilter[]).map((k) => (
-                                    <SelectItem key={k} value={k}>
-                                        {ACHIEVEMENT_FILTER_LABELS[k]}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <Select
-                            value={filters.duration}
-                            onValueChange={(v) => setFilters((f) => ({ ...f, duration: v as DurationFilter }))}
-                        >
-                            <SelectTrigger
-                                className={`lib-select${filters.duration !== 'todas' ? ' is-set' : ''}`}
-                                aria-label="Duración"
-                                title="Duración de la historia según HowLongToBeat (o la mediana de SteamSpy si no hay dato)"
-                            >
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {(Object.keys(DURATION_FILTER_LABELS) as DurationFilter[]).map((k) => (
-                                    <SelectItem key={k} value={k}>
-                                        {DURATION_FILTER_LABELS[k]}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <Select value={filters.marks} onValueChange={(v) => setFilters((f) => ({ ...f, marks: v as MarkFilter }))}>
-                            <SelectTrigger className={`lib-select${filters.marks !== 'todas' ? ' is-set' : ''}`} aria-label="Marcas">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {(Object.keys(MARK_FILTER_LABELS) as MarkFilter[]).map((k) => (
-                                    <SelectItem key={k} value={k}>
-                                        {MARK_FILTER_LABELS[k]}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        {hasFilters(filters) && (
-                            <Button type="button" size="sm" variant="ghost" onClick={() => setFilters(NO_FILTERS)}>
-                                <X aria-hidden /> Quitar filtros
-                            </Button>
-                        )}
-                    </div>
 
-                    {isHomeTab && (
-                        <p className="lib-home-note">
-                            <Pin size={14} aria-hidden />
-                            {homeChanged
-                                ? 'Has cambiado el orden, los filtros o la vista de tu lista de inicio: guárdalos para que se abra así.'
-                                : 'La biblioteca se abre siempre aquí, con este orden, filtros y vista.'}
-                        </p>
-                    )}
+                        <div className="lib-filters">
+                            {(mixedOwnership || filters.own !== 'todos') && (
+                                <div className="hg-seg" role="group" aria-label="Comprados o sin comprar">
+                                    {(Object.keys(OWN_FILTER_LABELS) as OwnFilter[]).map((k) => (
+                                        <button
+                                            key={k}
+                                            type="button"
+                                            className="hg-seg__opt"
+                                            aria-pressed={filters.own === k}
+                                            onClick={() => setFilters((f) => ({ ...f, own: k }))}
+                                        >
+                                            {k === 'comprados' && <Check aria-hidden />}
+                                            {k === 'sin_comprar' && <ShoppingCart aria-hidden />}
+                                            {OWN_FILTER_LABELS[k]}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                            <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+                                <SelectTrigger className="lib-select" aria-label="Ordenar">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {sortsFor(tab).map((s) => (
+                                        <SelectItem key={s} value={s}>
+                                            {SORT_LABELS[s]}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {options.genres.length > 0 && (
+                                <Select
+                                    value={filters.genre ?? ALL}
+                                    onValueChange={(v) => setFilters((f) => ({ ...f, genre: v === ALL ? null : v }))}
+                                >
+                                    <SelectTrigger className={`lib-select${filters.genre ? ' is-set' : ''}`} aria-label="Género">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={ALL}>Todos los géneros</SelectItem>
+                                        {options.genres.map((g) => (
+                                            <SelectItem key={g} value={g}>
+                                                {g}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                            {options.years.length > 0 && (
+                                <Select
+                                    value={filters.completedYear === null ? ALL : String(filters.completedYear)}
+                                    onValueChange={(v) => setFilters((f) => ({ ...f, completedYear: v === ALL ? null : Number(v) }))}
+                                >
+                                    <SelectTrigger className={`lib-select${filters.completedYear !== null ? ' is-set' : ''}`} aria-label="Año de completado">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={ALL}>Cualquier año</SelectItem>
+                                        {options.years.map((y) => (
+                                            <SelectItem key={y} value={String(y)}>
+                                                Completados en {y}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                            {(tab === 'completado' || tab === 'todos' || tab === 'abandonado' || tab === 'ya_jugado' || tab === 'favorito' || tab === 'sin_final') && (
+                                <Select
+                                    value={filters.minRating === null ? ALL : String(filters.minRating)}
+                                    onValueChange={(v) => setFilters((f) => ({ ...f, minRating: v === ALL ? null : Number(v) }))}
+                                >
+                                    <SelectTrigger className={`lib-select${filters.minRating !== null ? ' is-set' : ''}`} aria-label="Nota mínima">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={ALL}>Cualquier nota</SelectItem>
+                                        {[9, 8, 7, 5].map((n) => (
+                                            <SelectItem key={n} value={String(n)}>
+                                                Nota {n} o más
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                            <Select
+                                value={filters.achievements}
+                                onValueChange={(v) => setFilters((f) => ({ ...f, achievements: v as AchievementFilter }))}
+                            >
+                                <SelectTrigger className={`lib-select${filters.achievements !== 'todos' ? ' is-set' : ''}`} aria-label="Logros">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {(Object.keys(ACHIEVEMENT_FILTER_LABELS) as AchievementFilter[]).map((k) => (
+                                        <SelectItem key={k} value={k}>
+                                            {ACHIEVEMENT_FILTER_LABELS[k]}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Select
+                                value={filters.duration}
+                                onValueChange={(v) => setFilters((f) => ({ ...f, duration: v as DurationFilter }))}
+                            >
+                                <SelectTrigger
+                                    className={`lib-select${filters.duration !== 'todas' ? ' is-set' : ''}`}
+                                    aria-label="Duración"
+                                    title="Duración de la historia según HowLongToBeat (o la mediana de SteamSpy si no hay dato)"
+                                >
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {(Object.keys(DURATION_FILTER_LABELS) as DurationFilter[]).map((k) => (
+                                        <SelectItem key={k} value={k}>
+                                            {DURATION_FILTER_LABELS[k]}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Select value={filters.marks} onValueChange={(v) => setFilters((f) => ({ ...f, marks: v as MarkFilter }))}>
+                                <SelectTrigger className={`lib-select${filters.marks !== 'todas' ? ' is-set' : ''}`} aria-label="Marcas">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {(Object.keys(MARK_FILTER_LABELS) as MarkFilter[]).map((k) => (
+                                        <SelectItem key={k} value={k}>
+                                            {MARK_FILTER_LABELS[k]}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {hasFilters(filters) && (
+                                <Button type="button" size="sm" variant="ghost" onClick={() => setFilters(NO_FILTERS)}>
+                                    <X aria-hidden /> Quitar filtros
+                                </Button>
+                            )}
+                        </div>
 
-                    {list.length > 0 && (
-                        <p className="lib-note">
-                            {tab === 'pendiente' && list.length > 1 && (
-                                <span>
-                                    {canDrag
-                                        ? 'Arrastra desde el asa para ordenar tus pendientes: el primero es el siguiente al que jugarás.'
-                                        : 'Para ordenar arrastrando, elige "Mi orden" y quita los filtros.'}
+                        {isHomeTab && (
+                            <p className="lib-home-note">
+                                <Pin size={14} aria-hidden />
+                                {homeChanged
+                                    ? 'Has cambiado el orden, los filtros o la vista de tu lista de inicio: guárdalos para que se abra así.'
+                                    : 'La biblioteca se abre siempre aquí, con este orden, filtros y vista.'}
+                            </p>
+                        )}
+
+                        {list.length > 0 && (
+                            <p className="lib-note">
+                                {tab === 'pendiente' && list.length > 1 && (
+                                    <span>
+                                        {canDrag
+                                            ? 'Arrastra desde el asa para ordenar tus pendientes: el primero es el siguiente al que jugarás.'
+                                            : 'Para ordenar arrastrando, elige "Mi orden" y quita los filtros.'}
+                                    </span>
+                                )}
+                                <span className="hg-keyhint">
+                                    <kbd>↑</kbd> <kbd>↓</kbd> o <kbd>j</kbd> <kbd>k</kbd> para moverte · <kbd>Enter</kbd> abre la ficha
                                 </span>
-                            )}
-                            <span className="hg-keyhint">
-                                <kbd>↑</kbd> <kbd>↓</kbd> o <kbd>j</kbd> <kbd>k</kbd> para moverte · <kbd>Enter</kbd> abre la ficha
-                            </span>
-                        </p>
-                    )}
+                            </p>
+                        )}
 
-                    {list.length === 0 ? (
-                        <div className="hg-empty lib-empty">
-                            {hasFilters(filters) ? (
-                                <>
-                                    <p>Ningún juego cumple los filtros.</p>
-                                    <Button variant="secondary" onClick={() => setFilters(NO_FILTERS)}>
-                                        Quitar filtros
-                                    </Button>
-                                </>
-                            ) : counts.classified === 0 ? (
-                                <>
-                                    <p>Aún no has clasificado ningún juego.</p>
-                                    <Button variant="secondary" asChild>
-                                        <Link href={counts.bandeja > 0 ? '/biblioteca/bandeja' : '/perfil'}>
-                                            {counts.bandeja > 0 ? 'Clasificar la bandeja' : 'Conectar Steam en el perfil'}
-                                        </Link>
-                                    </Button>
-                                </>
-                            ) : (
-                                <p>No tienes juegos en {TAB_LABELS[tab].toLowerCase()}.</p>
-                            )}
-                        </div>
-                    ) : (
-                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-                            <SortableContext
-                                items={shown.map((g) => g.appid)}
-                                strategy={view === 'cuadricula' ? rectSortingStrategy : verticalListSortingStrategy}
-                                disabled={!canDrag}
-                            >
-                                <KeyboardList className={view === 'cuadricula' ? 'hg-cards lib-grid' : `hg-rows lib-list${showStatus ? ' has-status' : ''}`} label={`Juegos: ${TAB_LABELS[tab]}`}>
-                                    {shown.map((game, i) => (
-                                        <LibraryItem
-                                            key={game.appid}
-                                            game={game}
-                                            view={view}
-                                            draggable={canDrag}
-                                            position={canDrag ? i + 1 : null}
-                                            showStatus={showStatus}
-                                            showOwnership={tab === 'pendiente' || !game.owned}
-                                            priority={i < 6}
-                                            onChange={(patch) => patchGame(game.appid, patch)}
-                                            onError={setError}
-                                        />
-                                    ))}
-                                </KeyboardList>
-                            </SortableContext>
-                        </DndContext>
-                    )}
+                        {list.length === 0 ? (
+                            <div className="hg-empty lib-empty">
+                                {hasFilters(filters) ? (
+                                    <>
+                                        <p>Ningún juego cumple los filtros.</p>
+                                        <Button variant="secondary" onClick={() => setFilters(NO_FILTERS)}>
+                                            Quitar filtros
+                                        </Button>
+                                    </>
+                                ) : counts.classified === 0 ? (
+                                    <>
+                                        <p>Aún no has clasificado ningún juego.</p>
+                                        <Button variant="secondary" asChild>
+                                            <Link href={counts.bandeja > 0 ? '/biblioteca/bandeja' : '/perfil'}>
+                                                {counts.bandeja > 0 ? 'Clasificar la bandeja' : 'Conectar Steam en el perfil'}
+                                            </Link>
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <p>No tienes juegos en {TAB_LABELS[tab].toLowerCase()}.</p>
+                                )}
+                            </div>
+                        ) : (
+                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+                                <SortableContext
+                                    items={shown.map((g) => g.appid)}
+                                    strategy={view === 'cuadricula' ? rectSortingStrategy : verticalListSortingStrategy}
+                                    disabled={!canDrag}
+                                >
+                                    <KeyboardList className={view === 'cuadricula' ? 'hg-cards lib-grid' : `hg-rows lib-list${showStatus ? ' has-status' : ''}`} label={`Juegos: ${TAB_LABELS[tab]}`}>
+                                        {shown.map((game, i) => (
+                                            <LibraryItem
+                                                key={game.appid}
+                                                game={game}
+                                                view={view}
+                                                draggable={canDrag}
+                                                position={canDrag ? i + 1 : null}
+                                                showStatus={showStatus}
+                                                showOwnership={tab === 'pendiente' || !game.owned}
+                                                priority={i < 6}
+                                                onChange={(patch) => patchGame(game.appid, patch)}
+                                                onError={setError}
+                                            />
+                                        ))}
+                                    </KeyboardList>
+                                </SortableContext>
+                            </DndContext>
+                        )}
 
-                    {list.length > visible && (
-                        <div className="lib-more">
-                            <Button variant="secondary" onClick={() => setVisible((v) => v + PAGE)}>
-                                Mostrar más ({list.length - visible})
-                            </Button>
-                        </div>
-                    )}
-                </section>
+                        {list.length > visible && (
+                            <div className="lib-more">
+                                <Button variant="secondary" onClick={() => setVisible((v) => v + PAGE)}>
+                                    Mostrar más ({list.length - visible})
+                                </Button>
+                            </div>
+                        )}
+                    </section>
+                </div>
             </div>
-        </div>
+        </SkeletonSwap>
     )
 }
 

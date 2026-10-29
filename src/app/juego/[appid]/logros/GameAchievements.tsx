@@ -18,7 +18,8 @@ import { RARITY_TIER_LABELS, rarityColor, type RarityTier } from '@/lib/rarity'
 import { formatHours } from '@/lib/format'
 import type { GameStatus } from '@/lib/tracker'
 import { Button } from '@/components/ui/button'
-import Loader from '@/components/Loader'
+import SkeletonSwap from '@/components/SkeletonSwap'
+import GameAchievementsSkeleton from './GameAchievementsSkeleton'
 import Segmented from '@/components/Segmented'
 import AchievementItem from '@/components/achievements/AchievementItem'
 import GameCover from '@/components/tracker/GameCover'
@@ -99,7 +100,9 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
         setBefore(new Set(prevShown.map((a) => a.apiname)))
     }
 
-    if (state.kind === 'cargando') return <Loader label="Cargando logros" resetScroll />
+    const skeleton = <GameAchievementsSkeleton appid={appid} name={name} headerImage={headerImage} />
+    if (state.kind === 'cargando') return <SkeletonSwap skeleton={skeleton} resetScroll />
+    const wrap = (view: React.ReactNode) => <SkeletonSwap skeleton={skeleton}>{view}</SkeletonSwap>
 
     const library = state.kind === 'ok' ? state.library : null
     const total = list.length
@@ -162,7 +165,7 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
     )
 
     if (state.kind === 'sin_sesion' || total === 0) {
-        return (
+        return wrap(
             <div className="logros gl">
                 {header}
                 {error && (
@@ -211,7 +214,7 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
     let entering = 0
     const what = [filter !== 'todos' ? ACHIEVEMENT_FILTER_LABELS[filter] : '', rarity ? RARITY_TIER_LABELS[rarity] : ''].filter(Boolean).join(' · ')
 
-    return (
+    return wrap(
         <div className="logros gl">
             {header}
 

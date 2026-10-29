@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { CalendarDays, Check, ChevronRight, RefreshCw, Shield, TriangleAlert, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { adminLines, type AdminLine } from '@/lib/profile'
 import { DAILY_PICK, tomorrowJudiDay, tomorrowStatus } from '@/lib/admin'
 import { enter } from './Section'
@@ -97,10 +98,14 @@ export default function AdminCard({ index }: { index: number }) {
                     {!lines &&
                         [0, 1, 2].map((i) => (
                             <li key={i} className="pf-admin__item">
-                                <span className="pf-admin__dot pf-skel" aria-hidden />
+                                <Skeleton className="pf-admin__dot" />
                                 <span className="pf-admin__text">
-                                    <span className="pf-skel pf-skel--line" />
-                                    <span className="pf-skel pf-skel--line pf-skel--short" />
+                                    <b>
+                                        <Skeleton shape="text" w="16ch" />
+                                    </b>
+                                    <span>
+                                        <Skeleton shape="text" w="60%" />
+                                    </span>
                                 </span>
                             </li>
                         ))}

@@ -30,7 +30,8 @@ import {
 } from '@/lib/tray'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
-import Loader from '@/components/Loader'
+import SkeletonSwap from '@/components/SkeletonSwap'
+import { Skeleton, SkeletonZone } from '@/components/ui/skeleton'
 import AnimatedCount from '@/components/AnimatedCount'
 import KeyboardList from '@/components/KeyboardList'
 import GameCover from '@/components/tracker/GameCover'
@@ -174,6 +175,53 @@ function DestChip({ status }: { status: TrayDestination }) {
             <Icon />
             {STATUS_LABELS[status]}
         </span>
+    )
+}
+
+/** Esqueleto de la bandeja: cabecera de verdad (es fija), barra de orden, pista de teclas y filas con sus botones. */
+function TraySkeleton() {
+    return (
+        <SkeletonZone label="Cargando la bandeja">
+            <div className="biblioteca bandeja">
+                <header className="page-head tray-head">
+                    <div>
+                        <span className="lib-back">
+                            <ArrowLeft size={14} aria-hidden /> Biblioteca
+                        </span>
+                        <div className="tray-title st-bandeja">
+                            <span className="tray-title__icon hg-tint">
+                                <Inbox aria-hidden />
+                            </span>
+                            <h1 className="page-title">Bandeja</h1>
+                        </div>
+                        <p className="page-subtitle">
+                            <Skeleton shape="text" w="44ch" />
+                        </p>
+                    </div>
+                </header>
+                <div className="tray-toolbar" aria-hidden>
+                    <Skeleton w={420} h={38} style={{ borderRadius: 'var(--radius-sm)', maxWidth: '100%' }} />
+                    <Skeleton w={150} h={20} />
+                </div>
+                <ul className="hg-rows tray-list">
+                    {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+                        <li key={i} className="hg-row tray-row" aria-hidden>
+                            <Skeleton w={18} h={18} style={{ justifySelf: 'center', borderRadius: 4 }} />
+                            <Skeleton className="hg-row__cover" />
+                            <span className="hg-row__main">
+                                <span className="lib-row__name">
+                                    <Skeleton shape="text" w={`${[58, 42, 66, 50, 38, 61, 46, 54][i]}%`} />
+                                </span>
+                                <span className="hg-row__meta">
+                                    <Skeleton shape="text" w="22ch" />
+                                </span>
+                            </span>
+                            <Skeleton w={300} h={36} style={{ borderRadius: 'var(--radius-sm)', maxWidth: '30vw' }} />
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </SkeletonZone>
     )
 }
 
@@ -443,7 +491,7 @@ export default function BandejaPage() {
         return { onPointerEnter: on, onPointerLeave: off, onFocus: on, onBlur: off }
     }
 
-    if (!games) return <Loader label="Cargando bandeja" />
+    if (!games) return <SkeletonSwap skeleton={<TraySkeleton />} />
 
     const selectedGames = sorted.filter((g) => selected.has(g.appid))
     const allShownSelected = shown.length > 0 && shown.every((g) => selected.has(g.appid))
@@ -453,415 +501,417 @@ export default function BandejaPage() {
     const fade = reduce ? { duration: 0 } : undefined
 
     return (
-        <div className={`biblioteca bandeja${selectedGames.length > 0 ? ' has-batch' : ''}`}>
-            <header className="page-head tray-head">
-                <div>
-                    <Link href="/biblioteca" className="lib-back">
-                        <ArrowLeft size={14} aria-hidden /> Biblioteca
-                    </Link>
-                    <div className="tray-title st-bandeja">
-                        <span className="tray-title__icon hg-tint">
-                            <Inbox aria-hidden />
-                        </span>
-                        <h1 className="page-title">Bandeja</h1>
-                        <AnimatedCount value={games.length} className="tray-count hg-tint" aria-label={`${games.length} sin clasificar`} />
+        <SkeletonSwap skeleton={<TraySkeleton />}>
+            <div className={`biblioteca bandeja${selectedGames.length > 0 ? ' has-batch' : ''}`}>
+                <header className="page-head tray-head">
+                    <div>
+                        <Link href="/biblioteca" className="lib-back">
+                            <ArrowLeft size={14} aria-hidden /> Biblioteca
+                        </Link>
+                        <div className="tray-title st-bandeja">
+                            <span className="tray-title__icon hg-tint">
+                                <Inbox aria-hidden />
+                            </span>
+                            <h1 className="page-title">Bandeja</h1>
+                            <AnimatedCount value={games.length} className="tray-count hg-tint" aria-label={`${games.length} sin clasificar`} />
+                        </div>
+                        <p className="page-subtitle">
+                            {games.length === 0
+                                ? 'Nada por clasificar.'
+                                : `${games.length} ${games.length === 1 ? 'juego' : 'juegos'} sin clasificar. Un clic, o una tecla, y fuera de la bandeja.`}
+                        </p>
                     </div>
-                    <p className="page-subtitle">
-                        {games.length === 0
-                            ? 'Nada por clasificar.'
-                            : `${games.length} ${games.length === 1 ? 'juego' : 'juegos'} sin clasificar. Un clic, o una tecla, y fuera de la bandeja.`}
+                    {games.length > 0 && <TraySessionBox session={session} fresh={fresh} />}
+                </header>
+
+                {error && (
+                    <p className="alert alert--error" role="alert">
+                        {error}
                     </p>
-                </div>
-                {games.length > 0 && <TraySessionBox session={session} fresh={fresh} />}
-            </header>
+                )}
 
-            {error && (
-                <p className="alert alert--error" role="alert">
-                    {error}
-                </p>
-            )}
-
-            {games.length === 0 ? (
-                <TrayEmpty session={session} onSynced={reload} />
-            ) : (
-                <>
-                    <div className="tray-toolbar">
-                        <div className="hg-seg hg-seg--slide hg-seg--scroll" role="group" aria-label="Ordenar">
-                            {SORTS.map((s) => (
-                                <button
-                                    key={s.key}
-                                    type="button"
-                                    aria-pressed={sort === s.key}
-                                    className="hg-seg__opt"
-                                    onClick={() => {
-                                        setSort(s.key)
-                                        setResorted(true)
-                                        setVisible(PAGE)
-                                    }}
-                                >
-                                    {sort === s.key && (
-                                        <motion.span layoutId={`${segId}-thumb`} className="hg-seg__thumb" transition={{ duration: 0.22, ease: EASE_OUT }} />
-                                    )}
-                                    <span className="hg-seg__text">
-                                        {s.label}
-                                        {s.key === 'verguenza' && <span className="hg-seg__count"> {shameCount}</span>}
-                                    </span>
-                                </button>
-                            ))}
-                        </div>
-                        <label className="tray-check">
-                            <input
-                                type="checkbox"
-                                checked={allShownSelected}
-                                onChange={() => setSelected(allShownSelected ? new Set() : new Set(shown.map((g) => g.appid)))}
-                            />
-                            Seleccionar {shown.length === sorted.length ? 'todos' : 'los visibles'}
-                        </label>
-                    </div>
-
-                    <div className="tray-hint">
-                        <span className="tray-keys" aria-hidden>
-                            {TRAY_DESTINATIONS.map((s, i) => {
-                                const Icon = LIST_ICONS[s]
-                                const groupStart = i > 0 && TRAY_GROUPS.some((g) => g.statuses[0] === s)
-                                return (
-                                    <span key={s} className="tray-keys__item">
-                                        {groupStart && <span className="tray-keys__sep" />}
-                                        <span className={`st-${s}`}>
-                                            <kbd className="hg-kbd">{i + 1}</kbd>
-                                            <Icon />
-                                            {STATUS_LABELS[s]}
-                                        </span>
-                                    </span>
-                                )
-                            })}
-                        </span>
-                        <span className="hg-keyhint">
-                            <kbd>↑</kbd> <kbd>↓</kbd> o <kbd>j</kbd> <kbd>k</kbd> moverte · <kbd>1</kbd>–<kbd>9</kbd> clasificar · <kbd>x</kbd>{' '}
-                            seleccionar · <kbd>Ctrl + Z</kbd> deshacer
-                        </span>
-                    </div>
-
-                    {sort === 'verguenza' && (
-                        <p className="lib-note">
-                            {shown.length
-                                ? 'La lista de la vergüenza: juegos que tienes y nunca has abierto.'
-                                : 'No tienes juegos sin estrenar en la bandeja.'}
-                        </p>
-                    )}
-
-                    <KeyboardList
-                        key={sort}
-                        className={`hg-rows tray-list${resorted ? ' is-swap' : ''}`}
-                        label="Juegos sin clasificar"
-                        onKeyDown={onListKey}
-                    >
-                        <AnimatePresence initial={false}>
-                            {shown.map((game, i) => {
-                                const name = game.name ?? `App ${game.appid}`
-                                const isSelected = selected.has(game.appid)
-                                const sug = suggestions.get(game.appid) ?? null
-                                const SugIcon = sug ? LIST_ICONS[sug.status] : null
-                                const leaving = going.get(game.appid)
-                                const previewing = !leaving && preview?.ids.includes(game.appid) ? preview.status : null
-                                const tone = leaving?.status ?? previewing
-                                const classes = [
-                                    'hg-row tray-row',
-                                    tone && `st-${tone}`,
-                                    isSelected && 'is-selected',
-                                    previewing && 'is-preview',
-                                    leaving && 'is-going',
-                                    back.has(game.appid) ? 'is-back' : !entered && 'hg-enter',
-                                ]
-                                return (
-                                    <motion.li
-                                        key={game.appid}
-                                        layout={reduce ? false : 'position'}
-                                        transition={{ layout: { duration: 0.24, ease: EASE_OUT } }}
-                                        exit={
-                                            reduce
-                                                ? undefined
-                                                : {
-                                                      x: -48,
-                                                      opacity: 0,
-                                                      transition: { duration: 0.24, delay: stagger(leaving?.j ?? 0), ease: [0.4, 0, 0.2, 1] },
-                                                  }
-                                        }
-                                        data-appid={game.appid}
-                                        className={classes.filter(Boolean).join(' ')}
-                                        style={{ '--i': i } as CSSProperties}
+                {games.length === 0 ? (
+                    <TrayEmpty session={session} onSynced={reload} />
+                ) : (
+                    <>
+                        <div className="tray-toolbar">
+                            <div className="hg-seg hg-seg--slide hg-seg--scroll" role="group" aria-label="Ordenar">
+                                {SORTS.map((s) => (
+                                    <button
+                                        key={s.key}
+                                        type="button"
+                                        aria-pressed={sort === s.key}
+                                        className="hg-seg__opt"
+                                        onClick={() => {
+                                            setSort(s.key)
+                                            setResorted(true)
+                                            setVisible(PAGE)
+                                        }}
                                     >
-                                        <label className="tray-row__select">
-                                            <input
-                                                type="checkbox"
-                                                checked={isSelected}
-                                                onChange={() => toggle(game.appid)}
-                                                aria-label={`Seleccionar ${name}`}
-                                            />
-                                        </label>
-                                        <span className="hg-row__cover">
-                                            <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="112px" />
+                                        {sort === s.key && (
+                                            <motion.span layoutId={`${segId}-thumb`} className="hg-seg__thumb" transition={{ duration: 0.22, ease: EASE_OUT }} />
+                                        )}
+                                        <span className="hg-seg__text">
+                                            {s.label}
+                                            {s.key === 'verguenza' && <span className="hg-seg__count"> {shameCount}</span>}
                                         </span>
-                                        <span className="hg-row__main">
-                                            <span className="tray-name">
-                                                <Link href={`/juego/${game.appid}`} className="hg-row__link" data-row-link>
-                                                    {name}
-                                                </Link>
-                                                {tone && <DestChip status={tone} />}
-                                            </span>
-                                            <RowMeta game={game} />
-                                        </span>
-
-                                        {/* Escritorio: los nueve destinos a la vista, en tres grupos */}
-                                        <span className="tray-acts" role="group" aria-label={`Clasificar ${name}`}>
-                                            {TRAY_GROUPS.map((group, gi) => (
-                                                <span key={group.title} className="tray-acts__group">
-                                                    {gi > 0 && <span className="tray-acts__sep" aria-hidden />}
-                                                    {group.statuses.map((s) => {
-                                                        const Icon = LIST_ICONS[s]
-                                                        const n = destinationKey(s)
-                                                        const isSug = sug?.status === s
-                                                        return (
-                                                            <button
-                                                                key={s}
-                                                                type="button"
-                                                                className={`tray-act st-${s}${isSug ? ' is-sug' : ''}`}
-                                                                aria-label={`${STATUS_LABELS[s]}${isSug ? ' (sugerido)' : ''}`}
-                                                                title={`${STATUS_LABELS[s]} (${n})${isSug ? ` · sugerido: ${sug.reason.toLowerCase()}` : ''}`}
-                                                                aria-keyshortcuts={String(n)}
-                                                                onClick={() => act(game, s)}
-                                                                {...previewProps([game.appid], s)}
-                                                            >
-                                                                <Icon aria-hidden />
-                                                                <span className="tray-act__key" aria-hidden>
-                                                                    {n}
-                                                                </span>
-                                                            </button>
-                                                        )
-                                                    })}
-                                                </span>
-                                            ))}
-                                        </span>
-
-                                        {/* Móvil: el sugerido a un toque y «Clasificar» abre la hoja con los nueve */}
-                                        <span className="tray-macts">
-                                            {sug && (
-                                                <Button
-                                                    type="button"
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    className={`tray-sugbtn hg-tint st-${sug.status}`}
-                                                    title={`Sugerido: ${sug.reason.toLowerCase()}`}
-                                                    onClick={() => act(game, sug.status)}
-                                                >
-                                                    {SugIcon && <SugIcon aria-hidden />}
-                                                    {STATUS_LABELS[sug.status]}
-                                                </Button>
-                                            )}
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant="secondary"
-                                                className="tray-open"
-                                                aria-haspopup="dialog"
-                                                onClick={() => setSheetIds([game.appid])}
-                                            >
-                                                Clasificar <ChevronDown aria-hidden />
-                                            </Button>
-                                        </span>
-                                    </motion.li>
-                                )
-                            })}
-                        </AnimatePresence>
-                    </KeyboardList>
-
-                    {sorted.length > visible && (
-                        <div className="lib-more">
-                            <Button variant="secondary" onClick={() => setVisible((v) => v + PAGE)}>
-                                Mostrar más ({sorted.length - visible})
-                            </Button>
-                        </div>
-                    )}
-                </>
-            )}
-
-            <div className="tray-float">
-                <AnimatePresence>
-                    {toast && (
-                        <motion.div
-                            key={toast.id}
-                            className="tray-float__toast"
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0, transition: fade ?? { duration: 0.22, ease: EASE_OUT } }}
-                            exit={{ opacity: 0, y: 8, transition: fade ?? { duration: 0.16, ease: 'easeIn' } }}
-                        >
-                            <TrayToast toast={toast} onUndo={() => void undo()} />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-                <AnimatePresence>
-                    {selectedGames.length > 0 && (
-                        <motion.div
-                            key="batch"
-                            className="tray-batch"
-                            role="region"
-                            aria-label="Clasificar los seleccionados"
-                            initial={{ opacity: 0, y: 'calc(100% + 24px)' }}
-                            animate={{ opacity: 1, y: 0, transition: fade ?? { duration: 0.28, ease: EASE_OUT } }}
-                            exit={{ opacity: 0, y: 'calc(100% + 24px)', transition: fade ?? { duration: 0.18, ease: 'easeIn' } }}
-                        >
-                            <span className="tray-batch__count">
-                                <AnimatedCount value={selectedGames.length} className="tray-batch__n" />
-                                {selectedGames.length === 1 ? 'seleccionado' : 'seleccionados'}
-                            </span>
-                            <span className="tray-batch__sep" aria-hidden />
-                            <span className="tray-batch__actions">
-                                {TRAY_GROUPS.map((group, gi) => (
-                                    <span key={group.title} className="tray-acts__group">
-                                        {gi > 0 && <span className="tray-batch__sep" aria-hidden />}
-                                        {group.statuses.map((s) => {
-                                            const Icon = LIST_ICONS[s]
-                                            return (
-                                                <Button
-                                                    key={s}
-                                                    type="button"
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    className={`tray-bact st-${s}`}
-                                                    title={STATUS_LABELS[s]}
-                                                    aria-label={STATUS_LABELS[s]}
-                                                    onClick={() => actBatch(selectedGames, s)}
-                                                    {...previewProps(
-                                                        selectedGames.map((g) => g.appid),
-                                                        s,
-                                                    )}
-                                                >
-                                                    <Icon aria-hidden />
-                                                    <span className="tray-bact__label">{STATUS_LABELS[s]}</span>
-                                                </Button>
-                                            )
-                                        })}
-                                    </span>
+                                    </button>
                                 ))}
-                            </span>
-                            <Button
-                                type="button"
-                                className="tray-batch__open"
-                                aria-haspopup="dialog"
-                                onClick={() => setSheetIds(selectedGames.map((g) => g.appid))}
-                            >
-                                Clasificar {selectedGames.length} <ChevronDown aria-hidden />
-                            </Button>
-                            <span className="tray-batch__sep tray-batch__sep--end" aria-hidden />
-                            <Button
-                                type="button"
-                                size="sm"
-                                variant="ghost"
-                                className="tray-batch__x"
-                                aria-label="Quitar la selección"
-                                title="Quitar la selección (Esc)"
-                                onClick={() => setSelected(new Set())}
-                            >
-                                <X aria-hidden />
-                            </Button>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
-
-            {flights.map((f) => (
-                <TrayFly key={f.id} flight={f} onDone={endFlight} />
-            ))}
-
-            {/* Hoja inferior (móvil): los nueve destinos de un juego o de los seleccionados */}
-            <Sheet open={sheetIds !== null && sheetGames.length > 0} onOpenChange={(open) => !open && setSheetIds(null)}>
-                <SheetContent
-                    side="bottom"
-                    className="tray-sheet"
-                    aria-describedby={undefined}
-                    onKeyDown={(e) => {
-                        const status = destinationForKey(e.key)
-                        if (!status) return
-                        e.preventDefault()
-                        actBatch(sheetGames, status)
-                    }}
-                >
-                    <span className="tray-sheet__handle" aria-hidden />
-                    {sheetOne ? (
-                        <div className="tray-sheet__head">
-                            <span className="hg-row__cover">
-                                <GameCover appid={sheetOne.appid} name={sheetOne.name} headerImage={sheetOne.header_image} variant="header" sizes="72px" />
-                            </span>
-                            <div>
-                                <SheetTitle className="tray-sheet__title">{sheetOne.name ?? `App ${sheetOne.appid}`}</SheetTitle>
-                                <span>
-                                    {sheetOne.playtime_forever ? `${formatHours(sheetOne.playtime_forever)} jugadas` : 'Sin estrenar'}
-                                    {sheetOne.hltb_main ? ` · ${formatHours(sheetOne.hltb_main)} de historia` : ''}
-                                </span>
                             </div>
+                            <label className="tray-check">
+                                <input
+                                    type="checkbox"
+                                    checked={allShownSelected}
+                                    onChange={() => setSelected(allShownSelected ? new Set() : new Set(shown.map((g) => g.appid)))}
+                                />
+                                Seleccionar {shown.length === sorted.length ? 'todos' : 'los visibles'}
+                            </label>
                         </div>
-                    ) : (
-                        <div className="tray-sheet__head is-batch">
-                            <div>
-                                <SheetTitle className="tray-sheet__title">Clasificar {sheetGames.length} juegos</SheetTitle>
-                                <span>{sheetGames.map((g) => g.name ?? `App ${g.appid}`).join(', ')}</span>
-                            </div>
-                        </div>
-                    )}
-                    {sheetSuggestion && (
-                        <p className="tray-sheet__sug">
-                            Sugerido: <StatusChip status={sheetSuggestion.status} /> <span>{sheetSuggestion.reason.toLowerCase()}</span>
-                        </p>
-                    )}
-                    {TRAY_GROUPS.map((group) => (
-                        <div key={group.title}>
-                            <p className="tray-sheet__g">{group.title}</p>
-                            <div className="tray-sheet__grid">
-                                {group.statuses.map((s) => {
+
+                        <div className="tray-hint">
+                            <span className="tray-keys" aria-hidden>
+                                {TRAY_DESTINATIONS.map((s, i) => {
                                     const Icon = LIST_ICONS[s]
-                                    const isSug = sheetSuggestion?.status === s
+                                    const groupStart = i > 0 && TRAY_GROUPS.some((g) => g.statuses[0] === s)
                                     return (
-                                        <button
-                                            key={s}
-                                            type="button"
-                                            className={`tray-sopt st-${s}${isSug ? ' is-sug' : ''}`}
-                                            onClick={() => actBatch(sheetGames, s)}
-                                        >
-                                            <span className="tray-sopt__icon hg-tint">
-                                                <Icon aria-hidden />
+                                        <span key={s} className="tray-keys__item">
+                                            {groupStart && <span className="tray-keys__sep" />}
+                                            <span className={`st-${s}`}>
+                                                <kbd className="hg-kbd">{i + 1}</kbd>
+                                                <Icon />
+                                                {STATUS_LABELS[s]}
                                             </span>
-                                            {STATUS_LABELS[s]}
-                                            {isSug && <span className="tray-sopt__sug">Sugerido</span>}
-                                        </button>
+                                        </span>
                                     )
                                 })}
-                            </div>
+                            </span>
+                            <span className="hg-keyhint">
+                                <kbd>↑</kbd> <kbd>↓</kbd> o <kbd>j</kbd> <kbd>k</kbd> moverte · <kbd>1</kbd>–<kbd>9</kbd> clasificar · <kbd>x</kbd>{' '}
+                                seleccionar · <kbd>Ctrl + Z</kbd> deshacer
+                            </span>
                         </div>
-                    ))}
-                    <Button type="button" variant="secondary" className="tray-sheet__cancel" onClick={() => setSheetIds(null)}>
-                        Cancelar
-                    </Button>
-                </SheetContent>
-            </Sheet>
 
-            <CompleteDialog
-                games={queue.length ? queue : null}
-                onClose={() => setQueue([])}
-                onSaved={(saved) => {
-                    const ids = new Set(saved.map((s) => s.appid))
-                    const done = queue.filter((g) => ids.has(g.appid))
-                    // Uno suelto: al cerrar, el foco pasa a la fila que ocupa su sitio (en lote, los saltados siguen seleccionados).
-                    if (queue.length === 1) focusAfterComplete.current = shown.findIndex((g) => g.appid === queue[0].appid)
-                    classify(done, 'completado', Promise.resolve())
-                }}
-                onCloseAutoFocus={(e) => {
-                    const index = focusAfterComplete.current
-                    focusAfterComplete.current = null
-                    if (index === null || index === -1) return
-                    e.preventDefault()
-                    setFocusIndex(index)
-                }}
-            />
-        </div>
+                        {sort === 'verguenza' && (
+                            <p className="lib-note">
+                                {shown.length
+                                    ? 'La lista de la vergüenza: juegos que tienes y nunca has abierto.'
+                                    : 'No tienes juegos sin estrenar en la bandeja.'}
+                            </p>
+                        )}
+
+                        <KeyboardList
+                            key={sort}
+                            className={`hg-rows tray-list${resorted ? ' is-swap' : ''}`}
+                            label="Juegos sin clasificar"
+                            onKeyDown={onListKey}
+                        >
+                            <AnimatePresence initial={false}>
+                                {shown.map((game, i) => {
+                                    const name = game.name ?? `App ${game.appid}`
+                                    const isSelected = selected.has(game.appid)
+                                    const sug = suggestions.get(game.appid) ?? null
+                                    const SugIcon = sug ? LIST_ICONS[sug.status] : null
+                                    const leaving = going.get(game.appid)
+                                    const previewing = !leaving && preview?.ids.includes(game.appid) ? preview.status : null
+                                    const tone = leaving?.status ?? previewing
+                                    const classes = [
+                                        'hg-row tray-row',
+                                        tone && `st-${tone}`,
+                                        isSelected && 'is-selected',
+                                        previewing && 'is-preview',
+                                        leaving && 'is-going',
+                                        back.has(game.appid) ? 'is-back' : !entered && 'hg-enter',
+                                    ]
+                                    return (
+                                        <motion.li
+                                            key={game.appid}
+                                            layout={reduce ? false : 'position'}
+                                            transition={{ layout: { duration: 0.24, ease: EASE_OUT } }}
+                                            exit={
+                                                reduce
+                                                    ? undefined
+                                                    : {
+                                                          x: -48,
+                                                          opacity: 0,
+                                                          transition: { duration: 0.24, delay: stagger(leaving?.j ?? 0), ease: [0.4, 0, 0.2, 1] },
+                                                      }
+                                            }
+                                            data-appid={game.appid}
+                                            className={classes.filter(Boolean).join(' ')}
+                                            style={{ '--i': i } as CSSProperties}
+                                        >
+                                            <label className="tray-row__select">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={isSelected}
+                                                    onChange={() => toggle(game.appid)}
+                                                    aria-label={`Seleccionar ${name}`}
+                                                />
+                                            </label>
+                                            <span className="hg-row__cover">
+                                                <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="112px" />
+                                            </span>
+                                            <span className="hg-row__main">
+                                                <span className="tray-name">
+                                                    <Link href={`/juego/${game.appid}`} className="hg-row__link" data-row-link>
+                                                        {name}
+                                                    </Link>
+                                                    {tone && <DestChip status={tone} />}
+                                                </span>
+                                                <RowMeta game={game} />
+                                            </span>
+
+                                            {/* Escritorio: los nueve destinos a la vista, en tres grupos */}
+                                            <span className="tray-acts" role="group" aria-label={`Clasificar ${name}`}>
+                                                {TRAY_GROUPS.map((group, gi) => (
+                                                    <span key={group.title} className="tray-acts__group">
+                                                        {gi > 0 && <span className="tray-acts__sep" aria-hidden />}
+                                                        {group.statuses.map((s) => {
+                                                            const Icon = LIST_ICONS[s]
+                                                            const n = destinationKey(s)
+                                                            const isSug = sug?.status === s
+                                                            return (
+                                                                <button
+                                                                    key={s}
+                                                                    type="button"
+                                                                    className={`tray-act st-${s}${isSug ? ' is-sug' : ''}`}
+                                                                    aria-label={`${STATUS_LABELS[s]}${isSug ? ' (sugerido)' : ''}`}
+                                                                    title={`${STATUS_LABELS[s]} (${n})${isSug ? ` · sugerido: ${sug.reason.toLowerCase()}` : ''}`}
+                                                                    aria-keyshortcuts={String(n)}
+                                                                    onClick={() => act(game, s)}
+                                                                    {...previewProps([game.appid], s)}
+                                                                >
+                                                                    <Icon aria-hidden />
+                                                                    <span className="tray-act__key" aria-hidden>
+                                                                        {n}
+                                                                    </span>
+                                                                </button>
+                                                            )
+                                                        })}
+                                                    </span>
+                                                ))}
+                                            </span>
+
+                                            {/* Móvil: el sugerido a un toque y «Clasificar» abre la hoja con los nueve */}
+                                            <span className="tray-macts">
+                                                {sug && (
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className={`tray-sugbtn hg-tint st-${sug.status}`}
+                                                        title={`Sugerido: ${sug.reason.toLowerCase()}`}
+                                                        onClick={() => act(game, sug.status)}
+                                                    >
+                                                        {SugIcon && <SugIcon aria-hidden />}
+                                                        {STATUS_LABELS[sug.status]}
+                                                    </Button>
+                                                )}
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    className="tray-open"
+                                                    aria-haspopup="dialog"
+                                                    onClick={() => setSheetIds([game.appid])}
+                                                >
+                                                    Clasificar <ChevronDown aria-hidden />
+                                                </Button>
+                                            </span>
+                                        </motion.li>
+                                    )
+                                })}
+                            </AnimatePresence>
+                        </KeyboardList>
+
+                        {sorted.length > visible && (
+                            <div className="lib-more">
+                                <Button variant="secondary" onClick={() => setVisible((v) => v + PAGE)}>
+                                    Mostrar más ({sorted.length - visible})
+                                </Button>
+                            </div>
+                        )}
+                    </>
+                )}
+
+                <div className="tray-float">
+                    <AnimatePresence>
+                        {toast && (
+                            <motion.div
+                                key={toast.id}
+                                className="tray-float__toast"
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0, transition: fade ?? { duration: 0.22, ease: EASE_OUT } }}
+                                exit={{ opacity: 0, y: 8, transition: fade ?? { duration: 0.16, ease: 'easeIn' } }}
+                            >
+                                <TrayToast toast={toast} onUndo={() => void undo()} />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                    <AnimatePresence>
+                        {selectedGames.length > 0 && (
+                            <motion.div
+                                key="batch"
+                                className="tray-batch"
+                                role="region"
+                                aria-label="Clasificar los seleccionados"
+                                initial={{ opacity: 0, y: 'calc(100% + 24px)' }}
+                                animate={{ opacity: 1, y: 0, transition: fade ?? { duration: 0.28, ease: EASE_OUT } }}
+                                exit={{ opacity: 0, y: 'calc(100% + 24px)', transition: fade ?? { duration: 0.18, ease: 'easeIn' } }}
+                            >
+                                <span className="tray-batch__count">
+                                    <AnimatedCount value={selectedGames.length} className="tray-batch__n" />
+                                    {selectedGames.length === 1 ? 'seleccionado' : 'seleccionados'}
+                                </span>
+                                <span className="tray-batch__sep" aria-hidden />
+                                <span className="tray-batch__actions">
+                                    {TRAY_GROUPS.map((group, gi) => (
+                                        <span key={group.title} className="tray-acts__group">
+                                            {gi > 0 && <span className="tray-batch__sep" aria-hidden />}
+                                            {group.statuses.map((s) => {
+                                                const Icon = LIST_ICONS[s]
+                                                return (
+                                                    <Button
+                                                        key={s}
+                                                        type="button"
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className={`tray-bact st-${s}`}
+                                                        title={STATUS_LABELS[s]}
+                                                        aria-label={STATUS_LABELS[s]}
+                                                        onClick={() => actBatch(selectedGames, s)}
+                                                        {...previewProps(
+                                                            selectedGames.map((g) => g.appid),
+                                                            s,
+                                                        )}
+                                                    >
+                                                        <Icon aria-hidden />
+                                                        <span className="tray-bact__label">{STATUS_LABELS[s]}</span>
+                                                    </Button>
+                                                )
+                                            })}
+                                        </span>
+                                    ))}
+                                </span>
+                                <Button
+                                    type="button"
+                                    className="tray-batch__open"
+                                    aria-haspopup="dialog"
+                                    onClick={() => setSheetIds(selectedGames.map((g) => g.appid))}
+                                >
+                                    Clasificar {selectedGames.length} <ChevronDown aria-hidden />
+                                </Button>
+                                <span className="tray-batch__sep tray-batch__sep--end" aria-hidden />
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="ghost"
+                                    className="tray-batch__x"
+                                    aria-label="Quitar la selección"
+                                    title="Quitar la selección (Esc)"
+                                    onClick={() => setSelected(new Set())}
+                                >
+                                    <X aria-hidden />
+                                </Button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                {flights.map((f) => (
+                    <TrayFly key={f.id} flight={f} onDone={endFlight} />
+                ))}
+
+                {/* Hoja inferior (móvil): los nueve destinos de un juego o de los seleccionados */}
+                <Sheet open={sheetIds !== null && sheetGames.length > 0} onOpenChange={(open) => !open && setSheetIds(null)}>
+                    <SheetContent
+                        side="bottom"
+                        className="tray-sheet"
+                        aria-describedby={undefined}
+                        onKeyDown={(e) => {
+                            const status = destinationForKey(e.key)
+                            if (!status) return
+                            e.preventDefault()
+                            actBatch(sheetGames, status)
+                        }}
+                    >
+                        <span className="tray-sheet__handle" aria-hidden />
+                        {sheetOne ? (
+                            <div className="tray-sheet__head">
+                                <span className="hg-row__cover">
+                                    <GameCover appid={sheetOne.appid} name={sheetOne.name} headerImage={sheetOne.header_image} variant="header" sizes="72px" />
+                                </span>
+                                <div>
+                                    <SheetTitle className="tray-sheet__title">{sheetOne.name ?? `App ${sheetOne.appid}`}</SheetTitle>
+                                    <span>
+                                        {sheetOne.playtime_forever ? `${formatHours(sheetOne.playtime_forever)} jugadas` : 'Sin estrenar'}
+                                        {sheetOne.hltb_main ? ` · ${formatHours(sheetOne.hltb_main)} de historia` : ''}
+                                    </span>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="tray-sheet__head is-batch">
+                                <div>
+                                    <SheetTitle className="tray-sheet__title">Clasificar {sheetGames.length} juegos</SheetTitle>
+                                    <span>{sheetGames.map((g) => g.name ?? `App ${g.appid}`).join(', ')}</span>
+                                </div>
+                            </div>
+                        )}
+                        {sheetSuggestion && (
+                            <p className="tray-sheet__sug">
+                                Sugerido: <StatusChip status={sheetSuggestion.status} /> <span>{sheetSuggestion.reason.toLowerCase()}</span>
+                            </p>
+                        )}
+                        {TRAY_GROUPS.map((group) => (
+                            <div key={group.title}>
+                                <p className="tray-sheet__g">{group.title}</p>
+                                <div className="tray-sheet__grid">
+                                    {group.statuses.map((s) => {
+                                        const Icon = LIST_ICONS[s]
+                                        const isSug = sheetSuggestion?.status === s
+                                        return (
+                                            <button
+                                                key={s}
+                                                type="button"
+                                                className={`tray-sopt st-${s}${isSug ? ' is-sug' : ''}`}
+                                                onClick={() => actBatch(sheetGames, s)}
+                                            >
+                                                <span className="tray-sopt__icon hg-tint">
+                                                    <Icon aria-hidden />
+                                                </span>
+                                                {STATUS_LABELS[s]}
+                                                {isSug && <span className="tray-sopt__sug">Sugerido</span>}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                        <Button type="button" variant="secondary" className="tray-sheet__cancel" onClick={() => setSheetIds(null)}>
+                            Cancelar
+                        </Button>
+                    </SheetContent>
+                </Sheet>
+
+                <CompleteDialog
+                    games={queue.length ? queue : null}
+                    onClose={() => setQueue([])}
+                    onSaved={(saved) => {
+                        const ids = new Set(saved.map((s) => s.appid))
+                        const done = queue.filter((g) => ids.has(g.appid))
+                        // Uno suelto: al cerrar, el foco pasa a la fila que ocupa su sitio (en lote, los saltados siguen seleccionados).
+                        if (queue.length === 1) focusAfterComplete.current = shown.findIndex((g) => g.appid === queue[0].appid)
+                        classify(done, 'completado', Promise.resolve())
+                    }}
+                    onCloseAutoFocus={(e) => {
+                        const index = focusAfterComplete.current
+                        focusAfterComplete.current = null
+                        if (index === null || index === -1) return
+                        e.preventDefault()
+                        setFocusIndex(index)
+                    }}
+                />
+            </div>
+        </SkeletonSwap>
     )
 }

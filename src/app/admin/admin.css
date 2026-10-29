@@ -3,12 +3,6 @@
    (estado de cada log, del pool y de la salud). Prefijo .ad-*.
    ══════════════════════════════════════════════════════════════════ */
 
-.admin-loading {
-  display: grid;
-  place-items: center;
-  min-height: 200px;
-}
-
 .ad {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -344,21 +338,10 @@
 }
 
 /* Esqueleto mientras carga la primera vez */
-.ad-skel {
+.ad-loading {
   display: grid;
   gap: 8px;
   padding: 12px;
-}
-
-.ad-skel__row {
-  height: 44px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-  animation: ad-skel 1.2s ease-in-out infinite;
-}
-
-@keyframes ad-skel {
-  50% { opacity: 0.55; }
 }
 
 .ad-empty {
@@ -1106,7 +1089,6 @@ button.ad-row:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ad-skel__row,
   .ad-swap,
   .ad-stack span {
     animation: none;

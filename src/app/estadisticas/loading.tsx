@@ -1,26 +1,34 @@
+import { Skeleton, SkeletonZone } from '@/components/ui/skeleton'
 import '@/styles/lists.css'
 import './stats.css'
 
 /** Primera carga de /estadisticas: esqueleto con la forma de la página (al cambiar de año no hace falta: ya está todo). */
 export default function Loading() {
     return (
-        <div className="stats" aria-busy="true" aria-label="Cargando estadísticas">
-            <header className="page-head">
-                <div>
-                    <span className="st-sk st-sk--title" />
-                    <span className="st-sk st-sk--line" />
+        <SkeletonZone label="Cargando las estadísticas">
+            <div className="stats">
+                <header className="page-head">
+                    <div>
+                        <h1 className="page-title">
+                            <Skeleton shape="text" w="12ch" />
+                        </h1>
+                        <p className="page-subtitle">
+                            <Skeleton shape="text" w="36ch" />
+                        </p>
+                    </div>
+                    <Skeleton w={190} h={40} style={{ borderRadius: 'var(--radius-sm)' }} />
+                </header>
+                <div className="hg-tiles st-tiles" aria-hidden>
+                    {Array.from({ length: 5 }, (_, i) => (
+                        <Skeleton key={i} h={98} style={{ borderRadius: 12 }} />
+                    ))}
                 </div>
-            </header>
-            <div className="hg-tiles st-tiles">
-                {Array.from({ length: 5 }, (_, i) => (
-                    <span key={i} className="st-sk st-sk--tile" />
-                ))}
+                <div className="st-grid" aria-hidden>
+                    <Skeleton className="st-panel--wide" h={280} style={{ borderRadius: 'var(--radius-lg)' }} />
+                    <Skeleton h={280} style={{ borderRadius: 'var(--radius-lg)' }} />
+                    <Skeleton h={280} style={{ borderRadius: 'var(--radius-lg)' }} />
+                </div>
             </div>
-            <div className="st-grid">
-                <span className="st-sk st-sk--panel st-panel--wide" />
-                <span className="st-sk st-sk--panel" />
-                <span className="st-sk st-sk--panel" />
-            </div>
-        </div>
+        </SkeletonZone>
     )
 }

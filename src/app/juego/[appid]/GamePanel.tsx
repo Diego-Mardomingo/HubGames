@@ -43,7 +43,7 @@ import { addToWishlist, formatPrice, itadUrl, removeFromWishlist } from '@/lib/w
 import { costPerHourTier, euroPerHour as euroPerHourOf, priceRule, priceVerdict, ratingTier } from '@/lib/scores'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
+import { GamePanelSkeleton } from './GameSkeleton'
 import { Spinner } from '@/components/ui/spinner'
 import { LIST_ICONS, StatusChip } from '@/components/tracker/status'
 import type { PriceData } from '@/components/wishlist/PriceInfo'
@@ -86,12 +86,7 @@ export default function GamePanel(props: Props) {
     const { state } = useGame()
 
     if (state.kind === 'cargando') {
-        return (
-            <section className="juego-panel glass" aria-busy>
-                <Skeleton className="juego-skel juego-skel--bar" />
-                <Skeleton className="juego-skel juego-skel--block" />
-            </section>
-        )
+        return <GamePanelSkeleton />
     }
 
     if (state.kind === 'sin_sesion') {
