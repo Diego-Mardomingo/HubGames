@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { safeGetSession } from '@/lib/supabase/client'
 import { loadLibrary } from '@/lib/tracker'
 import { loadUnlockedAchievements } from '@/lib/achievements-db'
-import Loader from '@/components/Loader'
+import SkeletonSwap from '@/components/SkeletonSwap'
+import HistorialSkeleton from './HistorialSkeleton'
 import HistorialView, { type HistorialData } from './HistorialView'
 
 /** Línea temporal y mapa de desbloqueos (#28), con las rachas de días seguidos con algún logro. */
@@ -34,6 +35,10 @@ export default function HistorialPage() {
 
     useEffect(load, [load])
 
-    if (!data) return <Loader label="Cargando historial" resetScroll />
-    return <HistorialView data={data} error={error} onReload={load} />
+    if (!data) return <SkeletonSwap skeleton={<HistorialSkeleton />} resetScroll />
+    return (
+        <SkeletonSwap skeleton={<HistorialSkeleton />}>
+            <HistorialView data={data} error={error} onReload={load} />
+        </SkeletonSwap>
+    )
 }

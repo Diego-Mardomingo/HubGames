@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { safeGetSession } from '@/lib/supabase/client'
 import { loadLibrary } from '@/lib/tracker'
 import { loadEasyMissing, loadUnlockedAchievements } from '@/lib/achievements-db'
-import Loader from '@/components/Loader'
+import SkeletonSwap from '@/components/SkeletonSwap'
+import LogrosSkeleton from './LogrosSkeleton'
 import LogrosView, { type LogrosData } from './LogrosView'
 
 /** "Fácil" = lo tiene más de la mitad de los jugadores. */
@@ -32,6 +33,10 @@ export default function LogrosPage() {
         })
     }, [router])
 
-    if (!data) return <Loader label="Cargando logros" resetScroll />
-    return <LogrosView data={data} error={error} />
+    if (!data) return <SkeletonSwap skeleton={<LogrosSkeleton />} resetScroll />
+    return (
+        <SkeletonSwap skeleton={<LogrosSkeleton />}>
+            <LogrosView data={data} error={error} />
+        </SkeletonSwap>
+    )
 }

@@ -1,5 +1,5 @@
-import Loader from '@/components/Loader'
+import GameSkeleton from './GameSkeleton'
 
 export default function Loading() {
-    return <Loader label="Cargando juego" />
+    return <GameSkeleton />
 }

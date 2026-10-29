@@ -243,9 +243,9 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
 
 ### 10. Estados transversales
 
-- [ ] 🎨 **Cargando** — `src/components/Loader.tsx` y esqueletos (`.juego-skel`, `components/ui/skeleton.tsx`) · que las páginas rediseñadas usen esqueletos con la forma real (como la ficha) en vez del loader genérico donde tenga sentido.
+- [x] **Cargando** — `src/components/Loader.tsx` y esqueletos (`.juego-skel`, `components/ui/skeleton.tsx`) · que las páginas rediseñadas usen esqueletos con la forma real (como la ficha) en vez del loader genérico donde tenga sentido.
   - Animación: brillo suave que recorre los esqueletos y fundido cruzado del esqueleto al contenido real (sin salto de layout).
-  - Mockup: `docs/mockups/estados-carga-vacios.html` (brillo A · banda que recorre, recomendada; B · pulso). Primitivo `Skeleton` + `SkeletonSwap`, esqueletos con la forma real en las 10 páginas que usan `Loader`.
+  - Mockup: `docs/mockups/estados-carga-vacios.html` (brillo A · banda que recorre, recomendada; B · pulso). Primitivo `Skeleton` + `SkeletonSwap`, esqueletos con la forma real en las 10 páginas que usan `Loader`. Aprobado con todas las recomendaciones (brillo A, retraso de 150 ms, solo fundido del esqueleto al contenido, portadas que se funden, `app/loading.tsx` con el esqueleto del Inicio y sin `Loader`).
 - [ ] 🎨 **Estados vacíos** — biblioteca vacía, wishlist vacía, sin logros, sin resultados, sin Steam conectado · revisar que todos sigan el mismo patrón (icono con color de la lista o sección, texto corto, una acción).
   - Mockup: `docs/mockups/estados-carga-vacios.html` (formato A · dos tamaños, sección y página, recomendada; B · uno solo). `EmptyState` común y `SteamEmpty`.
 - [x] **Página 404 y página de error** — hoy **no existen** (`src/app/not-found.tsx`, `src/app/error.tsx`) · proponer un diseño coherente y crearlas.

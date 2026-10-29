@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase, safeGetUser } from '@/lib/supabase/client'
-import Loader from '@/components/Loader'
+import SkeletonSwap from '@/components/SkeletonSwap'
+import JudiSkeleton from './JudiSkeleton'
 import { buildRanking, getFailedAttempts, getPointsForRecord, rankOf, type JudiProgressRecord } from '@/lib/judi-ranking'
 import {
     attemptHistory,
@@ -511,7 +512,7 @@ export default function JudiClient() {
     const lastHomeScrollYRef = useRef(0)
     /** Evita repetir restore al cambiar acordeón/imágenes; se resetea al salir del listado o al recargar datos. */
     const homeScrollRestoreDoneRef = useRef(false)
-    /** El listener de scroll solo depende de [view]; estos refs evitan pisar la Y al mostrar el Loader de startJuego. */
+    /** El listener de scroll solo depende de [view]; estos refs evitan pisar la Y al mostrar el esqueleto de startJuego. */
     const loadingRef = useRef(loading)
     const selectedGameRef = useRef(selectedGame)
     /** Meses abiertos del historial (AAAA-MM). */
@@ -955,7 +956,7 @@ export default function JudiClient() {
     }, [view, loading, games.length, accordionLayoutKey])
 
     if (loading && !selectedGame) {
-        return <Loader />
+        return <SkeletonSwap skeleton={<JudiSkeleton />} />
     }
 
     const playingDailyGame = Boolean(selectedGame && isJudiGameForCurrentDailyDate(selectedGame.juego))
@@ -1001,292 +1002,294 @@ export default function JudiClient() {
     }
 
     return (
-        <div className="jd">
-            {view === 'start' ? (
-                <>
-                    <header className="page-head jd-head">
-                        <div>
-                            <h1 className="page-title">JUDI</h1>
-                            <p className="page-subtitle">
-                                Adivina el videojuego del día con 6 capturas y 5 pistas. Cuanto antes aciertes, más puntos sumas en el ranking.
-                            </p>
-                        </div>
-                    </header>
-
-                    {listError ? (
-                        <LoadErrorCard
-                            title="No se ha podido cargar JUDI"
-                            text="Comprueba tu conexión y vuelve a probar. Tus partidas no se han perdido."
-                            onRetry={() => void loadUserAndGames()}
-                        />
-                    ) : todayGame ? (
-                        <TodayCard game={todayGame} countdown={formatHmsCountdown(dailyCountdownMs)} onPlay={(g) => void startJuego(g)} />
-                    ) : games.length > 0 ? (
-                        <NoTodayCard last={games[0] ?? null} onPlay={(g) => void startJuego(g)} />
-                    ) : null}
-
-                    <JudiHome
-                        days={historyDays}
-                        today={todayIso}
-                        rank={rank}
-                        guest={!user}
-                        filter={listFilter}
-                        onFilter={changeFilter}
-                        openMonths={openMonths}
-                        onToggleMonth={toggleMonth}
-                        onPlay={(id) => {
-                            const g = games.find((x) => x.id === id)
-                            if (g) void startJuego(g)
-                        }}
-                        nudge={
-                            !user && (
-                                <div className="jd-nudge">
-                                    <p>
-                                        <strong>Guarda tu progreso y compite.</strong> Tus partidas se guardan solo en este dispositivo hasta que inicies sesión.
-                                    </p>
-                                    <Button asChild size="sm" variant="secondary">
-                                        <Link
-                                            href="/login"
-                                            onPointerDownCapture={() => persistJudiHomeScrollYFromWindow()}
-                                            onClick={() => persistJudiHomeScrollYFromWindow()}
-                                        >
-                                            Iniciar sesión
-                                        </Link>
-                                    </Button>
-                                </div>
-                            )
-                        }
-                    />
-                </>
-            ) : (
-                gameLoadError ? (
-                    <section className="jd-game">
-                        <div className="jd-game__top">
-                            <button type="button" className="hg-icon-btn jd-back" onClick={goBack} aria-label="Volver al historial">
-                                <ArrowLeft size={18} aria-hidden />
-                            </button>
-                            <div className="jd-game__title">
-                                <h1 className="jd-game__heading">JUDI #{gameLoadError.id}</h1>
-                                <p className="jd-game__date">{formatLongDate(gameLoadError.fecha)}</p>
-                            </div>
-                        </div>
-                        <LoadErrorCard
-                            title={`No se ha podido cargar el JUDI #${gameLoadError.id}`}
-                            text="Puede que se haya cortado la conexión. Tu progreso está guardado: vuelve a probar en un momento."
-                            onRetry={() => void startJuego(gameLoadError)}
-                            onBack={goBack}
-                        />
-                    </section>
-                ) : selectedGame && (
+        <SkeletonSwap skeleton={<JudiSkeleton />}>
+            <div className="jd">
+                {view === 'start' ? (
                     <>
-                        <section className={`jd-game${playingDailyGame ? ' jd-game--today' : ''}`}>
-                            <div className="jd-game__top hg-enter" style={{ '--i': 0 } as CSSProperties}>
+                        <header className="page-head jd-head">
+                            <div>
+                                <h1 className="page-title">JUDI</h1>
+                                <p className="page-subtitle">
+                                    Adivina el videojuego del día con 6 capturas y 5 pistas. Cuanto antes aciertes, más puntos sumas en el ranking.
+                                </p>
+                            </div>
+                        </header>
+
+                        {listError ? (
+                            <LoadErrorCard
+                                title="No se ha podido cargar JUDI"
+                                text="Comprueba tu conexión y vuelve a probar. Tus partidas no se han perdido."
+                                onRetry={() => void loadUserAndGames()}
+                            />
+                        ) : todayGame ? (
+                            <TodayCard game={todayGame} countdown={formatHmsCountdown(dailyCountdownMs)} onPlay={(g) => void startJuego(g)} />
+                        ) : games.length > 0 ? (
+                            <NoTodayCard last={games[0] ?? null} onPlay={(g) => void startJuego(g)} />
+                        ) : null}
+
+                        <JudiHome
+                            days={historyDays}
+                            today={todayIso}
+                            rank={rank}
+                            guest={!user}
+                            filter={listFilter}
+                            onFilter={changeFilter}
+                            openMonths={openMonths}
+                            onToggleMonth={toggleMonth}
+                            onPlay={(id) => {
+                                const g = games.find((x) => x.id === id)
+                                if (g) void startJuego(g)
+                            }}
+                            nudge={
+                                !user && (
+                                    <div className="jd-nudge">
+                                        <p>
+                                            <strong>Guarda tu progreso y compite.</strong> Tus partidas se guardan solo en este dispositivo hasta que inicies sesión.
+                                        </p>
+                                        <Button asChild size="sm" variant="secondary">
+                                            <Link
+                                                href="/login"
+                                                onPointerDownCapture={() => persistJudiHomeScrollYFromWindow()}
+                                                onClick={() => persistJudiHomeScrollYFromWindow()}
+                                            >
+                                                Iniciar sesión
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                )
+                            }
+                        />
+                    </>
+                ) : (
+                    gameLoadError ? (
+                        <section className="jd-game">
+                            <div className="jd-game__top">
                                 <button type="button" className="hg-icon-btn jd-back" onClick={goBack} aria-label="Volver al historial">
                                     <ArrowLeft size={18} aria-hidden />
                                 </button>
                                 <div className="jd-game__title">
-                                    <h1 className="jd-game__heading">
-                                        JUDI #{selectedGame.juego.id}
-                                        {playingDailyGame ? (
-                                            <span className="hg-chip hg-tint st-todos">
-                                                <Clock aria-hidden /> Juego de hoy
+                                    <h1 className="jd-game__heading">JUDI #{gameLoadError.id}</h1>
+                                    <p className="jd-game__date">{formatLongDate(gameLoadError.fecha)}</p>
+                                </div>
+                            </div>
+                            <LoadErrorCard
+                                title={`No se ha podido cargar el JUDI #${gameLoadError.id}`}
+                                text="Puede que se haya cortado la conexión. Tu progreso está guardado: vuelve a probar en un momento."
+                                onRetry={() => void startJuego(gameLoadError)}
+                                onBack={goBack}
+                            />
+                        </section>
+                    ) : selectedGame && (
+                        <>
+                            <section className={`jd-game${playingDailyGame ? ' jd-game--today' : ''}`}>
+                                <div className="jd-game__top hg-enter" style={{ '--i': 0 } as CSSProperties}>
+                                    <button type="button" className="hg-icon-btn jd-back" onClick={goBack} aria-label="Volver al historial">
+                                        <ArrowLeft size={18} aria-hidden />
+                                    </button>
+                                    <div className="jd-game__title">
+                                        <h1 className="jd-game__heading">
+                                            JUDI #{selectedGame.juego.id}
+                                            {playingDailyGame ? (
+                                                <span className="hg-chip hg-tint st-todos">
+                                                    <Clock aria-hidden /> Juego de hoy
+                                                </span>
+                                            ) : (
+                                                <span className="hg-chip jd-chip--plain">Archivo</span>
+                                            )}
+                                        </h1>
+                                        <p className="jd-game__date">{formatLongDate(selectedGame.juego.fecha)}</p>
+                                    </div>
+                                    <div className="jd-game__right">
+                                        {gameState === 'playing' ? (
+                                            <span className="jd-lives">
+                                                Quedan{' '}
+                                                <AnimatedCount value={attemptsLeft} className={`jd-lives__n${attemptsLeft <= 2 ? ' is-low' : ''}`} />{' '}
+                                                {attemptsLeft === 1 ? 'intento' : 'intentos'}
                                             </span>
                                         ) : (
-                                            <span className="hg-chip jd-chip--plain">Archivo</span>
-                                        )}
-                                    </h1>
-                                    <p className="jd-game__date">{formatLongDate(selectedGame.juego.fecha)}</p>
-                                </div>
-                                <div className="jd-game__right">
-                                    {gameState === 'playing' ? (
-                                        <span className="jd-lives">
-                                            Quedan{' '}
-                                            <AnimatedCount value={attemptsLeft} className={`jd-lives__n${attemptsLeft <= 2 ? ' is-low' : ''}`} />{' '}
-                                            {attemptsLeft === 1 ? 'intento' : 'intentos'}
-                                        </span>
-                                    ) : (
-                                        <AttemptPips slots={slots} fx={fx} />
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className={`jd-game__grid${gameState !== 'playing' ? ' is-finished' : ''}`}>
-                                <div className="jd-stage-col hg-enter" style={{ '--i': 1 } as CSSProperties}>
-                                    <div
-                                        className="jd-stage"
-                                        role="region"
-                                        aria-label="Captura del juego. Desliza horizontalmente para cambiar de fase."
-                                        onTouchStart={onCaptureTouchStart}
-                                        onTouchEnd={onCaptureTouchEnd}
-                                    >
-                                        <AnimatePresence initial={false} custom={phaseDirRef.current}>
-                                            {currentCapture && brokenCapture !== activeViewedPhase && (
-                                                <motion.img
-                                                    key={`${activeViewedPhase}-${currentCapture}`}
-                                                    src={currentCapture}
-                                                    alt=""
-                                                    draggable={false}
-                                                    className="jd-stage__img"
-                                                    custom={phaseDirRef.current}
-                                                    variants={phaseImageVariants}
-                                                    initial="enter"
-                                                    animate="center"
-                                                    exit="exit"
-                                                    transition={{ duration: 0.25, ease: EASE_OUT }}
-                                                    onError={() => setBrokenCapture(activeViewedPhase)}
-                                                />
-                                            )}
-                                        </AnimatePresence>
-                                        {selectedGame.captureCount === 0 && (
-                                            <div className="jd-stage__empty">
-                                                <MysteryArt big />
-                                            </div>
-                                        )}
-                                        {brokenCapture === activeViewedPhase && (
-                                            <div className="jd-stage__broken">
-                                                <ImageOff aria-hidden />
-                                                <span>La captura {activeViewedPhase} no carga.</span>
-                                                <Button
-                                                    size="sm"
-                                                    variant="secondary"
-                                                    onClick={() => {
-                                                        setBrokenCapture(null)
-                                                        setCaptureRetry((n) => n + 1)
-                                                    }}
-                                                >
-                                                    <RefreshCw aria-hidden /> Reintentar
-                                                </Button>
-                                            </div>
-                                        )}
-                                        {selectedGame.captureCount > 0 && brokenCapture !== activeViewedPhase && (
-                                            <button type="button" className="jd-stage__zoom" onClick={onCaptureImageClick} aria-label="Ampliar captura">
-                                                <span className="jd-stage__zoom-icon">
-                                                    <Maximize2 size={16} aria-hidden />
-                                                </span>
-                                            </button>
-                                        )}
-                                        <span className="jd-stage__badge">
-                                            Captura <strong>{activeViewedPhase}</strong> de 6
-                                        </span>
-                                        <AnimatePresence>
-                                            {flashKey > 0 && (
-                                                <motion.span
-                                                    key={flashKey}
-                                                    className="jd-stage__flash"
-                                                    initial={{ opacity: 1 }}
-                                                    animate={{ opacity: 0 }}
-                                                    exit={{ opacity: 0 }}
-                                                    transition={{ duration: 0.7, ease: 'easeOut' }}
-                                                />
-                                            )}
-                                        </AnimatePresence>
-                                        {viewedHint && (
-                                            <div key={activeViewedPhase} className="jd-stage__hint">
-                                                <span className="jd-stage__hint-label">{viewedHint.label}</span>
-                                                <span className="jd-stage__hint-value">{viewedHint.value}</span>
-                                            </div>
+                                            <AttemptPips slots={slots} fx={fx} />
                                         )}
                                     </div>
-
-                                    <JudiStrip
-                                        slots={slots}
-                                        viewed={activeViewedPhase}
-                                        captureUrl={captureUrl}
-                                        onView={setActiveViewedPhase}
-                                        fx={fx}
-                                        unlocked={freshPhase}
-                                    />
-                                    <p className="jd-keyhint">
-                                        <span>
-                                            {gameState === 'playing' ? (
-                                                <>
-                                                    Intento <b>{failedNow + 1}</b> de 6
-                                                </>
-                                            ) : (
-                                                'Todas las capturas abiertas'
-                                            )}
-                                        </span>
-                                        <span className="jd-keyhint__keys">
-                                            <kbd className="hg-kbd">←</kbd> <kbd className="hg-kbd">→</kbd> para cambiar de captura
-                                        </span>
-                                    </p>
                                 </div>
 
-                                <aside className="jd-panel hg-enter" style={{ '--i': 2 } as CSSProperties}>
-                                    {gameState === 'playing' ? (
-                                        <JudiGuess
-                                            tried={history.names}
-                                            attempts={history.attempts}
-                                            exact={history.exact}
-                                            stake={pointsAtStake(failedNow)}
-                                            checking={guessSubmitting}
-                                            checkingName={pendingGuess?.guess ?? null}
-                                            error={guessError}
-                                            missKey={fx && fx.kind === 'miss' ? fx.n : 0}
-                                            freshAttempt={fx && (fx.kind === 'miss' || fx.kind === 'skip') ? fx.slot : null}
-                                            onSubmit={(name) => void submitGuess(name)}
-                                            onSkip={() => void skipAttempt()}
-                                            onRetry={() => void sendAttempt(pendingGuess?.guess ?? null)}
-                                        />
-                                    ) : (
-                                        <JudiResult
-                                            key={`${selectedGame.juego.id}-${gameState}`}
-                                            state={gameState}
-                                            attempts={history.attempts}
-                                            exact={history.exact}
-                                            slots={slots}
-                                            game={selectedGame.juego}
-                                            hints={selectedGame.hints}
-                                            animate={fx?.kind === 'win' || fx?.kind === 'lost'}
-                                            countdown={playingDailyGame ? formatHmsCountdown(dailyCountdownMs) : null}
-                                            onBack={goBack}
-                                            onNext={nextPendingGame ? () => playNext(nextPendingGame) : null}
-                                        />
-                                    )}
-
-                                    <JudiHintList
-                                        hints={selectedGame.hints}
-                                        unlockedPhase={highestUnlockedPhase}
-                                        viewed={activeViewedPhase}
-                                        playing={gameState === 'playing'}
-                                        fresh={freshPhase}
-                                        onView={setActiveViewedPhase}
-                                    />
-                                </aside>
-                            </div>
-                        </section>
-
-                        <Dialog open={captureZoomOpen} onOpenChange={setCaptureZoomOpen}>
-                            <DialogPrimitive.Portal>
-                                <DialogPrimitive.Overlay className="jd-zoom-overlay" />
-                                <DialogPrimitive.Content
-                                    className="jd-zoom"
-                                    onTouchStart={onCaptureTouchStart}
-                                    onTouchEnd={onCaptureTouchEnd}
-                                    onClick={() => setCaptureZoomOpen(false)}
-                                >
-                                    <DialogPrimitive.Title className="sr-only">
-                                        Captura ampliada, fase {activeViewedPhase} de 6
-                                    </DialogPrimitive.Title>
-                                    {currentCapture && (
-                                        <button
-                                            type="button"
-                                            className="jd-zoom__btn"
-                                            aria-label="Cerrar captura ampliada"
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                setCaptureZoomOpen(false)
-                                            }}
+                                <div className={`jd-game__grid${gameState !== 'playing' ? ' is-finished' : ''}`}>
+                                    <div className="jd-stage-col hg-enter" style={{ '--i': 1 } as CSSProperties}>
+                                        <div
+                                            className="jd-stage"
+                                            role="region"
+                                            aria-label="Captura del juego. Desliza horizontalmente para cambiar de fase."
+                                            onTouchStart={onCaptureTouchStart}
+                                            onTouchEnd={onCaptureTouchEnd}
                                         >
-                                            <img src={currentCapture} alt="" draggable={false} />
-                                        </button>
-                                    )}
-                                </DialogPrimitive.Content>
-                            </DialogPrimitive.Portal>
-                        </Dialog>
-                    </>
-                )
-            )}
-        </div>
+                                            <AnimatePresence initial={false} custom={phaseDirRef.current}>
+                                                {currentCapture && brokenCapture !== activeViewedPhase && (
+                                                    <motion.img
+                                                        key={`${activeViewedPhase}-${currentCapture}`}
+                                                        src={currentCapture}
+                                                        alt=""
+                                                        draggable={false}
+                                                        className="jd-stage__img"
+                                                        custom={phaseDirRef.current}
+                                                        variants={phaseImageVariants}
+                                                        initial="enter"
+                                                        animate="center"
+                                                        exit="exit"
+                                                        transition={{ duration: 0.25, ease: EASE_OUT }}
+                                                        onError={() => setBrokenCapture(activeViewedPhase)}
+                                                    />
+                                                )}
+                                            </AnimatePresence>
+                                            {selectedGame.captureCount === 0 && (
+                                                <div className="jd-stage__empty">
+                                                    <MysteryArt big />
+                                                </div>
+                                            )}
+                                            {brokenCapture === activeViewedPhase && (
+                                                <div className="jd-stage__broken">
+                                                    <ImageOff aria-hidden />
+                                                    <span>La captura {activeViewedPhase} no carga.</span>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="secondary"
+                                                        onClick={() => {
+                                                            setBrokenCapture(null)
+                                                            setCaptureRetry((n) => n + 1)
+                                                        }}
+                                                    >
+                                                        <RefreshCw aria-hidden /> Reintentar
+                                                    </Button>
+                                                </div>
+                                            )}
+                                            {selectedGame.captureCount > 0 && brokenCapture !== activeViewedPhase && (
+                                                <button type="button" className="jd-stage__zoom" onClick={onCaptureImageClick} aria-label="Ampliar captura">
+                                                    <span className="jd-stage__zoom-icon">
+                                                        <Maximize2 size={16} aria-hidden />
+                                                    </span>
+                                                </button>
+                                            )}
+                                            <span className="jd-stage__badge">
+                                                Captura <strong>{activeViewedPhase}</strong> de 6
+                                            </span>
+                                            <AnimatePresence>
+                                                {flashKey > 0 && (
+                                                    <motion.span
+                                                        key={flashKey}
+                                                        className="jd-stage__flash"
+                                                        initial={{ opacity: 1 }}
+                                                        animate={{ opacity: 0 }}
+                                                        exit={{ opacity: 0 }}
+                                                        transition={{ duration: 0.7, ease: 'easeOut' }}
+                                                    />
+                                                )}
+                                            </AnimatePresence>
+                                            {viewedHint && (
+                                                <div key={activeViewedPhase} className="jd-stage__hint">
+                                                    <span className="jd-stage__hint-label">{viewedHint.label}</span>
+                                                    <span className="jd-stage__hint-value">{viewedHint.value}</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <JudiStrip
+                                            slots={slots}
+                                            viewed={activeViewedPhase}
+                                            captureUrl={captureUrl}
+                                            onView={setActiveViewedPhase}
+                                            fx={fx}
+                                            unlocked={freshPhase}
+                                        />
+                                        <p className="jd-keyhint">
+                                            <span>
+                                                {gameState === 'playing' ? (
+                                                    <>
+                                                        Intento <b>{failedNow + 1}</b> de 6
+                                                    </>
+                                                ) : (
+                                                    'Todas las capturas abiertas'
+                                                )}
+                                            </span>
+                                            <span className="jd-keyhint__keys">
+                                                <kbd className="hg-kbd">←</kbd> <kbd className="hg-kbd">→</kbd> para cambiar de captura
+                                            </span>
+                                        </p>
+                                    </div>
+
+                                    <aside className="jd-panel hg-enter" style={{ '--i': 2 } as CSSProperties}>
+                                        {gameState === 'playing' ? (
+                                            <JudiGuess
+                                                tried={history.names}
+                                                attempts={history.attempts}
+                                                exact={history.exact}
+                                                stake={pointsAtStake(failedNow)}
+                                                checking={guessSubmitting}
+                                                checkingName={pendingGuess?.guess ?? null}
+                                                error={guessError}
+                                                missKey={fx && fx.kind === 'miss' ? fx.n : 0}
+                                                freshAttempt={fx && (fx.kind === 'miss' || fx.kind === 'skip') ? fx.slot : null}
+                                                onSubmit={(name) => void submitGuess(name)}
+                                                onSkip={() => void skipAttempt()}
+                                                onRetry={() => void sendAttempt(pendingGuess?.guess ?? null)}
+                                            />
+                                        ) : (
+                                            <JudiResult
+                                                key={`${selectedGame.juego.id}-${gameState}`}
+                                                state={gameState}
+                                                attempts={history.attempts}
+                                                exact={history.exact}
+                                                slots={slots}
+                                                game={selectedGame.juego}
+                                                hints={selectedGame.hints}
+                                                animate={fx?.kind === 'win' || fx?.kind === 'lost'}
+                                                countdown={playingDailyGame ? formatHmsCountdown(dailyCountdownMs) : null}
+                                                onBack={goBack}
+                                                onNext={nextPendingGame ? () => playNext(nextPendingGame) : null}
+                                            />
+                                        )}
+
+                                        <JudiHintList
+                                            hints={selectedGame.hints}
+                                            unlockedPhase={highestUnlockedPhase}
+                                            viewed={activeViewedPhase}
+                                            playing={gameState === 'playing'}
+                                            fresh={freshPhase}
+                                            onView={setActiveViewedPhase}
+                                        />
+                                    </aside>
+                                </div>
+                            </section>
+
+                            <Dialog open={captureZoomOpen} onOpenChange={setCaptureZoomOpen}>
+                                <DialogPrimitive.Portal>
+                                    <DialogPrimitive.Overlay className="jd-zoom-overlay" />
+                                    <DialogPrimitive.Content
+                                        className="jd-zoom"
+                                        onTouchStart={onCaptureTouchStart}
+                                        onTouchEnd={onCaptureTouchEnd}
+                                        onClick={() => setCaptureZoomOpen(false)}
+                                    >
+                                        <DialogPrimitive.Title className="sr-only">
+                                            Captura ampliada, fase {activeViewedPhase} de 6
+                                        </DialogPrimitive.Title>
+                                        {currentCapture && (
+                                            <button
+                                                type="button"
+                                                className="jd-zoom__btn"
+                                                aria-label="Cerrar captura ampliada"
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    setCaptureZoomOpen(false)
+                                                }}
+                                            >
+                                                <img src={currentCapture} alt="" draggable={false} />
+                                            </button>
+                                        )}
+                                    </DialogPrimitive.Content>
+                                </DialogPrimitive.Portal>
+                            </Dialog>
+                        </>
+                    )
+                )}
+            </div>
+        </SkeletonSwap>
     )
 }

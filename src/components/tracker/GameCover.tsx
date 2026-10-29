@@ -16,10 +16,12 @@ interface Props {
     priority?: boolean
 }
 
-/** Portada de Steam con respaldo: vertical → cabecera → marcador con el nombre. */
+/** Portada de Steam con respaldo: vertical → cabecera → marcador con el nombre. Se funde al cargar. */
 export default function GameCover({ appid, name, headerImage, variant, sizes, priority }: Props) {
     const sources = [variant === 'vertical' ? verticalCover(appid) : null, headerImage].filter((s): s is string => !!s)
     const [index, setIndex] = useState(0)
+    // La imagen se funde (200 ms) al cargar sobre el hueco gris de la cápsula, en vez de aparecer de golpe.
+    const [loaded, setLoaded] = useState<string | null>(null)
     const src = sources[index]
 
     if (!src) {
@@ -39,6 +41,8 @@ export default function GameCover({ appid, name, headerImage, variant, sizes, pr
                 fill
                 sizes={sizes}
                 priority={priority}
+                className={loaded === src ? 'is-in' : undefined}
+                onLoad={() => setLoaded(src)}
                 onError={() => setIndex((i) => i + 1)}
             />
         </span>

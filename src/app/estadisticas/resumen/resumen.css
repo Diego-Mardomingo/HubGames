@@ -596,7 +596,7 @@
 }
 
 .wr-top__cover .game-cover img {
-  transition: transform 0.2s var(--ease-out);
+  transition: transform 0.2s var(--ease-out), opacity 0.2s var(--ease-out);
 }
 
 .wr-top li:hover .wr-top__cover img {

@@ -52,6 +52,11 @@
   animation: pf-ring 0.45s var(--ease-out) 0.15s backwards;
 }
 
+.pf-avatar-skel {
+  width: 80px;
+  height: 80px;
+}
+
 .pf-avatar img,
 .pf-steamid__av img {
   position: absolute;
@@ -637,21 +642,6 @@
   width: 100%;
 }
 
-.pf-skel {
-  display: block;
-  border-radius: 6px;
-  background: var(--surface-2);
-}
-
-.pf-skel--line {
-  height: 10px;
-  margin: 3px 0;
-}
-
-.pf-skel--short {
-  width: 60%;
-}
-
 /* ── JUDI: tus cifras + top 5 ── */
 .pf-more {
   display: inline-flex;
@@ -975,7 +965,8 @@
     grid-template-columns: auto minmax(0, 1fr);
   }
 
-  .pf-steamid {
+  .pf-steamid,
+  .pf-steamid-skel {
     grid-column: 1 / -1;
   }
 }
@@ -1033,6 +1024,11 @@
     width: 60px;
     height: 60px;
     font-size: 1.5rem;
+  }
+
+  .pf-avatar-skel {
+    width: 60px;
+    height: 60px;
   }
 
   .pf-steamid__name {

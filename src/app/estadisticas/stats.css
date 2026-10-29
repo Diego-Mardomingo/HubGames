@@ -728,7 +728,7 @@ a.st-hbars__name:hover {
 }
 
 .st-covers .game-cover img {
-  transition: transform 0.2s var(--ease-out);
+  transition: transform 0.2s var(--ease-out), opacity 0.2s var(--ease-out);
 }
 
 .st-covers a:hover .game-cover img {
@@ -759,41 +759,6 @@ a.st-hbars__name:hover {
   color: var(--muted);
   font-size: 0.8125rem;
   font-weight: 500;
-}
-
-/* ── Esqueleto de la primera carga (loading.tsx) ── */
-.st-sk {
-  display: block;
-  border-radius: 8px;
-  background: var(--surface-2);
-  animation: st-sk 1.2s ease-in-out infinite alternate;
-}
-
-.st-sk--title {
-  width: 260px;
-  max-width: 70%;
-  height: 2.25rem;
-}
-
-.st-sk--line {
-  width: 320px;
-  max-width: 85%;
-  height: 1rem;
-  margin-top: 0.5rem;
-}
-
-.st-sk--tile {
-  height: 98px;
-  border-radius: 12px;
-}
-
-.st-sk--panel {
-  height: 280px;
-  border-radius: var(--radius-lg);
-}
-
-@keyframes st-sk {
-  to { opacity: 0.45; }
 }
 
 @media (max-width: 900px) {
@@ -879,9 +844,5 @@ a.st-hbars__name:hover {
   .st-panel {
     opacity: 1;
     transform: none;
-  }
-
-  .st-sk {
-    animation: none;
   }
 }

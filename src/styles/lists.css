@@ -1043,3 +1043,109 @@ kbd.hg-kbd,
     transition: none;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Cargando: esqueleto (components/ui/skeleton.tsx) y fundido cruzado (components/SkeletonSwap.tsx)
+   ══════════════════════════════════════════════════════════════════ */
+/* Hueso: gris de --surface-2 con una banda suave que lo cruza (solo transform; todos a la vez) */
+.hg-skel {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--skel-bg, var(--surface-2));
+  border-radius: 6px;
+}
+
+/* Sobre un fondo --surface-2 (tiles), el hueso sube a --surface-3 para que se vea */
+.hg-tile {
+  --skel-bg: var(--surface-3);
+}
+
+.hg-skel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--skel-hi) 50%, transparent);
+  animation: hg-shimmer 1.6s ease-in-out 0.3s infinite;
+}
+
+@keyframes hg-shimmer {
+  60%,
+  100% { transform: translateX(100%); }
+}
+
+/* Texto: el hueso va dentro de la etiqueta real (h1, p, span…), así la altura de línea es la misma */
+.hg-skel--text {
+  display: inline-block;
+  width: var(--w, 10ch);
+  max-width: 100%;
+  height: 0.74em;
+  vertical-align: -0.02em;
+  border-radius: 5px;
+}
+
+.hg-skel--circle {
+  border-radius: 50%;
+}
+
+/* Mapa de actividad: la proporción de 53 semanas, pero nunca más bajo que el de verdad (en móvil se desplaza) */
+.heat-skel {
+  min-height: 96px;
+  border-radius: 4px;
+}
+
+/* Zona de carga: aparece con un fundido a partir de 150 ms (las cargas rápidas no parpadean) */
+.hg-skel-zone {
+  animation: hg-skel-in 0.2s var(--ease-out) 0.15s backwards;
+}
+
+@keyframes hg-skel-in {
+  from { opacity: 0; }
+}
+
+/* Fundido cruzado: esqueleto y contenido en la misma celda; el contenido entra (220 ms) y el esqueleto se va (160 ms) */
+.hg-swap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.hg-swap > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+.hg-swap__skel {
+  pointer-events: none;
+  animation: hg-fade-out 0.16s var(--ease-out) forwards;
+}
+
+/* El esqueleto ya estaba a la vista: durante el fundido no vuelve a esperar sus 150 ms */
+.hg-swap__skel .hg-skel-zone {
+  animation: none;
+}
+
+.hg-swap__real.is-swapping {
+  animation: hg-skel-in 0.22s var(--ease-out) backwards;
+}
+
+@keyframes hg-fade-out {
+  to { opacity: 0; }
+}
+
+/* Del esqueleto se pasa solo con fundido: sin la subida de 8 px de .hg-enter (las filas saltarían desde su hueso) */
+.hg-from-skel .hg-enter {
+  animation-name: hg-skel-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hg-skel,
+  .hg-skel::after {
+    animation: none;
+  }
+
+  .hg-skel::after {
+    content: none;
+  }
+}

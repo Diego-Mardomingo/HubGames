@@ -544,7 +544,7 @@ a.dash-list:hover .dash-list__icon {
 }
 
 .hg-row__cover img {
-  transition: transform 0.2s var(--ease-out);
+  transition: transform 0.2s var(--ease-out), opacity 0.2s var(--ease-out);
 }
 
 .hg-row:hover .hg-row__cover img {

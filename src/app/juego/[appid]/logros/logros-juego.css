@@ -40,7 +40,7 @@
 }
 
 .gl-cap .game-cover img {
-  transition: transform 0.2s var(--ease-out);
+  transition: transform 0.2s var(--ease-out), opacity 0.2s var(--ease-out);
 }
 
 .gl-cap:hover .game-cover img {

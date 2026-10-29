@@ -1703,6 +1703,12 @@
 
 .game-cover img {
   object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease-out);
+}
+
+.game-cover img.is-in {
+  opacity: 1;
 }
 
 .game-cover--empty {
@@ -2177,10 +2183,7 @@
 }
 
 .game-search__skel i {
-  display: block;
   border-radius: 5px;
-  background: var(--surface-2);
-  animation: hg-search-pulse 1.2s ease-in-out infinite;
 }
 
 .game-search__skel > i:first-child {
@@ -2204,10 +2207,6 @@
 
 .game-search__skel > i:last-child {
   height: 14px;
-}
-
-@keyframes hg-search-pulse {
-  50% { opacity: 0.45; }
 }
 
 /* Vacío, sin resultados y error: icono con color, frase y una acción */
@@ -2302,8 +2301,7 @@
   .hg-dialog.game-search[data-state='closed'],
   .hg-overlay:has(+ .game-search),
   .game-search__results--new .game-search__item,
-  .game-search__item.is-new-st::before,
-  .game-search__skel i {
+  .game-search__item.is-new-st::before {
     animation: none;
   }
 

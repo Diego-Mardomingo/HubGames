@@ -179,19 +179,6 @@ a.juego__metacritic:hover {
   margin: 0;
 }
 
-.juego-skel {
-  width: 100%;
-}
-
-.juego-skel--bar {
-  width: 220px;
-  height: 24px;
-}
-
-.juego-skel--block {
-  height: 88px;
-}
-
 .juego-panel__top {
   display: flex;
   flex-wrap: wrap;

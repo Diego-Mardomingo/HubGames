@@ -1,7 +1,7 @@
 /**
  * Marca HubGames: la H y la G dibujadas como las barras y anillos de progreso de la interfaz.
  * El travesaño de la H es una barra al 70 % y la G un anillo casi completo; la abertura de la G queda como pista vacía.
- * Las animaciones (entrada, bucle del loader, la barra que se completa al pasar el ratón y las de la 404 y el error)
+ * Las animaciones (entrada, la barra que se completa al pasar el ratón y las de la 404 y el error)
  * viven en globals.css.
  */
 const STEMS = 'M10 36V84M48 36V84'
@@ -18,8 +18,6 @@ type LogoMarkProps = {
     size?: number
     /** La G y la barra de la H se rellenan al montar. */
     animated?: boolean
-    /** Relleno en bucle (para el loader). */
-    loop?: boolean
     /**
      * Páginas de estado, una sola vez al montar: `lost` (404: la barra casi llega al 100 %, duda y vuelve a su 70 %) y
      * `broken` (error: la barra parpadea dos veces y se queda en rojo de error).
@@ -29,8 +27,8 @@ type LogoMarkProps = {
     title?: string
 }
 
-export function LogoMark({ size = 24, animated = false, loop = false, variant, className, title }: LogoMarkProps) {
-    const mode = loop ? 'hg-mark--loop' : variant ? `hg-mark--${variant}` : animated && 'hg-mark--intro'
+export function LogoMark({ size = 24, animated = false, variant, className, title }: LogoMarkProps) {
+    const mode = variant ? `hg-mark--${variant}` : animated && 'hg-mark--intro'
     const classes = ['hg-mark', mode, className].filter(Boolean).join(' ')
     return (
         <svg

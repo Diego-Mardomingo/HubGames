@@ -4,6 +4,7 @@ import { useState, type ReactNode } from 'react'
 import Image from 'next/image'
 import { RefreshCw, TriangleAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Skeleton, SkeletonZone } from '@/components/ui/skeleton'
 
 export const fmt = (v: number) => v.toLocaleString('es-ES', { useGrouping: 'always' } as Intl.NumberFormatOptions)
 
@@ -74,11 +75,11 @@ export function PanelError({ what, message, busy, onRetry }: { what: string; mes
 
 export function PanelLoading() {
     return (
-        <div className="ad-skel" aria-busy="true" aria-label="Cargando">
+        <SkeletonZone label="Cargando" className="ad-loading">
             {[0, 1, 2, 3, 4].map((i) => (
-                <span key={i} className="ad-skel__row" />
+                <Skeleton key={i} h={44} style={{ borderRadius: 'var(--radius-sm)' }} />
             ))}
-        </div>
+        </SkeletonZone>
     )
 }
 

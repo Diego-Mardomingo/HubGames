@@ -8,7 +8,8 @@ import type { User } from '@supabase/supabase-js'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import { buildRanking, type JudiProgressRecord } from '@/lib/judi-ranking'
 import { judiStats, memberSince, type JudiStats } from '@/lib/profile'
-import Loader from '@/components/Loader'
+import SkeletonSwap from '@/components/SkeletonSwap'
+import ProfileSkeleton from './ProfileSkeleton'
 import ProfileCard from './ProfileCard'
 import AccountSetting from './AccountSetting'
 import SteamSetting, { type SteamLink } from './SteamSetting'
@@ -98,7 +99,7 @@ export default function PerfilPage() {
         }
     }, [router])
 
-    if (loading || !user) return <Loader label="Cargando perfil" />
+    if (loading || !user) return <SkeletonSwap skeleton={<ProfileSkeleton />} />
 
     const linked = link !== null
     const steam = (i: number) => (
@@ -111,61 +112,63 @@ export default function PerfilPage() {
     )
 
     return (
-        <div className="pf">
-            <div className="pf-toasts" aria-live="polite">
-                <AnimatePresence>
-                    {error && (
-                        <motion.div
-                            key={`e-${error}`}
-                            className="alert alert--error pf-toast"
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 8 }}
-                            transition={{ duration: 0.18 }}
-                        >
-                            <AlertTriangle size={15} aria-hidden /> {error}
-                        </motion.div>
-                    )}
-                    {success && (
-                        <motion.div
-                            key={`s-${success}`}
-                            className="alert alert--ok pf-toast"
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 8 }}
-                            transition={{ duration: 0.18 }}
-                        >
-                            <CheckCircle size={15} aria-hidden /> {success}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
-
-            <ProfileCard
-                name={displayName}
-                email={user.email ?? ''}
-                isAdmin={isAdmin}
-                since={memberSince(user.created_at)}
-                link={link}
-                steamLoaded={steamLoaded}
-            />
-
-            <div className="pf-grid">
-                <div className="pf-main">
-                    {/* Sin Steam, lo primero es conectarlo */}
-                    {linked ? account(1) : steam(1)}
-                    {linked ? steam(2) : account(2)}
-                    <PrefsSetting notify={notify} index={3} />
-                    <ExportSetting index={4} />
+        <SkeletonSwap skeleton={<ProfileSkeleton />}>
+            <div className="pf">
+                <div className="pf-toasts" aria-live="polite">
+                    <AnimatePresence>
+                        {error && (
+                            <motion.div
+                                key={`e-${error}`}
+                                className="alert alert--error pf-toast"
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 8 }}
+                                transition={{ duration: 0.18 }}
+                            >
+                                <AlertTriangle size={15} aria-hidden /> {error}
+                            </motion.div>
+                        )}
+                        {success && (
+                            <motion.div
+                                key={`s-${success}`}
+                                className="alert alert--ok pf-toast"
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 8 }}
+                                transition={{ duration: 0.18 }}
+                            >
+                                <CheckCircle size={15} aria-hidden /> {success}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
-                <aside className="pf-aside">
-                    {isAdmin && <AdminCard index={2} />}
-                    <JudiPanel stats={judi} ranking={ranking} userId={user.id} index={isAdmin ? 3 : 2} />
-                </aside>
-                <div className="pf-out">
-                    <ExitZone linked={linked} onUnlinked={() => setLink(null)} notify={notify} index={5} />
+
+                <ProfileCard
+                    name={displayName}
+                    email={user.email ?? ''}
+                    isAdmin={isAdmin}
+                    since={memberSince(user.created_at)}
+                    link={link}
+                    steamLoaded={steamLoaded}
+                />
+
+                <div className="pf-grid">
+                    <div className="pf-main">
+                        {/* Sin Steam, lo primero es conectarlo */}
+                        {linked ? account(1) : steam(1)}
+                        {linked ? steam(2) : account(2)}
+                        <PrefsSetting notify={notify} index={3} />
+                        <ExportSetting index={4} />
+                    </div>
+                    <aside className="pf-aside">
+                        {isAdmin && <AdminCard index={2} />}
+                        <JudiPanel stats={judi} ranking={ranking} userId={user.id} index={isAdmin ? 3 : 2} />
+                    </aside>
+                    <div className="pf-out">
+                        <ExitZone linked={linked} onUnlinked={() => setLink(null)} notify={notify} index={5} />
+                    </div>
                 </div>
             </div>
-        </div>
+        </SkeletonSwap>
     )
 }

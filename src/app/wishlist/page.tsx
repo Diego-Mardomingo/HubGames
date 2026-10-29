@@ -24,6 +24,7 @@ import { WISHLIST_CHANGED_EVENT } from '@/lib/nav-status'
 import type { AlertMode, PriceAlert } from '@/lib/price-alerts'
 import type { GameStatus } from '@/lib/tracker'
 import { Button } from '@/components/ui/button'
+import { Skeleton, SkeletonZone } from '@/components/ui/skeleton'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import KeyboardList from '@/components/KeyboardList'
 import Segmented from '@/components/Segmented'
@@ -110,14 +111,14 @@ function SkeletonRows() {
         <ul className="wl-list" aria-hidden>
             {Array.from({ length: 6 }, (_, i) => (
                 <li key={i} className="wl-skel-row">
-                    <span className="wl-skel wl-skel--cover" />
+                    <Skeleton className="wl-skel-row__cover" />
                     <span className="wl-skel-row__lines">
-                        <span className="wl-skel" style={{ height: 14, width: '70%' }} />
-                        <span className="wl-skel" style={{ height: 11, width: '45%' }} />
+                        <Skeleton h={14} w="70%" />
+                        <Skeleton h={11} w="45%" />
                     </span>
                     <span className="wl-skel-row__price">
-                        <span className="wl-skel" style={{ height: 14, width: '60%' }} />
-                        <span className="wl-skel" style={{ height: 6, width: '100%' }} />
+                        <Skeleton h={14} w="60%" />
+                        <Skeleton h={6} w="100%" />
                     </span>
                 </li>
             ))}
@@ -343,12 +344,12 @@ export default function WishlistPage() {
             )}
 
             {loading ? (
-                <>
+                <SkeletonZone label="Cargando tu wishlist" className="wl-loading">
                     <div className="wish-toolbar" aria-hidden>
-                        <span className="wl-skel wl-skel--bar" />
+                        <Skeleton className="wl-loading__bar" />
                     </div>
                     <SkeletonRows />
-                </>
+                </SkeletonZone>
             ) : (
                 counts.todos > 0 && (
                     <div className="wish-toolbar">
