@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Administración · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --sc-top: #1a7743; --sc-good: #4d7c0f; --sc-mid: #8e5e18; --sc-bad: #c7243b;
+  --scrim: rgba(15, 18, 26, 0.55);
+  --tint: 12%;
+  --on-done: #ffffff;
+  --medal-1: #c08a00; --medal-2: #8b95a3; --medal-3: #b0642d; --medal-ink: 62%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --sc-top: #4cc97e; --sc-good: #a9d15b; --sc-mid: #f2b53a; --sc-bad: #f26b7e;
+  --scrim: rgba(0, 0, 0, 0.65);
+  --tint: 14%;
+  --on-done: #0b1f13;
+  --medal-1: #f5c542; --medal-2: #c3cad4; --medal-3: #e39a62; --medal-ink: 100%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button, input { font-family: inherit; color: inherit; }
+button { cursor: pointer; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after, html.theme-anim body {
+  transition: background-color .3s var(--ease-out), color .3s var(--ease-out), border-color .3s var(--ease-out), fill .3s, stroke .3s, box-shadow .3s var(--ease-out) !important;
+}
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.doc-group { display: inline-flex; align-items: center; gap: 4px; padding-right: 8px; margin-right: 4px; border-right: 1px solid var(--border); }
+.doc-group > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.doc-btn--sm { height: 32px; padding: 0 10px; font-size: .8125rem; }
+.doc-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: .71875rem; font-weight: 700; vertical-align: 2px; }
+.doc-tag--new { background: var(--primary-glow); color: var(--primary); }
+.doc-tag--opt { background: color-mix(in srgb, var(--warning) var(--tint), transparent); color: var(--warn-ink); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.note table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: .8125rem; }
+.note th, .note td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.note th { color: var(--muted); font-weight: 600; }
+.qs li { margin: 8px 0; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 120ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: clip; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 56ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.grid-frames { display: grid; grid-template-columns: repeat(2, 600px); gap: 24px; align-items: start; }
+.grid-frames.cols { grid-template-columns: repeat(3, 420px); }
+.vlabel { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.875rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 7px; background: var(--surface-2); }
+.tests { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 0; }
+.tests > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.col-frame { padding: 16px; }
+.sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; background: var(--c); }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nav-ind { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px 0 5px; border-radius: 999px; font-size: .71875rem; font-weight: 700; }
+.nav-ind .i { font-size: 11px; }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-2); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon.active { color: var(--primary); background: var(--primary-glow); }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+.m-tab__badge { position: absolute; top: -3px; right: -7px; width: 9px; height: 9px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px var(--surface); }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.m-page { padding: 1rem 1rem 110px; }
+.page-title { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .page-title, .w-col .page-title { font-size: 1.625rem; }
+.page-subtitle { margin: 4px 0 0; color: var(--muted); font-size: .9375rem; max-width: 70ch; }
+.w-mob .page-subtitle, .w-col .page-subtitle { font-size: .875rem; }
+
+/* ══ Piezas compartidas (lists.css / globals.css / ui.css) ══ */
+.st-todos { --c: var(--primary); }
+.ok { --c: var(--success); } .ko { --c: var(--danger); } .warn { --c: var(--warning); } .neutral { --c: var(--muted); } .run { --c: var(--primary); }
+.sc-top { --c: var(--sc-top); } .sc-good { --c: var(--sc-good); } .sc-mid { --c: var(--sc-mid); } .sc-bad { --c: var(--sc-bad); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.warn, .hg-tint.sc-mid { color: var(--warn-ink); }
+.ink { color: var(--c); } .ink.warn { color: var(--warn-ink); }
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; background: none; transition: background-color .2s var(--ease-out), border-color .15s, color .2s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { background: var(--surface-2); border-color: var(--border-hover); }
+.btn--ghost { color: var(--muted); }
+.btn--ghost:hover { color: var(--foreground); background: var(--surface-2); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.w-mob .btn--sm, .w-col .btn--sm { height: 40px; }
+.btn[disabled] { opacity: .6; cursor: default; }
+.hg-icon-btn { display: inline-grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted); font-size: 16px; transition: background-color .15s, color .15s; }
+.hg-icon-btn:hover { background: var(--surface-2); color: var(--foreground); }
+.w-mob .hg-icon-btn, .w-col .hg-icon-btn { width: 44px; height: 44px; }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 10px 0 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 13px; }
+.you { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: 999px; background: var(--primary); color: var(--primary-foreground); font-size: .6875rem; font-weight: 700; flex: none; }
+.sec-head { display: flex; align-items: center; gap: .625rem; min-height: 2rem; flex-wrap: wrap; }
+.sec-head__icon { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 8px; font-size: 16px; }
+.sec-head h2 { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
+.sec-head__count { color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.alert { display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 0.875rem; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 500; }
+.alert--error { color: var(--danger); background: var(--danger-glow); }
+.alert--warn { color: var(--warn-ink); background: color-mix(in srgb, var(--warning) var(--tint), transparent); }
+.alert--ok { color: var(--success); background: var(--success-glow); }
+
+/* Tiles (src/components/Tile.tsx) */
+.hg-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.w-col .hg-tiles, .w-mob .hg-tiles, .w-mid .hg-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hg-tile { position: relative; display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); transition: box-shadow .15s, border-color .15s; }
+.w-mob .hg-tile, .w-col .hg-tile { padding: 12px; }
+.hg-tile__label { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.hg-tile__icon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; font-size: 13px; flex: none; }
+.hg-tile__body { display: block; min-width: 0; }
+.hg-tile__value { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .hg-tile__value, .w-col .hg-tile__value { font-size: 1.25rem; }
+.hg-tile__value small { color: var(--muted); font-size: .875rem; font-weight: 500; letter-spacing: 0; }
+.hg-tile__note { display: block; margin-top: 3px; color: var(--muted); font-size: .78125rem; line-height: 1.35; }
+.hg-tile__note b { color: var(--foreground); font-weight: 600; }
+.hg-tile.is-link { cursor: pointer; text-align: left; font: inherit; color: inherit; }
+.hg-tile.is-link:hover, .hg-tile.is-link:focus-visible { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); outline: none; }
+.hg-tile.is-bad { border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); }
+
+/* Segmentado con fondo deslizante, icono y contador (src/components/Segmented.tsx) */
+.hg-seg { position: relative; display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.hg-seg__opt { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 32px; padding: 0 .7rem; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; transition: color .15s; }
+.hg-seg--tabs .hg-seg__opt { min-height: 36px; font-size: .875rem; padding: 0 .85rem; }
+.w-mob .hg-seg__opt, .w-col .hg-seg__opt { min-height: 40px; }
+.hg-seg__opt:hover { color: var(--foreground); }
+.hg-seg__opt[aria-pressed='true'], .hg-seg__opt[aria-selected='true'] { color: var(--foreground); font-weight: 600; }
+.hg-seg__opt > * { position: relative; z-index: 1; }
+.hg-seg__opt .i { font-size: 15px; }
+.hg-seg__thumb { position: absolute; z-index: 0; top: 3px; left: 0; height: calc(100% - 6px); border-radius: 6px; background: var(--surface); box-shadow: var(--shadow-sm); transition: transform .22s var(--ease-out), width .22s var(--ease-out); }
+.cnt { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; font-size: .71875rem; font-weight: 700; color: var(--muted); background: color-mix(in srgb, var(--muted) 12%, transparent); }
+.cnt.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); }
+.cnt.is-zero { opacity: .55; }
+.f-ic { display: inline-flex; color: var(--c); }
+.f-ic.warn { color: var(--warn-ink); }
+.f-dot { position: absolute; top: 6px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+
+/* ══ Administración (propuesta) ══ */
+.ad { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+.w-mob .ad, .w-col .ad { gap: 1rem; }
+.ad-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; }
+.ad-head__end { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .8125rem; }
+.w-mob .ad-head__end, .w-col .ad-head__end { width: 100%; justify-content: space-between; }
+.ad-stamp { transition: opacity .18s; }
+.ad-stamp.is-busy { opacity: .45; }
+.spin { animation: spin .8s linear infinite; }
+.is-busy .js-ref-ic { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Aviso arriba (alert--error / alert--warn de globals.css, con acción) */
+.ad-alert { align-items: flex-start; gap: .625rem; padding: .75rem .875rem; }
+.ad-alert > .i { font-size: 18px; margin-top: 1px; }
+.ad-alert__text { flex: 1; min-width: 0; }
+.ad-alert__text b { display: block; font-weight: 700; }
+.ad-alert__text span { display: block; color: var(--foreground); font-weight: 400; font-size: .8125rem; overflow-wrap: anywhere; }
+.ad-alert__acts { display: flex; gap: 6px; flex-wrap: wrap; align-self: center; }
+.w-mob .ad-alert, .w-col .ad-alert { flex-wrap: wrap; }
+.w-mob .ad-alert__acts, .w-col .ad-alert__acts { width: 100%; padding-left: 28px; }
+.ad-calm { display: flex; align-items: center; gap: 8px; margin-top: -.5rem; color: var(--muted); font-size: .8125rem; }
+.ad-calm .i { color: var(--success); font-size: 15px; }
+.ad-calm b { color: var(--foreground); font-weight: 600; }
+
+/* Panel */
+.ad-panel { min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.ad-panel__head { display: flex; align-items: center; gap: .625rem; min-height: 56px; padding: .5rem .5rem .5rem 1rem; border-bottom: 1px solid var(--border); }
+.ad-panel__head h2 { margin: 0; font-size: 1rem; font-weight: 700; }
+.ad-panel__head h2 { white-space: nowrap; }
+.ad-panel__head .sec-head__count { margin-right: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.w-mob .ad-panel__head h2, .w-col .ad-panel__head h2 { font-size: .9375rem; }
+.w-mob .x-type, .w-col .x-type { display: none; }
+.ad-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: .75rem 1rem; border-bottom: 1px solid var(--border); }
+.w-mob .ad-tools, .w-col .ad-tools { padding: .625rem .75rem; }
+.ad-search { position: relative; flex: 1 1 220px; max-width: 320px; }
+.w-mob .ad-search, .w-col .ad-search { max-width: none; flex-basis: 100%; }
+.ad-search .i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 15px; }
+.ad-search input { width: 100%; height: 36px; padding: 0 10px 0 32px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: .875rem; }
+.w-mob .ad-search input, .w-col .ad-search input { height: 44px; }
+.ad-search input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+.ad-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: .625rem 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .8125rem; }
+
+/* Filas (tabla densa con cursor de selección) */
+.ad-list { display: grid; gap: 2px; margin: 0; padding: 6px; list-style: none; }
+.ad-th { display: grid; gap: 12px; padding: 6px 12px 2px 15px; color: var(--muted); font-size: .75rem; font-weight: 600; }
+.w-mob .ad-th, .w-col .ad-th { display: none; }
+.ad-item { position: relative; border-radius: var(--radius-sm); }
+.ad-item::before { content: ''; position: absolute; z-index: 2; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 3px; background: var(--c, transparent); pointer-events: none; }
+.ad-row { position: relative; display: grid; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 8px 12px 8px 15px; border: 0; border-radius: var(--radius-sm); background: transparent; text-align: left; font: inherit; color: inherit; transition: box-shadow .15s, background-color .15s; }
+button.ad-row:hover, button.ad-row:focus-visible { box-shadow: 0 0 0 3px var(--cursor); outline: none; z-index: 1; }
+.ad-item.is-open > .ad-row { background: var(--surface-2); border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+.ad-row .hg-chip, .ad-row .ad-type { justify-self: start; }
+.ad-chev { display: grid; place-items: center; color: var(--muted); font-size: 16px; transition: transform .2s var(--ease-out); }
+.ad-item.is-open .ad-chev { transform: rotate(180deg); }
+.ad-cell-muted { color: var(--muted); font-size: .8125rem; white-space: nowrap; }
+.ad-name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.ad-name__text { display: grid; min-width: 0; }
+.ad-name__t { overflow: hidden; font-weight: 600; font-size: .875rem; text-overflow: ellipsis; white-space: nowrap; }
+.ad-name__s { overflow: hidden; color: var(--muted); font-size: .78125rem; text-overflow: ellipsis; white-space: nowrap; }
+.ad-name__s.ink { font-weight: 500; }
+.cap { flex: none; width: 64px; height: 30px; border-radius: 5px; object-fit: cover; background: var(--surface-2); }
+.cap.is-q { display: grid; place-items: center; color: var(--muted); font-weight: 700; font-size: 13px; border: 1px dashed var(--border-hover); background: transparent; }
+.ad-type { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px 0 7px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); font-size: .75rem; font-weight: 600; white-space: nowrap; }
+.ad-type .i { font-size: 13px; }
+.ad-facts { display: flex; flex-wrap: wrap; gap: 2px 10px; color: var(--muted); font-size: .78125rem; }
+.ad-facts b { color: var(--foreground); font-weight: 600; }
+.ad-facts .ink { font-weight: 600; }
+.ad-user { display: flex; align-items: center; gap: 7px; min-width: 0; font-size: .8125rem; font-weight: 600; }
+.ad-user .nv-avatar { width: 24px; height: 24px; font-size: .6875rem; }
+.ad-user .uid { color: var(--muted); font-weight: 500; }
+
+/* Columnas por pestaña (escritorio) */
+.w-desk .g-log { grid-template-columns: 112px 136px minmax(0, 1fr) 96px 112px 20px; }
+.w-desk .g-sync { grid-template-columns: 112px 84px 132px 112px 64px minmax(0, 1fr) 20px; }
+.w-desk .g-pool { grid-template-columns: minmax(0, 1.1fr) 168px minmax(0, 1fr) 72px 64px; }
+.w-desk .g-cal { grid-template-columns: 112px minmax(0, 1fr) 150px 52px; }
+.w-mid .g-log { grid-template-columns: 104px minmax(0, 1fr) 92px 20px; }
+.w-mid .g-log .x-type, .w-mid .g-log .x-when { display: none; }
+/* Estrecho: dos líneas */
+.w-mob .ad-row, .w-col .ad-row { grid-template-columns: minmax(0, 1fr) auto; grid-auto-flow: row; gap: 6px 10px; padding: 10px 10px 10px 13px; }
+.w-mob .ad-row > .x-top, .w-col .ad-row > .x-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; grid-column: 1; grid-row: 1; min-width: 0; }
+.w-mob .ad-row > .x-main, .w-col .ad-row > .x-main { grid-column: 1 / -1; }
+.w-mob .ad-row > .x-hide, .w-col .ad-row > .x-hide { display: none; }
+.w-mob .ad-row > .x-end, .w-col .ad-row > .x-end { grid-column: 2; grid-row: 1; justify-self: end; display: flex; align-items: center; gap: 6px; }
+.w-desk .x-top, .w-mid .x-top { display: contents; }
+.w-desk .x-end, .w-mid .x-end { display: contents; }
+.x-mob { display: none; }
+.w-mob .x-mob, .w-col .x-mob { display: inline; }
+
+/* Detalle que se despliega (A) */
+.ad-detail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .24s var(--ease-out); }
+.ad-item.is-open .ad-detail { grid-template-rows: 1fr; }
+.ad-detail__in { min-height: 0; overflow: hidden; }
+.ad-detail__box { margin: 0 0 6px; padding: 12px 14px 14px 15px; border-radius: 0 0 var(--radius-sm) var(--radius-sm); background: var(--surface-2); opacity: 0; transition: opacity .18s; }
+.ad-item.is-open .ad-detail__box { opacity: 1; transition-delay: .06s; }
+.dl { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 6px 16px; margin: 0; font-size: .8125rem; }
+.w-mob .dl, .w-col .dl { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+.w-mob .dl dd, .w-col .dl dd { margin-bottom: 6px; }
+.dl dt { color: var(--muted); }
+.dl dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.dl dd.block { white-space: pre-wrap; }
+.dl .link { color: var(--primary); font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+.dl .link .i { font-size: 13px; }
+.dl-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.dl-g { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface); }
+.dl-g h4 { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; font-size: .8125rem; }
+.dl-g h4 .i { color: var(--muted); font-size: 14px; }
+.dl-g p { display: flex; justify-content: space-between; gap: 8px; margin: 2px 0; color: var(--muted); font-size: .78125rem; }
+.dl-g p b { color: var(--foreground); font-weight: 600; }
+.dl-g p b.ink { color: var(--c); }
+.dl-g p b.ink.warn { color: var(--warn-ink); }
+.pre { margin: 0; max-height: 220px; overflow: auto; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--border); font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: .75rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.err-box { padding: 8px 10px; border-radius: var(--radius-sm); background: var(--danger-glow); color: var(--danger); font-weight: 500; }
+.err-box.warn { background: color-mix(in srgb, var(--warning) var(--tint), transparent); color: var(--warn-ink); }
+.ad-detail__acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.draw { stroke-dasharray: 24; stroke-dashoffset: 24; animation: draw .3s var(--ease-out) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+/* Detalle en diálogo (B, como hoy) */
+.ad-dlg { position: absolute; inset: 0; z-index: 40; display: grid; justify-items: center; align-items: start; padding: 72px 16px 16px; background: var(--scrim); animation: fade .18s var(--ease-out); }
+.ad-dlg__card { width: min(600px, 100%); max-height: calc(100% - 40px); overflow: auto; padding: 18px 20px 20px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-lg); animation: dlg-in .2s var(--ease-out); }
+.ad-dlg__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.ad-dlg__head h3 { margin: 0; font-size: 1.0625rem; }
+.ad-dlg__head p { display: flex; align-items: center; gap: 6px; margin: 4px 0 0; flex-wrap: wrap; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes dlg-in { from { opacity: 0; transform: scale(.96); } }
+
+/* Pool: reparto */
+.ad-split { padding: .875rem 1rem; border-bottom: 1px solid var(--border); }
+.w-mob .ad-split, .w-col .ad-split { padding: .75rem; }
+.ad-stack { display: flex; gap: 2px; height: 10px; border-radius: 5px; overflow: hidden; }
+.ad-stack span { min-width: 3px; background: var(--c); }
+.ad-legend { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 8px 0 0; padding: 0; list-style: none; font-size: .8125rem; color: var(--muted); }
+.ad-legend b { color: var(--foreground); font-weight: 600; }
+.ad-legend .sw { margin-right: 6px; }
+.ad-legend em { font-style: normal; font-size: .75rem; }
+.ad-reasons { display: flex; flex-wrap: wrap; gap: 4px; }
+.ad-reason { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: .71875rem; font-weight: 600; white-space: nowrap; }
+.ad-reason.ko { background: var(--danger-glow); color: var(--danger); }
+.ad-score { display: grid; justify-items: end; gap: 3px; font-size: .8125rem; font-weight: 600; }
+.ad-score i { display: block; width: 56px; height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden; }
+.ad-score i span { display: block; height: 100%; background: var(--primary); opacity: .55; }
+.w-mob .ad-score, .w-col .ad-score { justify-items: start; }
+
+/* Calendario */
+.ad-slot { display: flex; align-items: center; gap: 12px; margin: 6px; padding: 12px 14px; border-radius: var(--radius-sm); border: 1px dashed var(--border-hover); }
+.ad-slot.warn { border-color: color-mix(in srgb, var(--warning) 55%, var(--border)); background: color-mix(in srgb, var(--warning) 6%, transparent); }
+.ad-slot.ko { border-color: color-mix(in srgb, var(--danger) 55%, var(--border)); background: color-mix(in srgb, var(--danger) 5%, transparent); }
+.ad-slot__ic { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; font-size: 18px; flex: none; }
+.ad-slot__t { flex: 1; min-width: 0; font-size: .875rem; }
+.ad-slot__t b { display: block; }
+.ad-slot__t span { color: var(--muted); font-size: .8125rem; }
+.w-mob .ad-slot, .w-col .ad-slot { flex-wrap: wrap; }
+.w-mob .ad-slot__t, .w-col .ad-slot__t { flex-basis: calc(100% - 48px); }
+.w-mob .ad-slot .btn, .w-col .ad-slot .btn { margin-left: 48px; }
+.ad-group { padding: 10px 16px 0; color: var(--muted); font-size: .8125rem; font-weight: 600; }
+.ad-when { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+.ad-date { display: grid; line-height: 1.25; }
+.ad-date b { font-size: .875rem; font-weight: 600; }
+.ad-date span { color: var(--muted); font-size: .75rem; }
+.ad-item.is-today { background: color-mix(in srgb, var(--primary) 5%, transparent); }
+.ad-item.is-next { background: color-mix(in srgb, var(--success) 5%, transparent); }
+
+/* Vacíos y errores */
+.ad-empty { display: grid; justify-items: center; gap: .5rem; padding: 2.25rem 1rem; text-align: center; color: var(--muted); font-size: .875rem; }
+.ad-empty__icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; font-size: 20px; margin-bottom: 2px; }
+.ad-empty p { margin: 0; max-width: 52ch; }
+.ad-empty p b { display: block; color: var(--foreground); font-size: .9375rem; margin-bottom: 2px; }
+
+.toast { position: absolute; left: 50%; bottom: 24px; z-index: 50; display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius); background: var(--foreground); color: var(--background); font-size: .8125rem; font-weight: 600; box-shadow: var(--shadow-lg); transform: translateX(-50%); animation: toast-in .2s var(--ease-out); white-space: nowrap; }
+.w-mob .toast { bottom: 96px; }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 8px); } }
+
+/* ══ Microanimaciones (mínimas) ══ */
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } }
+.anim .hg-enter { animation: in-up .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+.js-tab.is-swap { animation: fade .16s var(--ease-out); }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+html.rm .spin, html.rm .is-busy .js-ref-ic { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+  .spin, .is-busy .js-ref-ic { animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Administración</h1>
+  <div class="doc-bar__actions">
+    <div class="doc-group" role="group" aria-label="Detalle de un log"><span>Detalle</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="d" data-val="A" aria-pressed="true">A · Se despliega en la fila (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="d" data-val="B" aria-pressed="false">B · Diálogo (como hoy)</button>
+    </div>
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p><b>Hoy</b> <code>/admin</code> son cuatro pestañas (Logs, Steam, Pool, Calendario) con tablas en gris: el estado es un icono verde o rojo (o un <code>Badge</code> gris para «Parcial» y «En curso»), el pool carga los 1.643 juegos con su imagen de golpe, las razones salen en inglés (<code>reviews_below_300</code>) y para saber si mañana habrá JUDI hay que abrir Calendario y mirar fechas. La propuesta mantiene la misma herramienta densa (es solo para ti) y añade lo que de verdad hace falta mirar:</p>
+  <ul>
+    <li><b>Cuatro tiles de salud arriba</b> (<code>Tile</code>), con las <b>mismas reglas que el health check</b> de GitHub (<code>scripts/health-check.ts</code>), cada uno pulsable hacia su pestaña:
+      <ul>
+        <li><b>JUDI de mañana</b>: «Listo» en verde con el juego; «Pendiente» en ámbar antes de las 20:00 (el pick sale a las 11:00 y GitHub lo retrasa: los reales llegan entre las 15:00 y las 18:00); «Falta» o «Falló» en rojo.</li>
+        <li><b>Reserva del pool</b>: elegibles sin usar. Hoy hay <b>409</b>, así que unos 409 días de JUDI. Ámbar por debajo de 30 y rojo por debajo de 7.</li>
+        <li><b>Ingesta semanal</b>: cuándo fue la última y cómo salió. Ámbar a partir de 8 días y rojo a partir de 15. Entre el 2 de agosto y el 27 de septiembre <b>no hubo ninguna ingesta en siete semanas</b> y nada lo avisó: este tile lo habría marcado.</li>
+        <li><b>Steam</b>: la última sincronización correcta. Rojo a las 36 h, como el health check, y ámbar si hay errores, parciales o alguna colgada en las últimas 24 h.</li>
+      </ul>
+    </li>
+    <li><b>El último fallo de un vistazo</b>: si algo ha fallado en 7 días (o falta el JUDI de mañana, o el pool está vacío), sale un aviso <code>.alert--error</code> con lo que pasó y «Ver log», que abre esa fila. Si no hay nada, solo una línea «Sin fallos en los últimos 7 días».</li>
+    <li><b>Estados como chips tintados</b> con icono y palabra: <span class="hg-chip hg-tint ok">Correcto</span> <span class="hg-chip hg-tint ko">Fallido</span> <span class="hg-chip hg-tint warn">Parcial</span> <span class="hg-chip hg-tint run">En curso</span>, y dos nuevos que salen de los datos: <b>Sin cambios</b> en gris (el pick ya tenía juego para ese día) y <b>Sin terminar</b> en ámbar (una sincronización «en curso» de hace más de 15 minutos se ha quedado colgada).</li>
+    <li><b>«Parcial» también en las ingestas.</b> Las 34 ingestas «fallidas» de verdad <b>insertaron sus 40 juegos</b>: solo fallaron 2 o 3 candidatos de 42. Hoy salen en rojo cada domingo y el rojo acaba sin significar nada. Propongo que sean Parcial (ámbar) cuando entran filas nuevas y Fallido solo si no entra ninguna o si revienta.</li>
+    <li><b>Detalle de un log</b> (la única decisión real, el botón «Detalle» de arriba): <b>A</b> se despliega en la fila; <b>B</b> se abre en un diálogo, como hoy. En los dos casos, la línea de la ingesta se lee como cifras («+40 nuevos · 5 elegibles · 2 fallos de 42 · cola 184»), las sincronizaciones enseñan sus cifras por bloques (Biblioteca, Wishlist y precios, Logros, Estados) y hay un botón «Copiar» para llevarte el error.</li>
+    <li><b>El pool en color</b>: <span class="hg-chip hg-tint ok">Elegible</span> <span class="hg-chip hg-tint run">Usado</span> <span class="hg-chip hg-tint warn">No elegible</span> <span class="hg-chip hg-tint ko">Descartado</span>. Arriba, una barra con el reparto (409 sin usar, 270 usados, 962 no elegibles y 2 descartados), razones en español, el día en que se usó y <b>50 filas y «Ver más»</b> en vez de pintar los 1.643.</li>
+    <li><b>Calendario</b>: arriba, el hueco de <b>mañana</b> (pendiente, listo o falta), luego <b>hoy</b> y los publicados, con fecha legible («jue 29 oct») y Metacritic con su color y su palabra (o «Sin nota» si vale 0).</li>
+  </ul>
+
+  <h3>De dónde sale cada dato</h3>
+  <table>
+    <thead><tr><th>Dato</th><th>Fuente</th><th>Coste</th></tr></thead>
+    <tbody>
+      <tr><td>Logs, estados, último fallo, «Con fallos»</td><td><code>hubgames_judi_generacion_logs</code> (los 100 últimos, como hoy). «Parcial» y las cifras de la ingesta se sacan del texto de <code>nombre_juego</code> (<code>+40/40 filas nuevas | elegibles 5 | … | fallos 2 | intentos 42 | cola restante 184</code>), y «Sin cambios» de su prefijo</td><td>0 consultas más; un <code>parsePoolLog</code> con tests</td></tr>
+      <tr><td>Sincronizaciones y su detalle</td><td><code>hubgames_sync_logs</code> (los 100 últimos, como hoy) con su <code>stats</code>. «Sin terminar» es <code>en_curso</code> con más de 15 minutos</td><td>0 consultas más</td></tr>
+      <tr><td>Nombre del usuario en cada sincronización</td><td>Hoy se ve <code>user_id.slice(0, 8)</code>. La política de <code>hubgames_usuarios</code> solo deja leer tu propia fila, así que puedo poner «Diego · Tú» en las tuyas y el id corto en las de los demás. <span class="doc-tag doc-tag--opt">Migración opcional</span> una política de lectura para admins (<code>using (is_admin())</code>) daría todos los nombres</td><td>Sin migración: 0. Con ella: una política y un <code>select</code> por los <code>user_id</code> distintos</td></tr>
+      <tr><td>JUDI de mañana, hoy y publicados</td><td><code>hubgames_lista_videojuegos_judi</code> (los 180 últimos, como hoy) y la fecha de mañana en Madrid (<code>judiDay</code>). El «Falló» sale del log del pick con esa <code>fecha_judi</code></td><td>0 consultas más</td></tr>
+      <tr><td>Reserva y reparto del pool</td><td>Cinco recuentos <code>count: 'exact', head: true</code> sobre <code>hubgames_judi_pool</code> (sin usar, usados, no elegibles, descartados y total) al abrir la página, en vez de traer las 1.643 filas</td><td>5 consultas sin filas (≈ lo que hoy cuesta una de las 2 páginas)</td></tr>
+      <tr><td>Filas del pool</td><td>Igual que hoy, pero <b>50 por página</b> (<code>range</code>) con el filtro y la búsqueda <b>en el servidor</b>, y sus imágenes solo de esas 50. «Usado el …» se cruza con el calendario que ya está cargado (por <code>steam_appid</code>)</td><td>Menos que hoy (hoy son 2 páginas y 9 tandas de imágenes)</td></tr>
+      <tr><td>Razones en español</td><td>Mapa en el cliente de los cuatro códigos que existen: <code>positive_score_below_65</code> (852), <code>reviews_below_300</code> (818), <code>screenshots_below_6</code> (340), <code>metadata_incomplete</code> (33) y <code>already_used_in_daily_history</code></td><td>0</td></tr>
+    </tbody>
+  </table>
+  <p class="t">Datos reales a 29 de octubre de 2026: 313 logs de generación (208 del pick diario, 42 ingestas semanales, de las que 34 son «fallidas» por 2 o 3 candidatos, y 63 del relleno inicial de abril, <code>steam_pool_backfill</code>, que hoy sale sin traducir); 12 sincronizaciones, todas correctas (7 diarias y 5 manuales, de 2 a 177 s); pool de 1.643 juegos en 24 semanas; 270 JUDI publicados. <b>El último JUDI programado es el de hoy</b> (Middle-earth: Shadow of War): el pick solo elige <b>el de mañana</b>, así que lo normal es tener 0 días por delante por la mañana y 1 por la tarde. Las sincronizaciones con error, parciales, en curso y colgadas, el pick fallido y el error largo de la ingesta son ilustrativos (con mensajes reales del código) y van marcados como «Con fallos».</p>
+
+  <h3>Microanimaciones (mínimas, solo respuesta)</h3>
+  <ul>
+    <li><b>Actualizar</b>: el icono gira mientras carga (<code>.hg-spin</code>) y la hora de «Actualizado» se atenúa hasta que llegan los datos. Hay uno en la cabecera (todo) y otro en cada panel. Con movimiento reducido, no gira: solo se atenúa.</li>
+    <li><b>Detalle que se despliega</b> (A): altura con <code>grid-template-rows</code> (240 ms, como los meses del historial), el contenido aparece con un fundido y el chevrón gira. En B, el diálogo de Radix de siempre.</li>
+    <li><b>«Copiar»</b>: el icono pasa a un check que se dibuja (<code>.hg-draw</code>). Pestañas y filtros con el fondo que se desliza (<code>Segmented</code>) y un fundido corto al cambiar de pestaña. <b>En curso</b> con su spinner, el único bucle, porque es un cargando de verdad.</li>
+    <li>Nada cuenta ni se rellena. La única entrada es <code>.hg-enter</code> en cabecera, tiles y panel, una vez («Repetir entrada»). Movimiento reducido (botón o sistema) lo anula todo.</li>
+  </ul>
+
+  <h3>Piezas que se reutilizan</h3>
+  <ul>
+    <li><code>Tile</code> / <code>.hg-tiles</code>, <code>Segmented</code> (icono y contador con color), <code>.hg-tint</code> con <code>.hg-chip</code>, <code>.alert--error</code> / <code>.alert--warn</code>, <code>Button</code>, <code>.hg-icon-btn</code> y <code>.hg-spin</code>, <code>.hg-enter</code>, <code>.hg-draw</code>, la cabecera de sección del Inicio, el cursor de selección y el plegado de los meses del historial.</li>
+    <li>De <code>src/lib/profile.ts</code>: <code>adminWhen</code> («hoy, 07:45»), <code>judiDay</code> y <code>judiDateLong</code>. De <code>src/lib/scores.ts</code>: <code>metacriticScore</code>. Mismos tonos que la tarjeta de Administración del perfil (<code>dash-ok</code>, <code>dash-warn</code>, <code>dash-ko</code>).</li>
+    <li><b>Nuevo</b>: <code>src/lib/admin.ts</code> (<code>genLogState</code>, <code>parsePoolLog</code>, <code>syncState</code>, <code>syncFacts</code>, <code>POOL_REASONS</code>, <code>tomorrowStatus</code>, <code>adminHealth</code>, <code>lastFailure</code>) con tests; un <code>AdminStatus</code> (chip de estado), <code>AdminRow</code> (fila con detalle que se despliega) y estilos <code>.ad-*</code> en <code>admin.css</code>. No uso <code>CountUp</code> ni <code>SaveButton</code>: aquí no hay cifras que celebrar ni nada que guardar.</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px · en vivo</h2>
+  <p>Empieza con los datos reales a las 12:40. Cambia de momento o de caso con los botones; pulsa un tile para ir a su pestaña, una fila para ver su detalle y los iconos de actualizar.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="f-desk"></div></div>
+  <div class="tests" data-frame="f-desk"><span>Caso:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="real" aria-pressed="true">Hoy, 12:40 (real)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="afternoon">17:45 · mañana ya elegido</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="evening">20:30 · falta el de mañana</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="issues">Con fallos (ilustrativo)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="empty">Pool vacío y sin registros</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="loaderr">Error al cargar</button>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Estados · columna estrecha</h2>
+  <p>A 420 px (ventana estrecha o tableta): tiles en dos columnas y filas en dos líneas (chips arriba, nombre o resumen debajo).</p>
+  <div class="scroller"><div class="grid-frames cols" id="states"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · detalle de un log</h2>
+  <p><b>A · Se despliega en la fila</b>: abres dos o tres seguidas y las comparas sin perder dónde estabas, que es lo que haces al revisar una semana de ingestas o de sincronizaciones; Esc o un segundo clic lo cierra. <b>B · Diálogo</b> (como hoy): más espacio para un stack largo, pero tapa la lista y hay que cerrarlo para ver el siguiente. Recomiendo <b>A</b>; el stack largo va en una caja con scroll de 220 px como máximo.</p>
+  <div class="scroller"><div class="grid-frames" id="var-d"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Admin no está en las pestañas: es el escudo de la barra superior (activo). Filas en dos líneas, todo lo pulsable de 44 px y pestañas desplazables.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px" id="f-mob"></div><p class="frame-cap"><b>Hoy, 12:40</b>: JUDI de mañana pendiente, sin fallos en 7 días y la última ingesta (parcial) desplegada.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-2"></div><p class="frame-cap"><b>Con fallos</b>: aviso rojo arriba y pestaña Steam con una en curso, una colgada, una parcial y dos con error (una con el mensaje largo).</p></div>
+  </div></div>
+</section>
+
+<section class="sec note" id="questions">
+  <h2>Preguntas para Diego</h2>
+  <ol class="qs">
+    <li><b>Detalle de un log: A (se despliega en la fila) o B (diálogo, como hoy).</b> Recomiendo <b>A</b>.</li>
+    <li><b>«JUDI programados» del perfil.</b> La tarjeta del perfil pide 3 días o más para estar en verde, pero el pick solo elige el de mañana, así que nunca pasa de ámbar y por la mañana está en rojo (hoy lo está). ¿La cambiamos por la misma regla que aquí y que el health check: <b>«JUDI de mañana»</b>, listo en verde, pendiente en ámbar hasta las 20:00 y falta o falló en rojo? Recomiendo <b>sí</b>, en este mismo PR (<code>adminLines</code> y su test).</li>
+    <li><b>Ingestas con 2 o 3 candidatos fallidos: ¿Parcial (ámbar) en vez de Fallido (rojo)?</b> Recomiendo <b>sí</b>, leyéndolo del log en el cliente, sin tocar datos. Lo limpio de verdad sería que <code>build-judi-pool.ts</code> escribiera <code>exito = true</code> cuando entran filas nuevas, pero cambiaría el significado de 34 filas antiguas. Si lo prefieres, lo hago aparte.</li>
+    <li><b>No elegible: ¿ámbar o gris?</b> Lo pongo en ámbar porque no pasa algún filtro, pero son el 59 % del pool y es lo normal. En gris el ojo va solo a los descartados (rojo) y a la reserva (verde). Recomiendo <b>ámbar</b>, ya que la idea de la checklist era «con color»; el gris es igual de válido.</li>
+    <li><b>Nombres en las sincronizaciones</b> <span class="doc-tag doc-tag--opt">Migración opcional</span>: ¿añadimos una política de lectura de <code>hubgames_usuarios</code> para admins y así ver quién sincroniza? Hoy solo tú tienes Steam vinculado, así que recomiendo <b>no por ahora</b>: «Diego · Tú» en las tuyas y el id corto en las demás.</li>
+    <li><b>Pool paginado y filtrado en el servidor</b> (50 filas y «Ver más», con recuentos <code>head</code> para la barra y los filtros) en vez de traer los 1.643 con sus imágenes. Recomiendo <b>sí</b>: la búsqueda ya va al servidor; los filtros y la paginación se suman igual.</li>
+    <li><b>Umbrales</b>: reserva ámbar con menos de 30 y roja con menos de 7; ingesta ámbar a partir de 8 días y roja a partir de 15; Steam roja a las 36 h; «Sin terminar» a partir de 15 minutos en curso. ¿Te valen? Recomiendo <b>sí</b>. Son las del health check, y para la reserva, un mes de margen.</li>
+    <li><b>¿Botón para lanzar el pick o la ingesta desde aquí?</b> Hoy solo se lanzan desde GitHub (<code>workflow_dispatch</code>). Lo dejo fuera: necesitaría una ruta con un token de GitHub. En el aviso de «Falta el JUDI de mañana» pongo el enlace al workflow. Recomiendo <b>dejarlo así</b>.</li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  loader: '<path d="M21 12a9 9 0 1 1-6.219-8.56"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  calendar: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/>',
+  database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/>',
+  file: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>',
+  copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+  external: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  eyeoff: '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+  ban: '<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+  minus: '<path d="M5 12h14"/>',
+  ccheck: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  hand: '<path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>',
+  wishlist: '<path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/>',
+  zap: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const n = (v) => v.toLocaleString('es-ES', { useGrouping: 'always' });
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const capURL = (a) => `https://cdn.akamai.steamstatic.com/steam/apps/${a}/header.jpg`;
+const cap = (a, name) => a ? `<img class="cap" src="${capURL(a)}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'cap is-q',textContent:'${esc((name || '?')[0]).replace(/'/g, '')}'}))">` : '<span class="cap is-q">?</span>';
+
+/* ── Fechas (Madrid), como adminWhen / judiDay de src/lib/profile.ts ── */
+const TZ = 'Europe/Madrid';
+const fmt = (o) => new Intl.DateTimeFormat('es-ES', { timeZone: TZ, ...o });
+const judiDay = (d) => { const [y, m, dd] = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d).split('-'); return `${dd}-${m}-${y}`; };
+const hm = (d) => fmt({ hour: '2-digit', minute: '2-digit' }).format(d);
+const madridHour = (d) => Number(new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', hour12: false }).format(d));
+function when(iso, now) {
+  const t = new Date(iso); const day = judiDay(t);
+  if (day === judiDay(now)) return `hoy, ${hm(t)}`;
+  if (day === judiDay(new Date(now - 864e5))) return `ayer, ${hm(t)}`;
+  return `${fmt({ day: 'numeric', month: 'short' }).format(t).replace('.', '')}, ${hm(t)}`;
+}
+const full = (iso) => fmt({ weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(new Date(iso)).replace(/\./g, '');
+function ago(iso, now) {
+  const m = Math.max(0, Math.round((now - new Date(iso)) / 6e4));
+  if (m < 1) return 'ahora'; if (m < 60) return `hace ${m} min`;
+  const h = Math.round(m / 60); if (h < 24) return `hace ${h} h`;
+  const d = Math.floor(m / 1440); return d === 1 ? 'hace 1 día' : `hace ${d} días`;
+}
+const parseJ = (s) => { const [d, m, y] = s.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d, 12)); };
+const jShort = (s) => new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' }).format(parseJ(s)).replace(/\./g, '').replace(',', '');
+const jLong = (s) => new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'long' }).format(parseJ(s));
+const isoShort = (s) => { const [y, m, d] = s.split('-').map(Number); return new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'short' }).format(new Date(Date.UTC(y, m - 1, d, 12))).replace('.', ''); };
+const isoPlus = (s, k) => { const [y, m, d] = s.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d + k, 12)).toISOString().slice(0, 10); };
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/><path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+
+/* ══ Datos reales (29 oct 2026) ══ */
+const DP = 'steam_pool_daily_pick', WP = 'steam_weekly_pool';
+const pick = (id, iso, name, appid, fj) => ({ id, iso, exito: true, fuente: DP, nombre: `Juego del día asignado: ${name} (Steam ${appid})`, fj, err: null, stack: null, appid });
+const weekly = (id, iso, wk, ins, el, inel, fail, tries, queue, ok = false) => ({ id, iso, exito: ok, fuente: WP, nombre: `Pool semanal ${wk} → ${isoPlus(wk, 6)} | +${ins}/40 filas nuevas | elegibles ${el} | no elegibles ${inel} | fallos ${fail} | intentos ${tries} | cola restante ${queue} | SteamSpy págs. 1 [tiered_then_steamspy_all]`, fj: wk, err: fail ? `${fail} candidatos fallaron al procesar` : null, stack: null, appid: null });
+const GEN_REAL = () => [
+  pick(329, '2026-10-28T16:30:22Z', 'Middle-earth™: Shadow of War™', 356190, '29-10-2026'),
+  pick(328, '2026-10-27T15:47:47Z', 'Dungeon Defenders', 65800, '28-10-2026'),
+  pick(327, '2026-10-26T16:40:26Z', 'Noita', 881100, '27-10-2026'),
+  weekly(326, '2026-10-25T20:05:31Z', '2026-10-25', 40, 5, 35, 2, 42, 184),
+  pick(325, '2026-10-25T14:11:34Z', 'Hitman: Absolution™', 203140, '26-10-2026'),
+  { id: 321, iso: '2026-10-24T16:15:55Z', exito: true, fuente: DP, nombre: 'Sin cambios: ya había juego para 25-10-2026 — Brick Rigs', fj: '25-10-2026', err: null, stack: null, appid: 552100 },
+  pick(320, '2026-10-24T13:54:10Z', 'Brick Rigs', 552100, '25-10-2026'),
+  pick(319, '2026-10-23T14:47:14Z', 'Heroes & Generals', 227940, '24-10-2026'),
+  pick(318, '2026-10-22T14:58:31Z', 'Papers, Please', 239030, '23-10-2026'),
+  pick(317, '2026-10-21T14:58:42Z', 'Granblue Fantasy: Relink', 881020, '22-10-2026'),
+  pick(316, '2026-10-20T14:51:28Z', 'Black Squad', 550650, '21-10-2026'),
+  pick(315, '2026-10-19T16:52:26Z', 'Enshrouded', 1203620, '20-10-2026'),
+  weekly(314, '2026-10-18T19:47:00Z', '2026-10-18', 40, 9, 31, 2, 42, 192),
+  pick(313, '2026-10-18T13:51:53Z', 'Pathfinder: Kingmaker — Enhanced Plus Edition', 640820, '19-10-2026'),
+  pick(312, '2026-10-17T13:32:25Z', 'KARDS - El juego de cartas de la Segunda Guerra Mundial', 544810, '18-10-2026'),
+  pick(311, '2026-10-16T14:40:43Z', 'Age of Empires II: Definitive Edition', 813780, '17-10-2026'),
+  pick(310, '2026-10-15T14:46:42Z', 'CONTROL Ultimate Edition', 870780, '16-10-2026'),
+  pick(309, '2026-10-14T14:57:46Z', 'Rec Room', 471710, '15-10-2026'),
+  pick(308, '2026-10-13T17:27:04Z', 'BattleBlock Theater®', 238460, '14-10-2026'),
+  pick(307, '2026-10-12T19:42:25Z', 'AdVenture Capitalist', 346900, '13-10-2026'),
+  weekly(306, '2026-10-11T21:09:42Z', '2026-10-11', 40, 5, 35, 3, 43, 201),
+  pick(305, '2026-10-11T16:12:09Z', 'The Elder Scrolls IV: Oblivion® Game of the Year Edition (2009)', 22330, '12-10-2026'),
+  pick(304, '2026-10-10T15:47:45Z', 'Metro Exodus', 412020, '11-10-2026'),
+  pick(303, '2026-10-09T16:53:43Z', 'Assetto Corsa Competizione', 805550, '10-10-2026'),
+  pick(302, '2026-10-08T17:17:55Z', 'Lossless Scaling', 993090, '09-10-2026'),
+];
+const ME = '82d1088a-4f3e-4c1b-9a77-1d2e3f4a5b6c';
+const st_ = (owned, snap, wl, ach, tr, extra = {}) => ({ library: { ownedGames: owned, newToTray: extra.tray || 0, catalogFetched: extra.cat || 0, catalogPending: 0 }, snapshotRows: snap,
+  ...(wl === undefined ? {} : { wishlist: wl && { steamItems: wl[0], prices: { pricesUpdated: wl[1], lowsUpdated: wl[2], snapshots: wl[3], itadMatched: wl[4] || 0 }, catalogFetched: extra.wcat || 0, pricesError: extra.pricesError || null }, wishlistError: extra.wishlistError || null }),
+  achievements: { gamesDue: ach[0], gamesSynced: ach[1], gamesFailed: ach[2] || 0, apiCalls: ach[3] || 0 }, ...(tr ? { tracker: { toPlaying: tr[0], suggestions: tr[1] } } : {}) });
+const sync = (id, source, status, iso, secs, stats, user = ME, error = null) => ({ id, source, status, iso, fin: secs == null ? null : new Date(new Date(iso).getTime() + secs * 1000).toISOString(), stats, user, error });
+const SYNC_REAL = () => [
+  sync(13, 'cron', 'ok', '2026-10-29T06:45:58Z', 8, st_(106, 2, [105, 105, 105, 5], [2, 2, 0, 2], [0, 0])),
+  sync(12, 'manual', 'ok', '2026-10-28T15:42:04Z', 7, st_(106, 1, [105, 105, 0, 0], [1, 1, 0, 1], [0, 0])),
+  sync(11, 'cron', 'ok', '2026-10-28T06:38:22Z', 6, st_(106, 0, [105, 105, 0, 0], [0, 0], [0, 0])),
+  sync(10, 'manual', 'ok', '2026-10-27T23:06:52Z', 7, st_(106, 0, [105, 105, 105, 0], [0, 0], [0, 4])),
+  sync(8, 'cron', 'ok', '2026-10-27T05:59:16Z', 7, st_(106, 1, [105, 105, 0, 0], [1, 1, 0, 1], [0, 4])),
+  sync(7, 'manual', 'ok', '2026-10-26T20:53:51Z', 8, st_(106, 2, [105, 105, 104, 6], [2, 2, 0, 2], [0, 0])),
+  sync(6, 'cron', 'ok', '2026-10-26T05:47:01Z', 16, st_(106, 1, [105, 105, 0, 0], [1, 1, 0, 1], [0, 28])),
+  sync(5, 'manual', 'ok', '2026-10-25T11:33:06Z', 177, st_(106, 0, [105, 105, 105, 97, 105], [0, 0], [0, 3], { wcat: 87 })),
+  sync(4, 'cron', 'ok', '2026-10-25T05:41:59Z', 5, st_(106, 0, undefined, [0, 0], [5, 3])),
+  sync(3, 'manual', 'ok', '2026-10-24T18:18:19Z', 2, st_(106, 0, undefined, [0, 0])),
+  sync(2, 'cron', 'ok', '2026-10-24T18:12:20Z', 2, st_(106, 0, undefined, [0, 0])),
+  sync(1, 'cron', 'ok', '2026-10-24T18:07:26Z', 2, st_(106, 106, undefined, [0, 0])),
+];
+const LISTA_REAL = () => [[278, '29-10-2026', 'Middle-earth™: Shadow of War™', 0, 356190], [277, '28-10-2026', 'Dungeon Defenders', 81, 65800], [276, '27-10-2026', 'Noita', 0, 881100], [275, '26-10-2026', 'Hitman: Absolution™', 79, 203140], [268, '25-10-2026', 'Brick Rigs', 0, 552100], [267, '24-10-2026', 'Heroes & Generals', 0, 227940], [266, '23-10-2026', 'Papers, Please', 85, 239030], [265, '22-10-2026', 'Granblue Fantasy: Relink', 82, 881020], [264, '21-10-2026', 'Black Squad', 0, 550650], [263, '20-10-2026', 'Enshrouded', 0, 1203620], [262, '19-10-2026', 'Pathfinder: Kingmaker — Enhanced Plus Edition', 73, 640820], [261, '18-10-2026', 'KARDS - El juego de cartas de la Segunda Guerra Mundial', 80, 544810], [260, '17-10-2026', 'Age of Empires II: Definitive Edition', 84, 813780], [259, '16-10-2026', 'CONTROL Ultimate Edition', 85, 870780], [258, '15-10-2026', 'Rec Room', 0, 471710], [257, '14-10-2026', 'BattleBlock Theater®', 85, 238460], [256, '13-10-2026', 'AdVenture Capitalist', 0, 346900], [255, '12-10-2026', 'The Elder Scrolls IV: Oblivion® Game of the Year Edition (2009)', 94, 22330], [254, '11-10-2026', 'Metro Exodus', 85, 412020], [253, '10-10-2026', 'Assetto Corsa Competizione', 77, 805550], [252, '09-10-2026', 'Lossless Scaling', 0, 993090], [251, '08-10-2026', 'Loadout', 72, 208090]]
+  .map(([id, fecha, nombre, cal, appid]) => ({ id, fecha, nombre, cal, appid }));
+/* Pool: muestra real ordenada por relevancia (usados, la semana del 25 oct y los 2 descartados) */
+const POOL_REAL = () => [
+  [1203620, 'Enshrouded', 11440, true, true, false, null, [], '2026-10-18'],
+  [5335510, 'Moon Sweepers', 3543.9, false, false, false, null, ['reviews_below_300', 'positive_score_below_65'], '2026-10-25'],
+  [3259780, 'FINAL FANTASY RESONANCE', 3257, false, false, false, null, ['reviews_below_300', 'positive_score_below_65'], '2026-10-25'],
+  [813780, 'Age of Empires II: Definitive Edition', 2951, true, true, false, null, [], '2026-10-04'],
+  [960090, 'Bloons TD 6', 1594.1, true, false, false, null, [], '2026-10-25'],
+  [949230, 'Cities: Skylines II', 1321.4, false, false, false, null, ['positive_score_below_65'], '2026-10-25'],
+  [933110, 'Age of Empires III: Definitive Edition', 802.1, true, false, false, null, [], '2026-10-25'],
+  [881100, 'Noita', 540.8, true, true, false, null, [], '2026-10-18'],
+  [952060, 'Resident Evil 3', 508.8, true, false, false, null, [], '2026-10-25'],
+  [10190, 'Call of Duty®: Modern Warfare® 2 (2009)', 506.2, true, false, true, 'already_used_in_daily_history', [], '2026-04-05'],
+  [80, 'Counter-Strike: Condition Zero', 474.8, true, false, true, 'already_used_in_daily_history', [], '2026-03-29'],
+  [881020, 'Granblue Fantasy: Relink', 460.3, true, true, false, null, [], '2026-10-18'],
+  [924970, 'Back 4 Blood', 387, true, false, false, null, [], '2026-10-25'],
+  [942970, 'Unheard', 333.3, true, false, false, null, [], '2026-10-25'],
+  [939960, 'Far Cry® New Dawn', 228.6, false, false, false, null, ['screenshots_below_6'], '2026-10-25'],
+  [5084200, 'Task Bar Cube', 194.9, false, false, false, null, ['reviews_below_300', 'positive_score_below_65'], '2026-10-25'],
+  [921630, '音灵 INVAXION', 136, false, false, false, null, ['positive_score_below_65'], '2026-10-25'],
+  [5074470, 'Ascuas Estelares: Flota Unida', 2.1, false, false, false, null, ['reviews_below_300', 'positive_score_below_65'], '2026-10-25'],
+  [5380860, 'La Última Casa en Pie', 0.9, false, false, false, null, ['reviews_below_300', 'positive_score_below_65'], '2026-10-25'],
+  [4078410, 'Post-Utopia: Europe2999', 0.4, false, false, false, null, ['reviews_below_300', 'positive_score_below_65', 'metadata_incomplete'], '2026-10-25'],
+].map(([appid, name, score, elig, used, disc, dreason, reasons, week]) => ({ appid, name, score, elig, used, disc, dreason, reasons, week }));
+const COUNTS_REAL = { all: 1643, unused: 409, used: 270, inel: 962, disc: 2 };
+const POOL_REASONS = { positive_score_below_65: 'Positivas < 65 %', reviews_below_300: 'Menos de 300 reseñas', screenshots_below_6: 'Menos de 6 capturas', metadata_incomplete: 'Faltan datos', already_used_in_daily_history: 'Ya salió en JUDI' };
+const FUENTE = { [DP]: ['Juego del día', 'calendar'], [WP]: ['Ingesta del pool', 'download'], steam_pool_backfill: ['Relleno inicial', 'database'], steam_pool_edge_function: ['Edge function', 'zap'] };
+
+/* ── Casos ── */
+const LONG_ERR = 'SteamSpy respondió 503 Service Unavailable en la página 1 (request=all) tras 3 reintentos con espera de 2, 4 y 8 s; la cola de candidatos prioritarios estaba vacía y sin SteamSpy no hay de dónde sacar más. Cuerpo de la respuesta: <html><head><title>503 Service Temporarily Unavailable</title></head><body><center><h1>503 Service Temporarily Unavailable</h1></center><hr><center>nginx/1.18.0 (Ubuntu)</center></body></html>';
+const LONG_STACK = `Error: SteamSpy 503 (request=all, page=1)
+    at fetchSteamSpyPage (/home/runner/work/HubGames/HubGames/scripts/build-judi-pool.ts:182:15)
+    at async discoverCandidates (/home/runner/work/HubGames/HubGames/scripts/build-judi-pool.ts:241:22)
+    at async main (/home/runner/work/HubGames/HubGames/scripts/build-judi-pool.ts:318:5)
+Caused by: FetchError: request to https://steamspy.com/api.php?request=all&page=1 failed, reason: 503
+    at ClientRequest.<anonymous> (node:internal/deps/undici/undici:13502:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)`;
+const LONG_SYNC = 'No se pudo guardar la biblioteca: duplicate key value violates unique constraint "hubgames_user_steam_games_pkey" (Key (user_id, appid)=(3f9a1c2e-77b0-4d1a-a2c4-0b9e5d6f7a81, 1245620) already exists.) — la lista de juegos de Steam vino con el mismo appid dos veces (paquete y edición)';
+const PRESETS = {
+  real: () => ({ now: '2026-10-29T11:40:00Z' }),
+  afternoon: () => ({ now: '2026-10-29T16:45:00Z', addGen: [pick(330, '2026-10-29T15:52:10Z', 'Bloons TD 6', 960090, '30-10-2026')], addLista: [{ id: 279, fecha: '30-10-2026', nombre: 'Bloons TD 6', cal: 0, appid: 960090 }], usedNow: 960090 }),
+  evening: () => ({ now: '2026-10-29T19:30:00Z' }),
+  issues: () => ({ now: '2026-10-29T15:20:00Z', issues: true,
+    addGen: [{ id: 330, iso: '2026-10-29T15:12:41Z', exito: false, fuente: DP, nombre: 'Fallo en la elección del juego del día', fj: '30-10-2026', err: 'Falta la entrada del catálogo Steam para 960090', stack: null, appid: null }],
+    replaceGen: { 326: { id: 326, iso: '2026-10-25T20:05:31Z', exito: false, fuente: WP, nombre: 'Pool semanal: error durante ejecución (2026-10-25)', fj: '2026-10-25', err: LONG_ERR, stack: LONG_STACK, appid: null } },
+    addSync: [
+      sync(17, 'manual', 'en_curso', '2026-10-29T15:18:40Z', null, null),
+      sync(16, 'cron', 'error', '2026-10-29T06:46:10Z', 3, null, '3f9a1c2e-77b0-4d1a-a2c4-0b9e5d6f7a81', 'Steam no devuelve juegos: revisa que el perfil y los detalles de juego sean públicos'),
+      sync(15, 'cron', 'en_curso', '2026-10-29T02:10:00Z', null, null),
+      sync(14, 'manual', 'parcial', '2026-10-28T21:02:12Z', 11, st_(106, 1, null, [3, 2, 1, 3], [0, 0], { wishlistError: 'Steam respondió 429 Too Many Requests' })),
+      sync(9, 'cron', 'error', '2026-10-27T06:01:44Z', 4, null, ME, LONG_SYNC),
+    ] }),
+  empty: () => ({ now: '2026-10-29T11:40:00Z', empty: true }),
+  loaderr: () => ({ now: '2026-10-29T11:40:00Z', loadErr: true }),
+};
+
+/* ── Lógica (src/lib/admin.ts propuesto) ── */
+function parsePoolLog(t) {
+  const m = /\+(\d+)\/(\d+) filas nuevas \| elegibles (\d+) \| no elegibles (\d+) \| fallos (\d+) \| intentos (\d+) \| cola restante (\d+)/.exec(t || '');
+  const w = /Pool semanal (\d{4}-\d\d-\d\d) → (\d{4}-\d\d-\d\d)/.exec(t || '');
+  const s = /\[([a-z_]+)\]/.exec(t || '');
+  return m ? { ins: +m[1], target: +m[2], el: +m[3], inel: +m[4], fail: +m[5], tries: +m[6], queue: +m[7], from: w?.[1], to: w?.[2], strategy: s?.[1] } : null;
+}
+function genState(l) {
+  if (l.exito && /^Sin cambios/.test(l.nombre)) return 'same';
+  if (l.exito) return 'ok';
+  const p = l.fuente === WP ? parsePoolLog(l.nombre) : null;
+  return p && p.ins > 0 ? 'partial' : 'ko';
+}
+function syncState(s, now) {
+  if (s.status === 'en_curso') return (now - new Date(s.iso)) / 6e4 > 15 ? 'stale' : 'run';
+  return { ok: 'ok', parcial: 'partial', error: 'ko' }[s.status] || 'same';
+}
+const STATE = { ok: ['ok', 'check', 'Correcto'], ko: ['ko', 'x', 'Fallido'], partial: ['warn', 'alert', 'Parcial'], run: ['run', 'loader', 'En curso'], stale: ['warn', 'clock', 'Sin terminar'], same: ['neutral', 'minus', 'Sin cambios'] };
+const chip = (k) => { const [c, i, t] = STATE[k]; return `<span class="hg-chip hg-tint ${c}">${ic(i, k === 'run' ? 'spin' : '')}${t}</span>`; };
+const toneOf = (k) => STATE[k][0];
+function syncFacts(s) {
+  const x = s.stats; if (!x) return [];
+  const out = [`<span><b>${n(x.library.ownedGames)}</b> juegos</span>`];
+  if (x.library.newToTray) out.push(`<span><b>+${x.library.newToTray}</b> a la bandeja</span>`);
+  if (x.achievements.gamesSynced) out.push(`<span><b>${x.achievements.gamesSynced}</b> con logros</span>`);
+  if (x.tracker?.toPlaying) out.push(`<span><b>${x.tracker.toPlaying}</b> a Jugando</span>`);
+  if (x.tracker?.suggestions) out.push(`<span><b>${x.tracker.suggestions}</b> sugerencias</span>`);
+  if (x.wishlist) out.push(`<span><b>${x.wishlist.prices.pricesUpdated}</b> precios</span>`);
+  if (x.wishlistError) out.push(`<span class="ink warn">Wishlist: ${esc(x.wishlistError)}</span>`);
+  if (x.achievements.gamesFailed) out.push(`<span class="ink warn">${x.achievements.gamesFailed} juego sin logros</span>`);
+  return out;
+}
+const dur = (s) => { if (!s.fin) return '—'; const sec = Math.round((new Date(s.fin) - new Date(s.iso)) / 1000); return sec < 60 ? `${sec} s` : `${Math.floor(sec / 60)} min ${sec % 60} s`; };
+
+/* ── Estado de los marcos ── */
+const VAR = { d: 'A' };
+const FR = {};
+function mk(id, layout, preset, extra = {}) { FR[id] = { id, layout, init: { preset, extra } }; load(FR[id], preset, extra); }
+function load(st, preset, extra = st.init?.extra || {}) {
+  const p = PRESETS[preset]();
+  Object.assign(st, { preset, tab: 'logs', logFilter: 'all', poolFilter: 'all', search: '', open: new Set(), dialog: null, forceD: null, stampAt: null }, extra);
+  st.now = new Date(p.now); st.issues = !!p.issues; st.empty = !!p.empty; st.loadErr = !!p.loadErr;
+  let gen = st.empty ? [] : GEN_REAL();
+  if (p.replaceGen) gen = gen.map((l) => p.replaceGen[l.id] || l);
+  if (p.addGen) gen = [...p.addGen, ...gen];
+  st.gen = gen;
+  st.sync = st.empty ? [] : [...(p.addSync || []), ...SYNC_REAL()].sort((a, b) => new Date(b.iso) - new Date(a.iso));
+  st.lista = st.empty ? [] : [...(p.addLista || []), ...LISTA_REAL()];
+  st.pool = st.empty ? [] : POOL_REAL().map((r) => r.appid === p.usedNow ? { ...r, used: true } : r);
+  st.counts = st.empty ? { all: 0, unused: 0, used: 0, inel: 0, disc: 0 } : p.usedNow ? { ...COUNTS_REAL, unused: 408, used: 271 } : { ...COUNTS_REAL };
+  if (extra.openFirst) { const l = st.gen.find((x) => x.fuente === WP); if (l) st.open.add(`g${l.id}`); }
+  if (extra.openId) st.open.add(extra.openId);
+}
+const vd = (st) => st.forceD || VAR.d;
+
+/* Salud: mismas reglas que scripts/health-check.ts */
+function tomorrow(st) {
+  const tj = judiDay(new Date(st.now.getTime() + 864e5));
+  const game = st.lista.find((r) => r.fecha === tj);
+  if (game) return { k: 'ready', tj, game };
+  const fail = st.gen.find((l) => l.fuente === DP && l.fj === tj && !l.exito);
+  if (fail) return { k: 'failed', tj, log: fail };
+  return { k: madridHour(st.now) >= 20 ? 'missing' : 'pending', tj };
+}
+function health(st) {
+  const t = tomorrow(st);
+  const r = st.counts.unused;
+  const lastW = st.gen.find((l) => l.fuente === WP);
+  const wDays = lastW ? Math.floor((st.now - new Date(lastW.iso)) / 864e5) : null;
+  const lastOk = st.sync.find((s) => (s.status === 'ok' || s.status === 'parcial') && s.fin);
+  const okH = lastOk ? (st.now - new Date(lastOk.fin)) / 36e5 : null;
+  const day = st.sync.filter((s) => st.now - new Date(s.iso) < 864e5);
+  const bad24 = day.filter((s) => ['ko', 'stale', 'partial'].includes(syncState(s, st.now)));
+  return { t, r, lastW, wDays, lastOk, okH, day, bad24 };
+}
+function failures(st, days = 7) {
+  const lim = st.now - days * 864e5;
+  const g = st.gen.filter((l) => genState(l) === 'ko' && new Date(l.iso) > lim).map((l) => ({ kind: 'gen', key: `g${l.id}`, iso: l.iso, title: FUENTE[l.fuente]?.[0] || l.fuente, msg: l.err }));
+  const s = st.sync.filter((x) => ['ko', 'stale'].includes(syncState(x, st.now)) && new Date(x.iso) > lim).map((x) => ({ kind: 'sync', key: `s${x.id}`, iso: x.iso, title: syncState(x, st.now) === 'stale' ? 'Sincronización sin terminar' : 'Sincronización con Steam', msg: x.error || 'Empezó y no ha terminado: el proceso se cortó (tiempo máximo de Vercel o del runner)' }));
+  return [...g, ...s].sort((a, b) => new Date(b.iso) - new Date(a.iso));
+}
+
+/* ── Navegación ── */
+function sidebar() {
+  const link = (label, icon, active = false, extra = '') => `<a href="#" class="nv-link${active ? ' active' : ''}">${ic(icon)}<span class="nv-link__label">${label}</span>${extra}</a>`;
+  const groups = [`<div class="nv-group">${link('Inicio', 'home')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('Biblioteca', 'library')}${link('Logros', 'award')}${link('Wishlist', 'heart')}${link('Estadísticas', 'chart')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('JUDI', 'gamepad', false, `<span class="nav-ind hg-tint warn">${ic('clock')}Hoy</span>`)}${link('Ranking', 'trophy')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Administración</p>${link('Admin', 'shield', true)}</div>`];
+  const dark = document.documentElement.dataset.theme === 'dark';
+  const theme = `<div class="theme-toggle">${['sun', 'moon', 'monitor'].map((i, k) => `<span class="${(dark ? 1 : 0) === k ? 'on' : ''}">${ic(i)}</span>`).join('')}</div>`;
+  return `<aside class="nv-side"><a href="#" class="nv-brand">${logo(22)}</a><span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span><nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}<a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>Diego</span><span class="nv-account__meta">Ver perfil</span></span></a></div></aside>`;
+}
+function mobileChrome(body) {
+  const tabs = [['Inicio', 'home'], ['Biblioteca', 'library'], ['Logros', 'award'], ['JUDI', 'gamepad'], ['Ranking', 'trophy'], ['Perfil', 'user']];
+  const tabbar = tabs.map(([l, i]) => `<a href="#" class="m-tab"><span class="m-tab__icon">${ic(i)}${l === 'JUDI' ? '<span class="m-tab__badge warn" title="Hoy"></span>' : ''}</span><span>${l}</span></a>`).join('');
+  const dark = document.documentElement.dataset.theme === 'dark';
+  return `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon active" aria-label="Admin" aria-current="page">${ic('shield')}</span><span class="m-icon">${ic(dark ? 'moon' : 'sun')}</span><span class="m-icon"><span class="nv-avatar">D</span></span></div></header><div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+
+/* ── Piezas de la página ── */
+const refBtn = (scope, label = 'Actualizar') => `<button type="button" class="hg-icon-btn js-ref" data-act="refresh" data-scope="${scope}" aria-label="${label}" title="${label}">${ic('refresh', 'js-ref-ic')}</button>`;
+function tile(i, tone, icon, label, value, note, tab, extra = {}) {
+  return `<button type="button" class="hg-tile is-link hg-enter${extra.bad ? ' is-bad' : ''}" style="--i:${i + 1}" data-act="go" data-tab="${tab}"${extra.filter ? ` data-filter="${extra.filter}"` : ''}>
+    <span class="hg-tile__label"><span class="hg-tile__icon hg-tint ${tone}">${ic(icon)}</span>${label}</span>
+    <span class="hg-tile__body"><span class="hg-tile__value ink ${tone}">${value}</span><span class="hg-tile__note">${note}</span></span></button>`;
+}
+function tilesHTML(st) {
+  const h = health(st); const t = h.t;
+  const T = [];
+  // 1. JUDI de mañana
+  if (t.k === 'ready') T.push(tile(0, 'ok', 'calendar', 'JUDI de mañana', 'Listo', `<b>${esc(t.game.nombre)}</b> · ${jShort(t.tj)}`, 'cal'));
+  else if (t.k === 'pending') T.push(tile(0, 'warn', 'calendar', 'JUDI de mañana', 'Pendiente', `${jShort(t.tj)} · el pick sale a las 11:00 y suele llegar entre las 15:00 y las 18:00`, 'cal'));
+  else if (t.k === 'failed') T.push(tile(0, 'ko', 'calendar', 'JUDI de mañana', 'Falló', `${jShort(t.tj)} · ${esc(t.log.err)}`, 'logs', { bad: true, filter: 'fail' }));
+  else T.push(tile(0, 'ko', 'calendar', 'JUDI de mañana', 'Falta', `${jShort(t.tj)} · el pick de hoy no ha dejado ningún log`, 'cal', { bad: true }));
+  // 2. Reserva
+  const rt = h.r >= 30 ? 'ok' : h.r >= 7 ? 'warn' : 'ko';
+  T.push(tile(1, rt, 'database', 'Reserva del pool', h.r ? `${n(h.r)} <small>juegos</small>` : 'Vacío', h.r ? `elegibles sin usar · <b>≈ ${n(h.r)} días</b> de JUDI` : 'Sin elegibles no se puede elegir el JUDI de mañana', 'pool', { bad: rt === 'ko', filter: 'unused' }));
+  // 3. Ingesta semanal
+  if (!h.lastW) T.push(tile(2, 'warn', 'download', 'Ingesta semanal', 'Nunca', 'Corre los domingos a las 19:00', 'logs', { filter: 'pool' }));
+  else {
+    const gs = genState(h.lastW); const pl = parsePoolLog(h.lastW.nombre);
+    const wt = gs === 'ko' || h.wDays > 14 ? 'ko' : h.wDays > 8 ? 'warn' : 'ok';
+    const note = `${STATE[gs][2]}${pl ? ` · +${pl.ins} · ${pl.el} elegibles${pl.fail ? ` · ${pl.fail} fallos` : ''}` : ` · ${esc((h.lastW.err || '').slice(0, 60))}…`}`;
+    T.push(tile(2, wt, 'download', 'Ingesta semanal', ago(h.lastW.iso, st.now), `<span class="ink ${toneOf(gs)}">${note.split(' · ')[0]}</span>${note.slice(note.indexOf(' · '))}`, 'logs', { bad: wt === 'ko', filter: 'pool' }));
+  }
+  // 4. Steam
+  if (!st.sync.length) T.push(tile(3, 'neutral', 'refresh', 'Sincronización con Steam', 'Sin datos', 'Todavía no hay sincronizaciones', 'steam'));
+  else {
+    const stt = h.okH == null || h.okH >= 36 ? 'ko' : h.bad24.length ? 'warn' : 'ok';
+    const ko = h.day.filter((s) => syncState(s, st.now) === 'ko').length;
+    const note = `última correcta · ${h.bad24.length ? `<span class="ink warn">${h.bad24.length} con problemas en 24 h</span> · ${ko} con error` : `${h.lastOk.source === 'cron' ? 'diaria' : 'manual'} · ${h.day.length} en 24 h, ninguna con error`}`;
+    T.push(tile(3, stt, 'refresh', 'Steam', h.lastOk ? ago(h.lastOk.fin, st.now) : 'Nunca', note, 'steam', { bad: stt === 'ko' }));
+  }
+  return `<div class="hg-tiles">${T.join('')}</div>`;
+}
+function alertHTML(st) {
+  const t = tomorrow(st); const f = failures(st);
+  const out = [];
+  if (st.counts.unused === 0) out.push(`<div class="alert alert--error ad-alert hg-enter" style="--i:5" role="alert">${ic('alert')}<div class="ad-alert__text"><b>El pool está vacío</b><span>Sin juegos elegibles, el pick de mañana fallará. La ingesta semanal corre los domingos a las 19:00; si no puede esperar, lánzala a mano desde GitHub.</span></div><div class="ad-alert__acts"><a class="btn btn--secondary btn--sm" href="#" data-act="gh">${ic('external')}Abrir el workflow</a></div></div>`);
+  if (t.k === 'missing') out.push(`<div class="alert alert--error ad-alert hg-enter" style="--i:5" role="alert">${ic('alert')}<div class="ad-alert__text"><b>Falta el JUDI de mañana (${jShort(t.tj)})</b><span>No hay ningún log del pick de hoy: el workflow no ha llegado a ejecutarse. El health check de las 20:00 abrirá un issue.</span></div><div class="ad-alert__acts"><a class="btn btn--secondary btn--sm" href="#" data-act="gh">${ic('external')}Abrir el workflow</a></div></div>`);
+  if (f.length) {
+    const x = f[0];
+    out.push(`<div class="alert alert--error ad-alert hg-enter" style="--i:5" role="alert">${ic('x')}<div class="ad-alert__text"><b>${f.length === 1 ? 'Un fallo' : `${f.length} fallos`} en los últimos 7 días · el último: ${esc(x.title)}, ${when(x.iso, st.now)}</b><span>${esc(x.msg.length > 160 ? `${x.msg.slice(0, 157)}…` : x.msg)}</span></div><div class="ad-alert__acts"><button type="button" class="btn btn--secondary btn--sm" data-act="see" data-key="${x.key}">Ver log</button>${f.length > 1 ? `<button type="button" class="btn btn--ghost btn--sm" data-act="go" data-tab="logs" data-filter="fail">Ver los ${f.length}</button>` : ''}</div></div>`);
+  }
+  if (!out.length && !st.empty) {
+    const parts = st.gen.filter((l) => genState(l) === 'partial' && st.now - new Date(l.iso) < 7 * 864e5);
+    out.push(`<p class="ad-calm hg-enter" style="--i:5">${ic('ccheck')}<span><b>Sin fallos en los últimos 7 días</b>${parts.length ? ` · ${parts.length} parcial: la ingesta del ${isoShort(parts[0].fj)}, con ${parsePoolLog(parts[0].nombre)?.fail} de ${parsePoolLog(parts[0].nombre)?.tries} candidatos fallidos` : ''}</span></p>`);
+  }
+  return out.join('');
+}
+function seg(opts, active, act, cls = '', role = 'group', label = '') {
+  return `<div class="hg-seg hg-seg--slide ${cls}" role="${role}" aria-label="${label}"><span class="hg-seg__thumb" aria-hidden="true"></span>${opts.map((o) => `<button type="button" class="hg-seg__opt" data-act="${act}" data-v="${o.k}" ${role === 'tablist' ? `role="tab" aria-selected="${o.k === active}"` : `aria-pressed="${o.k === active}"`}>${o.icon ? `<span class="f-ic ${o.fc || ''}">${ic(o.icon)}</span>` : ''}<span>${o.label}</span>${o.count != null ? `<span class="cnt ${o.cc ? `hg-tint ${o.cc}` : ''} ${o.count ? '' : 'is-zero'}">${n(o.count)}</span>` : ''}${o.dot ? `<span class="f-dot ${o.dot}" aria-label="Con fallos"></span>` : ''}</button>`).join('')}</div>`;
+}
+function tabsHTML(st) {
+  const f = failures(st);
+  const gBad = f.some((x) => x.kind === 'gen'), sBad = f.some((x) => x.kind === 'sync') || st.sync.some((s) => syncState(s, st.now) === 'partial' && st.now - new Date(s.iso) < 864e5);
+  const tm = tomorrow(st);
+  return seg([
+    { k: 'logs', label: 'Logs', icon: 'file', fc: 'neutral', count: st.gen.length ? 100 : 0, dot: gBad ? 'ko' : '' },
+    { k: 'steam', label: 'Steam', icon: 'refresh', fc: 'neutral', count: st.sync.length, dot: sBad ? (f.some((x) => x.kind === 'sync') ? 'ko' : 'warn') : '' },
+    { k: 'pool', label: 'Pool', icon: 'database', fc: 'neutral', count: st.counts.all, dot: st.counts.unused < 7 ? 'ko' : '' },
+    { k: 'cal', label: 'Calendario', icon: 'calendar', fc: 'neutral', count: st.empty ? 0 : 270 + (tm.k === 'ready' ? 1 : 0), dot: tm.k === 'missing' || tm.k === 'failed' ? 'ko' : '' },
+  ], st.tab, 'tab', 'hg-seg--tabs hg-enter', 'tablist', 'Secciones');
+}
+const panelHead = (icon, title, count, scope) => `<header class="ad-panel__head"><span class="sec-head__icon hg-tint neutral">${ic(icon)}</span><h2>${title}</h2><span class="sec-head__count">${count}</span>${refBtn(scope, `Actualizar ${title.toLowerCase()}`)}</header>`;
+const emptyHTML = (icon, tone, title, text) => `<div class="ad-empty"><span class="ad-empty__icon hg-tint ${tone}">${ic(icon)}</span><p><b>${title}</b>${text}</p></div>`;
+const loadErrHTML = (what) => `<div style="padding:12px"><div class="alert alert--error">${ic('alert')}<span style="flex:1">No se pudieron cargar ${what}: <span style="color:var(--foreground);font-weight:400">JWT expired</span></span><button type="button" class="btn btn--secondary btn--sm" data-act="refresh" data-scope="tab">${ic('refresh', 'js-ref-ic')}Reintentar</button></div></div>`;
+
+/* Logs */
+function logRow(st, l) {
+  const k = genState(l); const [tone] = STATE[k];
+  const [flabel, ficon] = FUENTE[l.fuente] || [l.fuente, 'file'];
+  const pl = l.fuente === WP ? parsePoolLog(l.nombre) : null;
+  let name, sub, thumb = '';
+  if (l.fuente === DP) {
+    const m = /^Juego del día asignado: (.+) \(Steam \d+\)$/.exec(l.nombre);
+    const same = /^Sin cambios: ya había juego para [\d-]+ — (.+)$/.exec(l.nombre);
+    name = m ? m[1] : same ? same[1] : l.nombre;
+    sub = k === 'ko' ? `<span class="ad-name__s ink ko">${esc(l.err)}</span>` : `<span class="ad-name__s">${same ? 'Ya había juego para ese día' : `Steam ${l.appid}`}</span>`;
+    thumb = cap(l.appid, name);
+  } else if (pl) {
+    name = `Semana del ${isoShort(pl.from)} al ${isoShort(pl.to)}`;
+    sub = `<span class="ad-name__s">+${pl.ins} nuevos · ${pl.el} elegibles · ${pl.inel} no elegibles · <span class="ink ${pl.fail ? 'warn' : ''}">${pl.fail} fallos de ${pl.tries}</span> · cola ${pl.queue}</span>`;
+  } else {
+    name = l.fuente === WP ? `Semana del ${isoShort(l.fj)} al ${isoShort(isoPlus(l.fj, 6))} · no terminó` : l.nombre; sub = `<span class="ad-name__s ink ko">${esc(l.err)}</span>`;
+  }
+  const fj = l.fuente === WP ? `sem. ${isoShort(l.fj)}` : jShort(l.fj);
+  const key = `g${l.id}`;
+  const isOpen = st.open.has(key) && vd(st) === 'A';
+  return `<li class="ad-item ${tone !== 'ok' && tone !== 'neutral' ? tone : ''}${isOpen ? ' is-open' : ''}" data-key="${key}">
+    <button type="button" class="ad-row g-log" data-act="open" data-key="${key}" aria-expanded="${isOpen}">
+      <span class="x-top">${chip(k)}<span class="x-type"><span class="ad-type">${ic(ficon)}${flabel}</span></span></span>
+      <span class="x-main ad-name">${thumb}<span class="ad-name__text"><span class="ad-name__t">${esc(name)}</span>${sub}</span></span>
+      <span class="ad-cell-muted x-hide">${fj}</span>
+      <span class="ad-cell-muted x-when x-hide">${when(l.iso, st.now)}</span>
+      <span class="x-end"><span class="ad-cell-muted x-mob">${when(l.iso, st.now)}</span><span class="ad-chev">${ic('chevron')}</span></span>
+    </button>
+    ${vd(st) === 'A' ? `<div class="ad-detail"><div class="ad-detail__in"><div class="ad-detail__box">${logDetail(st, l)}</div></div></div>` : ''}
+  </li>`;
+}
+function logDetail(st, l) {
+  const k = genState(l); const pl = l.fuente === WP ? parsePoolLog(l.nombre) : null;
+  const rows = [['Log', `#${l.id}`], ['Fuente', `${FUENTE[l.fuente]?.[0] || ''} · <span style="color:var(--muted)">${l.fuente}</span>`], ['Registrado', full(l.iso)], [l.fuente === WP ? 'Semana' : 'Fecha JUDI', l.fuente === WP ? `${isoShort(l.fj)} – ${isoShort(isoPlus(l.fj, 6))}` : `${jShort(l.fj)} (${l.fj})`]];
+  if (l.appid) rows.push(['Steam app ID', `${l.appid} · <a class="link" href="#" data-act="noop">Ver ficha ${ic('external')}</a>`]);
+  if (l.fuente === DP) rows.push(['RAWG id', '—']);
+  let groups = '';
+  if (pl) groups = `<div class="dl-groups"><div class="dl-g"><h4>${ic('download')}Filas</h4><p>Nuevas<b>${pl.ins} de ${pl.target}</b></p><p>Elegibles<b class="ink ok">${pl.el}</b></p><p>No elegibles<b>${pl.inel}</b></p></div><div class="dl-g"><h4>${ic('search')}Candidatos</h4><p>Intentos<b>${pl.tries}</b></p><p>Fallos<b class="ink ${pl.fail ? 'warn' : ''}">${pl.fail}</b></p><p>Cola restante<b>${pl.queue}</b></p></div><div class="dl-g"><h4>${ic('database')}Origen</h4><p>SteamSpy<b>1 pág.</b></p><p>Estrategia<b style="font-size:.71875rem">${pl.strategy}</b></p></div></div>`;
+  if (pl) rows.push(['Texto original', `<span style="color:var(--muted)">${esc(l.nombre)}</span>`]);
+  else if (l.fuente !== DP || k === 'ko') rows.push(['Descripción', esc(l.nombre)]);
+  const err = l.err ? `<div class="err-box ${k === 'partial' ? 'warn' : ''}">${esc(l.err)}</div>` : '—';
+  rows.push(['Mensaje de error', err]);
+  if (l.stack) rows.push(['Stack', `<pre class="pre">${esc(l.stack)}</pre>`]);
+  return `${groups}<dl class="dl">${rows.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl>
+    <div class="ad-detail__acts"><button type="button" class="btn btn--secondary btn--sm" data-act="copy">${ic('copy')}Copiar</button></div>`;
+}
+function logsPanel(st) {
+  const head = panelHead('file', 'Logs de generación', st.gen.length ? 'los 100 últimos de 313' : '', 'tab');
+  if (st.loadErr) return `<section class="ad-panel">${head}${loadErrHTML('los logs')}</section>`;
+  const c = { all: st.gen.length, daily: st.gen.filter((l) => l.fuente === DP).length, pool: st.gen.filter((l) => l.fuente === WP).length, fail: st.gen.filter((l) => genState(l) !== 'ok' && genState(l) !== 'same').length };
+  const hasKo = st.gen.some((l) => genState(l) === 'ko');
+  const tools = `<div class="ad-tools">${seg([{ k: 'all', label: 'Todos', count: c.all }, { k: 'daily', label: 'Juego del día', icon: 'calendar', fc: 'neutral', count: c.daily }, { k: 'pool', label: 'Ingesta del pool', icon: 'download', fc: 'neutral', count: c.pool }, { k: 'fail', label: 'Con fallos', icon: hasKo ? 'x' : 'alert', fc: hasKo ? 'ko' : 'warn', count: c.fail, cc: hasKo ? 'ko' : 'warn' }], st.logFilter, 'logf', '', 'group', 'Filtrar logs')}</div>`;
+  if (!st.gen.length) return `<section class="ad-panel">${head}${emptyHTML('file', 'neutral', 'Todavía no hay registros', 'Aquí aparecerá cada ejecución del pick diario (11:00) y de la ingesta semanal (domingos, 19:00).')}</section>`;
+  const rows = st.gen.filter((l) => st.logFilter === 'daily' ? l.fuente === DP : st.logFilter === 'pool' ? l.fuente === WP : st.logFilter === 'fail' ? !['ok', 'same'].includes(genState(l)) : true);
+  const th = `<div class="ad-th g-log"><span>Estado</span><span class="x-type">Tipo</span><span>Juego o resumen</span><span>Fecha JUDI</span><span class="x-when">Registrado</span><span></span></div>`;
+  const body = rows.length ? `${th}<ul class="ad-list">${rows.slice(0, 25).map((l) => logRow(st, l)).join('')}</ul>` : emptyHTML('ccheck', 'ok', 'Nada con fallos', 'Ningún log de los 100 últimos ha fallado.');
+  const foot = rows.length > 20 ? `<div class="ad-foot"><span>Mostrando 25 de ${st.logFilter === 'all' ? 100 : rows.length}</span><button type="button" class="btn btn--secondary btn--sm" data-act="more">Ver 25 más</button></div>` : '';
+  return `<section class="ad-panel">${head}${tools}${body}${foot}</section>`;
+}
+
+/* Steam */
+function syncRow(st, s) {
+  const k = syncState(s, st.now); const [tone] = STATE[k];
+  const key = `s${s.id}`; const isOpen = st.open.has(key) && vd(st) === 'A';
+  const mine = s.user === ME;
+  const user = `<span class="ad-user"><span class="nv-avatar">${mine ? 'D' : ic('user')}</span>${mine ? 'Diego <span class="you">Tú</span>' : `<span class="uid" title="${s.user}">${s.user.slice(0, 8)}</span>`}</span>`;
+  let main;
+  if (k === 'ko') main = `<span class="ad-name__s ink ko" style="white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${esc(s.error)}</span>`;
+  else if (k === 'run') main = `<span class="ad-facts"><span>Empezó ${ago(s.iso, st.now)}</span></span>`;
+  else if (k === 'stale') main = `<span class="ad-facts"><span class="ink warn">Lleva ${ago(s.iso, st.now).replace('hace ', '')} «en curso»: se cortó sin cerrar el log</span></span>`;
+  else main = `<span class="ad-facts">${syncFacts(s).join('')}</span>`;
+  const d = dur(s); const slow = s.fin && (new Date(s.fin) - new Date(s.iso)) > 60000;
+  return `<li class="ad-item ${tone !== 'ok' ? tone : ''}${isOpen ? ' is-open' : ''}" data-key="${key}">
+    <button type="button" class="ad-row g-sync" data-act="open" data-key="${key}" aria-expanded="${isOpen}">
+      <span class="x-top">${chip(k)}<span class="ad-type">${ic(s.source === 'cron' ? 'clock' : 'hand')}${s.source === 'cron' ? 'Diaria' : 'Manual'}</span><span class="x-mob">${user}</span></span>
+      <span class="x-hide">${user}</span>
+      <span class="ad-cell-muted x-hide">${when(s.iso, st.now)}</span>
+      <span class="ad-cell-muted x-hide"${slow ? ' style="color:var(--warn-ink);font-weight:600"' : ''}>${d}</span>
+      <span class="x-main" style="min-width:0">${main}</span>
+      <span class="x-end"><span class="ad-cell-muted x-mob">${when(s.iso, st.now)}</span><span class="ad-chev">${ic('chevron')}</span></span>
+    </button>
+    ${vd(st) === 'A' ? `<div class="ad-detail"><div class="ad-detail__in"><div class="ad-detail__box">${syncDetail(st, s)}</div></div></div>` : ''}
+  </li>`;
+}
+function syncDetail(st, s) {
+  const k = syncState(s, st.now); const x = s.stats;
+  let groups = '';
+  if (x) {
+    const g = (icon, t, rows) => `<div class="dl-g"><h4>${ic(icon)}${t}</h4>${rows.map(([a, b, c]) => `<p>${a}<b class="${c ? `ink ${c}` : ''}">${b}</b></p>`).join('')}</div>`;
+    groups = `<div class="dl-groups">${g('library', 'Biblioteca', [['Juegos', n(x.library.ownedGames)], ['Nuevos a la bandeja', x.library.newToTray], ['Fichas descargadas', x.library.catalogFetched], ['Fotos de horas', x.snapshotRows]])}
+      ${g('wishlist', 'Wishlist y precios', x.wishlist ? [['Juegos', x.wishlist.steamItems], ['Precios', x.wishlist.prices.pricesUpdated], ['Mínimos', x.wishlist.prices.lowsUpdated], ['IsThereAnyDeal', x.wishlist.prices.itadMatched]] : x.wishlistError ? [['Estado', 'Falló', 'warn']] : [['Estado', 'No existía aún']])}
+      ${g('award', 'Logros', [['Revisados', `${x.achievements.gamesSynced} de ${x.achievements.gamesDue}`], ['Fallidos', x.achievements.gamesFailed, x.achievements.gamesFailed ? 'warn' : ''], ['Llamadas a Steam', x.achievements.apiCalls]])}
+      ${g('play', 'Estados automáticos', x.tracker ? [['A Jugando', x.tracker.toPlaying], ['Sugerencias', x.tracker.suggestions]] : [['Estado', 'No existía aún']])}</div>`;
+  }
+  const rows = [['Log', `#${s.id}`], ['Usuario', `<span style="color:var(--muted)">${s.user}</span>`], ['Inicio', full(s.iso)], ['Fin', s.fin ? `${full(s.fin)} · ${dur(s)}` : k === 'run' ? 'Todavía en curso' : '<span class="ink warn">Nunca llegó</span>']];
+  if (s.error) rows.push(['Error', `<div class="err-box">${esc(s.error)}</div>`]);
+  if (x?.wishlistError) rows.push(['Wishlist', `<div class="err-box warn">${esc(x.wishlistError)}</div>`]);
+  return `${groups}<dl class="dl">${rows.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl><div class="ad-detail__acts"><button type="button" class="btn btn--secondary btn--sm" data-act="copy">${ic('copy')}Copiar</button></div>`;
+}
+function steamPanel(st) {
+  const head = panelHead('refresh', 'Sincronizaciones con Steam', st.sync.length ? `${st.sync.length} · las 100 últimas` : '', 'tab');
+  if (st.loadErr) return `<section class="ad-panel">${head}${loadErrHTML('las sincronizaciones')}</section>`;
+  if (!st.sync.length) return `<section class="ad-panel">${head}${emptyHTML('refresh', 'neutral', 'Todavía no hay sincronizaciones', 'La diaria corre a la 1:00 (GitHub) y cada usuario puede lanzar la suya desde el Inicio.')}</section>`;
+  const th = `<div class="ad-th g-sync"><span>Estado</span><span>Origen</span><span>Usuario</span><span>Inicio</span><span>Duración</span><span>Resumen o error</span><span></span></div>`;
+  return `<section class="ad-panel">${head}${th}<ul class="ad-list">${st.sync.map((s) => syncRow(st, s)).join('')}</ul></section>`;
+}
+
+/* Pool */
+function poolState(r) { return r.disc ? ['ko', 'eyeoff', 'Descartado'] : r.used ? ['run', 'check', 'Usado'] : r.elig ? ['ok', 'ccheck', 'Elegible'] : ['warn', 'ban', 'No elegible']; }
+function poolRows(st) {
+  const usedOn = new Map(st.lista.map((x) => [x.appid, x.fecha]));
+  const q = st.search.trim().toLowerCase();
+  const rows = st.pool.filter((r) => (q.length < 2 || r.name.toLowerCase().includes(q)) && (st.poolFilter === 'unused' ? r.elig && !r.used && !r.disc : st.poolFilter === 'used' ? r.used : st.poolFilter === 'inel' ? !r.elig && !r.disc : st.poolFilter === 'disc' ? r.disc : true));
+  if (!rows.length) return q ? emptyHTML('search', 'neutral', `Ningún juego del pool coincide con «${esc(st.search)}»`, 'La búsqueda mira el nombre en todo el pool, no solo en esta página.') : emptyHTML('database', 'neutral', 'Nada con este filtro', '');
+  const max = Math.log10(11440 + 1);
+  const th = `<div class="ad-th g-pool"><span>Juego</span><span>Estado</span><span>Razones</span><span style="text-align:right">Relevancia</span><span>Semana</span></div>`;
+  return `${th}<ul class="ad-list">${rows.map((r) => {
+    const [c, i, t] = poolState(r); const day = usedOn.get(r.appid);
+    const reasons = r.disc ? `<span class="ad-reason ko">${POOL_REASONS[r.dreason] || r.dreason}</span>` : r.reasons.map((x) => `<span class="ad-reason">${POOL_REASONS[x] || x}</span>`).join('') || '<span class="ad-cell-muted">—</span>';
+    return `<li class="ad-item"><div class="ad-row g-pool">
+      <span class="x-main ad-name">${cap(r.appid, r.name)}<span class="ad-name__text"><span class="ad-name__t">${esc(r.name)}</span><span class="ad-name__s">${r.appid}</span></span></span>
+      <span class="x-top"><span class="hg-chip hg-tint ${c}">${ic(i)}${t}${r.used && day ? ` · ${jShort(day).replace(/^\S+ /, '')}` : ''}</span></span>
+      <span class="x-main ad-reasons">${reasons}</span>
+      <span class="ad-score x-hide">${r.score.toLocaleString('es-ES', { maximumFractionDigits: 1 })}<i><span style="width:${Math.round(Math.log10(r.score + 1) / max * 100)}%"></span></i></span>
+      <span class="ad-cell-muted x-hide">${isoShort(r.week)}</span>
+      <span class="x-end"><span class="ad-cell-muted x-mob">${r.score.toLocaleString('es-ES', { maximumFractionDigits: 1 })}</span></span>
+    </div></li>`;
+  }).join('')}</ul>`;
+}
+function poolPanel(st) {
+  const c = st.counts;
+  const head = panelHead('database', 'Pool de juegos', c.all ? `${n(c.all)} en 24 semanas` : '', 'tab');
+  if (st.loadErr) return `<section class="ad-panel">${head}${loadErrHTML('el pool')}</section>`;
+  if (!c.all) return `<section class="ad-panel">${head}${emptyHTML('database', 'ko', 'El pool está vacío', 'La ingesta semanal corre los domingos a las 19:00 y añade 40 candidatos (unos 5–9 elegibles). Sin elegibles, el pick diario falla.')}</section>`;
+  const segs = [['unused', 'ok', 'Elegibles sin usar', c.unused], ['used', 'run', 'Usados', c.used], ['inel', 'warn', 'No elegibles', c.inel], ['disc', 'ko', 'Descartados', c.disc]];
+  const split = `<div class="ad-split"><div class="ad-stack" role="img" aria-label="${segs.map(([, , l, v]) => `${l}: ${n(v)}`).join(', ')}">${segs.map(([, t, , v]) => `<span class="${t}" style="flex:${v}"></span>`).join('')}</div>
+    <ul class="ad-legend">${segs.map(([k, t, l, v]) => `<li><span class="sw ${t}"></span>${l} <b>${n(v)}</b> <em>${v && v / c.all < .01 ? '&lt; 1' : Math.round(v / c.all * 100)} %</em></li>`).join('')}<li>· esta semana <b>+5</b> elegibles, se gastan 7</li></ul></div>`;
+  const tools = `<div class="ad-tools"><label class="ad-search">${ic('search')}<input type="search" class="js-search" placeholder="Buscar en el pool…" aria-label="Buscar juego en el pool" value="${esc(st.search)}"></label>
+    ${seg([{ k: 'all', label: 'Todos', count: c.all }, { k: 'unused', label: 'Sin usar', icon: 'ccheck', fc: 'ok', count: c.unused, cc: 'ok' }, { k: 'used', label: 'Usados', icon: 'check', fc: 'run', count: c.used, cc: 'run' }, { k: 'inel', label: 'No elegibles', icon: 'ban', fc: 'warn', count: c.inel, cc: 'warn' }, { k: 'disc', label: 'Descartados', icon: 'eyeoff', fc: 'ko', count: c.disc, cc: 'ko' }], st.poolFilter, 'poolf', '', 'group', 'Filtrar el pool')}</div>`;
+  return `<section class="ad-panel">${head}${split}${tools}<div class="js-pool-list">${poolRows(st)}</div><div class="ad-foot"><span>Mostrando ${st.pool.length} de ${n(c.all)} · por relevancia</span><button type="button" class="btn btn--secondary btn--sm" data-act="more">Ver 50 más</button></div></section>`;
+}
+
+/* Calendario */
+function mc(cal) {
+  if (!cal) return '<span class="ad-cell-muted">Sin nota</span>';
+  const tier = cal >= 75 ? 'sc-top' : cal >= 50 ? 'sc-mid' : 'sc-bad';
+  const word = cal >= 90 ? 'Aclamado' : cal >= 75 ? 'Favorable' : cal >= 50 ? 'Variado' : 'Desfavorable';
+  return `<span class="hg-chip hg-tint ${tier}"><b>${cal}</b>${word}</span>`;
+}
+function calPanel(st) {
+  const tm = tomorrow(st);
+  const head = panelHead('calendar', 'Juegos programados', st.lista.length ? `${tm.k === 'ready' ? '271' : '270'} publicados` : '', 'tab');
+  if (st.loadErr) return `<section class="ad-panel">${head}${loadErrHTML('el calendario')}</section>`;
+  const today = judiDay(st.now);
+  let slot = '';
+  if (tm.k === 'pending') slot = `<div class="ad-slot warn"><span class="ad-slot__ic hg-tint warn">${ic('clock')}</span><span class="ad-slot__t"><b>Mañana, ${jShort(tm.tj)} · pendiente</b><span>No hay ningún JUDI después de hoy. Es lo normal por la mañana: el pick sale a las 11:00 y GitHub lo suele retrasar hasta las 15:00–18:00.</span></span></div>`;
+  if (tm.k === 'missing') slot = `<div class="ad-slot ko"><span class="ad-slot__ic hg-tint ko">${ic('alert')}</span><span class="ad-slot__t"><b>Mañana, ${jShort(tm.tj)} · falta</b><span>Son más de las 20:00 y el pick de hoy no ha llegado.</span></span><a class="btn btn--secondary btn--sm" href="#" data-act="gh">${ic('external')}Abrir el workflow</a></div>`;
+  if (tm.k === 'failed') slot = `<div class="ad-slot ko"><span class="ad-slot__ic hg-tint ko">${ic('x')}</span><span class="ad-slot__t"><b>Mañana, ${jShort(tm.tj)} · el pick falló</b><span>${esc(tm.log.err)}</span></span><button type="button" class="btn btn--secondary btn--sm" data-act="see" data-key="g${tm.log.id}">Ver log</button></div>`;
+  if (!st.lista.length) return `<section class="ad-panel">${head}${slot}${emptyHTML('calendar', 'neutral', 'Todavía no hay ningún JUDI', 'El primero aparecerá cuando el pick elija uno del pool.')}</section>`;
+  const row = (r) => {
+    const isT = r.fecha === today, isN = r.fecha === tm.tj;
+    return `<li class="ad-item${isT ? ' is-today' : ''}${isN ? ' is-next' : ''}"><div class="ad-row g-cal">
+      <span class="x-top"><span class="ad-when"><span class="ad-date"><b>${jShort(r.fecha)}</b><span>${r.fecha}</span></span>${isT ? '<span class="hg-chip hg-tint run">Hoy</span>' : ''}${isN ? `<span class="hg-chip hg-tint ok">${ic('check')}Mañana</span>` : ''}</span></span>
+      <span class="x-main ad-name">${cap(r.appid, r.nombre)}<span class="ad-name__text"><span class="ad-name__t">${esc(r.nombre)}</span><span class="ad-name__s">Steam ${r.appid}</span></span></span>
+      <span class="x-hide">${mc(r.cal)}</span>
+      <span class="ad-cell-muted x-hide">#${r.id}</span>
+      <span class="x-end"><span class="x-mob">${mc(r.cal)}</span></span>
+    </div></li>`;
+  };
+  const next = st.lista.filter((r) => parseJ(r.fecha) > parseJ(today));
+  const past = st.lista.filter((r) => parseJ(r.fecha) <= parseJ(today));
+  const th = `<div class="ad-th g-cal"><span>Fecha</span><span>Juego</span><span>Metacritic</span><span>#</span></div>`;
+  return `<section class="ad-panel">${head}${slot}${th}${next.length ? `<p class="ad-group">Próximos, todavía no visibles (${next.length})</p><ul class="ad-list">${next.map(row).join('')}</ul>` : ''}<p class="ad-group">Publicados</p><ul class="ad-list">${past.map(row).join('')}</ul><div class="ad-foot"><span>Mostrando ${past.length} de 270</span><button type="button" class="btn btn--secondary btn--sm" data-act="more">Ver 30 más</button></div></section>`;
+}
+
+function tabHTML(st) { return { logs: logsPanel, steam: steamPanel, pool: poolPanel, cal: calPanel }[st.tab](st); }
+function pageHTML(st) {
+  const stamp = `Actualizado ${when(st.stampAt || st.now.toISOString(), st.now)}`;
+  const head = `<header class="ad-head hg-enter" style="--i:0"><div><h1 class="page-title">Administración</h1><p class="page-subtitle">Estado de JUDI y de las sincronizaciones con Steam. Solo lo ven los admins.</p></div>
+    <div class="ad-head__end"><span class="ad-stamp js-stamp">${stamp}</span><button type="button" class="btn btn--secondary btn--sm js-ref" data-act="refresh" data-scope="all">${ic('refresh', 'js-ref-ic')}Actualizar</button></div></header>`;
+  const tiles = st.loadErr ? '' : tilesHTML(st);
+  return `<div class="ad">${head}${tiles}${st.loadErr ? '' : alertHTML(st)}<div class="hg-enter" style="--i:6">${tabsHTML(st)}</div><div class="js-tab hg-enter" style="--i:7">${tabHTML(st)}</div></div>`;
+}
+function frameHTML(st) {
+  const body = pageHTML(st);
+  if (st.layout === 'desk') return `${sidebar()}<div class="page"><div class="page-in">${body}</div></div>${dialogHTML(st)}`;
+  if (st.layout === 'mob') return `${mobileChrome(body)}${dialogHTML(st)}`;
+  return `<div class="col-frame">${body}</div>${dialogHTML(st)}`;
+}
+function dialogHTML(st) {
+  if (!st.dialog) return '';
+  const g = st.dialog[0] === 'g'; const id = Number(st.dialog.slice(1));
+  const item = g ? st.gen.find((l) => l.id === id) : st.sync.find((s) => s.id === id); if (!item) return '';
+  const k = g ? genState(item) : syncState(item, st.now);
+  const title = g ? `Log #${item.id}` : `Sincronización #${item.id}`;
+  const sub = g ? `<span class="ad-type">${ic(FUENTE[item.fuente]?.[1] || 'file')}${FUENTE[item.fuente]?.[0] || item.fuente}</span>` : `<span class="ad-type">${ic(item.source === 'cron' ? 'clock' : 'hand')}${item.source === 'cron' ? 'Diaria' : 'Manual'}</span>`;
+  return `<div class="ad-dlg" data-act="close-dlg"><div class="ad-dlg__card" role="dialog" aria-modal="true" aria-label="${title}"><div class="ad-dlg__head"><div><h3>${title}</h3><p>${chip(k)}${sub}</p></div><button type="button" class="hg-icon-btn" data-act="close-dlg" aria-label="Cerrar">${ic('x')}</button></div>${g ? logDetail(st, item) : syncDetail(st, item)}</div></div>`;
+}
+
+/* ── Render ── */
+function placeThumb(scope, animate = true) {
+  scope.querySelectorAll('.hg-seg--slide').forEach((seg) => {
+    const on = seg.querySelector('[aria-pressed="true"],[aria-selected="true"]'); const th = seg.querySelector('.hg-seg__thumb'); if (!on || !th) return;
+    if (!animate) th.style.transition = 'none';
+    th.style.width = `${on.offsetWidth}px`; th.style.transform = `translateX(${on.offsetLeft}px)`;
+    if (!animate) { void th.offsetWidth; th.style.transition = ''; }
+  });
+}
+function renderFrame(id, anim = false) {
+  const st = FR[id]; const el = document.getElementById(id); if (!el) return;
+  el.classList.remove('anim');
+  el.innerHTML = frameHTML(st);
+  placeThumb(el, false);
+  if (!anim) return;
+  void el.offsetWidth; el.classList.add('anim');
+  setTimeout(() => el.classList.remove('anim'), rm() ? 0 : 700);
+}
+function renderTab(st, swap = false) {
+  const el = document.getElementById(st.id); const box = el.querySelector('.js-tab');
+  box.innerHTML = tabHTML(st);
+  box.classList.remove('is-swap'); if (swap) { void box.offsetWidth; box.classList.add('is-swap'); }
+  placeThumb(box, false);
+  const tabs = el.querySelector('.hg-seg--tabs');
+  tabs.querySelectorAll('[role="tab"]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.v === st.tab)));
+  placeThumb(tabs.parentElement, true);
+}
+function toast(el, text) {
+  el.querySelectorAll('.toast').forEach((t) => t.remove());
+  const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = text; el.appendChild(t);
+  setTimeout(() => t.remove(), 1800);
+}
+function openRow(frame, st, key, scroll = false) {
+  if (vd(st) === 'B') { st.dialog = key; renderFrame(st.id); return; }
+  const li = frame.querySelector(`.ad-item[data-key="${key}"]`); if (!li) return;
+  const on = !li.classList.contains('is-open');
+  li.classList.toggle('is-open', on); li.querySelector('.ad-row').setAttribute('aria-expanded', String(on));
+  on ? st.open.add(key) : st.open.delete(key);
+  if (scroll && on) setTimeout(() => li.scrollIntoView({ block: 'nearest', behavior: rm() ? 'auto' : 'smooth' }), 60);
+}
+
+document.addEventListener('click', (e) => {
+  const frame = e.target.closest('.frame'); if (!frame || !FR[frame.id]) return;
+  const st = FR[frame.id];
+  const a = e.target.closest('[data-act]');
+  if (!a) { if (e.target.closest('a')) e.preventDefault(); return; }
+  if (a.tagName === 'A') e.preventDefault();
+  const act = a.dataset.act;
+  if (act === 'close-dlg') { if (e.target === a || a.tagName === 'BUTTON') { st.dialog = null; renderFrame(st.id); } return; }
+  if (act === 'tab') { if (st.tab !== a.dataset.v) { st.tab = a.dataset.v; renderTab(st, true); } return; }
+  if (act === 'logf') { st.logFilter = a.dataset.v; renderTab(st, true); return; }
+  if (act === 'poolf') { st.poolFilter = a.dataset.v; frame.querySelectorAll('[data-act="poolf"]').forEach((b) => b.setAttribute('aria-pressed', String(b === a))); placeThumb(a.closest('.ad-tools')); frame.querySelector('.js-pool-list').innerHTML = poolRows(st); return; }
+  if (act === 'go') {
+    st.tab = a.dataset.tab;
+    if (a.dataset.filter && st.tab === 'logs') st.logFilter = a.dataset.filter;
+    if (a.dataset.filter && st.tab === 'pool') st.poolFilter = a.dataset.filter;
+    renderTab(st, true);
+    frame.querySelector('.js-tab').scrollIntoView({ block: 'nearest', behavior: rm() ? 'auto' : 'smooth' });
+    return;
+  }
+  if (act === 'see') {
+    const key = a.dataset.key; st.tab = key[0] === 'g' ? 'logs' : 'steam'; st.logFilter = 'all';
+    if (vd(st) === 'A') st.open.add(key);
+    renderTab(st, true);
+    if (vd(st) === 'B') { st.dialog = key; renderFrame(st.id); return; }
+    const li = frame.querySelector(`.ad-item[data-key="${key}"]`);
+    li?.scrollIntoView({ block: 'center', behavior: rm() ? 'auto' : 'smooth' });
+    return;
+  }
+  if (act === 'open') { openRow(frame, st, a.dataset.key); return; }
+  if (act === 'refresh') {
+    const scope = a.dataset.scope;
+    const btns = scope === 'all' ? frame.querySelectorAll('.js-ref') : [a];
+    btns.forEach((b) => { b.classList.add('is-busy'); b.disabled = true; });
+    const stamp = frame.querySelector('.js-stamp'); stamp?.classList.add('is-busy');
+    if (stamp) stamp.textContent = 'Actualizando…';
+    setTimeout(() => {
+      btns.forEach((b) => { b.classList.remove('is-busy'); b.disabled = false; });
+      if (stamp) { stamp.classList.remove('is-busy'); stamp.textContent = `Actualizado ${when(st.now.toISOString(), st.now)}`; }
+      if (a.textContent.includes('Reintentar')) toast(frame, 'En la app volvería a pedir los datos');
+    }, 900);
+    return;
+  }
+  if (act === 'copy') {
+    const box = a.closest('.ad-detail__box, .ad-dlg__card');
+    try { navigator.clipboard?.writeText(box.querySelector('.dl').innerText).catch(() => {}); } catch (_) {}
+    a.innerHTML = `<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path class="draw" d="M20 6 9 17l-5-5"/></svg>Copiado`;
+    a.style.color = 'var(--success)';
+    setTimeout(() => { a.innerHTML = `${ic('copy')}Copiar`; a.style.color = ''; }, 1600);
+    return;
+  }
+  if (act === 'more') { toast(frame, 'Cargaría la siguiente página'); return; }
+  if (act === 'gh') { toast(frame, 'Abriría el workflow en GitHub Actions'); return; }
+  if (act === 'noop') { toast(frame, 'Abriría la ficha del juego'); }
+});
+document.addEventListener('input', (e) => {
+  if (!e.target.classList.contains('js-search')) return;
+  const frame = e.target.closest('.frame'); const st = FR[frame.id];
+  st.search = e.target.value; frame.querySelector('.js-pool-list').innerHTML = poolRows(st);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  Object.values(FR).forEach((st) => {
+    if (st.dialog) { st.dialog = null; renderFrame(st.id); return; }
+    const frame = document.getElementById(st.id);
+    if (frame.contains(document.activeElement)) { const li = document.activeElement.closest('.ad-item.is-open'); if (li) openRow(frame, st, li.dataset.key); }
+  });
+});
+
+/* ── Marcos del documento ── */
+mk('f-desk', 'desk', 'real');
+const STATES = [
+  ['afternoon', '17:45 · mañana ya elegido', 'El pick llegó a las 16:52: «Listo» en verde con el juego, y en Calendario sale arriba como «Mañana». La reserva baja a 408.', 'afternoon', { tab: 'cal' }],
+  ['evening', '20:30 · falta el de mañana', 'Sin log del pick de hoy: tile rojo, aviso con el enlace al workflow y, en Calendario, el hueco de mañana en rojo.', 'evening', { tab: 'cal' }],
+  ['issues', 'Con fallos · Logs', 'El pick de hoy falló (rojo, y el tile dice por qué) y la ingesta del 25 oct reventó con un error y un stack largos, desplegada.', 'issues', { openId: 'g326' }],
+  ['issues2', 'Con fallos · Steam', 'Una en curso (spinner), una colgada desde las 3:10 («Sin terminar»), una parcial por la wishlist y dos con error; la de otro usuario sale con su id corto.', 'issues', { tab: 'steam', openId: 's14' }],
+  ['pool', 'Pool · filtro «No elegibles»', 'Reparto arriba, razones en español y relevancia con su barra (escala logarítmica: va de 0,4 a 11.440).', 'real', { tab: 'pool', poolFilter: 'inel' }],
+  ['empty', 'Pool vacío y sin registros', 'Instalación nueva o tablas vaciadas: reserva en rojo, aviso y vacíos con lo que va a pasar y cuándo.', 'empty', { tab: 'pool' }],
+];
+document.getElementById('states').innerHTML = STATES.map(([k, t, d], i) => `<div><div class="vlabel"><b>${i + 1}</b>${t}</div><div class="frame w-col" style="width:420px" id="s-${k}"></div><p class="frame-cap">${d}</p></div>`).join('');
+STATES.forEach(([k, , , preset, x]) => mk(`s-${k}`, 'col', preset, x));
+document.getElementById('var-d').innerHTML = [['A', 'A · Se despliega en la fila (recomendada)'], ['B', 'B · Diálogo (como hoy)']].map(([v, t]) => `<div><div class="vlabel"><b>${v}</b>${t}</div><div class="frame w-mid" style="width:600px;min-height:760px" id="vd-${v}"></div></div>`).join('');
+mk('vd-A', 'col', 'issues', { forceD: 'A', openId: 'g326' });
+mk('vd-B', 'col', 'issues', { forceD: 'B', dialog: 'g326' });
+mk('f-mob', 'mob', 'real', { openFirst: true });
+mk('f-mob-2', 'mob', 'issues', { tab: 'steam' });
+
+function renderAll(anim = true) { Object.keys(FR).forEach((id) => renderFrame(id, anim)); }
+
+document.querySelectorAll('.tests').forEach((box) => box.addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-preset]'); if (!b) return;
+  const st = FR[box.dataset.frame];
+  load(st, b.dataset.preset, {});
+  box.querySelectorAll('[data-preset]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  renderFrame(st.id, true);
+}));
+document.querySelectorAll('[data-var]').forEach((b) => b.addEventListener('click', () => {
+  VAR[b.dataset.var] = b.dataset.val;
+  document.querySelectorAll(`[data-var="${b.dataset.var}"]`).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  Object.values(FR).forEach((st) => { if (!st.forceD) st.dialog = null; });
+  renderAll(false);
+}));
+function setTheme(t) {
+  const html = document.documentElement;
+  if (!rm()) { html.classList.add('theme-anim'); setTimeout(() => html.classList.remove('theme-anim'), 320); }
+  html.dataset.theme = t;
+  const btn = document.getElementById('theme-btn'); btn.setAttribute('aria-pressed', String(t === 'dark')); btn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro';
+  document.querySelectorAll('.theme-toggle span').forEach((s, k) => s.classList.toggle('on', (t === 'dark' ? 1 : 0) === k % 3));
+  document.querySelectorAll('.m-right .m-icon:nth-child(3)').forEach((s) => { s.innerHTML = ic(t === 'dark' ? 'moon' : 'sun'); });
+}
+document.getElementById('theme-btn').addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+document.getElementById('rm-btn').addEventListener('click', (e) => {
+  const on = document.documentElement.classList.toggle('rm');
+  e.currentTarget.setAttribute('aria-pressed', String(on));
+  e.currentTarget.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`;
+});
+document.getElementById('replay-btn').addEventListener('click', () => {
+  Object.values(FR).forEach((st) => load(st, st.init.preset, st.init.extra));
+  document.querySelectorAll('.tests [data-preset]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.preset === 'real')));
+  renderAll(true);
+});
+window.addEventListener('resize', () => Object.keys(FR).forEach((id) => placeThumb(document.getElementById(id), false)));
+
+renderAll(true);
+</script>
+</body>
+</html>

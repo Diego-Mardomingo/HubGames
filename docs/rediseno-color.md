@@ -234,7 +234,8 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
 
 ### 9. Administración (solo admins)
 
-- [ ] **Admin** — `/admin` · `src/app/admin/page.tsx`, `admin.css`
+- [ ] 🎨 **Admin** — `/admin` · `src/app/admin/page.tsx`, `admin.css`
+  - Mockup: `docs/mockups/admin.html` (detalle de log A · se despliega en la fila, recomendada; B · diálogo). Cuatro tiles de salud (JUDI de mañana, reserva del pool, ingesta semanal, Steam), último fallo a la vista, chips tintados, pool paginado en servidor.
   - Hoy: logs de generación, sincronizaciones con Steam, pool de juegos, juegos programados; estados Correcto / Fallido / Parcial / En curso.
   - Ideas: estados de log y de sincronización con chips tintados (`--success`, `--danger`, `--warning`, acento); pool con Elegible / No elegible / Descartado con color; cifras arriba en tiles. Prioridad baja: solo lo ve el admin.
   - Animación: mínima, solo respuesta (actualizar con icono que gira, detalle de log que se despliega).
