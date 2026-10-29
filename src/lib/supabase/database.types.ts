@@ -766,24 +766,48 @@ export type Database = {
         }
         Relationships: []
       }
+      hubgames_playtime_minutes: {
+        Row: {
+          user_id: string
+          appid: number
+          date: string
+          minutes: number
+        }
+        Insert: {
+          user_id: string
+          appid: number
+          date: string
+          minutes: number
+        }
+        Update: {
+          user_id?: string
+          appid?: number
+          date?: string
+          minutes?: number
+        }
+        Relationships: []
+      }
       hubgames_playtime_snapshots: {
         Row: {
           user_id: string
           appid: number
           date: string
           playtime_forever: number
+          taken_at: string
         }
         Insert: {
           user_id: string
           appid: number
           date: string
           playtime_forever: number
+          taken_at?: string
         }
         Update: {
           user_id?: string
           appid?: number
           date?: string
           playtime_forever?: number
+          taken_at?: string
         }
         Relationships: []
       }
@@ -1390,6 +1414,13 @@ export type Database = {
       hubgames_reorder_backlog: {
         Args: { p_appids: number[] }
         Returns: undefined
+      }
+      hubgames_split_playtime: {
+        Args: { p_from: string; p_last_played: string; p_minutes: number; p_to: string }
+        Returns: {
+          day: string
+          minutes: number
+        }[]
       }
       hubgames_take_playtime_snapshot: {
         Args: { p_user_id: string }

@@ -48,7 +48,7 @@ function chunks<T>(items: T[], size: number): T[][] {
     return out
 }
 
-/** Día de Madrid con 6 h de retraso, como la foto de horas: el cron de madrugada cuenta como el día anterior. */
+/** Día de Madrid con 6 h de retraso: el cron de madrugada cuenta como el día anterior. */
 export function priceDay(now: number = Date.now()): string {
     return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(new Date(now - 6 * 3600_000))
 }
