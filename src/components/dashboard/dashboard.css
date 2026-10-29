@@ -262,52 +262,9 @@ a.dash-list:hover .dash-list__icon {
 }
 
 /* Vacíos: icono con el color de la lista, una frase y una acción */
-.dash-empty {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.5rem 1rem;
+/* Frase suelta dentro de un panel (no es un vacío con icono): «Qué jugar», metas del mes */
+.dash-note {
   margin: 0;
-  padding: 1rem 1.25rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-
-.dash-empty__icon {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-}
-
-.dash-empty__icon svg {
-  width: 19px;
-  height: 19px;
-}
-
-.dash-empty p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.875rem;
-}
-
-.dash-empty p b {
-  display: block;
-  color: var(--foreground);
-  font-weight: 600;
-}
-
-.dash-empty__action {
-  grid-column: 2;
-}
-
-.dash-empty--plain {
-  display: block;
-  padding: 0;
-  background: none;
-  border: 0;
   color: var(--muted);
   font-size: 0.875rem;
 }

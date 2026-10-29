@@ -24,9 +24,11 @@ import {
     AlertTriangle,
     Check,
     Clock,
+    FilterX,
     GripVertical,
     Heart,
     Hourglass,
+    Inbox,
     LayoutGrid,
     Library,
     List,
@@ -38,7 +40,11 @@ import {
     Star,
     X,
 } from 'lucide-react'
-import { safeGetSession } from '@/lib/supabase/client'
+import { safeGetSession, supabase } from '@/lib/supabase/client'
+import { loadSteamLinked } from '@/lib/steam-link'
+import { libraryEmpty, type LibraryEmpty } from '@/lib/empty-states'
+import EmptyState from '@/components/EmptyState'
+import SteamEmpty from '@/components/SteamEmpty'
 import {
     DEFAULT_PLAYING_LIMIT,
     formatHours,
@@ -261,6 +267,8 @@ function Biblioteca() {
     const [visible, setVisible] = useState(PAGE)
     const [error, setError] = useState('')
     const [savingHome, setSavingHome] = useState(false)
+    // Solo para el vacío sin juegos: «Conectar con Steam» o «Sincronizar».
+    const [steamLinked, setSteamLinked] = useState<boolean | null>(null)
 
     useEffect(() => {
         safeGetSession().then(({ data: { session } }) => {
@@ -279,8 +287,15 @@ function Biblioteca() {
                     setError(e.message)
                     setGames([])
                 })
+            loadSteamLinked(supabase).then(setSteamLinked)
         })
     }, [router])
+
+    const reload = () => {
+        loadLibrary()
+            .then(setGames)
+            .catch(() => {})
+    }
 
     // La bandeja tiene su propia página (/biblioteca/bandeja): ?estado=bandeja lleva allí.
     useEffect(() => {
@@ -673,27 +688,14 @@ function Biblioteca() {
                         )}
 
                         {list.length === 0 ? (
-                            <div className="hg-empty lib-empty">
-                                {hasFilters(filters) ? (
-                                    <>
-                                        <p>Ningún juego cumple los filtros.</p>
-                                        <Button variant="secondary" onClick={() => setFilters(NO_FILTERS)}>
-                                            Quitar filtros
-                                        </Button>
-                                    </>
-                                ) : counts.classified === 0 ? (
-                                    <>
-                                        <p>Aún no has clasificado ningún juego.</p>
-                                        <Button variant="secondary" asChild>
-                                            <Link href={counts.bandeja > 0 ? '/biblioteca/bandeja' : '/perfil'}>
-                                                {counts.bandeja > 0 ? 'Clasificar la bandeja' : 'Conectar Steam en el perfil'}
-                                            </Link>
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <p>No tienes juegos en {TAB_LABELS[tab].toLowerCase()}.</p>
-                                )}
-                            </div>
+                            <LibraryEmptyView
+                                key={`${tab}-${hasFilters(filters) ? 'f' : ''}`}
+                                empty={libraryEmpty(tab, counts, hasFilters(filters))}
+                                linked={steamLinked}
+                                onTab={changeTab}
+                                onClear={() => setFilters(NO_FILTERS)}
+                                onSynced={reload}
+                            />
                         ) : (
                             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
                                 <SortableContext
@@ -732,6 +734,79 @@ function Biblioteca() {
                 </div>
             </div>
         </SkeletonSwap>
+    )
+}
+
+/** Vacío de la biblioteca: el de la lista (su icono y su color), el de los filtros (neutro), el de todo en la bandeja o el de Steam. */
+function LibraryEmptyView({
+    empty,
+    linked,
+    onTab,
+    onClear,
+    onSynced,
+}: {
+    empty: LibraryEmpty
+    linked: boolean | null
+    onTab: (tab: LibraryTab) => void
+    onClear: () => void
+    onSynced: () => void
+}) {
+    if (empty.kind === 'steam') return <SteamEmpty linked={linked} search onSynced={onSynced} />
+    if (empty.kind === 'filters')
+        return (
+            <EmptyState
+                tone="neutral"
+                icon={<FilterX />}
+                title="Ningún juego cumple los filtros"
+                action={
+                    <Button variant="secondary" size="sm" onClick={onClear}>
+                        <X aria-hidden /> Quitar filtros
+                    </Button>
+                }
+            >
+                Sin filtros hay {empty.total} en esta lista.
+            </EmptyState>
+        )
+    if (empty.kind === 'unclassified')
+        return (
+            <EmptyState
+                size="page"
+                tone={listClass('bandeja')}
+                icon={<Inbox />}
+                title="Aún no has clasificado ningún juego"
+                action={
+                    <Button asChild>
+                        <Link href="/biblioteca/bandeja">
+                            <Inbox aria-hidden /> Clasificar la bandeja
+                        </Link>
+                    </Button>
+                }
+            >
+                Tienes {empty.tray} {empty.tray === 1 ? 'juego' : 'juegos'} en la bandeja. Un clic, o una tecla, y cada uno a su lista.
+            </EmptyState>
+        )
+    const Icon = empty.tab === 'todos' ? Library : LIST_ICONS[empty.tab]
+    const a = empty.action
+    const action =
+        a?.kind === 'tab' ? (
+            <Button variant="secondary" size="sm" onClick={() => onTab(a.tab)}>
+                Ver {TAB_LABELS[a.tab]} ({a.count})
+            </Button>
+        ) : a?.kind === 'tray' ? (
+            <Button variant="secondary" size="sm" asChild>
+                <Link href="/biblioteca/bandeja">
+                    <Inbox aria-hidden /> Clasificar la bandeja ({a.count})
+                </Link>
+            </Button>
+        ) : a?.kind === 'search' ? (
+            <Button variant="secondary" size="sm" onClick={openGameSearch}>
+                <Search aria-hidden /> Buscar un juego
+            </Button>
+        ) : undefined
+    return (
+        <EmptyState tone={listClass(empty.tab)} icon={<Icon />} title={`Nada en ${TAB_LABELS[empty.tab]}`} action={action}>
+            {empty.text}
+        </EmptyState>
     )
 }
 

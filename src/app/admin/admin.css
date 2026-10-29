@@ -344,40 +344,9 @@
   padding: 12px;
 }
 
-.ad-empty {
-  display: grid;
-  justify-items: center;
-  gap: 0.5rem;
+/* Vacío de un panel (EmptyState de página, sin marco: ya va dentro del panel) */
+.hg-empty.ad-empty {
   padding: 2.25rem 1rem;
-  color: var(--muted);
-  font-size: 0.875rem;
-  text-align: center;
-}
-
-.ad-empty__icon {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  margin-bottom: 2px;
-  border-radius: 12px;
-}
-
-.ad-empty__icon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.ad-empty p {
-  max-width: 52ch;
-  margin: 0;
-}
-
-.ad-empty p b {
-  display: block;
-  margin-bottom: 2px;
-  color: var(--foreground);
-  font-size: 0.9375rem;
 }
 
 /* ── Filas (tabla densa con cursor de selección y franja del estado) ── */

@@ -283,51 +283,6 @@
   font-size: 0.8125rem;
 }
 
-/* Vacío: icono con el color de la sección, una frase y, si hay, una acción */
-.lg-empty {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.5rem 1rem;
-  padding: 1rem 1.25rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-
-.lg-empty__icon {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-}
-
-.lg-empty__icon svg {
-  width: 19px;
-  height: 19px;
-}
-
-.lg-empty p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.875rem;
-}
-
-.lg-empty p > b {
-  display: block;
-  color: var(--foreground);
-  font-weight: 600;
-}
-
-.lg-empty p > b.lg-inline {
-  display: inline;
-}
-
-.lg-empty__action {
-  grid-column: 2;
-}
-
 /* Puntuación de cazador: reparto por rareza (barra apilada + una celda por rareza) y juegos con más puntos */
 .lg-hunt {
   display: grid;

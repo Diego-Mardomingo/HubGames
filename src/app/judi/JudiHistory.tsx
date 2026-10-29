@@ -21,6 +21,7 @@ import {
     type JudiStats,
 } from '@/lib/judi'
 import JudiDayRow, { judiDayLong, judiDayShort, type JudiHistoryDay } from './JudiDayRow'
+import EmptyState from '@/components/EmptyState'
 import '@/components/dashboard/dashboard.css'
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const
@@ -443,21 +444,23 @@ export default function JudiHome({
     return (
         <>
             {nothing ? (
-                <div className="dash-empty hg-enter" style={{ '--i': 1 } as CSSProperties}>
-                    <span className="dash-empty__icon hg-tint st-todos">
-                        <Flame aria-hidden />
-                    </span>
-                    <p>
-                        <b>Aún no has jugado ningún JUDI</b>
-                        Acierta el de hoy y empieza tu racha. También puedes jugar cualquier día pasado.
-                    </p>
-                    {todayDay && (
-                        <Button size="sm" className="dash-empty__action" onClick={() => onPlay(todayDay.id)}>
-                            Jugar el de hoy
-                            <ArrowRight data-icon="inline-end" aria-hidden />
-                        </Button>
-                    )}
-                </div>
+                <EmptyState
+                    tone="st-todos"
+                    icon={<Flame />}
+                    title="Aún no has jugado ningún JUDI"
+                    className="hg-enter"
+                    style={{ '--i': 1 } as CSSProperties}
+                    action={
+                        todayDay && (
+                            <Button size="sm" onClick={() => onPlay(todayDay.id)}>
+                                Jugar el de hoy
+                                <ArrowRight data-icon="inline-end" aria-hidden />
+                            </Button>
+                        )
+                    }
+                >
+                    Acierta el de hoy y empieza tu racha. También puedes jugar cualquier día pasado.
+                </EmptyState>
             ) : (
                 <div className="jd-stats">
                     <StatsTiles stats={stats} todayStatus={todayDay?.status ?? null} rank={rank} guest={guest} onSpot={setSpot} />
@@ -521,28 +524,31 @@ export default function JudiHome({
                         exit={{ opacity: 0, transition: { duration: reduce ? 0 : 0.12 } }}
                     >
                         {months.length === 0 ? (
-                            <div className="jd-empty-filter">
-                                <span className={`dash-empty__icon ${countClass(filter, 1)}`}>{FILTER_ICONS[filter]}</span>
-                                <p>
-                                    <b>
-                                        {filter === 'won'
-                                            ? 'Ningún día acertado todavía'
-                                            : filter === 'lost'
-                                              ? 'Ningún día fallado'
-                                              : filter === 'progress'
-                                                ? 'Ningún día a medias'
-                                                : filter === 'new'
-                                                  ? 'Has jugado todos los días'
-                                                  : 'Aún no hay ningún JUDI'}
-                                    </b>
-                                    Nada en «{f}».
-                                </p>
-                                {filter !== 'all' && (
-                                    <Button variant="secondary" size="sm" onClick={() => onFilter('all')}>
-                                        Ver todos los días
-                                    </Button>
-                                )}
-                            </div>
+                            <EmptyState
+                                size="page"
+                                tone={filter === 'won' ? 'jd-ok' : filter === 'lost' ? 'jd-ko' : filter === 'progress' ? 'st-todos' : 'neutral'}
+                                icon={FILTER_ICONS[filter] ?? <Flame />}
+                                title={
+                                    filter === 'won'
+                                        ? 'Ningún día acertado todavía'
+                                        : filter === 'lost'
+                                          ? 'Ningún día fallado'
+                                          : filter === 'progress'
+                                            ? 'Ningún día a medias'
+                                            : filter === 'new'
+                                              ? 'Has jugado todos los días'
+                                              : 'Aún no hay ningún JUDI'
+                                }
+                                action={
+                                    filter !== 'all' && (
+                                        <Button variant="secondary" size="sm" onClick={() => onFilter('all')}>
+                                            Ver todos los días
+                                        </Button>
+                                    )
+                                }
+                            >
+                                Nada en «{f}».
+                            </EmptyState>
                         ) : (
                             months.map((m) => {
                                 const open = openMonths.includes(m.key)

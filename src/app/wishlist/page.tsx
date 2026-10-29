@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Bell, CalendarDays, Heart, Percent, Search, TrendingDown, Undo2 } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
+import { loadSteamLinked } from '@/lib/steam-link'
 import { formatPrice, removeFromWishlist, restoreToWishlist, type WishlistGame } from '@/lib/wishlist'
 import {
     WISHLIST_FILTERS,
@@ -25,6 +26,8 @@ import type { AlertMode, PriceAlert } from '@/lib/price-alerts'
 import type { GameStatus } from '@/lib/tracker'
 import { Button } from '@/components/ui/button'
 import { Skeleton, SkeletonZone } from '@/components/ui/skeleton'
+import EmptyState from '@/components/EmptyState'
+import SteamEmpty from '@/components/SteamEmpty'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import KeyboardList from '@/components/KeyboardList'
 import Segmented from '@/components/Segmented'
@@ -138,6 +141,8 @@ export default function WishlistPage() {
     const [visible, setVisible] = useState(PAGE)
     const [error, setError] = useState('')
     const [userId, setUserId] = useState<string | null>(null)
+    // Solo para el vacío sin juegos: «Conectar con Steam» o la wishlist vacía de siempre.
+    const [steamLinked, setSteamLinked] = useState<boolean | null>(null)
     // Entrada de la página (filas escalonadas, destello del mínimo, regla): solo al llegar, no al filtrar.
     const [entering, setEntering] = useState(false)
     // Quitar: la fila sale ('out') y se pliega ('collapse') antes de irse de la lista.
@@ -156,6 +161,7 @@ export default function WishlistPage() {
                 return
             }
             setUserId(session.user.id)
+            loadSteamLinked(supabase).then((v) => !cancelled && setSteamLinked(v))
             loadAlerts()
                 .then((a) => !cancelled && setAlerts(a))
                 .catch(() => {})
@@ -391,6 +397,7 @@ export default function WishlistPage() {
                         filter={filter}
                         games={all}
                         total={counts.todos}
+                        steamLinked={steamLinked}
                         onAll={() => pickFilter('todos')}
                         onSynced={() => void loadWishlist().then(setGames, () => {})}
                     />
@@ -476,38 +483,41 @@ export default function WishlistPage() {
     )
 }
 
-/** Wishlist vacía (cómo se llena y dos acciones) o filtro sin resultados (qué pasa y «Ver todos»). */
+/** Wishlist vacía (cómo se llena y dos acciones; sin Steam, conectarlo) o filtro sin resultados (neutro, qué pasa y «Ver todos»). */
 function Empty({
     filter,
     games,
     total,
+    steamLinked,
     onAll,
     onSynced,
 }: {
     filter: WishlistFilter
     games: WishlistGame[]
     total: number
+    steamLinked: boolean | null
     onAll: () => void
     onSynced: () => void
 }) {
     if (total === 0) {
+        if (steamLinked === false) return <SteamEmpty linked={false} what="tu wishlist" search />
         return (
-            <div className="wl-empty">
-                <span className="wl-empty__ic" aria-hidden>
-                    <Heart />
-                </span>
-                <p>
-                    <b>Tu wishlist está vacía</b>
-                    Se importa sola de tu wishlist de Steam cada día (con el perfil público) y también puedes añadir juegos desde el
-                    buscador o la ficha de un juego.
-                </p>
-                <div className="wl-empty__acts">
-                    <Button variant="secondary" onClick={openGameSearch}>
-                        <Search aria-hidden /> Buscar un juego
-                    </Button>
-                    <SyncButton label="Sincronizar con Steam" variant="secondary" onSynced={onSynced} />
-                </div>
-            </div>
+            <EmptyState
+                size="page"
+                tone="st-todos"
+                icon={<Heart />}
+                title="Tu wishlist está vacía"
+                action={
+                    <>
+                        <Button variant="secondary" onClick={openGameSearch}>
+                            <Search aria-hidden /> Buscar un juego
+                        </Button>
+                        <SyncButton label="Sincronizar con Steam" variant="secondary" onSynced={onSynced} />
+                    </>
+                }
+            >
+                Se importa de Steam cada día (con el perfil público). También puedes añadir juegos desde el buscador.
+            </EmptyState>
         )
     }
     const near = filter === 'minimo' ? closestToLow(games) : null
@@ -529,19 +539,18 @@ function Empty({
     if (filter === 'todos') return null
     const [title, text] = msg[filter]
     return (
-        <div className="wl-empty wl-swap">
-            <span className={`wl-empty__ic${filter === 'minimo' ? ' is-deal' : ''}`} aria-hidden>
-                {FILTER_ICONS[filter]}
-            </span>
-            <p>
-                <b>{title}</b>
-                {text}
-            </p>
-            <div className="wl-empty__acts">
+        <EmptyState
+            tone={filter === 'minimo' ? 'is-deal' : 'neutral'}
+            icon={FILTER_ICONS[filter]}
+            title={title}
+            className="wl-swap"
+            action={
                 <Button variant="secondary" onClick={onAll}>
                     Ver todos (<AnimatedCount value={total} />)
                 </Button>
-            </div>
-        </div>
+            }
+        >
+            {text}
+        </EmptyState>
     )
 }

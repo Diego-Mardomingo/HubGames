@@ -213,7 +213,7 @@ export default function WhatToPlay({ games, unowned = [], now, initialSeed }: { 
                 <Segmented label="Ganas" value={mood} options={MOOD_LABELS} onChange={(v) => choose(() => setMood(v), v === 'sorpresa' ? 'deal' : 'fade')} />
             </div>
             {visible.length === 0 ? (
-                <p className="dash-empty dash-empty--plain">
+                <p className="dash-note">
                     {mood === 'nuevo'
                         ? 'No hay pendientes sin empezar. Pasa juegos a Pendientes desde la bandeja o la biblioteca.'
                         : mood === 'logros'

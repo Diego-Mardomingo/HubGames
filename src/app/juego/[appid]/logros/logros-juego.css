@@ -497,22 +497,6 @@
   position: relative;
 }
 
-/* Vacíos: sin logros (en el color de los logros) y combinación de filtros sin resultados */
-.gl-empty--leg .lg-empty__icon {
-  --c: var(--rar-leg);
-  color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground));
-}
-
-.lg-empty.gl-empty {
-  border-style: dashed;
-  border-color: var(--border-hover);
-}
-
-.gl-empty .lg-empty__icon {
-  background: var(--surface-2);
-  color: var(--muted);
-}
-
 @media (max-width: 1100px) {
   .gl-sum {
     grid-template-columns: 150px minmax(0, 1fr);

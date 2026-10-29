@@ -693,33 +693,6 @@
   animation-delay: 140ms;
 }
 
-.jd-empty-filter {
-  display: grid;
-  justify-items: center;
-  gap: 0.5rem;
-  padding: 2rem 1rem;
-  border: 1px dashed var(--border-hover);
-  border-radius: var(--radius-lg);
-  color: var(--muted);
-  font-size: 0.875rem;
-  text-align: center;
-}
-
-.jd-empty-filter .dash-empty__icon.jd-cnt {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-}
-
-.jd-empty-filter p {
-  margin: 0;
-}
-
-.jd-empty-filter p b {
-  display: block;
-  color: var(--foreground);
-}
-
 /* Meses plegables con su barra (acertados, fallados, en curso; el resto, sin jugar) */
 .jd-months {
   display: grid;

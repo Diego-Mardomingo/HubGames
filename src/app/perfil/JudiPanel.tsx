@@ -1,7 +1,8 @@
 import type { CSSProperties } from 'react'
 import Link from 'next/link'
-import { Check, ChevronRight, Play, TrendingUp, Trophy, X } from 'lucide-react'
+import { Check, ChevronRight, Flame, Play, TrendingUp, Trophy, X } from 'lucide-react'
 import CountUp from '@/components/CountUp'
+import EmptyState from '@/components/EmptyState'
 import { Button } from '@/components/ui/button'
 import { beatPercent, topWithSelf, type JudiStats } from '@/lib/profile'
 import { enter } from './Section'
@@ -51,14 +52,21 @@ export default function JudiPanel({ stats, ranking, userId, index }: { stats: Ju
             </header>
 
             {stats.total === 0 ? (
-                <div className="pf-judi__empty">
-                    <p className="pf-empty">Aún no has terminado ningún JUDI. Adivina el juego del día por su captura.</p>
-                    <Button asChild size="sm">
-                        <Link href="/judi">
-                            <Play data-icon="inline-start" aria-hidden /> Jugar al de hoy
-                        </Link>
-                    </Button>
-                </div>
+                <EmptyState
+                    bare
+                    tone="st-todos"
+                    icon={<Flame />}
+                    title="Aún no has terminado ningún JUDI"
+                    action={
+                        <Button asChild size="sm" variant="secondary">
+                            <Link href="/judi">
+                                <Play data-icon="inline-start" aria-hidden /> Jugar el de hoy
+                            </Link>
+                        </Button>
+                    }
+                >
+                    Adivina el juego del día por su captura.
+                </EmptyState>
             ) : (
                 <>
                     <div className="pf-judi__big">

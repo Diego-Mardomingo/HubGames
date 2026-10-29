@@ -37,6 +37,8 @@ import AchievementItem from '@/components/achievements/AchievementItem'
 import { seriesOf } from '@/components/achievements/Milestones'
 import GameCover from '@/components/tracker/GameCover'
 import { MarkFlags, StatusChip } from '@/components/tracker/status'
+import EmptyState from '@/components/EmptyState'
+import SteamEmpty from '@/components/SteamEmpty'
 import '@/components/achievements/achievements.css'
 import '@/components/dashboard/dashboard.css'
 import './historial.css'
@@ -51,6 +53,8 @@ type CSSVars = CSSProperties & Record<`--${string}`, string | number>
 export interface HistorialData {
     unlocked: Achievement[]
     games: LibraryGame[]
+    /** Para el vacío sin desbloqueos: «Conectar con Steam» o «Sincronizar» (null si no se pudo leer). */
+    steamLinked: boolean | null
 }
 
 const LONG_DAY = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
@@ -624,17 +628,18 @@ export default function HistorialView({ data, error, onReload }: { data: Histori
                 )}
                 <div key={swap} className={swap > 0 ? 'hi-tl__wrap hi-swap' : 'hi-tl__wrap'}>
                     {d.timeline.length === 0 ? (
-                        <div className="lg-empty">
-                            <span className="lg-empty__icon hg-tint st-sin_final" aria-hidden>
-                                <Award />
-                            </span>
-                            <p>
-                                <b>Aún no hay desbloqueos.</b> Cuando consigas logros en Steam y sincronices, aparecerán aquí día a día.
-                            </p>
-                            <div className="lg-empty__action">
-                                <SyncButton label="Sincronizar con Steam" variant="secondary" onSynced={onReload} />
-                            </div>
-                        </div>
+                        data.steamLinked === false ? (
+                            <SteamEmpty linked={false} what="tus logros" />
+                        ) : (
+                            <EmptyState
+                                tone="st-sin_final"
+                                icon={<Award />}
+                                title="Aún no hay desbloqueos"
+                                action={<SyncButton label="Sincronizar con Steam" variant="secondary" onSynced={onReload} />}
+                            >
+                                Cuando consigas logros en Steam y sincronices, aparecerán aquí día a día.
+                            </EmptyState>
+                        )
                     ) : (
                         shownMonths.map((m) => (
                             <MonthCard

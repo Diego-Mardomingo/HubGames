@@ -294,14 +294,6 @@
   font-size: 0.8125rem;
 }
 
-.lib-empty {
-  justify-items: start;
-}
-
-.lib-empty__icon {
-  color: var(--success);
-}
-
 .lib-more {
   display: flex;
   justify-content: center;

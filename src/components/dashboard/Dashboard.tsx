@@ -58,6 +58,7 @@ import CountUp from '@/components/CountUp'
 import Tile from '@/components/Tile'
 import ActivityHeatmap from './ActivityHeatmap'
 import SyncButton from './SyncButton'
+import EmptyState from '@/components/EmptyState'
 import WhatToPlay from './WhatToPlay'
 import ListShortcuts from './ListShortcuts'
 import MonthlyGoals from './MonthlyGoals'
@@ -94,19 +95,12 @@ function SectionHead({ id, tone, icon, title, count, children }: { id: string; t
     )
 }
 
-/** Vacío: icono con el color de la lista, una frase y, si hay, una acción. */
+/** Vacío de un panel: icono con el color de la sección, una frase y, si hay, una acción (`EmptyState`). */
 function Empty({ tone, icon, title, text, action }: { tone: string; icon: React.ReactNode; title: string; text: string; action?: React.ReactNode }) {
     return (
-        <div className="dash-empty">
-            <span className={`dash-empty__icon hg-tint ${tone}`} aria-hidden>
-                {icon}
-            </span>
-            <p>
-                <b>{title}</b>
-                {text}
-            </p>
-            {action && <div className="dash-empty__action">{action}</div>}
-        </div>
+        <EmptyState tone={tone} icon={icon} title={title} action={action}>
+            {text}
+        </EmptyState>
     )
 }
 
@@ -562,7 +556,7 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                         </Link>
                     </SectionHead>
                     {activity.length === 0 ? (
-                        <Empty tone="st-bandeja" icon={<Trophy />} title="Sin logros todavía" text="Aparecerán aquí al sincronizar." />
+                        <Empty tone="dash-leg" icon={<Trophy />} title="Sin logros todavía" text="Aparecerán aquí al sincronizar." action={<SyncButton label="Sincronizar ahora" variant="secondary" />} />
                     ) : (
                         <ul className="hg-achs">
                             {activity.map((a, i) => (

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { safeGetSession } from '@/lib/supabase/client'
+import { safeGetSession, supabase } from '@/lib/supabase/client'
+import { loadSteamLinked } from '@/lib/steam-link'
 import { loadLibrary } from '@/lib/tracker'
 import { loadEasyMissing, loadUnlockedAchievements } from '@/lib/achievements-db'
 import SkeletonSwap from '@/components/SkeletonSwap'
@@ -24,11 +25,11 @@ export default function LogrosPage() {
                 return
             }
             // Pedimos de sobra: luego se quitan los juegos marcados como "Descartado".
-            Promise.all([loadLibrary(), loadUnlockedAchievements(), loadEasyMissing(EASY_PERCENT, 300)])
-                .then(([games, unlocked, easy]) => setData({ games, unlocked, easy }))
+            Promise.all([loadLibrary(), loadUnlockedAchievements(), loadEasyMissing(EASY_PERCENT, 300), loadSteamLinked(supabase)])
+                .then(([games, unlocked, easy, steamLinked]) => setData({ games, unlocked, easy, steamLinked }))
                 .catch((e: Error) => {
                     setError(e.message)
-                    setData({ games: [], unlocked: [], easy: [] })
+                    setData({ games: [], unlocked: [], easy: [], steamLinked: null })
                 })
         })
     }, [router])
