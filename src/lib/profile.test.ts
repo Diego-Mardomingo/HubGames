@@ -1,4 +1,5 @@
 import { describe, it } from 'node:test'
+import { tomorrowStatus } from './admin'
 import assert from 'node:assert/strict'
 import {
     adminLines,
@@ -8,8 +9,6 @@ import {
     judiDay,
     judiStats,
     memberSince,
-    scheduledDaysLeft,
-    scheduledTone,
     steamNeedsFix,
     steamState,
     timeAgo,
@@ -82,16 +81,7 @@ describe('perfil', () => {
         assert.deepEqual(topWithSelf(tied, 'c', 2).self, { entry: { userId: 'c', rank: 2 }, rank: 2 })
     })
 
-    it('programados: días que quedan y su color', () => {
-        assert.equal(scheduledDaysLeft('03-11-2026', '28-10-2026'), 6)
-        assert.equal(scheduledDaysLeft('28-10-2026', '28-10-2026'), 0)
-        assert.equal(scheduledDaysLeft('20-10-2026', '28-10-2026'), 0)
-        assert.equal(scheduledDaysLeft(null, '28-10-2026'), 0)
-        assert.equal(scheduledTone(6), 'dash-ok')
-        assert.equal(scheduledTone(3), 'dash-ok')
-        assert.equal(scheduledTone(2), 'dash-warn')
-        assert.equal(scheduledTone(1), 'dash-warn')
-        assert.equal(scheduledTone(0), 'dash-ko')
+    it('fecha larga de JUDI', () => {
         assert.equal(judiDateLong('03-11-2026'), '3 de noviembre')
     })
 
@@ -107,36 +97,60 @@ describe('perfil', () => {
     it('tarjeta de administración: tres líneas con su color', () => {
         const now = new Date('2026-10-28T12:00:00Z')
         const ok = adminLines(
-            { lastGen: { exito: true, fecha_ejecucion: '2026-10-28T05:00:00Z', nombre_juego: 'Hollow Knight', error_mensaje: null }, lastScheduled: '03-11-2026', syncErrors: 0 },
+            {
+                lastGen: { exito: true, fuente: 'steam_pool_daily_pick', fecha_ejecucion: '2026-10-28T05:00:00Z', nombre_juego: 'Juego del día asignado: Hollow Knight (Steam 367520)', error_mensaje: null },
+                tomorrow: tomorrowStatus({ game: 'Hollow Knight', pickLog: null }, now),
+                syncErrors: 0,
+            },
             now,
         )
         assert.deepEqual(
             ok.map((l) => [l.key, l.tone, l.value, l.detail]),
             [
                 ['gen', 'dash-ok', 'Correcto', 'hoy, 06:00 · Hollow Knight'],
-                ['scheduled', 'dash-ok', '6 días', 'Hasta el 3 de noviembre'],
+                ['tomorrow', 'dash-ok', 'Listo', '29 de octubre · Hollow Knight'],
                 ['sync', 'dash-ok', 'Ninguna con error', undefined],
             ],
         )
         const bad = adminLines(
-            { lastGen: { exito: false, fecha_ejecucion: '2026-10-28T05:00:00Z', nombre_juego: null, error_mensaje: 'Sin juegos elegibles' }, lastScheduled: '29-10-2026', syncErrors: 3 },
+            {
+                lastGen: { exito: false, fuente: 'steam_pool_daily_pick', fecha_ejecucion: '2026-10-28T05:00:00Z', nombre_juego: 'Fallo en la elección del juego del día', error_mensaje: 'Sin juegos elegibles' },
+                tomorrow: tomorrowStatus({ game: null, pickLog: { exito: false, fecha_judi: '29-10-2026', error_mensaje: 'Sin juegos elegibles' } }, now),
+                syncErrors: 3,
+            },
             now,
         )
         assert.deepEqual(
             bad.map((l) => [l.tone, l.value]),
             [
                 ['dash-ko', 'Fallido'],
-                ['dash-warn', '1 día'],
+                ['dash-ko', 'Falló'],
                 ['dash-ko', '3 con error'],
             ],
         )
         assert.equal(bad[0].detail, 'hoy, 06:00 · Sin juegos elegibles')
-        const none = adminLines({ lastGen: null, lastScheduled: null, syncErrors: 0 }, now)
+        // Ingesta con filas nuevas y algún candidato fallido: parcial, en ámbar
+        const partial = adminLines(
+            {
+                lastGen: {
+                    exito: false,
+                    fuente: 'steam_weekly_pool',
+                    fecha_ejecucion: '2026-10-25T20:05:31Z',
+                    nombre_juego: 'Pool semanal 2026-10-25 → 2026-10-31 | +40/40 filas nuevas | elegibles 5 | no elegibles 35 | fallos 2 | intentos 42 | cola restante 184 | SteamSpy págs. 1 [tiered_then_steamspy_all]',
+                    error_mensaje: '2 candidatos fallaron al procesar',
+                },
+                tomorrow: tomorrowStatus({ game: null, pickLog: null }, now),
+                syncErrors: 0,
+            },
+            now,
+        )
+        assert.deepEqual(partial.slice(0, 2).map((l) => [l.tone, l.value]), [['dash-warn', 'Parcial'], ['dash-warn', 'Pendiente']])
+        const none = adminLines({ lastGen: null, tomorrow: tomorrowStatus({ game: null, pickLog: null }, new Date('2026-10-28T20:00:00Z')), syncErrors: 0 }, now)
         assert.deepEqual(
             none.map((l) => [l.tone, l.value]),
             [
                 ['dash-warn', 'Sin registros'],
-                ['dash-ko', 'Ninguno después de hoy'],
+                ['dash-ko', 'Falta'],
                 ['dash-ok', 'Ninguna con error'],
             ],
         )

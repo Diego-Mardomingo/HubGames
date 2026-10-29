@@ -1,5 +1,6 @@
 import { parseJudiDate } from './dashboard'
 import { getPointsForRecord, type JudiProgressRecord } from './judi-ranking'
+import { fuenteLabel, genLogState, parseDailyLog, RUN_STATE_META, TOMORROW_META, type RunState, type Tomorrow } from './admin'
 
 // ── Perfil (/perfil): lógica pura de la tarjeta de usuario, Steam, JUDI y la tarjeta de administración ──
 
@@ -96,19 +97,6 @@ export function topWithSelf<T extends { userId: string; rank?: number }>(
 
 export type AdminTone = 'dash-ok' | 'dash-warn' | 'dash-ko'
 
-/** Días de JUDI programados después de hoy (fechas DD-MM-YYYY de `hubgames_lista_videojuegos_judi`). */
-export function scheduledDaysLeft(lastFecha: string | null, today: string): number {
-    const last = lastFecha ? parseJudiDate(lastFecha) : null
-    const now = parseJudiDate(today)
-    if (last === null || now === null) return 0
-    return Math.max(0, Math.round((last - now) / 86_400_000))
-}
-
-/** 3 o más días en verde, 1–2 en ámbar, 0 en rojo. */
-export function scheduledTone(days: number): AdminTone {
-    return days >= 3 ? 'dash-ok' : days >= 1 ? 'dash-warn' : 'dash-ko'
-}
-
 /** Hoy en Madrid como DD-MM-YYYY (el formato de las fechas de JUDI). */
 export function judiDay(now: Date = new Date()): string {
     const [y, m, d] = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(now).split('-')
@@ -134,35 +122,50 @@ export function adminWhen(iso: string, now: Date = new Date()): string {
     return `${date}, ${time}`
 }
 
-export type AdminLine = { key: 'gen' | 'scheduled' | 'sync'; tone: AdminTone; title: string; value: string; detail?: string }
+export type AdminLine = { key: 'gen' | 'tomorrow' | 'sync'; tone: AdminTone; title: string; value: string; detail?: string }
 
 export type AdminInput = {
-    lastGen: { exito: boolean; fecha_ejecucion: string | null; nombre_juego: string | null; error_mensaje: string | null } | null
-    lastScheduled: string | null
+    lastGen: { exito: boolean; fuente: string | null; fecha_ejecucion: string | null; nombre_juego: string | null; error_mensaje: string | null } | null
+    /** El JUDI de mañana (`tomorrowStatus` de `src/lib/admin.ts`, la misma regla que /admin y el health check). */
+    tomorrow: Tomorrow
     syncErrors: number
 }
 
-/** Las tres líneas de estado de la tarjeta de administración, con su color. */
+/** Las tres líneas de estado de la tarjeta de administración, con su color (las mismas reglas que /admin). */
 export function adminLines(input: AdminInput, now: Date = new Date()): AdminLine[] {
-    const { lastGen, lastScheduled, syncErrors } = input
-    const gen: AdminLine = !lastGen
-        ? { key: 'gen', tone: 'dash-warn', title: 'Último JUDI generado', value: 'Sin registros' }
-        : {
-              key: 'gen',
-              tone: lastGen.exito ? 'dash-ok' : 'dash-ko',
-              title: 'Último JUDI generado',
-              value: lastGen.exito ? 'Correcto' : 'Fallido',
-              detail: [lastGen.fecha_ejecucion ? adminWhen(lastGen.fecha_ejecucion, now) : null, lastGen.exito ? lastGen.nombre_juego : lastGen.error_mensaje]
-                  .filter(Boolean)
-                  .join(' · '),
-          }
-    const days = scheduledDaysLeft(lastScheduled, judiDay(now))
-    const scheduled: AdminLine = {
-        key: 'scheduled',
-        tone: scheduledTone(days),
-        title: 'JUDI programados',
-        value: days === 0 ? 'Ninguno después de hoy' : `${days} ${days === 1 ? 'día' : 'días'}`,
-        detail: days > 0 && lastScheduled ? `Hasta el ${judiDateLong(lastScheduled)}` : undefined,
+    const { lastGen, tomorrow, syncErrors } = input
+    const genState = lastGen ? genLogState(lastGen) : null
+    const genTone: Record<RunState, AdminTone> = { ok: 'dash-ok', same: 'dash-ok', partial: 'dash-warn', stale: 'dash-warn', run: 'dash-warn', ko: 'dash-ko' }
+    const gen: AdminLine =
+        !lastGen || !genState
+            ? { key: 'gen', tone: 'dash-warn', title: 'Último JUDI generado', value: 'Sin registros' }
+            : {
+                  key: 'gen',
+                  tone: genTone[genState],
+                  title: 'Último JUDI generado',
+                  value: RUN_STATE_META[genState].label,
+                  detail: [
+                      lastGen.fecha_ejecucion ? adminWhen(lastGen.fecha_ejecucion, now) : null,
+                      genState === 'ok' || genState === 'same' ? (parseDailyLog(lastGen.nombre_juego).game ?? fuenteLabel(lastGen.fuente)) : lastGen.error_mensaje,
+                  ]
+                      .filter(Boolean)
+                      .join(' · '),
+              }
+    const meta = TOMORROW_META[tomorrow.state]
+    const day = judiDateLong(tomorrow.fecha)
+    const tomorrowLine: AdminLine = {
+        key: 'tomorrow',
+        tone: meta.tone as AdminTone,
+        title: 'JUDI de mañana',
+        value: meta.label,
+        detail:
+            tomorrow.state === 'ready'
+                ? `${day} · ${tomorrow.game}`
+                : tomorrow.state === 'pending'
+                  ? `${day} · suele llegar entre las 15:00 y las 18:00`
+                  : tomorrow.state === 'failed'
+                    ? `${day} · ${tomorrow.error ?? 'el pick falló'}`
+                    : `${day} · el pick de hoy no ha dejado ningún log`,
     }
     const sync: AdminLine = {
         key: 'sync',
@@ -170,5 +173,5 @@ export function adminLines(input: AdminInput, now: Date = new Date()): AdminLine
         title: 'Sincronizaciones con Steam (24 h)',
         value: syncErrors > 0 ? `${syncErrors.toLocaleString('es-ES')} con error` : 'Ninguna con error',
     }
-    return [gen, scheduled, sync]
+    return [gen, tomorrowLine, sync]
 }
