@@ -20,6 +20,7 @@ export default function Segmented<T extends string>({
     icons,
     countClassName,
     scroll,
+    iconOnly,
     className,
     ...aria
 }: {
@@ -33,6 +34,8 @@ export default function Segmented<T extends string>({
     /** Clases extra del contador de cada opción (color, cero apagado). */
     countClassName?: (option: T, count: number) => string
     scroll?: boolean
+    /** Solo el icono a la vista (la etiqueta queda para lectores de pantalla y como `title`). */
+    iconOnly?: boolean
     className?: string
     'aria-label'?: string
     'aria-labelledby'?: string
@@ -42,12 +45,19 @@ export default function Segmented<T extends string>({
     return (
         <div className={['hg-seg hg-seg--slide', scroll && 'hg-seg--scroll', className].filter(Boolean).join(' ')} role="group" {...aria}>
             {options.map((o) => (
-                <button key={o} type="button" className={`hg-seg__opt${value === o ? ' is-active' : ''}`} aria-pressed={value === o} onClick={() => onChange(o)}>
+                <button
+                    key={o}
+                    type="button"
+                    className={`hg-seg__opt${value === o ? ' is-active' : ''}`}
+                    aria-pressed={value === o}
+                    title={iconOnly ? labels[o] : undefined}
+                    onClick={() => onChange(o)}
+                >
                     {value === o && (
                         <motion.span layoutId={`${id}-thumb`} className="hg-seg__thumb" transition={{ duration: reduce ? 0 : 0.22, ease: EASE_OUT }} />
                     )}
                     {icons?.[o] && <span className="hg-seg__text hg-seg__icon">{icons[o]}</span>}
-                    <span className="hg-seg__text">{labels[o]}</span>
+                    <span className={iconOnly ? 'sr-only' : 'hg-seg__text'}>{labels[o]}</span>
                     {counts && (
                         <AnimatedCount
                             value={counts[o]}

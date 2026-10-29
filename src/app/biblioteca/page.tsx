@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
@@ -20,8 +20,10 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import {
     AlertTriangle,
+    ArrowRight,
     Check,
     Clock,
     FilterX,
@@ -38,6 +40,7 @@ import {
     Search,
     ShoppingCart,
     Star,
+    Undo2,
     X,
 } from 'lucide-react'
 import { safeGetSession, supabase } from '@/lib/supabase/client'
@@ -47,15 +50,25 @@ import EmptyState from '@/components/EmptyState'
 import SteamEmpty from '@/components/SteamEmpty'
 import {
     DEFAULT_PLAYING_LIMIT,
+    completeGames,
     formatHours,
     getLibraryHome,
     getPlayingLimit,
     loadLibrary,
     reorderBacklog,
+    restoreGames,
+    setGameMark,
+    setGamesStatus,
     setLibraryHome,
     setPlayingLimit,
+    statusSnapshot,
+    suggestedCompletionDate,
+    type GameMark,
+    type GameStatus,
     type LibraryGame,
+    type StatusSnapshot,
 } from '@/lib/tracker'
+import { rowChange, statusPatch } from '@/lib/library-motion'
 import {
     ACHIEVEMENT_FILTER_LABELS,
     DURATION_FILTER_LABELS,
@@ -93,7 +106,10 @@ import { Skeleton, SkeletonZone } from '@/components/ui/skeleton'
 import { RowSkeleton } from '@/components/skeletons'
 import KeyboardList from '@/components/KeyboardList'
 import GameCover from '@/components/tracker/GameCover'
-import GameMenu from '@/components/tracker/GameMenu'
+import GameMenu, { type GameMenuAct } from '@/components/tracker/GameMenu'
+import AnimatedCount from '@/components/AnimatedCount'
+import Segmented from '@/components/Segmented'
+import { TrayFly, type TrayFlight } from './bandeja/TrayParts'
 import { openGameSearch } from '@/components/tracker/GameSearch'
 import SearchShortcut from '@/components/tracker/SearchShortcut'
 import { LIST_ICONS, MarkFlags, StatusChip, listClass } from '@/components/tracker/status'
@@ -104,6 +120,55 @@ import './biblioteca.css'
 const PAGE = 60
 const VIEW_KEY = 'hubgames:biblioteca-vista'
 const ALL = 'all'
+/** Tinte de la fila antes de salir, aviso de Deshacer, vuelo al raíl y lo que dura la salida (deslizar + plegar). */
+const TINT_MS = 200
+const TOAST_MS = 5000
+const FLY_MS = 440
+const LEAVE_MS = { lista: 460, cuadricula: 200 } as const
+const EASE_OUT = [0.22, 1, 0.36, 1] as const
+
+/** Donde se escribe o hay un diálogo abierto, Ctrl + Z es de ese sitio. */
+function ownsKeys(el: Element | null): boolean {
+    return !!el?.closest('input:not([type="checkbox"]), textarea, select, [contenteditable="true"], [role="dialog"]')
+}
+
+type Mark = GameMark
+
+/** Lo que acaba de cambiar en una fila: su chip, una marca que se enciende o se quita, o que vuelve (Deshacer o error). */
+interface Fresh {
+    status?: boolean
+    lit?: Mark
+    leaving?: Mark
+    back?: boolean
+}
+
+/** Fila que ya no está en la lista pero se sigue pintando mientras sale y se pliega (o se funde, en la rejilla). */
+interface Ghost {
+    key: number
+    game: LibraryGame
+    /** Fila tras la que iba (null = la primera). */
+    anchor: number | null
+    height: number
+}
+
+/** Un cambio guardado al momento: lo necesario para deshacerlo o devolverlo si falla. */
+interface LibAction {
+    id: number
+    game: LibraryGame
+    snapshot: StatusSnapshot
+    write: Promise<void>
+    undone: boolean
+}
+
+interface LibToastData {
+    id: number
+    name: string
+    status: GameStatus | null
+    /** Sin estado: la marca que se ha quitado y ha sacado al juego de su lista. */
+    left: 'favorito' | 'sin_final' | null
+}
+
+const MARK_LIST: Record<Mark, 'favorito' | 'sin_final'> = { favorite: 'favorito', endless: 'sin_final' }
 
 const TAB_LABELS: Record<LibraryTab, string> = {
     todos: 'Todos',
@@ -143,6 +208,12 @@ const RAIL: { title: string | null; tabs: LibraryTab[] }[] = [
     { title: 'Estados', tabs: ['jugando', 'pendiente', 'pausado', 'rejugable', 'completado', 'abandonado', 'ya_jugado', 'descartado', 'otros'] },
     { title: 'Marcas', tabs: ['favorito', 'sin_final'] },
 ]
+
+const VIEWS: readonly LibraryView[] = ['lista', 'cuadricula']
+const VIEW_LABELS: Record<LibraryView, string> = { lista: 'Lista', cuadricula: 'Rejilla' }
+const VIEW_ICONS: Record<LibraryView, ReactNode> = { lista: <List aria-hidden />, cuadricula: <LayoutGrid aria-hidden /> }
+const OWN_FILTERS = Object.keys(OWN_FILTER_LABELS) as OwnFilter[]
+const OWN_ICONS: Partial<Record<OwnFilter, ReactNode>> = { comprados: <Check aria-hidden />, sin_comprar: <ShoppingCart aria-hidden /> }
 
 function parseTab(value: string | null): LibraryTab | null {
     return LIBRARY_TABS.includes(value as LibraryTab) ? (value as LibraryTab) : null
@@ -269,6 +340,23 @@ function Biblioteca() {
     const [savingHome, setSavingHome] = useState(false)
     // Solo para el vacío sin juegos: «Conectar con Steam» o «Sincronizar».
     const [steamLinked, setSteamLinked] = useState<boolean | null>(null)
+    // Movimiento: filas que salen, tinte antes de salir, lo recién cambiado, contadores que esperan al vuelo, vuelos,
+    // aviso de Deshacer, anuncio para lectores de pantalla y tarjetas que se mueven en la rejilla.
+    const reduce = useReducedMotion()
+    const [ghosts, setGhosts] = useState<Ghost[]>([])
+    const [tint, setTint] = useState<Record<number, GameStatus>>({})
+    const [fresh, setFresh] = useState<Record<number, Fresh>>({})
+    const [held, setHeld] = useState<Partial<Record<LibraryTab, number>>>({})
+    const [flights, setFlights] = useState<TrayFlight[]>([])
+    const [toast, setToast] = useState<LibToastData | null>(null)
+    const [announce, setAnnounce] = useState('')
+    const [shift, setShift] = useState<number | null>(null)
+    const [focusIndex, setFocusIndex] = useState<number | null>(null)
+    // Tras cambiar de lista o de vista, el contenido entra con un fundido (al llegar, viene del esqueleto: sin él).
+    const [switched, setSwitched] = useState(false)
+    const lastAction = useRef<LibAction | null>(null)
+    const seq = useRef(0)
+    const railRef = useRef<HTMLElement>(null)
 
     useEffect(() => {
         safeGetSession().then(({ data: { session } }) => {
@@ -309,6 +397,7 @@ function Biblioteca() {
     // Al cambiar de lista (también con atrás/adelante): la de inicio abre con su orden, filtros y vista; el resto, con
     // su orden por defecto y sin filtros.
     if (home !== undefined && appliedTab !== tab) {
+        if (appliedTab !== null) setSwitched(true)
         setAppliedTab(tab)
         setVisible(PAGE)
         if (home && home.tab === tab) {
@@ -354,6 +443,7 @@ function Biblioteca() {
     }
 
     function changeView(next: LibraryView) {
+        if (next !== view) setSwitched(true)
         setView(next)
         localStorage.setItem(VIEW_KEY, next)
     }
@@ -377,6 +467,238 @@ function Biblioteca() {
             (list ?? []).flatMap((g) => (g.appid !== appid ? [g] : patch === null ? [] : [{ ...g, ...patch }])),
         )
     }
+
+    /** Ids de la lista visible para un conjunto de juegos (la de ahora o la de después de un cambio). */
+    function visibleIds(list: LibraryGame[]): number[] {
+        return sortGames(
+            list.filter((g) => inTab(g, tab) && matchesFilters(g, filters)),
+            sort,
+        )
+            .slice(0, visible)
+            .map((g) => g.appid)
+    }
+
+    const countIn = (list: LibraryGame[], t: LibraryTab) => list.filter((g) => inTab(g, t)).length
+
+    function markFresh(appid: number, f: Fresh) {
+        setFresh((m) => ({ ...m, [appid]: { ...m[appid], ...f } }))
+        setTimeout(
+            () =>
+                setFresh((m) => {
+                    const next = { ...m }
+                    delete next[appid]
+                    return next
+                }),
+            1300,
+        )
+    }
+
+    function untint(appid: number) {
+        setTint((t) => {
+            const rest = { ...t }
+            delete rest[appid]
+            return rest
+        })
+    }
+
+    /** Ficha con el icono de la lista que vuela de la fila a su sitio en el raíl. En la tira de móvil, solo si se ve. */
+    function launchFlight(row: Element, dest: GameStatus): boolean {
+        const rail = railRef.current
+        const target = rail?.querySelector(`[data-rail="${dest}"] .lib-rail__count`)
+        if (reduce || !rail || !target) return false
+        const a = row.getBoundingClientRect()
+        const b = target.getBoundingClientRect()
+        const r = rail.getBoundingClientRect()
+        const seen = b.width > 0 && b.left >= r.left - 1 && b.right <= r.right + 1 && b.top >= 0 && b.bottom <= window.innerHeight
+        if (!seen) return false
+        const flight: TrayFlight = {
+            id: ++seq.current,
+            status: dest,
+            count: 1,
+            from: { x: a.left + 10, y: a.top + a.height / 2 - 14 },
+            to: { x: b.left + b.width / 2 - 14, y: b.top + b.height / 2 - 14 },
+        }
+        setFlights((f) => [...f, flight])
+        return true
+    }
+
+    const endFlight = useCallback((id: number) => setFlights((f) => f.filter((x) => x.id !== id)), [])
+
+    /**
+     * Aplica un cambio con movimiento: si la fila sale de la lista, se tiñe de su destino (al cambiar de estado), sale, se
+     * pliega y una ficha vuela al raíl; si cambia de puesto, se pliega en el viejo y vuelve a entrar en el nuevo; si se
+     * queda, su chip o su marca reaccionan. `next = null`: el juego sale de la biblioteca (quitar de Pendientes).
+     */
+    function applyChange(game: LibraryGame, next: LibraryGame | null, opts: { action?: LibAction; dest?: GameStatus; mark?: { mark: Mark; on: boolean } } = {}) {
+        if (!games) return
+        const all = games
+        const appid = game.appid
+        const swapIn = (list: LibraryGame[]) => list.flatMap((g) => (g.appid !== appid ? [g] : next ? [next] : []))
+        const before = visibleIds(all)
+        const change = rowChange(before, visibleIds(swapIn(all)), appid)
+        const commit = () => setGames((list) => swapIn(list ?? []))
+        const react = () => {
+            if (opts.dest) markFresh(appid, { status: true })
+            if (opts.mark) markFresh(appid, opts.mark.on ? { lit: opts.mark.mark } : { leaving: opts.mark.mark })
+        }
+        if (reduce || change.kind === 'stay' || change.kind === 'none') {
+            commit()
+            if (change.kind === 'leave') setFocusIndex(change.index)
+            else if (!reduce) react()
+            return
+        }
+        const rowEl = () => document.querySelector(`.lib-list > li[data-appid="${appid}"]:not(.lib-ghost)`)
+        const leaveFrom = (from: number, shown: LibraryGame) => {
+            const ghost: Ghost = { key: ++seq.current, game: shown, anchor: from > 0 ? before[from - 1] : null, height: rowEl()?.getBoundingClientRect().height ?? 68 }
+            const grid = view === 'cuadricula'
+            setGhosts((list) => [...list, ghost])
+            setTimeout(() => {
+                setGhosts((list) => list.filter((x) => x.key !== ghost.key))
+                if (grid) {
+                    setShift(from)
+                    setTimeout(() => setShift(null), 200)
+                }
+            }, LEAVE_MS[view])
+        }
+        if (change.kind === 'move') {
+            leaveFrom(change.from, game)
+            commit()
+            react()
+            markFresh(appid, { back: true })
+            return
+        }
+        const dest = opts.dest
+        const go = () => {
+            untint(appid)
+            if (opts.action?.undone) return
+            const el = rowEl()
+            const active = document.activeElement
+            const hadFocus = !active || active === document.body || !!el?.contains(active) || !!active.closest('.game-menu')
+            if (dest && el && launchFlight(el, dest)) {
+                setHeld({ [dest]: countIn(all, dest) })
+                setTimeout(() => setHeld({}), FLY_MS)
+            }
+            leaveFrom(change.index, next ?? game)
+            commit()
+            if (hadFocus) setFocusIndex(change.index)
+        }
+        if (dest) {
+            setTint((t) => ({ ...t, [appid]: dest }))
+            setTimeout(go, TINT_MS)
+        } else go()
+    }
+
+    /** Estado o marca desde el menú: se guarda al momento, con «Deshacer» 5 s; si falla, el juego vuelve. */
+    function act(game: LibraryGame, a: GameMenuAct) {
+        if (!games) return
+        const name = game.name ?? `App ${game.appid}`
+        const patch: Partial<LibraryGame> =
+            a.kind === 'status' ? statusPatch(game, a.status, new Date().toISOString(), suggestedCompletionDate(game)?.date ?? null) : { [a.mark]: a.on }
+        const write =
+            a.kind === 'status'
+                ? a.status === 'completado'
+                    ? completeGames([game])
+                    : setGamesStatus([game.appid], a.status)
+                : setGameMark(game.appid, a.mark, a.on)
+        const action: LibAction = { id: ++seq.current, game, snapshot: statusSnapshot(game), write, undone: false }
+        const next = { ...game, ...patch }
+        lastAction.current = action
+        setError('')
+        if (a.kind === 'status') {
+            setAnnounce(`${name} pasa a ${TAB_LABELS[a.status]}`)
+            setToast({ id: action.id, name, status: a.status, left: null })
+        } else {
+            const list = MARK_LIST[a.mark]
+            const leaves = visibleIds(games).includes(game.appid) && !visibleIds(games.map((g) => (g.appid === game.appid ? next : g))).includes(game.appid)
+            setAnnounce(`${name}: ${a.on ? 'añadido a' : 'quitado de'} ${TAB_LABELS[list]}`)
+            setToast(leaves ? { id: action.id, name, status: null, left: list } : null)
+            if (!leaves) lastAction.current = null
+        }
+        write.catch((e: unknown) => {
+            if (action.undone) return
+            action.undone = true
+            bringBack(action)
+            setError(e instanceof Error ? e.message : 'No se pudo guardar')
+            if (lastAction.current === action) {
+                lastAction.current = null
+                setToast(null)
+            }
+        })
+        applyChange(game, next, a.kind === 'status' ? { action, dest: a.status } : { action, mark: { mark: a.mark, on: a.on } })
+    }
+
+    /** Devuelve el juego como estaba (Deshacer o error): vuelve a su sitio con el cursor encendido un instante. */
+    function bringBack(action: LibAction) {
+        const appid = action.game.appid
+        untint(appid)
+        setGames((list) => (list ?? []).map((g) => (g.appid === appid ? action.game : g)))
+        if (!reduce) markFresh(appid, { back: true })
+        setAnnounce(`${action.game.name ?? 'El juego'} vuelve a ${TAB_LABELS[action.game.status]}`)
+    }
+
+    async function undo() {
+        const action = lastAction.current
+        if (!action || action.undone) return
+        action.undone = true
+        lastAction.current = null
+        setToast(null)
+        bringBack(action)
+        try {
+            await action.write.catch(() => undefined)
+            await restoreGames([action.snapshot])
+        } catch (e) {
+            setError(`No se pudo deshacer: ${e instanceof Error ? e.message : 'error al guardar'}`)
+        }
+    }
+
+    // El aviso de Deshacer dura 5 s; al irse, ya no se puede deshacer.
+    useEffect(() => {
+        if (!toast) return
+        const t = setTimeout(() => {
+            setToast(null)
+            if (lastAction.current?.id === toast.id) lastAction.current = null
+        }, TOAST_MS)
+        return () => clearTimeout(t)
+    }, [toast])
+
+    // Ctrl + Z deshace el último cambio (salvo donde se escribe o con un diálogo abierto).
+    const undoRef = useRef(undo)
+    useEffect(() => {
+        undoRef.current = undo
+    })
+    useEffect(() => {
+        function onKey(e: globalThis.KeyboardEvent) {
+            if (e.defaultPrevented || ownsKeys(document.activeElement)) return
+            if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'z' && lastAction.current) {
+                e.preventDefault()
+                void undoRef.current()
+            }
+        }
+        document.addEventListener('keydown', onKey)
+        return () => document.removeEventListener('keydown', onKey)
+    }, [])
+
+    // Si la fila que tenía el foco sale de la lista, el foco pasa a la que ocupa su sitio (o a la última).
+    useEffect(() => {
+        if (focusIndex === null) return
+        const links = document.querySelectorAll<HTMLElement>('.lib-list > li:not(.lib-ghost) [data-row-link]')
+        links[Math.min(focusIndex, links.length - 1)]?.focus({ preventScroll: true })
+        setFocusIndex(null)
+    }, [focusIndex, games])
+
+    // En la tira del raíl (móvil y pantallas estrechas), la lista activa siempre a la vista.
+    const ready = games !== null
+    useEffect(() => {
+        const rail = railRef.current
+        if (!rail || rail.scrollWidth <= rail.clientWidth + 1) return
+        const item = rail.querySelector<HTMLElement>('[aria-current="page"]')
+        if (!item) return
+        const left = item.offsetLeft
+        const right = left + item.offsetWidth
+        if (left < rail.scrollLeft || right > rail.scrollLeft + rail.clientWidth) {
+            rail.scrollTo({ left: Math.max(0, left - 24), behavior: reduce ? 'auto' : 'smooth' })
+        }
+    }, [tab, reduce, ready])
 
     /** Guarda el orden completo de pendientes; si falla, vuelve al anterior. */
     async function onDragEnd({ active, over }: DragEndEvent) {
@@ -419,9 +741,19 @@ function Biblioteca() {
                     <div>
                         <h1 className="page-title">Biblioteca</h1>
                         <p className="page-subtitle">
-                            {counts.classified} {counts.classified === 1 ? 'juego clasificado' : 'juegos clasificados'}
-                            {counts.jugando > 0 && ` · ${counts.jugando} en curso`}
-                            {counts.unowned > 0 && ` · ${counts.unowned} ${counts.unowned === 1 ? 'pendiente' : 'pendientes'} sin comprar`}
+                            <AnimatedCount value={counts.classified} /> {counts.classified === 1 ? 'juego clasificado' : 'juegos clasificados'}
+                            {counts.jugando > 0 && (
+                                <>
+                                    {' · '}
+                                    <AnimatedCount value={counts.jugando} /> en curso
+                                </>
+                            )}
+                            {counts.unowned > 0 && (
+                                <>
+                                    {' · '}
+                                    <AnimatedCount value={counts.unowned} /> {counts.unowned === 1 ? 'pendiente' : 'pendientes'} sin comprar
+                                </>
+                            )}
                         </p>
                     </div>
                     <div className="lib-head-actions">
@@ -443,50 +775,51 @@ function Biblioteca() {
                 )}
 
                 <div className="lib-layout">
-                    <nav className="lib-rail" aria-label="Listas">
+                    <nav className="lib-rail" aria-label="Listas" ref={railRef}>
                         {RAIL.map((group) => (
                             <div key={group.title ?? 'todos'} className="lib-rail__group">
                                 {group.title && <p className="lib-rail__title">{group.title}</p>}
                                 {group.tabs.map((t) => (
-                                    <RailItem key={t} tab={t} count={counts[t]} current={tab === t} pinned={home?.tab === t} onSelect={changeTab} />
+                                    <RailItem
+                                        key={t}
+                                        tab={t}
+                                        count={held[t] ?? counts[t]}
+                                        current={tab === t}
+                                        pinned={home?.tab === t}
+                                        reduce={!!reduce}
+                                        onSelect={changeTab}
+                                    />
                                 ))}
                             </div>
                         ))}
                         <div className="lib-rail__group lib-rail__group--tray">
-                            <Link href="/biblioteca/bandeja" className={`lib-rail__item ${listClass('bandeja')} lib-rail__item--tray`}>
+                            <Link href="/biblioteca/bandeja" className={`lib-rail__item ${listClass('bandeja')} lib-rail__item--tray`} data-rail="bandeja">
                                 <TabIcon tab="bandeja" />
                                 <span className="lib-rail__label">{TAB_LABELS.bandeja}</span>
-                                <span className="lib-rail__count">{counts.bandeja}</span>
+                                <AnimatedCount value={held.bandeja ?? counts.bandeja} className="lib-rail__count" />
                             </Link>
                         </div>
                     </nav>
 
                     <section className={`lib-main ${listClass(tab)}`} aria-labelledby="lib-list-title">
                         <div className="lib-listhead">
-                            <span className="lib-listhead__icon hg-tint">
+                            <span key={tab} className={`lib-listhead__icon hg-tint${switched ? ' is-in' : ''}`}>
                                 <HeadIcon aria-hidden />
                             </span>
-                            <div className="lib-listhead__text">
+                            <div key={`t-${tab}`} className={`lib-listhead__text${switched ? ' hg-swap-in' : ''}`}>
                                 <h2 id="lib-list-title">{TAB_LABELS[tab]}</h2>
                                 <p>{TAB_HINTS[tab]}</p>
                             </div>
                             <div className="lib-listhead__actions">
-                                <div className="hg-seg" role="group" aria-label="Vista">
-                                    <button type="button" className="hg-seg__opt" aria-pressed={view === 'lista'} onClick={() => changeView('lista')} title="Lista">
-                                        <List aria-hidden />
-                                        <span className="sr-only">Lista</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="hg-seg__opt"
-                                        aria-pressed={view === 'cuadricula'}
-                                        onClick={() => changeView('cuadricula')}
-                                        title="Rejilla"
-                                    >
-                                        <LayoutGrid aria-hidden />
-                                        <span className="sr-only">Rejilla</span>
-                                    </button>
-                                </div>
+                                <Segmented
+                                    aria-label="Vista"
+                                    value={view}
+                                    options={VIEWS}
+                                    labels={VIEW_LABELS}
+                                    icons={VIEW_ICONS}
+                                    iconOnly
+                                    onChange={changeView}
+                                />
                                 <Button
                                     size="sm"
                                     variant="secondary"
@@ -506,12 +839,12 @@ function Biblioteca() {
                             <div className={`lib-limit ${overLimit ? 'is-over' : ''}`}>
                                 {overLimit ? (
                                     <p>
-                                        <AlertTriangle size={15} aria-hidden /> Tienes {counts.jugando} juegos a la vez y tu límite es {limit}.
+                                        <AlertTriangle size={15} aria-hidden /> Tienes <AnimatedCount value={counts.jugando} /> juegos a la vez y tu límite es {limit}.
                                         ¿Pausas alguno?
                                     </p>
                                 ) : (
                                     <p>
-                                        {counts.jugando} de {limit} juegos a la vez.
+                                        <AnimatedCount value={counts.jugando} /> de {limit} juegos a la vez.
                                     </p>
                                 )}
                                 <div className="lib-limit__stepper" role="group" aria-label="Límite de juegos en Jugando">
@@ -528,21 +861,14 @@ function Biblioteca() {
 
                         <div className="lib-filters">
                             {(mixedOwnership || filters.own !== 'todos') && (
-                                <div className="hg-seg" role="group" aria-label="Comprados o sin comprar">
-                                    {(Object.keys(OWN_FILTER_LABELS) as OwnFilter[]).map((k) => (
-                                        <button
-                                            key={k}
-                                            type="button"
-                                            className="hg-seg__opt"
-                                            aria-pressed={filters.own === k}
-                                            onClick={() => setFilters((f) => ({ ...f, own: k }))}
-                                        >
-                                            {k === 'comprados' && <Check aria-hidden />}
-                                            {k === 'sin_comprar' && <ShoppingCart aria-hidden />}
-                                            {OWN_FILTER_LABELS[k]}
-                                        </button>
-                                    ))}
-                                </div>
+                                <Segmented
+                                    aria-label="Comprados o sin comprar"
+                                    value={filters.own}
+                                    options={OWN_FILTERS}
+                                    labels={OWN_FILTER_LABELS}
+                                    icons={OWN_ICONS}
+                                    onChange={(k) => setFilters((f) => ({ ...f, own: k }))}
+                                />
                             )}
                             <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
                                 <SelectTrigger className="lib-select" aria-label="Ordenar">
@@ -687,7 +1013,8 @@ function Biblioteca() {
                             </p>
                         )}
 
-                        {list.length === 0 ? (
+                        <div key={`${tab}-${view}`} className={`lib-swap${switched ? ' hg-swap-in' : ''}`}>
+                        {list.length === 0 && ghosts.length === 0 ? (
                             <LibraryEmptyView
                                 key={`${tab}-${hasFilters(filters) ? 'f' : ''}`}
                                 empty={libraryEmpty(tab, counts, hasFilters(filters))}
@@ -703,25 +1030,45 @@ function Biblioteca() {
                                     strategy={view === 'cuadricula' ? rectSortingStrategy : verticalListSortingStrategy}
                                     disabled={!canDrag}
                                 >
-                                    <KeyboardList className={view === 'cuadricula' ? 'hg-cards lib-grid' : `hg-rows lib-list${showStatus ? ' has-status' : ''}`} label={`Juegos: ${TAB_LABELS[tab]}`}>
-                                        {shown.map((game, i) => (
-                                            <LibraryItem
-                                                key={game.appid}
-                                                game={game}
-                                                view={view}
-                                                draggable={canDrag}
-                                                position={canDrag ? i + 1 : null}
-                                                showStatus={showStatus}
-                                                showOwnership={tab === 'pendiente' || !game.owned}
-                                                priority={i < 6}
-                                                onChange={(patch) => patchGame(game.appid, patch)}
-                                                onError={setError}
-                                            />
-                                        ))}
+                                    <KeyboardList
+                                        className={view === 'cuadricula' ? 'hg-cards lib-grid lib-list' : `hg-rows lib-list${showStatus ? ' has-status' : ''}`}
+                                        label={`Juegos: ${TAB_LABELS[tab]}`}
+                                    >
+                                        {withGhosts(shown, ghosts).map((item, i) =>
+                                            item.ghost ? (
+                                                <LibraryItemView
+                                                    key={`ghost-${item.ghost.key}`}
+                                                    game={item.ghost.game}
+                                                    view={view}
+                                                    showStatus={showStatus}
+                                                    showOwnership={tab === 'pendiente' || !item.ghost.game.owned}
+                                                    ghostHeight={item.ghost.height}
+                                                />
+                                            ) : (
+                                                <LibraryItem
+                                                    key={item.game.appid}
+                                                    game={item.game}
+                                                    view={view}
+                                                    draggable={canDrag}
+                                                    position={canDrag ? item.index + 1 : null}
+                                                    showStatus={showStatus}
+                                                    showOwnership={tab === 'pendiente' || !item.game.owned}
+                                                    priority={item.index < 6}
+                                                    tone={tint[item.game.appid] ?? null}
+                                                    fresh={fresh[item.game.appid]}
+                                                    shifted={shift !== null && i >= shift}
+                                                    onAct={(a) => act(item.game, a)}
+                                                    onChange={(patch) => (patch === null ? applyChange(item.game, null) : patchGame(item.game.appid, patch))}
+                                                    onError={setError}
+                                                />
+                                            ),
+                                        )}
                                     </KeyboardList>
                                 </SortableContext>
                             </DndContext>
                         )}
+
+                        </div>
 
                         {list.length > visible && (
                             <div className="lib-more">
@@ -732,8 +1079,68 @@ function Biblioteca() {
                         )}
                     </section>
                 </div>
+
+                <div className="tray-float">
+                    <AnimatePresence>
+                        {toast && (
+                            <motion.div
+                                key={toast.id}
+                                className="tray-float__toast"
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0, transition: reduce ? { duration: 0 } : { duration: 0.2, ease: EASE_OUT } }}
+                                exit={{ opacity: 0, y: 8, transition: reduce ? { duration: 0 } : { duration: 0.16, ease: 'easeIn' } }}
+                            >
+                                <LibToast toast={toast} onUndo={() => void undo()} />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+                {flights.map((f) => (
+                    <TrayFly key={f.id} flight={f} onDone={endFlight} />
+                ))}
+                <p className="sr-only" aria-live="polite">
+                    {announce}
+                </p>
             </div>
         </SkeletonSwap>
+    )
+}
+
+type ListItem = { ghost: null; game: LibraryGame; index: number } | { ghost: Ghost; game: null; index: number }
+
+/** La lista visible con las filas que están saliendo en su sitio (tras la fila que tenían encima). */
+function withGhosts(shown: LibraryGame[], ghosts: Ghost[]): ListItem[] {
+    if (ghosts.length === 0) return shown.map((game, index) => ({ ghost: null, game, index }))
+    const ids = new Set(shown.map((g) => g.appid))
+    const out: ListItem[] = []
+    // La primera fila, o una cuya vecina también se ha ido: al principio.
+    for (const ghost of ghosts) if (ghost.anchor === null || !ids.has(ghost.anchor)) out.push({ ghost, game: null, index: -1 })
+    shown.forEach((game, index) => {
+        out.push({ ghost: null, game, index })
+        for (const ghost of ghosts) if (ghost.anchor === game.appid) out.push({ ghost, game: null, index: -1 })
+    })
+    return out
+}
+
+/** Aviso con «Deshacer» (y Ctrl + Z) durante 5 s, con el mismo aspecto que el de la bandeja. */
+function LibToast({ toast, onUndo }: { toast: LibToastData; onUndo: () => void }) {
+    return (
+        <div className="tray-toast" role="status">
+            <span className="tray-toast__text">
+                <b>{toast.name}</b>
+                {toast.status ? (
+                    <>
+                        <ArrowRight aria-hidden />
+                        <StatusChip status={toast.status} />
+                    </>
+                ) : (
+                    toast.left && <span>fuera de {TAB_LABELS[toast.left]}</span>
+                )}
+            </span>
+            <Button type="button" size="sm" variant="ghost" className="tray-toast__undo" onClick={onUndo}>
+                <Undo2 aria-hidden /> Deshacer <kbd className="hg-kbd">Ctrl + Z</kbd>
+            </Button>
+        </div>
     )
 }
 
@@ -810,17 +1217,22 @@ function LibraryEmptyView({
     )
 }
 
+/** Muelle del indicador activo, el mismo que el de la barra lateral (`nav-pill`). */
+const RAIL_SPRING = { type: 'spring', stiffness: 500, damping: 40 } as const
+
 function RailItem({
     tab,
     count,
     current,
     pinned,
+    reduce,
     onSelect,
 }: {
     tab: LibraryTab
     count: number
     current: boolean
     pinned: boolean
+    reduce: boolean
     onSelect: (tab: LibraryTab) => void
 }) {
     return (
@@ -828,14 +1240,16 @@ function RailItem({
             type="button"
             className={`lib-rail__item ${listClass(tab)}`}
             aria-current={current ? 'page' : undefined}
+            data-rail={tab}
             onClick={() => onSelect(tab)}
         >
+            {current && <motion.span layoutId="lib-rail-pill" className="lib-rail__pill" transition={reduce ? { duration: 0 } : RAIL_SPRING} />}
             <TabIcon tab={tab} />
             <span className="lib-rail__label">
                 {TAB_LABELS[tab]}
                 {pinned && <Pin className="lib-rail__pin" aria-label="Lista de inicio" />}
             </span>
-            <span className="lib-rail__count">{count}</span>
+            <AnimatedCount value={count} className="lib-rail__count" />
         </button>
     )
 }
@@ -848,6 +1262,10 @@ function LibraryItem({
     showStatus,
     showOwnership,
     priority,
+    tone,
+    fresh,
+    shifted,
+    onAct,
     onChange,
     onError,
 }: {
@@ -858,6 +1276,12 @@ function LibraryItem({
     showStatus: boolean
     showOwnership: boolean
     priority: boolean
+    /** Lista de destino mientras la fila se tiñe antes de salir. */
+    tone: GameStatus | null
+    fresh: Fresh | undefined
+    /** Tarjeta que se mueve a otro hueco de la rejilla (se funde). */
+    shifted: boolean
+    onAct: (act: GameMenuAct) => void
     onChange: (patch: Partial<LibraryGame> | null) => void
     onError: (message: string) => void
 }) {
@@ -865,12 +1289,8 @@ function LibraryItem({
         id: game.appid,
         disabled: !draggable,
     })
-    const pct = achievementPercent(game)
     const name = game.name ?? `App ${game.appid}`
-    // El color de la franja sale de la clase st-<estado> (lists.css), como en el resto de listas.
     const style: CSSProperties = { transform: CSS.Translate.toString(transform) ?? '', transition: transition ?? '' }
-    const perfect = isPerfect(game)
-    const minutes = estimatedMinutes(game)
 
     const drag =
         draggable || position !== null ? (
@@ -883,6 +1303,73 @@ function LibraryItem({
                 {position !== null && <span className="lib-position">{position}</span>}
             </span>
         ) : null
+
+    return (
+        <LibraryItemView
+            game={game}
+            view={view}
+            showStatus={showStatus}
+            showOwnership={showOwnership}
+            priority={priority}
+            nodeRef={setNodeRef}
+            style={style}
+            drag={drag}
+            dragging={isDragging}
+            tone={tone}
+            fresh={fresh}
+            shifted={shifted}
+            menu={<GameMenu game={game} onAct={onAct} onChange={onChange} onError={onError} />}
+        />
+    )
+}
+
+/**
+ * Una fila (o tarjeta) de la lista, sin arrastre: la usa `LibraryItem` y las filas que están saliendo (`ghostHeight`,
+ * que salen, se apagan y se pliegan desde esa altura; en la rejilla, solo se funden).
+ */
+function LibraryItemView({
+    game,
+    view,
+    showStatus,
+    showOwnership,
+    priority = false,
+    nodeRef,
+    style,
+    drag = null,
+    dragging = false,
+    tone = null,
+    fresh,
+    shifted = false,
+    menu,
+    ghostHeight,
+}: {
+    game: LibraryGame
+    view: LibraryView
+    showStatus: boolean
+    showOwnership: boolean
+    priority?: boolean
+    nodeRef?: (el: HTMLElement | null) => void
+    style?: CSSProperties
+    drag?: ReactNode
+    dragging?: boolean
+    tone?: GameStatus | null
+    fresh?: Fresh
+    shifted?: boolean
+    menu?: ReactNode
+    ghostHeight?: number
+}) {
+    const pct = achievementPercent(game)
+    const name = game.name ?? `App ${game.appid}`
+    const perfect = isPerfect(game)
+    const minutes = estimatedMinutes(game)
+    const ghost = ghostHeight !== undefined
+    // El color de la franja sale de la clase st-<estado> (lists.css); mientras se tiñe antes de salir, el del destino.
+    const status = tone ?? game.status
+    const motionClass = [tone && 'is-going', fresh?.back && 'is-back', shifted && 'is-shift', ghost && 'lib-ghost'].filter(Boolean).join(' ')
+    const liStyle: CSSProperties = ghost ? ({ '--h': `${ghostHeight}px` } as CSSProperties) : (style ?? {})
+    const chip = showStatus ? <StatusChip status={status} changed={!!fresh?.status || !!tone} /> : null
+    const flags = <MarkFlags favorite={game.favorite} endless={game.endless} lit={fresh?.lit} leaving={fresh?.leaving} />
+    const menuNode = ghost ? <span className="hg-icon-btn" aria-hidden /> : menu
 
     const meta = (
         <>
@@ -948,44 +1435,55 @@ function LibraryItem({
         </>
     )
 
-    const menu = <GameMenu game={game} onChange={onChange} onError={onError} />
+    const link = (cls: string) =>
+        ghost ? (
+            <span className={cls}>{name}</span>
+        ) : (
+            <Link href={`/juego/${game.appid}`} className={cls} title={view === 'lista' ? undefined : name} data-row-link>
+                {name}
+            </Link>
+        )
 
     if (view === 'lista') {
         return (
             <li
-                ref={setNodeRef}
-                style={style}
-                className={`hg-row lib-row st-${game.status}${drag ? ' has-drag' : ''}${isDragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}`}
+                ref={nodeRef}
+                style={liStyle}
+                data-appid={ghost ? undefined : game.appid}
+                aria-hidden={ghost || undefined}
+                className={`hg-row lib-row st-${status}${drag ? ' has-drag' : ''}${dragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}${motionClass ? ` ${motionClass}` : ''}`}
             >
                 {drag}
                 <span className="hg-row__cover lib-cover">{cover}</span>
                 <span className="hg-row__main">
                     <span className="lib-row__name">
-                        <Link href={`/juego/${game.appid}`} className="hg-row__link" data-row-link>
-                            {name}
-                        </Link>
-                        <MarkFlags favorite={game.favorite} endless={game.endless} />
+                        {link('hg-row__link')}
+                        {flags}
                     </span>
                     <span className="hg-row__meta lib-row__meta">{meta}</span>
                 </span>
                 {progress}
                 <span className="lib-row__end">
-                    {showStatus && <StatusChip status={game.status} />}
-                    {menu}
+                    {chip}
+                    {menuNode}
                 </span>
             </li>
         )
     }
 
     return (
-        <li ref={setNodeRef} style={style} className={`hg-card lib-card st-${game.status}${isDragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}`}>
+        <li
+            ref={nodeRef}
+            style={liStyle}
+            data-appid={ghost ? undefined : game.appid}
+            aria-hidden={ghost || undefined}
+            className={`hg-card lib-card st-${status}${dragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}${motionClass ? ` ${motionClass}` : ''}`}
+        >
             <span className="hg-card__cover lib-cover">{cover}</span>
             <span className="hg-card__body">
                 <span className="lib-row__name">
-                    <Link href={`/juego/${game.appid}`} className="hg-card__link" title={name} data-row-link>
-                        {name}
-                    </Link>
-                    <MarkFlags favorite={game.favorite} endless={game.endless} />
+                    {link('hg-card__link')}
+                    {flags}
                 </span>
                 <span className="hg-card__meta lib-row__meta">{meta}</span>
                 {game.owned ? (
@@ -998,8 +1496,8 @@ function LibraryItem({
                     <PriceTag game={game} />
                 )}
                 <span className="lib-card__foot">
-                    {showStatus ? <StatusChip status={game.status} /> : <span />}
-                    {menu}
+                    {chip ?? <span />}
+                    {menuNode}
                 </span>
             </span>
             {drag && <span className="lib-card__drag">{drag}</span>}

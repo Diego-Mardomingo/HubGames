@@ -1151,6 +1151,160 @@ kbd.hg-kbd,
   60% { transform: scale(0.92); }
 }
 
+/* ∞ que se traza al marcar «Sin final» (como .hg-draw; 61 ≈ longitud del trazo de lucide) */
+.hg-loop path {
+  stroke-dasharray: 61;
+  animation: hg-loop 0.45s var(--ease-out) 0.06s backwards;
+}
+
+@keyframes hg-loop {
+  from { stroke-dashoffset: 61; }
+}
+
+/* Marca (Favorito, Sin final) que aparece junto al nombre o se quita */
+.hg-flag.is-in {
+  animation: hg-pop-in 0.26s var(--ease-out) backwards;
+}
+
+.hg-flag.is-in.st-favorito svg {
+  animation: hg-beat 0.4s var(--ease-out) 0.2s;
+}
+
+.hg-flag.is-out {
+  animation: hg-flag-out 0.16s ease-in forwards;
+}
+
+@keyframes hg-flag-out {
+  to { opacity: 0; transform: scale(0.5); }
+}
+
+/* Chip de estado que cambia: el color pasa con una transición y el icono hace pop (o, en Completado, la bandera se planta) */
+.hg-chip.hg-tint {
+  transition: background-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+}
+
+.hg-chip__icon {
+  display: inline-flex;
+}
+
+.hg-chip__icon.is-in {
+  animation: hg-pop-in 0.26s var(--ease-out);
+}
+
+.hg-chip__icon.is-plant,
+.hg-plant {
+  transform-origin: 18% 95%;
+  animation: hg-plant 0.45s var(--ease-out) 0.12s backwards;
+}
+
+@keyframes hg-plant {
+  0% { opacity: 0; transform: translateY(-9px) rotate(-16deg); }
+  60% { opacity: 1; transform: translateY(1px) rotate(4deg); }
+  100% { transform: none; }
+}
+
+/* Fundido de entrada de un contenido que sustituye a otro (cambio de lista, de vista, de bloque) */
+.hg-swap-in {
+  animation: hg-fade-in 0.22s var(--ease-out);
+}
+
+@keyframes hg-fade-in {
+  from { opacity: 0; }
+}
+
+/* ── Anillo de progreso de logros (ficha y logros de un juego): se rellena al llegar; al 100 %, verde y con un pulso ── */
+.hg-ring {
+  position: relative;
+  width: var(--ring-size, 140px);
+  height: var(--ring-size, 140px);
+}
+
+.hg-ring svg {
+  width: 100%;
+  height: 100%;
+  rotate: -90deg;
+  overflow: visible;
+}
+
+.hg-ring circle {
+  fill: none;
+  stroke-width: 3.2;
+}
+
+.hg-ring__track {
+  stroke: var(--surface-2);
+}
+
+.hg-ring__fill {
+  stroke: var(--primary);
+  stroke-linecap: round;
+  stroke-dasharray: 100 100;
+  animation: hg-ring-fill 0.7s var(--ease-out) 0.12s backwards;
+}
+
+@keyframes hg-ring-fill {
+  from { stroke-dashoffset: 100; }
+}
+
+.hg-ring.is-done .hg-ring__fill {
+  stroke: var(--success);
+}
+
+.hg-ring.is-done svg {
+  animation: hg-ring-done 0.5s var(--ease-out) 0.82s;
+}
+
+@keyframes hg-ring-done {
+  40% { transform: scale(1.06); }
+}
+
+.hg-ring__text {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.hg-ring__text b {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.hg-ring.is-done .hg-ring__text b {
+  color: var(--success);
+}
+
+.hg-ring__text > span {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+/* Sello «100 %» que salta cuando el anillo se cierra */
+.hg-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 8px 0 6px;
+  border-radius: 999px;
+  background: var(--st-completado);
+  color: var(--on-done);
+  font-size: 0.75rem;
+  font-weight: 700;
+  vertical-align: 1px;
+  animation: hg-pop-in 0.26s var(--ease-out) 0.9s backwards;
+}
+
+.hg-seal svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2.8;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hg-row,
   .hg-card,

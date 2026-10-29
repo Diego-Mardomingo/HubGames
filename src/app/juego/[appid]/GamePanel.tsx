@@ -1,8 +1,11 @@
 'use client'
 
-import { useState, type CSSProperties } from 'react'
+import { useId, useState, type CSSProperties } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import Link from 'next/link'
 import Tile from '@/components/Tile'
+import CountUp from '@/components/CountUp'
+import { hoursCount, markReachedAt } from '@/lib/library-motion'
 import {
     AlertTriangle,
     BookmarkPlus,
@@ -82,6 +85,14 @@ function formatDate(iso: string | null): string | null {
 
 type CSSVars = CSSProperties & Record<`--${string}`, string>
 
+const EASE_OUT = [0.22, 1, 0.36, 1] as const
+
+/** Horas que cuentan al llegar, con la unidad de `formatHours` («45 min», «8,5 h», «22 h»). */
+function HoursCount({ minutes }: { minutes: number }) {
+    const h = hoursCount(minutes)
+    return <CountUp value={h.value} decimals={h.decimals} suffix={h.suffix} />
+}
+
 /** Tus datos del juego y las acciones (#22). Se cargan en el cliente: la ficha de Steam ya viene del servidor. */
 export default function GamePanel(props: Props) {
     const { state } = useGame()
@@ -124,7 +135,13 @@ const MARKS: { mark: GameMark; list: 'favorito' | 'sin_final'; label: string }[]
 ]
 
 function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: string; duration: GameDuration }) {
-    const { appid, update, openComplete } = useGame()
+    const { appid, update, openComplete, landed } = useGame()
+    const reduce = useReducedMotion()
+    const thumbId = useId()
+    /** Marca recién encendida: su icono late (corazón) o se traza (∞). */
+    const [lit, setLit] = useState<GameMark | null>(null)
+    /** Tras marcar o quitar Sin final, el bloque del objetivo cambia con un fundido (al llegar, sin él). */
+    const [goalSwapped, setGoalSwapped] = useState(false)
     /** Acción guardándose ("status:jugando", "mark:favorite", "goal"): su control enseña el spinner y el resto espera. */
     const [pending, setPending] = useState<string | null>(null)
     const busy = pending !== null
@@ -132,14 +149,19 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
     const [warning, setWarning] = useState('')
     const pct = achievementPercent(game)
 
-    async function save(key: string, action: () => Promise<void>, patch: Partial<LibraryGame>) {
+    /** Guarda al momento (el selector, la marca o el objetivo cambian al pulsar); si falla, vuelve a como estaba. */
+    async function save(key: string, action: () => Promise<void>, patch: Partial<LibraryGame>): Promise<boolean> {
+        const before = Object.fromEntries(Object.keys(patch).map((k) => [k, game[k as keyof LibraryGame]])) as Partial<LibraryGame>
         setPending(key)
         setError('')
+        update(patch)
         try {
             await action()
-            update(patch)
+            return true
         } catch (e) {
+            update(before)
             setError(e instanceof Error ? e.message : 'No se pudo guardar')
+            return false
         } finally {
             setPending(null)
         }
@@ -152,13 +174,13 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
             return
         }
         setWarning('')
-        await save(`status:${status}`, () => setGamesStatus([appid], status), {
+        const saved = await save(`status:${status}`, () => setGamesStatus([appid], status), {
             status,
             status_source: 'manual',
             suggestion: null,
             ...(status === 'jugando' && !game.started_at && { started_at: new Date().toISOString() }),
         })
-        if (status === 'jugando') {
+        if (saved && status === 'jugando') {
             const { count, limit } = await playingLoad(userId)
             if (count > limit) setWarning(`Ahora tienes ${count} juegos en Jugando y tu límite es ${limit}.`)
         }
@@ -174,6 +196,8 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                 <div className="juego-status" role="group" aria-label="Estado">
                     {GAME_STATUSES.map((s) => {
                         const Icon = LIST_ICONS[s]
+                        // Al aterrizar tras completar, la bandera de Completado se planta (se vuelve a montar con cada aterrizaje).
+                        const plant = s === 'completado' && landed > 0
                         return (
                             <button
                                 key={s}
@@ -184,7 +208,16 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                                 disabled={busy}
                                 onClick={() => changeStatus(s)}
                             >
-                                {pending === `status:${s}` ? <Spinner /> : <Icon aria-hidden />} {STATUS_LABELS[s]}
+                                {/* Fondo activo que se desliza por la rejilla (layoutId, 220 ms) */}
+                                {game.status === s && (
+                                    <motion.span layoutId={`${thumbId}-status`} className="juego-status__thumb" transition={{ duration: reduce ? 0 : 0.22, ease: EASE_OUT }} />
+                                )}
+                                {pending === `status:${s}` ? (
+                                    <Spinner />
+                                ) : (
+                                    <Icon key={plant ? `plant-${landed}` : 'icon'} className={plant ? 'hg-plant' : undefined} aria-hidden />
+                                )}{' '}
+                                <span>{STATUS_LABELS[s]}</span>
                             </button>
                         )
                     })}
@@ -201,9 +234,22 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                                 aria-pressed={on}
                                 aria-busy={pending === `mark:${mark}` || undefined}
                                 disabled={busy}
-                                onClick={() => save(`mark:${mark}`, () => setGameMark(appid, mark, !on), { [mark]: !on })}
+                                onClick={() => {
+                                    setLit(on ? null : mark)
+                                    if (mark === 'endless') setGoalSwapped(true)
+                                    void save(`mark:${mark}`, () => setGameMark(appid, mark, !on), { [mark]: !on })
+                                }}
                             >
-                                {pending === `mark:${mark}` ? <Spinner /> : <Icon aria-hidden />} {label}
+                                {pending === `mark:${mark}` ? (
+                                    <Spinner />
+                                ) : (
+                                    <Icon
+                                        key={on ? 'on' : 'off'}
+                                        className={on && lit === mark ? (mark === 'favorite' ? 'hg-beat' : 'hg-loop') : undefined}
+                                        aria-hidden
+                                    />
+                                )}{' '}
+                                {label}
                             </button>
                         )
                     })}
@@ -224,18 +270,25 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
 
             <dl className="hg-tiles">
                 <Tile icon={<Clock aria-hidden />} tone="st-jugando" label="Horas">
-                    <dd className="hg-tile__value">{formatHours(game.playtime_forever)}</dd>
+                    <dd className="hg-tile__value">
+                        <HoursCount minutes={game.playtime_forever} />
+                    </dd>
                     {game.playtime_2weeks > 0 && <dd className="hg-tile__note">{formatHours(game.playtime_2weeks)} en 2 semanas</dd>}
                 </Tile>
                 <Tile icon={<CalendarClock aria-hidden />} tone="st-pendiente" label="Última partida">
                     <dd className="hg-tile__value">{game.rtime_last_played ? SHORT_DATE.format(new Date(game.rtime_last_played)) : 'Nunca'}</dd>
                     {game.started_at && game.status === 'jugando' && <dd className="hg-tile__note">Jugando desde el {formatDate(game.started_at)}</dd>}
                 </Tile>
-                <Tile icon={<Star aria-hidden />} tone={game.rating !== null ? `sc-${ratingTier(game.rating)}` : 'st-pausado'} label="Tu nota">
+                <Tile
+                    icon={<Star aria-hidden />}
+                    tone={game.rating !== null ? `sc-${ratingTier(game.rating)}` : 'st-pausado'}
+                    label="Tu nota"
+                    className={landed > 0 && game.status === 'completado' ? 'is-landed' : undefined}
+                >
                     <dd className={`hg-tile__value${game.rating !== null ? ' hg-tile__value--tinted' : ''}`}>
-                        {game.rating !== null ? String(game.rating).replace('.', ',') : '—'}
+                        {game.rating !== null ? <CountUp key={`r-${landed}`} value={game.rating} decimals={game.rating % 1 ? 1 : 0} /> : '—'}
                     </dd>
-                    <dd className="hg-tile__note">
+                    <dd key={`n-${landed}`} className={`hg-tile__note${landed > 0 ? ' hg-swap-in' : ''}`}>
                         {game.completed_at ? `Completado el ${formatDate(game.completed_at)}` : game.rating === null ? 'Se pone al completarlo' : null}
                     </dd>
                 </Tile>
@@ -245,12 +298,12 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                     ) : (
                         <>
                             <dd className="hg-tile__value">
-                                {game.achievements_unlocked ?? 0}
+                                <CountUp value={game.achievements_unlocked ?? 0} />
                                 <small>/{game.achievements_total}</small>
                             </dd>
                             <dd className="hg-tile__note">
                                 {isPerfect(game) ? (
-                                    <span className="badge-100">
+                                    <span className="badge-100 hg-pop-in">
                                         <Trophy size={11} aria-hidden /> 100%
                                     </span>
                                 ) : (
@@ -267,7 +320,7 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
             </dl>
 
             {game.endless ? (
-                <div className="juego-goal">
+                <div key="sin-final" className={`juego-goal${goalSwapped ? ' hg-swap-in' : ''}`}>
                     <div className="juego-goal__row">
                         <span className="juego-goal__label st-sin_final">
                             <InfinityIcon size={15} aria-hidden /> Sin final
@@ -276,7 +329,7 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                     </div>
                 </div>
             ) : (
-                <div className="juego-goal">
+                <div key="objetivo" className={`juego-goal${goalSwapped ? ' hg-swap-in' : ''}`}>
                     <div className="juego-goal__row">
                         <span className="juego-goal__label">
                             <Target size={15} aria-hidden /> Objetivo
@@ -306,14 +359,14 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                         <DurationTrack played={game.playtime_forever} duration={duration} done={progress.done} />
                     ) : (
                         progress.percent !== null && (
-                            <span className={`hg-bar juego-goal__bar${progress.done ? ' is-done' : ''}`} aria-hidden>
+                            <span className={`hg-bar hg-bar--fill juego-goal__bar${progress.done ? ' is-done' : ''}`} aria-hidden>
                                 <span style={{ width: `${progress.percent}%` }} />
                             </span>
                         )
                     )}
                     {suggestComplete && (
                         <p className="juego-goal__done" role="status">
-                            <Trophy size={14} aria-hidden /> ¡Objetivo cumplido: tienes todos los logros!{' '}
+                            <Trophy size={14} className="hg-pop-in" aria-hidden /> ¡Objetivo cumplido: tienes todos los logros!{' '}
                             <Button size="sm" onClick={openComplete}>
                                 <Flag aria-hidden /> Marcar como completado
                             </Button>
@@ -343,14 +396,15 @@ function DurationTrack({ played, duration, done }: { played: number; duration: G
     const max = Math.max(played, ...marks.map((m) => m.minutes))
     if (max <= 0) return null
     const at = (minutes: number) => `${Math.min(100, (minutes / max) * 100)}%`
+    // El relleno crece con scaleX (sin tocar el ancho) y cada meta pasada se enciende cuando la barra llega a ella.
     return (
         <div className="juego-track" aria-hidden>
-            <span className={`juego-track__fill${done ? ' is-done' : ''}`} style={{ width: at(played) }} />
+            <span className={`juego-track__fill${done ? ' is-done' : ''}`} style={{ transform: `scaleX(${Math.min(1, played / max)})` }} />
             {marks.map((m, i) => (
                 <span
                     key={m.label}
                     className={`juego-track__mark${played >= m.minutes ? ' is-passed' : ''}${i === marks.length - 1 && m.minutes === max ? ' is-last' : ''}`}
-                    style={{ left: at(m.minutes) }}
+                    style={{ left: at(m.minutes), '--at': String(markReachedAt(m.minutes, played)) } as CSSVars}
                 >
                     <span>
                         {m.label} {formatHours(m.minutes)}

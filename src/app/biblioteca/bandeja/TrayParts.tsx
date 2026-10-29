@@ -134,13 +134,14 @@ export function TrayToast({ toast, onUndo }: { toast: TrayToastData; onUndo: () 
 
 export interface TrayFlight {
     id: number
-    status: TrayDestination
+    /** Lista de destino (en la biblioteca también las marcas). */
+    status: keyof typeof LIST_ICONS
     count: number
     from: { x: number; y: number }
     to: { x: number; y: number }
 }
 
-/** Ficha con el icono de la lista que vuela de la fila a «Biblioteca» en la navegación (440 ms). */
+/** Ficha con el icono de la lista que vuela de la fila a «Biblioteca» en la navegación, o al raíl de la biblioteca (440 ms). */
 export function TrayFly({ flight, onDone }: { flight: TrayFlight; onDone: (id: number) => void }) {
     const ref = useRef<HTMLSpanElement>(null)
     useEffect(() => {

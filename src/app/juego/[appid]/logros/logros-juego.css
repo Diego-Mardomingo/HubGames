@@ -112,74 +112,14 @@
   align-content: center;
 }
 
+/* Anillo: el compartido .hg-ring (styles/lists.css), un poco más grande aquí */
 .gl-ring {
-  position: relative;
-  width: 148px;
-  height: 148px;
+  --ring-size: 148px;
 }
 
-.gl-ring svg {
-  width: 100%;
-  height: 100%;
-  rotate: -90deg;
-  overflow: visible;
-}
-
-.gl-ring circle {
-  fill: none;
-  stroke-width: 3.2;
-}
-
-.gl-ring__track {
-  stroke: var(--surface-2);
-}
-
-.gl-ring__fill {
-  stroke: var(--primary);
-  stroke-linecap: round;
-  stroke-dasharray: 100 100;
-  animation: gl-ring-fill 0.7s var(--ease-out) 0.12s backwards;
-}
-
-@keyframes gl-ring-fill {
-  from { stroke-dashoffset: 100; }
-}
-
-/* Al 100 %: verde, cerrado y con un pulso cuando termina de rellenarse */
-.gl-ring.is-done .gl-ring__fill {
-  stroke: var(--success);
-}
-
-.gl-ring.is-done svg {
-  animation: gl-ring-done 0.5s var(--ease-out) 0.82s;
-}
-
-@keyframes gl-ring-done {
-  40% { transform: scale(1.06); }
-}
-
-.gl-ring__text {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  text-align: center;
-}
-
-.gl-ring__text b {
+.gl-ring .hg-ring__text b {
   font-size: 1.875rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
   line-height: 1.05;
-}
-
-.gl-ring.is-done .gl-ring__text b {
-  color: var(--success);
-}
-
-.gl-ring__text > span {
-  color: var(--muted);
-  font-size: 0.8125rem;
 }
 
 .gl-sum__main {
@@ -264,27 +204,9 @@
   height: 13px;
 }
 
-/* Sello «100 %» que salta cuando el anillo se cierra */
-.gl-seal {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 22px;
+/* Sello «100 %»: el compartido .hg-seal (styles/lists.css), junto al texto */
+.gl-diff .hg-seal {
   margin-right: 4px;
-  padding: 0 8px 0 6px;
-  border-radius: 999px;
-  background: var(--st-completado);
-  color: var(--on-done);
-  font-size: 0.75rem;
-  font-weight: 700;
-  vertical-align: 1px;
-  animation: hg-pop-in 0.26s var(--ease-out) 0.9s backwards;
-}
-
-.gl-seal svg {
-  width: 12px;
-  height: 12px;
-  stroke-width: 2.8;
 }
 
 /* Columnas por rareza: conseguidos / total, barra y puntos. Pulsar una filtra la lista (se marca con su color y check). */
@@ -504,8 +426,7 @@
   }
 
   .gl-ring {
-    width: 132px;
-    height: 132px;
+    --ring-size: 132px;
   }
 }
 
@@ -549,15 +470,14 @@
   }
 
   .gl-ring {
-    width: 112px;
-    height: 112px;
+    --ring-size: 112px;
   }
 
-  .gl-ring__text b {
+  .gl-ring .hg-ring__text b {
     font-size: 1.5rem;
   }
 
-  .gl-ring__text > span {
+  .gl-ring .hg-ring__text > span {
     font-size: 0.75rem;
   }
 

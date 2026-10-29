@@ -100,9 +100,30 @@
 }
 
 .lib-rail__item[aria-current='page'] {
-  border-color: var(--border);
-  background: var(--surface);
   font-weight: 600;
+}
+
+.lib-rail__item[aria-current='page']:hover {
+  background: transparent;
+}
+
+/* Indicador activo que se desliza entre listas (motion.span con layoutId, el muelle de la barra lateral) */
+button.lib-rail__item {
+  position: relative;
+}
+
+.lib-rail__item > *:not(.lib-rail__pill) {
+  position: relative;
+  z-index: 1;
+}
+
+.lib-rail__pill {
+  position: absolute;
+  inset: -1px;
+  z-index: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
 }
 
 .lib-rail__item--tray {
@@ -140,6 +161,7 @@
 .lib-rail__count {
   color: var(--muted);
   font-size: 0.8125rem;
+  transition: color 0.15s;
 }
 
 .lib-rail__item[aria-current='page'] .lib-rail__count {
@@ -339,6 +361,71 @@
   box-shadow: 0 0 0 3px var(--cursor), var(--shadow-lg);
 }
 
+/* ── Movimiento de la lista ──
+   Cambiar de lista o de vista: el contenido entra con un fundido (.hg-swap-in). Una fila que sale de la lista se tiñe
+   de su destino (200 ms), sale hacia el raíl y se apaga (200 ms) y su hueco se pliega (240 ms); en la rejilla, la tarjeta
+   se funde y las que ocupan otro hueco se funden también. Una fila que vuelve (Deshacer o error) entra con el cursor
+   encendido un instante. */
+.lib-swap {
+  min-width: 0;
+}
+
+.lib-listhead__icon.is-in svg {
+  animation: hg-pop-in 0.26s var(--ease-out);
+}
+
+.hg-row.lib-row,
+.lib-card {
+  transition: box-shadow 0.15s ease, border-color 0.2s var(--ease-out), background-color 0.2s var(--ease-out);
+}
+
+.lib-row::before,
+.lib-card::before {
+  transition: background-color 0.2s var(--ease-out);
+}
+
+.hg-row.lib-row.is-going,
+.lib-card.is-going {
+  border-color: color-mix(in srgb, var(--c) 45%, var(--border));
+  background: color-mix(in srgb, var(--c) var(--tint), var(--surface));
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.hg-row.lib-row.lib-ghost {
+  height: var(--h);
+  overflow: hidden;
+  pointer-events: none;
+  animation: lib-out 0.2s var(--ease-out) forwards, lib-fold 0.24s var(--ease-out) 0.2s forwards;
+}
+
+.lib-card.lib-ghost {
+  pointer-events: none;
+  animation: lib-out-grid 0.2s var(--ease-out) forwards;
+}
+
+@keyframes lib-out {
+  to { opacity: 0; transform: translateX(-28px); }
+}
+
+@keyframes lib-fold {
+  from { height: var(--h); }
+  to { height: 0; min-height: 0; margin-bottom: -6px; padding-top: 0; padding-bottom: 0; border-width: 0; }
+}
+
+@keyframes lib-out-grid {
+  to { opacity: 0; transform: scale(0.96); }
+}
+
+.hg-row.lib-row.is-back,
+.lib-card.is-back {
+  animation: hg-enter 0.32s var(--ease-out) backwards, tray-back 1.2s var(--ease-out);
+}
+
+.lib-card.is-shift {
+  animation: hg-fade-in 0.16s var(--ease-out);
+}
+
 /* Orden manual de pendientes: asa de arrastre + posición */
 .lib-drag {
   display: inline-flex;
@@ -442,12 +529,27 @@
     display: none;
   }
 
+  .lib-rail {
+    position: relative;
+  }
+
   .lib-rail__item {
     flex: none;
     grid-template-columns: auto auto auto;
     gap: 0.4rem;
     border-color: var(--border);
     background: var(--surface);
+  }
+
+  /* La activa deja ver el indicador, que lleva el tinte de su lista (como el chip) */
+  .lib-rail__item[aria-current='page'] {
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .lib-rail__pill {
+    border-color: color-mix(in srgb, var(--c) 45%, var(--border));
+    background: color-mix(in srgb, var(--c) var(--tint), var(--surface));
   }
 
   .lib-rail__icon {
