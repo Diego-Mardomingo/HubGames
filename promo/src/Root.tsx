@@ -8,7 +8,7 @@ export const RemotionRoot = () => (
         <Folder name="README">
             <Still id="Hero" component={Hero} width={1600} height={820} />
             <Still id="Poster" component={Poster} width={1600} height={900} />
-            <Still id="Screens" component={Screens} width={1600} height={1030} />
+            <Still id="Screens" component={Screens} width={1600} height={1000} />
         </Folder>
     </>
 )

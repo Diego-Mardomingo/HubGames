@@ -1,81 +1,93 @@
+import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from 'remotion'
-import { C, F, ease, lerp, rise } from '../theme'
-import { AppWindow, type NavKey } from '../ui/kit'
+import { C, ease, lerp, rise, tint, type Mode } from '../theme'
 import { Background } from '../ui/Background'
+import { AppWindow, Themed, type NavKey } from '../ui/kit'
 
 type Props = {
-    index: string
-    kicker: string
+    mode: Mode
+    kicker: { Icon: LucideIcon; color: string; label: string }
     title: ReactNode
     body: string
-    nav: NavKey
+    nav: NavKey | ((f: number) => NavKey)
     side?: 'left' | 'right'
-    hue?: number
     /** Contenido de la ventana; recibe el frame local (la maqueta empieza un poco después que el texto). */
     render: (f: number) => ReactNode
-    /** Elementos extra fuera de la ventana (tarjetas flotantes, etc.). */
+    /** Elementos extra fuera de la ventana (móvil, avisos…). */
     extra?: (f: number) => ReactNode
+    /** Frame en el que el texto se va (para dejar sitio a `extra`). */
+    textOutAt?: number
 }
 
-const WIN_W = 1180
-const WIN_H = 800
+export const WIN_W = 1180
+export const WIN_H = 800
 
-/** Escena de función: texto grande a un lado y la app en perspectiva al otro, con cámara lenta. */
-export const FeatureScene = ({ index, kicker, title, body, nav, side = 'right', hue = 0, render, extra }: Props) => {
+/** Escena de función: texto grande a un lado y la app al otro, en una perspectiva suave con cámara lenta. */
+export const FeatureScene = ({ mode, kicker, title, body, nav, side = 'right', render, extra, textOutAt }: Props) => {
     const f = useCurrentFrame()
     const { durationInFrames } = useVideoConfig()
     const right = side === 'right'
-    const enter = ease(f, 0, 34)
+    const enter = ease(f, 0, 26)
     const drift = f / durationInFrames
-    const rotY = lerp(right ? -26 : 26, right ? -9 : 9, enter) + (right ? 1 : -1) * drift * 3
+    const textOut = textOutAt === undefined ? 0 : ease(f, textOutAt, 12)
+    const rotY = lerp(right ? -18 : 18, right ? -6 : 6, enter) + (right ? 1 : -1) * drift * 2
     return (
-        <AbsoluteFill style={{ fontFamily: F.body, color: C.fg }}>
-            <Background hue={hue} />
-            <div
-                style={{
-                    position: 'absolute',
-                    top: 0,
-                    bottom: 0,
-                    [right ? 'left' : 'right']: 120,
-                    width: 560,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    gap: 22,
-                }}
-            >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, ...rise(f, 4, 20) }}>
-                    <span style={{ fontFamily: F.mono, fontWeight: 700, fontSize: 20, color: C.accent }}>{index}</span>
-                    <span style={{ width: lerp(0, 60, ease(f, 8, 24)), height: 2, background: C.grad }} />
-                    <span style={{ fontFamily: F.mono, fontWeight: 700, fontSize: 18, letterSpacing: '0.2em', textTransform: 'uppercase', color: C.mutedLight }}>{kicker}</span>
-                </div>
-                <div style={{ fontFamily: F.display, fontWeight: 800, fontSize: 76, lineHeight: 1.02, letterSpacing: '-0.045em', ...rise(f, 8, 24, 50) }}>{title}</div>
-                <div style={{ fontSize: 28, lineHeight: 1.45, color: C.mutedLight, ...rise(f, 16, 24, 40) }}>{body}</div>
-            </div>
-            <div
-                style={{
-                    position: 'absolute',
-                    top: '50%',
-                    [right ? 'left' : 'right']: 690,
-                    perspective: 2200,
-                }}
-            >
+        <Themed mode={mode} style={{ position: 'absolute', inset: 0 }}>
+            <AbsoluteFill>
+                <Background />
                 <div
                     style={{
-                        translate: `${lerp(right ? 260 : -260, 0, enter)}px ${-WIN_H / 2 + Math.sin(f / 30) * 6}px`,
-                        rotate: `y ${rotY}deg`,
-                        scale: String(lerp(0.82, 0.94, enter) + drift * 0.03),
-                        transformOrigin: right ? 'left center' : 'right center',
-                        opacity: enter,
+                        position: 'absolute',
+                        top: 0,
+                        bottom: 0,
+                        [right ? 'left' : 'right']: 110,
+                        width: 540,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        gap: 24,
+                        opacity: 1 - textOut,
+                        translate: `${(right ? -1 : 1) * textOut * 40}px 0`,
                     }}
                 >
-                    <AppWindow active={nav} width={WIN_W} height={WIN_H}>
-                        {render(f - 10)}
-                    </AppWindow>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, ...rise(f, 2, 14, 20) }}>
+                        <span style={{ display: 'grid', placeItems: 'center', width: 44, height: 44, borderRadius: 11, background: tint(kicker.color), color: kicker.color }}>
+                            <kicker.Icon size={24} strokeWidth={2.2} />
+                        </span>
+                        <span style={{ fontWeight: 600, fontSize: 26, color: C.muted }}>{kicker.label}</span>
+                    </div>
+                    <div style={{ fontWeight: 800, fontSize: 74, lineHeight: 1.04, letterSpacing: '-0.035em', ...rise(f, 5, 16, 30) }}>{title}</div>
+                    <div style={{ fontSize: 29, lineHeight: 1.42, color: C.muted, ...rise(f, 10, 16, 24) }}>{body}</div>
                 </div>
-            </div>
-            {extra?.(f)}
-        </AbsoluteFill>
+                <div style={{ position: 'absolute', top: '50%', [right ? 'left' : 'right']: 690, perspective: 2600 }}>
+                    <div
+                        style={{
+                            translate: `${lerp(right ? 200 : -200, 0, enter)}px ${-WIN_H / 2 + Math.sin(f / 34) * 5}px`,
+                            rotate: `y ${rotY}deg`,
+                            scale: String(lerp(0.86, 0.95, enter) + drift * 0.025),
+                            transformOrigin: right ? 'left center' : 'right center',
+                            opacity: enter,
+                        }}
+                    >
+                        <AppWindow active={typeof nav === 'function' ? nav(f) : nav} width={WIN_W} height={WIN_H}>
+                            {render(f - 10)}
+                        </AppWindow>
+                    </div>
+                </div>
+                {extra?.(f)}
+            </AbsoluteFill>
+        </Themed>
+    )
+}
+
+/** Fundido cruzado entre dos maquetas dentro de la misma ventana. */
+export const CrossFade = ({ f, at, dur = 10, a, b }: { f: number; at: number; dur?: number; a: ReactNode; b: ReactNode }) => {
+    const t = ease(f, at, dur)
+    return (
+        <>
+            {t < 1 && <div style={{ position: 'absolute', inset: 0, opacity: 1 - t, translate: `${-t * 30}px 0` }}>{a}</div>}
+            {t > 0 && <div style={{ position: 'absolute', inset: 0, opacity: t, translate: `${(1 - t) * 30}px 0` }}>{b}</div>}
+        </>
     )
 }
