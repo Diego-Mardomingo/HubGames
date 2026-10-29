@@ -51,6 +51,12 @@
   /* Rareza usada como texto o icono: en claro se mezcla con --foreground para llegar a 4.5:1 */
   --rar-ink: 62%;
 
+  /* Medallas del ranking (oro, plata, bronce): relleno tal cual; como cifra, mezcladas con --medal-ink */
+  --medal-1: #c08a00;
+  --medal-2: #8b95a3;
+  --medal-3: #b0642d;
+  --medal-ink: 62%;
+
   /* Listas de la biblioteca: un color por estado y por marca (texto ≥ 4,5:1; de fondo, al --tint) */
   --st-bandeja: #5d6472;
   --st-pendiente: #0b7285;
@@ -125,6 +131,11 @@
   --rar-epica: #b07cff;
   --rar-leg: #f2b53a;
   --rar-ink: 100%;
+
+  --medal-1: #f5c542;
+  --medal-2: #c3cad4;
+  --medal-3: #e39a62;
+  --medal-ink: 100%;
 
   --st-bandeja: #9aa1ae;
   --st-pendiente: #3bc9db;

@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Ranking · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --rar-leg: #c98a0b; --rar-comun: #8a8f98; --rar-ink: 62%;
+  --tint: 12%;
+  --on-done: #ffffff;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  /* ── PROPUESTA: medallas del ranking (tokens nuevos) ── */
+  --medal-1: #c08a00; --medal-2: #8b95a3; --medal-3: #b0642d; --medal-ink: 62%;
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --rar-leg: #f2b53a; --rar-comun: #9aa0aa; --rar-ink: 100%;
+  --tint: 14%;
+  --on-done: #0b1f13;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --warn-ink: var(--warning);
+  --medal-1: #f5c542; --medal-2: #c3cad4; --medal-3: #e39a62; --medal-ink: 100%;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; color: inherit; cursor: pointer; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after, html.theme-anim body {
+  transition: background-color .3s var(--ease-out), color .3s var(--ease-out), border-color .3s var(--ease-out), fill .3s, stroke .3s, box-shadow .3s var(--ease-out) !important;
+}
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.doc-group { display: inline-flex; align-items: center; gap: 4px; padding-right: 8px; margin-right: 4px; border-right: 1px solid var(--border); }
+.doc-group > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.doc-btn--sm { height: 32px; padding: 0 10px; font-size: .8125rem; }
+.doc-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: .71875rem; font-weight: 700; vertical-align: 2px; }
+.doc-tag--new { background: var(--primary-glow); color: var(--primary); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.note table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: .8125rem; }
+.note th, .note td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.note th { color: var(--muted); font-weight: 600; }
+.qs li { margin: 8px 0; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 120ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: clip; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 56ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.grid-frames { display: grid; grid-template-columns: repeat(2, 600px); gap: 24px; align-items: start; }
+.grid-frames.cols { grid-template-columns: repeat(3, 420px); }
+.vlabel { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.875rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 7px; background: var(--surface-2); }
+.tests { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 0; }
+.tests > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.tests > button[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.col-frame { padding: 16px; }
+.sw { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; vertical-align: -4px; font-size: 11px; font-weight: 700; }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nav-ind { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px 0 5px; border-radius: 999px; font-size: .71875rem; font-weight: 700; }
+.nav-ind .i { font-size: 11px; }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-2); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.nav-cta { display: flex; align-items: center; justify-content: center; gap: .5rem; height: 40px; border-radius: var(--radius-sm); color: var(--primary-foreground); background: var(--primary); font-size: .875rem; font-weight: 600; }
+.nav-cta .i { font-size: 16px; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); }
+.m-tab.active::before { content: ''; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--cursor); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+.m-tab__badge { position: absolute; top: -3px; right: -7px; width: 9px; height: 9px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px var(--surface); }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.m-page { padding: 1rem 1rem 110px; }
+.page-title { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .page-title { font-size: 1.625rem; }
+.page-subtitle { margin: 4px 0 0; color: var(--muted); font-size: .9375rem; max-width: 70ch; }
+.w-mob .page-subtitle, .w-col .page-subtitle { font-size: .875rem; }
+
+/* ══ Piezas compartidas (lists.css / globals.css) ══ */
+.st-todos { --c: var(--primary); }
+.ok { --c: var(--success); } .ko { --c: var(--danger); } .warn { --c: var(--warning); } .neutral { --c: var(--muted); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; background: none; transition: background-color .2s var(--ease-out), border-color .15s, color .2s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { background: var(--surface-2); border-color: var(--border-hover); }
+.btn--ghost { color: var(--muted); }
+.btn--ghost:hover { color: var(--foreground); background: var(--surface-2); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 0.8125rem; gap: 6px; }
+.btn--sm .i { font-size: 14px; }
+.w-mob .btn--sm, .w-col .btn--sm { height: 40px; }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 12px; }
+.you { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 999px; background: var(--primary); color: var(--primary-foreground); font-size: .6875rem; font-weight: 700; flex: none; }
+.sec-head { display: flex; align-items: center; gap: .625rem; min-height: 2rem; flex-wrap: wrap; }
+.sec-head__icon { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 8px; font-size: 16px; }
+.sec-head h2 { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
+.sec-head__count { color: var(--muted); font-size: .8125rem; font-weight: 500; white-space: nowrap; }
+.sec-head__end { margin-left: auto; color: var(--muted); font-size: .8125rem; }
+.w-mob .sec-head__end { margin-left: 0; flex-basis: 100%; }
+
+/* Tiles (src/components/Tile.tsx + CountUp) */
+.hg-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.w-col .hg-tiles, .w-mob .hg-tiles, .w-mid .hg-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hg-tile { position: relative; display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); transition: box-shadow .15s, border-color .15s; }
+.w-mob .hg-tile, .w-col .hg-tile { padding: 12px; }
+.hg-tile dt { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.hg-tile__icon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; font-size: 13px; flex: none; }
+.hg-tile dd { margin: 0; min-width: 0; }
+.hg-tile__value { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .hg-tile__value, .w-col .hg-tile__value { font-size: 1.375rem; }
+.hg-tile__value small { color: var(--muted); font-size: .875rem; font-weight: 500; letter-spacing: 0; }
+.hg-tile__note { display: block; margin-top: 2px; overflow: hidden; color: var(--muted); font-size: .78125rem; text-overflow: ellipsis; white-space: nowrap; }
+.w-mob .hg-tile__note, .w-col .hg-tile__note { white-space: normal; }
+.hg-tile__note b { color: var(--foreground); font-weight: 600; }
+.hg-tile.is-link { cursor: pointer; text-align: left; font: inherit; color: inherit; }
+.hg-tile.is-link:hover, .hg-tile.is-link:focus-visible { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); outline: none; }
+.hg-tile__go { color: var(--primary); font-weight: 600; }
+
+/* ══ Ranking (propuesta) ══ */
+.rk { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; max-width: 960px; margin: 0 auto; }
+.w-mob .rk { gap: 1.25rem; }
+.rk-rules { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; color: var(--muted); font-size: .8125rem; flex-wrap: wrap; }
+.rk-rules .pts { display: inline-flex; gap: 3px; }
+.rk-rules .pts span { display: inline-grid; place-items: center; min-width: 22px; height: 20px; padding: 0 4px; border-radius: 5px; background: var(--surface-2); color: var(--foreground); font-size: .6875rem; font-weight: 700; }
+.rk-rules .pts span:first-child { background: var(--success); color: var(--on-done); }
+
+/* Medalla: número sobre el tinte de su metal, siempre con la cifra */
+.m1 { --medal: var(--medal-1); } .m2 { --medal: var(--medal-2); } .m3 { --medal: var(--medal-3); }
+.medal { display: inline-grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 50%; font-size: .875rem; font-weight: 700; background: color-mix(in srgb, var(--medal) 18%, var(--surface)); color: color-mix(in srgb, var(--medal) var(--medal-ink), var(--foreground)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--medal) 70%, transparent); }
+.medal--lg { width: 36px; height: 36px; font-size: 1rem; }
+.medal-ink { color: color-mix(in srgb, var(--medal) var(--medal-ink), var(--foreground)); }
+
+/* Avatar con inicial (como hoy) */
+.av { display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--surface-2); color: var(--foreground); font-weight: 700; line-height: 1; }
+.av.is-self { background: var(--primary-glow); color: var(--primary); }
+
+/* Tendencia */
+.tr { display: inline-flex; align-items: center; gap: 2px; height: 20px; padding: 0 6px 0 4px; border-radius: 999px; font-size: .71875rem; font-weight: 700; white-space: nowrap; }
+.tr .i { font-size: 12px; stroke-width: 2.75; }
+.tr.up { background: var(--success-glow); color: var(--success); }
+.tr.down { background: var(--danger-glow); color: var(--danger); }
+.tr.same { color: var(--muted); padding: 0 4px; }
+.tr.new { background: var(--primary-glow); color: var(--primary); padding: 0 7px; }
+.gain { color: var(--muted); font-size: .75rem; white-space: nowrap; }
+.gain b { color: var(--foreground); font-weight: 600; }
+
+/* Podio A · escalonado */
+.pd { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.w-mob .pd { gap: 6px; }
+.pd__col { position: relative; display: flex; flex-direction: column; min-width: 0; }
+.pd__col.r1 { order: 2; } .pd__col.r2 { order: 1; } .pd__col.r3 { order: 3; }
+.pd__card { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; padding: 14px 12px 12px; margin-bottom: -1px; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg) var(--radius-lg) 0 0; transition: box-shadow .15s, border-color .15s; }
+.w-mob .pd__card { padding: 10px 6px 8px; gap: 2px; }
+.pd__card:hover { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.pd__card .medal { margin-bottom: 4px; }
+.pd__name { display: flex; align-items: center; justify-content: center; gap: 6px; max-width: 100%; margin-top: 6px; font-weight: 700; font-size: .9375rem; }
+.pd__name > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.w-mob .pd__name { flex-direction: column; gap: 2px; font-size: .8125rem; margin-top: 4px; }
+.w-mob .pd__name > span:first-child { max-width: 100%; }
+.pd__pts { color: var(--muted); font-size: .8125rem; }
+.pd__pts b { margin-right: 3px; color: var(--foreground); font-size: 1.375rem; font-weight: 700; letter-spacing: -0.02em; }
+.r1 .pd__pts b { font-size: 1.75rem; }
+.w-mob .pd__pts { font-size: .6875rem; line-height: 1.2; }
+.w-mob .pd__pts b { display: block; margin: 0; font-size: 1.125rem; }
+.w-mob .r1 .pd__pts b { font-size: 1.25rem; }
+.pd__sub { color: var(--muted); font-size: .75rem; }
+.w-mob .pd__sub { display: none; }
+.w-col .pd__sub .x-wide { display: none; }
+.pd__meta { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px 8px; min-height: 20px; margin-top: 2px; }
+.pd__step { position: relative; display: grid; place-items: center; height: var(--h); border: 1px solid var(--border); border-top: 0; border-radius: 0 0 var(--radius) var(--radius); background: color-mix(in srgb, var(--medal) 14%, var(--surface)); box-shadow: inset 0 3px 0 var(--medal); transform-origin: bottom; }
+.pd__step b { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; opacity: .9; }
+.w-mob .pd__step b { font-size: 1.5rem; }
+.r1 .pd__step { --h: 96px; } .r2 .pd__step { --h: 64px; } .r3 .pd__step { --h: 40px; }
+.w-mob .r1 .pd__step { --h: 64px; } .w-mob .r2 .pd__step { --h: 44px; } .w-mob .r3 .pd__step { --h: 28px; }
+.w-mob .r3 .pd__step b { font-size: 1.125rem; }
+.pd__col.is-self .pd__card { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 5%, var(--surface)); }
+.pd__col.is-empty .pd__card { background: transparent; border-style: dashed; border-color: var(--border-hover); color: var(--muted); }
+.pd__col.is-empty .pd__card:hover { box-shadow: none; border-color: var(--border-hover); }
+.pd__col.is-empty .pd__step { background: transparent; border: 1px dashed var(--border-hover); border-top: 0; box-shadow: inset 0 3px 0 color-mix(in srgb, var(--medal) 40%, transparent); }
+.pd__col.is-empty .pd__step b { color: var(--muted); opacity: .6; }
+.pd__empty-av { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; border: 1.5px dashed var(--border-hover); font-size: 20px; }
+.w-mob .pd__empty-av { width: 40px; height: 40px; font-size: 17px; }
+.pd__empty-t { margin-top: 6px; font-size: .8125rem; font-weight: 600; }
+.pd__empty-s { font-size: .75rem; }
+.w-mob .pd__empty-s { display: none; }
+
+/* Filas de la clasificación (A: del 4.º; B: todas, con medallas) */
+.rk-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; position: relative; }
+.rw { --c: transparent; position: relative; display: grid; grid-template-columns: 2.5rem 36px minmax(0, 1fr) minmax(80px, 160px) 10rem; align-items: center; gap: .875rem; min-height: 60px; padding: 8px 14px 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: box-shadow .15s, border-color .15s; }
+.rw::before { content: ''; position: absolute; left: -1px; top: -1px; bottom: -1px; width: 4px; border-radius: var(--radius) 0 0 var(--radius); background: var(--c); }
+.rw.m1, .rw.m2, .rw.m3 { --c: var(--medal); min-height: 66px; }
+.rw:hover { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.rw.is-self { background: color-mix(in srgb, var(--primary) 6%, var(--surface)); border-color: var(--primary); }
+.rw__rank { display: flex; justify-content: flex-end; align-items: center; gap: 2px; color: var(--muted); font-size: .9375rem; font-weight: 600; }
+.rw__rank small { font-size: .6875rem; font-weight: 700; }
+.rw__player { display: grid; min-width: 0; }
+.rw__name { display: flex; align-items: center; gap: .5rem; min-width: 0; font-weight: 600; }
+.rw__name > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rw__sub { overflow: hidden; color: var(--muted); font-size: .78125rem; text-overflow: ellipsis; white-space: nowrap; }
+.rw__sub .tie { color: var(--foreground); font-weight: 600; }
+.rw__bar { position: relative; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.rw__bar span { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--primary); opacity: .55; transform-origin: left; }
+.rw.is-self .rw__bar span { opacity: 1; }
+.rw.m1 .rw__bar span, .rw.m2 .rw__bar span, .rw.m3 .rw__bar span { background: var(--medal); opacity: 1; }
+.rw__end { display: grid; justify-items: end; gap: 1px; }
+.rw__pts { font-size: 1.0625rem; font-weight: 700; white-space: nowrap; }
+.rw__pts small { color: var(--muted); font-size: .75rem; font-weight: 500; }
+.rw__trend { display: flex; align-items: center; gap: 6px; }
+.w-mob .rw, .w-col .rw { grid-template-columns: 1.75rem 34px minmax(0, 1fr) auto; gap: .625rem; padding: 8px 10px; }
+.w-mob .rw__bar, .w-col .rw__bar { display: none; }
+.w-mob .rw__sub .x-wide, .w-col .rw__sub .x-wide { display: none; }
+.rk-gap { display: grid; place-items: center; height: 22px; color: var(--muted); font-weight: 700; letter-spacing: .2em; }
+.rk-more { justify-self: center; }
+
+/* Cursor que te encuentra (como el top 5 del perfil) */
+.is-self.is-find::after, .pd__col.is-self.is-find .pd__card::after { content: ''; position: absolute; inset: -1px; border-radius: inherit; box-shadow: 0 0 0 3px var(--cursor); pointer-events: none; animation: find 1.1s var(--ease-out) forwards; }
+.pd__col.is-self.is-find::after { display: none; }
+@keyframes find { 0% { opacity: 0; transform: scale(1.04); } 20%, 60% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+
+/* Aviso «aún no estás» y vacíos */
+.rk-nudge { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; padding: 12px 16px; border-radius: var(--radius-lg); background: var(--surface); border: 1px dashed var(--border-hover); font-size: .875rem; }
+.rk-nudge p { margin: 0; flex: 1 1 260px; color: var(--muted); }
+.rk-nudge p b { color: var(--foreground); }
+.rk-nudge__icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; font-size: 18px; flex: none; }
+.rk-empty { display: grid; justify-items: center; gap: .5rem; padding: 2.5rem 1rem; text-align: center; color: var(--muted); font-size: .875rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.rk-empty__icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; font-size: 22px; margin-bottom: 4px; }
+.rk-empty p { margin: 0; max-width: 44ch; } .rk-empty p b { display: block; color: var(--foreground); font-size: 1rem; margin-bottom: 2px; }
+.rk-empty .acts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
+.rk-foot { margin: -.5rem 0 0; color: var(--muted); font-size: .78125rem; }
+
+.toast { position: absolute; left: 50%; bottom: 24px; z-index: 30; display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius); background: var(--foreground); color: var(--background); font-size: .8125rem; font-weight: 600; box-shadow: var(--shadow-lg); transform: translateX(-50%); animation: toast-in .2s var(--ease-out); white-space: nowrap; }
+.w-mob .toast { bottom: 96px; }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 8px); } }
+
+/* ══ Microanimaciones ══ */
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } }
+@keyframes rise-card { from { opacity: 0; transform: translateY(28px); } }
+@keyframes rise-step { from { transform: scaleY(0); } }
+@keyframes pop { 0% { opacity: 0; transform: scale(.4); } 70% { transform: scale(1.12); } 100% { transform: none; } }
+@keyframes grow { from { transform: scaleX(0); } }
+.anim .hg-enter { animation: in-up .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+/* Podio: sube el 3.º, luego el 2.º y el 1.º (140 ms entre ellos: excepción como el top 5 del resumen anual) */
+.anim .pd__col .pd__step { animation: rise-step .42s var(--ease-out) backwards; animation-delay: calc(var(--o) * 140ms + 120ms); }
+.anim .pd__col .pd__card { animation: rise-card .42s var(--ease-out) backwards; animation-delay: calc(var(--o) * 140ms + 180ms); }
+.anim .pd__col .medal { animation: pop .36s var(--ease-out) backwards; animation-delay: calc(var(--o) * 140ms + 420ms); }
+.anim .rw .medal { animation: pop .3s var(--ease-out) backwards; animation-delay: calc((3 - var(--r)) * 90ms + 200ms); }
+.anim .rw { animation: in-up .3s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms + 300ms); }
+.anim .rw__bar span { animation: grow .45s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms + 380ms); }
+.anim .tr:not(.same) { animation: pop .26s var(--ease-out) backwards; animation-delay: var(--trd, 600ms); }
+.anim .hg-tile__icon { animation: pop .26s var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * 30ms + 80ms); }
+.anim.is-sorting .rw { animation: none; }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Ranking</h1>
+  <div class="doc-bar__actions">
+    <div class="doc-group" role="group" aria-label="Variante del podio"><span>Podio</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="p" data-val="A" aria-pressed="true">A · Escalonado (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="p" data-val="B" aria-pressed="false">B · Lista con medallas</button>
+    </div>
+    <div class="doc-group" role="group" aria-label="Tendencia"><span>Tendencia</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="t" data-val="off" aria-pressed="false">Sin tendencia (sin migración)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="t" data-val="on" aria-pressed="true">30 días (migración, recomendada)</button>
+    </div>
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p><b>Hoy</b> el ranking tiene una cabecera con tu puesto, puntos y acertados en gris, un podio de tres tarjetas planas (el 1.º un poco más alto) con medallas que toman prestados los colores de rareza <b>legendaria</b> y <b>común</b> (y una mezcla con rojo para el bronce) y, debajo, filas del 4.º en adelante con una barra cobalto. Tu fila lleva un borde cobalto, pero no hay nada que te lleve a ella, no se ve cuánto te falta para el siguiente y no hay ningún movimiento. La propuesta mantiene la misma cuenta (<code>buildRanking</code>, sin cambiar reglas) y añade:</p>
+  <ul>
+    <li><b>Medallas oro, plata y bronce como familia de color propia</b> <span class="doc-tag doc-tag--new">Tokens nuevos</span> <code>--medal-1/2/3</code> (y <code>--medal-ink</code>, como <code>--rar-ink</code>): la guía prohíbe pintar con las rarezas lo que no son logros, y hoy el ranking y el perfil lo hacen. Siempre con la cifra del puesto encima; nunca solo color.</li>
+    <li><b>Tus cifras en tiles</b> (<code>Tile</code> + <code>CountUp</code>): tu puesto («1.º de 2», con el color de tu medalla si estás en el podio, cobalto si no) que te lleva a tu fila; tus puntos; <b>la distancia</b> («+222 sobre Borja» si vas primero, «Te faltan 12 para el 5.º» si no, «Empatas a puntos con…»), que es la cifra que da ganas de jugar mañana; y tus acertados con el %.</li>
+    <li><b>Podio</b> (punto de decisión 1): <b>A</b> escalonado, con tarjeta sobre un pedestal de la altura de su puesto y el tinte de su metal, y huecos «Libre» con borde discontinuo cuando hay menos de tres jugadores (hoy hay dos: el 3.º está libre de verdad). <b>B</b> sin podio: una sola lista con los tres primeros más altos, franja y medalla de su metal.</li>
+    <li><b>Tu posición resaltada</b>: tu fila o tu tarjeta con el borde cobalto y la chapa «Tú» (como el top 5 del perfil); al llegar, el cursor de selección se enciende un segundo sobre ella. Con listas largas se ven los 10 primeros, «···», tu zona (dos por encima y dos por debajo) y «Ver los 40».</li>
+    <li><b>Tendencia</b> (punto de decisión 2): <b>sube</b> en verde con flecha y cuántos puestos, <b>baja</b> en rojo, <b>igual</b> en gris, <b>nuevo</b> en cobalto; y «+78 en 30 días». Hoy no se puede calcular sin una migración pequeña (ver la tabla). Con los datos reales <b>no ha cambiado ningún puesto en 30 días</b>, así que el mockup lo enseña tal cual: «=» para los dos.</li>
+    <li><b>Media de intentos al acertar</b> en la línea de cada jugador («media 1,6 intentos»): sale de las fases que ya devuelve la RPC, sin coste.</li>
+    <li><b>Empates</b>: hoy dos jugadores con los mismos puntos, aciertos y precisión se ordenan por nombre y salen 6.º y 7.º. Propongo que compartan puesto («6.º» los dos, «Empate» en la línea) y que el siguiente sea 8.º. Si empatan a puntos pero no en aciertos, la línea lo dice: «Empate a 210 · desempata por aciertos».</li>
+    <li><b>Estados</b>: 1 jugador, 2 (los datos reales), empate, tú fuera del podio, lista larga, tú sin partidas terminadas («Aún no estás en el ranking» con «Jugar el de hoy»), nadie ha jugado e invitado.</li>
+  </ul>
+
+  <h3>De dónde sale cada dato (sin datos inventados)</h3>
+  <table>
+    <thead><tr><th>Dato</th><th>Fuente</th><th>Coste</th></tr></thead>
+    <tbody>
+      <tr><td>Puesto, puntos, acertados, fallados, precisión</td><td><code>hubgames_judi_ranking_rows()</code> (una fila por partida terminada: usuario, nombre, <code>completado</code>, <code>fase1..6</code>) + <code>buildRanking</code>, como hoy</td><td>Ya se carga (292 filas hoy)</td></tr>
+      <tr><td>Distancia al siguiente o al anterior, «X.º de N», «Superas al N %»</td><td>Cálculo en el cliente sobre el mismo ranking (<code>topWithSelf</code>, <code>beatPercent</code> del perfil)</td><td>0 consultas</td></tr>
+      <tr><td>Media de intentos al acertar</td><td>Fallos + 1 de cada partida acertada, de las mismas filas (<code>getFailedAttempts</code>). Real: Diego 1,61 y Borja 1,67</td><td>0 consultas, un campo más en <code>buildRanking</code></td></tr>
+      <tr><td>Empates compartidos</td><td>Mismos puntos, aciertos y precisión ⇒ mismo puesto (ranking de competición «1, 2, 2, 4»)</td><td>0 consultas, cambio en <code>buildRanking</code> con test</td></tr>
+      <tr><td>Tendencia (puestos que sube o baja) y puntos en 30 días</td><td><span class="doc-tag doc-tag--new">Migración</span> La RPC no devuelve <b>de qué día</b> es cada partida, así que hoy no se puede saber cómo estaba el ranking antes. Hay que añadirle el día (<code>id_lista_judi</code> o la fecha de <code>hubgames_lista_videojuegos_judi.fecha</code>); al cambiar las columnas de salida, es <code>drop function</code> + <code>create</code> con el mismo <code>security definer</code>, el mismo filtro y los mismos permisos. Después, en el cliente: <code>buildRanking(filas sin los últimos 30 días de JUDI)</code> da el puesto de antes, y la diferencia es la tendencia. <code>fecha_completado</code> (cuándo jugaste) <b>está vacía en las 292 filas</b> (la escribe el servidor desde el 25 de octubre, pero aún no hay ninguna), así que hoy solo vale el día del JUDI: si alguien recupera un día antiguo, sus puntos cuentan como de ese día y no como de esta semana</td><td>Migración pequeña; 0 consultas más (las mismas filas, +1 columna)</td></tr>
+      <tr><td>Invitado</td><td>La RPC solo responde con sesión (<code>auth.uid() is not null</code>, permiso solo a <code>authenticated</code>) y hoy la página redirige a <code>/login</code></td><td>—</td></tr>
+    </tbody>
+  </table>
+  <p class="t">Datos reales a 29 de octubre: 5 usuarios, <b>2 en el ranking</b> (los otros 3 no han terminado ningún JUDI). Diego 744 puntos, 138 acertados de 170 (81 %), media 1,61, 89 a la primera; Borja García Claver 522, 98 de 122 (80 %), media 1,67, 59 a la primera. En los últimos 30 días de JUDI, Diego +78 y Borja +0 (su última partida es del 3 de junio); en los últimos 7, ninguno ha sumado. Sin cambios de puesto. Las listas de 14 y 40 jugadores son ilustrativas.</p>
+
+  <h3>Tokens nuevos (contraste medido, WCAG)</h3>
+  <table>
+    <thead><tr><th>Token</th><th>Claro</th><th>Oscuro</th><th>Cifra (tinta) sobre superficie / fondo / su tinte</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sw m1 medal-ink" style="background:color-mix(in srgb,var(--medal) 18%,var(--surface));box-shadow:inset 0 0 0 2px var(--medal)">1</span> <code>--medal-1</code> oro</td><td><code>#c08a00</code></td><td><code>#f5c542</code></td><td>claro 5,73 / 5,02 / 4,78 · oscuro 9,92 / 11,05 / 6,51</td></tr>
+      <tr><td><span class="sw m2 medal-ink" style="background:color-mix(in srgb,var(--medal) 18%,var(--surface));box-shadow:inset 0 0 0 2px var(--medal)">2</span> <code>--medal-2</code> plata</td><td><code>#8b95a3</code></td><td><code>#c3cad4</code></td><td>claro 5,61 / 4,92 / 4,74 · oscuro 9,75 / 10,86 / 6,35</td></tr>
+      <tr><td><span class="sw m3 medal-ink" style="background:color-mix(in srgb,var(--medal) 18%,var(--surface));box-shadow:inset 0 0 0 2px var(--medal)">3</span> <code>--medal-3</code> bronce</td><td><code>#b0642d</code></td><td><code>#e39a62</code></td><td>claro 7,51 / 6,57 / 5,98 · oscuro 6,95 / 7,74 / 4,98</td></tr>
+    </tbody>
+  </table>
+  <p class="t">Como relleno (franja, pedestal, aro de la medalla) se usa el token tal cual (≥ 3:1 sobre la superficie en los dos temas); como cifra o texto se mezcla con el texto, <code>color-mix(in srgb, var(--medal) var(--medal-ink), var(--foreground))</code>, con <code>--medal-ink</code> 62 % en claro y 100 % en oscuro, igual que <code>.rar-ink</code>. El oro no es el amarillo del mínimo histórico (<code>--deal</code>, sólido) ni el ámbar de aviso: es más oscuro y va siempre en tinte. También lo usaría el top 5 del perfil (<code>--pf-rank-*</code> pasa a <code>--medal-*</code>).</p>
+
+  <h3>Microanimaciones (pruébalas en los marcos)</h3>
+  <ul>
+    <li><b>El podio sube</b>: primero el 3.º, luego el 2.º y el 1.º (140 ms entre ellos: excepción a los 30 ms, como el top 5 del resumen anual). El pedestal crece desde abajo (<code>scaleY</code>, 420 ms), la tarjeta sube 28 px y aparece, y la medalla hace pop al final (360 ms). Los puntos cuentan (<code>CountUp</code>, 450 ms).</li>
+    <li><b>Las posiciones se ordenan</b> (con tendencia): las filas aparecen en el orden de hace 30 días y se deslizan a su puesto de hoy (FLIP con <code>transform</code>, 420 ms; en la app, <code>motion.li layout="position"</code> como en logros de un juego); después la flecha de cada una hace pop. Solo se mueve lo que de verdad ha cambiado: <b>sin tendencia no hay nada que ordenar</b>, así que las filas entran con el escalonado de siempre (<code>.hg-enter</code>, 30 ms entre las 8 primeras) y las barras se rellenan (<code>.hg-bar--fill</code>).</li>
+    <li><b>Tu fila se ilumina</b>: cuando todo ha entrado, el cursor de selección aparece sobre ella y se apaga (1,1 s), como el top 5 del perfil. El tile «Tu puesto» lleva a tu fila y repite el destello.</li>
+    <li>Hover: cursor de selección en tarjetas y filas. Tiles con el icono que hace pop al entrar. Con <b>movimiento reducido</b> (botón arriba o el sistema) todo aparece en su sitio y sin destello.</li>
+  </ul>
+
+  <h3>Piezas que se reutilizan</h3>
+  <ul>
+    <li><code>Tile</code> / <code>.hg-tiles</code>, <code>CountUp</code>, <code>.hg-enter</code>, <code>.hg-pop-in</code> (medallas), <code>.hg-bar--fill</code> (barra relativa al primero), el cursor de selección y el destello de tu fila del perfil (<code>pf-self</code>, que pasaría a una clase compartida).</li>
+    <li><code>topWithSelf</code> y <code>beatPercent</code> de <code>src/lib/profile.ts</code> (top + «···» + tu zona), el formato «1.º de 2» del historial de JUDI, la cabecera de sección del Inicio y el vacío con acción.</li>
+    <li>La lista que se reordena de logros de un juego (<code>motion.li layout="position"</code>) para el orden de tendencia.</li>
+    <li><b>Nuevo</b>: los tokens <code>--medal-*</code>; en <code>src/lib/judi-ranking.ts</code>, <code>avgAttempts</code>, puestos compartidos, <code>rankingGap</code> (distancia), <code>rankingTrend</code> (con la migración) y <code>rankingWindow</code> (top 10 + tu zona), con tests; el podio como componente (<code>Podium</code>) para la página y quizá el perfil. No uso <code>AttemptPips</code>: aquí no hay partidas de un día, sino totales.</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Escritorio · 1440 px · en vivo</h2>
+  <p>Empieza con los datos reales (2 jugadores). Cambia de estado con los botones; prueba «Repetir entrada», la variante del podio y la tendencia arriba. Pulsa el tile «Tu puesto» para ir a tu fila.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="f-desk"></div></div>
+  <div class="tests" data-frame="f-desk"><span>Estado:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="real" aria-pressed="true">Hoy: 2 jugadores</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="solo">1 jugador</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="tie">Empate</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="mid">Tú fuera del podio (14)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="long">Lista larga (40)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="notin">Tú sin partidas</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="empty">Nadie ha jugado</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="guest">Invitado</button>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Estados · columna estrecha</h2>
+  <p>A 420 px (tableta o ventana estrecha): tiles en dos columnas, podio compacto, la barra se oculta y la tendencia va bajo los puntos.</p>
+  <div class="scroller"><div class="grid-frames cols" id="states"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · lado a lado</h2>
+  <p><b>Podio A · Escalonado</b>: el podio se reconoce sin leer, la subida 3.º → 2.º → 1.º tiene sentido y con dos jugadores el hueco «Libre» dice la verdad (hay sitio en el podio) e invita a jugar. <b>Podio B · Lista con medallas</b>: todo en una lista, más compacto y sin huecos; con pocos jugadores parece menos vacío, pero pierde la «ceremonia». Recomiendo <b>A</b>: es la página de celebración de JUDI y el podio es lo que se espera de un ranking; con 1 o 2 jugadores los huecos discontinuos no parecen un error.</p>
+  <div class="scroller"><div class="grid-frames" id="var-p"></div></div>
+  <p style="margin-top:24px"><b>Sin tendencia</b> (sin migración): puestos, puntos y distancia; las filas entran escalonadas. <b>Tendencia de 30 días</b> (migración pequeña): flechas de puestos y «+N en 30 días», y la lista se reordena desde el puesto de antes al cargar. Con 14 jugadores ilustrativos se ve qué aporta; con los 2 reales, hoy saldría «=» en los dos.</p>
+  <div class="scroller"><div class="grid-frames" id="var-t"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Barra superior y pestañas con Ranking activo. El podio se queda en tres columnas compactas (el nombre largo se recorta y el «Tú» baja a su línea), todo lo pulsable mide 44 px.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px" id="f-mob"></div><p class="frame-cap"><b>Hoy: 2 jugadores</b>, con el 3.º libre y «=» en la tendencia (nadie ha cambiado de puesto en 30 días).</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="f-mob-2"></div><p class="frame-cap"><b>Lista larga</b>: los 10 primeros, «···», tu zona con tu fila iluminada y «Ver los 40»; nombre largo recortado.</p></div>
+  </div></div>
+</section>
+
+<section class="sec note" id="questions">
+  <h2>Preguntas para Diego</h2>
+  <ol class="qs">
+    <li><b>Podio: A (escalonado) o B (lista con medallas).</b> Recomiendo <b>A</b>.</li>
+    <li><b>Tendencia</b> <span class="doc-tag doc-tag--new">Migración</span>: ¿añadimos el día del JUDI a <code>hubgames_judi_ranking_rows()</code> (una columna más; <code>drop</code> + <code>create</code> con los mismos permisos) para calcular en el cliente cuántos puestos sube o baja cada uno y cuántos puntos ha sumado? Recomiendo <b>sí</b>: es barata y sin ella la idea no se puede hacer honestamente. Hoy, con dos jugadores, saldría «=» en los dos; si no te convence enseñar algo que casi nunca cambia, la alternativa es <b>no hacerla</b> y dejar solo la distancia al siguiente.</li>
+    <li><b>Ventana de la tendencia: 30 días o 7.</b> Con la actividad de hoy, en 7 días nadie suma (Diego jugó por última vez el JUDI del 22 de octubre) y en 30 al menos se ve «+78». Recomiendo <b>30 días</b>, y pasar a «desde que jugaste» con <code>fecha_completado</code> cuando lleve tiempo rellenándose (hoy está vacía en todas las filas).</li>
+    <li><b>Tokens de medalla nuevos</b> (<code>--medal-1/2/3</code>, <code>--medal-ink</code>) en vez de legendaria y común. ¿Te valen? Recomiendo <b>sí</b>, y usarlos también en el top 5 del perfil para que coincidan.</li>
+    <li><b>Empates compartidos</b>: mismos puntos, aciertos y precisión ⇒ mismo puesto («6.º» y «6.º», luego «8.º»), en vez del orden alfabético de hoy. Recomiendo <b>sí</b> (también cambia «X.º de N» en el perfil y en JUDI, que usan la misma cuenta).</li>
+    <li><b>Listas largas</b>: top 10, «···», tu zona (±2) y «Ver los N». Con 2 jugadores no se nota, pero deja la página preparada. Recomiendo <b>sí</b>, a partir de 15 jugadores.</li>
+    <li><b>Invitado</b>: hoy la página redirige a <code>/login</code> sin decir nada. ¿Enseñamos una tarjeta «El ranking es para jugadores con cuenta» con «Iniciar sesión» y «Jugar el de hoy» (sin pedir datos: la RPC sigue siendo solo con sesión)? Recomiendo <b>sí</b>: JUDI se puede jugar sin cuenta y desde ahí se llega aquí.</li>
+    <li><b>Hueco «Libre» en el podio</b> con menos de tres jugadores (A). ¿O mejor ocultar los pedestales vacíos? Recomiendo <b>enseñarlos</b>: con dos jugadores el podio cojo parece roto, y el hueco invita.</li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  userplus: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  up: '<path d="m18 15-6-6-6 6"/>',
+  down: '<path d="m6 9 6 6 6-6"/>',
+  equal: '<line x1="5" x2="19" y1="9" y2="9"/><line x1="5" x2="19" y1="15" y2="15"/>',
+  target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  medal: '<path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><path d="M11 12 5.12 2.2"/><path d="m13 12 5.88-9.8"/><path d="M8 7h8"/><circle cx="12" cy="17" r="5"/><path d="M12 18v-2h-.5"/>',
+  gap: '<path d="M12 3v18"/><path d="m8 7-4 5 4 5"/><path d="m16 7 4 5-4 5"/>',
+  list: '<path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/>',
+  plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const n = (v) => v.toLocaleString('es-ES');
+const n1 = (v) => v.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const ord = (r) => `${r}.º`;
+
+function logo(size = 22) {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/><path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg><span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+}
+
+/* ── Datos ── */
+function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+/* Jugador: puntos = Σ (7 − intento del acierto). prev* = sin los últimos 30 días de JUDI. */
+function P_(name, finished, wins, avg, gain = 0, gainWins = 0, gainFin = 0, self = false) {
+  const points = Math.round(wins * (7 - avg));
+  return { name, finished, wins, avg, points, self,
+    prev: { points: points - gain, wins: wins - gainWins, finished: finished - gainFin }, gain };
+}
+const REAL = () => [P_('Diego', 170, 138, 1.61, 78, 14, 17, true), P_('Borja García Claver', 122, 98, 1.67, 0, 0, 0)];
+const NAMES = ['Lucía Herrero', 'marta_rpg', 'Javi Ortega', 'Nerea', 'pablo.gz', 'Álvaro M.', 'Carmen Vidal', 'KaiserSoze', 'Irene Pastor', 'dani_speedrun', 'Sergio', 'Elena Ruiz', 'Hugo', 'noelia', 'Rubén Calvo', 'Ainhoa', 'Andrea', 'Víctor', 'Laura Sanz', 'tomás', 'Paula', 'Iker', 'Cris', 'Raúl Domínguez', 'Sofía', 'Adrián', 'Bea', 'Óscar', 'Julia', 'Gonzalo', 'Miriam', 'Alex', 'Rocío', 'Manu', 'Clara', 'Jorge', 'Maximiliano Fernández de la Cuesta'];
+function crowd(count, seed, selfAt) {
+  const r = rng(seed); const out = [];
+  for (let i = 0; i < count; i++) {
+    const fin = Math.round(8 + r() * 160), acc = .55 + r() * .33, wins = Math.round(fin * acc), avg = 1.5 + r() * 1.4;
+    const active = r() < .6, gw = active ? Math.round(r() * 22) : 0;
+    const gain = Math.round(gw * (7 - avg)), isNew = active && r() < .08;
+    const name = NAMES[i % NAMES.length];
+    const p = P_(name, fin, wins, avg, gain, gw, Math.round(gw / acc));
+    if (isNew) p.prev = { points: 0, wins: 0, finished: 0 };
+    out.push(p);
+  }
+  out.sort((a, b) => b.points - a.points);
+  if (selfAt) { // coloca a Diego en ese puesto con puntos coherentes
+    const above = out[selfAt - 2], below = out[selfAt - 1];
+    const pts = below ? Math.round((above.points + below.points) / 2) : above.points - 9;
+    const w = Math.max(5, Math.round(pts / 5.2)), f = Math.round(w / .81);
+    const me = P_('Diego', f, w, 7 - pts / w, 78, 14, 17, true);
+    me.points = pts; me.prev = { points: pts - 78, wins: w - 14, finished: f - 17 };
+    out.splice(selfAt - 1, 0, me);
+  }
+  return out;
+}
+function tieSet() {
+  return [P_('Lucía Herrero', 150, 121, 1.9, 60, 12, 14), P_('Diego', 170, 138, 2.6, 40, 8, 10, true), P_('Borja García Claver', 122, 98, 1.67, 0, 0, 0),
+    Object.assign(P_('Javi Ortega', 80, 50, 2.8), { points: 210, prev: { points: 180, wins: 44, finished: 70 }, gain: 30 }),
+    Object.assign(P_('Nerea', 90, 47, 2.5), { points: 210, prev: { points: 210, wins: 47, finished: 90 }, gain: 0 }),
+    Object.assign(P_('marta_rpg', 40, 30, 3), { points: 120, wins: 30, finished: 40, prev: { points: 96, wins: 25, finished: 33 }, gain: 24 }),
+    Object.assign(P_('pablo.gz', 40, 30, 3), { points: 120, wins: 30, finished: 40, prev: { points: 120, wins: 30, finished: 40 }, gain: 0 })];
+
+}
+const PRESETS = {
+  real: () => ({ players: REAL() }),
+  solo: () => ({ players: [P_('Diego', 9, 7, 2.1, 34, 7, 9, true)] }),
+  tie: () => ({ players: tieSet() }),
+  mid: () => ({ players: crowd(13, 7, 6) }),
+  long: () => ({ players: crowd(39, 11, 23) }),
+  notin: () => ({ players: REAL().map((p) => (p.self = false, p)), meIn: false }),
+  empty: () => ({ players: [] }),
+  guest: () => ({ players: [], guest: true }),
+};
+
+/* buildRanking + propuesta: puestos compartidos en empate total */
+function rank(list, key = (p) => p) {
+  const rows = list.map((p) => { const k = key(p); return { p, points: k.points, wins: k.wins, acc: k.finished ? Math.round(k.wins / k.finished * 100) : 0 }; })
+  rows.sort((a, b) => b.points - a.points || b.wins - a.wins || b.acc - a.acc || a.p.name.localeCompare(b.p.name, 'es'));
+  rows.forEach((x, i) => {
+    const prev = rows[i - 1];
+    x.rank = prev && prev.points === x.points && prev.wins === x.wins && prev.acc === x.acc ? prev.rank : i + 1;
+  });
+  rows.forEach((x, i) => {
+    const prev = rows[i - 1], next = rows[i + 1];
+    const same = (o) => o && o.points === x.points;
+    x.shared = (prev && prev.rank === x.rank) || (next && next.rank === x.rank);
+    x.tieByWins = !x.shared && (same(prev) || same(next));
+  });
+  return rows;
+}
+function compute(st) {
+  const rows = rank(st.players);
+  const prevRows = rank(st.players.filter((p) => p.prev.finished > 0), (p) => p.prev);
+  const prevRank = new Map(prevRows.map((x) => [x.p, x.rank]));
+  rows.forEach((x) => {
+    const pr = prevRank.get(x.p);
+    x.trend = pr === undefined ? 'new' : pr > x.rank ? 'up' : pr < x.rank ? 'down' : 'same';
+    x.delta = pr === undefined ? 0 : Math.abs(pr - x.rank);
+    x.prevIndex = pr === undefined ? rows.length : prevRows.findIndex((y) => y.p === x.p);
+  });
+  st.rows = rows;
+  st.self = rows.find((x) => x.p.self) || null;
+}
+
+/* ── Estado de los marcos ── */
+const VAR = { p: 'A', t: 'on' };
+const FR = {};
+function mk(id, layout, preset, extra = {}) { FR[id] = { id, layout, init: { preset, extra } }; load(FR[id], preset, extra); }
+function load(st, preset, extra = st.init?.extra || {}) {
+  Object.assign(st, { preset, guest: false, meIn: true, expanded: false, forceP: null, forceT: null }, PRESETS[preset](), extra);
+  compute(st);
+}
+const vp = (st) => st.forceP || VAR.p;
+const vt = (st) => (st.forceT || VAR.t) === 'on';
+
+/* ── Navegación ── */
+function sidebar(st) {
+  const link = (label, icon, active = false, extra = '') => `<a href="#" class="nv-link${active ? ' active' : ''}">${ic(icon)}<span class="nv-link__label">${label}</span>${extra}</a>`;
+  const groups = [`<div class="nv-group">${link('Inicio', 'home')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('Biblioteca', 'library')}${link('Logros', 'award')}${link('Wishlist', 'heart')}${link('Estadísticas', 'chart')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('JUDI', 'gamepad', false, `<span class="nav-ind hg-tint warn">${ic('clock')}Hoy</span>`)}${link('Ranking', 'trophy', true)}</div>`];
+  const dark = document.documentElement.dataset.theme === 'dark';
+  const theme = `<div class="theme-toggle">${['sun', 'moon', 'monitor'].map((i, k) => `<span class="${(dark ? 1 : 0) === k ? 'on' : ''}">${ic(i)}</span>`).join('')}</div>`;
+  const account = st.guest ? `<a href="#" class="nav-cta">${ic('login')}<span>Iniciar sesión</span></a>`
+    : `<a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>Diego</span><span class="nv-account__meta">Ver perfil</span></span></a>`;
+  return `<aside class="nv-side"><a href="#" class="nv-brand">${logo(22)}</a><span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span><nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}${account}</div></aside>`;
+}
+function mobileChrome(st, body) {
+  const tabs = [['Inicio', 'home'], ['Biblioteca', 'library'], ['Logros', 'award'], ['JUDI', 'gamepad'], ['Ranking', 'trophy'], ['Perfil', 'user']];
+  const tabbar = tabs.map(([l, i]) => `<a href="#" class="m-tab ${l === 'Ranking' ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}${l === 'JUDI' ? '<span class="m-tab__badge warn" title="Hoy"></span>' : ''}</span><span>${l}</span></a>`).join('');
+  const dark = document.documentElement.dataset.theme === 'dark';
+  return `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon">${ic(dark ? 'moon' : 'sun')}</span><span class="m-icon"><span class="nv-avatar">${st.guest ? ic('user') : 'D'}</span></span></div></header><div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+
+/* ── Piezas ── */
+const count = (v) => `<span class="js-count" data-to="${v}">${n(v)}</span>`;
+const av = (name, size, self) => `<span class="av${self ? ' is-self' : ''}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .4)}px" aria-hidden="true">${esc(name[0].toUpperCase())}</span>`;
+const youChip = (x) => x.p.self ? '<span class="you">Tú</span>' : '';
+const accOf = (x) => x.acc;
+function trendHTML(st, x, trd) {
+  if (!vt(st)) return '';
+  const d = trd ? ` style="--trd:${trd}ms"` : '';
+  if (x.trend === 'up') return `<span class="tr up"${d} title="Sube ${x.delta} ${x.delta === 1 ? 'puesto' : 'puestos'} en 30 días">${ic('up')}${x.delta}</span>`;
+  if (x.trend === 'down') return `<span class="tr down"${d} title="Baja ${x.delta} ${x.delta === 1 ? 'puesto' : 'puestos'} en 30 días">${ic('down')}${x.delta}</span>`;
+  if (x.trend === 'new') return `<span class="tr new"${d} title="Ha entrado en los últimos 30 días">Nuevo</span>`;
+  return `<span class="tr same" title="Mismo puesto que hace 30 días">${ic('equal')}</span>`;
+}
+const gainHTML = (st, x) => vt(st) ? `<span class="gain"><b>+${n(x.p.gain)}</b> en 30 días</span>` : '';
+function subLine(x, wide = true) {
+  const tie = x.shared ? '<span class="tie">Empate</span> · ' : x.tieByWins ? `<span class="tie">Empate a ${n(x.points)}</span> · desempata por aciertos · ` : '';
+  return `${tie}${n(x.wins)} ${x.wins === 1 ? 'acertado' : 'acertados'} · ${accOf(x)} %<span class="x-wide"> · media ${n1(x.p.avg)} intentos</span>`;
+}
+
+function tilesHTML(st) {
+  const me = st.self, rows = st.rows, N = rows.length;
+  const medal = me.rank <= 3 ? `m${me.rank}` : '';
+  const iconPos = me.rank <= 3 ? `<span class="hg-tile__icon ${medal}" style="background:color-mix(in srgb,var(--medal) 18%,transparent);color:color-mix(in srgb,var(--medal) var(--medal-ink),var(--foreground))">${ic('medal')}</span>` : `<span class="hg-tile__icon hg-tint st-todos">${ic('medal')}</span>`;
+  const i = rows.indexOf(me);
+  let gapV, gapNote;
+  if (N === 1) { gapV = '—'; gapNote = 'Aún no tienes rivales'; }
+  else if (i === 0) { const d = me.points - rows[1].points; gapV = d === 0 ? '0' : `+${n(d)}`; gapNote = d === 0 ? `Empatas a puntos con <b>${esc(rows[1].p.name)}</b>` : `sobre <b>${esc(rows[1].p.name)}</b>, el ${ord(rows[1].rank)}`; }
+  else {
+    const up = rows.slice(0, i).reverse().find((y) => y.points > me.points);
+    const same = rows.find((y) => y !== me && y.points === me.points);
+    if (same && (!up || up.points - me.points > 0) && rows.indexOf(same) < i) { gapV = '0'; gapNote = `Empatas a puntos con <b>${esc(same.p.name)}</b>; desempatan los aciertos`; }
+    else { const d = up.points - me.points + 1; gapV = n(d); gapNote = `te faltan para pasar a <b>${esc(up.p.name)}</b> (${ord(up.rank)})`; }
+  }
+  const beat = N < 2 ? null : Math.round((N - me.rank) / (N - 1) * 100);
+  return `<dl class="hg-tiles">
+    <div role="button" tabindex="0" class="hg-tile is-link hg-enter" style="--i:1" data-act="find" aria-label="Ir a tu fila: ${ord(me.rank)} de ${N}"><dt>${iconPos}Tu puesto</dt><dd><span class="hg-tile__value ${medal ? `${medal} medal-ink` : ''}">${ord(me.rank)} <small>de ${n(N)}</small></span><span class="hg-tile__note">${beat === null ? 'Eres el único jugador' : `Superas al <b>${beat} %</b>`} · <span class="hg-tile__go">Ver tu fila</span></span></dd></div>
+    <div class="hg-tile hg-enter" style="--i:2"><dt><span class="hg-tile__icon hg-tint st-todos">${ic('trophy')}</span>Puntos</dt><dd><span class="hg-tile__value">${count(me.points)}</span><span class="hg-tile__note">${vt(st) ? `<b>+${n(me.p.gain)}</b> en 30 días` : `de ${n(me.p.finished)} partidas`}</span></dd></div>
+    <div class="hg-tile hg-enter" style="--i:3"><dt><span class="hg-tile__icon hg-tint st-todos">${ic('gap')}</span>${i === 0 && N > 1 ? 'Ventaja' : 'Distancia'}</dt><dd><span class="hg-tile__value">${gapV} ${gapV !== '—' ? '<small>pts</small>' : ''}</span><span class="hg-tile__note">${gapNote}</span></dd></div>
+    <div class="hg-tile hg-enter" style="--i:4"><dt><span class="hg-tile__icon hg-tint ok">${ic('check')}</span>Acertados</dt><dd><span class="hg-tile__value">${count(me.wins)} <small>${me.acc} %</small></span><span class="hg-tile__note">de ${n(me.p.finished)} · media ${n1(me.p.avg)} intentos</span></dd></div>
+  </dl>`;
+}
+
+/* Podio A */
+function podiumHTML(st) {
+  const top = st.rows.filter((x) => x.rank <= 3).slice(0, 3);
+  const slots = [0, 1, 2].map((k) => top[k] || null);
+  const ORDER = { 3: 0, 2: 1, 1: 2 }; // sube el 3.º, luego el 2.º y el 1.º
+  const mob = st.layout === 'mob';
+  return `<ol class="pd" aria-label="Podio">${slots.map((x, k) => {
+    const pos = k + 1, r = x ? Math.min(x.rank, 3) : pos, cls = `pd__col r${pos} m${r}`;
+    if (!x) return `<li class="${cls} is-empty" style="--o:${ORDER[pos]}"><div class="pd__card"><span class="medal medal--lg" aria-hidden="true">${pos}</span><span class="pd__empty-av">${ic('plus')}</span><span class="pd__empty-t">Libre</span><span class="pd__empty-s">Termina un JUDI para subir</span></div><div class="pd__step"><b class="medal-ink">${pos}</b></div></li>`;
+    const size = mob ? (pos === 1 ? 44 : 38) : (pos === 1 ? 60 : 50);
+    return `<li class="${cls}${x.p.self ? ' is-self' : ''}" style="--o:${ORDER[pos]}" ${x.p.self ? 'data-self' : ''}><div class="pd__card">
+      <span class="medal medal--lg" aria-label="Puesto ${x.rank}">${x.rank}</span>${av(x.p.name, size, x.p.self)}
+      <span class="pd__name" title="${esc(x.p.name)}"><span>${esc(x.p.name)}</span>${youChip(x)}</span>
+      <span class="pd__pts"><b>${count(x.points)}</b>puntos</span>
+      <span class="pd__sub">${subLine(x)}</span>
+      ${vt(st) ? `<span class="pd__meta">${trendHTML(st, x, 900)}${mob ? '' : gainHTML(st, x)}</span>` : ''}
+    </div><div class="pd__step"><b class="medal-ink">${x.rank}</b></div></li>`;
+  }).join('')}</ol>`;
+}
+
+/* Filas */
+function rowHTML(st, x, i, top) {
+  const r = x.rank <= 3 ? x.rank : 0;
+  const pct = top ? (x.points / top) * 100 : 0;
+  const rankCell = r ? `<span class="rw__rank"><span class="medal" style="--r:${r}" aria-label="Puesto ${x.rank}">${x.rank}</span></span>` : `<span class="rw__rank" aria-label="Puesto ${x.rank}">${x.shared ? '<small>=</small>' : ''}${x.rank}</span>`;
+  return `<li class="rw${r ? ` m${r}` : ''}${x.p.self ? ' is-self' : ''}" style="--i:${i}" data-k="${esc(x.p.name)}" data-prev="${x.prevIndex}" ${x.p.self ? 'data-self' : ''}>
+    ${rankCell}${av(x.p.name, st.layout === 'mob' || st.layout === 'col' ? 34 : 36, x.p.self)}
+    <span class="rw__player"><span class="rw__name" title="${esc(x.p.name)}"><span>${esc(x.p.name)}</span>${youChip(x)}</span><span class="rw__sub">${subLine(x)}</span></span>
+    <span class="rw__bar" aria-hidden="true"><span style="width:${pct}%"></span></span>
+    <span class="rw__end"><span class="rw__pts">${n(x.points)}<small> pts</small></span>${vt(st) ? `<span class="rw__trend">${trendHTML(st, x)}${st.layout === 'desk' ? gainHTML(st, x) : ''}</span>` : ''}</span>
+  </li>`;
+}
+function listHTML(st) {
+  const A = vp(st) === 'A';
+  const rows = A ? st.rows.slice(Math.min(3, st.rows.filter((x) => x.rank <= 3).length)) : st.rows.slice();
+  if (!rows.length) return '';
+  const top = st.rows[0].points;
+  // Lista larga: top 10 + tu zona (±2) + «Ver los N»
+  let items = rows.map((x) => ({ x }));
+  if (st.rows.length >= 15 && !st.expanded) {
+    const si = st.self ? st.rows.indexOf(st.self) : -1;
+    const keep = (x) => { const k = st.rows.indexOf(x); return k < 10 || (si >= 0 && Math.abs(k - si) <= 2); };
+    const out = []; let gap = false;
+    rows.forEach((x) => { if (keep(x)) { if (gap) out.push({ gap: true }); gap = false; out.push({ x }); } else gap = true; });
+    if (gap) out.push({ gap: true });
+    items = out;
+  }
+  let i = 0;
+  const html = items.map((it) => it.gap ? '<li class="rk-gap" aria-hidden="true">···</li>' : rowHTML(st, it.x, i++, top)).join('');
+  const more = st.rows.length >= 15 && !st.expanded ? `<button type="button" class="btn btn--secondary btn--sm rk-more" data-act="all">${ic('list')}Ver los ${n(st.rows.length)}</button>` : '';
+  const head = `<div class="sec-head hg-enter" style="--i:6"><span class="sec-head__icon hg-tint st-todos">${ic('list')}</span><h2>Clasificación</h2><span class="sec-head__count">${n(st.rows.length)} ${st.rows.length === 1 ? 'jugador' : 'jugadores'}</span>${vt(st) ? '<span class="sec-head__end">Tendencia: puesto de hoy frente al de hace 30 días de JUDI</span>' : ''}</div>`;
+  return `${A && st.rows.length <= 3 ? '' : head}<ol class="rk-list js-list" aria-label="Clasificación">${html}</ol>${more}`;
+}
+
+function pageHTML(st) {
+  const head = `<header class="hg-enter" style="--i:0"><h1 class="page-title">Ranking</h1><p class="page-subtitle">Cuanto antes aciertes el juego del día, más puntos sumas.</p>
+    <div class="rk-rules"><span>Puntos por intento</span><span class="pts" aria-label="6 puntos al primer intento, 1 al sexto">${[6, 5, 4, 3, 2, 1].map((p) => `<span>+${p}</span>`).join('')}</span><span>· fallar no suma</span></div></header>`;
+  if (st.guest) return `<div class="rk">${head}<div class="rk-empty hg-enter" style="--i:1"><span class="rk-empty__icon hg-tint st-todos">${ic('lock')}</span><p><b>El ranking es para jugadores con cuenta</b>Tus partidas como invitado se guardan solo en este dispositivo. Inicia sesión para guardarlas y competir.</p><div class="acts"><button class="btn btn--primary" type="button">${ic('login')}Iniciar sesión</button><button class="btn btn--secondary" type="button">${ic('play')}Jugar el de hoy</button></div></div></div>`;
+  if (!st.rows.length) return `<div class="rk">${head}<div class="rk-empty hg-enter" style="--i:1"><span class="rk-empty__icon m1" style="background:color-mix(in srgb,var(--medal) 18%,transparent);color:color-mix(in srgb,var(--medal) var(--medal-ink),var(--foreground))">${ic('trophy')}</span><p><b>Aún no hay clasificación</b>Nadie ha terminado un JUDI. El primero que lo haga se queda el oro.</p><div class="acts"><button class="btn btn--primary" type="button">${ic('play')}Jugar el de hoy</button></div></div></div>`;
+  const mine = st.self ? tilesHTML(st) : `<div class="rk-nudge hg-enter" style="--i:1"><span class="rk-nudge__icon hg-tint st-todos">${ic('userplus')}</span><p><b>Aún no estás en el ranking.</b> Termina un JUDI (aciertes o no) para entrar.</p><button class="btn btn--primary btn--sm" type="button">${ic('play')}Jugar el de hoy</button></div>`;
+  const pod = vp(st) === 'A' ? podiumHTML(st) : '';
+  return `<div class="rk">${head}${mine}${pod}${listHTML(st)}</div>`;
+}
+function frameHTML(st) {
+  const body = pageHTML(st);
+  if (st.layout === 'desk') return `${sidebar(st)}<div class="page"><div class="page-in">${body}</div></div>`;
+  if (st.layout === 'mob') return mobileChrome(st, body);
+  return `<div class="col-frame">${body}</div>`;
+}
+
+/* ── Render y animación ── */
+const timers = {};
+function renderFrame(id, anim = false) {
+  const st = FR[id]; const el = document.getElementById(id); if (!el) return;
+  (timers[id] || []).forEach(clearTimeout); timers[id] = [];
+  el.classList.remove('anim', 'is-sorting');
+  el.innerHTML = frameHTML(st);
+  if (!anim) return;
+  void el.offsetWidth; el.classList.add('anim');
+  el.querySelectorAll('.js-count').forEach(countUp);
+  const later = (fn, ms) => timers[id].push(setTimeout(fn, rm() ? 0 : ms));
+  const sorted = vt(st) && !rm() && sortRows(el, later);
+  const podium = vp(st) === 'A' && st.rows.length;
+  const findAt = sorted ? 1150 : podium ? 900 : 650;
+  later(() => find(el), findAt);
+  later(() => el.classList.remove('anim', 'is-sorting'), findAt + 1300);
+}
+/* Las filas aparecen en el puesto de hace 30 días y se deslizan al de hoy (FLIP) */
+function sortRows(el, later) {
+  const rows = [...el.querySelectorAll('.rw')]; if (rows.length < 2) return false;
+  const pitch = rows[1].offsetTop - rows[0].offsetTop;
+  const base = Math.min(...rows.map((r) => Number(r.dataset.prev)));
+  let moved = false;
+  rows.forEach((r, k) => {
+    const from = Math.min(Number(r.dataset.prev) - base, rows.length) - k;
+    if (!from) return;
+    moved = true;
+    r.style.transition = 'none'; r.style.transform = `translateY(${from * pitch}px)`;
+  });
+  if (!moved) return false;
+  el.classList.add('is-sorting');
+  void el.offsetWidth;
+  later(() => rows.forEach((r) => { r.style.transition = 'transform .42s var(--ease-out)'; r.style.transform = ''; }), 520);
+  later(() => rows.forEach((r) => { r.style.transition = ''; }), 1000);
+  return true;
+}
+function find(el) {
+  const t = el.querySelector('[data-self]'); if (!t) return;
+  t.classList.remove('is-find'); void t.offsetWidth; t.classList.add('is-find');
+  setTimeout(() => t.classList.remove('is-find'), rm() ? 0 : 1200);
+}
+function countUp(el) {
+  const to = Number(el.dataset.to) || 0;
+  if (rm() || to === 0) { el.textContent = n(to); return; }
+  const t0 = performance.now(), dur = 450;
+  const tick = (t) => { const p = Math.min(1, (t - t0) / dur); el.textContent = n(Math.round(to * (1 - Math.pow(1 - p, 3)))); if (p < 1) requestAnimationFrame(tick); };
+  el.textContent = '0'; requestAnimationFrame(tick);
+}
+function toast(el, text) {
+  el.querySelectorAll('.toast').forEach((t) => t.remove());
+  const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = text; el.appendChild(t);
+  setTimeout(() => t.remove(), 1800);
+}
+
+document.addEventListener('click', (e) => {
+  const frame = e.target.closest('.frame'); if (!frame || !FR[frame.id]) return;
+  const st = FR[frame.id];
+  const a = e.target.closest('[data-act]');
+  if (!a) { if (e.target.closest('.btn')) { e.preventDefault(); toast(frame, 'Abriría JUDI o el inicio de sesión'); } return; }
+  e.preventDefault();
+  if (a.dataset.act === 'find') {
+    const t = frame.querySelector('[data-self]');
+    t?.scrollIntoView({ block: 'nearest', behavior: rm() ? 'auto' : 'smooth' });
+    find(frame);
+  }
+  if (a.dataset.act === 'all') { st.expanded = true; renderFrame(st.id, false); }
+});
+
+/* ── Marcos del documento ── */
+mk('f-desk', 'desk', 'real');
+const STATES = [
+  ['real', 'Hoy: 2 jugadores', 'Los datos reales. El 3.º del podio está libre y la tendencia dice «=» a los dos: nadie ha cambiado de puesto en 30 días (Diego +78, Borja +0).', 'real', {}],
+  ['solo', '1 jugador', 'Solo tú: oro, dos huecos libres, «Eres el único jugador» y sin distancia.', 'solo', {}],
+  ['tie', 'Empate', 'Javi y Nerea empatan a 210 puntos: desempatan los aciertos (y la línea lo dice). marta_rpg y pablo.gz empatan en todo: comparten el 6.º y el siguiente sería el 8.º.', 'tie', {}],
+  ['mid', 'Tú fuera del podio', '14 jugadores (ilustrativo), tú 6.º: el tile dice cuánto te falta para pasar al 5.º y tu fila se ilumina al llegar.', 'mid', {}],
+  ['notin', 'Tú sin partidas', 'Uno de los 3 usuarios que aún no han terminado ningún JUDI: el ranking se ve, y arriba «Aún no estás en el ranking» con «Jugar el de hoy».', 'notin', {}],
+  ['guest', 'Invitado', 'Hoy redirige a /login. Propuesta: una tarjeta que explica por qué y deja jugar sin cuenta. La RPC sigue siendo solo con sesión.', 'guest', {}],
+];
+document.getElementById('states').innerHTML = STATES.map(([k, t, d], i) => `<div><div class="vlabel"><b>${i + 1}</b>${t}</div><div class="frame w-col" style="width:420px" id="s-${k}"></div><p class="frame-cap">${d}</p></div>`).join('');
+STATES.forEach(([k, , , preset, x]) => mk(`s-${k}`, 'col', preset, x));
+document.getElementById('var-p').innerHTML = [['A', 'Podio A · Escalonado (recomendada)'], ['B', 'Podio B · Lista con medallas']].map(([v, t]) => `<div><div class="vlabel"><b>${v}</b>${t}</div><div class="frame w-col w-mid" style="width:600px" id="vp-${v}"></div></div>`).join('');
+document.getElementById('var-t').innerHTML = [['off', 'Sin tendencia (sin migración)'], ['on', 'Tendencia de 30 días (migración, recomendada)']].map(([v, t], i) => `<div><div class="vlabel"><b>${i + 1}</b>${t}</div><div class="frame w-col w-mid" style="width:600px" id="vt-${v}"></div></div>`).join('');
+mk('vp-A', 'col', 'mid', { forceP: 'A' });
+mk('vp-B', 'col', 'mid', { forceP: 'B' });
+mk('vt-off', 'col', 'mid', { forceT: 'off' });
+mk('vt-on', 'col', 'mid', { forceT: 'on' });
+mk('f-mob', 'mob', 'real');
+mk('f-mob-2', 'mob', 'long');
+
+function renderAll(anim = true) { Object.keys(FR).forEach((id) => renderFrame(id, anim)); }
+
+document.querySelectorAll('.tests').forEach((box) => box.addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-preset]'); if (!b) return;
+  const st = FR[box.dataset.frame];
+  load(st, b.dataset.preset, {});
+  box.querySelectorAll('[data-preset]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  renderFrame(st.id, true);
+}));
+document.querySelectorAll('[data-var]').forEach((b) => b.addEventListener('click', () => {
+  VAR[b.dataset.var] = b.dataset.val;
+  document.querySelectorAll(`[data-var="${b.dataset.var}"]`).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  renderAll(true);
+}));
+function setTheme(t) {
+  const html = document.documentElement;
+  if (!rm()) { html.classList.add('theme-anim'); setTimeout(() => html.classList.remove('theme-anim'), 320); }
+  html.dataset.theme = t;
+  const btn = document.getElementById('theme-btn'); btn.setAttribute('aria-pressed', String(t === 'dark')); btn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro';
+  document.querySelectorAll('.theme-toggle span').forEach((s, k) => s.classList.toggle('on', (t === 'dark' ? 1 : 0) === k % 3));
+}
+document.getElementById('theme-btn').addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+document.getElementById('rm-btn').addEventListener('click', (e) => {
+  const on = document.documentElement.classList.toggle('rm');
+  e.currentTarget.setAttribute('aria-pressed', String(on));
+  e.currentTarget.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`;
+});
+document.getElementById('replay-btn').addEventListener('click', () => {
+  Object.values(FR).forEach((st) => load(st, st.init.preset, st.init.extra));
+  document.querySelectorAll('.tests [data-preset]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.preset === 'real')));
+  renderAll(true);
+});
+
+renderAll(true);
+</script>
+</body>
+</html>

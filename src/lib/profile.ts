@@ -76,16 +76,18 @@ export function beatPercent(rank: number | null, total: number): number | null {
 }
 
 /** Los `size` primeros del ranking y, si estás fuera de ellos, tu entrada con su puesto (para la fila tras «···»). */
-export function topWithSelf<T extends { userId: string }>(
+export function topWithSelf<T extends { userId: string; rank?: number }>(
     ranking: T[],
     userId: string | null,
     size = 5,
 ): { top: T[]; self: { entry: T; rank: number } | null; rank: number | null } {
     const pos = userId ? ranking.findIndex((e) => e.userId === userId) : -1
-    const rank = pos === -1 ? null : pos + 1
+    // El puesto de buildRanking (empates compartidos) si lo trae; si no, el orden.
+    const rankAt = (i: number) => ranking[i].rank ?? i + 1
+    const rank = pos === -1 ? null : rankAt(pos)
     return {
         top: ranking.slice(0, size),
-        self: pos >= size ? { entry: ranking[pos], rank: pos + 1 } : null,
+        self: pos >= size ? { entry: ranking[pos], rank: rankAt(pos) } : null,
         rank,
     }
 }

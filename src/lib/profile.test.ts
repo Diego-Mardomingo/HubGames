@@ -76,6 +76,10 @@ describe('perfil', () => {
         assert.equal(absent.self, null)
         assert.equal(absent.rank, null)
         assert.deepEqual(topWithSelf([], 'a'), { top: [], self: null, rank: null })
+        // Con el puesto de buildRanking (empates compartidos), se usa ese
+        const tied = [{ userId: 'a', rank: 1 }, { userId: 'b', rank: 2 }, { userId: 'c', rank: 2 }]
+        assert.equal(topWithSelf(tied, 'c').rank, 2)
+        assert.deepEqual(topWithSelf(tied, 'c', 2).self, { entry: { userId: 'c', rank: 2 }, rank: 2 })
     })
 
     it('programados: días que quedan y su color', () => {
