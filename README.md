@@ -21,7 +21,7 @@ Tú solo decides a qué jugar. Y si no lo tienes claro, también te echa una man
   <sub>Un recorrido rápido. Clic para reproducirlo.</sub>
 </div>
 
-<img src="docs/readme/screens.png" alt="Inicio, biblioteca, logros, wishlist y JUDI" width="100%">
+<img src="docs/readme/screens.png" alt="Inicio, biblioteca, logros, wishlist y JUDI, en escritorio y móvil, en claro y oscuro" width="100%">
 
 ## 🏠 Qué jugar hoy
 

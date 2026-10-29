@@ -3,7 +3,7 @@
 import { writeFileSync } from 'node:fs'
 
 const SR = 44100
-const DUR = Number(process.argv[2] ?? 49)
+const DUR = Number(process.argv[2] ?? 45)
 const N = Math.floor(SR * DUR)
 const BPM = 120
 const BEAT = 60 / BPM
@@ -21,7 +21,8 @@ const CHORDS = [
 ]
 const DRUMS_FROM = 2 * BAR
 const ARP_FROM = 4 * BAR
-const END_AT = 23 * BAR // la batería para y queda el acorde final
+// la batería para y queda el acorde final (unos 2 s antes del final)
+const END_AT = Math.max(4, Math.min(23, Math.floor((DUR - 2) / BAR))) * BAR
 
 let seed = 1
 const noise = () => {

@@ -1,7 +1,7 @@
 import { staticFile } from 'remotion'
 
 /** Juegos reales de Steam con datos de usuario inventados (nunca datos personales). */
-export type Game = { id: number; name: string; short?: string }
+export type Game = { id: number; name: string }
 
 export const G = {
     eldenRing: { id: 1245620, name: 'ELDEN RING' },
@@ -32,3 +32,6 @@ export const cover = (g: Game) => staticFile(`games/c_${g.id}.jpg`)
 export const header = (g: Game) => staticFile(`games/h_${g.id}.jpg`)
 export const hero = (id: number) => staticFile(`games/hero_${id}.jpg`)
 export const sfx = (name: string) => staticFile(`sfx/${name}.ogg`)
+
+/** Nombre de usuario inventado que sale en las maquetas. */
+export const USER = 'alex'
