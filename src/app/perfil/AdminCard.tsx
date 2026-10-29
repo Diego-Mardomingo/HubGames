@@ -6,17 +6,19 @@ import { CalendarDays, Check, ChevronRight, RefreshCw, Shield, TriangleAlert, X 
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { adminLines, type AdminLine } from '@/lib/profile'
+import { DAILY_PICK, tomorrowJudiDay, tomorrowStatus } from '@/lib/admin'
 import { enter } from './Section'
 
 function lineIcon(line: AdminLine) {
     if (line.key === 'gen') return line.tone === 'dash-ok' ? Check : line.tone === 'dash-ko' ? X : TriangleAlert
-    if (line.key === 'scheduled') return line.tone === 'dash-ok' ? CalendarDays : TriangleAlert
+    if (line.key === 'tomorrow') return line.tone === 'dash-ok' ? CalendarDays : line.tone === 'dash-ko' ? X : TriangleAlert
     return line.tone === 'dash-ok' ? RefreshCw : TriangleAlert
 }
 
 /**
  * Administración (solo admins, `is_admin`): tres líneas de estado de lo que mira /admin y el acceso. Ámbar: zona con permisos
- * sobre todos los usuarios. Tres consultas de una fila o un recuento; RLS solo deja leerlas a los admins.
+ * sobre todos los usuarios. Cuatro consultas de una fila o un recuento; RLS solo deja leerlas a los admins. «JUDI de mañana» usa la misma regla que /admin
+ * y el health check (`tomorrowStatus`).
  */
 export default function AdminCard({ index }: { index: number }) {
     const [lines, setLines] = useState<AdminLine[] | null>(null)
@@ -24,23 +26,37 @@ export default function AdminCard({ index }: { index: number }) {
 
     useEffect(() => {
         let alive = true
-        const since = new Date(Date.now() - 86_400_000).toISOString()
+        const now = new Date()
+        const since = new Date(now.getTime() - 86_400_000).toISOString()
         Promise.all([
             supabase
                 .from('hubgames_judi_generacion_logs')
-                .select('exito, fecha_ejecucion, nombre_juego, error_mensaje')
+                .select('exito, fuente, fecha_ejecucion, nombre_juego, error_mensaje')
                 .order('fecha_ejecucion', { ascending: false })
                 .limit(1)
                 .maybeSingle(),
-            supabase.from('hubgames_lista_videojuegos_judi').select('fecha').order('id', { ascending: false }).limit(1).maybeSingle(),
+            supabase.from('hubgames_lista_videojuegos_judi').select('nombre').eq('fecha', tomorrowJudiDay(now)).limit(1).maybeSingle(),
+            supabase
+                .from('hubgames_judi_generacion_logs')
+                .select('exito, fecha_judi, error_mensaje')
+                .eq('fuente', DAILY_PICK)
+                .order('fecha_ejecucion', { ascending: false })
+                .limit(1)
+                .maybeSingle(),
             supabase.from('hubgames_sync_logs').select('id', { count: 'exact', head: true }).eq('status', 'error').gte('started_at', since),
-        ]).then(([gen, scheduled, sync]) => {
+        ]).then(([gen, tomorrow, pick, sync]) => {
             if (!alive) return
-            if (gen.error || scheduled.error || sync.error) {
+            if (gen.error || tomorrow.error || pick.error || sync.error) {
                 setFailed(true)
                 return
             }
-            setLines(adminLines({ lastGen: gen.data, lastScheduled: scheduled.data?.fecha ?? null, syncErrors: sync.count ?? 0 }))
+            setLines(
+                adminLines({
+                    lastGen: gen.data,
+                    tomorrow: tomorrowStatus({ game: tomorrow.data?.nombre ?? null, pickLog: pick.data }, now),
+                    syncErrors: sync.count ?? 0,
+                }),
+            )
         })
         return () => {
             alive = false
