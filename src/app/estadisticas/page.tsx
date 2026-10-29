@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 import { loadStatsInput } from '@/lib/stats-db'
 import { approxMinutesByYear, availableYears, madridYear, yearStats } from '@/lib/stats'
 import { yearView } from '@/lib/stats-year'
+import { loadSteamLinked } from '@/lib/steam-link'
+import SteamEmpty from '@/components/SteamEmpty'
 import YearView from './YearView'
 import '@/styles/lists.css'
 import '@/components/dashboard/dashboard.css'
@@ -43,11 +44,7 @@ export default async function EstadisticasPage({ searchParams }: { searchParams:
                         <h1 className="page-title">Tu {year} en juegos</h1>
                     </div>
                 </header>
-                <p className="hg-empty">
-                    <span>
-                        Conecta Steam desde tu <Link href="/perfil">perfil</Link> para ver tus estadísticas.
-                    </span>
-                </p>
+                <SteamEmpty linked={await loadSteamLinked(supabase)} what="tus juegos, horas y logros" />
             </div>
         )
     }

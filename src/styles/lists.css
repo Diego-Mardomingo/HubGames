@@ -607,10 +607,12 @@
   flex-basis: 100%;
 }
 
+/* ── Estado vacío (components/EmptyState.tsx): icono con el color de su lista o sección, título, una frase y una acción ── */
 .hg-empty {
   display: grid;
-  justify-items: start;
-  gap: 0.75rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem 1rem;
   margin: 0;
   padding: 1rem 1.25rem;
   background: var(--surface);
@@ -618,10 +620,124 @@
   border-radius: var(--radius-lg);
   color: var(--muted);
   font-size: 0.875rem;
+  animation: hg-empty-in 0.32s var(--ease-out) backwards;
 }
 
-.hg-empty p {
+.hg-empty__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  animation: hg-pop-in 0.26s var(--ease-out) 0.08s backwards;
+}
+
+.hg-empty__icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+/* Neutro: el vacío lo provoca un filtro o una búsqueda, no la lista */
+.hg-empty__icon.neutral {
+  --c: var(--muted);
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+/* Rareza legendaria (logros del Inicio): como texto, mezclada para llegar a 4,5:1 en claro */
+.hg-empty__icon.dash-leg {
+  color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground));
+}
+
+/* Mínimo histórico: el único vacío con el icono en amarillo sólido */
+.hg-empty__icon.is-deal {
+  background: var(--deal);
+  color: var(--deal-foreground);
+}
+
+.hg-empty__body {
   margin: 0;
+  min-width: 0;
+}
+
+.hg-empty__title {
+  display: block;
+  color: var(--foreground);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.hg-empty__acts {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Sin marco: ya va dentro de un panel */
+.hg-empty--bare {
+  padding: 0;
+  background: none;
+  border: 0;
+}
+
+/* Página: la página o su lista principal entera está vacía */
+.hg-empty--page {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+
+.hg-empty--page .hg-empty__icon {
+  width: 52px;
+  height: 52px;
+  margin-bottom: 4px;
+  border-radius: 14px;
+}
+
+.hg-empty--page .hg-empty__icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.hg-empty--page .hg-empty__body {
+  max-width: 46ch;
+}
+
+.hg-empty--page .hg-empty__title {
+  margin-bottom: 2px;
+  font-size: 1.0625rem;
+}
+
+.hg-empty--page .hg-empty__acts {
+  grid-column: 1;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+@keyframes hg-empty-in {
+  from { opacity: 0; transform: translateY(6px); }
+}
+
+@media (max-width: 640px) {
+  .hg-empty__acts {
+    grid-column: 1 / -1;
+  }
+
+  .hg-empty--page .hg-empty__acts {
+    flex-direction: column;
+    align-self: stretch;
+  }
+
+  .hg-empty--page .hg-empty__acts > * {
+    width: 100%;
+  }
+
+  .hg-empty__acts .hg-button {
+    min-height: 44px;
+  }
 }
 
 .hg-more {
@@ -1135,7 +1251,8 @@ kbd.hg-kbd,
 }
 
 /* Del esqueleto se pasa solo con fundido: sin la subida de 8 px de .hg-enter (las filas saltarían desde su hueso) */
-.hg-from-skel .hg-enter {
+.hg-from-skel .hg-enter,
+.hg-from-skel .hg-empty {
   animation-name: hg-skel-in;
 }
 

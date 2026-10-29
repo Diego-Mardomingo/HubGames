@@ -637,51 +637,9 @@
   height: 18px;
 }
 
-.rk-empty {
-  display: grid;
-  justify-items: center;
-  gap: 0.5rem;
-  padding: 2.5rem 1rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  color: var(--muted);
-  font-size: 0.875rem;
-  text-align: center;
-}
-
-.rk-empty__icon {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 4px;
-  border-radius: 12px;
-}
-
-.rk-empty__icon svg {
-  width: 22px;
-  height: 22px;
-}
-
-.rk-empty p {
-  max-width: 44ch;
-  margin: 0;
-}
-
-.rk-empty p b {
-  display: block;
-  margin-bottom: 2px;
-  color: var(--foreground);
-  font-size: 1rem;
-}
-
-.rk-empty__acts {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 6px;
+.hg-empty__icon.rk-medal-tint {
+  background: color-mix(in srgb, var(--medal) 18%, transparent);
+  color: color-mix(in srgb, var(--medal) var(--medal-ink), var(--foreground));
 }
 
 /* ── Entrada: el podio sube (3.º, 2.º y 1.º, 140 ms entre ellos, como el top 5 del resumen anual) ── */

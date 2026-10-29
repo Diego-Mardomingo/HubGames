@@ -35,6 +35,7 @@ import Segmented from '@/components/Segmented'
 import Tile from '@/components/Tile'
 import AchievementItem from '@/components/achievements/AchievementItem'
 import SyncButton from '@/components/dashboard/SyncButton'
+import EmptyState from '@/components/EmptyState'
 import GameCover from '@/components/tracker/GameCover'
 import { MarkFlags, StatusChip } from '@/components/tracker/status'
 import Columns from './Columns'
@@ -552,18 +553,16 @@ function Body({ v, prev, from, swapped }: { v: YearData; prev: YearSummary | nul
         <div className={`st-body${swapped ? ' st-swap' : ''}`}>
             <Tiles v={v} prev={prev} from={from} />
             {empty ? (
-                <div className="dash-empty hg-enter" style={{ '--i': 5 } as CSSVars}>
-                    <span className="dash-empty__icon hg-tint st-jugando" aria-hidden>
-                        <ChartColumn />
-                    </span>
-                    <p>
-                        <b>Aún no hay actividad en {v.year}.</b>
-                        Cuando juegues, consigas logros o completes un juego, tu año aparecerá aquí.
-                    </p>
-                    <div className="dash-empty__action">
-                        <SyncButton label="Sincronizar con Steam" variant="secondary" />
-                    </div>
-                </div>
+                <EmptyState
+                    tone="st-jugando"
+                    icon={<ChartColumn />}
+                    title={`Aún no hay actividad en ${v.year}`}
+                    className="hg-enter"
+                    style={{ '--i': 5 } as CSSVars}
+                    action={<SyncButton label="Sincronizar con Steam" variant="secondary" />}
+                >
+                    Cuando juegues, consigas logros o completes un juego, tu año aparecerá aquí.
+                </EmptyState>
             ) : (
                 <>
                     {v.summary.hours > 0 && (

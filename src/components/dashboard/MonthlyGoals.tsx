@@ -87,7 +87,7 @@ export default function MonthlyGoals({ userId, month, saved, suggested, progress
                     </span>
                 )}
             </header>
-            {!targets && !draft && <p className="dash-empty dash-empty--plain">Propuesta según tu media de los últimos meses:</p>}
+            {!targets && !draft && <p className="dash-note">Propuesta según tu media de los últimos meses:</p>}
             <ul className="goals__list">
                 {GOAL_KINDS.map((kind) => {
                     const target = shown[kind]

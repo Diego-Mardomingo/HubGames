@@ -9,6 +9,7 @@ import { madridDate } from '@/lib/activity-heatmap'
 import SkeletonSwap from '@/components/SkeletonSwap'
 import RankingSkeleton from './RankingSkeleton'
 import { Button } from '@/components/ui/button'
+import EmptyState from '@/components/EmptyState'
 import RankingView from './RankingView'
 import './ranking.css'
 
@@ -85,27 +86,30 @@ export default function RankingPage() {
             <SkeletonSwap skeleton={<RankingSkeleton />}>
                 <div className="rk">
                     <Head />
-                    <div className="rk-empty hg-enter" style={{ '--i': 1 } as CSSProperties}>
-                        <span className="rk-empty__icon hg-tint st-todos" aria-hidden>
-                            <Lock />
-                        </span>
-                        <p>
-                            <b>El ranking es para jugadores con cuenta</b>
-                            Tus partidas como invitado se guardan solo en este dispositivo. Inicia sesión para guardarlas y competir.
-                        </p>
-                        <div className="rk-empty__acts">
-                            <Button asChild>
-                                <Link href="/login">
-                                    <LogIn data-icon="inline-start" aria-hidden /> Iniciar sesión
-                                </Link>
-                            </Button>
-                            <Button asChild variant="secondary">
-                                <Link href="/judi">
-                                    <Play data-icon="inline-start" aria-hidden /> Jugar el de hoy
-                                </Link>
-                            </Button>
-                        </div>
-                    </div>
+                    <EmptyState
+                        size="page"
+                        tone="st-todos"
+                        icon={<Lock />}
+                        title="El ranking es para jugadores con cuenta"
+                        className="hg-enter"
+                        style={{ '--i': 1 } as CSSProperties}
+                        action={
+                            <>
+                                <Button asChild>
+                                    <Link href="/login">
+                                        <LogIn data-icon="inline-start" aria-hidden /> Iniciar sesión
+                                    </Link>
+                                </Button>
+                                <Button asChild variant="secondary">
+                                    <Link href="/judi">
+                                        <Play data-icon="inline-start" aria-hidden /> Jugar el de hoy
+                                    </Link>
+                                </Button>
+                            </>
+                        }
+                    >
+                        Tus partidas como invitado se guardan solo en este dispositivo. Inicia sesión para guardarlas y competir.
+                    </EmptyState>
                 </div>
             </SkeletonSwap>
         )
@@ -115,21 +119,28 @@ export default function RankingPage() {
             <SkeletonSwap skeleton={<RankingSkeleton />}>
                 <div className="rk">
                     <Head />
-                    <div className="rk-empty hg-enter" role="alert" style={{ '--i': 1 } as CSSProperties}>
-                        <span className="rk-empty__icon hg-tint rk-ko" aria-hidden>
-                            <TriangleAlert />
-                        </span>
-                        <p>
-                            <b>No se pudo cargar el ranking</b>
-                            Comprueba la conexión y vuelve a intentarlo.
-                        </p>
-                        <Button variant="secondary" onClick={() => {
-                                setState({ kind: 'loading' })
-                                setAttempt((k) => k + 1)
-                            }}>
-                            <RotateCw data-icon="inline-start" aria-hidden /> Reintentar
-                        </Button>
-                    </div>
+                    <EmptyState
+                        size="page"
+                        tone="rk-ko"
+                        icon={<TriangleAlert />}
+                        title="No se pudo cargar el ranking"
+                        role="alert"
+                        className="hg-enter"
+                        style={{ '--i': 1 } as CSSProperties}
+                        action={
+                            <Button
+                                variant="secondary"
+                                onClick={() => {
+                                    setState({ kind: 'loading' })
+                                    setAttempt((k) => k + 1)
+                                }}
+                            >
+                                <RotateCw data-icon="inline-start" aria-hidden /> Reintentar
+                            </Button>
+                        }
+                    >
+                        Comprueba la conexión y vuelve a intentarlo.
+                    </EmptyState>
                 </div>
             </SkeletonSwap>
         )

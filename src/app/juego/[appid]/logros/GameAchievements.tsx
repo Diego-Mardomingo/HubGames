@@ -19,6 +19,7 @@ import { formatHours } from '@/lib/format'
 import type { GameStatus } from '@/lib/tracker'
 import { Button } from '@/components/ui/button'
 import SkeletonSwap from '@/components/SkeletonSwap'
+import EmptyState from '@/components/EmptyState'
 import GameAchievementsSkeleton from './GameAchievementsSkeleton'
 import Segmented from '@/components/Segmented'
 import AchievementItem from '@/components/achievements/AchievementItem'
@@ -174,38 +175,39 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
                     </p>
                 )}
                 {state.kind === 'sin_sesion' ? (
-                    <div className="lg-empty hg-enter" style={enter(1)}>
-                        <span className="lg-empty__icon hg-tint st-todos" aria-hidden>
-                            <LogIn />
-                        </span>
-                        <p>
-                            <b>Inicia sesión para ver tus logros.</b>
-                            Verás tu progreso, tus puntos y lo que te falta de este juego.
-                        </p>
-                        <div className="lg-empty__action">
+                    <EmptyState
+                        tone="st-todos"
+                        icon={<LogIn />}
+                        title="Inicia sesión para ver tus logros"
+                        className="hg-enter"
+                        style={enter(1)}
+                        action={
                             <Button variant="secondary" size="sm" asChild>
                                 <Link href="/login">
-                                    <LogIn aria-hidden /> Entrar
+                                    <LogIn aria-hidden /> Iniciar sesión
                                 </Link>
                             </Button>
-                        </div>
-                    </div>
+                        }
+                    >
+                        Verás tu progreso, tus puntos y lo que te falta de este juego.
+                    </EmptyState>
                 ) : (
-                    <div className="lg-empty gl-empty--leg hg-enter" style={enter(1)}>
-                        <span className="lg-empty__icon hg-tint" aria-hidden>
-                            <Trophy />
-                        </span>
-                        <p>
-                            <b>No hay logros de este juego en tu cuenta.</b>O no tiene logros, o aún no se han sincronizado desde Steam.
-                        </p>
-                        <div className="lg-empty__action">
+                    <EmptyState
+                        tone="rar-leg"
+                        icon={<Trophy />}
+                        title="No hay logros de este juego en tu cuenta"
+                        className="hg-enter"
+                        style={enter(1)}
+                        action={
                             <Button variant="secondary" size="sm" asChild>
                                 <Link href={`/juego/${appid}`}>
                                     <ArrowLeft aria-hidden /> Volver a la ficha
                                 </Link>
                             </Button>
-                        </div>
-                    </div>
+                        }
+                    >
+                        O no tiene logros, o aún no se han sincronizado desde Steam.
+                    </EmptyState>
                 )}
             </div>
         )
@@ -298,20 +300,18 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
                             animate={{ opacity: 1, transition: { duration: reduce ? 0 : 0.2, delay: reduce ? 0 : 0.12 } }}
                             exit={{ opacity: 0, transition: { duration: reduce ? 0 : 0.12 } }}
                         >
-                            <div className="lg-empty gl-empty">
-                                <span className="lg-empty__icon" aria-hidden>
-                                    <FilterX />
-                                </span>
-                                <p>
-                                    <b>No hay logros con este filtro.</b>
-                                    {what}: ninguno.
-                                </p>
-                                <div className="lg-empty__action">
+                            <EmptyState
+                                tone="neutral"
+                                icon={<FilterX />}
+                                title="No hay logros con este filtro"
+                                action={
                                     <Button variant="secondary" size="sm" onClick={clearFilters}>
                                         Quitar filtros
                                     </Button>
-                                </div>
-                            </div>
+                                }
+                            >
+                                {what}: ninguno.
+                            </EmptyState>
                         </motion.li>
                     )}
                 </AnimatePresence>

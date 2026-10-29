@@ -30,6 +30,9 @@ import GameLine from '@/components/achievements/GameLine'
 import Milestones from '@/components/achievements/Milestones'
 import GameCover from '@/components/tracker/GameCover'
 import { StatusChip } from '@/components/tracker/status'
+import EmptyState from '@/components/EmptyState'
+import SteamEmpty from '@/components/SteamEmpty'
+import SyncButton from '@/components/dashboard/SyncButton'
 import '@/components/achievements/achievements.css'
 
 const STEP = 8
@@ -40,6 +43,8 @@ export interface LogrosData {
     games: LibraryGame[]
     unlocked: Achievement[]
     easy: Achievement[]
+    /** Para el vacío sin ningún logro: «Conectar con Steam» o «Sincronizar» (null si no se pudo leer). */
+    steamLinked: boolean | null
 }
 
 const DATE = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -112,16 +117,9 @@ function Section({
             </header>
             <p className="lg-sec__hint">{hint}</p>
             {count === 0 ? (
-                <div className="lg-empty">
-                    <span className={`lg-empty__icon hg-tint ${tone}`} aria-hidden>
-                        {icon}
-                    </span>
-                    <p>
-                        <b>{empty.title}</b>
-                        {empty.text}
-                    </p>
-                    {empty.action && <div className="lg-empty__action">{empty.action}</div>}
-                </div>
+                <EmptyState tone={tone} icon={icon} title={empty.title} action={empty.action}>
+                    {empty.text}
+                </EmptyState>
             ) : (
                 children
             )}
@@ -176,21 +174,48 @@ export default function LogrosView({ data, error }: { data: LogrosData; error: s
     const top = views.points.games.slice(0, 5)
     const topMax = top[0]?.points ?? 1
 
+    const head = (
+        <header className="page-head hg-enter" style={enter(0)}>
+            <div>
+                <h1 className="page-title">Logros</h1>
+                <p className="page-subtitle">
+                    {n(data.unlocked.length)} logros desbloqueados en {withAchievements} juegos, {views.perfect.length} al 100 %.
+                </p>
+            </div>
+            <Button variant="secondary" asChild>
+                <Link href="/logros/historial">
+                    <History aria-hidden /> Ver historial
+                </Link>
+            </Button>
+        </header>
+    )
+
+    // Sin ningún logro: un solo vacío de página en vez de los tiles a cero y cinco secciones vacías.
+    if (data.unlocked.length === 0 && !error)
+        return (
+            <div className="logros">
+                {head}
+                {data.steamLinked === false ? (
+                    <SteamEmpty linked={false} what="tus logros" />
+                ) : (
+                    <EmptyState
+                        size="page"
+                        tone="st-sin_final"
+                        icon={<Award />}
+                        title="Aún no tienes logros"
+                        className="hg-enter"
+                        style={enter(1)}
+                        action={<SyncButton label="Sincronizar con Steam" variant="secondary" />}
+                    >
+                        Salen al sincronizar los juegos de Steam que tienen logros: verás tus puntos, los más raros y lo que te falta.
+                    </EmptyState>
+                )}
+            </div>
+        )
+
     return (
         <div className="logros">
-            <header className="page-head hg-enter" style={enter(0)}>
-                <div>
-                    <h1 className="page-title">Logros</h1>
-                    <p className="page-subtitle">
-                        {n(data.unlocked.length)} logros desbloqueados en {withAchievements} juegos, {views.perfect.length} al 100 %.
-                    </p>
-                </div>
-                <Button variant="secondary" asChild>
-                    <Link href="/logros/historial">
-                        <History aria-hidden /> Ver historial
-                    </Link>
-                </Button>
-            </header>
+            {head}
 
             {error && (
                 <p className="alert alert--error" role="alert">
@@ -369,7 +394,7 @@ export default function LogrosView({ data, error }: { data: LogrosData; error: s
                     hint="Al menos la mitad de los logros. Los que menos te faltan, primero."
                     count={views.near.length}
                     index={3}
-                    empty={{ title: 'Ningún juego por encima de la mitad.', text: 'Cuando pases del 50 % de logros de un juego, aparecerá aquí.' }}
+                    empty={{ title: 'Ningún juego por encima de la mitad', text: 'Cuando pases del 50 % de logros de un juego, aparecerá aquí.' }}
                 >
                     <KeyboardList className="hg-rows game-lines" label="Juegos cerca del 100 %">
                         {views.near.slice(0, near.shown).map((g, i) => {
@@ -405,7 +430,7 @@ export default function LogrosView({ data, error }: { data: LogrosData; error: s
                     hint="Los tiene más de la mitad de los jugadores y tú no."
                     count={views.easy.length}
                     index={4}
-                    empty={{ title: 'No te queda ninguno fácil.', text: 'Todos los que tiene más de la mitad de los jugadores ya son tuyos.' }}
+                    empty={{ title: 'No te queda ninguno fácil', text: 'Todos los que tiene más de la mitad de los jugadores ya son tuyos.' }}
                 >
                     <ul className="hg-achs ach-list">
                         {views.easy.slice(0, easy.shown).map((a, i) => {
@@ -437,7 +462,7 @@ export default function LogrosView({ data, error }: { data: LogrosData; error: s
                     hint="Más de la mitad de los logros y sin tocarlos desde hace más de 90 días."
                     count={views.forgotten.length}
                     index={5}
-                    empty={{ title: 'Nada olvidado.', text: 'Ningún juego a medias lleva más de 90 días sin tocarse.' }}
+                    empty={{ title: 'Nada olvidado', text: 'Ningún juego a medias lleva más de 90 días sin tocarse.' }}
                 >
                     <KeyboardList className="hg-rows game-lines" label="Juegos olvidados">
                         {views.forgotten.slice(0, forgotten.shown).map((g, i) => (
@@ -465,7 +490,7 @@ export default function LogrosView({ data, error }: { data: LogrosData; error: s
                     hint="Los que menos jugadores tienen."
                     count={views.rarest.length}
                     index={6}
-                    empty={{ title: 'Todavía ninguno.', text: 'Cuando desbloquees logros, aquí saldrán los que menos jugadores tienen.' }}
+                    empty={{ title: 'Todavía ninguno', text: 'Cuando desbloquees logros, aquí saldrán los que menos jugadores tienen.' }}
                 >
                     <ul className="hg-achs ach-list">
                         {views.rarest.map((a, i) => (
@@ -484,11 +509,11 @@ export default function LogrosView({ data, error }: { data: LogrosData; error: s
                 count={views.perfect.length}
                 index={7}
                 empty={{
-                    title: 'Todavía ningún juego al 100 %.',
+                    title: 'Todavía ningún juego al 100 %',
                     text: views.closest ? (
                         <>
                             {' '}
-                            El que tienes más cerca es <b className="lg-inline">{views.closest.name ?? `App ${views.closest.appid}`}</b>: te faltan{' '}
+                            El que tienes más cerca es <b>{views.closest.name ?? `App ${views.closest.appid}`}</b>: te faltan{' '}
                             {remainingAchievements(views.closest)}.
                         </>
                     ) : undefined,

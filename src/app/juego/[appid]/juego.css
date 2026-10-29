@@ -169,16 +169,6 @@ a.juego__metacritic:hover {
   padding: 1.25rem 1.5rem;
 }
 
-.juego-panel--empty {
-  justify-items: start;
-  gap: 0.875rem;
-  color: var(--muted);
-}
-
-.juego-panel--empty p {
-  margin: 0;
-}
-
 .juego-panel__top {
   display: flex;
   flex-wrap: wrap;

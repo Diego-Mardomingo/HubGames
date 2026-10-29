@@ -4,6 +4,7 @@ import { useState, type ReactNode } from 'react'
 import Image from 'next/image'
 import { RefreshCw, TriangleAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import EmptyState from '@/components/EmptyState'
 import { Skeleton, SkeletonZone } from '@/components/ui/skeleton'
 
 export const fmt = (v: number) => v.toLocaleString('es-ES', { useGrouping: 'always' } as Intl.NumberFormatOptions)
@@ -45,15 +46,9 @@ export function Cap({ src, name }: { src: string | null | undefined; name: strin
 
 export function PanelEmpty({ icon, tone = 'neutral', title, children }: { icon: ReactNode; tone?: string; title: string; children?: ReactNode }) {
     return (
-        <div className="ad-empty">
-            <span className={`ad-empty__icon hg-tint ${tone}`} aria-hidden>
-                {icon}
-            </span>
-            <p>
-                <b>{title}</b>
-                {children}
-            </p>
-        </div>
+        <EmptyState size="page" bare tone={tone} icon={icon} title={title} className="ad-empty">
+            {children}
+        </EmptyState>
     )
 }
 

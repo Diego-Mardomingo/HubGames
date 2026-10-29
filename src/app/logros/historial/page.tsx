@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { safeGetSession } from '@/lib/supabase/client'
+import { safeGetSession, supabase } from '@/lib/supabase/client'
+import { loadSteamLinked } from '@/lib/steam-link'
 import { loadLibrary } from '@/lib/tracker'
 import { loadUnlockedAchievements } from '@/lib/achievements-db'
 import SkeletonSwap from '@/components/SkeletonSwap'
@@ -21,14 +22,14 @@ export default function HistorialPage() {
                 router.push('/login')
                 return
             }
-            Promise.all([loadUnlockedAchievements(), loadLibrary()])
-                .then(([unlocked, games]) => {
+            Promise.all([loadUnlockedAchievements(), loadLibrary(), loadSteamLinked(supabase)])
+                .then(([unlocked, games, steamLinked]) => {
                     setError('')
-                    setData({ unlocked, games })
+                    setData({ unlocked, games, steamLinked })
                 })
                 .catch((e: Error) => {
                     setError(e.message)
-                    setData({ unlocked: [], games: [] })
+                    setData({ unlocked: [], games: [], steamLinked: null })
                 })
         })
     }, [router])

@@ -704,61 +704,9 @@
   from { box-shadow: 0 0 0 3px var(--cursor); }
 }
 
-/* Vacíos */
-.wl-empty {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.6rem 1rem;
-  padding: 1.25rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-
-.wl-empty__ic {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--surface-2);
-  color: var(--muted);
-}
-
-.wl-empty__ic svg {
-  width: 20px;
-  height: 20px;
-}
-
-.wl-empty__ic.is-deal {
-  background: var(--deal);
-  color: var(--deal-foreground);
-}
-
-.wl-empty__ic .wl-f-ic {
+/* Vacíos (EmptyState): el icono del filtro toma el color del vacío (neutro, o amarillo sólido en el mínimo) */
+.hg-empty__icon .wl-f-ic {
   color: inherit;
-}
-
-.wl-empty p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.875rem;
-}
-
-.wl-empty p b {
-  display: block;
-  color: var(--foreground);
-  font-size: 0.9375rem;
-  font-weight: 600;
-}
-
-.wl-empty__acts {
-  grid-column: 2;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
 }
 
 /* Cargando: esqueleto con la forma de las filas (huesos de components/ui/skeleton.tsx) */
@@ -978,14 +926,6 @@
     font-size: 0.875rem;
     line-height: 1.3;
     white-space: normal;
-  }
-
-  .wl-empty {
-    grid-template-columns: 1fr;
-  }
-
-  .wl-empty__acts {
-    grid-column: 1;
   }
 
   .wl-skel-row {

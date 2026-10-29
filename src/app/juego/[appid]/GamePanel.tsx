@@ -44,6 +44,7 @@ import { costPerHourTier, euroPerHour as euroPerHourOf, priceRule, priceVerdict,
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { GamePanelSkeleton } from './GameSkeleton'
+import EmptyState from '@/components/EmptyState'
 import { Spinner } from '@/components/ui/spinner'
 import { LIST_ICONS, StatusChip } from '@/components/tracker/status'
 import type { PriceData } from '@/components/wishlist/PriceInfo'
@@ -91,13 +92,22 @@ export default function GamePanel(props: Props) {
 
     if (state.kind === 'sin_sesion') {
         return (
-            <section className="juego-panel glass juego-panel--empty">
-                <p>Inicia sesión para ver tus horas, tus logros y el estado del juego.</p>
-                <Button variant="secondary" asChild>
-                    <Link href="/login">
-                        <LogIn aria-hidden /> Entrar
-                    </Link>
-                </Button>
+            <section className="juego-panel glass" aria-label="Tus datos">
+                <EmptyState
+                    bare
+                    tone="st-todos"
+                    icon={<LogIn />}
+                    title="Inicia sesión para seguir este juego"
+                    action={
+                        <Button variant="secondary" size="sm" asChild>
+                            <Link href="/login">
+                                <LogIn aria-hidden /> Iniciar sesión
+                            </Link>
+                        </Button>
+                    }
+                >
+                    Verás tus horas, tus logros y en qué lista lo tienes.
+                </EmptyState>
             </section>
         )
     }

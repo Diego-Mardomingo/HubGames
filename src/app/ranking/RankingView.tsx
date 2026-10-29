@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Check, ChevronDown, ChevronUp, Equal, List, Medal, MoveHorizontal, Play, Plus, Trophy, UserPlus } from 'lucide-react'
 import CountUp from '@/components/CountUp'
 import { Button } from '@/components/ui/button'
+import EmptyState from '@/components/EmptyState'
 import { beatPercent } from '@/lib/profile'
 import { rankingGap, rankingWindow, TREND_DAYS, type RankingEntry, type RankingTrend } from '@/lib/judi-ranking'
 
@@ -439,20 +440,23 @@ export default function RankingView({ ranking, userId, trends }: { ranking: Rank
             </header>
 
             {ranking.length === 0 ? (
-                <div className="rk-empty hg-enter" style={{ '--i': 1 } as CSSProperties}>
-                    <span className="rk-empty__icon rk-m1 rk-medal-tint" aria-hidden>
-                        <Trophy />
-                    </span>
-                    <p>
-                        <b>Aún no hay clasificación</b>
-                        Nadie ha terminado un JUDI. El primero que lo haga se queda el oro.
-                    </p>
-                    <Button asChild>
-                        <Link href="/judi">
-                            <Play data-icon="inline-start" aria-hidden /> Jugar el de hoy
-                        </Link>
-                    </Button>
-                </div>
+                <EmptyState
+                    size="page"
+                    tone="rk-m1 rk-medal-tint"
+                    icon={<Trophy />}
+                    title="Aún no hay clasificación"
+                    className="hg-enter"
+                    style={{ '--i': 1 } as CSSProperties}
+                    action={
+                        <Button asChild>
+                            <Link href="/judi">
+                                <Play data-icon="inline-start" aria-hidden /> Jugar el de hoy
+                            </Link>
+                        </Button>
+                    }
+                >
+                    Nadie ha terminado un JUDI. El primero que lo haga se queda el oro.
+                </EmptyState>
             ) : (
                 <>
                     {me ? (
