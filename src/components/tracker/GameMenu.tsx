@@ -19,8 +19,16 @@ import { Spinner } from '@/components/ui/spinner'
 import { LIST_ICONS } from './status'
 import './tracker.css'
 
+/** Lo que el usuario pide en el menú cuando la página guarda por su cuenta (al momento, con Deshacer). */
+export type GameMenuAct = { kind: 'status'; status: GameStatus } | { kind: 'mark'; mark: GameMark; on: boolean }
+
 interface Props {
     game: LibraryGame
+    /**
+     * Si se pasa, el estado y las marcas no se guardan aquí: el menú avisa a la página (que guarda al momento y ofrece
+     * Deshacer) y se cierra al elegir un estado. «Quitar de Pendientes» sigue guardándose aquí.
+     */
+    onAct?: (act: GameMenuAct) => void
     /** Cambios ya guardados, para actualizar la lista sin recargar. `null` = el juego ha salido de tu biblioteca. */
     onChange: (patch: Partial<LibraryGame> | null) => void
     onError: (message: string) => void
@@ -36,11 +44,13 @@ const MARKS: { mark: GameMark; list: 'favorito' | 'sin_final'; label: string }[]
  * usa la fecha sugerida (último logro o última partida); la nota se pone luego en la ficha. Los pendientes sin comprar
  * solo pueden marcarse o quitarse de Pendientes.
  */
-export default function GameMenu({ game, onChange, onError }: Props) {
+export default function GameMenu({ game, onAct, onChange, onError }: Props) {
     const [open, setOpen] = useState(false)
     /** Opción guardándose ("status:jugando", "mark:favorite", "quitar"): enseña el spinner y el resto espera. */
     const [pending, setPending] = useState<string | null>(null)
     const busy = pending !== null
+    /** Marca recién encendida: su icono late (corazón) o se traza (∞). */
+    const [lit, setLit] = useState<GameMark | null>(null)
     const name = game.name ?? `App ${game.appid}`
 
     async function run(key: string, action: () => Promise<void>, patch: Partial<LibraryGame> | null, close = true) {
@@ -58,6 +68,11 @@ export default function GameMenu({ game, onChange, onError }: Props) {
 
     function changeStatus(status: GameStatus) {
         if (status === game.status) return
+        if (onAct) {
+            onAct({ kind: 'status', status })
+            setOpen(false)
+            return
+        }
         const now = new Date().toISOString()
         if (status === 'completado') {
             run(`status:${status}`, () => completeGames([game]), { status, status_source: 'manual', suggestion: null, completed_at: suggestedCompletionDate(game)?.date ?? now })
@@ -115,9 +130,22 @@ export default function GameMenu({ game, onChange, onError }: Props) {
                                 aria-pressed={on}
                                 aria-busy={pending === `mark:${mark}` || undefined}
                                 disabled={busy}
-                                onClick={() => run(`mark:${mark}`, () => setGameMark(game.appid, mark, !on), { [mark]: !on }, false)}
+                                onClick={() => {
+                                    setLit(on ? null : mark)
+                                    if (onAct) onAct({ kind: 'mark', mark, on: !on })
+                                    else run(`mark:${mark}`, () => setGameMark(game.appid, mark, !on), { [mark]: !on }, false)
+                                }}
                             >
-                                {pending === `mark:${mark}` ? <Spinner className="game-menu__icon" /> : <Icon className="game-menu__icon" aria-hidden />} {label}
+                                {pending === `mark:${mark}` ? (
+                                    <Spinner className="game-menu__icon" />
+                                ) : (
+                                    <Icon
+                                        key={on ? 'on' : 'off'}
+                                        className={`game-menu__icon${on && lit === mark ? (mark === 'favorite' ? ' hg-beat' : ' hg-loop') : ''}`}
+                                        aria-hidden
+                                    />
+                                )}{' '}
+                                {label}
                                 {on && <Check className="game-menu__check" aria-hidden />}
                             </button>
                         )

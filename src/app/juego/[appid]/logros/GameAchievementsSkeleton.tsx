@@ -35,7 +35,7 @@ export default function GameAchievementsSkeleton({ appid, name, headerImage }: {
                 </header>
                 <section className="gl-sum" aria-hidden>
                     <div className="gl-ringbox">
-                        <Skeleton shape="circle" className="gl-ring" />
+                        <Skeleton shape="circle" className="hg-ring gl-ring" />
                     </div>
                     <div className="gl-sum__main">
                         <div className="gl-sum__top">

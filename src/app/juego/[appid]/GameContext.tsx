@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Flag, Play } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import type { LibraryGame } from '@/lib/tracker'
@@ -29,6 +29,11 @@ interface GameContextValue {
     /** Vuelve a leer todo (tras añadir o quitar de Pendientes o de la wishlist). */
     reload: () => Promise<void>
     openComplete: () => void
+    /**
+     * Cuántas veces se ha completado el juego en esta visita. Sube al cerrarse el diálogo (no al guardar): es entonces
+     * cuando la ficha «aterriza» (el selector pasa a Completado y la bandera se planta, la nota cuenta…).
+     */
+    landed: number
 }
 
 const Ctx = createContext<GameContextValue | null>(null)
@@ -101,6 +106,9 @@ export function GameProvider({
 }) {
     const [state, setState] = useState<GameState>({ kind: 'cargando' })
     const [completing, setCompleting] = useState(false)
+    const [landed, setLanded] = useState(0)
+    // Lo guardado en el diálogo: se aplica a la ficha al cerrarse, tras la celebración (no debajo de ella).
+    const landing = useRef<Partial<LibraryGame> | null>(null)
 
     const reload = useCallback(async () => {
         setState(await loadGameState(appid, store, isFree, comingSoon))
@@ -121,14 +129,22 @@ export function GameProvider({
     const game = state.kind === 'ok' ? state.game : null
 
     return (
-        <Ctx.Provider value={{ appid, name, state, update, reload, openComplete: () => setCompleting(true) }}>
+        <Ctx.Provider value={{ appid, name, state, update, reload, openComplete: () => setCompleting(true), landed }}>
             {children}
             <CompleteDialog
                 games={completing && game ? [{ ...game, name }] : null}
-                onClose={() => setCompleting(false)}
+                onClose={() => {
+                    setCompleting(false)
+                    const patch = landing.current
+                    landing.current = null
+                    if (!patch) return
+                    // Editar uno ya completado no aterriza: solo cambian sus datos.
+                    if (game?.status !== 'completado') setLanded((n) => n + 1)
+                    update(patch)
+                }}
                 onSaved={([{ completion }]) => {
-                    // La ficha cambia detrás de la celebración; el diálogo se cierra al terminarla.
-                    update({
+                    // Se aplica al cerrarse el diálogo, cuando ya se ve la ficha (al terminar o cortar la celebración).
+                    landing.current = {
                         status: 'completado',
                         status_source: 'manual',
                         suggestion: null,
@@ -137,7 +153,7 @@ export function GameProvider({
                         review: completion.review,
                         favorite: completion.favorite,
                         endless: completion.endless,
-                    })
+                    }
                 }}
             />
         </Ctx.Provider>
@@ -146,8 +162,9 @@ export function GameProvider({
 
 /** Jugar y Completar, junto al título. Solo con el juego en tu biblioteca de Steam. */
 export function GameHeaderActions() {
-    const { appid, state, openComplete } = useGame()
+    const { appid, state, openComplete, landed } = useGame()
     if (state.kind !== 'ok') return null
+    const done = state.game.status === 'completado'
     return (
         <>
             <Button asChild>
@@ -156,7 +173,10 @@ export function GameHeaderActions() {
                 </a>
             </Button>
             <Button variant="secondary" onClick={openComplete}>
-                <Flag aria-hidden /> {state.game.status === 'completado' ? 'Editar nota' : 'Completar'}
+                {/* Al aterrizar, «Completar» pasa a «Editar nota» con un fundido */}
+                <span key={done ? 'edit' : 'complete'} className={`juego__act-swap${landed ? ' hg-swap-in' : ''}`}>
+                    <Flag aria-hidden /> {done ? 'Editar nota' : 'Completar'}
+                </span>
             </Button>
         </>
     )

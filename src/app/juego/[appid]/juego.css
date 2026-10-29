@@ -190,6 +190,7 @@ a.juego__metacritic:hover {
 }
 
 .juego-status__opt {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -218,9 +219,27 @@ a.juego__metacritic:hover {
 }
 
 .juego-status__opt[aria-pressed='true'] {
+  color: var(--c);
+  transition: color 0.2s var(--ease-out);
+}
+
+/* Fondo de la opción activa: se desliza por la rejilla (motion.span con layoutId) y lleva el borde de su lista */
+.juego-status__thumb {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
   background: var(--surface);
   box-shadow: inset 0 0 0 1.5px var(--c);
-  color: var(--c);
+}
+
+.juego-status__opt > :not(.juego-status__thumb) {
+  position: relative;
+  z-index: 1;
+}
+
+.juego-status__opt[aria-pressed='true']:hover:not(:disabled) {
+  background: transparent;
 }
 
 .juego-status__opt:focus-visible,
@@ -278,6 +297,7 @@ a.juego__metacritic:hover {
 }
 
 .juego-panel__warning {
+  animation: juego-drop-in 0.2s var(--ease-out);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -285,6 +305,22 @@ a.juego__metacritic:hover {
   margin: 0;
   color: var(--warning);
   font-size: 0.8125rem;
+}
+
+@keyframes juego-drop-in {
+  from { opacity: 0; transform: translateY(-6px); }
+}
+
+/* La nota que aterriza tras completar: el icono hace pop */
+.hg-tile.is-landed .hg-tile__icon {
+  animation: hg-pop-in 0.26s var(--ease-out);
+}
+
+/* «Completar» → «Editar nota» */
+.juego__act-swap {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
 }
 
 .juego-panel__warning a {
@@ -361,9 +397,11 @@ a.juego__metacritic:hover {
 
 .juego-track__fill {
   position: absolute;
-  inset: 0 auto 0 0;
+  inset: 0;
   border-radius: inherit;
   background: var(--primary);
+  transform-origin: left;
+  animation: hg-bar-fill 0.45s var(--ease-out) 0.15s backwards;
 }
 
 .juego-track__fill.is-done {
@@ -383,6 +421,12 @@ a.juego__metacritic:hover {
 .juego-track__mark.is-passed {
   background: var(--foreground);
   opacity: 0.55;
+  animation: juego-mark-pass 0.3s var(--ease-out) backwards;
+  animation-delay: calc(150ms + var(--at, 1) * 450ms);
+}
+
+@keyframes juego-mark-pass {
+  from { background: var(--border-hover); opacity: 1; transform: scaleY(0.6); }
 }
 
 .juego-track__mark span {
@@ -436,56 +480,18 @@ a.juego__metacritic:hover {
   color: color-mix(in srgb, var(--rar-leg) var(--rar-ink), var(--foreground));
 }
 
+/* Anillo: el compartido .hg-ring (styles/lists.css), centrado; el sello «100 %» va bajo la cifra */
 .juego-ach__ring {
-  position: relative;
-  width: 140px;
-  height: 140px;
   margin: 0.25rem auto;
 }
 
-.juego-ach__ring svg {
-  width: 100%;
-  height: 100%;
-  rotate: -90deg;
+.juego-ach__seal {
+  margin-top: 4px;
 }
 
-.juego-ach__ring circle {
-  fill: none;
-  stroke-width: 3.2;
-}
-
-.juego-ach__ring-track {
-  stroke: var(--surface-2);
-}
-
-.juego-ach__ring-fill {
-  stroke: var(--primary);
-  stroke-linecap: round;
-}
-
-.juego-ach__ring-fill.is-done {
-  stroke: var(--success);
-}
-
-.juego-ach__ring-text {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  text-align: center;
-}
-
-.juego-ach__ring-text b {
-  font-size: 1.75rem;
-  line-height: 1.1;
-}
-
-.juego-ach__ring-text span {
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
+/* El reparto por rareza crece al llegar (600 ms) y su leyenda aparece detrás */
 .juego-ach__stack {
+  animation: juego-stack-grow 0.6s var(--ease-out) 0.25s backwards;
   display: flex;
   gap: 2px;
   height: 8px;
@@ -509,6 +515,8 @@ a.juego__metacritic:hover {
 }
 
 .juego-ach__legend li {
+  animation: hg-fade-in 0.3s var(--ease-out) backwards;
+  animation-delay: calc(350ms + var(--i, 0) * 30ms);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -525,6 +533,10 @@ a.juego__metacritic:hover {
 .juego-ach__legend b {
   margin-left: auto;
   color: var(--foreground);
+}
+
+@keyframes juego-stack-grow {
+  from { clip-path: inset(0 100% 0 0 round 999px); }
 }
 
 .juego-ach__cols {

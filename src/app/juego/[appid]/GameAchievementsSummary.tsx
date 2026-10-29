@@ -2,7 +2,8 @@
 
 import { useEffect, useState, type CSSProperties } from 'react'
 import Link from 'next/link'
-import { Trophy } from 'lucide-react'
+import { Check, Trophy } from 'lucide-react'
+import CountUp from '@/components/CountUp'
 import { supabase } from '@/lib/supabase/client'
 import { ACHIEVEMENT_COLUMNS, type Achievement } from '@/lib/achievements'
 import { RARITY_TIERS, RARITY_TIER_LABELS, rarityColor, rarityTier, type RarityTier } from '@/lib/rarity'
@@ -60,8 +61,7 @@ export default function GameAchievementsSummary() {
         .filter((a) => a.achieved && a.unlocktime)
         .sort((a, b) => Date.parse(b.unlocktime!) - Date.parse(a.unlocktime!))
         .slice(0, SHOWN)
-    // Anillo: circunferencia de r = 15,5 en un viewBox de 36.
-    const circumference = 2 * Math.PI * 15.5
+    const done = unlocked >= total
 
     return (
         <section id="juego-logros" className="juego-ach glass" aria-labelledby="juego-ach-title">
@@ -69,22 +69,24 @@ export default function GameAchievementsSummary() {
                 <h2 id="juego-ach-title" className="juego__section-title">
                     <Trophy size={17} className="juego-ach__trophy" aria-hidden /> Logros
                 </h2>
-                <div className="juego-ach__ring" role="img" aria-label={`${unlocked} de ${total} logros, ${pct} %`}>
+                {/* Anillo compartido (.hg-ring): se rellena al llegar; al 100 %, verde, late una vez y salta el sello */}
+                <div className={`hg-ring juego-ach__ring${done ? ' is-done' : ''}`} role="img" aria-label={`${unlocked} de ${total} logros, ${pct} %`}>
                     <svg viewBox="0 0 36 36" aria-hidden>
-                        <circle cx="18" cy="18" r="15.5" className="juego-ach__ring-track" />
-                        <circle
-                            cx="18"
-                            cy="18"
-                            r="15.5"
-                            className={`juego-ach__ring-fill${unlocked >= total ? ' is-done' : ''}`}
-                            strokeDasharray={`${(pct / 100) * circumference} ${circumference}`}
-                        />
+                        <circle cx="18" cy="18" r="15.5" className="hg-ring__track" />
+                        {pct > 0 && <circle cx="18" cy="18" r="15.5" pathLength={100} className="hg-ring__fill" style={{ strokeDashoffset: 100 - pct }} />}
                     </svg>
-                    <span className="juego-ach__ring-text">
-                        <b>{pct} %</b>
+                    <span className="hg-ring__text" aria-hidden>
+                        <b>
+                            <CountUp value={pct} /> %
+                        </b>
                         <span>
                             {unlocked} de {total}
                         </span>
+                        {done && (
+                            <span className="hg-seal juego-ach__seal">
+                                <Check aria-hidden /> 100 %
+                            </span>
+                        )}
                     </span>
                 </div>
                 {rarity.length > 0 && (
@@ -95,8 +97,8 @@ export default function GameAchievementsSummary() {
                             ))}
                         </div>
                         <ul className="juego-ach__legend" aria-label="Tus logros por rareza">
-                            {rarity.map((r) => (
-                                <li key={r.tier} style={{ '--c': rarityColor(r.tier) } as CSSVars}>
+                            {rarity.map((r, i) => (
+                                <li key={r.tier} style={{ '--c': rarityColor(r.tier), '--i': String(i) } as CSSVars}>
                                     {RARITY_TIER_LABELS[r.tier]} <b>{r.count}</b>
                                 </li>
                             ))}
@@ -112,8 +114,8 @@ export default function GameAchievementsSummary() {
                     </h3>
                     {list === null ? null : next.length > 0 ? (
                         <ul className="hg-achs">
-                            {next.map((a) => (
-                                <AchievementItem key={a.apiname} achievement={a} gameName={name} />
+                            {next.map((a, i) => (
+                                <AchievementItem key={a.apiname} achievement={a} gameName={name} index={i} />
                             ))}
                         </ul>
                     ) : (
@@ -129,8 +131,8 @@ export default function GameAchievementsSummary() {
                     </h3>
                     {list === null ? null : recent.length > 0 ? (
                         <ul className="hg-achs">
-                            {recent.map((a) => (
-                                <AchievementItem key={a.apiname} achievement={a} gameName={name} />
+                            {recent.map((a, i) => (
+                                <AchievementItem key={a.apiname} achievement={a} gameName={name} index={i + SHOWN} />
                             ))}
                         </ul>
                     ) : (

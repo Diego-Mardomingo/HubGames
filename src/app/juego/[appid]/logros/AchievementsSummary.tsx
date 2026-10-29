@@ -41,12 +41,12 @@ export default function AchievementsSummary({ list, rarity, onRarity }: Props) {
     return (
         <section className="gl-sum hg-enter" style={{ '--i': 1 } as CSSVars} aria-label="Progreso">
             <div className="gl-ringbox">
-                <div className={`gl-ring${done ? ' is-done' : ''}`} role="img" aria-label={`${unlocked} de ${total} logros, ${pct} %`}>
+                <div className={`hg-ring gl-ring${done ? ' is-done' : ''}`} role="img" aria-label={`${unlocked} de ${total} logros, ${pct} %`}>
                     <svg viewBox="0 0 36 36" aria-hidden>
-                        <circle cx="18" cy="18" r="15.5" className="gl-ring__track" />
-                        {pct > 0 && <circle cx="18" cy="18" r="15.5" pathLength={100} className="gl-ring__fill" style={{ strokeDashoffset: 100 - pct }} />}
+                        <circle cx="18" cy="18" r="15.5" className="hg-ring__track" />
+                        {pct > 0 && <circle cx="18" cy="18" r="15.5" pathLength={100} className="hg-ring__fill" style={{ strokeDashoffset: 100 - pct }} />}
                     </svg>
-                    <span className="gl-ring__text" aria-hidden>
+                    <span className="hg-ring__text" aria-hidden>
                         <b>
                             <CountUp value={pct} /> %
                         </b>
@@ -94,7 +94,7 @@ export default function AchievementsSummary({ list, rarity, onRarity }: Props) {
                         </p>
                     ) : (
                         <p className="gl-diff">
-                            <span className="gl-seal">
+                            <span className="hg-seal">
                                 <Check aria-hidden />
                                 100 %
                             </span>{' '}
