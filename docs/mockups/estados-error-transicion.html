@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · 404, error y transición entre páginas · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-hover: #ad1b31; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --st-jugando: #2453ff; --st-completado: #1a7743; --st-pendiente: #0b7285; --st-pausado: #8e5e18; --st-sinfinal: #6741d9;
+  --sc-top: #1a7743; --sc-good: #4d7c0f;
+  --rar-leg: #c98a0b; --rar-epica: #8b4fd8;
+  --tint: 12%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-hover: #ff8090; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --st-jugando: #7b9bff; --st-completado: #4cc97e; --st-pendiente: #3bc9db; --st-pausado: #f2b53a; --st-sinfinal: #b197fc;
+  --sc-top: #4cc97e; --sc-good: #a9d15b;
+  --rar-leg: #f2b53a; --rar-epica: #b07cff;
+  --tint: 14%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; color: inherit; cursor: pointer; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after, html.theme-anim body {
+  transition: background-color .3s var(--ease-out), color .3s var(--ease-out), border-color .3s var(--ease-out), fill .3s, stroke .3s, box-shadow .3s var(--ease-out) !important;
+}
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.doc-group { display: inline-flex; align-items: center; gap: 4px; padding-right: 8px; margin-right: 4px; border-right: 1px solid var(--border); flex-wrap: wrap; }
+.doc-group > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.doc-btn[disabled] { opacity: .45; cursor: not-allowed; }
+.doc-btn--sm { height: 32px; padding: 0 10px; font-size: .8125rem; }
+.doc-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: .71875rem; font-weight: 700; vertical-align: 2px; }
+.doc-tag--new { background: var(--primary-glow); color: var(--primary); }
+.doc-tag--opt { background: color-mix(in srgb, var(--warning) var(--tint), transparent); color: var(--warning); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+.note p { margin: 4px 0; }
+.note code, .sec code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 120ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: clip; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 60ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.grid-frames { display: grid; grid-template-columns: repeat(2, 640px); gap: 28px 24px; align-items: start; }
+.vlabel { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.875rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 7px; background: var(--surface-2); }
+.vlabel .doc-tag { margin-left: 4px; }
+.tests { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 0; }
+.tests > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.tests > span:not(:first-child) { margin-left: 10px; }
+.col-frame { padding: 20px; }
+.qs li { margin: 10px 0; }
+.anim-list li { margin: 3px 0; }
+.vt-table { width: 100%; border-collapse: collapse; font-size: .875rem; margin-top: 8px; }
+.vt-table th, .vt-table td { text-align: left; vertical-align: top; padding: 8px 10px; border-top: 1px solid var(--border); }
+.vt-table th { width: 220px; font-weight: 600; }
+.ok-ink { color: var(--success); font-weight: 600; } .ko-ink { color: var(--danger); font-weight: 600; } .warn-ink { color: var(--warning); font-weight: 600; }
+
+/* Línea de tiempo de las transiciones (solo del documento) */
+.tl { display: grid; gap: 10px; max-width: 760px; margin: 14px 0 4px; }
+.tl-row { display: grid; grid-template-columns: 170px 1fr; align-items: center; gap: 12px; font-size: .8125rem; }
+.tl-row > span:first-child { font-weight: 600; }
+.tl-track { position: relative; height: 22px; border-radius: 6px; background: var(--surface-2); }
+.tl-seg { position: absolute; top: 3px; bottom: 3px; border-radius: 4px; display: flex; align-items: center; padding: 0 6px; font-size: .6875rem; font-weight: 700; white-space: nowrap; color: var(--c); background: color-mix(in srgb, var(--c) 22%, transparent); }
+.tl-seg.out { --c: var(--muted); } .tl-seg.pgn { --c: var(--primary); } .tl-seg.inner { --c: var(--st-pendiente); } .tl-seg.cap { --c: var(--st-sinfinal); }
+.tl-scale { display: grid; grid-template-columns: 170px 1fr; gap: 12px; color: var(--muted); font-size: .6875rem; }
+.tl-scale div { display: flex; justify-content: space-between; }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css) ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); }
+.hg-wordmark { font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.02em; line-height: 1; }
+.hg-wordmark__accent { color: var(--primary); }
+.hg-mark { display: block; overflow: visible; color: var(--foreground); }
+.hg-mark__bar, .hg-mark__g { stroke-dasharray: 100 110; }
+.hg-mark__bar { stroke-dashoffset: 30; transition: stroke-dashoffset .3s var(--ease-out); }
+.nv-brand:hover .hg-mark__bar { stroke-dashoffset: 0; }
+.nv-search { display: flex; align-items: center; gap: 0.5rem; height: 38px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.875rem; }
+.nv-search .i { font-size: 16px; }
+.nv-search__label { flex: 1; text-align: left; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: 0.6875rem; white-space: nowrap; font-family: inherit; }
+.nv-menu { display: flex; flex-direction: column; gap: 0.875rem; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 0.75rem 0.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: 0.75rem; height: 40px; padding: 0 0.5rem 0 0.75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: 0.9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link__label { flex: 1; min-width: 0; }
+.nv-link:hover { color: var(--foreground); background: var(--surface-2); }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nv-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+.theme-toggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.theme-toggle span { display: grid; place-items: center; height: 30px; border-radius: 6px; color: var(--muted); font-size: 15px; }
+.theme-toggle span.on { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.nv-account { display: flex; align-items: center; gap: 0.625rem; height: 44px; padding: 0 0.5rem; border-radius: var(--radius-sm); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.nv-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-2); color: var(--foreground); font-weight: 700; font-size: 0.8125rem; }
+.nv-account__text { display: grid; min-width: 0; line-height: 1.2; }
+.nv-account__meta { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+.nav-cta { display: flex; align-items: center; justify-content: center; gap: .5rem; height: 40px; padding: 0 1rem; border-radius: var(--radius-sm); color: var(--primary-foreground); background: var(--primary); font-size: .875rem; font-weight: 600; }
+.nav-cta .i { font-size: 16px; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 0.75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-top .nv-brand { min-height: 44px; padding: 0 0.25rem; }
+.m-right { display: flex; align-items: center; gap: 0.25rem; }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-icon .nv-avatar { width: 32px; height: 32px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 5; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: 0.6875rem; font-weight: 600; }
+.m-tab.active { color: var(--primary); }
+.m-tab.active::before { content: ''; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--cursor); }
+.m-tab__icon { position: relative; display: grid; place-items: center; font-size: 20px; }
+
+/* ══ Marco de página ══ */
+.page { margin-left: 232px; }
+.page-in { width: min(1200px, 100%); margin: 0 auto; padding: 2rem 2.25rem 3rem; }
+.m-page { padding: 1rem 1rem 110px; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.page-title { margin: 0.25rem 0 0; font-size: clamp(1.625rem, 2.6vw, 2rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .page-title { font-size: 1.625rem; }
+.page-subtitle { margin: 0.375rem 0 0; color: var(--muted); font-size: 0.9375rem; max-width: 60ch; }
+
+/* ══ Piezas compartidas (copia de lists.css y globals.css) ══ */
+.neutral { --c: var(--muted); } .ko { --c: var(--danger); } .cobalt { --c: var(--primary); }
+.st-jugando { --c: var(--st-jugando); } .st-completado { --c: var(--st-completado); } .st-pendiente { --c: var(--st-pendiente); } .st-pausado { --c: var(--st-pausado); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; white-space: nowrap; background: none; transition: background-color .2s var(--ease-out), border-color .15s, color .2s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); color: var(--foreground); }
+.btn--secondary:hover { background: var(--surface-2); border-color: var(--border-hover); }
+.btn--ghost { color: var(--muted); }
+.btn--ghost:hover { color: var(--foreground); background: var(--surface-2); }
+.btn .i-go { transition: transform .16s var(--ease-out); }
+.btn:hover .i-go { transform: translateX(3px); }
+.btn kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); color: var(--muted); font: inherit; font-size: .6875rem; font-weight: 600; }
+/* Botón trabajando (patrón de SaveButton): spinner en vez del icono */
+.btn.is-busy { pointer-events: none; }
+.btn.is-busy .i { display: none; }
+.btn.is-busy::before { content: ''; width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 12px; }
+.hg-row { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: center; gap: 1rem; min-height: 68px; padding: 8px 12px 8px 8px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: box-shadow .15s ease, border-color .15s ease; cursor: pointer; }
+.hg-row:hover, .hg-row:focus-visible { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); outline: none; }
+.hg-row::before { content: ''; position: absolute; left: -1px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--c); }
+.hg-row__cover { position: relative; display: block; width: 112px; height: 52px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.hg-row__cover img, .gp-hero img, .sk-hero img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.hg-row__main { display: grid; gap: 2px; min-width: 0; }
+.hg-row__name { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.hg-row__meta { overflow: hidden; color: var(--muted); font-size: .8125rem; text-overflow: ellipsis; white-space: nowrap; }
+.hg-rows { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.w-mob .hg-row { grid-template-columns: 96px minmax(0, 1fr); gap: .75rem; }
+.w-mob .hg-row__cover { width: 96px; height: 45px; }
+.w-mob .hg-row .hg-chip { display: none; }
+.hg-shake { animation: hg-shake .32s var(--ease-out); }
+@keyframes hg-shake { 20% { transform: translateX(-6px); } 45% { transform: translateX(5px); } 70% { transform: translateX(-3px); } 90% { transform: translateX(1px); } }
+
+/* ══ NUEVO · Página de estado (404, error y error global): .hg-status en globals.css ══ */
+.es-wrap { display: grid; place-items: center; min-height: 680px; padding: 1rem 0; }
+.w-mob .es-wrap { min-height: 600px; place-items: start center; padding-top: 1.5rem; }
+.w-col .es-wrap { min-height: 0; }
+.es { display: grid; justify-items: center; gap: .75rem; width: 100%; max-width: 560px; padding: 2.5rem 2rem 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); text-align: center; }
+.w-mob .es { padding: 2rem 1.125rem 1.25rem; }
+.es-mark { margin-bottom: .25rem; }
+.es__title { margin: .125rem 0 0; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; text-wrap: balance; }
+.w-mob .es__title { font-size: 1.375rem; }
+.es__text { margin: 0; max-width: 46ch; color: var(--muted); font-size: .9375rem; text-wrap: pretty; }
+.es__acts { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; margin-top: .5rem; }
+.w-mob .es__acts { display: grid; justify-content: stretch; width: 100%; }
+.w-mob .es__acts .btn { width: 100%; height: 44px; }
+.w-mob .es__acts .btn kbd { display: none; }
+/* La ruta que no existe, recortada si es larga */
+.es-path { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 4px 10px; border-radius: 7px; background: var(--surface-2); color: var(--muted); font-size: .8125rem; }
+.es-path b { overflow: hidden; color: var(--foreground); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.es-path .i { font-size: 13px; }
+/* «¿Querías decir…?»: sugerencia con la ruta parecida */
+.es-suggest { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 400px; padding: 10px 12px; border-radius: var(--radius); text-align: left; font-size: .875rem; transition: background-color .2s var(--ease-out); }
+.es-suggest:hover { background: color-mix(in srgb, var(--c) calc(var(--tint) + 6%), transparent); }
+.es-suggest__icon { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 8px; background: var(--surface); font-size: 16px; }
+.es-suggest__text { flex: 1; min-width: 0; color: var(--foreground); }
+.es-suggest__text small { display: block; color: var(--muted); font-size: .75rem; }
+.es-suggest .i-go { font-size: 16px; transition: transform .16s var(--ease-out); }
+.es-suggest:hover .i-go { transform: translateX(3px); }
+/* Código del error, que se puede copiar */
+.es-code { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 400px; margin-top: .25rem; padding: 8px 8px 8px 12px; border: 1px dashed var(--border-hover); border-radius: var(--radius); text-align: left; }
+.es-code__text { flex: 1; min-width: 0; display: grid; line-height: 1.3; }
+.es-code__label { color: var(--muted); font-size: .75rem; }
+.es-code__value { overflow: hidden; font-size: .875rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.es-code__copy { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); font-size: .8125rem; font-weight: 600; transition: border-color .15s, color .2s; }
+.es-code__copy:hover { border-color: var(--border-hover); }
+.es-code__copy .i { font-size: 14px; }
+.es-code__copy.is-done { color: var(--success); border-color: color-mix(in srgb, var(--success) 40%, transparent); }
+.es-code__copy.is-done .i path { stroke-dasharray: 24; animation: hg-draw .24s var(--ease-out) backwards; }
+@keyframes hg-draw { from { stroke-dashoffset: 24; } }
+/* Sigue fallando tras reintentar */
+.es-again { display: flex; align-items: flex-start; gap: 8px; max-width: 400px; margin: 0; padding: 8px 12px; border-radius: var(--radius-sm); font-size: .8125rem; text-align: left; }
+.es-again .i { font-size: 15px; margin-top: 2px; }
+.es-again a { font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+/* Detalle solo en desarrollo */
+.es-dev { width: 100%; max-width: 480px; text-align: left; font-size: .8125rem; border: 1px solid var(--border); border-radius: var(--radius); }
+.es-dev summary { display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: var(--muted); font-weight: 600; cursor: pointer; }
+.es-dev pre { margin: 0; padding: 10px 12px; border-top: 1px solid var(--border); overflow-x: auto; font-size: .75rem; line-height: 1.5; white-space: pre; }
+/* Error global: sin barra lateral, con la marca arriba */
+.es-global { display: grid; justify-items: center; gap: 1.5rem; padding: 4.5rem 1rem 3rem; }
+.w-mob .es-global { padding: 2.5rem 1rem; }
+.es-global .es { box-shadow: var(--shadow-sm); }
+/* Variante B: página con atajos */
+.esb { display: grid; gap: 1.5rem; max-width: 880px; }
+.esb__head { display: flex; align-items: center; gap: 1.25rem; }
+.esb__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; }
+.w-col .esb__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.esb-tile { display: grid; gap: .5rem; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); transition: box-shadow .15s, border-color .15s; }
+.esb-tile:hover { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.esb-tile .i { font-size: 20px; color: var(--primary); }
+.esb-tile b { font-size: .9375rem; }
+.esb-tile span { color: var(--muted); font-size: .8125rem; }
+/* Lo de hoy: la 404 por defecto de Next (en inglés y con su propio fondo según el sistema) */
+.next404 { display: grid; place-items: center; min-height: 520px; background: #fff; color: #000; font-family: system-ui, sans-serif; }
+.next404 > div { display: flex; align-items: center; }
+.next404 h1 { margin: 0 20px 0 0; padding: 0 23px 0 0; font-size: 24px; font-weight: 500; line-height: 49px; border-right: 1px solid rgba(0,0,0,.3); }
+.next404 h2 { margin: 0; font-size: 14px; font-weight: 400; }
+.nexterr { display: grid; place-items: center; min-height: 520px; background: #fff; color: #000; font-family: system-ui, sans-serif; text-align: center; padding: 1rem; }
+.nexterr h2 { margin: 0; font-size: 14px; font-weight: 400; line-height: 28px; max-width: 420px; }
+.nexterr p { margin: 4px 0 0; font-size: 14px; color: #555; }
+
+/* ══ Demo de transición: biblioteca → ficha (simplificadas) ══ */
+.dv { min-height: 640px; }
+.dv-lib { display: grid; gap: 1rem; }
+.dv-seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.dv-seg .hg-chip { padding: 5px 12px 5px 10px; font-size: .8125rem; }
+.dv-seg .hg-chip b { font-weight: 700; }
+.gp { display: grid; gap: 1.25rem; }
+.gp-back { display: inline-flex; align-items: center; gap: 6px; width: max-content; color: var(--muted); font-size: .875rem; font-weight: 500; cursor: pointer; background: none; border: 0; padding: 0; }
+.gp-back:hover { color: var(--foreground); }
+.gp-hero { position: relative; display: block; aspect-ratio: 1920 / 620; border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-2); }
+.w-mob .gp-hero { aspect-ratio: 16 / 7; }
+.gp-title { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.w-mob .gp-title { font-size: 1.5rem; }
+.gp-studio { margin: 2px 0 0; color: var(--muted); font-size: .875rem; }
+.gp-headrow { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.gp-acts { display: flex; gap: .5rem; flex-wrap: wrap; }
+.gp-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; }
+.w-mob .gp-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hg-tile { display: grid; gap: 2px; padding: .875rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.hg-tile__label { color: var(--muted); font-size: .8125rem; }
+.hg-tile__value { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.01em; color: var(--c, var(--foreground)); }
+.gp-block { height: 160px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border); }
+/* Esqueleto de la ficha (lo que haría loading.tsx) y Loader de hoy */
+.sk { display: grid; gap: 1.25rem; }
+.sk-bar { height: 14px; border-radius: 6px; background: var(--surface-2); }
+.sk-hero { position: relative; aspect-ratio: 1920 / 620; border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-2); }
+.w-mob .sk-hero { aspect-ratio: 16 / 7; }
+.sk-hero img { opacity: .9; }
+.sk-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; }
+.w-mob .sk-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sk-tiles span { height: 74px; border-radius: var(--radius-lg); background: var(--surface-2); }
+.ld { display: grid; place-items: center; gap: .75rem; min-height: 420px; color: var(--muted); font-size: .875rem; }
+.hg-mark--loop .hg-mark__g { animation: hg-loop-g 2.4s var(--ease-out) infinite; }
+.hg-mark--loop .hg-mark__bar { animation: hg-loop-bar 2.4s var(--ease-out) infinite; }
+@keyframes hg-loop-g { 0% { stroke-dashoffset: 105; opacity: 1; } 55% { stroke-dashoffset: 0; opacity: 1; } 80%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes hg-loop-bar { 0%, 15% { stroke-dashoffset: 100; opacity: 1; } 55% { stroke-dashoffset: 0; opacity: 1; } 80%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+
+/* ══ Microanimaciones ══ */
+@keyframes hg-enter { from { opacity: 0; transform: translateY(8px); } }
+@keyframes hg-pop-in { from { opacity: 0; transform: scale(0.5); } }
+@keyframes fade-in { from { opacity: 0; } }
+.anim .hg-enter { animation: hg-enter .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+.anim .hg-pop-in { animation: hg-pop-in .26s var(--ease-out) backwards; animation-delay: calc(250ms + min(var(--i, 0), 8) * 30ms); }
+.fx-swap { animation: fade-in .2s var(--ease-out); }
+
+/* NUEVO · 404: la G se dibuja y la barra de la H casi llega al 100 %, duda y se vuelve a su 70 % de siempre */
+@keyframes hg-fill-g { from { stroke-dashoffset: 105; } to { stroke-dashoffset: 0; } }
+@keyframes hg-bar-stall {
+  0% { stroke-dashoffset: 100; }
+  42% { stroke-dashoffset: 5; animation-timing-function: ease-in-out; }
+  56% { stroke-dashoffset: 9; animation-timing-function: ease-in-out; }
+  66% { stroke-dashoffset: 4; animation-timing-function: var(--ease-out); }
+  100% { stroke-dashoffset: 30; }
+}
+.anim .hg-mark--lost .hg-mark__g { animation: hg-fill-g .7s var(--ease-out) backwards; }
+.anim .hg-mark--lost .hg-mark__bar { animation: hg-bar-stall 1.1s linear .25s backwards; }
+
+/* NUEVO · Error: la G se dibuja, la barra parpadea dos veces (cable flojo) y se queda en rojo de error */
+.hg-mark--broken .hg-mark__bar { stroke: var(--danger); }
+@keyframes hg-bar-flicker {
+  0% { stroke: var(--primary); opacity: 1; }
+  18% { opacity: .15; } 30% { opacity: 1; }
+  46% { opacity: .15; } 58% { opacity: 1; stroke: var(--primary); }
+  70%, 100% { stroke: var(--danger); opacity: 1; }
+}
+.anim .hg-mark--broken .hg-mark__g { animation: hg-fill-g .7s var(--ease-out) backwards; }
+.anim .hg-mark--broken .hg-mark__bar { animation: hg-fill-bar .4s var(--ease-out) backwards, hg-bar-flicker .7s linear .5s backwards; }
+@keyframes hg-fill-bar { from { stroke-dashoffset: 100; } }
+
+/* NUEVO · Transición entre páginas (template.tsx) */
+@keyframes pg-today { from { opacity: 0; transform: translateY(8px); } }
+@keyframes pg-fade { from { opacity: 0; } }
+.pg-today { animation: pg-today .4s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.pg-a { animation: pg-fade .2s var(--ease-out) backwards; }
+
+/* Variante B · View Transitions (los nombres los pone el script solo durante la transición) */
+:root { view-transition-name: none; }
+::view-transition { pointer-events: none; }
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; } }
+::view-transition-old(pv-t-desk), ::view-transition-old(pv-t-mob) { animation: vt-out 100ms ease-in both; }
+::view-transition-new(pv-t-desk), ::view-transition-new(pv-t-mob) { animation: vt-in 200ms var(--ease-out) 60ms both; }
+::view-transition-group(pv-t-desk), ::view-transition-group(pv-t-mob) { animation: none; }
+::view-transition-group(cap-t-desk), ::view-transition-group(cap-t-mob) { animation-duration: 300ms; animation-timing-function: var(--ease-out); z-index: 2; }
+::view-transition-old(cap-t-desk), ::view-transition-new(cap-t-desk),
+::view-transition-old(cap-t-mob), ::view-transition-new(cap-t-mob) { height: 100%; object-fit: cover; animation-duration: 300ms; }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+html.rm .hg-mark--loop .hg-mark__g, html.rm .hg-mark--loop .hg-mark__bar { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+  .hg-mark--loop .hg-mark__g, .hg-mark--loop .hg-mark__bar { animation: none !important; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · 404, error y transición entre páginas</h1>
+  <div class="doc-bar__actions">
+    <div class="doc-group" role="group" aria-label="Forma de la 404"><span>404</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="v" data-val="A" aria-pressed="true">A · Tarjeta con el logo (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="v" data-val="B" aria-pressed="false">B · Página con atajos</button>
+    </div>
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p><b>Hoy</b> no hay <code>not-found.tsx</code>, <code>error.tsx</code> ni <code>global-error.tsx</code> en ninguna carpeta de <code>src/app</code>. Lo que se ve:</p>
+  <ul>
+    <li><b>Ruta que no existe</b> (<code>/bibloteca</code>) y <b>juego que no existe</b> (<code>notFound()</code> en <code>/juego/[appid]</code> y <code>/juego/[appid]/logros</code>): la 404 por defecto de Next, <b>en inglés</b> («404 | This page could not be found.»), dentro de la barra lateral pero con <b>su propio fondo blanco o negro según el sistema</b>, no según tu tema. Sin ninguna salida.</li>
+    <li><b>Un fallo al pintar</b> (por ejemplo, el <code>throw new Error(error.message)</code> de <code>/wishlist</code> o de la bandeja si Supabase falla): sin <code>error.tsx</code>, la pantalla entera se cambia por «Application error: a server-side exception has occurred… Digest: …» (o «client-side exception»), en inglés, sin barra lateral, sin botón para reintentar.</li>
+  </ul>
+  <p><b>Propuesta</b>: una sola pieza nueva, la <b>página de estado</b> (<code>.hg-status</code>, la forma de <code>.jd-error</code> de JUDI, que ya conocemos), con el <b>logo animado</b> como detalle con personalidad, en tres sitios:</p>
+  <ul>
+    <li><code>src/app/not-found.tsx</code>: 404 dentro de la app (barra lateral o pestañas móviles a la vista). Enseña la ruta que has pedido y, si se parece a una que existe, «¿Querías decir Biblioteca?». Salidas: <b>Ir a Inicio</b>, <b>Biblioteca</b> y <b>Buscar un juego</b> (abre el buscador de Ctrl + K con el evento <code>hubgames:open-search</code> que ya existe). Sin sesión: Inicio e Iniciar sesión.</li>
+    <li><code>src/app/juego/[appid]/not-found.tsx</code>: la misma página con su texto («No encontramos este juego», con el número de Steam) y el buscador como salida principal. Lo usan la ficha y sus logros.</li>
+    <li><code>src/app/error.tsx</code>: dentro de la app. <b>Reintentar</b> (en Next 16.4 la prop recomendada es <code>retry()</code>, que vuelve a pedir los datos; <code>reset()</code> solo vuelve a pintar) e <b>Ir a Inicio</b>. Debajo, el <b>código del error</b> (el <code>digest</code> de Next, el mismo que sale en los logs de Vercel) con botón Copiar. Si el fallo es del navegador no hay digest: se enseña la ruta y la hora. Nada de trazas en producción; el mensaje y la traza solo en desarrollo.</li>
+    <li><code>src/app/global-error.tsx</code>: solo si falla el propio layout (la barra lateral, los proveedores). No tiene layout: trae su <code>&lt;html&gt;</code>, importa <code>globals.css</code>, aplica el tema con <code>themeScript</code> y enseña la marca arriba. «Ir a Inicio» es un enlace normal (recarga entera), porque el router puede ser lo que ha fallado.</li>
+  </ul>
+  <p><b>Transición entre páginas</b>: hoy <code>template.tsx</code> hace fundido + 8 px en 400 ms con framer-motion. Problemas: es más larga que el resto (las entradas son de 320 ms) y <b>se suma al <code>.hg-enter</code> de cada página</b> (la página entera sube 8 px y luego sus bloques suben otros 8 px); además framer pinta el <code>initial</code> (<code>opacity: 0</code>) en el HTML del servidor, así que en la primera carga no se ve nada hasta que hidrata. Propongo <b>A: solo fundido de 200 ms en CSS</b> (sin framer, se ve sin JavaScript, el movimiento lo pone cada página). La <b>cápsula que vuela</b> de la biblioteca a la ficha es posible con View Transitions, pero no es gratis (ver la sección «View Transitions»): la dejo como <b>paso opcional y aparte</b>.</p>
+
+  <h3>Microanimaciones</h3>
+  <ul class="anim-list">
+    <li><b>404 · la barra que no termina de llenarse</b> (el detalle con personalidad): la G del logo se dibuja y la barra de la H corre hasta casi el 100 %, duda un instante y se vuelve a su 70 % de siempre. <span class="t">1,1 s, una vez; solo <code>stroke-dashoffset</code>.</span></li>
+    <li><b>Error · cable flojo</b>: la G se dibuja, la barra de la H parpadea dos veces y se queda en <code>--danger</code>. El rojo dice «error», igual que en los formularios. <span class="t">≈ 1,2 s en total, una vez; opacidad y color del trazo.</span></li>
+    <li><b>Entrada</b>: los bloques de la tarjeta con <code>.hg-enter</code> (320 ms, 30 ms entre bloques); el chip con <code>.hg-pop-in</code>.</li>
+    <li><b>Copiar el código</b>: el icono pasa a un check que se dibuja (<code>.hg-draw</code>) y el texto a «Copiado» durante 1,5 s. <b>Reintentar</b>: spinner en el botón como <code>SaveButton</code>; si sigue fallando, la tarjeta se sacude (<code>.hg-shake</code>, 320 ms) y aparece «Sigue fallando» con «Recargar la página».</li>
+    <li><b>Transición entre páginas</b>: A, fundido de 200 ms. B (opcional), View Transitions: la página vieja se va en 100 ms, la nueva entra en 200 ms y la cápsula vuela en 300 ms.</li>
+    <li>Nada en bucle (salvo el Loader de hoy en la demo). Con <b>movimiento reducido</b> no hay entrada, ni logo animado, ni View Transition: el logo sale ya en su estado final.</li>
+  </ul>
+
+  <h3>Piezas que se reutilizan</h3>
+  <ul>
+    <li><code>LogoMark</code> (<code>src/components/brand/Logo.tsx</code>) con dos modificadores nuevos: <code>hg-mark--lost</code> y <code>hg-mark--broken</code> (una prop <code>variant</code>, como <code>animated</code> y <code>loop</code>).</li>
+    <li>La forma de <code>.jd-error</code> (judi.css) generalizada a <code>.hg-status</code> en <code>globals.css</code>; <code>Button</code>, <code>.hg-chip</code> + <code>.hg-tint</code> (neutro para 404, <code>--danger</code> para error), <code>.hg-enter</code>, <code>.hg-pop-in</code>, <code>.hg-draw</code>, <code>.hg-shake</code>, el spinner de <code>SaveButton</code>.</li>
+    <li><code>OPEN_SEARCH_EVENT</code> de <code>GameSearch.tsx</code> para «Buscar un juego»; <code>themeScript</code> para el error global.</li>
+    <li>Nuevo: <code>StatusPage</code> (componente con icono, título, texto, extras y acciones), <code>.hg-status*</code>, los dos keyframes del logo, y una función pequeña <code>closestRoute(path)</code> (distancia de edición contra las rutas de la app) para «¿Querías decir…?».</li>
+  </ul>
+  <p class="t">Sin color nuevo: neutro para la 404 (no es un fallo, es un enlace), <code>--danger</code> para el error y cobalto para la acción principal y la sugerencia. Contrastes ya medidos (los de <code>.hg-tint</code> y <code>.alert--error</code>).</p>
+</section>
+
+<section class="sec">
+  <h2>404 · escritorio · 1440 px · en vivo</h2>
+  <p>Dentro de la app: la barra lateral sigue ahí (sin elemento activo). Cambia la forma arriba (A o B) y el caso con los botones de debajo.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px;min-height:820px" id="f-404"></div></div>
+  <div class="tests" id="t-404"><span>Caso:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-case="typo" aria-pressed="true">Ruta mal escrita (con sugerencia)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-case="long" aria-pressed="false">Ruta larga, sin sugerencia</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-case="game" aria-pressed="false">Juego que no existe</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-case="guest" aria-pressed="false">Sin sesión</button>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Error · escritorio · 1440 px · en vivo</h2>
+  <p>Pulsa <b>Reintentar</b> y <b>Copiar</b> en la tarjeta. En «Fallo del servidor», reintentar funciona y vuelve la página; en «Sigue fallando», la tarjeta se sacude y ofrece recargar.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px;min-height:820px" id="f-err"></div></div>
+  <div class="tests" id="t-err"><span>Caso:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-case="server" aria-pressed="true">Fallo del servidor (con código)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-case="again" aria-pressed="false">Sigue fallando al reintentar</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-case="client" aria-pressed="false">Fallo en el navegador (sin código)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-case="dev" aria-pressed="false">En desarrollo (con detalle)</button>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Variantes de la 404 · lado a lado (y lo de hoy)</h2>
+  <p><b>A · Tarjeta con el logo</b>: corta, centrada, con el logo como protagonista y tres salidas. Misma forma que el error y que los errores de JUDI. <b>B · Página con atajos</b>: título como cualquier página y cuatro tarjetas de destino. Ayuda más a quien llega de fuera, pero repite lo que ya está en la barra lateral y en las pestañas móviles, y deja la 404 y el error con formas distintas. Recomiendo <b>A</b>.</p>
+  <div class="scroller"><div class="grid-frames" id="variants"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Error global (sin layout) · <code>global-error.tsx</code></h2>
+  <p>Solo cuando falla el layout raíz. No hay barra lateral (es lo que puede estar roto): la marca arriba y la misma tarjeta. Las acciones son «Reintentar» e «Ir a Inicio», este con un <code>&lt;a href="/"&gt;</code> normal (recarga entera), porque el router de Next puede no estar disponible.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-desk" style="width:1040px;min-height:640px" id="f-global"></div><p class="frame-cap">Escritorio. Fondo y tema como el resto (lee <code>hg-theme</code> con <code>themeScript</code>).</p></div>
+    <div><div class="frame w-mob" style="width:390px;min-height:640px" id="f-global-m"></div><p class="frame-cap">Móvil. Botones a todo el ancho.</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>Barra superior y pestañas a la vista. Tarjeta arriba (no centrada en vertical: el pulgar llega mejor a los botones), botones a todo el ancho y de 44 px, sin la pista «Ctrl + K».</p>
+  <div class="scroller"><div class="row-frames" id="mobiles"></div></div>
+</section>
+
+<section class="sec" id="transition">
+  <h2>Transición entre páginas · demo biblioteca → ficha</h2>
+  <p>Pulsa una fila para abrir su ficha y «Biblioteca» para volver. Compara <b>Hoy</b>, <b>A</b> y <b>B</b>. En B puedes activar la cápsula que vuela y ver qué pasa según cómo llega la ficha: si ya estaba en caché, con el Loader de hoy (<code>juego/[appid]/loading.tsx</code>) o con un esqueleto que «recibe» la cápsula.</p>
+  <div class="tests" id="t-tr" style="margin:0 0 12px">
+    <span>Transición:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-tr="today" aria-pressed="false">Hoy · fundido + 8 px, 400 ms</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-tr="A" aria-pressed="true">A · fundido 200 ms (recomendada)</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-tr="B" aria-pressed="false">B · View Transitions</button>
+    <span>Cápsula:</span>
+    <button class="doc-btn doc-btn--sm" type="button" id="fly-btn" aria-pressed="true" disabled>Vuela: sí</button>
+    <span>La ficha llega:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-load="cached" aria-pressed="true">Ya en caché</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-load="loader" aria-pressed="false">Con el Loader de hoy</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-load="skeleton" aria-pressed="false">Con esqueleto con cápsula</button>
+  </div>
+  <p id="vt-support" class="frame-cap" style="margin:0 0 12px"></p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-desk" style="width:1440px;min-height:780px" id="t-desk"></div></div>
+  </div></div>
+  <div class="scroller" style="margin-top:24px"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px;min-height:844px" id="t-mob"></div><p class="frame-cap">Móvil: la cápsula de 96 px vuela a la imagen 16:7 de arriba.</p></div>
+    <div style="max-width:760px">
+      <div class="vlabel">Duraciones, en la misma escala</div>
+      <div class="tl" id="timeline"></div>
+      <p class="frame-cap" style="max-width:none">Gris: la página vieja se va. Cobalto: la página nueva entra (lo que hace <code>template.tsx</code>). Turquesa: la entrada propia de la página (<code>.hg-enter</code>, ya existe). Violeta: la cápsula que vuela. Con <b>Hoy</b>, la página entera y sus bloques se mueven a la vez y la entrada acaba a los 400 ms; con <b>A</b>, el fundido termina antes que los bloques y el único movimiento es el de la página. Con <b>B</b> hay salida de verdad (la página vieja no desaparece de golpe).</p>
+    </div>
+  </div></div>
+</section>
+
+<section class="sec note" id="vt">
+  <h2>View Transitions: qué se puede y qué cuesta</h2>
+  <table class="vt-table">
+    <tr><th>Versión</th><td>Next <b>16.4.1</b>. El App Router usa su React interno <b>19.3 canary</b> (<code>next/dist/compiled/react</code>), que ya exporta <code>&lt;ViewTransition&gt;</code> estable. El flag <code>experimental.viewTransition</code> <b>ya no existe</b>: «View transitions work in the App Router with no configuration» (<code>node_modules/next/dist/docs/01-app/02-guides/view-transitions.md</code>). <code>&lt;Link transitionTypes&gt;</code> existe desde 16.2. Los tipos están en <code>@types/react/canary.d.ts</code>.</td></tr>
+    <tr><th>Cómo se haría</th><td>Con React, no con <code>document.startViewTransition</code> a mano (las navegaciones de Next ya son transiciones y React llama a la API por nosotros). Página: <code>&lt;ViewTransition enter="hg-page-in" exit="hg-page-out" default="none"&gt;</code> en <code>template.tsx</code> (se vuelve a montar en cada navegación). Cápsula: <code>&lt;ViewTransition name={`cap-${appid}`} share="hg-morph" default="none"&gt;</code> en la cápsula de la fila y en <code>HeroImage</code>. Barra lateral anclada con <code>view-transition-name</code> propio, <code>::view-transition { pointer-events: none }</code> y todo anulado con <code>prefers-reduced-motion</code>.</td></tr>
+    <tr><th>Navegadores</th><td><span class="ok-ink">Chrome/Edge 111+</span> y <span class="ok-ink">Safari 18+</span>; <span class="ok-ink">Firefox desde la 144</span> (octubre de 2025) para transiciones en el mismo documento. React usa además tipos y <code>view-transition-class</code>, más nuevos (Chromium 125+, Safari 18.2+; en Firefox, a comprobar al implementar). Sin soporte, se navega igual y sin animación: no se rompe nada.</td></tr>
+    <tr><th>Por qué la cápsula no vuela «gratis»</th><td><span class="ko-ink">1. La ficha tiene <code>loading.tsx</code></span>: Next precarga la ruta dinámica solo hasta el Loader, así que al pulsar se pinta primero el Loader y la ficha llega después. La docs lo dice: «If the destination suspends into a fallback first, no pair forms». En la práctica la cápsula casi nunca volaría (pruébalo en la demo con «Con el Loader de hoy»). Arreglo: que el esqueleto de la ficha ya tenga la imagen grande con el mismo nombre (sale del <code>appid</code> con <code>useParams</code> y la URL fija de Steam) y que la ficha real la sustituya en el sitio. Eso toca el elemento «Cargando», que va en el otro mockup.<br>
+      <span class="warn-ink">2. No es la misma imagen</span>: la fila usa <code>header.jpg</code> (460 × 215) y la ficha <code>library_hero.jpg</code> (1920 × 620). Vuela un rectángulo que cambia de proporción con un fundido cruzado entre dos fotos (con <code>object-fit: cover</code> se ve bien, pero no es «el mismo objeto»).<br>
+      <span class="warn-ink">3. Nombres únicos</span>: si dos elementos llevan el mismo <code>view-transition-name</code> la transición entera se cancela. Inicio puede tener el mismo juego en dos paneles: los nombres solo irían en la biblioteca (lista y cuadrícula) y en la ficha.<br>
+      <span class="warn-ink">4. La vuelta</span>: la biblioteca carga sus filas en el cliente (<code>useEffect</code>), así que al volver atrás las filas no están en el primer pintado y no hay vuelo de regreso; solo fundido.<br>
+      <span class="warn-ink">5. Convive mal con framer</span>: el <code>motion.div</code> de <code>template.tsx</code> empieza en <code>opacity: 0</code> justo cuando el navegador hace la foto de la página nueva. Si se hace B, <code>template.tsx</code> deja framer.</td></tr>
+    <tr><th>Coste</th><td>A: <b>una hora</b> (cambiar el <code>motion.div</code> por un <code>div</code> con clase y un keyframe en <code>globals.css</code>). B solo fundido: <b>medio día</b> y probar en Chrome, Safari y Firefox. Cápsula que vuela: <b>1–2 días</b> más, depende del esqueleto de la ficha, y con riesgo de casos raros (scroll largo en la biblioteca, cápsula fuera de pantalla, imagen que aún no ha cargado, doble clic durante la animación porque la capa de la transición no deja pulsar los elementos con nombre).</td></tr>
+    <tr><th>Recomendación</th><td><b>Ahora, A.</b> La cápsula que vuela, como <b>paso aparte y opcional</b> (una línea nueva en la checklist), después de que «Cargando» deje un esqueleto de la ficha con la imagen grande. Si se hace, que sea con <code>&lt;ViewTransition&gt;</code> de React, solo biblioteca → ficha, y con A como respaldo donde no haya soporte.</td></tr>
+  </table>
+</section>
+
+<section class="sec note" id="questions">
+  <h2>Preguntas para Diego</h2>
+  <ol class="qs">
+    <li><b>Forma de la 404: A (tarjeta con el logo) o B (página con atajos).</b> Recomiendo <b>A</b>: corta, igual que el error y que los errores de JUDI, y la barra lateral ya da todos los destinos.</li>
+    <li><b>Transición entre páginas: A (fundido de 200 ms en CSS) o B (View Transitions).</b> Recomiendo <b>A</b> ahora: más corta, sin doble movimiento, sin pantalla en blanco antes de hidratar y sin framer en cada navegación.</li>
+    <li><b>La cápsula que vuela</b> <span class="doc-tag doc-tag--opt">Opcional</span>: ¿la apunto como paso aparte en la checklist, después de «Cargando»? Recomiendo <b>sí, como paso aparte</b>; queda bonita, pero necesita el esqueleto de la ficha y 1–2 días, y en la mayoría de navegaciones hoy no se vería.</li>
+    <li><b>«¿Querías decir…?»</b> en la 404: compara la ruta pedida con las de la app (Inicio, Biblioteca, Bandeja, Logros, Wishlist, Estadísticas, JUDI, Ranking, Perfil). ¿Lo hacemos? Recomiendo <b>sí</b>: son unas 20 líneas, sin consultas, y arregla el caso más típico (una errata).</li>
+    <li><b>Texto del error</b>: «Si se repite, copia el código y avisa: con él se encuentra el fallo en los logs.» ¿A quién se avisa? ¿Pongo un enlace (correo, GitHub Issues) o lo dejamos genérico? Recomiendo <b>genérico</b> mientras HubGames sea para un grupo pequeño; si hay un canal, añado el enlace.</li>
+    <li><b>Fallo en el navegador (sin digest)</b>: enseño la ruta y la hora, y «Copiar» copia ruta, hora y navegador. No hay servicio que recoja esos errores (ni Sentry ni parecido). Recomiendo <b>así</b>, sin añadir un servicio nuevo; si quieres, más adelante una tabla <code>hubgames_client_errors</code> con el <code>useEffect</code> del <code>error.tsx</code>.</li>
+    <li><b>Juego que no existe</b>: ¿añado «Ver en Steam» (<code>store.steampowered.com/app/&lt;appid&gt;</code>) por si el juego es nuevo y aún no está en el catálogo? Recomiendo <b>no</b>: si no está en el catálogo, casi siempre es un número mal escrito y el enlace llevaría a la portada de Steam; mejor el buscador.</li>
+    <li><b>Código 404 de la ficha</b>: como la ficha tiene <code>loading.tsx</code>, cuando se llama a <code>notFound()</code> ya se ha empezado a enviar la página y la respuesta sale con código 200 (Next añade <code>noindex</code>, así que Google no la indexa). ¿Lo dejamos? Recomiendo <b>dejarlo</b>: el usuario ve lo mismo y no afecta al SEO. Las rutas que no existen sí dan 404 de verdad.</li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+  left: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+  right: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+  retry: '<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>',
+  copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  linkoff: '<path d="M9 17H7A5 5 0 0 1 7 7"/><path d="M15 7h2a5 5 0 0 1 4 8"/><line x1="8" x2="12" y1="12" y2="12"/><line x1="2" x2="22" y1="2" y2="22"/>',
+  code: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  ext: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isDark = () => document.documentElement.dataset.theme === 'dark';
+
+function mark(size = 22, mod = '') {
+  const w = Math.round(size * 120 / 64);
+  return `<svg class="hg-mark ${mod}" width="${w}" height="${size}" viewBox="3 28 120 64" fill="none" stroke-width="12" aria-hidden="true">
+    <path d="M10 36V84M48 36V84" stroke="currentColor" stroke-linecap="round"/>
+    <path d="M16 60H42" stroke="var(--surface-3)"/>
+    <path class="hg-mark__bar" d="M16 60H42" pathLength="100" stroke="var(--primary)"/>
+    <path d="M109.15 43.93A25 25 0 0 1 115 60" stroke="var(--surface-3)" stroke-linecap="round"/>
+    <path d="M109.15 43.93A25 25 0 1 0 115 60H92" stroke="var(--surface-3)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="hg-mark__g" d="M109.15 43.93A25 25 0 1 0 115 60H92" pathLength="100" stroke="var(--primary)" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+const logo = (size = 22) => `${mark(size)}<span class="hg-wordmark">Hub<span class="hg-wordmark__accent">Games</span></span>`;
+
+/* ── Juegos de la demo (cápsula header.jpg en la fila, library_hero.jpg en la ficha, como en la app) ── */
+const GAMES = [
+  { id: 1245620, name: 'ELDEN RING', studio: 'FromSoftware · Bandai Namco', h: 142, ach: '31 / 42', mc: 94, st: 'jugando', last: 'ayer' },
+  { id: 1145350, name: 'Hades II', studio: 'Supergiant Games', h: 38, ach: '24 / 49', mc: 95, st: 'jugando', last: 'hoy' },
+  { id: 1086940, name: "Baldur's Gate 3", studio: 'Larian Studios', h: 96, ach: '18 / 54', mc: 96, st: 'jugando', last: 'hace 3 días' },
+  { id: 367520, name: 'Hollow Knight', studio: 'Team Cherry', h: 27, ach: '19 / 63', mc: 87, st: 'pausado', last: 'hace 2 semanas' },
+  { id: 753640, name: 'Outer Wilds', studio: 'Mobius Digital · Annapurna Interactive', h: 22, ach: '31 / 31', mc: 85, st: 'completado', last: 'en agosto' },
+];
+const capUrl = (id) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`;
+const heroUrl = (id) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/library_hero.jpg`;
+const ST_LABEL = { jugando: 'Jugando', pausado: 'Pausado', completado: 'Completado' };
+
+/* ── Navegación ── */
+function sidebar({ guest = false, active = null } = {}) {
+  const link = (label, icon) => `<a href="#" class="nv-link${active === label ? ' active' : ''}">${ic(icon)}<span class="nv-link__label">${label}</span></a>`;
+  const groups = [`<div class="nv-group">${link('Inicio', 'home')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('Biblioteca', 'library')}${link('Logros', 'award')}${link('Wishlist', 'heart')}${link('Estadísticas', 'chart')}</div>`,
+    `<div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('JUDI', 'gamepad')}${link('Ranking', 'trophy')}</div>`];
+  const theme = `<div class="theme-toggle">${['sun', 'moon', 'monitor'].map((i, k) => `<span class="${(isDark() ? 1 : 0) === k ? 'on' : ''}">${ic(i)}</span>`).join('')}</div>`;
+  const account = guest
+    ? `<a href="#" class="nav-cta">${ic('login')}<span>Iniciar sesión</span></a>`
+    : `<a href="#" class="nv-account"><span class="nv-avatar">D</span><span class="nv-account__text"><span>diego</span><span class="nv-account__meta">Ver perfil</span></span></a>`;
+  return `<aside class="nv-side"><a href="#" class="nv-brand">${logo(22)}</a><span class="nv-search">${ic('search')}<span class="nv-search__label">Buscar juego</span><kbd class="nv-kbd">Ctrl + K</kbd></span><nav class="nv-menu">${groups.join('')}</nav><div class="nv-foot">${theme}${account}</div></aside>`;
+}
+function mobileChrome(body, { guest = false, active = null } = {}) {
+  const tabs = [['Inicio', 'home'], ['Biblioteca', 'library'], ['Logros', 'award'], ['JUDI', 'gamepad'], ['Ranking', 'trophy'], ['Perfil', 'user']];
+  const tabbar = tabs.map(([l, i]) => `<a href="#" class="m-tab ${l === active ? 'active' : ''}"><span class="m-tab__icon">${ic(i)}</span><span>${l}</span></a>`).join('');
+  const right = guest ? `<span class="m-icon">${ic('login')}</span>` : `<span class="m-icon"><span class="nv-avatar">D</span></span>`;
+  return `<header class="m-top"><a href="#" class="nv-brand">${logo(22)}</a><div class="m-right"><span class="m-icon">${ic('search')}</span><span class="m-icon">${ic(isDark() ? 'moon' : 'sun')}</span>${right}</div></header><div class="m-page">${body}</div><nav class="m-tabbar">${tabbar}</nav>`;
+}
+
+/* ── 404 ── */
+const NF = {
+  typo: { path: '/bibloteca', suggest: ['Biblioteca', '/biblioteca', 'library'] },
+  long: { path: '/logros/historial/2019/temporada-de-invierno/logros-perdidos-de-la-beta' },
+  guest: { path: '/estadisticas/resumen/2031' },
+};
+function notFoundCard(c, mob = false) {
+  if (c === 'game') {
+    return `<section class="es" aria-labelledby="t-${c}">
+      <span class="es-mark hg-enter" style="--i:0">${mark(mob ? 52 : 64, 'hg-mark--lost')}</span>
+      <span class="hg-chip hg-tint neutral hg-pop-in" style="--i:0">${ic('linkoff')}Error 404</span>
+      <h1 class="es__title hg-enter" style="--i:1" id="t-${c}">No encontramos este juego</h1>
+      <p class="es__text hg-enter" style="--i:2">No hay ningún juego de Steam con el número <b>99999999</b> en el catálogo. Puede que el enlace esté mal o que el juego se haya retirado de la tienda.</p>
+      <div class="es__acts hg-enter" style="--i:3"><button class="btn btn--primary" type="button">${ic('search')}Buscar un juego <kbd>Ctrl + K</kbd></button><a href="#" class="btn btn--secondary">${ic('library')}Ir a la Biblioteca</a></div>
+    </section>`;
+  }
+  const d = NF[c];
+  const guest = c === 'guest';
+  const sug = d.suggest ? `<a href="#" class="es-suggest hg-tint cobalt hg-enter" style="--i:3"><span class="es-suggest__icon">${ic(d.suggest[2])}</span><span class="es-suggest__text">¿Querías decir <b>${d.suggest[0]}</b>?<small>${d.suggest[1]}</small></span>${ic('right', 'i-go')}</a>` : '';
+  const acts = guest
+    ? `<a href="#" class="btn btn--primary">${ic('home')}Ir a Inicio</a><a href="#" class="btn btn--secondary">${ic('login')}Iniciar sesión</a>`
+    : `<a href="#" class="btn btn--primary">${ic('home')}Ir a Inicio</a><a href="#" class="btn btn--secondary">${ic('library')}Biblioteca</a><button class="btn btn--ghost" type="button">${ic('search')}Buscar un juego <kbd>Ctrl + K</kbd></button>`;
+  return `<section class="es" aria-labelledby="t-${c}">
+    <span class="es-mark hg-enter" style="--i:0">${mark(mob ? 52 : 64, 'hg-mark--lost')}</span>
+    <span class="hg-chip hg-tint neutral hg-pop-in" style="--i:0">${ic('linkoff')}Error 404</span>
+    <h1 class="es__title hg-enter" style="--i:1" id="t-${c}">Esta página no existe</h1>
+    <p class="es__text hg-enter" style="--i:2">Puede que el enlace esté mal escrito o que la página se haya movido.</p>
+    <span class="es-path hg-enter" style="--i:2" title="${d.path}">hubgames<b>${d.path}</b></span>
+    ${sug}
+    <div class="es__acts hg-enter" style="--i:4">${acts}</div>
+  </section>`;
+}
+function notFoundB(c, cols = false) {
+  const d = NF[c] || { path: '/juego/99999999' };
+  const tile = (icon, t, s) => `<a href="#" class="esb-tile hg-enter" style="--i:${tile.n++}">${ic(icon)}<b>${t}</b><span>${s}</span></a>`;
+  tile.n = 2;
+  return `<div class="esb">
+    <header class="esb__head hg-enter" style="--i:0">${mark(cols ? 44 : 56, 'hg-mark--lost')}<div><span class="hg-chip hg-tint neutral">${ic('linkoff')}Error 404</span><h1 class="page-title">Esta página no existe</h1><p class="page-subtitle">No hay nada en <b>${d.path}</b>. Puedes seguir por aquí:</p></div></header>
+    <div class="esb__grid">${tile('home', 'Inicio', 'Lo que juegas y qué jugar hoy')}${tile('library', 'Biblioteca', '5 jugando · 12 en la bandeja')}${tile('award', 'Logros', '1.204 conseguidos')}${tile('search', 'Buscar un juego', 'Ctrl + K')}</div>
+  </div>`;
+}
+
+/* ── Error ── */
+const DIGEST = '2913648503';
+function errorCard(c, mob = false, { global = false } = {}) {
+  const client = c === 'client';
+  const label = client ? 'Ruta y hora' : 'Código del error';
+  const value = client ? '/biblioteca · hoy a las 18:42' : DIGEST;
+  const copyText = client ? '/biblioteca · 2026-10-29 18:42 · Chrome 141 · Windows' : `digest ${DIGEST} · /wishlist · 2026-10-29 18:42`;
+  const text = global
+    ? 'HubGames no ha podido arrancar. Prueba otra vez; si se repite, copia el código y avisa: con él se encuentra el fallo en los logs.'
+    : client
+      ? 'Algo se ha roto al pintar esta página en tu navegador. Prueba otra vez; si se repite, copia estos datos y avisa.'
+      : 'No es cosa tuya. Prueba otra vez; si se repite, copia el código y avisa: con él se encuentra el fallo en los logs.';
+  const dev = c === 'dev' ? `<details class="es-dev hg-enter" style="--i:4" open><summary>${ic('code')}Detalle <span class="doc-tag">Solo en desarrollo</span></summary><pre>Error: relation "hubgames_wishlist" does not exist
+    at WishlistPage (src/app/wishlist/page.tsx:68:25)
+    at async Promise.all (index 0)</pre></details>` : '';
+  const second = global
+    ? `<a href="#" class="btn btn--secondary">${ic('home')}Ir a Inicio</a>`
+    : `<a href="#" class="btn btn--secondary">${ic('home')}Ir a Inicio</a>`;
+  return `<section class="es" aria-labelledby="te-${c}" data-err="${c}">
+    <span class="es-mark hg-enter" style="--i:0">${mark(mob ? 52 : 64, 'hg-mark--broken')}</span>
+    <span class="hg-chip hg-tint ko hg-pop-in" style="--i:0">${ic('alert')}Algo ha fallado</span>
+    <h1 class="es__title hg-enter" style="--i:1" id="te-${c}">${global ? 'No se ha podido abrir HubGames' : 'No se ha podido cargar esta página'}</h1>
+    <p class="es__text hg-enter" style="--i:2">${text}</p>
+    <div class="es__acts hg-enter" style="--i:3"><button class="btn btn--primary js-retry" type="button">${ic('retry')}Reintentar</button>${second}</div>
+    <div class="es-again-slot"></div>
+    <div class="es-code hg-enter" style="--i:4"><span class="es-code__text"><span class="es-code__label">${label}</span><span class="es-code__value">${value}</span></span><button class="es-code__copy js-copy" type="button" data-copy="${copyText}">${ic('copy')}<span>Copiar</span></button></div>
+    ${dev}
+  </section>`;
+}
+
+/* ── Lo de hoy ── */
+const todayNotFound = () => `<div class="next404"><div><h1>404</h1><h2>This page could not be found.</h2></div></div>`;
+const todayError = () => `<div class="nexterr"><div><h2>Application error: a server-side exception has occurred while loading hub-games.vercel.app (see the server logs for more information).</h2><p>Digest: ${DIGEST}</p></div></div>`;
+
+/* ── Marcos ── */
+const VAR = { v: 'A', tr: 'A', fly: true, load: 'cached' };
+const FR = {};
+function mk(id, o) { FR[id] = { id, ...o }; }
+function body(st) {
+  if (st.kind === 'nf') {
+    if (st.today) return todayNotFound();
+    const v = st.forceV || VAR.v;
+    if (v === 'B') return notFoundB(st.c, st.layout === 'col');
+    return `<div class="es-wrap">${notFoundCard(st.c, st.layout === 'mob')}</div>`;
+  }
+  if (st.kind === 'err') {
+    if (st.today) return todayError();
+    if (st.ok) return fakeLibrary(true);
+    return `<div class="es-wrap">${errorCard(st.c, st.layout === 'mob')}</div>`;
+  }
+  return '';
+}
+function renderFrame(id, anim = false) {
+  const st = FR[id]; const el = document.getElementById(id); if (!el) return;
+  el.classList.toggle('anim', anim && !rm());
+  if (st.kind === 'global') {
+    el.innerHTML = `<div class="es-global"><span class="nv-brand hg-enter">${logo(24)}</span>${errorCard('server', st.layout === 'mob', { global: true })}</div>`;
+    bindCards(el, st); return;
+  }
+  const guest = st.c === 'guest';
+  const b = body(st);
+  if (st.today && st.layout === 'col') el.innerHTML = b;
+  else if (st.layout === 'desk') el.innerHTML = `${sidebar({ guest })}<div class="page"><div class="page-in">${b}</div></div>`;
+  else if (st.layout === 'mob') el.innerHTML = mobileChrome(b, { guest });
+  else el.innerHTML = `<div class="col-frame">${b}</div>`;
+  bindCards(el, st);
+}
+function bindCards(el, st) {
+  el.querySelectorAll('.js-copy').forEach((b) => b.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(b.dataset.copy); } catch (e) { /* file:// sin portapapeles: da igual en el mockup */ }
+    b.classList.add('is-done'); b.innerHTML = `${ic('check')}<span>Copiado</span>`;
+    clearTimeout(b._t); b._t = setTimeout(() => { b.classList.remove('is-done'); b.innerHTML = `${ic('copy')}<span>Copiar</span>`; }, 1500);
+  }));
+  el.querySelectorAll('.js-retry').forEach((b) => b.addEventListener('click', () => {
+    b.classList.add('is-busy'); b.lastChild.textContent = 'Reintentando…';
+    setTimeout(() => {
+      if (st.kind === 'err' && st.c === 'server') { st.ok = true; renderFrame(st.id, true); el.querySelector('.page-in, .m-page')?.classList.add('fx-swap'); setTimeout(() => { st.ok = false; }, 0); return; }
+      b.classList.remove('is-busy'); b.lastChild.textContent = 'Reintentar';
+      const card = b.closest('.es');
+      const slot = card.querySelector('.es-again-slot');
+      slot.innerHTML = `<p class="es-again hg-tint ko fx-swap">${ic('alert')}<span>Sigue fallando. Prueba a <a href="#">recargar la página</a> o vuelve en un rato.</span></p>`;
+      if (!rm()) { card.classList.remove('hg-shake'); void card.offsetWidth; card.classList.add('hg-shake'); }
+    }, 750);
+  }));
+}
+function renderAll(anim = true) { Object.keys(FR).forEach((id) => renderFrame(id, anim)); renderDemo('t-desk', anim); renderDemo('t-mob', anim); }
+
+mk('f-404', { kind: 'nf', layout: 'desk', c: 'typo' });
+mk('f-err', { kind: 'err', layout: 'desk', c: 'server' });
+
+// Variantes y lo de hoy
+const VARS = [
+  ['v-A', 'A', 'Tarjeta con el logo', true, { kind: 'nf', layout: 'col', c: 'typo', forceV: 'A' }, 'La ruta, la sugerencia y tres salidas. La misma forma que el error.'],
+  ['v-B', 'B', 'Página con atajos', false, { kind: 'nf', layout: 'col', c: 'typo', forceV: 'B' }, 'Título de página y cuatro destinos. Repite la barra lateral y no comparte forma con el error.'],
+  ['v-t404', '·', 'Hoy · 404', false, { kind: 'nf', layout: 'col', today: true }, 'La de Next: en inglés, sin salidas y con fondo blanco aunque uses el tema oscuro (sigue al sistema).'],
+  ['v-terr', '·', 'Hoy · error del servidor', false, { kind: 'err', layout: 'col', today: true }, 'Sustituye la pantalla entera: sin barra lateral, sin reintentar, en inglés.'],
+];
+document.getElementById('variants').innerHTML = VARS.map(([id, n, t, rec, , cap]) => `<div><div class="vlabel"><b>${n}</b>${t}${rec ? '<span class="doc-tag doc-tag--new">Recomendada</span>' : ''}</div><div class="frame w-col" style="width:640px" id="${id}"></div><p class="frame-cap">${cap}</p></div>`).join('');
+VARS.forEach(([id, , , , o]) => mk(id, o));
+
+mk('f-global', { kind: 'global', layout: 'desk' });
+mk('f-global-m', { kind: 'global', layout: 'mob' });
+
+const MOBS = [
+  ['m-typo', { kind: 'nf', layout: 'mob', c: 'typo' }, '404 · ruta mal escrita', 'Con la sugerencia; la ruta se recorta si no cabe.'],
+  ['m-game', { kind: 'nf', layout: 'mob', c: 'game' }, '404 · juego que no existe', 'El buscador como salida principal.'],
+  ['m-err', { kind: 'err', layout: 'mob', c: 'server' }, 'Error del servidor', 'Reintentar y el código, a mano del pulgar.'],
+];
+document.getElementById('mobiles').innerHTML = MOBS.map(([id, , t, d]) => `<div><div class="vlabel">${t}</div><div class="frame w-mob" style="width:390px;min-height:844px" id="${id}"></div><p class="frame-cap">${d}</p></div>`).join('');
+MOBS.forEach(([id, o]) => mk(id, o));
+
+/* ══ Demo de transición ══ */
+const DEMO = { 't-desk': { view: 'lib', game: null, layout: 'desk' }, 't-mob': { view: 'lib', game: null, layout: 'mob' } };
+function fakeLibrary(withRows = true) {
+  const rows = GAMES.map((g, i) => `<li class="hg-row st-${g.st} hg-enter" style="--i:${i + 1}" tabindex="0" role="link" data-game="${i}" aria-label="Abrir ${g.name}">
+      <span class="hg-row__cover" data-cap="${i}"><img src="${capUrl(g.id)}" alt="" loading="lazy"></span>
+      <span class="hg-row__main"><span class="hg-row__name">${g.name}</span><span class="hg-row__meta">${g.h} h · logros ${g.ach} · última partida ${g.last}</span></span>
+      <span class="hg-chip hg-tint st-${g.st}">${ic(g.st === 'completado' ? 'check' : 'play')}${ST_LABEL[g.st]}</span>
+    </li>`).join('');
+  return `<div class="dv-lib">
+    <header class="page-head hg-enter" style="--i:0"><div><h1 class="page-title">Biblioteca</h1><p class="page-subtitle">Tus juegos de Steam, por listas.</p></div></header>
+    <div class="dv-seg hg-enter" style="--i:0"><span class="hg-chip hg-tint st-jugando">${ic('play')}Jugando <b>3</b></span><span class="hg-chip hg-tint st-pausado">Pausado <b>1</b></span><span class="hg-chip hg-tint st-completado">${ic('check')}Completado <b>1</b></span></div>
+    ${withRows ? `<ul class="hg-rows">${rows}</ul>` : ''}
+  </div>`;
+}
+function fakeGame(g) {
+  return `<div class="gp">
+    <button class="gp-back js-back" type="button">${ic('left')}Biblioteca</button>
+    <span class="gp-hero" data-hero><img src="${heroUrl(g.id)}" alt="" onerror="this.onerror=null;this.src='${capUrl(g.id)}'"></span>
+    <div class="gp-headrow hg-enter" style="--i:0"><div><h1 class="gp-title">${g.name}</h1><p class="gp-studio">${g.studio}</p></div>
+      <div class="gp-acts"><span class="hg-chip hg-tint st-${g.st}">${ic(g.st === 'completado' ? 'check' : 'play')}${ST_LABEL[g.st]}</span><a href="#" class="btn btn--secondary">${ic('ext')}Ver en Steam</a></div></div>
+    <div class="gp-tiles">
+      <div class="hg-tile hg-enter st-jugando" style="--i:1"><span class="hg-tile__label">Horas</span><span class="hg-tile__value">${g.h} h</span></div>
+      <div class="hg-tile hg-enter" style="--i:2"><span class="hg-tile__label">Logros</span><span class="hg-tile__value">${g.ach}</span></div>
+      <div class="hg-tile hg-enter" style="--i:3;--c:var(--sc-top)"><span class="hg-tile__label">Metacritic</span><span class="hg-tile__value">${g.mc}</span></div>
+      <div class="hg-tile hg-enter" style="--i:4"><span class="hg-tile__label">Última partida</span><span class="hg-tile__value" style="font-size:1.125rem;line-height:2rem">${g.last}</span></div>
+    </div>
+    <div class="gp-block hg-enter" style="--i:5"></div>
+  </div>`;
+}
+function fakeSkeleton(g) {
+  // El esqueleto de la ficha con la imagen grande ya puesta (sale del appid), para que la cápsula tenga dónde aterrizar
+  return `<div class="sk"><span class="sk-bar" style="width:90px"></span><span class="sk-hero" data-hero><img src="${capUrl(g.id)}" alt=""></span><span class="sk-bar" style="width:40%;height:26px"></span><div class="sk-tiles"><span></span><span></span><span></span><span></span></div></div>`;
+}
+const fakeLoader = () => `<div class="ld" role="status">${mark(40, 'hg-mark--loop')}<span>Cargando juego</span></div>`;
+
+function demoInner(id) {
+  const d = DEMO[id]; const g = GAMES[d.game];
+  if (d.view === 'game') return fakeGame(g);
+  if (d.view === 'loader') return fakeLoader();
+  if (d.view === 'skeleton') return fakeSkeleton(g);
+  return fakeLibrary();
+}
+function renderDemo(id, anim = false) {
+  const d = DEMO[id]; const el = document.getElementById(id);
+  const active = d.view === 'lib' ? 'Biblioteca' : 'Biblioteca';
+  const view = `<div class="dv" data-dv>${demoInner(id)}</div>`;
+  if (d.layout === 'desk') el.innerHTML = `${sidebar({ active })}<div class="page"><div class="page-in">${view}</div></div>`;
+  else el.innerHTML = mobileChrome(view, { active });
+  el.classList.toggle('anim', anim && !rm());
+  bindDemo(id);
+}
+function swapView(id) {
+  const el = document.getElementById(id);
+  const dv = el.querySelector('[data-dv]');
+  dv.innerHTML = demoInner(id);
+  bindDemo(id);
+  return dv;
+}
+function bindDemo(id) {
+  const el = document.getElementById(id);
+  el.querySelectorAll('[data-game]').forEach((r) => {
+    const open = () => go(id, 'game', +r.dataset.game);
+    r.addEventListener('click', open);
+    r.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); });
+  });
+  el.querySelectorAll('.js-back').forEach((b) => b.addEventListener('click', () => go(id, 'lib')));
+}
+const canVT = () => typeof document.startViewTransition === 'function';
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+let busy = false;
+
+async function go(id, to, gi) {
+  if (busy) return;
+  const d = DEMO[id]; const el = document.getElementById(id);
+  const useVT = VAR.tr === 'B' && canVT() && !rm();
+  const pageName = `pv-${id}`, capName = `cap-${id}`;
+  el.classList.add('anim');
+  if (rm()) el.classList.remove('anim');
+
+  if (!useVT) {
+    // Hoy y A: la página nueva entra con la clase de template.tsx (y su .hg-enter de siempre)
+    if (to === 'game') { d.game = gi; d.view = VAR.load === 'cached' ? 'game' : VAR.load; }
+    else d.view = 'lib';
+    const dv = swapView(id); pageAnim(dv);
+    if (d.view === 'loader' || d.view === 'skeleton') { busy = true; await wait(900); d.view = 'game'; const dv2 = swapView(id); dv2.classList.add('fx-swap'); busy = false; }
+    return;
+  }
+
+  // B · View Transitions. La vista entera se funde; la cápsula lleva nombre solo si vuela y si tiene pareja.
+  busy = true;
+  const dv = el.querySelector('[data-dv]');
+  dv.style.viewTransitionName = pageName;
+  const fly = VAR.fly;
+  if (to === 'game') {
+    const cap = el.querySelector(`[data-cap="${gi}"]`);
+    if (fly && cap) cap.style.viewTransitionName = capName;
+    d.game = gi;
+    d.view = VAR.load === 'cached' ? 'game' : VAR.load;
+  } else {
+    const hero = el.querySelector('[data-hero]');
+    if (fly && hero) hero.style.viewTransitionName = capName;
+    d.view = 'lib';
+  }
+  const t = document.startViewTransition(() => {
+    const ndv = swapView(id);
+    ndv.style.viewTransitionName = pageName;
+    if (fly) {
+      // Pareja: en la ficha, la imagen grande (o la del esqueleto); al volver, la cápsula de la fila. Con el Loader no hay pareja.
+      const target = to === 'game' ? ndv.querySelector('[data-hero]') : ndv.querySelector(`[data-cap="${d.game}"]`);
+      if (target) target.style.viewTransitionName = capName;
+    }
+  });
+  try { await t.finished; } catch (e) { /* transición saltada */ }
+  el.querySelectorAll('[style*="view-transition-name"]').forEach((n) => { n.style.viewTransitionName = ''; });
+  if (d.view === 'loader' || d.view === 'skeleton') {
+    await wait(800);
+    const prevHero = el.querySelector('[data-hero]');
+    d.view = 'game';
+    if (fly && prevHero) prevHero.style.viewTransitionName = capName;
+    const ndv0 = el.querySelector('[data-dv]'); ndv0.style.viewTransitionName = pageName;
+    const t2 = document.startViewTransition(() => {
+      const ndv = swapView(id); ndv.style.viewTransitionName = pageName;
+      if (fly) { const h = ndv.querySelector('[data-hero]'); if (h && prevHero) h.style.viewTransitionName = capName; }
+    });
+    try { await t2.finished; } catch (e) { /* */ }
+    el.querySelectorAll('[style*="view-transition-name"]').forEach((n) => { n.style.viewTransitionName = ''; });
+  }
+  busy = false;
+}
+function pageAnim(dv) {
+  if (rm()) return;
+  dv.classList.remove('pg-today', 'pg-a'); void dv.offsetWidth;
+  dv.classList.add(VAR.tr === 'today' ? 'pg-today' : 'pg-a');
+}
+
+/* Línea de tiempo */
+function timeline() {
+  const S = 600; // ms que caben en la pista
+  const seg = (cls, from, dur, label) => `<span class="tl-seg ${cls}" style="left:${from / S * 100}%;width:${dur / S * 100}%">${label}</span>`;
+  const rows = [
+    ['Hoy', seg('pgn', 0, 400, 'página · fundido + 8 px · 400 ms') + ''],
+    ['', seg('inner', 0, 320 + 120, 'bloques .hg-enter · 320 ms + escalonado')],
+    ['A (recomendada)', seg('pgn', 0, 200, 'fundido · 200 ms')],
+    ['', seg('inner', 0, 320 + 120, 'bloques .hg-enter · 320 ms + escalonado')],
+    ['B · View Transitions', seg('out', 0, 100, 'sale 100') + seg('pgn', 60, 200, 'entra 200')],
+    ['', seg('cap', 0, 300, 'cápsula · 300 ms')],
+  ];
+  document.getElementById('timeline').innerHTML = rows.map(([l, s]) => `<div class="tl-row"><span>${l}</span><div class="tl-track">${s}</div></div>`).join('')
+    + `<div class="tl-scale"><span></span><div><span>0</span><span>150</span><span>300</span><span>450</span><span>600 ms</span></div></div>`;
+}
+
+/* ── Controles ── */
+function pressGroup(sel, btn) { document.querySelectorAll(sel).forEach((x) => x.setAttribute('aria-pressed', String(x === btn))); }
+document.querySelectorAll('#t-404 [data-case]').forEach((b) => b.addEventListener('click', () => { pressGroup('#t-404 [data-case]', b); FR['f-404'].c = b.dataset.case; renderFrame('f-404', true); }));
+document.querySelectorAll('#t-err [data-case]').forEach((b) => b.addEventListener('click', () => { pressGroup('#t-err [data-case]', b); FR['f-err'].c = b.dataset.case; FR['f-err'].ok = false; renderFrame('f-err', true); }));
+document.querySelectorAll('[data-var]').forEach((b) => b.addEventListener('click', () => {
+  VAR[b.dataset.var] = b.dataset.val; pressGroup(`[data-var="${b.dataset.var}"]`, b);
+  ['f-404', 'm-typo', 'm-game'].forEach((id) => renderFrame(id, true));
+}));
+const flyBtn = document.getElementById('fly-btn');
+document.querySelectorAll('[data-tr]').forEach((b) => b.addEventListener('click', () => {
+  VAR.tr = b.dataset.tr; pressGroup('[data-tr]', b);
+  flyBtn.disabled = VAR.tr !== 'B';
+  ['t-desk', 't-mob'].forEach((id) => { DEMO[id].view = 'lib'; renderDemo(id); });
+}));
+flyBtn.addEventListener('click', () => { VAR.fly = !VAR.fly; flyBtn.setAttribute('aria-pressed', String(VAR.fly)); flyBtn.textContent = `Vuela: ${VAR.fly ? 'sí' : 'no'}`; });
+document.querySelectorAll('[data-load]').forEach((b) => b.addEventListener('click', () => { VAR.load = b.dataset.load; pressGroup('[data-load]', b); }));
+document.getElementById('vt-support').innerHTML = canVT()
+  ? 'Este navegador tiene View Transitions: la variante B es la de verdad (<code>document.startViewTransition</code>, lo mismo que hace React por debajo).'
+  : '<b>Este navegador no tiene View Transitions</b>: en B verás el cambio sin animación, que es justo lo que pasaría en la app.';
+
+function setTheme(t) {
+  const html = document.documentElement;
+  if (!rm()) { html.classList.add('theme-anim'); setTimeout(() => html.classList.remove('theme-anim'), 320); }
+  html.dataset.theme = t;
+  const btn = document.getElementById('theme-btn'); btn.setAttribute('aria-pressed', String(t === 'dark')); btn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro';
+  Object.keys(FR).forEach((id) => renderFrame(id, false));
+  ['t-desk', 't-mob'].forEach((id) => renderDemo(id, false));
+}
+document.getElementById('theme-btn').addEventListener('click', () => setTheme(isDark() ? 'light' : 'dark'));
+document.getElementById('rm-btn').addEventListener('click', (e) => {
+  const on = document.documentElement.classList.toggle('rm');
+  e.currentTarget.setAttribute('aria-pressed', String(on));
+  e.currentTarget.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`;
+});
+document.getElementById('replay-btn').addEventListener('click', () => renderAll(true));
+
+timeline();
+renderAll(true);
+</script>
+</body>
+</html>
