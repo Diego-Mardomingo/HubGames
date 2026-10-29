@@ -90,7 +90,8 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
 
 - [x] **Biblioteca** — `/biblioteca` · `src/app/biblioteca/page.tsx`, `biblioteca.css`
 - [x] **Ficha de juego** — `/juego/[appid]` · `src/app/juego/[appid]/page.tsx`, `GamePanel.tsx`, `GameContext.tsx`, `GameAchievementsSummary.tsx`, `Media.tsx`, `juego.css`
-- [ ] **Biblioteca y Ficha: pase de microanimaciones** — el color ya está; falta la capa de movimiento. Se hace **al final**, cuando ya existan las animaciones compartidas creadas por el resto de páginas.
+- [ ] 🎨 **Biblioteca y Ficha: pase de microanimaciones** — el color ya está; falta la capa de movimiento. Se hace **al final**, cuando ya existan las animaciones compartidas creadas por el resto de páginas.
+  - Mockup: `docs/mockups/biblioteca-ficha-movimiento.html` (guardado A · al momento con «Deshacer», recomendada; B · espera al servidor. Salida de fila A · plegado CSS, recomendada; B · layout de framer. Selector de la ficha A · fondo deslizante, recomendada; B · fundido).
   - Animación: indicador activo que se desliza por el raíl, filas que se reordenan y salen de la lista al cambiar de estado, chip que cambia de color, corazón y ∞ que reaccionan al marcar, contadores del raíl que se actualizan con un salto de número; en la ficha, tiles que cuentan, anillo de logros y barra de objetivo que se rellenan, selector de estado con fondo deslizante y celebración al completar.
 
 ### 1. Marco común
@@ -257,7 +258,7 @@ Queremos que la web **se sienta viva al navegar**. Hasta ahora la regla era «mo
 - [x] **Transición entre páginas** — `src/app/template.tsx` (hoy: fundido + leve desplazamiento de 0,4 s) · revisar duración y estilo para que encaje con el resto de microanimaciones; valorar View Transitions para que la cápsula de un juego «vuele» de la fila de la biblioteca a la imagen grande de la ficha.
   - Mockup: `docs/mockups/estados-error-transicion.html` (A · fundido CSS de 200 ms sin framer, recomendada; B · View Transitions). El vuelo de la cápsula, como paso opcional aparte.
   - Hecho en la rama `Diego-Mardomingo/rediseno-estados-error`, commit `31b38bc` (variante A). `template.tsx` pasa a un `div.hg-page` con un fundido de 200 ms (`hg-page-in` en `globals.css`); sale framer de la transición.
-- [ ] **Opcional · la cápsula que vuela de la biblioteca a la ficha** — va **después de «Cargando»**: necesita que el esqueleto de la ficha (`juego/[appid]/loading.tsx`) ya tenga la imagen grande con el mismo nombre que la cápsula; si no, la ficha llega tras el Loader y no hay pareja que animar.
+- [ ] ~~**Opcional · la cápsula que vuela de la biblioteca a la ficha**~~ — **Descartado por Diego** (imágenes distintas, sin vuelo de vuelta y 1–2 días para un efecto no esencial; se queda el fundido de `template.tsx`). Iba **después de «Cargando»**: necesita que el esqueleto de la ficha (`juego/[appid]/loading.tsx`) ya tenga la imagen grande con el mismo nombre que la cápsula; si no, la ficha llega tras el Loader y no hay pareja que animar.
   - Con `<ViewTransition name={`cap-${appid}`} share="…" default="none">` de React (Next 16.4 lo trae sin flag) en la cápsula de la biblioteca (lista y cuadrícula) y en `HeroImage`; solo ahí, porque un nombre repetido en la página cancela la transición. Barra lateral anclada, `::view-transition { pointer-events: none }` y nada con `prefers-reduced-motion`. El fundido de `template.tsx` queda como respaldo donde no haya soporte.
   - Ojo: la fila usa `header.jpg` y la ficha `library_hero.jpg` (vuela con fundido cruzado entre las dos); al volver atrás no hay vuelo porque la biblioteca carga sus filas en el cliente. Estimado: 1–2 días. Detalle en la sección «View Transitions» de `docs/mockups/estados-error-transicion.html`.
 

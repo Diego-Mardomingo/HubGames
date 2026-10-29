@@ -1,0 +1,1625 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Biblioteca y Ficha: pase de microanimaciones · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --rar-comun: #8a8f98; --rar-poco: #2e9e5b; --rar-rara: #2f6fe0; --rar-epica: #8b4fd8; --rar-leg: #c98a0b; --rar-ink: 62%;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-completado: #1a7743;
+  --st-abandonado: #c7243b; --st-descartado: #6b7280; --st-yajugado: #5c5b06; --st-otros: #931f8f; --st-rejugable: #9c3c08;
+  --st-favorito: #c2255c; --st-sinfinal: #6741d9;
+  --on-done: #ffffff;
+  --sc-top: #1a7743; --sc-good: #4d7c0f; --sc-mid: #8e5e18; --sc-bad: #c7243b;
+  --deal: #f5c400; --deal-foreground: #2b2100;
+  --tint: 12%;
+  --scrim: rgba(10, 12, 16, 0.55);
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --rar-comun: #9aa0aa; --rar-poco: #4cc97e; --rar-rara: #5b93ff; --rar-epica: #b07cff; --rar-leg: #f2b53a; --rar-ink: 100%;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-completado: #4cc97e;
+  --st-abandonado: #f26b7e; --st-descartado: #8a919e; --st-yajugado: #d2cf5c; --st-otros: #eb84f8; --st-rejugable: #ff9a5c;
+  --st-favorito: #f783ac; --st-sinfinal: #b197fc;
+  --on-done: #0b1f13;
+  --sc-top: #4cc97e; --sc-good: #a9d15b; --sc-mid: #f2b53a; --sc-bad: #f26b7e;
+  --deal: #ffd43b; --deal-foreground: #221a00;
+  --tint: 14%;
+  --scrim: rgba(0, 0, 0, 0.65);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button, select { font-family: inherit; color: inherit; cursor: pointer; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after, html.theme-anim body {
+  transition: background-color .3s var(--ease-out), color .3s var(--ease-out), border-color .3s var(--ease-out), fill .3s, stroke .3s, box-shadow .3s var(--ease-out) !important;
+}
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 10px 32px; background: var(--background); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.doc-group { display: inline-flex; align-items: center; gap: 4px; padding-right: 8px; margin-right: 2px; border-right: 1px solid var(--border); }
+.doc-group > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.8125rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.doc-btn--sm { height: 30px; padding: 0 9px; font-size: .78125rem; }
+.doc-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: .71875rem; font-weight: 700; vertical-align: 2px; white-space: nowrap; }
+.doc-tag--new { background: var(--primary-glow); color: var(--primary); }
+.doc-tag--ok { background: var(--success-glow); color: var(--success); }
+.doc-tag--warn { background: color-mix(in srgb, var(--warning) 14%, transparent); color: color-mix(in srgb, var(--warning) 80%, var(--foreground)); }
+.note { max-width: 1120px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 20px 0 4px; font-size: 0.9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.note table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: .8125rem; }
+.note th, .note td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.note th { color: var(--muted); font-weight: 600; }
+.qs li { margin: 10px 0; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 120ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: clip; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: 0.8125rem; max-width: 60ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.grid-frames { display: grid; grid-template-columns: repeat(2, 600px); gap: 24px; align-items: start; }
+.vlabel { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.875rem; font-weight: 700; }
+.vlabel b { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 7px; background: var(--surface-2); }
+.tests { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 0; }
+.tests > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.kk { display: inline-block; padding: 0 5px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface-2); font-size: .75rem; font-family: inherit; }
+
+/* ══ Navegación (ya implementada: src/styles/nav.css), versión reducida ══ */
+.nv-side { position: absolute; inset: 0 auto 0 0; z-index: 5; width: 232px; display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 0.875rem 1rem; border-right: 1px solid var(--border); background: var(--background); }
+.nv-brand { display: inline-flex; align-items: center; gap: .5rem; padding: .25rem .5rem; font-weight: 700; font-size: 1.0625rem; letter-spacing: -.02em; }
+.nv-brand i { font-style: normal; color: var(--primary); }
+.nv-search { display: flex; align-items: center; gap: .5rem; height: 38px; padding: 0 .5rem 0 .75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: .875rem; }
+.nv-search span { flex: 1; }
+.nv-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); font-size: .6875rem; white-space: nowrap; }
+.nv-group { display: flex; flex-direction: column; gap: 2px; }
+.nv-group__title { margin: 0; padding: 0 .75rem .25rem; color: var(--muted); font-size: .75rem; font-weight: 600; }
+.nv-link { position: relative; display: flex; align-items: center; gap: .75rem; height: 40px; padding: 0 .5rem 0 .75rem; border-radius: var(--radius-sm); color: var(--muted); white-space: nowrap; font-weight: 500; font-size: .9375rem; }
+.nv-link > .i { font-size: 18px; }
+.nv-link span { flex: 1; }
+.nv-link.active { color: var(--foreground); font-weight: 600; background: var(--surface); box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.nv-link.active > .i { color: var(--primary); }
+.nav-ind { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px 0 5px; border-radius: 999px; font-size: .71875rem; font-weight: 700; flex: none !important; }
+.nav-ind .i { font-size: 11px; }
+.nav-ind.st-bandeja { outline: 1px dashed color-mix(in srgb, var(--c) 60%, transparent); outline-offset: -1px; }
+.m-top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 .75rem; background: var(--background); border-bottom: 1px solid var(--border); }
+.m-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); color: var(--muted); font-size: 19px; }
+.m-tabbar { position: absolute; inset: auto 0 0 0; z-index: 6; display: flex; padding: 6px 6px 22px; background: var(--surface); border-top: 1px solid var(--border); }
+.m-tab { position: relative; flex: 1; min-width: 0; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px 4px; border-radius: var(--radius-sm); color: var(--muted); font-size: .6875rem; font-weight: 600; }
+.m-tab .i { font-size: 20px; }
+.m-tab.active { color: var(--primary); background: var(--primary-glow); }
+.w-desk .app { margin-left: 232px; padding: 28px 32px 48px; }
+.w-desk .app > * { max-width: 1200px; }
+.w-mob .app { padding: 14px 16px 100px; }
+.w-col .app { padding: 18px 18px 28px; }
+
+/* ══ Piezas de la app (lists.css, globals.css, biblioteca.css, juego.css), lo justo para el mockup ══ */
+.page-title { margin: 0; font-size: clamp(1.625rem, 2.6vw, 2rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.page-subtitle { margin: 4px 0 0; color: var(--muted); font-size: .9375rem; }
+.page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 16px; margin-bottom: 18px; }
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: .875rem; font-weight: 600; white-space: nowrap; background: none; transition: background-color .2s var(--ease-out), border-color .15s, color .2s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active { transform: scale(.97); }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); }
+.btn--secondary:hover { border-color: var(--border-hover); }
+.btn--ghost { color: var(--muted); }
+.btn--ghost:hover { background: var(--surface-2); color: var(--foreground); }
+.btn--sm { height: 34px; padding: 0 12px; font-size: .8125rem; }
+.btn--done { background: var(--st-completado); color: var(--on-done); }
+.hg-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface-2); color: var(--muted); font-size: .6875rem; font-weight: 600; }
+.btn__swap { display: inline-flex; align-items: center; gap: 8px; }
+.btn__swap.is-in { animation: fade .18s var(--ease-out); }
+.alert { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; padding: 10px 14px; border-radius: var(--radius); font-size: .875rem; }
+.alert--error { background: var(--danger-glow); color: var(--danger); }
+.alert .i { font-size: 16px; }
+.alert.is-in { animation: drop-in .2s var(--ease-out); }
+
+/* Color con significado */
+.st-todos { --c: var(--primary); } .st-bandeja { --c: var(--st-bandeja); } .st-pendiente { --c: var(--st-pendiente); } .st-jugando { --c: var(--st-jugando); }
+.st-pausado { --c: var(--st-pausado); } .st-completado { --c: var(--st-completado); } .st-abandonado { --c: var(--st-abandonado); } .st-descartado { --c: var(--st-descartado); }
+.st-ya_jugado { --c: var(--st-yajugado); } .st-otros { --c: var(--st-otros); } .st-rejugable { --c: var(--st-rejugable); } .st-favorito { --c: var(--st-favorito); } .st-sin_final { --c: var(--st-sinfinal); }
+.sc-top { --c: var(--sc-top); } .sc-good { --c: var(--sc-good); } .sc-mid { --c: var(--sc-mid); } .sc-bad { --c: var(--sc-bad); }
+.r-comun { --c: var(--rar-comun); } .r-poco { --c: var(--rar-poco); } .r-rara { --c: var(--rar-rara); } .r-epica { --c: var(--rar-epica); } .r-leg { --c: var(--rar-leg); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.rar-ink { color: color-mix(in srgb, var(--c) var(--rar-ink), var(--foreground)); }
+
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: .78125rem; font-weight: 600; white-space: nowrap; }
+.hg-chip .i { font-size: 13px; }
+.hg-flag { display: inline-grid; flex: none; place-items: center; width: 20px; height: 20px; border-radius: 6px; }
+.hg-flag .i { font-size: 12px; }
+.hg-score { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 6px; border-radius: 6px; font-size: .75rem; font-weight: 700; }
+.hg-score .i { font-size: 11px; }
+.hg-bar { display: block; height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.hg-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--primary); transform-origin: left; }
+.hg-bar.is-done > span { background: var(--success); }
+.hg-icon-btn { position: relative; z-index: 1; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted); font-size: 17px; }
+.hg-icon-btn:hover, .hg-icon-btn[aria-expanded='true'] { background: var(--surface-2); color: var(--foreground); }
+.hg-seg { position: relative; display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.hg-seg__opt { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: .4rem; min-height: 30px; padding: 0 .65rem; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-size: .8125rem; font-weight: 500; transition: color .15s; }
+.hg-seg__opt .i { font-size: 15px; }
+.hg-seg__opt[aria-pressed='true'] { color: var(--primary); font-weight: 600; }
+.hg-seg__thumb { position: absolute; z-index: 0; top: 3px; left: 0; height: calc(100% - 6px); border-radius: 6px; background: var(--surface); box-shadow: var(--shadow-sm); transition: transform .22s var(--ease-out), width .22s var(--ease-out); }
+
+/* Biblioteca */
+.lib-head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.lib-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); align-items: start; gap: 1.5rem; }
+.lib-rail { position: relative; display: grid; gap: .75rem; }
+.lib-rail__group { display: grid; gap: 2px; }
+.lib-rail__title { margin: 0; padding: 0 .6rem .25rem; color: var(--muted); font-size: .75rem; font-weight: 600; }
+.lib-rail__item { position: relative; z-index: 1; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: .6rem; min-height: 40px; padding: 0 .6rem 0 .4rem; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--foreground); font-size: .875rem; font-weight: 500; text-align: left; transition: background-color .15s; }
+.lib-rail__item:hover:not([aria-current]) { background: var(--surface-2); }
+.lib-rail__item[aria-current='page'] { font-weight: 600; }
+.lib-rail__item--tray { border: 1px dashed var(--border-hover); margin-top: 0; }
+.lib-rail__icon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 7px; font-size: 15px; }
+.lib-rail__label { white-space: nowrap; min-width: 0; text-align: left; }
+.lib-rail__count { color: var(--muted); font-size: .8125rem; transition: color .15s; }
+.lib-rail__item[aria-current='page'] .lib-rail__count { color: var(--c); font-weight: 700; }
+/* PROPUESTA: indicador que se desliza (motion.span layoutId, como nav-pill) */
+.rail-pill { position: absolute; z-index: 0; top: 0; left: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); pointer-events: none; transition: transform .24s var(--ease-out), width .24s var(--ease-out), height .24s var(--ease-out), background-color .24s var(--ease-out), border-color .24s var(--ease-out); }
+.rail-pill.no-anim { transition: none; }
+.lib-main { display: grid; gap: .875rem; min-width: 0; }
+.lib-listhead { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
+.lib-listhead__icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; font-size: 20px; transition: background-color .2s, color .2s; }
+.lib-listhead__text { flex: 1 1 200px; min-width: 0; }
+.lib-listhead__text h2 { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; }
+.lib-listhead__text p { margin: 0; color: var(--muted); font-size: .8125rem; }
+.lib-listhead__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.lib-limit { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .45rem .5rem .45rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--muted); font-size: .875rem; }
+.lib-limit b { color: var(--foreground); }
+.lib-filters { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.lib-select { display: inline-flex; align-items: center; justify-content: space-between; gap: .5rem; min-width: 150px; height: 36px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: .8125rem; }
+.lib-select .i { color: var(--muted); }
+select.lib-select { appearance: auto; }
+.lib-note { display: flex; flex-wrap: wrap; gap: .35rem 1rem; margin: 0; color: var(--muted); font-size: .8125rem; }
+.hg-keyhint { margin-left: auto; font-size: .75rem; white-space: nowrap; }
+.hg-keyhint kbd { font-family: inherit; padding: 0 4px; border-radius: 4px; background: var(--surface-2); }
+
+.lib-list { position: relative; display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.lib-item { display: grid; grid-template-rows: 1fr; min-width: 0; }
+.lib-item > * { min-height: 0; }
+.hg-row { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) minmax(150px, 200px) 168px; align-items: center; gap: 1rem; min-height: 68px; padding: 8px 12px 8px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: box-shadow .15s ease, border-color .15s ease, background-color .2s var(--ease-out); }
+.hg-row:hover, .hg-row:has(:focus-visible) { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.lib-row::before, .lib-card::before { content: ''; position: absolute; background: var(--c); transition: background-color .2s var(--ease-out); }
+.lib-row::before { inset: -1px auto -1px -1px; width: 4px; border-radius: var(--radius) 0 0 var(--radius); }
+.hg-row__cover { position: relative; display: block; width: 112px; height: 52px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.hg-row__cover img, .hg-card__cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.is-unowned .hg-row__cover img, .is-unowned .hg-card__cover img { filter: grayscale(.6); opacity: .8; }
+.is-unowned .hg-row__cover, .is-unowned .hg-card__cover { outline: 1px dashed var(--st-pendiente); outline-offset: -1px; }
+.hg-row__main { display: grid; gap: 3px; min-width: 0; }
+.lib-row__name { display: flex; align-items: center; gap: 6px; min-width: 0; font-weight: 600; font-size: .9375rem; }
+.lib-row__name a { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lib-row__name a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.flags { display: inline-flex; gap: 4px; }
+.hg-row__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; color: var(--muted); font-size: .8125rem; }
+.lib-meta { display: inline-flex; align-items: center; gap: 4px; }
+.lib-meta .i { font-size: 13px; }
+.lib-own { display: inline-flex; align-items: center; gap: 4px; font-size: .78125rem; font-weight: 600; color: var(--st-pendiente); }
+.hg-row__prog { display: grid; gap: 5px; font-size: .78125rem; color: var(--muted); }
+.hg-row__prog-label { display: flex; justify-content: space-between; }
+.hg-row__prog-label b { color: var(--foreground); }
+.lib-perfect { color: var(--success); font-weight: 700; }
+.hg-row__prog--none { color: var(--muted); font-size: .8125rem; }
+.lib-price { display: grid; justify-items: start; gap: 3px; font-size: .8125rem; }
+.lib-price b { font-size: .9375rem; }
+.lib-price s { color: var(--muted); }
+.hg-deal { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px; border-radius: 6px; background: var(--deal); color: var(--deal-foreground); font-size: .71875rem; font-weight: 700; }
+.lib-row__end { position: relative; z-index: 1; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.lib-row__end .hg-chip { transition: background-color .2s var(--ease-out), color .2s var(--ease-out); }
+.lib-list.no-status .hg-row { grid-template-columns: 112px minmax(0, 1fr) minmax(150px, 200px) auto; }
+/* Rejilla */
+.lib-list.is-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.hg-card { position: relative; display: grid; align-content: start; overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: box-shadow .15s ease, border-color .15s, background-color .2s var(--ease-out); }
+.hg-card:hover { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.lib-card::before { inset: -1px -1px auto; height: 3px; z-index: 2; border-radius: var(--radius) var(--radius) 0 0; }
+.hg-card__cover { display: block; aspect-ratio: 460 / 215; background: var(--surface-2); }
+.hg-card__body { display: grid; gap: 6px; padding: 10px 10px 8px; }
+.hg-card .lib-row__name { font-size: .875rem; }
+.lib-card__foot { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+
+/* Menú de una fila (GameMenu, popover) */
+.game-menu { position: absolute; z-index: 40; display: grid; gap: 6px; width: 15rem; padding: 6px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); transform-origin: top right; animation: pop-menu .16s var(--ease-out); }
+.game-menu.is-out { animation: pop-menu-out .12s ease-in forwards; }
+@keyframes pop-menu { from { opacity: 0; transform: scale(.96) translateY(-4px); } }
+@keyframes pop-menu-out { to { opacity: 0; transform: scale(.97); } }
+.game-menu__group { display: grid; gap: 1px; }
+.game-menu__group + .game-menu__group { padding-top: 6px; border-top: 1px solid var(--border); }
+.game-menu__opt { display: flex; align-items: center; gap: .6rem; min-height: 34px; padding: 0 .6rem; border: 0; border-radius: var(--radius-sm); background: transparent; font-size: .8125rem; font-weight: 500; text-align: left; transition: background-color .15s, color .15s; }
+.game-menu__opt:hover:not(:disabled) { background: var(--surface-2); }
+.game-menu__opt[aria-pressed='true'] { background: color-mix(in srgb, var(--c, var(--primary)) var(--tint), transparent); color: var(--c, var(--primary)); font-weight: 600; }
+.game-menu__opt:disabled { cursor: default; }
+.game-menu__opt > .i:first-child { font-size: 15px; color: var(--c, var(--muted)); }
+.game-menu__opt .chk { margin-left: auto; font-size: 14px; }
+.w-mob .game-menu__opt { min-height: 44px; }
+
+/* Aviso de Deshacer (.tray-float / .tray-toast de la bandeja) */
+.tray-float { position: absolute; left: 0; right: 0; bottom: 20px; z-index: 30; display: flex; justify-content: center; padding: 0 12px; pointer-events: none; }
+.w-desk .tray-float { left: 232px; }
+.w-mob .tray-float { bottom: 92px; }
+.tray-toast { display: flex; align-items: center; gap: 12px; max-width: 100%; padding: 6px 6px 6px 14px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); font-size: .8125rem; pointer-events: auto; animation: toast-in .2s var(--ease-out); }
+.tray-toast.is-out { animation: toast-out .16s ease-in forwards; }
+.tray-toast__text { display: inline-flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; }
+.tray-toast__text b { overflow: hidden; max-width: 220px; text-overflow: ellipsis; font-weight: 600; }
+.tray-toast .hg-chip { padding-top: 2px; padding-bottom: 2px; }
+.w-mob .tray-toast .hg-kbd { display: none; }
+.w-mob .tray-toast__text b { max-width: 110px; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(8px); } }
+/* Ficha que vuela al raíl (TrayFly) */
+.fly { position: absolute; z-index: 35; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; background: color-mix(in srgb, var(--c) 18%, var(--surface)); color: var(--c); box-shadow: var(--shadow-lg); pointer-events: none; font-size: 15px; }
+
+/* Ficha de juego */
+.juego { display: grid; gap: 1.75rem; }
+.juego__back { display: inline-flex; align-items: center; gap: .35rem; justify-self: start; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.juego__head { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; align-items: center; }
+.juego__hero { position: relative; aspect-ratio: 1920 / 620; border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-2); }
+.juego__hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.juego__heading { display: grid; gap: .75rem; }
+.juego__title-row { display: grid; gap: .75rem; }
+.juego__studios { margin: 2px 0 0; color: var(--muted); font-size: .875rem; }
+.juego__actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.juego__facts { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.juego-fact { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 10px 0 8px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--muted); font-size: .8125rem; }
+.juego-fact b { color: var(--foreground); }
+.juego-fact__num { display: inline-grid; place-items: center; min-width: 26px; height: 22px; padding: 0 4px; border-radius: 6px; font-weight: 700; font-size: .75rem; }
+.glass { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.juego-panel { display: grid; gap: 1.25rem; padding: 1.25rem 1.5rem; }
+.juego-panel > [data-alert]:empty, .juego-panel > [data-warn]:empty, .lib-alert:empty { display: none; }
+.juego-panel.is-in { animation: fade .22s var(--ease-out); }
+.juego-panel__top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; }
+.juego-status { position: relative; flex: 1 1 100%; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface-2); }
+.juego-status__opt { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 0 11px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font-size: .8125rem; font-weight: 600; white-space: nowrap; transition: color .2s var(--ease-out); }
+.juego-status__opt .i { font-size: 14px; color: var(--c); }
+.juego-status__opt:hover:not([aria-pressed='true']) { color: var(--foreground); }
+.juego-status__opt:hover:not([aria-pressed='true'])::before { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: color-mix(in srgb, var(--surface) 60%, transparent); }
+.juego-status__opt[aria-pressed='true'] { color: var(--c); }
+/* A · fondo que se desliza (layoutId); B · cada opción pinta su fondo con un fundido */
+.sel-thumb { position: absolute; z-index: 0; top: 0; left: 0; border-radius: 9px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--c); pointer-events: none; transition: transform .22s var(--ease-out), box-shadow .22s var(--ease-out); }
+.sel-thumb.no-anim { transition: none; }
+.sel-B .juego-status__opt { transition: color .16s var(--ease-out), background-color .16s var(--ease-out), box-shadow .16s var(--ease-out); }
+.sel-B .juego-status__opt[aria-pressed='true'] { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--c); }
+.sel-B .juego-status__opt[aria-pressed='true'] .i { animation: hg-pop-in .26s var(--ease-out); }
+.juego-status__opt.is-planted .i { animation: plant-sm .45s var(--ease-out) .12s backwards; transform-origin: 18% 95%; }
+@keyframes plant-sm { 0% { opacity: 0; transform: translateY(-9px) rotate(-16deg); } 60% { opacity: 1; transform: translateY(1px) rotate(4deg); } 100% { transform: none; } }
+.spin { display: inline-block; width: 14px; height: 14px; border: 2px solid color-mix(in srgb, currentColor 30%, transparent); border-top-color: currentColor; border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.juego-marks { display: flex; flex-wrap: wrap; gap: 6px; }
+.juego-mark { display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 0 13px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--muted); font-size: .8125rem; font-weight: 600; transition: background-color .2s var(--ease-out), border-color .2s var(--ease-out), color .2s var(--ease-out); }
+.juego-mark .i { font-size: 16px; color: var(--c); }
+.juego-mark[aria-pressed='true'] { border-color: color-mix(in srgb, var(--c) 50%, var(--border)); background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); color: var(--c); }
+.juego-mark.st-favorito[aria-pressed='true'] .i { fill: currentColor; }
+.juego-panel__warning { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; margin: 0; color: color-mix(in srgb, var(--warning) 80%, var(--foreground)); font-size: .8125rem; }
+[data-theme='dark'] .juego-panel__warning { color: var(--warning); }
+.juego-panel__warning a { text-decoration: underline; }
+.juego-panel__warning.is-in { animation: drop-in .2s var(--ease-out); }
+.hg-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.hg-tile { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 14px; border-radius: 12px; background: var(--surface-2); }
+.hg-tile dt { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--muted); font-size: .8125rem; font-weight: 500; }
+.hg-tile__icon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; font-size: 13px; transition: background-color .2s, color .2s; }
+.hg-tile dd { margin: 0; }
+.hg-tile__value { font-size: 1.625rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+.hg-tile__value small { color: var(--muted); font-size: .9375rem; font-weight: 500; letter-spacing: 0; }
+.hg-tile__value--tinted { color: var(--c); }
+.hg-tile__note { min-height: 1.2em; color: var(--muted); font-size: .78125rem; }
+.hg-tile__note.is-in { animation: fade .22s var(--ease-out); }
+.hg-tile__note a { color: var(--primary); font-weight: 600; }
+.badge-100 { display: inline-flex; align-items: center; gap: 3px; height: 18px; padding: 0 6px 0 5px; border-radius: 999px; background: var(--st-completado); color: var(--on-done); font-size: .6875rem; font-weight: 700; vertical-align: 1px; }
+.badge-100 .i { font-size: 11px; }
+.juego-goal { display: grid; gap: .75rem; padding: .875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); }
+.juego-goal.is-swap { animation: fade .22s var(--ease-out); }
+.juego-goal__row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; font-size: .875rem; }
+.juego-goal__label { display: inline-flex; align-items: center; gap: .5rem; font-weight: 600; }
+.juego-goal__label > .i { color: var(--c, var(--primary)); font-size: 15px; }
+.juego-goal__label.st-sin_final { color: var(--c); }
+.juego-goal__value { color: var(--muted); font-size: .8125rem; }
+.juego-track { position: relative; height: 10px; margin: 0 0 1.4rem; border-radius: 999px; background: var(--surface-2); }
+.juego-track__fill { position: absolute; inset: 0; border-radius: inherit; background: var(--primary); transform-origin: left; transform: scaleX(var(--p)); }
+.juego-track__mark { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--border-hover); transition: background-color .2s; }
+.juego-track__mark.is-passed { background: var(--foreground); opacity: .55; }
+.juego-track__mark span { position: absolute; top: 18px; left: 50%; translate: -50% 0; color: var(--muted); font-size: .72rem; white-space: nowrap; }
+.juego-track__mark.is-last span { left: auto; right: 0; translate: none; }
+.juego-goal__bar { height: 8px; }
+.juego-goal__done { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; margin: 0; color: var(--success); font-size: .8125rem; font-weight: 600; }
+.juego-goal__done .i { font-size: 14px; }
+.juego-panel__note { margin: 0; color: var(--muted); font-size: .8125rem; }
+.juego-ach { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 1.75rem; padding: 1.25rem 1.5rem; }
+.juego__section-title { display: flex; align-items: center; gap: .5rem; margin: 0; font-size: 1.0625rem; font-weight: 700; }
+.juego-ach__summary { display: grid; align-content: start; gap: .75rem; }
+.juego-ach__trophy { color: color-mix(in srgb, var(--rar-leg) var(--rar-ink), var(--foreground)); }
+.hg-ring { position: relative; width: 140px; height: 140px; margin: .25rem auto; }
+.hg-ring svg { width: 100%; height: 100%; rotate: -90deg; overflow: visible; }
+.hg-ring circle { fill: none; stroke-width: 3.2; }
+.hg-ring__track { stroke: var(--surface-2); }
+.hg-ring__fill { stroke: var(--primary); stroke-linecap: round; transition: stroke .3s var(--ease-out); }
+.hg-ring.is-done .hg-ring__fill { stroke: var(--success); }
+.hg-ring__text { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; }
+.hg-ring__text b { font-size: 1.75rem; line-height: 1.1; }
+.hg-ring.is-done .hg-ring__text b { color: var(--success); }
+.hg-ring__text > span { color: var(--muted); font-size: .8125rem; }
+.gl-seal { display: inline-flex; align-items: center; gap: 4px; height: 22px; margin-top: 4px; padding: 0 8px 0 6px; border-radius: 999px; background: var(--st-completado); color: var(--on-done); font-size: .75rem; font-weight: 700; }
+.gl-seal .i { font-size: 12px; stroke-width: 2.8; }
+.juego-ach__stack { display: flex; gap: 2px; height: 8px; border-radius: 999px; overflow: hidden; }
+.juego-ach__stack span { background: var(--c); }
+.juego-ach__legend { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; color: var(--muted); font-size: .78125rem; }
+.juego-ach__legend li { display: flex; align-items: center; gap: 6px; }
+.juego-ach__legend li::before { content: ''; width: 8px; height: 8px; border-radius: 2px; background: var(--c); }
+.juego-ach__legend b { margin-left: auto; color: var(--foreground); }
+.juego-ach__cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+.juego-ach__col h3 { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; margin: 0 0 .6rem; font-size: .9375rem; }
+.juego-ach__col h3 small { color: var(--muted); font-weight: 500; font-size: .78125rem; margin-right: auto; }
+.juego-ach__col h3 a { color: var(--primary); font-size: .8125rem; font-weight: 600; }
+.hg-achs { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.hg-ach { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: .7rem; padding: 9px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: inset 3px 0 0 var(--c); }
+.hg-ach__icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 8px; font-size: 17px; }
+.hg-ach__name { display: block; overflow: hidden; font-size: .875rem; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
+.hg-ach__desc { display: block; overflow: hidden; color: var(--muted); font-size: .78125rem; white-space: nowrap; text-overflow: ellipsis; }
+.hg-ach__pct { display: grid; justify-items: end; font-size: .8125rem; font-weight: 700; }
+.hg-ach__pct small { font-size: .71875rem; font-weight: 600; }
+
+/* Diálogo «Completar» (simplificado: el real es CompleteDialog, ya implementado) */
+.cp-scrim { position: absolute; inset: 0; z-index: 50; background: var(--scrim); animation: fade .16s var(--ease-out); }
+.cp-scrim.is-out { animation: fade-out .18s ease-in forwards; }
+.cp-dlg { --c: var(--st-completado); position: absolute; top: 50%; left: 50%; z-index: 51; width: min(440px, calc(100% - 24px)); translate: -50% -50%; overflow: hidden; border: 1px solid var(--border); border-top: 3px solid var(--st-completado); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-lg); animation: dlg-in .2s var(--ease-out); }
+.w-desk .cp-dlg { left: calc(50% + 116px); }
+.cp-dlg.is-out { animation: dlg-out .18s ease-in forwards; }
+@keyframes dlg-in { from { opacity: 0; transform: scale(.96); } }
+@keyframes dlg-out { to { opacity: 0; transform: scale(.97); } }
+.cp-body { display: grid; gap: 16px; padding: 18px 20px 20px; }
+.cp-body h3 { margin: 0; font-size: 1.125rem; }
+.cp-body p { margin: 0; color: var(--muted); font-size: .8125rem; }
+.cp-rate { display: flex; flex-wrap: wrap; gap: 6px; }
+.cp-rate button { min-width: 44px; height: 36px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-weight: 700; font-size: .875rem; transition: background-color .15s, border-color .15s, color .15s; }
+.cp-rate button[aria-pressed='true'] { border-color: color-mix(in srgb, var(--c) 50%, var(--border)); background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); color: var(--c); }
+.cp-acts { display: flex; justify-content: flex-end; gap: 8px; }
+.cp-cel { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; align-content: center; gap: 10px; padding: 24px; background: var(--surface); text-align: center; animation: fade .16s var(--ease-out); }
+.cp-cel__mark { position: relative; width: 96px; height: 96px; }
+.cp-cel__ring { position: absolute; inset: 0; rotate: -90deg; }
+.cp-cel__ring circle { fill: none; stroke-width: 5; }
+.cp-cel__ring .tr { stroke: color-mix(in srgb, var(--st-completado) 18%, var(--surface)); }
+.cp-cel__ring .pr { stroke: var(--st-completado); stroke-linecap: round; stroke-dasharray: 264; animation: cel-ring .5s var(--ease-out) backwards; }
+@keyframes cel-ring { from { stroke-dashoffset: 264; } }
+.cp-cel__flag { position: absolute; inset: 14px; display: grid; place-items: center; border-radius: 50%; color: var(--st-completado); font-size: 34px; background: color-mix(in srgb, var(--st-completado) var(--tint), var(--surface)); }
+.cp-cel__flag .i { transform-origin: 18% 95%; animation: plant .46s var(--ease-out) .18s backwards; }
+@keyframes plant { 0% { opacity: 0; transform: translateY(-30px) rotate(-16deg); } 55% { opacity: 1; transform: translateY(3px) rotate(4deg); } 78% { transform: translateY(0) rotate(-2deg); } 100% { transform: none; } }
+.cp-cel__burst i { position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px; border-radius: 50%; background: var(--c); opacity: 0; animation: burst .7s var(--ease-out) .5s; }
+.cp-cel__burst i:nth-child(odd) { width: 5px; height: 9px; margin: -4.5px -2.5px; border-radius: 2px; }
+@keyframes burst { 0% { opacity: 1; transform: rotate(var(--a)) translateY(-40px) scale(.4); } 70% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--a)) translateY(-74px) scale(1); } }
+.cp-cel h3 { margin: 4px 0 0; font-size: 1.25rem; animation: rise .3s var(--ease-out) .3s backwards; }
+.cp-cel p { margin: 0; color: var(--muted); font-size: .875rem; animation: rise .3s var(--ease-out) .36s backwards; }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+
+/* ══════════════════════════════════════════════════════════════════
+   PROPUESTA · movimiento (lo compartido ya existe en lists.css; lo nuevo, marcado)
+   ══════════════════════════════════════════════════════════════════ */
+@keyframes fade { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes drop-in { from { opacity: 0; transform: translateY(-6px); } }
+/* AnimatedCount (existe) */
+.hg-count { display: inline-flex; align-items: center; }
+.hg-count--pop { animation: hg-count-pop .3s var(--ease-out); }
+.hg-count__num { display: inline-block; }
+.hg-count__num--up { animation: hg-count-up .22s var(--ease-out); }
+.hg-count__num--down { animation: hg-count-down .22s var(--ease-out); }
+@keyframes hg-count-pop { 40% { transform: scale(1.18); } }
+@keyframes hg-count-up { from { transform: translateY(70%); opacity: 0; } }
+@keyframes hg-count-down { from { transform: translateY(-70%); opacity: 0; } }
+/* .hg-enter, .hg-bar--fill, .hg-pop-in, .hg-beat, .hg-draw (existen) */
+.hg-enter { animation: hg-enter .32s var(--ease-out) backwards; animation-delay: calc(min(var(--i, 0), 8) * 30ms); }
+@keyframes hg-enter { from { opacity: 0; transform: translateY(8px); } }
+.anim .hg-bar--fill > span, .anim .juego-track__fill { animation: hg-bar-fill .45s var(--ease-out) .15s backwards; }
+@keyframes hg-bar-fill { from { transform: scaleX(0); } }
+.hg-pop-in { animation: hg-pop-in .26s var(--ease-out) backwards; }
+@keyframes hg-pop-in { from { opacity: 0; transform: scale(.5); } }
+.hg-beat { animation: hg-beat .4s var(--ease-out); }
+@keyframes hg-beat { 30% { transform: scale(1.3); } 60% { transform: scale(.92); } }
+.hg-flag.is-in.st-favorito { animation: hg-pop-in .26s var(--ease-out) backwards, hg-beat .4s var(--ease-out) .2s; }
+.hg-flag.is-in.st-sin_final { animation: hg-pop-in .26s var(--ease-out) backwards; }
+/* NUEVO · .hg-loop: el ∞ se traza (como .hg-draw; longitud medida del trazo de lucide ≈ 61) */
+.hg-loop path { stroke-dasharray: 61; animation: hg-loop .45s var(--ease-out) .06s backwards; }
+@keyframes hg-loop { from { stroke-dashoffset: 61; } }
+/* NUEVO · marca que se quita (salida de .hg-pop-in) */
+.hg-flag.is-out { animation: flag-out .16s ease-in forwards; }
+@keyframes flag-out { to { opacity: 0; transform: scale(.5); } }
+/* Icono que cambia dentro del chip */
+.chip-ico { display: inline-flex; }
+.chip-ico.is-in { animation: hg-pop-in .26s var(--ease-out); }
+/* Fila que se va a otra lista: tinte del destino (bandeja · .tray-row.is-going) */
+.hg-row.is-going, .hg-card.is-going { background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); border-color: color-mix(in srgb, var(--c) 45%, var(--border)); box-shadow: none; pointer-events: none; }
+/* A · pliegue (wishlist · .wl-item.is-leaving / .is-collapsing) */
+.lib-item { transition: grid-template-rows .24s var(--ease-out), margin .24s var(--ease-out); }
+.lib-item > * { transition: opacity .2s var(--ease-out), transform .2s var(--ease-out), box-shadow .15s, border-color .2s, background-color .2s; }
+.lib-item.is-leaving > * { opacity: 0; transform: translateX(-28px); }
+.lib-item.is-collapsing { grid-template-rows: 0fr; margin-bottom: -6px; }
+.lib-item.is-collapsing > .hg-row { overflow: hidden; padding-top: 0; padding-bottom: 0; min-height: 0; border-width: 0; transition: padding .24s var(--ease-out), min-height .24s var(--ease-out), opacity .2s, transform .2s; }
+.is-grid .lib-item.is-leaving > * { transform: scale(.96); }
+.is-grid .lib-item.is-shift > * { animation: fade .16s var(--ease-out); }
+/* B · popLayout: la fila sale fuera del flujo y el resto se desliza (FLIP, como motion.li layout="position") */
+.lib-item.is-pop { position: absolute; z-index: 0; pointer-events: none; transition: none; }
+.lib-item.is-pop > * { animation: out-b .24s cubic-bezier(.4, 0, .2, 1) forwards; transition: none; }
+@keyframes out-b { to { opacity: 0; transform: translateX(-48px); } }
+.is-grid .lib-item.is-pop > * { animation-name: out-b-grid; }
+@keyframes out-b-grid { to { opacity: 0; transform: scale(.94); } }
+.lib-item.is-new > * { animation: fade .24s var(--ease-out); }
+/* Fila que vuelve (Deshacer o error): entra y el cursor de selección se apaga (bandeja · .tray-row.is-back) */
+.lib-item.is-back > * { animation: hg-enter .32s var(--ease-out) backwards, back-cursor 1.2s var(--ease-out); }
+@keyframes back-cursor { from { box-shadow: 0 0 0 3px var(--cursor); } }
+/* Cambio de lista: fundido cruzado (patrón de JUDI / estadísticas: sale 120 ms, entra 220 ms) */
+.swap-out { animation: fade-out .12s ease-in forwards; }
+.swap-in { animation: fade .22s var(--ease-out); }
+.lib-listhead__icon.is-in .i { animation: hg-pop-in .26s var(--ease-out); }
+.lib-listhead__text.is-in { animation: fade .22s var(--ease-out); }
+/* Entrada de la biblioteca: viene del esqueleto, así que solo fundido (regla de «Cargando») */
+.anim .lib-page { animation: fade .22s var(--ease-out); }
+/* Ficha · entrada */
+.anim .juego-panel { animation: fade .22s var(--ease-out); }
+.anim .hg-ring__fill { animation: ring-fill .7s var(--ease-out) .12s backwards; }
+@keyframes ring-fill { from { stroke-dashoffset: 100; } }
+.anim .hg-ring.is-done svg { animation: ring-done .5s var(--ease-out) .82s; }
+@keyframes ring-done { 40% { transform: scale(1.06); } }
+.anim .gl-seal { animation: hg-pop-in .26s var(--ease-out) .9s backwards; }
+.anim .juego-ach__stack { animation: stack-grow .6s var(--ease-out) .25s backwards; }
+@keyframes stack-grow { from { clip-path: inset(0 100% 0 0 round 999px); } }
+.anim .juego-ach__legend li { animation: fade .3s var(--ease-out) backwards; animation-delay: calc(350ms + var(--i) * 30ms); }
+.anim .juego-track__mark.is-passed { animation: mark-pass .3s var(--ease-out) backwards; animation-delay: calc(150ms + var(--at) * 450ms); }
+@keyframes mark-pass { from { background: var(--border-hover); opacity: 1; transform: scaleY(.6); } }
+.anim .badge-100 { animation: hg-pop-in .26s var(--ease-out) .5s backwards; }
+.anim .juego-goal__done .i { animation: hg-pop-in .26s var(--ease-out) .6s backwards; }
+/* Ficha · tu nota que «aterriza» después del diálogo */
+.hg-tile.is-landed .hg-tile__icon { animation: hg-pop-in .26s var(--ease-out); }
+
+/* ══ Responsive dentro de los marcos ══ */
+.w-col .lib-layout, .w-mob .lib-layout { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+.w-col .lib-rail, .w-mob .lib-rail { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.w-col .lib-rail__group, .w-mob .lib-rail__group { display: contents; }
+.w-col .lib-rail__title, .w-mob .lib-rail__title { display: none; }
+.w-col .lib-rail__item, .w-mob .lib-rail__item { flex: none; grid-template-columns: auto auto auto; gap: .4rem; border-color: var(--border); background: var(--surface); }
+.w-col .lib-rail__item[aria-current='page'], .w-mob .lib-rail__item[aria-current='page'] { border-color: transparent; background: transparent; }
+.w-col .lib-rail__icon, .w-mob .lib-rail__icon { width: 24px; height: 24px; font-size: 14px; }
+.w-mob .lib-rail__item { min-height: 44px; }
+/* PROPUESTA en móvil: el indicador lleva el tinte de su lista (hoy el activo apenas se distingue) */
+.w-col .rail-pill, .w-mob .rail-pill { border-color: color-mix(in srgb, var(--c) 45%, var(--border)); background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); }
+.w-col .hg-row, .w-col .lib-list.no-status .hg-row { grid-template-columns: 112px minmax(0, 1fr) minmax(120px, 160px) auto; }
+.w-col .lib-row__end .hg-chip, .w-mob .lib-row__end .hg-chip { display: none; }
+.w-col .lib-filters .lib-select:nth-child(n+3), .w-mob .lib-filters .lib-select:nth-child(n+2) { display: none; }
+.w-col .page-head .lib-head-actions, .w-mob .page-head .lib-head-actions { display: none; }
+.w-col .hg-keyhint, .w-mob .hg-keyhint, .w-mob .lib-note { display: none; }
+.w-mob .hg-row, .w-mob .lib-list.no-status .hg-row { grid-template-columns: 96px minmax(0, 1fr) auto; gap: .75rem; }
+.w-mob .hg-row__cover { width: 96px; height: 45px; }
+.w-mob .hg-row > .hg-row__prog, .w-mob .hg-row > .lib-price { grid-column: 1 / -1; grid-row: 2; }
+.w-mob .hg-icon-btn { width: 44px; height: 44px; }
+.w-mob .lib-listhead__actions .btn { display: none; }
+.w-mob .lib-select { flex: 1 1 140px; height: 44px; }
+.w-mob .lib-limit { font-size: .8125rem; }
+.w-mob .juego__head, .w-col .juego__head { grid-template-columns: minmax(0, 1fr); }
+.w-mob .juego__hero { aspect-ratio: 16 / 7; }
+.w-mob .juego-panel, .w-mob .juego-ach { padding: 1rem; }
+.w-mob .juego-status { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.w-mob .juego-status__opt, .w-mob .juego-mark { min-height: 44px; }
+.w-mob .hg-tiles, .w-col .hg-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.w-mob .juego-ach, .w-col .juego-ach { grid-template-columns: minmax(0, 1fr); }
+.w-mob .juego-ach__cols, .w-col .juego-ach__cols { grid-template-columns: minmax(0, 1fr); }
+.w-mob .juego__actions .btn { flex: 1 1 auto; min-height: 44px; }
+.w-mob .juego__back { min-height: 44px; }
+.w-col .juego-status__opt { padding: 0 6px; }
+.w-mob .cp-dlg { top: auto; bottom: 0; left: 0; width: 100%; translate: none; border-radius: var(--radius-lg) var(--radius-lg) 0 0; animation: sheet-in .26s var(--ease-out); }
+.w-mob .cp-dlg.is-out { animation: sheet-out .2s ease-in forwards; }
+@keyframes sheet-in { from { transform: translateY(100%); } }
+@keyframes sheet-out { to { transform: translateY(100%); } }
+.w-sel .app { padding: 18px; }
+
+/* Movimiento reducido: el botón del documento o el sistema. Todo quieto, también los retrasos. */
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+}
+html.rm .spin, html.rm .spin { animation: none; border-top-color: color-mix(in srgb, currentColor 30%, transparent); }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Biblioteca y Ficha: movimiento</h1>
+  <div class="doc-bar__actions">
+    <div class="doc-group" role="group" aria-label="Guardar el estado"><span>Guardar</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="save" data-val="A" aria-pressed="true">A · Al momento + Deshacer (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="save" data-val="B" aria-pressed="false">B · Esperar al guardado</button>
+    </div>
+    <div class="doc-group" role="group" aria-label="Salida de la fila"><span>Salida</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="exit" data-val="A" aria-pressed="true">A · Pliegue (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="exit" data-val="B" aria-pressed="false">B · Deslizar (layout)</button>
+    </div>
+    <div class="doc-group" role="group" aria-label="Selector de estado de la ficha"><span>Selector</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="sel" data-val="A" aria-pressed="true">A · Fondo que se desliza (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="sel" data-val="B" aria-pressed="false">B · Fundido en el sitio</button>
+    </div>
+    <div class="doc-group" role="group" aria-label="Ficha que vuela al raíl"><span>Vuelo</span>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="fly" data-val="on" aria-pressed="true">Sí (recomendada)</button>
+      <button class="doc-btn doc-btn--sm" type="button" data-var="fly" data-val="off" aria-pressed="false">No</button>
+    </div>
+    <button class="doc-btn" id="replay-btn" type="button">Repetir entrada</button>
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué cambia y por qué</h2>
+  <p>Biblioteca y Ficha fueron las primeras páginas con color y se dejaron <b>sin la capa de movimiento</b> a propósito, para que al final reutilizaran las piezas animadas que han ido creando las demás. Hoy, en las dos, casi todo cambia «de golpe»: cambias un juego de estado en la biblioteca y el menú enseña un spinner, se cierra y la fila desaparece sin más (o su chip cambia de color en seco); los contadores del raíl saltan sin avisar; la lista activa del raíl se marca sin transición; en la ficha, los tiles, la barra del objetivo y el anillo de logros aparecen ya llenos, el selector de estado salta de una opción a otra, y al completar un juego la ficha cambia <b>detrás</b> de la celebración del diálogo, así que cuando el diálogo se cierra ya no queda nada que ver. Esta propuesta solo añade movimiento: <b>no cambia colores ni maquetación</b> (con una excepción pequeña en el raíl de móvil, ver la pregunta 5).</p>
+
+  <h3>Lo que ya se mueve (no se toca)</h3>
+  <ul>
+    <li><span class="doc-tag doc-tag--ok">Existe</span> Biblioteca: fundido cruzado del esqueleto a la lista (<code>SkeletonSwap</code>), portadas que se funden al cargar (<code>GameCover</code>), cursor de selección en hover y foco, arrastre de pendientes en «Mi orden» (dnd-kit), vacío por lista que entra con fundido y pop del icono al cambiar de lista o de filtro (<code>EmptyState</code> con <code>key</code>), apertura del menú (popover de Radix) y el fundido de 200 ms entre páginas (<code>template.tsx</code>).</li>
+    <li><span class="doc-tag doc-tag--ok">Existe</span> Ficha: la celebración de completar <b>dentro del diálogo</b> (<code>CompleteDialog</code>: anillo, bandera que se planta y chispas, ≈ 1,1 s), el panel que sale de <code>GamePanelSkeleton</code>, portadas, tráiler y capturas con su hover.</li>
+    <li><span class="doc-tag doc-tag--warn">A medias</span> El mockup aprobado de «Completar» ya decía que, al cerrarse el diálogo, «el selector pasa a Completado con la bandera que se planta en pequeño y el tile de tu nota cuenta». <b>No está hecho</b>: <code>onSaved</code> actualiza la ficha bajo el velo y no hay animación. Aquí se completa.</li>
+    <li>Nada de lo que pide la checklist existe todavía en <code>src/app/biblioteca/page.tsx</code> ni en <code>src/app/juego/[appid]/*</code>: ninguna de las dos usa <code>CountUp</code>, <code>AnimatedCount</code>, <code>.hg-enter</code>, <code>.hg-beat</code>, <code>Segmented</code> ni <code>layoutId</code>.</li>
+  </ul>
+
+  <h3>Lo que propongo · Biblioteca</h3>
+  <ul>
+    <li><span class="doc-tag doc-tag--new">Nuevo</span> <b>Indicador activo que se desliza por el raíl</b> entre listas, también entre grupos (Todos → Estados → Marcas), con el mismo muelle que la barra lateral (<code>layoutId</code> como <code>nav-pill</code>). El número de la lista activa toma su color con un fundido. En móvil el raíl es una tira horizontal: el indicador se desliza en horizontal y la tira se desplaza para que la lista activa se vea.</li>
+    <li><span class="doc-tag doc-tag--new">Nuevo</span> <b>Cambio de lista con fundido cruzado</b> (sale 120 ms, entra 220 ms, como JUDI y estadísticas) y el icono de la cabecera con un pop. Sin escalonado de filas: la primera vez la lista viene del esqueleto y la regla de «Cargando» dice solo fundido; al cambiar de lista, igual que la wishlist al filtrar.</li>
+    <li><span class="doc-tag doc-tag--new">Nuevo</span> <b>Cambio de estado desde el menú ⋯</b>: el chip y la franja pasan al color nuevo (200 ms) y el icono del chip hace pop. <b>Si el juego sale de la lista que estás viendo</b>, la fila se tiñe de su destino, sale hacia el raíl y el hueco se cierra; una ficha con el icono de la lista vuela a su sitio en el raíl (como la bandeja y las sugerencias) y allí el contador salta. Si se queda pero cambia de sitio (orden «Último cambio de estado»), se mueve a su nuevo puesto. <b>Punto de decisión 1</b>: guardar al momento con «Deshacer» 5 s (como la bandeja) o esperar al servidor como hoy. <b>Punto de decisión 2</b>: cómo sale la fila (pliegue CSS o deslizar con <code>layout</code>).</li>
+    <li><span class="doc-tag doc-tag--new">Nuevo</span> <b>Favorito y Sin final</b>: al marcar, la marca aparece junto al nombre con un pop; el corazón además late (<code>.hg-beat</code>) y el ∞ se traza (<code>.hg-loop</code>, nuevo, primo de <code>.hg-draw</code>). Al quitarla, se encoge y se va (160 ms). El contador de Favoritos o Sin final del raíl salta. En la lista Favoritos, quitar el corazón saca la fila como un cambio de estado.</li>
+    <li><span class="doc-tag doc-tag--new">Nuevo</span> <b>Contadores que saltan</b> (<code>AnimatedCount</code>) en el raíl, en «N en curso» del subtítulo y en «N de 4 juegos a la vez» de Jugando. Al llegar no cuentan (no tiene sentido contar 412 juegos cada vez que abres la biblioteca): solo saltan cuando cambian.</li>
+    <li><span class="doc-tag doc-tag--ok">Reutiliza</span> Los segmentados «Lista / Rejilla» y «Comprados / Sin comprar» pasan a <code>Segmented</code> (fondo que se desliza, 220 ms). Hoy son <code>.hg-seg</code> sin deslizamiento.</li>
+  </ul>
+
+  <h3>Lo que propongo · Ficha</h3>
+  <ul>
+    <li><span class="doc-tag doc-tag--new">Nuevo</span> <b>Tiles que cuentan</b> (<code>CountUp</code>, 450 ms): horas, tu nota y logros. «Última partida» es una fecha y no cuenta. Si luego cambia una cifra (tu nota al completar), salta.</li>
+    <li><span class="doc-tag doc-tag--new">Nuevo</span> <b>Barra del objetivo que se rellena</b> (<code>.hg-bar--fill</code>; la pista con las metas de HowLongToBeat pasa de <code>width</code> a <code>scaleX</code>) y cada meta que ya has pasado se enciende cuando la barra llega a ella.</li>
+    <li><span class="doc-tag doc-tag--new">Nuevo</span> <b>Anillo de logros que se rellena</b> (700 ms) y reparto por rareza que crece (600 ms), con las piezas de logros de un juego y de <code>/logros</code>. <b>Al 100 %</b>: el anillo se cierra en verde, late una vez y salta el sello «100 %», como en logros de un juego. Los logros de las dos columnas entran con el escalonado de siempre.</li>
+    <li><span class="doc-tag doc-tag--new">Nuevo</span> <b>Selector de estado con fondo que se desliza</b> (<b>punto de decisión 3</b>: deslizar por la rejilla de 5 × 2, o un fundido en el sitio). El cambio se ve al pulsar, sin esperar al servidor; si falla, vuelve.</li>
+    <li><span class="doc-tag doc-tag--new">Nuevo</span> <b>Marcas</b>: el corazón late y el ∞ se traza, como en la biblioteca. Al marcar Sin final, el bloque del objetivo cambia por «Sin final» con un fundido.</li>
+    <li><span class="doc-tag doc-tag--warn">Aprobado, sin hacer</span> <b>Al completar</b>: la celebración sigue siendo la del diálogo; cuando el diálogo se cierra, la ficha «aterriza»: el fondo del selector se desliza a Completado y la bandera se planta en pequeño, tu nota cuenta y toma su color, aparece «Completado el…» y «Completar» pasa a «Editar nota». Para eso la ficha tiene que esperar a que se cierre el diálogo antes de aplicar el cambio (hoy lo aplica debajo).</li>
+  </ul>
+
+  <h3>Tiempos y curvas</h3>
+  <table>
+    <thead><tr><th>Animación</th><th>Dónde</th><th>Duración</th><th>Curva</th><th>Pieza</th></tr></thead>
+    <tbody>
+      <tr><td>Indicador del raíl que se desliza</td><td>Biblioteca</td><td>≈ 240 ms</td><td>muelle 500 / 40 (como <code>nav-pill</code>)</td><td><span class="doc-tag doc-tag--new">Nuevo uso</span> <code>motion.span layoutId</code></td></tr>
+      <tr><td>Número de la lista activa toma su color</td><td>Biblioteca</td><td>150 ms</td><td>lineal</td><td>transición de color</td></tr>
+      <tr><td>Cambio de lista: fundido cruzado</td><td>Biblioteca</td><td>sale 120 · entra 220 ms</td><td>ease-in / <code>--ease-out</code></td><td>patrón de JUDI y <code>.wl-swap</code></td></tr>
+      <tr><td>Icono de la cabecera de lista</td><td>Biblioteca</td><td>260 ms</td><td><code>--ease-out</code></td><td><code>.hg-pop-in</code></td></tr>
+      <tr><td>Chip y franja cambian de color · icono del chip</td><td>Biblioteca</td><td>200 ms · 260 ms</td><td><code>--ease-out</code></td><td>transición + <code>.hg-pop-in</code></td></tr>
+      <tr><td>Fila: tinte del destino antes de salir</td><td>Biblioteca</td><td>200 ms</td><td><code>--ease-out</code></td><td><code>.tray-row.is-going</code> (bandeja)</td></tr>
+      <tr><td>A · Fila sale y se pliega</td><td>Biblioteca</td><td>200 + 240 ms</td><td><code>--ease-out</code></td><td><code>.wl-item.is-leaving / .is-collapsing</code> (wishlist)</td></tr>
+      <tr><td>B · Fila sale y el resto se desliza</td><td>Biblioteca</td><td>240 · 320 ms</td><td>(.4, 0, .2, 1) · <code>--ease-out</code></td><td><code>motion.li layout="position"</code> + <code>popLayout</code> (bandeja, logros de un juego)</td></tr>
+      <tr><td>Ficha que vuela al raíl · contador que salta al llegar</td><td>Biblioteca</td><td>440 ms · 300 + 220 ms</td><td><code>--ease-out</code></td><td><code>TrayFly</code> (bandeja) · <code>AnimatedCount</code></td></tr>
+      <tr><td>Aviso «Deshacer» (5 s) · fila que vuelve</td><td>Biblioteca</td><td>entra 200 ms · 320 ms + cursor 1,2 s</td><td><code>--ease-out</code></td><td><code>.tray-float / .tray-toast</code>, <code>.tray-row.is-back</code>, <code>restoreGames</code></td></tr>
+      <tr><td>Corazón que aparece y late</td><td>las dos</td><td>260 + 400 ms</td><td><code>--ease-out</code></td><td><code>.hg-pop-in</code> + <code>.hg-beat</code></td></tr>
+      <tr><td>∞ que se traza</td><td>las dos</td><td>450 ms</td><td><code>--ease-out</code></td><td><span class="doc-tag doc-tag--new">Nuevo</span> <code>.hg-loop</code></td></tr>
+      <tr><td>Marca que se quita</td><td>Biblioteca</td><td>160 ms</td><td>ease-in</td><td><span class="doc-tag doc-tag--new">Nuevo</span> salida de <code>.hg-pop-in</code></td></tr>
+      <tr><td>Segmentados Lista / Rejilla y Comprados</td><td>Biblioteca</td><td>220 ms</td><td><code>--ease-out</code></td><td><code>Segmented</code></td></tr>
+      <tr><td>Panel desde el esqueleto</td><td>Ficha</td><td>220 ms</td><td><code>--ease-out</code></td><td>fundido (regla de «Cargando»)</td></tr>
+      <tr><td>Tiles que cuentan</td><td>Ficha</td><td>450 ms</td><td>cúbica de salida</td><td><code>CountUp</code></td></tr>
+      <tr><td>Barra del objetivo · metas que se encienden</td><td>Ficha</td><td>450 ms (+150) · 300 ms al pasar</td><td><code>--ease-out</code></td><td><code>.hg-bar--fill</code> · <span class="doc-tag doc-tag--new">Nuevo</span> retraso por posición</td></tr>
+      <tr><td>Anillo · reparto por rareza</td><td>Ficha</td><td>700 ms (+120) · 600 ms (+250)</td><td><code>--ease-out</code></td><td><code>gl-ring-fill</code> · <code>.lg-stack</code></td></tr>
+      <tr><td>100 %: latido del anillo · sello</td><td>Ficha</td><td>500 ms a los 820 · 260 ms a los 900</td><td><code>--ease-out</code></td><td><code>gl-ring-done</code> · <code>.gl-seal</code></td></tr>
+      <tr><td>Logros de las columnas</td><td>Ficha</td><td>320 ms, 30 ms entre ellos</td><td><code>--ease-out</code></td><td><code>AchievementItem index</code> (<code>.hg-enter</code>)</td></tr>
+      <tr><td>A · Fondo del selector que se desliza</td><td>Ficha</td><td>220 ms</td><td><code>--ease-out</code></td><td><code>layoutId</code> de <code>Segmented</code></td></tr>
+      <tr><td>B · Fundido en el sitio</td><td>Ficha</td><td>160 ms + pop del icono 260</td><td><code>--ease-out</code></td><td>transición + <code>.hg-pop-in</code></td></tr>
+      <tr><td>Objetivo ↔ Sin final</td><td>Ficha</td><td>220 ms</td><td><code>--ease-out</code></td><td>fundido</td></tr>
+      <tr><td>Aviso «Ahora tienes N juegos en Jugando»</td><td>Ficha</td><td>200 ms</td><td><code>--ease-out</code></td><td>como <code>FormError</code></td></tr>
+      <tr><td>Aterrizaje tras completar</td><td>Ficha</td><td>selector 220 · bandera 450 (+120) · nota 450 · botón 180 ms</td><td><code>--ease-out</code></td><td><code>plant-sm</code> (completar), <code>CountUp</code>, <code>SaveButton</code></td></tr>
+    </tbody>
+  </table>
+  <p class="t">Todo con <code>transform</code>, <code>opacity</code>, colores, <code>stroke-dashoffset</code> o <code>clip-path</code>, salvo el pliegue de la variante A (<code>grid-template-rows</code>, 240 ms en una sola fila: la wishlist ya lo hace). Nada en bucle. Con movimiento reducido (el botón de arriba o el sistema) todo aparece en su sitio, al instante y sin vuelo.</p>
+
+  <h3>Piezas que se reutilizan</h3>
+  <ul>
+    <li><code>CountUp</code>, <code>AnimatedCount</code>, <code>Segmented</code> / <code>.hg-seg--slide</code>, <code>.hg-pop-in</code>, <code>.hg-beat</code>, <code>.hg-bar--fill</code>, <code>.hg-enter</code> (vía <code>AchievementItem index</code>), <code>StatusChip</code> y <code>MarkFlags</code> (aceptarían una prop para animar solo lo que acaba de cambiar), <code>SkeletonSwap</code> (ya está).</li>
+    <li>De la <b>bandeja</b>: tinte de la fila (<code>is-going</code>), salida con <code>motion.li</code> / <code>AnimatePresence</code>, <code>TrayFly</code>, <code>.tray-float</code> + <code>.tray-toast</code> con Deshacer y <kbd class="kk">Ctrl + Z</kbd>, <code>restoreGames</code> y <code>statusSnapshot</code>, y la vuelta <code>is-back</code>.</li>
+    <li>De la <b>wishlist</b>: el pliegue <code>.wl-item.is-leaving / .is-collapsing</code> y el fundido <code>.wl-swap</code>.</li>
+    <li>De <b>logros de un juego</b>: anillo (<code>gl-ring-fill</code>, <code>gl-ring-done</code>), sello <code>.gl-seal</code> y la lista con <code>layout="position"</code> (y su tope de 150 elementos). Propongo mover el anillo y el sello a <code>lists.css</code> como <code>.hg-ring</code> (la ficha y logros de un juego tendrían el mismo).</li>
+    <li>De la <b>navegación</b>: el muelle del indicador (<code>nav-pill</code>). De <b>completar</b>: <code>plant-sm</code>. De <b>/logros</b>: el reparto que crece con <code>clip-path</code>.</li>
+    <li><b>Nuevo</b>: <code>.hg-loop</code> (∞ que se traza), la salida de una marca, el retraso por posición de las metas de la pista y un aviso de «aterrizaje» en <code>GameContext</code> para aplicar el cambio de completar al cerrarse el diálogo.</li>
+  </ul>
+
+  <h3>Riesgos y coste (honesto)</h3>
+  <ul>
+    <li><b>Listas largas.</b> La biblioteca <b>no está virtualizada</b>: pinta 60 filas y «Mostrar más» añade de 60 en 60, así que con tres o cuatro clics hay varios cientos de <code>&lt;li&gt;</code>. La variante B (<code>layout</code>) mide <b>todas</b> las filas animables en cada cambio y crea un <code>motion.li</code> por fila; logros de un juego ya la apaga por encima de 150. La variante A no mide nada, pero el pliegue recalcula la maquetación de la lista durante 240 ms (una fila, una vez). Pruébalo con «+400 filas» en el marco de escritorio. Si algún día hay que virtualizar, A sigue valiendo y B no.</li>
+    <li><b>Arrastre de pendientes.</b> En «Mi orden» dnd-kit mueve las filas con su propio <code>transform</code>; <code>layout</code> de framer pelearía con él. Con B habría que apagar <code>layout</code> mientras se puede arrastrar. A no choca.</li>
+    <li><b>Guardado optimista y Deshacer.</b> Hoy el menú <b>espera al servidor</b> (spinner en la opción) y <b>no hay Deshacer</b> en la biblioteca. A implica aplicar el cambio antes del <code>await</code>, devolver la fila si falla (con el error y la vuelta <code>is-back</code>), guardar una foto del juego (<code>statusSnapshot</code>) y deshacer con <code>restoreGames</code>, que ya devuelve estado, fechas, nota, reseña y marcas. Completar desde el menú usa <code>completeGames</code> con la fecha sugerida: Deshacer también lo devuelve. Dos cambios seguidos: solo se deshace el último (como la bandeja).</li>
+    <li><b>Foco.</b> Si la fila sale, el botón ⋯ que tenía el foco desaparece: hay que llevar el foco a la fila siguiente (o la anterior) y anunciar «Hades II pasa a Pausados» en una región <code>aria-live</code>.</li>
+    <li><b>Rejilla.</b> Una tarjeta no se puede plegar: con A, el resto salta a su hueco; lo suavizo con un fundido de 160 ms de las que se mueven. Con B se deslizan, pero vuelve el coste de medir.</li>
+    <li><b>Ficha y diálogo.</b> Esperar a que se cierre el diálogo para aplicar el cambio necesita un estado de «aterrizaje» en <code>GameContext</code> (el <code>onSaved</code> de hoy pasa a guardar el cambio y aplicarlo en <code>onClose</code>). Si el usuario corta la celebración, aterriza igual.</li>
+    <li><b>CountUp con horas</b>: <code>formatHours</code> cambia de unidad («45 min», «8,5 h», «22 h»). El conteo usa la unidad del valor final (decimales si &lt; 10 h); no cuenta de minutos a horas.</li>
+    <li><b>Coste estimado</b>: biblioteca ≈ 1 día con A + A (guardado optimista y Deshacer es lo más largo), ficha ≈ medio día. Sin migraciones ni consultas nuevas.</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <h2>Biblioteca · escritorio · 1440 px · en vivo</h2>
+  <p>Pulsa <b>⋯</b> en una fila y cámbiala de estado o márcala. Cambia de lista en el raíl. En Jugando, pasa Hades II a Pausado: la fila se tiñe, sale, vuela una ficha a «Pausados» y los contadores saltan; prueba «Deshacer». En «Todos», el chip cambia de color en su sitio (y con el orden «Último cambio de estado», la fila sube). En Favoritos, quita un corazón.</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="lib-desk"></div></div>
+  <div class="tests" data-lib="lib-desk"><span>Pruebas:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="fail" aria-pressed="false">Simular error al guardar</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="stress" aria-pressed="false">Prueba de estrés: +400 filas en «Todos»</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="reset">Volver a los datos de ejemplo</button>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Ficha · escritorio · 1440 px · en vivo</h2>
+  <p>«Repetir entrada» para ver los tiles contar, la barra del objetivo y el anillo rellenarse. Cambia el estado en el selector, marca Favorito o Sin final y pulsa <b>Completar</b> para ver la celebración del diálogo y el aterrizaje en la ficha. El caso del 100 % de logros está en «Celeste».</p>
+  <div class="scroller"><div class="frame w-desk" style="width:1440px" id="fi-desk"></div></div>
+  <div class="tests" data-fi="fi-desk"><span>Juego:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="hades" aria-pressed="true">Hades II · en curso</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="celeste" aria-pressed="false">Celeste · 100 % de logros</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-preset="poe" aria-pressed="false">Path of Exile 2 · Sin final</button>
+    <span style="margin-left:12px">Pruebas:</span>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="fail" aria-pressed="false">Simular error al guardar</button>
+    <button class="doc-btn doc-btn--sm" type="button" data-test="under" aria-pressed="false">Aterrizar bajo el diálogo (como hoy)</button>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>El raíl es una tira horizontal: el indicador se desliza en horizontal (con el tinte de la lista, ver pregunta 5) y la tira se desplaza para enseñar la lista activa. Si el destino de una fila no se ve en la tira, no hay vuelo: solo salta el contador. En la ficha, el selector es de 2 columnas y el fondo baja por la rejilla.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" style="width:390px" id="lib-mob"></div><p class="frame-cap"><b>Biblioteca</b> en Jugando. Prueba a pasar un juego a Completado o a marcar Favorito, y a cambiar de lista en la tira.</p></div>
+    <div><div class="frame w-mob" style="width:390px" id="fi-mob"></div><p class="frame-cap"><b>Ficha</b> de Hades II. El selector en 2 × 5: de Jugando a Abandonado el fondo baja dos filas. «Completar» abre la hoja inferior.</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Variantes · lado a lado</h2>
+  <p><b>Salida de la fila.</b> <b>A · Pliegue</b>: la fila se desliza hacia el raíl y se apaga (200 ms) y luego el hueco se cierra (240 ms); si la fila solo cambia de puesto, se pliega en el viejo y reaparece en el nuevo con el cursor encendido un instante. Solo CSS, no mide nada y convive con dnd-kit. <b>B · Deslizar</b>: la fila sale de la lista (240 ms) mientras el resto sube a la vez y, si cambia de puesto, viaja hasta él (320 ms); es más continuo, pero mide todas las filas en cada cambio. Recomiendo <b>A</b>. Marcos a 600 px (tableta o ventana estrecha), en Jugando.</p>
+  <div class="scroller"><div class="grid-frames" id="var-exit"></div></div>
+  <p style="margin-top:24px"><b>Selector de estado de la ficha.</b> <b>A · Fondo que se desliza</b> por la rejilla (también en diagonal o de una fila a otra), con el borde que cambia al color de la lista nueva por el camino: dice de dónde viene y a dónde va, como el resto de segmentados. <b>B · Fundido en el sitio</b>: la opción vieja se apaga y la nueva se enciende con un pop del icono; más quieto, sin viajes largos en móvil. Recomiendo <b>A</b>.</p>
+  <div class="scroller"><div class="grid-frames" id="var-sel"></div></div>
+</section>
+
+<section class="sec note" id="questions">
+  <h2>Preguntas para Diego</h2>
+  <ol class="qs">
+    <li><b>Guardar el estado: A (al momento, con «Deshacer» 5 s y <kbd class="kk">Ctrl + Z</kbd>) o B (esperar al servidor como hoy, sin Deshacer).</b> Recomiendo <b>A</b>: es lo que hace la bandeja, la animación empieza al pulsar y no tras medio segundo de spinner, y un error deja la fila donde estaba con su aviso. B es más barato (no toca el flujo de guardado) pero se nota la espera antes de cada animación.</li>
+    <li><b>Salida de la fila: A (pliegue) o B (deslizar con <code>layout</code>).</b> Recomiendo <b>A</b>: no mide nada con cientos de filas, no choca con el arrastre de pendientes y es la misma salida que la wishlist. B queda más continua cuando una fila cambia de puesto, pero ese caso solo existe con el orden «Último cambio de estado».</li>
+    <li><b>Selector de la ficha: A (fondo que se desliza por la rejilla) o B (fundido en el sitio).</b> Recomiendo <b>A</b>, igual que los demás segmentados; en móvil el viaje más largo (de Bandeja a Otros, cuatro filas) sigue siendo de 220 ms.</li>
+    <li><b>Ficha que vuela al raíl</b> al sacar una fila de la lista. Recomiendo <b>sí en escritorio</b> (el raíl siempre se ve y explica a dónde ha ido el juego) y, en móvil, <b>solo si el destino se ve en la tira</b>; si no, solo el contador.</li>
+    <li><b>Raíl en móvil</b>: hoy la lista activa casi no se distingue (todas las pastillas tienen el mismo fondo y borde; la activa solo pone el número en color y en negrita). ¿El indicador que se desliza puede llevar el <b>tinte de la lista</b> (fondo al 12–14 % y borde de su color, como el chip)? Es el único cambio visual de esta propuesta. Recomiendo <b>sí</b>; en escritorio se queda como hoy (superficie con borde).</li>
+    <li><b>Completar desde el menú de la biblioteca</b>: hoy completa al momento con la fecha sugerida, sin diálogo ni nota, así que no hay celebración. ¿Lo dejamos así (con el chip que se tiñe de verde y la bandera que se planta en pequeño, como en la ficha), o que abra el diálogo «Completar»? Recomiendo <b>dejarlo así</b> en esta pasada: abrir el diálogo cambia el comportamiento y merece su propio PR.</li>
+    <li><b>Aterrizaje al completar en la ficha después de cerrar el diálogo</b> (no debajo, como hoy). Recomiendo <b>sí</b>: es lo que se aprobó en «Completar» y hoy no se ve. Prueba «Aterrizar bajo el diálogo» para comparar.</li>
+    <li><b>Sin escalonado de filas al llegar a la biblioteca ni al cambiar de lista</b> (solo fundido). Recomiendo <b>mantenerlo</b>: la lista viene del esqueleto y la regla de «Cargando» dice solo fundido; un escalonado cada vez que cambias de lista cansaría.</li>
+    <li><b>Contadores del raíl al llegar</b>: ¿cuentan desde 0 como los tiles, o solo saltan cuando cambian? Recomiendo <b>solo saltar</b>: el raíl es navegación, no un resumen, y son doce cifras a la vez.</li>
+    <li><b>Rejilla con A</b>: las tarjetas siguientes saltan a su hueco con un fundido corto. ¿Te vale, o prefieres B solo en la rejilla? Recomiendo <b>que valga</b>: la rejilla se usa menos y B obliga a medir.</li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide) ── */
+const P = {
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  library: '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  pause: '<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
+  repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  circlex: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  eyeoff: '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+  shapes: '<path d="M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1Z"/><rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17.5" cy="17.5" r="3.5"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  hourglass: '<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
+  thumb: '<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  arrowleft: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+  undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',
+  chevdown: '<path d="m6 9 6 6 6-6"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  calendar: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+  calclock: '<path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h5"/><path d="M17.5 17.5 16 16.3V14"/><circle cx="16" cy="16" r="6"/>',
+  star: '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+  infinity: '<path d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4Zm0 0c2 2.67 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.33-6 4Z"/>',
+  target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  more: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+  list: '<path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/>',
+  grid: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+  pin: '<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>',
+  cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+  trend: '<polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>',
+  ext: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  sparkles: '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const later = (fn, ms) => setTimeout(fn, rm() ? 0 : ms);
+const VAR = { save: 'A', exit: 'A', sel: 'A', fly: 'on' };
+
+/* ── Listas ── */
+const STATUSES = ['bandeja', 'pendiente', 'jugando', 'pausado', 'rejugable', 'completado', 'abandonado', 'ya_jugado', 'descartado', 'otros'];
+const LABEL = { bandeja: 'Bandeja', pendiente: 'Pendiente', jugando: 'Jugando', pausado: 'Pausado', rejugable: 'Rejugable', completado: 'Completado', abandonado: 'Abandonado', ya_jugado: 'Ya jugado', descartado: 'Descartado', otros: 'Otros' };
+const TAB = { todos: 'Todos', jugando: 'Jugando', pendiente: 'Pendientes', pausado: 'Pausados', rejugable: 'Rejugables', completado: 'Completados', abandonado: 'Abandonados', ya_jugado: 'Ya jugados', descartado: 'Descartados', otros: 'Otros', favorito: 'Favoritos', sin_final: 'Sin final', bandeja: 'Bandeja' };
+const HINT = { todos: 'Todos tus juegos clasificados, menos los descartados y los de «Otros»', jugando: 'Lo que juegas ahora', pendiente: 'Para jugar más adelante, comprados o no', pausado: 'En pausa por un tiempo', rejugable: 'Juegos vivos a los que vuelves de vez en cuando a echar una partida', completado: 'Terminados', abandonado: 'Empezados y dejados', ya_jugado: 'Jugados antes o sin seguimiento: ni completados ni abandonados', descartado: 'Los tienes, pero no te interesan', otros: 'Lo que no encaja en ninguna lista: software, demos, betas, bandas sonoras...', favorito: 'Tus favoritos, estén en la lista que estén', sin_final: 'Juegos que no se terminan: se juegan. Estén en la lista que estén' };
+const ICON = { todos: 'library', bandeja: 'inbox', pendiente: 'bookmark', jugando: 'play', pausado: 'pause', rejugable: 'repeat', completado: 'flag', abandonado: 'circlex', ya_jugado: 'history', descartado: 'eyeoff', otros: 'shapes', favorito: 'heart', sin_final: 'infinity' };
+const RAIL = [[null, ['todos']], ['Estados', ['jugando', 'pendiente', 'pausado', 'rejugable', 'completado', 'abandonado', 'ya_jugado', 'descartado', 'otros']], ['Marcas', ['favorito', 'sin_final']]];
+const TRAY_COUNT = 7;
+const LIMIT = 4;
+function inTab(g, t) {
+  if (t === 'todos') return !['descartado', 'otros', 'bandeja'].includes(g.s);
+  if (t === 'favorito') return g.fav;
+  if (t === 'sin_final') return g.inf;
+  return g.s === t;
+}
+const fmtN = (v) => String(v).replace('.', ',');
+function fmtH(min) { if (min === 0) return '0 h'; if (min < 60) return `${min} min`; const h = min / 60; return `${h < 10 ? h.toFixed(1).replace('.', ',') : Math.round(h)} h`; }
+const mcTier = (s) => (s >= 75 ? 'top' : s >= 50 ? 'mid' : 'bad');
+const rTier = (r) => (r >= 9 ? 'top' : r >= 7 ? 'good' : r >= 5 ? 'mid' : 'bad');
+const img = (id, kind = 'header') => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/${kind}.jpg`;
+
+const GAMES = [
+  { id: 1145350, n: 'Hades II', s: 'jugando', h: 1290, a: [31, 49], mc: 95, ch: 20 },
+  { id: 367520, n: 'Hollow Knight', s: 'jugando', h: 2760, a: [48, 63], mc: 87, fav: true, ch: 19 },
+  { id: 2379780, n: 'Balatro', s: 'jugando', h: 3420, a: [24, 30], mc: 90, ch: 15 },
+  { id: 2679460, n: 'Metaphor: ReFantazio', s: 'jugando', h: 2040, a: [17, 50], mc: 94, ch: 14 },
+  { id: 1086940, n: "Baldur's Gate 3", s: 'pausado', h: 3840, a: [22, 54], mc: 96, ch: 12 },
+  { id: 1245620, n: 'ELDEN RING', s: 'completado', h: 8520, a: [42, 42], mc: 96, r: 9.5, fav: true, ch: 9 },
+  { id: 504230, n: 'Celeste', s: 'completado', h: 1860, a: [32, 32], mc: 88, r: 9, ch: 7 },
+  { id: 620, n: 'Portal 2', s: 'completado', h: 960, a: [51, 51], mc: 95, r: 10, fav: true, ch: 3 },
+  { id: 1794680, n: 'Vampire Survivors', s: 'completado', h: 1800, a: [204, 239], mc: 86, r: 8, ch: 5 },
+  { id: 753640, n: 'Outer Wilds', s: 'pendiente', h: 0, a: [0, 31], mc: 85, story: 1020, ch: 11 },
+  { id: 632470, n: 'Disco Elysium - The Final Cut', s: 'pendiente', owned: false, mc: 91, story: 1500, price: { cut: 75, now: '9,99 €', was: '39,99 €', low: true }, ch: 10 },
+  { id: 2694490, n: 'Path of Exile 2', s: 'rejugable', h: 12600, a: [18, 40], inf: true, ch: 8 },
+  { id: 730, n: 'Counter-Strike 2', s: 'rejugable', h: 31200, a: null, inf: true, ch: 2 },
+  { id: 1091500, n: 'Cyberpunk 2077', s: 'abandonado', h: 720, a: [9, 57], mc: 86, ch: 6 },
+  { id: 413150, n: 'Stardew Valley', s: 'ya_jugado', h: 4800, a: [21, 49], mc: 89, fav: true, inf: true, ch: 1 },
+  { id: 588650, n: 'Dead Cells', s: 'descartado', h: 95, a: [2, 59], mc: 89, ch: 4 },
+  { id: 431960, n: 'Wallpaper Engine', s: 'otros', h: 300, a: null, ch: 0 },
+].map((g) => ({ owned: true, fav: false, inf: false, r: null, ...g }));
+const cloneGames = () => GAMES.map((g) => ({ ...g, a: g.a ? [...g.a] : null }));
+function stressGames() {
+  const out = [];
+  const st = ['completado', 'pendiente', 'abandonado', 'ya_jugado', 'pausado', 'completado', 'pendiente'];
+  for (let k = 1; k <= 400; k++) out.push({ id: 900000 + k, n: `Juego de prueba ${String(k).padStart(3, '0')}`, s: st[k % st.length], h: (k * 37) % 4000, a: [(k * 7) % 30, 30], mc: 60 + (k % 35), owned: true, fav: k % 13 === 0, inf: false, r: null, ch: -k, fake: true });
+  return out;
+}
+
+/* ══════════════════════════ Biblioteca ══════════════════════════ */
+const LIB = {};
+let seq = 100;
+
+function mkLib(id, layout, tab, force = {}) {
+  const st = { id, layout, tab, force, games: cloneGames(), sort: 'nombre', view: 'lista', own: 'todos', fail: false, stress: false, action: null, menu: null };
+  LIB[id] = st;
+  const el = document.getElementById(id);
+  el.addEventListener('click', (e) => onLibClick(st, e));
+  el.addEventListener('change', (e) => {
+    if (e.target.matches('[data-act="sort"]')) { st.sort = e.target.value; swapList(st); }
+  });
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && st.menu) closeMenu(st, true);
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && st.action) { e.preventDefault(); undo(st); }
+  });
+}
+const v = (st, k) => st.force[k] || VAR[k];
+const frameOf = (st) => document.getElementById(st.id);
+const counts = (st) => Object.fromEntries(Object.keys(TAB).filter((t) => t !== 'bandeja').map((t) => [t, st.games.filter((g) => inTab(g, t)).length]));
+const showStatus = (st) => ['todos', 'favorito', 'sin_final'].includes(st.tab);
+function listFor(st, tab = st.tab) {
+  const list = st.games.filter((g) => inTab(g, tab));
+  if (st.sort === 'cambio') return list.sort((a, b) => b.ch - a.ch);
+  return list.sort((a, b) => a.n.localeCompare(b.n, 'es'));
+}
+
+function flagsHTML(g, fresh) {
+  return `${g.fav ? `<span class="hg-flag hg-tint st-favorito${fresh === 'fav' ? ' is-in' : ''}" data-flag="fav" title="Favorito">${ic('heart')}<span class="sr-only">Favorito</span></span>` : ''}${g.inf ? `<span class="hg-flag hg-tint st-sin_final${fresh === 'inf' ? ' is-in' : ''}" data-flag="inf" title="Sin final">${ic('infinity', fresh === 'inf' ? 'hg-loop' : '')}<span class="sr-only">Sin final</span></span>` : ''}`;
+}
+const chipHTML = (s) => `<span class="hg-chip hg-tint st-${s}" data-chip><span class="chip-ico">${ic(ICON[s])}</span><span data-chip-label>${LABEL[s]}</span></span>`;
+function metaHTML(g, tab) {
+  const own = tab === 'pendiente' || !g.owned ? (g.owned ? `<span class="lib-own" style="color:var(--muted)">${ic('check')} Comprado</span>` : `<span class="lib-own">${ic('cart')} Sin comprar</span>`) : '';
+  const hours = g.owned ? `<span class="lib-meta">${ic('clock')} ${fmtH(g.h)}</span>` : '';
+  const story = (g.s === 'pendiente' || !g.owned) && g.story && !g.inf ? `<span class="lib-meta" title="Duración de la historia">${ic('hourglass')} ${fmtH(g.story)}</span>` : '';
+  const rate = g.r !== null ? `<span class="hg-score hg-tint sc-${rTier(g.r)}" title="Tu nota">${ic('star')} ${fmtN(g.r)}</span>` : '';
+  const mc = g.mc ? `<span class="hg-score hg-tint sc-${mcTier(g.mc)}" title="Metacritic">${g.mc}</span>` : '';
+  return own + hours + story + rate + mc;
+}
+function progHTML(g) {
+  if (!g.owned) return `<span class="lib-price"><span><span class="hg-score hg-tint sc-top">-${g.price.cut} %</span> <b>${g.price.now}</b> <s>${g.price.was}</s></span>${g.price.low ? `<span class="hg-deal">${ic('trend')} Mínimo histórico</span>` : ''}</span>`;
+  if (!g.a) return `<span class="hg-row__prog hg-row__prog--none">Sin logros</span>`;
+  const pct = Math.floor((g.a[0] / g.a[1]) * 100), done = g.a[0] >= g.a[1];
+  return `<span class="hg-row__prog"><span class="hg-row__prog-label"><span><b>${g.a[0]}</b> / ${g.a[1]} logros</span><span class="${done ? 'lib-perfect' : ''}">${pct} %</span></span><span class="hg-bar${done ? ' is-done' : ''}"><span style="width:${pct}%"></span></span></span>`;
+}
+function itemHTML(st, g, cls = '') {
+  const menuBtn = `<button class="hg-icon-btn" type="button" data-act="menu" aria-haspopup="true" aria-expanded="false" aria-label="Cambiar estado o marcas de ${esc(g.n)}">${ic('more')}</button>`;
+  const cover = g.fake ? '' : `<img src="${img(g.id)}" alt="" loading="lazy" onerror="this.remove()">`;
+  if (st.view === 'cuadricula') {
+    return `<li class="lib-item ${cls}" data-id="${g.id}"><div class="hg-card lib-card st-${g.s}${g.owned ? '' : ' is-unowned'}">
+      <span class="hg-card__cover">${cover}</span>
+      <span class="hg-card__body"><span class="lib-row__name"><a href="#" data-act="noop">${esc(g.n)}</a><span class="flags">${flagsHTML(g)}</span></span>
+      <span class="hg-row__meta">${metaHTML(g, st.tab)}</span>
+      ${g.owned && g.a ? `<span class="hg-bar${g.a[0] >= g.a[1] ? ' is-done' : ''}" style="height:4px"><span style="width:${Math.floor((g.a[0] / g.a[1]) * 100)}%"></span></span>` : ''}
+      <span class="lib-card__foot">${showStatus(st) ? chipHTML(g.s) : '<span></span>'}${menuBtn}</span></span></div></li>`;
+  }
+  return `<li class="lib-item ${cls}" data-id="${g.id}"><div class="hg-row lib-row st-${g.s}${g.owned ? '' : ' is-unowned'}">
+    <span class="hg-row__cover">${cover}</span>
+    <span class="hg-row__main"><span class="lib-row__name"><a href="#" data-act="noop">${esc(g.n)}</a><span class="flags">${flagsHTML(g)}</span></span><span class="hg-row__meta">${metaHTML(g, st.tab)}</span></span>
+    ${progHTML(g)}
+    <span class="lib-row__end">${showStatus(st) ? chipHTML(g.s) : ''}${menuBtn}</span></div></li>`;
+}
+const cnt = (n) => `<span class="hg-count"><span class="hg-count__num">${n}</span></span>`;
+function railHTML(st, c) {
+  return `<nav class="lib-rail" aria-label="Listas"><span class="rail-pill no-anim st-${st.tab}" aria-hidden="true"></span>${RAIL.map(([title, tabs]) => `<div class="lib-rail__group">${title ? `<p class="lib-rail__title">${title}</p>` : ''}${tabs.map((t) => `<button type="button" class="lib-rail__item st-${t}" data-tab="${t}"${st.tab === t ? ' aria-current="page"' : ''}><span class="lib-rail__icon hg-tint">${ic(ICON[t])}</span><span class="lib-rail__label">${TAB[t]}</span><span class="lib-rail__count" data-count="${t}">${cnt(c[t])}</span></button>`).join('')}</div>`).join('')}
+    <div class="lib-rail__group"><a href="#" data-act="noop" class="lib-rail__item lib-rail__item--tray st-bandeja" title="Lleva a /biblioteca/bandeja"><span class="lib-rail__icon hg-tint">${ic('inbox')}</span><span class="lib-rail__label">Bandeja</span><span class="lib-rail__count">${TRAY_COUNT}</span></a></div></nav>`;
+}
+function listheadHTML(st) {
+  return `<span class="lib-listhead__icon hg-tint st-${st.tab}">${ic(ICON[st.tab])}</span><div class="lib-listhead__text"><h2>${TAB[st.tab]}</h2><p>${HINT[st.tab]}</p></div>`;
+}
+function segHTML(name, opts, val) {
+  return `<div class="hg-seg" role="group" data-seg="${name}"><span class="hg-seg__thumb" aria-hidden="true"></span>${opts.map(([k, label, icon]) => `<button type="button" class="hg-seg__opt" data-segv="${k}" aria-pressed="${val === k}" title="${label}">${icon ? ic(icon) : ''}${icon && name === 'view' ? `<span class="sr-only">${label}</span>` : label}</button>`).join('')}</div>`;
+}
+function limitHTML(st, c) {
+  if (st.tab !== 'jugando') return '';
+  return `<div class="lib-limit" data-limit><span><b data-count="jugando-limit">${cnt(c.jugando)}</b> de ${LIMIT} juegos a la vez.</span><span style="color:var(--foreground);font-size:.8125rem;font-weight:600">Límite: ${LIMIT}</span></div>`;
+}
+function libPageHTML(st) {
+  const c = counts(st);
+  const classified = c.todos + c.descartado + c.otros, unowned = st.games.filter((g) => !g.owned).length;
+  const list = listFor(st);
+  return `<div class="lib-page">
+    <header class="page-head"><div><h1 class="page-title">Biblioteca</h1><p class="page-subtitle"><span data-count="classified">${cnt(classified)}</span> juegos clasificados · <span data-count="jugando-sub">${cnt(c.jugando)}</span> en curso${unowned ? ` · ${unowned} pendiente sin comprar` : ''}</p></div>
+      <div class="lib-head-actions"><button class="btn btn--secondary" type="button">${ic('search')} Buscar juego <span class="hg-kbd">Ctrl + K</span></button><button class="btn btn--secondary" type="button">${ic('heart')} Wishlist</button></div></header>
+    <div class="lib-alert"></div>
+    <div class="lib-layout">${railHTML(st, c)}
+      <section class="lib-main st-${st.tab}">
+        <div class="lib-listhead">${listheadHTML(st)}<div class="lib-listhead__actions">${segHTML('view', [['lista', 'Lista', 'list'], ['cuadricula', 'Rejilla', 'grid']], st.view)}<button class="btn btn--secondary btn--sm" type="button">${ic('pin')} Fijar como inicio</button></div></div>
+        <div class="lib-limit-slot">${limitHTML(st, c)}</div>
+        <div class="lib-filters"><select class="lib-select" data-act="sort" aria-label="Ordenar"><option value="nombre"${st.sort === 'nombre' ? ' selected' : ''}>Nombre</option><option value="cambio"${st.sort === 'cambio' ? ' selected' : ''}>Último cambio de estado</option></select><span class="lib-select">Todos los géneros ${ic('chevdown')}</span><span class="lib-select">Cualquier % de logros ${ic('chevdown')}</span><span class="lib-select">Cualquier duración ${ic('chevdown')}</span><span class="lib-select">Todas las marcas ${ic('chevdown')}</span></div>
+        <p class="lib-note"><span class="hg-keyhint"><kbd>↑</kbd> <kbd>↓</kbd> o <kbd>j</kbd> <kbd>k</kbd> para moverte · <kbd>Enter</kbd> abre la ficha</span></p>
+        <div class="lib-list-wrap"><ul class="lib-list${st.view === 'cuadricula' ? ' is-grid' : ''}${showStatus(st) ? '' : ' no-status'}" aria-label="Juegos: ${TAB[st.tab]}">${list.map((g) => itemHTML(st, g)).join('')}</ul></div>
+      </section>
+    </div>
+    <div class="lib-live sr-only" aria-live="polite"></div>
+  </div>`;
+}
+function sidebar(active) {
+  const link = (icon, label, key, extra = '') => `<a href="#" data-act="noop" class="nv-link${active === key ? ' active' : ''}">${ic(icon)}<span>${label}</span>${extra}</a>`;
+  return `<aside class="nv-side"><div class="nv-brand">Hub<i>Games</i></div><div class="nv-search">${ic('search')}<span>Buscar juego</span><span class="nv-kbd">Ctrl + K</span></div>
+    <div class="nv-group">${link('home', 'Inicio', 'home')}</div>
+    <div class="nv-group"><p class="nv-group__title">Tu colección</p>${link('library', 'Biblioteca', 'lib', `<span class="nav-ind hg-tint st-bandeja">${ic('inbox')}${TRAY_COUNT}</span>`)}${link('trophy', 'Logros', 'logros')}${link('heart', 'Wishlist', 'wish')}${link('chart', 'Estadísticas', 'stats')}</div>
+    <div class="nv-group"><p class="nv-group__title">Juego diario</p>${link('gamepad', 'JUDI', 'judi')}${link('award', 'Ranking', 'rank')}</div></aside>`;
+}
+function mobileChrome(body, active) {
+  const tab = (icon, label, key) => `<span class="m-tab${active === key ? ' active' : ''}">${ic(icon)}${label}</span>`;
+  return `<div class="m-top"><div class="nv-brand">Hub<i>Games</i></div><div style="display:flex"><span class="m-icon">${ic('search')}</span><span class="m-icon">${ic('user')}</span></div></div><div class="app">${body}</div>
+    <nav class="m-tabbar">${tab('home', 'Inicio', 'home')}${tab('library', 'Biblioteca', 'lib')}${tab('trophy', 'Logros', 'logros')}${tab('heart', 'Wishlist', 'wish')}${tab('gamepad', 'JUDI', 'judi')}</nav>`;
+}
+function renderLib(st, anim) {
+  const el = frameOf(st);
+  closeMenu(st, false);
+  const body = libPageHTML(st);
+  el.classList.toggle('anim', !!anim);
+  el.innerHTML = st.layout === 'desk' ? `${sidebar('lib')}<div class="app">${body}</div><div class="tray-float"></div>` : st.layout === 'mob' ? `${mobileChrome(body, 'lib')}<div class="tray-float"></div>` : `<div class="app">${body}</div><div class="tray-float"></div>`;
+  requestAnimationFrame(() => { placePill(st, false); placeSegs(el); });
+}
+
+/* Indicador del raíl */
+function placePill(st, animate) {
+  const el = frameOf(st), rail = el.querySelector('.lib-rail'), pill = rail?.querySelector('.rail-pill'), item = rail?.querySelector(`[data-tab="${st.tab}"]`);
+  if (!pill || !item) return;
+  pill.classList.toggle('no-anim', !animate || rm());
+  pill.className = pill.className.replace(/\bst-\S+/g, '') + ` st-${st.tab}`;
+  pill.style.width = `${item.offsetWidth}px`; pill.style.height = `${item.offsetHeight}px`;
+  pill.style.transform = `translate(${item.offsetLeft}px, ${item.offsetTop}px)`;
+  if (st.layout !== 'desk') {
+    const l = item.offsetLeft, r = l + item.offsetWidth;
+    if (l < rail.scrollLeft || r > rail.scrollLeft + rail.clientWidth) rail.scrollTo({ left: Math.max(0, l - 24), behavior: rm() || !animate ? 'auto' : 'smooth' });
+  }
+}
+function placeSegs(root) {
+  root.querySelectorAll('.hg-seg[data-seg], .juego-goal-seg').forEach((seg) => {
+    const on = seg.querySelector('[aria-pressed="true"]'), th = seg.querySelector('.hg-seg__thumb');
+    if (!on || !th) return;
+    th.style.width = `${on.offsetWidth}px`; th.style.transform = `translateX(${on.offsetLeft}px)`;
+  });
+}
+
+/* Contador que salta (AnimatedCount) */
+function bump(el, n) {
+  if (!el) return;
+  const old = Number(el.dataset.n ?? el.textContent.trim());
+  el.dataset.n = n;
+  if (old === n) return;
+  const dir = n > old ? 'up' : 'down';
+  el.innerHTML = `<span class="hg-count${rm() ? '' : ' hg-count--pop'}"><span class="hg-count__num${rm() ? '' : ` hg-count__num--${dir}`}">${n}</span></span>`;
+}
+function updateCounts(st, hold = []) {
+  const el = frameOf(st), c = counts(st);
+  Object.entries(c).forEach(([t, n]) => { if (!hold.includes(t)) bump(el.querySelector(`[data-count="${t}"]`), n); });
+  if (!hold.includes('jugando')) { bump(el.querySelector('[data-count="jugando-sub"]'), c.jugando); bump(el.querySelector('[data-count="jugando-limit"]'), c.jugando); }
+  bump(el.querySelector('[data-count="classified"]'), c.todos + c.descartado + c.otros);
+}
+function initCounts(el) { el.querySelectorAll('[data-count]').forEach((x) => { x.dataset.n = x.textContent.trim(); }); }
+
+/* Lista: salidas, entradas y cambios de puesto (A pliegue · B FLIP como layout="position" + popLayout) */
+function syncList(st, opt = {}) {
+  const el = frameOf(st), ul = el.querySelector('.lib-list');
+  if (!ul) return;
+  const want = listFor(st), wantIds = want.map((g) => g.id);
+  const live = [...ul.children].filter((x) => x.dataset.id && !x.classList.contains('is-gone'));
+  const els = new Map(live.map((x) => [Number(x.dataset.id), x]));
+  const motion = !rm();
+  const B = v(st, 'exit') === 'B';
+  const grid = st.view === 'cuadricula';
+  const oldOrder = live.map((x) => Number(x.dataset.id)).filter((id) => wantIds.includes(id));
+  const newOrderStay = wantIds.filter((id) => els.has(id));
+  // Filas que cambian de puesto relativo (solo comparando las que se quedan)
+  const moved = new Set();
+  if (!B) { const keep = lisKeep(newOrderStay.map((id) => oldOrder.indexOf(id))); newOrderStay.forEach((id, k) => { if (!keep.has(k)) moved.add(id); }); }
+  const first = new Map();
+  if (B && motion) [...ul.children].forEach((x) => first.set(x, x.getBoundingClientRect()));
+  const ulRect = ul.getBoundingClientRect();
+  // Salidas
+  const leaving = live.filter((x) => !wantIds.includes(Number(x.dataset.id)));
+  const leaveEls = [...leaving];
+  moved.forEach((id) => { const orig = els.get(id); leaveEls.push(orig); els.delete(id); });
+  leaveEls.forEach((x) => {
+    x.classList.add('is-gone');
+    if (!motion) { x.remove(); return; }
+    if (B) {
+      const r = first.get(x);
+      x.classList.add('is-pop');
+      Object.assign(x.style, { top: `${r.top - ulRect.top}px`, left: `${r.left - ulRect.left}px`, width: `${r.width}px` });
+      setTimeout(() => x.remove(), 260);
+    } else {
+      x.classList.add('is-leaving');
+      if (grid) setTimeout(() => x.remove(), 200);
+      else { setTimeout(() => x.classList.add('is-collapsing'), 200); setTimeout(() => x.remove(), 460); }
+    }
+  });
+  // Orden final: las filas que salen se quedan junto a su vecina anterior hasta irse
+  const make = (g, cls) => { const t = document.createElement('template'); t.innerHTML = itemHTML(st, g, cls).trim(); return t.content.firstChild; };
+  const finals = want.map((g) => {
+    if (els.has(g.id)) return els.get(g.id);
+    const back = opt.back === g.id;
+    return make(g, motion ? (back || moved.has(g.id) ? 'is-back' : 'is-new') : '');
+  });
+  const cur = [...ul.children];
+  const anchored = new Map(); const head = [];
+  cur.forEach((x, k) => {
+    if (!x.classList.contains('is-gone') || x.classList.contains('is-pop')) return;
+    let a = null; for (let j = k - 1; j >= 0; j--) { const y = cur[j]; if (!y.classList.contains('is-gone')) { a = y; break; } }
+    if (a && finals.includes(a)) { if (!anchored.has(a)) anchored.set(a, []); anchored.get(a).push(x); } else head.push(x);
+  });
+  const seqEls = [...head];
+  finals.forEach((x) => { seqEls.push(x); (anchored.get(x) || []).forEach((y) => seqEls.push(y)); });
+  [...ul.children].filter((x) => x.classList.contains('is-pop')).forEach((x) => seqEls.push(x));
+  let ref = ul.firstChild;
+  seqEls.forEach((x) => { if (x === ref) ref = ref.nextSibling; else ul.insertBefore(x, ref); });
+  // A en rejilla: las tarjetas que se mueven a otro hueco se funden
+  if (!B && grid && motion && leaving.length) {
+    const firstIdx = Math.min(...leaving.map((x) => cur.indexOf(x)));
+    finals.forEach((x) => { if (cur.indexOf(x) > firstIdx) { x.classList.remove('is-shift'); void x.offsetWidth; x.classList.add('is-shift'); setTimeout(() => x.classList.remove('is-shift'), 200); } });
+  }
+  // B: FLIP de las que se quedan
+  if (B && motion) {
+    finals.forEach((x) => {
+      const f = first.get(x); if (!f) return;
+      const l = x.getBoundingClientRect(); const dx = f.left - l.left, dy = f.top - l.top;
+      if (!dx && !dy) return;
+      x.style.transition = 'none'; x.style.transform = `translate(${dx}px, ${dy}px)`;
+      void x.offsetWidth;
+      x.style.transition = `transform ${opt.reorder ? 320 : 240}ms var(--ease-out)`; x.style.transform = '';
+      setTimeout(() => { x.style.transition = ''; }, 340);
+    });
+  }
+  ul.classList.toggle('no-status', !showStatus(st));
+}
+
+/* Las que se quedan en su sitio = subsecuencia creciente más larga; el resto «se mueve» */
+function lisKeep(a) {
+  const tails = [], prev = new Array(a.length), idx = [];
+  a.forEach((x, i) => { let lo = 0, hi = tails.length; while (lo < hi) { const m = (lo + hi) >> 1; if (a[tails[m]] < x) lo = m + 1; else hi = m; } prev[i] = lo ? tails[lo - 1] : -1; tails[lo] = i; });
+  const keep = new Set(); let k = tails.length ? tails[tails.length - 1] : -1; while (k >= 0) { keep.add(k); k = prev[k]; } return keep;
+}
+
+/* Menú ⋯ */
+function openMenu(st, btn) {
+  if (st.menu?.btn === btn) return closeMenu(st, true);
+  closeMenu(st, false);
+  const el = frameOf(st), id = Number(btn.closest('.lib-item').dataset.id), g = st.games.find((x) => x.id === id);
+  const m = document.createElement('div');
+  m.className = 'game-menu'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-label', `Lista de ${g.n}`);
+  m.innerHTML = menuHTML(g);
+  el.appendChild(m);
+  const fr = el.getBoundingClientRect(), br = btn.getBoundingClientRect();
+  let top = br.bottom - fr.top + 6; const left = Math.max(8, br.right - fr.left - m.offsetWidth);
+  if (top + m.offsetHeight > el.clientHeight - 8) top = Math.max(8, br.top - fr.top - m.offsetHeight - 6);
+  m.style.top = `${top}px`; m.style.left = `${left}px`;
+  btn.setAttribute('aria-expanded', 'true');
+  st.menu = { el: m, btn, id };
+  m.querySelector('[aria-pressed="true"]')?.focus({ preventScroll: true });
+}
+function menuHTML(g, pend) {
+  const sts = g.owned ? `<div class="game-menu__group" role="group" aria-label="Estado">${STATUSES.map((s) => `<button type="button" class="game-menu__opt st-${s}" data-status="${s}" aria-pressed="${g.s === s}"${pend ? ' disabled' : ''}>${pend === s ? '<span class="spin" style="color:var(--c)"></span>' : ic(ICON[s])} ${LABEL[s]}${g.s === s ? ic('check', 'chk') : ''}</button>`).join('')}</div>` : '';
+  const mk = [['fav', 'favorito', 'Favorito'], ['inf', 'sin_final', 'Sin final']].map(([k, list, label]) => `<button type="button" class="game-menu__opt st-${list}" data-mark="${k}" aria-pressed="${g[k]}">${ic(ICON[list])} ${label}${g[k] ? ic('check', 'chk') : ''}</button>`).join('');
+  return `${sts}<div class="game-menu__group" role="group" aria-label="Marcas">${mk}</div>`;
+}
+function closeMenu(st, focusBack) {
+  if (!st.menu) return;
+  const { el: m, btn } = st.menu; st.menu = null;
+  btn.setAttribute('aria-expanded', 'false');
+  if (focusBack && btn.isConnected) btn.focus({ preventScroll: true });
+  if (rm()) { m.remove(); return; }
+  m.classList.add('is-out'); setTimeout(() => m.remove(), 130);
+}
+
+function onLibClick(st, e) {
+  const t = e.target;
+  if (t.closest('[data-act="noop"]')) { e.preventDefault(); return; }
+  const tabBtn = t.closest('[data-tab]'); if (tabBtn) return changeTab(st, tabBtn.dataset.tab);
+  const menuBtn = t.closest('[data-act="menu"]'); if (menuBtn) return openMenu(st, menuBtn);
+  const sOpt = t.closest('[data-status]'); if (sOpt && st.menu) return changeStatus(st, st.menu.id, sOpt.dataset.status);
+  const mOpt = t.closest('[data-mark]'); if (mOpt && st.menu) return toggleMark(st, st.menu.id, mOpt.dataset.mark);
+  const seg = t.closest('[data-segv]'); if (seg) return changeView(st, seg);
+  const und = t.closest('[data-act="undo"]'); if (und) return undo(st);
+  if (st.menu && !t.closest('.game-menu')) closeMenu(st, false);
+}
+
+function changeTab(st, tab) {
+  if (tab === st.tab) return;
+  closeMenu(st, false);
+  st.tab = tab;
+  const el = frameOf(st);
+  el.querySelectorAll('.lib-rail [data-tab]').forEach((b) => (b.dataset.tab === tab ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')));
+  placePill(st, true);
+  const main = el.querySelector('.lib-main');
+  main.className = `lib-main st-${tab}`;
+  const head = el.querySelector('.lib-listhead');
+  head.querySelector('.lib-listhead__icon').outerHTML = `<span class="lib-listhead__icon hg-tint st-${tab} is-in">${ic(ICON[tab])}</span>`;
+  head.querySelector('.lib-listhead__text').outerHTML = `<div class="lib-listhead__text is-in"><h2>${TAB[tab]}</h2><p>${HINT[tab]}</p></div>`;
+  const wrap = el.querySelector('.lib-list-wrap');
+  const swap = () => {
+    el.querySelector('.lib-limit-slot').innerHTML = limitHTML(st, counts(st));
+    initCounts(el.querySelector('.lib-limit-slot'));
+    wrap.innerHTML = `<ul class="lib-list${st.view === 'cuadricula' ? ' is-grid' : ''}${showStatus(st) ? '' : ' no-status'} swap-in" aria-label="Juegos: ${TAB[tab]}">${listFor(st).map((g) => itemHTML(st, g)).join('')}</ul>`;
+  };
+  if (rm()) return swap();
+  wrap.querySelector('.lib-list').classList.add('swap-out');
+  setTimeout(swap, 120);
+}
+function swapList(st) {
+  const wrap = frameOf(st).querySelector('.lib-list-wrap');
+  const swap = () => { wrap.innerHTML = `<ul class="lib-list${st.view === 'cuadricula' ? ' is-grid' : ''}${showStatus(st) ? '' : ' no-status'} swap-in" aria-label="Juegos: ${TAB[st.tab]}">${listFor(st).map((g) => itemHTML(st, g)).join('')}</ul>`; };
+  if (rm()) swap(); else { wrap.querySelector('.lib-list').classList.add('swap-out'); setTimeout(swap, 120); }
+}
+function changeView(st, btn) {
+  const seg = btn.closest('.hg-seg');
+  seg.querySelectorAll('[data-segv]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+  placeSegs(seg.parentElement);
+  if (seg.dataset.seg === 'view' && st.view !== btn.dataset.segv) {
+    st.view = btn.dataset.segv;
+    swapList(st);
+  }
+}
+
+/* Cambiar de estado */
+const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+async function changeStatus(st, id, s) {
+  const g = st.games.find((x) => x.id === id);
+  if (!g || g.s === s) return;
+  const optimistic = v(st, 'save') === 'A';
+  if (!optimistic) {
+    st.menu.el.innerHTML = menuHTML(g, s);
+    await delay(700); // el servidor
+    if (st.fail) { if (st.menu) st.menu.el.innerHTML = menuHTML(g); return showAlert(st, `No se pudo guardar. ${g.n} sigue en ${LABEL[g.s]}.`); }
+  }
+  const prev = { ...g };
+  applyChange(st, g, { s, ch: ++seq }, { kind: 'status', from: prev.s });
+  if (optimistic) {
+    setToast(st, { id: ++seq, game: g, prev, text: s, kind: 'status' });
+    if (st.fail) setTimeout(() => revert(st, prev, true), rm() ? 300 : 900);
+  }
+}
+function toggleMark(st, id, k) {
+  const g = st.games.find((x) => x.id === id);
+  const prev = { ...g };
+  const on = !g[k];
+  const list = k === 'fav' ? 'favorito' : 'sin_final';
+  applyChange(st, g, { [k]: on }, { kind: 'mark', mark: k, on });
+  const leaves = !inTab(g, st.tab);
+  if (v(st, 'save') === 'A' && leaves) setToast(st, { id: ++seq, game: g, prev, text: list, kind: 'mark', on });
+}
+function applyChange(st, g, patch, info) {
+  const el = frameOf(st);
+  const wasIn = inTab(g, st.tab);
+  Object.assign(g, patch);
+  const isIn = inTab(g, st.tab);
+  const item = el.querySelector(`.lib-item[data-id="${g.id}"]:not(.is-gone)`);
+  const box = item?.firstElementChild;
+  const live = el.querySelector('.lib-live');
+  if (info.kind === 'status') {
+    live.textContent = `${g.n} pasa a ${TAB[g.s]}`;
+    if (box) {
+      box.className = box.className.replace(/\bst-\S+/, `st-${g.s}`);
+      const chip = box.querySelector('[data-chip]');
+      if (chip) {
+        chip.className = chip.className.replace(/\bst-\S+/, `st-${g.s}`);
+        chip.querySelector('.chip-ico').outerHTML = `<span class="chip-ico${rm() ? '' : ' is-in'}">${ic(ICON[g.s])}</span>`;
+        chip.querySelector('[data-chip-label]').textContent = LABEL[g.s];
+      }
+    }
+    if (st.menu && isIn) closeMenu(st, true);
+  } else {
+    live.textContent = `${g.n}: ${info.mark === 'fav' ? 'Favorito' : 'Sin final'} ${info.on ? 'marcado' : 'quitado'}`;
+    if (st.menu) {
+      st.menu.el.innerHTML = menuHTML(g);
+      const opt = st.menu.el.querySelector(`[data-mark="${info.mark}"] svg`);
+      if (info.on && !rm()) opt.classList.add(info.mark === 'fav' ? 'hg-beat' : 'hg-loop');
+    }
+    const flags = box?.querySelector('.flags');
+    if (flags) {
+      if (info.on) flags.innerHTML = flagsHTML(g, rm() ? null : info.mark);
+      else {
+        const f = flags.querySelector(`[data-flag="${info.mark}"]`);
+        if (f && !rm()) { f.classList.add('is-out'); setTimeout(() => (flags.innerHTML = flagsHTML(g)), 160); } else flags.innerHTML = flagsHTML(g);
+      }
+    }
+  }
+  if (wasIn && !isIn && item) {
+    // Sale de la lista: tinte del destino, vuelo al raíl y pliegue o deslizamiento
+    if (st.menu) closeMenu(st, false);
+    const dest = info.kind === 'status' ? g.s : null;
+    if (dest) box.classList.add('is-going');
+    const go = () => {
+      const flew = dest && launchFly(st, item, dest);
+      updateCounts(st, flew ? [dest] : []);
+      if (flew) setTimeout(() => updateCounts(st), rm() ? 0 : 440);
+      syncList(st);
+      focusNext(st, item);
+    };
+    if (dest && !rm()) setTimeout(go, 200); else go();
+  } else {
+    updateCounts(st);
+    if (st.sort === 'cambio' && info.kind === 'status') syncList(st, { reorder: true });
+  }
+}
+function focusNext(st, item) {
+  // En la app: el foco pasa al enlace de la fila siguiente (o la anterior), para no perderlo con la fila
+  const next = item.nextElementSibling && !item.nextElementSibling.classList.contains('is-gone') ? item.nextElementSibling : item.previousElementSibling;
+  next?.querySelector('a')?.focus({ preventScroll: true });
+}
+function launchFly(st, item, dest) {
+  if (VAR.fly !== 'on' || rm()) return false;
+  const el = frameOf(st), target = el.querySelector(`.lib-rail [data-tab="${dest}"]`);
+  if (!target) return false;
+  const rail = el.querySelector('.lib-rail');
+  const fr = el.getBoundingClientRect(), tr = target.getBoundingClientRect(), rr = rail.getBoundingClientRect();
+  if (tr.right > rr.right + 2 || tr.left < rr.left - 2) return false; // en la tira de móvil, el destino no se ve: sin vuelo
+  const src = (item.querySelector('[data-chip]') || item.querySelector('.hg-icon-btn')).getBoundingClientRect();
+  const f = document.createElement('span');
+  f.className = `fly st-${dest}`; f.innerHTML = ic(ICON[dest]);
+  el.appendChild(f);
+  const x0 = src.left - fr.left, y0 = src.top - fr.top + src.height / 2 - 14;
+  const ico = target.querySelector('.lib-rail__count').getBoundingClientRect();
+  const x1 = ico.left - fr.left - 6, y1 = ico.top - fr.top + ico.height / 2 - 14;
+  f.style.left = '0px'; f.style.top = '0px';
+  const mid = { x: (x0 + x1) / 2, y: Math.min(y0, y1) - 40 };
+  f.animate([
+    { transform: `translate(${x0}px, ${y0}px) scale(.6)`, opacity: 0 },
+    { transform: `translate(${mid.x}px, ${mid.y}px) scale(1.05)`, opacity: 1, offset: .45 },
+    { transform: `translate(${x1}px, ${y1}px) scale(.7)`, opacity: .9 },
+  ], { duration: 440, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' }).onfinish = () => f.remove();
+  return true;
+}
+function setToast(st, action) {
+  st.action = action;
+  const el = frameOf(st), host = el.querySelector('.tray-float');
+  const g = action.game;
+  const what = action.kind === 'status' ? `pasa a ${chipHTML(action.text)}` : action.on ? 'marcado' : `fuera de ${TAB[action.text]}`;
+  host.innerHTML = `<div class="tray-toast" role="status"><span class="tray-toast__text">${ic('check')}<b>${esc(g.n)}</b> ${what}</span><button class="btn btn--ghost btn--sm" type="button" data-act="undo">${ic('undo')} Deshacer <span class="hg-kbd">Ctrl + Z</span></button></div>`;
+  clearTimeout(st.toastT);
+  st.toastT = setTimeout(() => hideToast(st, action.id), 5000);
+}
+function hideToast(st, id) {
+  if (id && st.action?.id !== id) return;
+  st.action = null;
+  const t = frameOf(st).querySelector('.tray-toast');
+  if (!t) return;
+  if (rm()) { t.remove(); return; }
+  t.classList.add('is-out'); setTimeout(() => t.remove(), 160);
+}
+function undo(st) {
+  const a = st.action; if (!a) return;
+  hideToast(st);
+  revert(st, a.prev, false);
+}
+function revert(st, prev, failed) {
+  const g = st.games.find((x) => x.id === prev.id);
+  if (!g) return;
+  const wasIn = inTab(g, st.tab);
+  Object.assign(g, prev);
+  const el = frameOf(st);
+  if (failed) { hideToast(st); showAlert(st, `No se pudo guardar. ${g.n} vuelve a ${TAB[g.s]}.`); }
+  if (!wasIn && inTab(g, st.tab)) syncList(st, { back: g.id });
+  else {
+    const item = el.querySelector(`.lib-item[data-id="${g.id}"]:not(.is-gone)`);
+    if (item) {
+      const fresh = document.createElement('template'); fresh.innerHTML = itemHTML(st, g, rm() ? '' : 'is-back').trim();
+      item.replaceWith(fresh.content.firstChild);
+    }
+    if (st.sort === 'cambio') syncList(st, { reorder: true });
+  }
+  updateCounts(st);
+}
+function showAlert(st, text) {
+  const slot = frameOf(st).querySelector('.lib-alert');
+  slot.innerHTML = `<p class="alert alert--error is-in" role="alert">${ic('alert')} ${esc(text)}</p>`;
+  clearTimeout(st.alertT); st.alertT = setTimeout(() => (slot.innerHTML = ''), 4000);
+}
+
+/* ══════════════════════════ Ficha ══════════════════════════ */
+const PRESETS = {
+  hades: { appid: 1145350, name: 'Hades II', studios: 'Supergiant Games', s: 'jugando', fav: false, inf: false, h: 1290, h2: 270, last: '27 oct 2026', started: '3 de octubre de 2026', r: null, a: [31, 49], goal: 'historia', dur: { main: 2040, extra: 3480, comp: 5700 }, mc: 95, rev: 96, release: '25 sep 2025', rarity: [['comun', 14], ['poco', 9], ['rara', 5], ['epica', 2], ['leg', 1]],
+    next: [['Primeros pasos en la Encrucijada', 'Vuelve a la Encrucijada tras tu primera salida', 'comun', 58.2], ['Herramientas de recolección', 'Consigue las cuatro herramientas', 'comun', 41.6], ['Vínculo con Hécate', 'Llega al rango 3 con Hécate', 'poco', 36.5]],
+    recent: [['Señora de las Brujas', 'Derrota a Crono sin ningún favor de Selene', 'epica', 3.2, '27 oct'], ['Arcana completa', 'Desbloquea todas las cartas de la Arcana', 'rara', 9.8, '24 oct'], ['Ecos del Olimpo', 'Llega a la cima del Olimpo', 'poco', 31.4, '19 oct']] },
+  celeste: { appid: 504230, name: 'Celeste', studios: 'Maddy Makes Games · Extremely OK Games', s: 'jugando', fav: true, inf: false, h: 1860, h2: 95, last: '28 oct 2026', started: '2 de septiembre de 2026', r: null, a: [32, 32], goal: 'completo', dur: { main: 480, extra: 1140, comp: 2340 }, mc: 88, rev: 97, release: '25 ene 2018', rarity: [['comun', 6], ['poco', 9], ['rara', 8], ['epica', 6], ['leg', 3]],
+    next: [], recent: [['Farewell', 'Completa el capítulo 9', 'epica', 4.1, '28 oct'], ['Corazón de oro', 'Completa todas las caras C', 'leg', 0.9, '26 oct'], ['Pastel de fresa', 'Recoge 175 fresas', 'rara', 6.3, '22 oct']] },
+  poe: { appid: 2694490, name: 'Path of Exile 2', studios: 'Grinding Gear Games', s: 'rejugable', fav: false, inf: true, h: 12600, h2: 840, last: '28 oct 2026', started: null, r: null, a: [18, 40], goal: 'historia', dur: { main: 3600, extra: 6000, comp: null }, mc: null, rev: 78, release: '6 dic 2024', rarity: [['comun', 9], ['poco', 6], ['rara', 3]],
+    next: [['Al otro lado del mar', 'Completa el acto 4', 'poco', 22.4], ['Ascendencia', 'Consigue tu segunda ascendencia', 'rara', 12.1], ['Maestro del atlas', 'Completa 50 mapas', 'rara', 8.7]],
+    recent: [['Atlas despierto', 'Desbloquea el atlas de mapas', 'poco', 18.9, '28 oct'], ['El fin del principio', 'Completa la campaña', 'poco', 27.5, '20 oct'], ['Primera ascensión', 'Consigue tu primera ascendencia', 'comun', 44.0, '12 oct']] },
+};
+const FI = {};
+function mkFi(id, layout, preset, force = {}) {
+  const st = { id, layout, force, preset, g: null, pending: null, fail: false, under: false, dlg: null };
+  FI[id] = st; loadFi(st, preset);
+  const el = document.getElementById(id);
+  el.addEventListener('click', (e) => onFiClick(st, e));
+  el.addEventListener('keydown', (e) => { if (e.key === 'Escape' && st.dlg) closeDlg(st); });
+}
+function loadFi(st, preset) { st.preset = preset; const p = PRESETS[preset]; st.g = { ...p, a: [...p.a], dur: { ...p.dur } }; st.pending = null; }
+function goalOf(g) {
+  if (g.goal === 'completo' && g.a) { const pct = Math.floor((g.a[0] / g.a[1]) * 100); return { basis: 'logros', percent: pct, done: pct >= 100 }; }
+  const target = g.goal === 'historia' ? g.dur.main : g.goal === 'extras' ? g.dur.extra : g.dur.comp;
+  if (!target) return { basis: 'horas', percent: null };
+  return { basis: 'horas', percent: Math.min(100, Math.floor((g.h / target) * 100)), target, done: g.h >= target };
+}
+const GOAL_LABEL = { historia: 'Historia', extras: 'Historia + extras', completo: '100 %' };
+function trackHTML(g) {
+  const marks = [['Historia', g.dur.main], ['+ extras', g.dur.extra], ['100 %', g.dur.comp]].filter((m) => m[1]);
+  const max = Math.max(g.h, ...marks.map((m) => m[1]));
+  const p = Math.min(1, g.h / max);
+  return `<div class="juego-track"><span class="juego-track__fill" style="--p:${p}"></span>${marks.map(([l, m], i) => { const at = Math.min(1, m / max); return `<span class="juego-track__mark${g.h >= m ? ' is-passed' : ''}${i === marks.length - 1 && m === max ? ' is-last' : ''}" style="left:${at * 100}%;--at:${(at / p).toFixed(2)}"><span>${l} ${fmtH(m)}</span></span>`; }).join('')}</div>`;
+}
+function goalHTML(g, swap) {
+  if (g.inf) return `<div class="juego-goal${swap ? ' is-swap' : ''}" data-goal><div class="juego-goal__row"><span class="juego-goal__label st-sin_final">${ic('infinity')} Sin final</span><span class="juego-goal__value">Lo juegas por jugar: no se mide por horas ni se espera terminarlo.</span></div></div>`;
+  const pr = goalOf(g);
+  const value = pr.percent === null ? 'Sin duración para medirlo' : pr.basis === 'logros' ? `${pr.percent} % de logros` : `${fmtH(g.h)} de ${fmtH(pr.target)} · ${pr.percent} %`;
+  const bar = pr.basis === 'horas' && pr.percent !== null ? trackHTML(g) : pr.percent !== null ? `<span class="hg-bar hg-bar--fill juego-goal__bar${pr.done ? ' is-done' : ''}"><span style="width:${pr.percent}%"></span></span>` : '';
+  const suggest = !g.inf && g.goal === 'completo' && pr.done && g.s !== 'completado';
+  const left = pr.basis === 'horas' && pr.target ? (pr.target - g.h > 30 ? `Te faltan unas ${fmtH(pr.target - g.h)} para terminar la historia.` : `Ya has pasado la duración de la historia (${fmtH(pr.target)}).`) : '';
+  return `<div class="juego-goal${swap ? ' is-swap' : ''}" data-goal><div class="juego-goal__row"><span class="juego-goal__label">${ic('target')} Objetivo <span class="lib-select" style="min-width:150px;height:32px;font-weight:600">${GOAL_LABEL[g.goal]} ${ic('chevdown')}</span></span><span class="juego-goal__value">${value}</span></div>${bar}
+    ${suggest ? `<p class="juego-goal__done" role="status">${ic('trophy')} ¡Objetivo cumplido: tienes todos los logros! <button class="btn btn--primary btn--sm" type="button" data-act="complete">${ic('flag')} Marcar como completado</button></p>` : ''}
+    ${left ? `<p class="juego-panel__note">${left} <span>Según HowLongToBeat.</span></p>` : ''}</div>`;
+}
+const tileVal = (n, dec = 0, suf = '') => `<span class="cu" data-to="${n}" data-dec="${dec}" data-suf="${suf}">${fmtCU(n, dec, suf)}</span>`;
+function fmtCU(n, dec, suf) { const t = n.toLocaleString('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec }); return suf ? `${t} ${suf}` : t; }
+function hoursVal(min) { if (min < 60) return tileVal(min, 0, 'min'); const h = min / 60; return h < 10 ? tileVal(Math.round(h * 10) / 10, 1, 'h') : tileVal(Math.round(h), 0, 'h'); }
+function rateTile(g, landed) {
+  const tone = g.r !== null ? `sc-${rTier(g.r)}` : 'st-pausado';
+  return `<div class="hg-tile ${tone}${landed ? ' is-landed' : ''}" data-tile="rate"><dt><span class="hg-tile__icon hg-tint">${ic('star')}</span>Tu nota</dt>
+    <dd class="hg-tile__value${g.r !== null ? ' hg-tile__value--tinted' : ''}">${g.r !== null ? tileVal(g.r, g.r % 1 ? 1 : 0) : '—'}</dd>
+    <dd class="hg-tile__note${landed ? ' is-in' : ''}">${g.s === 'completado' ? 'Completado el 29 de octubre de 2026' : g.r === null ? 'Se pone al completarlo' : ''}</dd></div>`;
+}
+function lastNote(g) { return g.started && g.s === 'jugando' ? `Jugando desde el ${g.started}` : ''; }
+function tilesHTML(g) {
+  const pct = Math.floor((g.a[0] / g.a[1]) * 100), perfect = g.a[0] >= g.a[1];
+  return `<dl class="hg-tiles">
+    <div class="hg-tile st-jugando"><dt><span class="hg-tile__icon hg-tint">${ic('clock')}</span>Horas</dt><dd class="hg-tile__value">${hoursVal(g.h)}</dd><dd class="hg-tile__note">${fmtH(g.h2)} en 2 semanas</dd></div>
+    <div class="hg-tile st-pendiente"><dt><span class="hg-tile__icon hg-tint">${ic('calclock')}</span>Última partida</dt><dd class="hg-tile__value">${g.last}</dd><dd class="hg-tile__note" data-last>${lastNote(g)}</dd></div>
+    ${rateTile(g)}
+    <div class="hg-tile st-sin_final"><dt><span class="hg-tile__icon hg-tint">${ic('trophy')}</span>Logros</dt><dd class="hg-tile__value">${tileVal(g.a[0])}<small>/${g.a[1]}</small></dd><dd class="hg-tile__note">${perfect ? `<span class="badge-100">${ic('trophy')} 100%</span>` : `${pct} %`} · <a href="#" data-act="noop">Ver abajo</a></dd></div>
+  </dl>`;
+}
+function statusHTML(st) {
+  const g = st.g, B = v(st, 'sel') === 'B';
+  return `<div class="juego-status${B ? ' sel-B' : ''}" role="group" aria-label="Estado">${B ? '' : `<span class="sel-thumb no-anim st-${g.s}" aria-hidden="true"></span>`}${STATUSES.map((s) => `<button type="button" class="juego-status__opt st-${s}" data-fstatus="${s}" aria-pressed="${g.s === s}">${st.pending === s ? '<span class="spin" style="color:var(--c)"></span>' : ic(ICON[s])} ${LABEL[s]}</button>`).join('')}</div>`;
+}
+function marksHTML(g) {
+  return `<div class="juego-marks" role="group" aria-label="Marcas">${[['fav', 'favorito', 'Favorito'], ['inf', 'sin_final', 'Sin final']].map(([k, list, label]) => `<button type="button" class="juego-mark st-${list}" data-fmark="${k}" aria-pressed="${g[k]}">${ic(ICON[list])} ${label}</button>`).join('')}</div>`;
+}
+function achHTML(g) {
+  const [u, t] = g.a, pct = Math.floor((u / t) * 100), done = u >= t;
+  const total = g.rarity.reduce((s, r) => s + r[1], 0);
+  const LBL = { comun: 'Común', poco: 'Poco común', rara: 'Rara', epica: 'Épica', leg: 'Legendaria' };
+  const ach = (x, i, time) => `<li class="hg-ach r-${x[2]} hg-enter" style="--i:${i}"><span class="hg-ach__icon hg-tint">${ic(time ? 'trophy' : 'lock')}</span><span style="min-width:0"><span class="hg-ach__name">${x[0]}</span><span class="hg-ach__desc">${x[1]}</span></span><span class="hg-ach__pct rar-ink">${fmtN(x[3])} %<small>${LBL[x[2]]}${time ? ` · ${x[4]}` : ''}</small></span></li>`;
+  return `<section class="juego-ach glass"><div class="juego-ach__summary"><h2 class="juego__section-title"><span class="juego-ach__trophy" style="display:inline-flex">${ic('trophy')}</span> Logros</h2>
+    <div class="hg-ring${done ? ' is-done' : ''}" role="img" aria-label="${u} de ${t} logros, ${pct} %"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" class="hg-ring__track"/><circle cx="18" cy="18" r="15.5" pathLength="100" class="hg-ring__fill" stroke-dasharray="${pct} 100"/></svg>
+      <span class="hg-ring__text"><b>${tileVal(pct, 0, '%')}</b><span>${u} de ${t}</span>${done ? `<span class="gl-seal">${ic('check')} 100 %</span>` : ''}</span></div>
+    <div class="juego-ach__stack">${g.rarity.map(([r, n]) => `<span class="r-${r}" style="flex:${n}"></span>`).join('')}</div>
+    <ul class="juego-ach__legend">${g.rarity.map(([r, n], i) => `<li class="r-${r}" style="--i:${i}">${LBL[r]} <b>${n}</b></li>`).join('')}</ul><p class="sr-only">${total} conseguidos</p></div>
+    <div class="juego-ach__cols"><div class="juego-ach__col"><h3>Los siguientes más fáciles <small>por % de jugadores</small></h3>${g.next.length ? `<ul class="hg-achs">${g.next.map((x, i) => ach(x, i)).join('')}</ul>` : `<p class="juego-panel__note">¡Los tienes todos!</p>`}</div>
+    <div class="juego-ach__col"><h3>Últimos desbloqueados <a href="#" data-act="noop">Ver los ${t}</a></h3><ul class="hg-achs">${g.recent.map((x, i) => ach(x, i + 3, true)).join('')}</ul></div></div></section>`;
+}
+function headerBtns(g, swap) {
+  return `<button class="btn btn--primary" type="button">${ic('play')} Jugar</button><button class="btn btn--secondary" type="button" data-act="complete"><span class="btn__swap${swap ? ' is-in' : ''}">${ic('flag')} ${g.s === 'completado' ? 'Editar nota' : 'Completar'}</span></button><button class="btn btn--secondary" type="button">${ic('ext')} Ver en Steam</button>`;
+}
+function fiPageHTML(st) {
+  const g = st.g;
+  if (st.layout === 'sel') return `<section class="juego-panel glass"><div class="juego-panel__top">${statusHTML(st)}${marksHTML(g)}</div><div data-warn></div></section>`;
+  const facts = `${g.release ? `<li class="juego-fact">${ic('calendar')} ${g.release}</li>` : ''}${g.mc ? `<li class="juego-fact sc-${mcTier(g.mc)}"><span class="juego-fact__num hg-tint">${g.mc}</span><span><b>Metacritic</b> · ${g.mc >= 90 ? 'Aclamado' : 'Favorable'}</span></li>` : ''}<li class="juego-fact sc-${g.rev >= 80 ? 'top' : 'good'}"><span class="juego-fact__num hg-tint">${ic('thumb')}</span><span><b>${g.rev} %</b> · ${g.rev >= 95 ? 'Extremadamente positivas' : g.rev >= 80 ? 'Muy positivas' : 'Mayormente positivas'}</span></li>${g.dur.main ? `<li class="juego-fact">${ic('hourglass')} Historia <b>${fmtH(g.dur.main)}</b></li>` : ''}`;
+  return `<div class="juego">
+    <a href="#" data-act="noop" class="juego__back">${ic('arrowleft')} Biblioteca</a>
+    <header class="juego__head"><div class="juego__hero"><img src="${img(g.appid, 'library_hero')}" alt="" onerror="this.src='${img(g.appid)}'"></div>
+      <div class="juego__heading"><div class="juego__title-row"><div><h1 class="page-title">${g.name}</h1><p class="juego__studios">${g.studios}</p></div><div class="juego__actions" data-head>${headerBtns(g)}</div></div><ul class="juego__facts">${facts}</ul></div></header>
+    <section class="juego-panel glass" data-panel><div class="juego-panel__top">${statusHTML(st)}${marksHTML(g)}</div><div data-alert></div><div data-warn></div>${tilesHTML(g)}<div data-goal-slot>${goalHTML(g)}</div></section>
+    ${achHTML(g)}
+  </div>`;
+}
+function renderFi(st, anim) {
+  const el = document.getElementById(st.id);
+  const body = fiPageHTML(st);
+  el.classList.toggle('anim', !!anim);
+  el.innerHTML = st.layout === 'desk' ? `${sidebar('lib')}<div class="app">${body}</div>` : st.layout === 'mob' ? mobileChrome(body, 'lib') : `<div class="app">${body}</div>`;
+  requestAnimationFrame(() => { placeThumb(st, false); if (anim) countUps(el); });
+}
+function placeThumb(st, animate) {
+  const el = document.getElementById(st.id), grid = el.querySelector('.juego-status'), th = grid?.querySelector('.sel-thumb');
+  if (!th) return;
+  const on = grid.querySelector(`[data-fstatus="${st.g.s}"]`);
+  th.classList.toggle('no-anim', !animate || rm());
+  th.className = th.className.replace(/\bst-\S+/g, '') + ` st-${st.g.s}`;
+  th.style.width = `${on.offsetWidth}px`; th.style.height = `${on.offsetHeight}px`;
+  th.style.transform = `translate(${on.offsetLeft}px, ${on.offsetTop}px)`;
+}
+function countUps(root) {
+  root.querySelectorAll('.cu').forEach((x) => countUp(x));
+}
+function countUp(x, from = 0) {
+  const to = Number(x.dataset.to), dec = Number(x.dataset.dec), suf = x.dataset.suf;
+  if (rm() || to === from) { x.textContent = fmtCU(to, dec, suf); return; }
+  const t0 = performance.now(), dur = 450, f = 10 ** dec;
+  const tick = (t) => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); x.textContent = fmtCU(Math.round((from + (to - from) * e) * f) / f, dec, suf); if (k < 1) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}
+function onFiClick(st, e) {
+  const t = e.target;
+  if (t.closest('[data-act="noop"]')) { e.preventDefault(); return; }
+  const s = t.closest('[data-fstatus]'); if (s) return fiStatus(st, s.dataset.fstatus);
+  const m = t.closest('[data-fmark]'); if (m) return fiMark(st, m.dataset.fmark);
+  if (t.closest('[data-act="complete"]')) return openDlg(st);
+  const rate = t.closest('[data-rate]'); if (rate) { st.dlg.r = Number(rate.dataset.rate); return renderDlg(st); }
+  if (t.closest('[data-act="dlg-fav"]')) { st.dlg.fav = !st.dlg.fav; return renderDlg(st); }
+  if (t.closest('[data-act="dlg-cancel"]')) return closeDlg(st);
+  if (t.closest('[data-act="dlg-save"]')) return saveDlg(st);
+  if (t.closest('.cp-cel')) return endCelebration(st);
+  if (t.closest('.cp-scrim')) return st.dlg?.celebrating ? endCelebration(st) : closeDlg(st);
+}
+async function fiStatus(st, s) {
+  const g = st.g;
+  if (g.s === s || st.pending) return;
+  if (s === 'completado') return openDlg(st);
+  const prev = g.s;
+  const el = document.getElementById(st.id);
+  // Optimista: el fondo se mueve al pulsar; el icono de la opción enseña el spinner mientras se guarda
+  g.s = s; st.pending = s;
+  updateSelector(st, true);
+  await delay(rm() ? 300 : 600);
+  st.pending = null;
+  if (st.fail) {
+    g.s = prev; updateSelector(st, true);
+    const a = el.querySelector('[data-alert]'); if (a) a.innerHTML = `<p class="alert alert--error is-in" role="alert">${ic('alert')} No se pudo guardar el estado. Sigue en ${LABEL[prev]}.</p>`;
+    return;
+  }
+  updateSelector(st, false);
+  el.querySelector('[data-alert]') && (el.querySelector('[data-alert]').innerHTML = '');
+  const last = el.querySelector('[data-last]');
+  if (last) { const txt = lastNote(g); if (last.textContent !== txt) { last.textContent = txt; last.classList.remove('is-in'); void last.offsetWidth; if (txt) last.classList.add('is-in'); } }
+  const w = el.querySelector('[data-warn]');
+  if (w) w.innerHTML = s === 'jugando' ? `<p class="juego-panel__warning is-in" role="status">${ic('alert')} Ahora tienes 5 juegos en Jugando y tu límite es 4. <a href="#" data-act="noop">Ver los que juegas</a></p>` : '';
+}
+function updateSelector(st, moving) {
+  const el = document.getElementById(st.id), grid = el.querySelector('.juego-status');
+  grid.querySelectorAll('[data-fstatus]').forEach((b) => {
+    const s = b.dataset.fstatus; const on = st.g.s === s;
+    b.setAttribute('aria-pressed', String(on));
+    const want = st.pending === s ? 'spin' : 'icon';
+    const has = b.querySelector('.spin') ? 'spin' : 'icon';
+    if (want !== has) b.innerHTML = `${want === 'spin' ? '<span class="spin" style="color:var(--c)"></span>' : ic(ICON[s])} ${LABEL[s]}`;
+  });
+  if (moving) placeThumb(st, true);
+}
+function fiMark(st, k) {
+  const g = st.g; g[k] = !g[k];
+  const el = document.getElementById(st.id);
+  const b = el.querySelector(`[data-fmark="${k}"]`);
+  b.setAttribute('aria-pressed', String(g[k]));
+  const svg = b.querySelector('svg');
+  svg.classList.remove('hg-beat', 'hg-loop'); void svg.getBoundingClientRect();
+  if (g[k] && !rm()) svg.classList.add(k === 'fav' ? 'hg-beat' : 'hg-loop');
+  if (k === 'inf') {
+    const slot = el.querySelector('[data-goal-slot]');
+    if (!slot) return;
+    const swap = () => { slot.innerHTML = goalHTML(g, !rm()); };
+    if (rm()) swap(); else { slot.firstElementChild.style.transition = 'opacity .12s ease-in'; slot.firstElementChild.style.opacity = '0'; setTimeout(swap, 120); }
+  }
+}
+
+/* Diálogo «Completar» (simplificado) y aterrizaje */
+function openDlg(st) {
+  if (st.layout === 'sel') { st.g.s = 'completado'; updateSelector(st, true); return; }
+  st.dlg = { r: st.g.r ?? 8.5, fav: st.g.fav, celebrating: false };
+  const el = document.getElementById(st.id);
+  const host = document.createElement('div'); host.className = 'cp-host';
+  host.innerHTML = `<div class="cp-scrim"></div><div class="cp-dlg" role="dialog" aria-label="Completar ${esc(st.g.name)}"></div>`;
+  el.appendChild(host);
+  renderDlg(st);
+}
+function renderDlg(st) {
+  const d = document.getElementById(st.id).querySelector('.cp-dlg'); if (!d) return;
+  const rates = [6, 7, 7.5, 8, 8.5, 9, 9.5, 10];
+  d.innerHTML = `<div class="cp-body"><h3>Completar ${esc(st.g.name)}</h3><p>Diálogo simplificado para el mockup: el real es <code>CompleteDialog</code> (diez puntos con medios, fecha, reseña), ya implementado.</p>
+    <div><p style="margin-bottom:6px;color:var(--foreground);font-weight:600">Tu nota</p><div class="cp-rate">${rates.map((r) => `<button type="button" class="sc-${rTier(r)}" data-rate="${r}" aria-pressed="${st.dlg.r === r}">${fmtN(r)}</button>`).join('')}</div></div>
+    <div><button type="button" class="juego-mark st-favorito" data-act="dlg-fav" aria-pressed="${st.dlg.fav}">${ic('heart')} Favorito</button></div>
+    <div class="cp-acts"><button class="btn btn--ghost" type="button" data-act="dlg-cancel">Cancelar</button><button class="btn btn--done" type="button" data-act="dlg-save">${ic('flag')} Completar</button></div></div>`;
+}
+function saveDlg(st) {
+  const g = st.g, d = document.getElementById(st.id).querySelector('.cp-dlg');
+  const patch = { s: 'completado', r: st.dlg.r, fav: st.dlg.fav };
+  st.landing = patch;
+  if (st.under) land(st, false); // como hoy: la ficha cambia bajo el velo
+  if (rm()) return closeDlg(st);
+  st.dlg.celebrating = true;
+  const cols = ['st-completado', `sc-${rTier(patch.r)}`, patch.fav ? 'st-favorito' : 'st-completado'];
+  const cel = document.createElement('div'); cel.className = 'cp-cel';
+  cel.innerHTML = `<div class="cp-cel__mark"><svg class="cp-cel__ring" viewBox="0 0 96 96"><circle class="tr" cx="48" cy="48" r="42"/><circle class="pr" cx="48" cy="48" r="42"/></svg><span class="cp-cel__flag">${ic('flag')}</span><span class="cp-cel__burst">${Array.from({ length: 12 }, (_, k) => `<i class="${cols[k % 3]}" style="--a:${k * 30 + 8}deg"></i>`).join('')}</span></div><h3>¡Completado!</h3><p>${esc(g.name)} · <span class="hg-score hg-tint sc-${rTier(patch.r)}">${ic('star')} ${fmtN(patch.r)}</span> · ${fmtH(g.h)}</p>`;
+  d.appendChild(cel);
+  st.celT = setTimeout(() => endCelebration(st), 1250);
+}
+function endCelebration(st) { clearTimeout(st.celT); if (st.dlg?.celebrating) closeDlg(st); }
+function closeDlg(st) {
+  const el = document.getElementById(st.id), host = el.querySelector('.cp-host');
+  const landing = st.landing; st.landing = null; st.dlg = null;
+  const finish = () => { host?.remove(); if (landing && !st.under) land(st, true, landing); };
+  if (!host) return;
+  if (rm()) return finish();
+  host.querySelector('.cp-scrim').classList.add('is-out'); host.querySelector('.cp-dlg').classList.add('is-out');
+  setTimeout(finish, 180);
+}
+function land(st, animate, patch = st.landing) {
+  const g = st.g, el = document.getElementById(st.id);
+  const wasFav = g.fav;
+  Object.assign(g, patch);
+  const motion = animate && !rm();
+  // 1 · el fondo del selector se desliza a Completado y la bandera se planta
+  updateSelector(st, motion);
+  if (!motion) placeThumb(st, false);
+  const opt = el.querySelector('[data-fstatus="completado"]');
+  if (motion) { opt.classList.remove('is-planted'); void opt.offsetWidth; opt.classList.add('is-planted'); setTimeout(() => opt.classList.remove('is-planted'), 700); }
+  // 2 · tu nota cuenta y toma su color; «Completado el…»
+  const tile = el.querySelector('[data-tile="rate"]');
+  if (tile) {
+    const tmp = document.createElement('template'); tmp.innerHTML = rateTile(g, motion).trim();
+    tile.replaceWith(tmp.content.firstChild);
+    const cu = el.querySelector('[data-tile="rate"] .cu');
+    if (cu && motion) setTimeout(() => countUp(cu), 120); else if (cu) cu.textContent = fmtCU(Number(cu.dataset.to), Number(cu.dataset.dec), '');
+  }
+  const last = el.querySelector('[data-last]'); if (last) last.textContent = lastNote(g);
+  const w = el.querySelector('[data-warn]'); if (w) w.innerHTML = '';
+  // 3 · el botón pasa a «Editar nota»; Favorito late si se marcó en el diálogo
+  const head = el.querySelector('[data-head]'); if (head) head.innerHTML = headerBtns(g, motion);
+  const fav = el.querySelector('[data-fmark="fav"]');
+  if (fav) { fav.setAttribute('aria-pressed', String(g.fav)); if (motion && g.fav && !wasFav) fav.querySelector('svg').classList.add('hg-beat'); }
+  const slot = el.querySelector('[data-goal-slot]'); if (slot) slot.innerHTML = goalHTML(g);
+}
+
+/* ══ Marcos del documento ══ */
+mkLib('lib-desk', 'desk', 'jugando');
+mkFi('fi-desk', 'desk', 'hades');
+mkLib('lib-mob', 'mob', 'jugando');
+mkFi('fi-mob', 'mob', 'hades');
+document.getElementById('var-exit').innerHTML = [['A', 'A · Pliegue (recomendada)'], ['B', 'B · Deslizar con layout']].map(([k, t]) => `<div><div class="vlabel"><b>${k}</b>${t}</div><div class="frame w-col" style="width:600px" id="vx-${k}"></div><p class="frame-cap">${k === 'A' ? 'Pasa un juego a otra lista: se desliza hacia la izquierda, se apaga y el hueco se cierra. Con «Último cambio de estado», la fila se pliega y reaparece arriba.' : 'Pasa un juego a otra lista: sale y, a la vez, el resto sube. Con «Último cambio de estado», la fila viaja hasta arriba.'}</p></div>`).join('');
+mkLib('vx-A', 'col', 'jugando', { exit: 'A' });
+mkLib('vx-B', 'col', 'jugando', { exit: 'B' });
+document.getElementById('var-sel').innerHTML = [['A', 'A · Fondo que se desliza (recomendada)'], ['B', 'B · Fundido en el sitio']].map(([k, t]) => `<div><div class="vlabel"><b>${k}</b>${t}</div><div class="frame w-col w-sel" style="width:600px" id="vs-${k}"></div><p class="frame-cap">${k === 'A' ? 'Prueba de Bandeja a Otros (en diagonal) o de Jugando a Ya jugado (cambia de fila).' : 'La opción vieja se apaga y la nueva se enciende con un pop del icono.'}</p></div>`).join('');
+mkFi('vs-A', 'sel', 'hades', { sel: 'A' });
+mkFi('vs-B', 'sel', 'hades', { sel: 'B' });
+
+function renderAll(anim = true) {
+  Object.values(LIB).forEach((st) => { renderLib(st, anim); initCounts(frameOf(st)); });
+  Object.values(FI).forEach((st) => renderFi(st, anim));
+}
+
+document.querySelectorAll('.tests[data-lib]').forEach((box) => box.addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-test]'); if (!b) return;
+  const st = LIB[box.dataset.lib];
+  if (b.dataset.test === 'fail') { st.fail = !st.fail; b.setAttribute('aria-pressed', String(st.fail)); }
+  if (b.dataset.test === 'stress') {
+    st.stress = !st.stress; b.setAttribute('aria-pressed', String(st.stress));
+    st.games = st.stress ? [...cloneGames(), ...stressGames()] : cloneGames();
+    if (st.stress) st.tab = 'todos';
+    renderLib(st, false); initCounts(frameOf(st));
+  }
+  if (b.dataset.test === 'reset') { st.games = cloneGames(); st.stress = false; st.tab = 'jugando'; st.sort = 'nombre'; st.view = 'lista'; box.querySelector('[data-test="stress"]').setAttribute('aria-pressed', 'false'); renderLib(st, true); initCounts(frameOf(st)); }
+}));
+document.querySelectorAll('.tests[data-fi]').forEach((box) => box.addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  const st = FI[box.dataset.fi];
+  if (b.dataset.preset) { loadFi(st, b.dataset.preset); box.querySelectorAll('[data-preset]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); renderFi(st, true); }
+  if (b.dataset.test === 'fail') { st.fail = !st.fail; b.setAttribute('aria-pressed', String(st.fail)); }
+  if (b.dataset.test === 'under') { st.under = !st.under; b.setAttribute('aria-pressed', String(st.under)); }
+}));
+document.querySelectorAll('[data-var]').forEach((b) => b.addEventListener('click', () => {
+  VAR[b.dataset.var] = b.dataset.val;
+  document.querySelectorAll(`[data-var="${b.dataset.var}"]`).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  if (b.dataset.var === 'sel') Object.values(FI).forEach((st) => renderFi(st, false));
+}));
+function setTheme(t) {
+  const html = document.documentElement;
+  if (!rm()) { html.classList.add('theme-anim'); setTimeout(() => html.classList.remove('theme-anim'), 320); }
+  html.dataset.theme = t;
+  const btn = document.getElementById('theme-btn'); btn.setAttribute('aria-pressed', String(t === 'dark')); btn.textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro';
+}
+document.getElementById('theme-btn').addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+document.getElementById('rm-btn').addEventListener('click', (e) => {
+  const on = document.documentElement.classList.toggle('rm');
+  e.currentTarget.setAttribute('aria-pressed', String(on));
+  e.currentTarget.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`;
+});
+document.getElementById('replay-btn').addEventListener('click', () => renderAll(true));
+window.addEventListener('resize', () => { Object.values(LIB).forEach((st) => placePill(st, false)); Object.values(FI).forEach((st) => placeThumb(st, false)); });
+if (document.fonts) document.fonts.ready.then(() => { Object.values(LIB).forEach((st) => { placePill(st, false); placeSegs(frameOf(st)); }); Object.values(FI).forEach((st) => placeThumb(st, false)); });
+
+renderAll(true);
+</script>
+</body>
+</html>
