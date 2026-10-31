@@ -17,13 +17,15 @@ interface Props {
     /** Rareza por la que se filtra la lista (variante A: el filtro vive en las columnas). */
     rarity: RarityTier | null
     onRarity: (tier: RarityTier) => void
+    /** Modo consulta (#104): no tienes el juego; se enseña lo que hay que conseguir, sin progreso. */
+    consulta?: boolean
 }
 
 /**
  * Resumen de los logros de un juego, como el de la ficha: anillo (cobalto; verde y cerrado al 100 %, con pulso y sello),
  * puntos de cazador, dificultad para el 100 % con el color de su rareza y una columna por rareza que filtra la lista.
  */
-export default function AchievementsSummary({ list, rarity, onRarity }: Props) {
+export default function AchievementsSummary({ list, rarity, onRarity, consulta = false }: Props) {
     const { unlocked, points, difficulty, columns, last } = useMemo(
         () => ({
             unlocked: list.filter((a) => a.achieved).length,
@@ -36,25 +38,39 @@ export default function AchievementsSummary({ list, rarity, onRarity }: Props) {
     )
     const total = list.length
     const pct = Math.floor((unlocked / total) * 100)
-    const done = unlocked === total
+    const done = !consulta && unlocked === total
 
     return (
         <section className="gl-sum hg-enter" style={{ '--i': 1 } as CSSVars} aria-label="Progreso">
             <div className="gl-ringbox">
-                <div className={`hg-ring gl-ring${done ? ' is-done' : ''}`} role="img" aria-label={`${unlocked} de ${total} logros, ${pct} %`}>
-                    <svg viewBox="0 0 36 36" aria-hidden>
-                        <circle cx="18" cy="18" r="15.5" className="hg-ring__track" />
-                        {pct > 0 && <circle cx="18" cy="18" r="15.5" pathLength={100} className="hg-ring__fill" style={{ strokeDashoffset: 100 - pct }} />}
-                    </svg>
-                    <span className="hg-ring__text" aria-hidden>
-                        <b>
-                            <CountUp value={pct} /> %
-                        </b>
-                        <span>
-                            {unlocked} de {total}
+                {consulta ? (
+                    <div className="hg-ring gl-ring" role="img" aria-label={`${total} ${total === 1 ? 'logro' : 'logros'}`}>
+                        <svg viewBox="0 0 36 36" aria-hidden>
+                            <circle cx="18" cy="18" r="15.5" className="hg-ring__track" />
+                        </svg>
+                        <span className="hg-ring__text" aria-hidden>
+                            <b>
+                                <CountUp value={total} />
+                            </b>
+                            <span>{total === 1 ? 'logro' : 'logros'}</span>
                         </span>
-                    </span>
-                </div>
+                    </div>
+                ) : (
+                    <div className={`hg-ring gl-ring${done ? ' is-done' : ''}`} role="img" aria-label={`${unlocked} de ${total} logros, ${pct} %`}>
+                        <svg viewBox="0 0 36 36" aria-hidden>
+                            <circle cx="18" cy="18" r="15.5" className="hg-ring__track" />
+                            {pct > 0 && <circle cx="18" cy="18" r="15.5" pathLength={100} className="hg-ring__fill" style={{ strokeDashoffset: 100 - pct }} />}
+                        </svg>
+                        <span className="hg-ring__text" aria-hidden>
+                            <b>
+                                <CountUp value={pct} /> %
+                            </b>
+                            <span>
+                                {unlocked} de {total}
+                            </span>
+                        </span>
+                    </div>
+                )}
             </div>
 
             <div className="gl-sum__main">
@@ -62,15 +78,28 @@ export default function AchievementsSummary({ list, rarity, onRarity }: Props) {
                     <p className="gl-pts" title="Puntos según la rareza de cada logro">
                         <span className="gl-pts__v">
                             <strong>
-                                <CountUp value={points.earned} />
+                                <CountUp value={consulta ? points.possible : points.earned} />
                             </strong>
-                            <small>de {n(points.possible)}</small>
+                            {!consulta && <small>de {n(points.possible)}</small>}
                         </span>
                         <span className="gl-pts__label">
-                            <Zap aria-hidden /> puntos de cazador
+                            <Zap aria-hidden /> {consulta ? 'puntos de cazador en juego' : 'puntos de cazador'}
                         </span>
                     </p>
-                    {difficulty ? (
+                    {difficulty && consulta ? (
+                        <p className="gl-diff">
+                            <span className="ach-difficulty gl-diff__level" style={{ '--c': rarityColor(DIFFICULTY_TIERS[difficulty.level]) } as CSSVars}>
+                                <Gauge aria-hidden /> {DIFFICULTY_LABELS[difficulty.level]}
+                            </span>{' '}
+                            para el 100 %
+                            {difficulty.rarest !== null && (
+                                <>
+                                    : el más raro lo tiene el <b>{formatPercent(difficulty.rarest)}</b> de los jugadores
+                                </>
+                            )}
+                            {difficulty.hard > 1 && ` y ${difficulty.hard} son raros o más`}.
+                        </p>
+                    ) : difficulty ? (
                         <p className="gl-diff">
                             <span className="ach-difficulty gl-diff__level" style={{ '--c': rarityColor(DIFFICULTY_TIERS[difficulty.level]) } as CSSVars}>
                                 <Gauge aria-hidden /> {DIFFICULTY_LABELS[difficulty.level]}
@@ -111,7 +140,7 @@ export default function AchievementsSummary({ list, rarity, onRarity }: Props) {
 
                 {columns.length > 0 && (
                     <>
-                        <ul className="gl-tiers" aria-label="Conseguidos por rareza; pulsa para filtrar">
+                        <ul className="gl-tiers" aria-label={consulta ? 'Logros por rareza; pulsa para filtrar' : 'Conseguidos por rareza; pulsa para filtrar'}>
                             {columns.map((c, k) => {
                                 const label = RARITY_TIER_LABELS[c.tier]
                                 return (
@@ -129,20 +158,36 @@ export default function AchievementsSummary({ list, rarity, onRarity }: Props) {
                                                 <Check aria-hidden />
                                             </span>
                                             <span className="gl-tier__n">
-                                                {c.unlocked}
-                                                <small> / {c.total}</small>
-                                                {c.unlocked === c.total && (
+                                                {consulta ? (
+                                                    c.total
+                                                ) : (
+                                                    <>
+                                                        {c.unlocked}
+                                                        <small> / {c.total}</small>
+                                                    </>
+                                                )}
+                                                {!consulta && c.unlocked === c.total && (
                                                     <span className="gl-tier__done" title="Todos">
                                                         <Check aria-hidden />
                                                         <span className="sr-only"> (todos)</span>
                                                     </span>
                                                 )}
                                             </span>
-                                            <span className="hg-bar" aria-hidden>
-                                                <span style={{ width: `${Math.round((c.unlocked / c.total) * 100)}%` }} />
-                                            </span>
+                                            {!consulta && (
+                                                <span className="hg-bar" aria-hidden>
+                                                    <span style={{ width: `${Math.round((c.unlocked / c.total) * 100)}%` }} />
+                                                </span>
+                                            )}
                                             <span className="gl-tier__pts">
-                                                <b>{n(c.earned)}</b> de {n(c.possible)} pts
+                                                {consulta ? (
+                                                    <>
+                                                        <b>{n(c.possible)}</b> pts
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <b>{n(c.earned)}</b> de {n(c.possible)} pts
+                                                    </>
+                                                )}
                                             </span>
                                         </button>
                                     </li>

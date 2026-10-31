@@ -9,6 +9,7 @@ import { ACHIEVEMENT_COLUMNS, type Achievement } from '@/lib/achievements'
 import { RARITY_TIERS, RARITY_TIER_LABELS, rarityColor, rarityTier, type RarityTier } from '@/lib/rarity'
 import AchievementItem from '@/components/achievements/AchievementItem'
 import { useGame } from './GameContext'
+import GameAchievementsPreview from './GameAchievementsPreview'
 import '@/components/achievements/achievements.css'
 
 type CSSVars = CSSProperties & Record<`--${string}`, string>
@@ -28,8 +29,9 @@ function unlockedByRarity(list: Achievement[]): { tier: RarityTier; count: numbe
 /**
  * Logros en la ficha: anillo de progreso, lo conseguido por rareza, los siguientes más fáciles (los que más jugadores
  * tienen y tú no) y los últimos desbloqueados. La lista completa sigue en /juego/[appid]/logros.
+ * Si no tienes el juego (o no hay sesión), sus logros de Steam en modo consulta (#104).
  */
-export default function GameAchievementsSummary() {
+export default function GameAchievementsSummary({ catalogTotal }: { catalogTotal: number | null }) {
     const { appid, name, state } = useGame()
     const total = state.kind === 'ok' ? (state.game.achievements_total ?? 0) : 0
     const [list, setList] = useState<Achievement[] | null>(null)
@@ -47,6 +49,10 @@ export default function GameAchievementsSummary() {
         }
     }, [appid, total])
 
+    // El catálogo dice 0 logros: no merece la pena preguntar a Steam (null = no se sabe, se pregunta).
+    if ((state.kind === 'no_lo_tienes' || state.kind === 'sin_sesion') && catalogTotal !== 0) {
+        return <GameAchievementsPreview appid={appid} name={name} />
+    }
     if (state.kind !== 'ok' || total === 0) return null
 
     const unlocked = state.game.achievements_unlocked ?? 0
