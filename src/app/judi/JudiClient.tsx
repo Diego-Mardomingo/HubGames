@@ -74,10 +74,13 @@ type GameRecord = {
  * el anterior más cercano. Así, empezando por el más atrasado avanzas día a día y, desde hoy, retrocedes.
  */
 function findNextPendingGame(games: GameRecord[], current: GameRecord): GameRecord | null {
+    // `fecha` llega como DD-MM-AAAA: se compara en AAAA-MM-DD para que el orden de texto sea el cronológico.
+    const day = (g: GameRecord) => judiIsoDate(g.fecha) ?? ''
+    const today = day(current)
     const pending = games
         .filter((g) => !g.completado && !g.fase6 && g.id !== current.id)
-        .sort((a, b) => a.fecha.localeCompare(b.fecha))
-    return pending.find((g) => g.fecha > current.fecha) ?? pending.filter((g) => g.fecha < current.fecha).pop() ?? null
+        .sort((a, b) => day(a).localeCompare(day(b)))
+    return pending.find((g) => day(g) > today) ?? pending.filter((g) => day(g) < today).pop() ?? null
 }
 
 type GameData = {
@@ -752,6 +755,12 @@ export default function JudiClient() {
             )
             const slot = history.attempts.length
             fxCounter.current += 1
+
+            // La lista en memoria no se recarga al terminar: se marca aquí para que «Siguiente reto» no vuelva a este día.
+            if (day.state === 'won' || day.state === 'lost') {
+                const done = day.state === 'won' ? { completado: true } : { fase6: true }
+                setGames((prev) => prev.map((g) => (g.id === game.id ? { ...g, ...done } : g)))
+            }
 
             if (day.state === 'won') {
                 setGameState('won')
