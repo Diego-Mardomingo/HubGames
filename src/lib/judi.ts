@@ -78,9 +78,12 @@ export function parseJudiDay(raw: Json | null | undefined): JudiDay | null {
     }
 }
 
-/** URL del proxy de capturas: el navegador nunca ve la URL de Steam, que lleva el appid. */
-export function judiCaptureUrl(id: number, phase: number) {
-    return `/api/judi/captura/${id}/${phase}`
+/**
+ * URL del proxy de capturas: el navegador nunca ve la URL de Steam, que lleva el appid. `small` pide la variante de
+ * 600×338 (~100 KB frente a ~650 KB de la original), para miniaturas y portadas.
+ */
+export function judiCaptureUrl(id: number, phase: number, size: 'full' | 'small' = 'full') {
+    return `/api/judi/captura/${id}/${phase}${size === 'small' ? '?s=sm' : ''}`
 }
 
 /**
