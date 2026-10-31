@@ -5,7 +5,11 @@ import { Themed } from '../ui/kit'
 import { LogoMark, Wordmark } from '../ui/Logo'
 
 const LINES = ['Cientos de juegos en Steam.', 'Una cola que solo crece.', 'Logros a medias por todas partes.']
-const STEP = 24
+/** Frames que dura cada frase en pantalla (~1,5 s, para que dé tiempo a leerla). */
+const STEP = 46
+
+/** Frame en el que aparece cada frase. */
+export const HOOK_LINES_AT = LINES.map((_, i) => i * STEP)
 
 export const HOOK_FINAL = LINES.length * STEP + 4
 

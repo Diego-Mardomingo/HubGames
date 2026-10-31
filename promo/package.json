@@ -4,8 +4,8 @@
   "description": "Vídeo promocional e imágenes del README de HubGames (Remotion)",
   "scripts": {
     "studio": "remotion studio",
-    "music": "node scripts/music.mjs 45",
-    "render": "node scripts/music.mjs 45 && remotion render Promo ../docs/readme/hubgames-promo.mp4 --crf=25",
+    "music": "node scripts/music.mjs 48",
+    "render": "node scripts/music.mjs 48 && remotion render Promo ../docs/readme/hubgames-promo.mp4 --crf=25",
     "stills": "remotion still Hero ../docs/readme/hero.png --scale=2 && remotion still Screens ../docs/readme/screens.png --scale=2 && remotion still Poster ../docs/readme/video.png --scale=1.25",
     "typecheck": "tsc -p ."
   },

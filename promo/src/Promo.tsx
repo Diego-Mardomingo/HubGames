@@ -14,7 +14,7 @@ import { LockScreen } from './mocks/Mobile'
 import { RankingMock } from './mocks/Ranking'
 import { WISH_T, WishlistMock } from './mocks/Wishlist'
 import { CrossFade, FeatureScene } from './scenes/FeatureScene'
-import { HOOK_FINAL, Hook } from './scenes/Hook'
+import { HOOK_FINAL, HOOK_LINES_AT, Hook } from './scenes/Hook'
 import { Outro } from './scenes/Outro'
 import { STEAM_T, SteamSync } from './scenes/SteamSync'
 import { C, ease, lerp } from './theme'
@@ -26,7 +26,7 @@ const timing = linearTiming({ durationInFrames: T })
 
 /** Duración de cada escena (30 fps). El orden es el del README. */
 export const SCENES = {
-    hook: 140,
+    hook: 206,
     steam: 150,
     inicio: 165,
     biblioteca: 250,
@@ -69,7 +69,7 @@ export const Promo = () => {
             <TransitionSeries>
                 <TransitionSeries.Sequence name="Gancho" durationInFrames={SCENES.hook}>
                     <Hook />
-                    {[0, 24, 48].map((at) => (
+                    {HOOK_LINES_AT.map((at) => (
                         <Sfx key={at} at={at} name="tick_002" volume={0.55} />
                     ))}
                     <Sfx at={HOOK_FINAL} name="powerUp7" volume={0.35} />
