@@ -11,7 +11,7 @@ export default function ServiceWorkerRegistration() {
             // Intentar registrar el service worker si no está ya registrado
             navigator.serviceWorker.getRegistration().then((registration) => {
                 if (!registration) {
-                    // Si no hay registro, intentar registrar el SW generado por next-pwa
+                    // Si no hay registro, se registra el SW de las notificaciones (public/sw.js)
                     navigator.serviceWorker
                         .register('/sw.js', { scope: '/' })
                         .then((reg) => {

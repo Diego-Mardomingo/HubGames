@@ -1,17 +1,20 @@
-const withPWA = require('next-pwa')({
-    dest: 'public',
-    register: true,
-    skipWaiting: true,
-    disable: process.env.NODE_ENV === 'development',
-    runtimeCaching: [],
-    // Directorio donde next-pwa buscará código extra para el Service Worker
-    customWorkerDir: 'worker',
-})
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-    turbopack: {},
+    // Service Worker escrito a mano en public/sw.js (#97): solo notificaciones push. Sin caché para que los
+    // navegadores recojan siempre la última versión.
+    async headers() {
+        return [
+            {
+                source: '/sw.js',
+                headers: [
+                    { key: 'Content-Type', value: 'application/javascript; charset=utf-8' },
+                    { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+                    { key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self'" },
+                ],
+            },
+        ]
+    },
     // Onest para la imagen del resumen anual (ImageResponse la lee del disco con readFile)
     outputFileTracingIncludes: {
         '/api/estadisticas/resumen/imagen': ['./src/assets/fonts/onest/*.ttf'],
@@ -31,4 +34,4 @@ const nextConfig = {
     },
 }
 
-module.exports = withPWA(nextConfig)
+module.exports = nextConfig
