@@ -35,13 +35,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-# PWA files
-/public/sw.js
-/public/workbox-*.js
-/public/worker-*.js
-/public/sw.js.map
-/public/workbox-*.js.map
-/public/worker-*.js.map
 
 # Old PHP project files (keep for reference during migration)
 # Uncomment these after migration is complete
