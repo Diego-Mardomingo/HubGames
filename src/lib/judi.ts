@@ -6,7 +6,8 @@ export const JUDI_CHANGED_EVENT = 'hg-judi-changed'
 /** Pistas desbloqueadas de un JUDI (#39). Solo vienen las de las fases ya abiertas. */
 export type JudiHints = {
     generos?: string | null
-    ccu?: number | null
+    /** Rango de propietarios de SteamSpy tal cual («10,000,000 .. 20,000,000»); se formatea con `judiOwnersLabel`. */
+    propietarios?: string | null
     positivas?: number | null
     anio?: string | null
     estudio?: string | null
@@ -45,6 +46,28 @@ function str(v: unknown): string | null {
     return typeof v === 'string' && v.trim() ? v : null
 }
 
+function ownersNumber(n: number): string {
+    if (n >= 1_000_000) return (n / 1_000_000).toLocaleString('es-ES')
+    return n.toLocaleString('es-ES')
+}
+
+/**
+ * Rango de propietarios de SteamSpy («10,000,000 .. 20,000,000») en español: «10–20 millones», «500.000–1 millón»,
+ * «20.000–50.000» o «menos de 20.000». Si no se entiende, el texto tal cual.
+ */
+export function judiOwnersLabel(raw: string): string {
+    const m = /^\s*([\d,.]+)\s*\.\.\s*([\d,.]+)\s*$/.exec(raw)
+    if (!m) return raw.trim()
+    const lo = Number(m[1].replace(/[,.]/g, ''))
+    const hi = Number(m[2].replace(/[,.]/g, ''))
+    if (!Number.isFinite(lo) || !Number.isFinite(hi) || hi <= 0) return raw.trim()
+    const unit = hi >= 1_000_000 ? (hi === 1_000_000 ? ' millón' : ' millones') : ''
+    if (lo === 0) return `menos de ${ownersNumber(hi)}${unit}`
+    // Los dos extremos en millones: «10–20 millones»; si no, cada uno con su forma («500.000–1 millón»).
+    const from = hi >= 1_000_000 && lo < 1_000_000 ? lo.toLocaleString('es-ES') : ownersNumber(lo)
+    return `${from}–${ownersNumber(hi)}${unit}`
+}
+
 export function parseJudiDay(raw: Json | null | undefined): JudiDay | null {
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
     const r = raw as Record<string, unknown>
@@ -53,7 +76,7 @@ export function parseJudiDay(raw: Json | null | undefined): JudiDay | null {
     const h = (r.hints && typeof r.hints === 'object' ? r.hints : {}) as Record<string, unknown>
     const hints: JudiHints = {}
     if ('generos' in h) hints.generos = str(h.generos)
-    if ('ccu' in h) hints.ccu = num(h.ccu)
+    if ('propietarios' in h) hints.propietarios = str(h.propietarios)
     if ('positivas' in h) hints.positivas = num(h.positivas)
     if ('anio' in h) hints.anio = str(h.anio)
     if ('estudio' in h) hints.estudio = str(h.estudio)

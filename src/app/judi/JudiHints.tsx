@@ -1,7 +1,7 @@
 'use client'
 
 import { Building2, CalendarDays, Lock, Tags, ThumbsUp, Users, type LucideIcon } from 'lucide-react'
-import type { JudiHints as Hints } from '@/lib/judi'
+import { judiOwnersLabel, type JudiHints as Hints } from '@/lib/judi'
 import { steamReviewScore } from '@/lib/scores'
 
 type Hint = { phase: number; label: string; icon: LucideIcon; value: (h: Hints) => string | null }
@@ -9,7 +9,7 @@ type Hint = { phase: number; label: string; icon: LucideIcon; value: (h: Hints) 
 /** Una pista por fase a partir de la 2 (las que manda el servidor). */
 export const JUDI_HINTS: Hint[] = [
     { phase: 2, label: 'Géneros', icon: Tags, value: (h) => h.generos ?? null },
-    { phase: 3, label: 'Pico de jugadores (Steam)', icon: Users, value: (h) => (h.ccu != null ? h.ccu.toLocaleString('es-ES') : null) },
+    { phase: 3, label: 'Propietarios (Steam)', icon: Users, value: (h) => (h.propietarios ? judiOwnersLabel(h.propietarios) : null) },
     { phase: 4, label: 'Reseñas positivas (Steam)', icon: ThumbsUp, value: (h) => (h.positivas != null ? `${h.positivas} %` : null) },
     { phase: 5, label: 'Año de lanzamiento', icon: CalendarDays, value: (h) => h.anio ?? null },
     { phase: 6, label: 'Estudio', icon: Building2, value: (h) => h.estudio ?? null },

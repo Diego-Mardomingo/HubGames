@@ -9,6 +9,7 @@ import {
     judiDayStatus,
     judiFilterCounts,
     judiIsoDate,
+    judiOwnersLabel,
     judiMonths,
     judiStats,
     matchesJudiFilter,
@@ -30,7 +31,7 @@ describe('JUDI en el servidor (#39)', () => {
             fecha: '25-10-2026',
             phase: 3,
             capture_count: 7,
-            hints: { generos: 'Simuladores', ccu: 2073 },
+            hints: { generos: 'Simuladores', propietarios: '1,000,000 .. 2,000,000' },
             nombre: null,
             header_image: null,
             appid: null,
@@ -42,7 +43,7 @@ describe('JUDI en el servidor (#39)', () => {
         assert.ok(day)
         assert.equal(day.phase, 3)
         assert.equal(day.nombre, null)
-        assert.deepEqual(day.hints, { generos: 'Simuladores', ccu: 2073 })
+        assert.deepEqual(day.hints, { generos: 'Simuladores', propietarios: '1,000,000 .. 2,000,000' })
         assert.deepEqual(day.guesses, ['Portal', 'Hades'])
         assert.equal(day.result, 'wrong')
     })
@@ -250,5 +251,19 @@ describe('Tus estadísticas e historial de JUDI', () => {
         assert.deepEqual(dayAttempts(['A', 'B'], 6).names, ['A', 'B'])
         // Sin intentos gastados (acierto a la primera, sin jugar): siempre exacto.
         assert.equal(dayAttempts(undefined, 0).exact, true)
+    })
+})
+
+describe('judiOwnersLabel', () => {
+    it('formatea los rangos de SteamSpy en español', () => {
+        assert.equal(judiOwnersLabel('10,000,000 .. 20,000,000'), '10–20 millones')
+        assert.equal(judiOwnersLabel('100,000,000 .. 200,000,000'), '100–200 millones')
+        assert.equal(judiOwnersLabel('500,000 .. 1,000,000'), '500.000–1 millón')
+        assert.equal(judiOwnersLabel('20,000 .. 50,000'), '20.000–50.000')
+        assert.equal(judiOwnersLabel('0 .. 20,000'), 'menos de 20.000')
+    })
+
+    it('si no lo entiende, devuelve el texto tal cual', () => {
+        assert.equal(judiOwnersLabel(' muchos '), 'muchos')
     })
 })

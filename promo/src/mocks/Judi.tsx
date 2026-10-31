@@ -18,7 +18,7 @@ const SHOTS = [
 
 const HINTS = [
     { label: 'Géneros', value: 'Acción · Aventura · Indie' },
-    { label: 'Pico de jugadores (Steam)', value: '73.892' },
+    { label: 'Propietarios (Steam)', value: '10–20 millones' },
     { label: 'Reseñas positivas (Steam)', value: '97 %', score: true },
     { label: 'Año de lanzamiento', value: '2017' },
     { label: 'Estudio', value: 'Team Cherry' },
