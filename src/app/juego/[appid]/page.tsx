@@ -124,7 +124,7 @@ export default async function JuegoPage({ params }: Props) {
 
                 <GamePanel duration={duration} achievementsTotal={game.achievements_total} storeUrl={storeUrl} />
 
-                <GameAchievementsSummary />
+                <GameAchievementsSummary catalogTotal={game.achievements_total} />
 
                 {trailers.length > 0 && (
                     <section className="juego__section" aria-labelledby="juego-trailer">

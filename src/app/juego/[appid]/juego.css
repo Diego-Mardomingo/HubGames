@@ -579,6 +579,26 @@ a.juego__metacritic:hover {
   text-decoration: underline;
 }
 
+/* Juego que no tienes (#104): frase de resumen sobre las dos columnas */
+.juego-ach__main {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.juego-ach__lead {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.juego-ach__lead b {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
 /* ── No lo tienes: precio y duración ── */
 .juego-buy {
   display: grid;

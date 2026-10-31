@@ -82,6 +82,18 @@
   font-weight: 600;
 }
 
+/* Modo consulta (#104): aviso de que son los logros de Steam, sin progreso tuyo. Puede partirse en el móvil. */
+.gl-meta .gl-meta__note {
+  white-space: normal;
+}
+
+.gl-meta__link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .gl-meta__flags {
   display: inline-flex;
   align-items: center;

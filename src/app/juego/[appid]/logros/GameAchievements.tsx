@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, BookOpen, Clock, FilterX, LogIn, Trophy, X } from 'lucide-react'
+import { ArrowLeft, BookOpen, Clock, FilterX, Telescope, Trophy, X } from 'lucide-react'
 import { supabase, safeGetSession } from '@/lib/supabase/client'
 import {
     ACHIEVEMENT_COLUMNS,
@@ -16,6 +16,7 @@ import {
 import { ACHIEVEMENT_FILTERS, LAYOUT_ANIMATION_LIMIT, filterAchievements, lastUnlock, stateCounts } from '@/lib/game-achievements'
 import { RARITY_TIER_LABELS, rarityColor, type RarityTier } from '@/lib/rarity'
 import { formatHours } from '@/lib/format'
+import { fetchSteamAchievements } from '@/lib/steam-achievements'
 import type { GameStatus } from '@/lib/tracker'
 import { Button } from '@/components/ui/button'
 import SkeletonSwap from '@/components/SkeletonSwap'
@@ -44,9 +45,17 @@ interface LibraryInfo {
     playtime_forever: number | null
 }
 
-type State = { kind: 'cargando' } | { kind: 'sin_sesion' } | { kind: 'ok'; list: Achievement[]; library: LibraryInfo | null }
+/**
+ * `consulta` (#104): no hay logros tuyos de este juego (no lo tienes, no has iniciado sesión o aún no se ha
+ * sincronizado), así que se piden a Steam en el momento: todos bloqueados, sin progreso ni fechas.
+ */
+type State =
+    | { kind: 'cargando' }
+    | { kind: 'ok'; list: Achievement[]; library: LibraryInfo | null; consulta: boolean; signedIn: boolean }
 
 const SORTS: AchievementSort[] = ['rareza', 'fecha', 'nombre']
+/** En modo consulta no hay fechas de desbloqueo. */
+const CONSULTA_SORTS: AchievementSort[] = ['rareza', 'nombre']
 /** Etiquetas cortas para el control segmentado ("Ordenar por …"). */
 const SORT_LABELS: Record<AchievementSort, string> = { rareza: 'Rareza', fecha: 'Recientes', nombre: 'Nombre' }
 const FILTER_LABELS = Object.fromEntries(ACHIEVEMENT_FILTERS.map((f) => [f, ACHIEVEMENT_FILTER_LABELS[f]])) as Record<AchievementFilter, string>
@@ -72,17 +81,27 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
     useEffect(() => {
         let cancelled = false
         safeGetSession().then(async ({ data: { session } }) => {
-            if (!session) {
-                if (!cancelled) setState({ kind: 'sin_sesion' })
-                return
+            let list: Achievement[] = []
+            let library: LibraryInfo | null = null
+            if (session) {
+                const [achievements, lib] = await Promise.all([
+                    supabase.from('hubgames_achievements').select(ACHIEVEMENT_COLUMNS).eq('appid', appid),
+                    supabase.from('hubgames_library').select('status, favorite, endless, playtime_forever').eq('appid', appid).maybeSingle(),
+                ])
+                if (cancelled) return
+                if (achievements.error) setError(achievements.error.message)
+                list = (achievements.data ?? []) as Achievement[]
+                library = (lib.data as LibraryInfo | null) ?? null
             }
-            const [achievements, library] = await Promise.all([
-                supabase.from('hubgames_achievements').select(ACHIEVEMENT_COLUMNS).eq('appid', appid),
-                supabase.from('hubgames_library').select('status, favorite, endless, playtime_forever').eq('appid', appid).maybeSingle(),
-            ])
-            if (cancelled) return
-            if (achievements.error) setError(achievements.error.message)
-            setState({ kind: 'ok', list: (achievements.data ?? []) as Achievement[], library: (library.data as LibraryInfo | null) ?? null })
+            const consulta = list.length === 0
+            if (consulta) {
+                list = await fetchSteamAchievements(appid).catch((e: Error) => {
+                    if (!cancelled) setError(`No se han podido cargar los logros de Steam: ${e.message}`)
+                    return []
+                })
+                if (cancelled) return
+            }
+            setState({ kind: 'ok', list, library, consulta, signedIn: !!session })
         })
         return () => {
             cancelled = true
@@ -105,7 +124,7 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
     if (state.kind === 'cargando') return <SkeletonSwap skeleton={skeleton} resetScroll />
     const wrap = (view: React.ReactNode) => <SkeletonSwap skeleton={skeleton}>{view}</SkeletonSwap>
 
-    const library = state.kind === 'ok' ? state.library : null
+    const { library, consulta, signedIn } = state
     const total = list.length
     const last = lastUnlock(list)
     const filtered = filter !== 'todos' || rarity !== null
@@ -132,7 +151,7 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
                     <GameCover appid={appid} name={name} headerImage={headerImage} variant="header" sizes="184px" priority />
                 </Link>
                 <h1 className="page-title">Logros de {name}</h1>
-                {(library || last) && (
+                {(library || last || consulta) && (
                     <p className="gl-meta">
                         {library?.status && <StatusChip status={library.status} />}
                         {library && (library.favorite || library.endless) && (
@@ -152,6 +171,22 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
                                 Último logro, <b>{DATE.format(new Date(last))}</b>
                             </span>
                         )}
+                        {consulta && (
+                            <span className="lib-meta gl-meta__note">
+                                <Telescope aria-hidden />
+                                {signedIn ? (
+                                    'Logros de Steam: aún no tienes progreso en este juego'
+                                ) : (
+                                    <>
+                                        Logros de Steam ·{' '}
+                                        <Link href="/login" className="gl-meta__link">
+                                            inicia sesión
+                                        </Link>{' '}
+                                        para ver tu progreso
+                                    </>
+                                )}
+                            </span>
+                        )}
                     </p>
                 )}
                 <div className="gl-head__act">
@@ -165,7 +200,7 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
         </>
     )
 
-    if (state.kind === 'sin_sesion' || total === 0) {
+    if (total === 0) {
         return wrap(
             <div className="logros gl">
                 {header}
@@ -174,42 +209,23 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
                         {error}
                     </p>
                 )}
-                {state.kind === 'sin_sesion' ? (
-                    <EmptyState
-                        tone="st-todos"
-                        icon={<LogIn />}
-                        title="Inicia sesión para ver tus logros"
-                        className="hg-enter"
-                        style={enter(1)}
-                        action={
-                            <Button variant="secondary" size="sm" asChild>
-                                <Link href="/login">
-                                    <LogIn aria-hidden /> Iniciar sesión
-                                </Link>
-                            </Button>
-                        }
-                    >
-                        Verás tu progreso, tus puntos y lo que te falta de este juego.
-                    </EmptyState>
-                ) : (
-                    <EmptyState
-                        tone="rar-leg"
-                        icon={<Trophy />}
-                        title="No hay logros de este juego en tu cuenta"
-                        className="hg-enter"
-                        style={enter(1)}
-                        action={
-                            <Button variant="secondary" size="sm" asChild>
-                                <Link href={`/juego/${appid}`}>
-                                    <ArrowLeft aria-hidden /> Volver a la ficha
-                                </Link>
-                            </Button>
-                        }
-                    >
-                        O no tiene logros, o aún no se han sincronizado desde Steam.
-                    </EmptyState>
-                )}
-            </div>
+                <EmptyState
+                    tone="rar-leg"
+                    icon={<Trophy />}
+                    title="Este juego no tiene logros en Steam"
+                    className="hg-enter"
+                    style={enter(1)}
+                    action={
+                        <Button variant="secondary" size="sm" asChild>
+                            <Link href={`/juego/${appid}`}>
+                                <ArrowLeft aria-hidden /> Volver a la ficha
+                            </Link>
+                        </Button>
+                    }
+                >
+                    O no tiene, o sus estadísticas no son públicas.
+                </EmptyState>
+            </div>,
         )
     }
 
@@ -226,19 +242,21 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
                 </p>
             )}
 
-            <AchievementsSummary list={list} rarity={rarity} onRarity={pickRarity} />
+            <AchievementsSummary list={list} rarity={rarity} onRarity={pickRarity} consulta={consulta} />
 
             <div className="gl-bar hg-enter" style={enter(2)}>
                 <div className="gl-bar__left">
-                    <Segmented
-                        aria-label="Filtrar logros"
-                        value={filter}
-                        options={[...ACHIEVEMENT_FILTERS]}
-                        labels={FILTER_LABELS}
-                        counts={counts}
-                        onChange={change(setFilter)}
-                        scroll
-                    />
+                    {!consulta && (
+                        <Segmented
+                            aria-label="Filtrar logros"
+                            value={filter}
+                            options={[...ACHIEVEMENT_FILTERS]}
+                            labels={FILTER_LABELS}
+                            counts={counts}
+                            onChange={change(setFilter)}
+                            scroll
+                        />
+                    )}
                     <AnimatePresence initial={false}>
                         {rarity && (
                             <motion.button
@@ -261,7 +279,13 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
                 </div>
                 <div className="gl-sort">
                     <span id="gl-sort-label">Ordenar por</span>
-                    <Segmented aria-labelledby="gl-sort-label" value={sort} options={SORTS} labels={SORT_LABELS} onChange={change(setSort)} />
+                    <Segmented
+                        aria-labelledby="gl-sort-label"
+                        value={sort}
+                        options={consulta ? CONSULTA_SORTS : SORTS}
+                        labels={SORT_LABELS}
+                        onChange={change(setSort)}
+                    />
                 </div>
             </div>
 
@@ -285,8 +309,20 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
                                 key={a.apiname}
                                 layout={big || reduce ? false : 'position'}
                                 initial={big ? { opacity: 0 } : { opacity: 0, scale: 0.97 }}
-                                animate={{ opacity: 1, scale: 1, transition: { duration: reduce ? 0 : 0.24, delay: reduce ? 0 : delay, ease: EASE_OUT } }}
-                                exit={{ opacity: 0, scale: big ? 1 : 0.97, transition: { duration: reduce ? 0 : 0.16, ease: EASE_OUT } }}
+                                animate={{
+                                    opacity: 1,
+                                    scale: 1,
+                                    transition: {
+                                        duration: reduce ? 0 : 0.24,
+                                        delay: reduce ? 0 : delay,
+                                        ease: EASE_OUT,
+                                    },
+                                }}
+                                exit={{
+                                    opacity: 0,
+                                    scale: big ? 1 : 0.97,
+                                    transition: { duration: reduce ? 0 : 0.16, ease: EASE_OUT },
+                                }}
                                 transition={{ layout: { duration: 0.32, ease: EASE_OUT } }}
                             >
                                 <AchievementItem as="div" achievement={a} gameName={name} index={touched ? undefined : i} />
@@ -297,7 +333,13 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
                         <motion.li
                             key="sin-resultados"
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: 1, transition: { duration: reduce ? 0 : 0.2, delay: reduce ? 0 : 0.12 } }}
+                            animate={{
+                                opacity: 1,
+                                transition: {
+                                    duration: reduce ? 0 : 0.2,
+                                    delay: reduce ? 0 : 0.12,
+                                },
+                            }}
                             exit={{ opacity: 0, transition: { duration: reduce ? 0 : 0.12 } }}
                         >
                             <EmptyState
@@ -316,6 +358,6 @@ export default function GameAchievements({ appid, name, headerImage }: Props) {
                     )}
                 </AnimatePresence>
             </ul>
-        </div>
+        </div>,
     )
 }
