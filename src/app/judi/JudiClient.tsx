@@ -69,6 +69,17 @@ type GameRecord = {
     attempts?: (string | null)[]
 }
 
+/**
+ * "Siguiente reto": el pendiente inmediatamente posterior al que acabas de jugar; si no queda ninguno más nuevo,
+ * el anterior más cercano. Así, empezando por el más atrasado avanzas día a día y, desde hoy, retrocedes.
+ */
+function findNextPendingGame(games: GameRecord[], current: GameRecord): GameRecord | null {
+    const pending = games
+        .filter((g) => !g.completado && !g.fase6 && g.id !== current.id)
+        .sort((a, b) => a.fecha.localeCompare(b.fecha))
+    return pending.find((g) => g.fecha > current.fecha) ?? pending.filter((g) => g.fecha < current.fecha).pop() ?? null
+}
+
 type GameData = {
     juego: GameRecord
     captureCount: number
@@ -984,9 +995,7 @@ export default function JudiClient() {
     const attemptsLeft = JUDI_ATTEMPT_SLOTS - failedNow
     /** Fase recién abierta por un fallo o un salto (su miniatura y su pista se animan). */
     const freshPhase = fx && (fx.kind === 'miss' || fx.kind === 'skip') ? fx.slot + 2 : null
-    const nextPendingGame = selectedGame
-        ? games.find((g) => !g.completado && !g.fase6 && g.id !== selectedGame.juego.id) ?? null
-        : null
+    const nextPendingGame = selectedGame ? findNextPendingGame(games, selectedGame.juego) : null
     const captureUrl = (phase: number) =>
         selectedGame && selectedGame.captureCount > 0 ? `${judiCaptureUrl(selectedGame.juego.id, phase)}${captureRetry ? `?r=${captureRetry}` : ''}` : undefined
     const currentCapture = captureUrl(activeViewedPhase)
