@@ -28,7 +28,9 @@ export async function POST(request: NextRequest) {
         .select('appid')
         .eq('user_id', user.id)
         .eq('appid', appid)
+        .eq('source', 'own')
         .maybeSingle()
+    // Los prestados por el grupo familiar sí se pueden desear (#86): son para comprarlos tú.
     if (owned) return NextResponse.json({ error: 'Ya lo tienes en tu biblioteca de Steam' }, { status: 409 })
 
     // Sin ficha en la tienda no se acepta: así no se llena el catálogo con appids inventados.

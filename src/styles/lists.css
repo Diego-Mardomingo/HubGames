@@ -1037,6 +1037,29 @@ kbd.hg-kbd,
   height: 10px;
 }
 
+/* Prestado por el grupo familiar de Steam (#86): se juega como uno tuyo; lo distingue el icono de personas. */
+.lib-own--fam svg {
+  color: var(--primary);
+}
+
+.lib-own__who {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Ya no está en el grupo: como «Sin comprar» pero neutro (no hay que comprar nada; ya no lo tienes). */
+.lib-own--gone {
+  background: transparent;
+  color: var(--muted);
+  outline: 1px dashed var(--border-hover);
+  outline-offset: -1px;
+}
+
+.is-gone .lib-cover img {
+  filter: grayscale(1) brightness(0.9);
+  opacity: 0.7;
+}
+
 .is-unowned .lib-cover img {
   filter: saturate(0.35) brightness(0.85);
 }

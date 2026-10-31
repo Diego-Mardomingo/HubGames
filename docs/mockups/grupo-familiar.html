@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · Grupo familiar de Steam · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css (igual que perfil.html) ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --success: #1a7743; --warning: #8e5e18;
+  --success-glow: rgba(26, 119, 67, 0.1); --danger-glow: rgba(199, 36, 59, 0.1);
+  --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-completado: #1a7743; --st-sinfinal: #6741d9;
+  --on-done: #ffffff; --tint: 12%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --warn-ink: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --success: #4cc97e; --warning: #f2b53a;
+  --success-glow: rgba(76, 201, 126, 0.14); --danger-glow: rgba(242, 107, 126, 0.14);
+  --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-completado: #4cc97e; --st-sinfinal: #b197fc;
+  --on-done: #0b1f13; --tint: 14%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  --warn-ink: var(--warning);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; color: inherit; cursor: pointer; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* ══ Documento del mockup ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: .875rem; font-weight: 600; }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: .9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: .9375rem; }
+.note ul, .note ol { margin: 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+.note p { margin: 4px 0; }
+.note code { font-size: .8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.note .t { color: var(--muted); font-size: .8125rem; }
+.note table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: .8125rem; }
+.note th, .note td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.note th { color: var(--muted); font-weight: 600; }
+.sec { margin-top: 56px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: .875rem; max-width: 100ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: clip; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; padding: 20px; }
+.frame-cap { margin: 8px 0 0; color: var(--muted); font-size: .8125rem; max-width: 52ch; }
+.row-frames { display: flex; gap: 24px; align-items: flex-start; }
+.grid-frames { display: grid; grid-template-columns: repeat(2, 620px); gap: 24px; align-items: start; }
+.w-mob { width: 390px; padding: 12px; }
+
+/* ══ Piezas compartidas (lists.css / globals.css / perfil.css) ══ */
+.st-todos { --c: var(--primary); } .ok { --c: var(--success); } .ko { --c: var(--danger); } .warn { --c: var(--warning); } .neutral { --c: var(--muted); }
+.hg-tint { background: color-mix(in srgb, var(--c) var(--tint), transparent); color: var(--c); }
+.hg-tint.warn { color: var(--warn-ink); }
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: .875rem; font-weight: 600; white-space: nowrap; transition: background .15s, border-color .15s, color .15s, transform .1s; }
+.btn .i { font-size: 16px; }
+.btn:active:not(:disabled) { transform: scale(.97); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.is-done:disabled { opacity: 1; cursor: default; }
+.btn--primary { background: var(--primary); color: var(--primary-foreground); }
+.btn--primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn--secondary { background: var(--surface); border-color: var(--border); }
+.btn--secondary:hover:not(:disabled) { border-color: var(--border-hover); }
+.btn--ghost { background: transparent; color: var(--muted); }
+.btn--ghost:hover { background: var(--surface-2); color: var(--foreground); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: .8125rem; gap: 6px; }
+.btn--primary.is-done { background: var(--success); color: var(--on-done); }
+.w-mob .btn { height: 44px; }
+.spin { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.hg-draw path { stroke-dasharray: 30; animation: hg-draw .3s var(--ease-out) backwards; }
+@keyframes hg-draw { from { stroke-dashoffset: 30; } }
+@keyframes in-up { from { opacity: 0; transform: translateY(8px); } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+.alert { display: flex; align-items: flex-start; gap: .5rem; margin: 0; padding: .625rem .875rem; border-radius: var(--radius-sm); font-size: .875rem; font-weight: 500; }
+.alert > .i { margin-top: 3px; font-size: 15px; }
+.alert--error { color: var(--danger); background: var(--danger-glow); }
+.alert--ok { color: var(--success); background: var(--success-glow); }
+.alert--warn { color: var(--warn-ink); background: color-mix(in srgb, var(--warning) var(--tint), transparent); }
+.alert b { font-weight: 700; }
+
+.sec-head { display: flex; align-items: center; gap: .625rem; min-height: 2rem; flex-wrap: wrap; }
+.sec-head__icon { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 8px; font-size: 16px; }
+.sec-head h2 { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec-head__end { margin-left: auto; }
+.panel { position: relative; min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.pf-sec { padding: 0; overflow: clip; }
+.pf-sec > .sec-head { padding: 1rem 1.25rem .25rem; }
+.w-mob .pf-sec > .sec-head { padding: .875rem 1rem .25rem; }
+.pf-steam { box-shadow: inset 3px 0 0 var(--c); }
+.pf-state { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px 0 8px; border-radius: 999px; font-size: .8125rem; font-weight: 700; }
+.pf-state .i { font-size: 14px; stroke-width: 2.4; }
+.pf-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .75rem 1.25rem; padding: 1rem 1.25rem; }
+.pf-row + .pf-row, .pf-row + .fg { border-top: 1px solid var(--border); }
+.w-mob .pf-row { padding: .875rem 1rem; grid-template-columns: minmax(0, 1fr); }
+.w-mob .pf-row .btn { width: 100%; }
+.pf-row__text { display: grid; gap: 2px; min-width: 0; }
+.pf-row__label { display: flex; align-items: center; gap: 8px; font-size: .9375rem; font-weight: 600; }
+.pf-row__label .i { font-size: 16px; }
+.pf-row__desc { margin: 0; color: var(--muted); font-size: .8125rem; }
+.pf-row__desc b { color: var(--foreground); font-weight: 600; }
+.pf-time.is-new { display: inline-block; animation: in-up .3s var(--ease-out); }
+
+/* ══ NUEVO · Grupo familiar en la sección de Steam ══ */
+.fg { display: grid; }
+.fg__row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: .875rem; padding: 1rem 1.25rem; }
+.w-mob .fg__row { grid-template-columns: 40px minmax(0, 1fr); padding: .875rem 1rem; }
+.w-mob .fg__row .btn { grid-column: 1 / -1; }
+.fg__icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 10px; font-size: 20px; }
+.w-mob .fg__icon { width: 40px; height: 40px; }
+.fg__stats { display: flex; flex-wrap: wrap; gap: 2px 12px; margin: 0; color: var(--muted); font-size: .8125rem; }
+.fg__stats span { display: inline-flex; align-items: center; gap: 4px; }
+.fg__stats .i { font-size: 13px; }
+.fg__stats b { color: var(--foreground); font-weight: 600; }
+.fg__stats .is-pop { animation: pop .35s var(--ease-out); display: inline-block; }
+
+/* Panel que se despliega bajo la fila: QR → escaneado → trayendo → hecho */
+.fg__drawer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s var(--ease-out); }
+.fg__drawer.is-open { grid-template-rows: 1fr; }
+.fg__drawer > div { overflow: hidden; }
+.fg-box { margin: 0 1.25rem 1rem; padding: 1rem; border-radius: var(--radius); background: var(--surface-2); }
+.w-mob .fg-box { margin: 0 1rem .875rem; padding: .875rem; }
+.fg-qr { display: grid; grid-template-columns: 172px minmax(0, 1fr); gap: 1.25rem; align-items: center; }
+.w-mob .fg-qr { grid-template-columns: minmax(0, 1fr); }
+.qr { position: relative; display: grid; place-items: center; width: 172px; height: 172px; padding: 10px; border-radius: 12px; background: #fff; box-shadow: var(--shadow-sm); }
+.w-mob .qr { display: none; }
+.qr > svg { width: 100%; height: 100%; display: block; transition: filter .3s, opacity .3s; }
+.qr.is-scanned > svg { filter: blur(3px); opacity: .35; }
+.qr__ok { position: absolute; inset: 0; display: grid; place-items: center; color: var(--success); font-size: 46px; opacity: 0; transform: scale(.6); transition: opacity .25s, transform .3s var(--ease-out); }
+.qr.is-scanned .qr__ok { opacity: 1; transform: none; }
+.qr__ok .i { stroke-width: 2.6; background: #fff; border-radius: 50%; padding: 6px; width: 64px; height: 64px; box-shadow: var(--shadow-lg); }
+.qr.is-expired > svg { filter: blur(4px); opacity: .25; }
+.qr__exp { position: absolute; inset: 0; display: none; place-items: center; }
+.qr.is-expired .qr__exp { display: grid; }
+.fg-steps { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; counter-reset: s; }
+.fg-steps li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: .5rem; align-items: start; font-size: .875rem; counter-increment: s; transition: color .2s; }
+.fg-steps li::before { content: counter(s); display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--surface); color: var(--muted); font-size: .75rem; font-weight: 700; transition: background .2s, color .2s; }
+.fg-steps li.is-now::before { background: var(--primary); color: var(--primary-foreground); }
+.fg-steps li.is-done { color: var(--muted); }
+.fg-steps li.is-done::before { content: '✓'; background: var(--success); color: var(--on-done); }
+.fg-steps b { font-weight: 600; }
+.fg-foot { display: flex; align-items: center; justify-content: space-between; gap: .5rem 1rem; flex-wrap: wrap; margin-top: .875rem; padding-top: .75rem; border-top: 1px solid var(--border); }
+.fg-timer { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: .8125rem; }
+.fg-timer .i { font-size: 14px; }
+.fg-timer.is-low { color: var(--warn-ink); }
+.fg-safe { display: flex; align-items: flex-start; gap: 6px; margin: .75rem 0 0; color: var(--muted); font-size: .78125rem; }
+.fg-safe .i { font-size: 14px; color: var(--success); margin-top: 2px; }
+.fg-open { width: 100%; }
+.fg-load { display: grid; gap: .625rem; }
+.fg-load__line { display: flex; align-items: center; gap: 8px; font-size: .875rem; font-weight: 600; }
+.fg-load__line .i { font-size: 16px; color: var(--primary); }
+.fg-bar { height: 6px; border-radius: 999px; background: var(--surface); overflow: hidden; }
+.fg-bar span { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--primary); transition: width .5s var(--ease-out); }
+.fg-done { display: grid; gap: .5rem; animation: fade-in .25s var(--ease-out); }
+.fg-done__list { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.fg-done__list li { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: .78125rem; font-weight: 600; animation: pop .3s var(--ease-out) backwards; }
+.fg-done__list li:nth-child(2) { animation-delay: 60ms; } .fg-done__list li:nth-child(3) { animation-delay: 120ms; }
+.fg-done__list .i { font-size: 13px; }
+
+/* ══ Biblioteca: filas y tarjetas (lists.css) + lo nuevo ══ */
+.lib { display: grid; gap: 8px; }
+.hg-row { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: center; gap: 1rem; min-height: 68px; padding: 8px 12px 8px 8px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); transition: box-shadow .15s, border-color .15s; }
+.hg-row:hover { border-color: transparent; box-shadow: 0 0 0 3px var(--cursor); }
+.hg-row::before { content: ''; position: absolute; left: -1px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--sc); }
+.hg-row.st-pendiente { --sc: var(--st-pendiente); } .hg-row.st-jugando { --sc: var(--st-jugando); } .hg-row.st-completado { --sc: var(--st-completado); }
+.lib-cover { position: relative; width: 112px; height: 52px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.lib-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hg-row__main { display: grid; gap: 2px; min-width: 0; }
+.hg-row__link { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.lib-row__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; color: var(--muted); font-size: .8125rem; }
+.lib-meta { display: inline-flex; align-items: center; gap: 4px; }
+.lib-meta .i { font-size: 13px; }
+.hg-row__prog { display: grid; gap: 6px; width: 180px; font-size: .8125rem; }
+.hg-row__prog-label { display: flex; justify-content: space-between; color: var(--muted); }
+.hg-row__prog-label b { color: var(--foreground); }
+.hg-bar { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.hg-bar span { display: block; height: 100%; border-radius: inherit; background: var(--primary); }
+.price { display: grid; justify-items: end; gap: 2px; width: 180px; font-size: .8125rem; color: var(--muted); }
+.price b { font-size: .9375rem; color: var(--foreground); }
+.lib-own { display: inline-flex; flex: none; align-items: center; gap: 4px; padding: 0 7px; border-radius: 5px; background: var(--surface-2); color: var(--foreground); font-size: .72rem; font-weight: 700; line-height: 1.6; white-space: nowrap; }
+.lib-own .i { font-size: 11px; }
+.lib-own--no { background: transparent; color: var(--st-pendiente); outline: 1px dashed var(--st-pendiente); outline-offset: -1px; }
+.lib-cover-tag { position: absolute; left: 4px; bottom: 4px; z-index: 1; display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 4px; background: rgba(10, 12, 16, .82); color: #fff; font-size: .625rem; font-weight: 700; }
+.lib-cover-tag .i { font-size: 10px; }
+.is-unowned .lib-cover img { filter: saturate(.35) brightness(.85); }
+.is-unowned .lib-cover::after { content: ''; position: absolute; inset: 0; border: 1.5px dashed var(--st-pendiente); border-radius: inherit; }
+/* NUEVO: del grupo familiar (se juega como uno propio: portada a color, sin borde discontinuo) */
+.lib-own--fam { background: var(--surface-2); color: var(--foreground); }
+.lib-own--fam .i { color: var(--primary); }
+.lib-own__who { color: var(--muted); font-weight: 600; }
+/* NUEVO: ya no está en el grupo (como «Sin comprar», en neutro) */
+.lib-own--gone { background: transparent; color: var(--muted); outline: 1px dashed var(--border-hover); outline-offset: -1px; }
+.is-gone .lib-cover img { filter: grayscale(1) brightness(.9); opacity: .7; }
+.hg-seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.hg-seg button { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: none; color: var(--muted); font-size: .875rem; font-weight: 600; }
+.hg-seg button[aria-checked='true'] { background: var(--surface); color: var(--foreground); box-shadow: var(--shadow-sm); }
+.hg-seg .i { font-size: 14px; }
+.hg-seg .n { color: var(--muted); font-weight: 500; }
+.lib-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.lib-head h3 { margin: 0; font-size: 1.125rem; }
+.lib-head small { color: var(--muted); font-size: .8125rem; font-weight: 500; }
+
+/* Ficha del juego: chip bajo el título */
+.ficha { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 1.25rem; align-items: center; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.ficha img { width: 100%; border-radius: var(--radius); display: block; }
+.ficha h3 { margin: 0 0 6px; font-size: 1.5rem; letter-spacing: -0.02em; }
+.ficha__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: .78125rem; font-weight: 600; }
+.chip .i { font-size: 13px; }
+.ficha p { margin: 0; color: var(--muted); font-size: .875rem; }
+
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+html.rm .spin { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+  .spin { animation: none !important; }
+}
+.qs li { margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>Mockup · Grupo familiar de Steam (a demanda)</h1>
+  <div class="doc-bar__actions">
+    <button class="doc-btn" id="rm-btn" type="button" aria-pressed="false">Movimiento reducido: no</button>
+    <button class="doc-btn" id="theme-btn" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+</div>
+
+<main class="doc">
+
+<section class="note">
+  <h2>Qué es y cómo funciona</h2>
+  <p>Traer los juegos que te presta tu <b>grupo familiar de Steam</b>, solo cuando tú lo pidas y <b>sin guardar ningún permiso</b> (#86). Todo pasa en la sección <b>Steam</b> de <code>/perfil</code>:</p>
+  <ol>
+    <li>Pulsas <b>«Actualizar grupo familiar»</b>. Se despliega un QR debajo, sin salir de la página.</li>
+    <li>Lo escaneas con la app de Steam y apruebas <b>«HubGames»</b>. El QR se desenfoca con un check y los pasos avanzan solos.</li>
+    <li>HubGames trae la lista y tus horas, <b>anula la sesión en Steam</b> y te enseña el resumen: cuántos hay, cuántos nuevos y cuántos ya no están.</li>
+  </ol>
+  <p>En la biblioteca, los prestados se ven <b>como uno tuyo</b> (portada a color, horas, logros), con la etiqueta <b>«Del grupo · laura_g»</b>. Si alguien los saca del grupo, pasan a <b>«Ya no está en el grupo»</b> en gris.</p>
+
+  <h3>Color</h3>
+  <table>
+    <thead><tr><th>Dónde</th><th>Color</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td>Fila «Grupo familiar» en Steam</td><td>cobalto (icono) · verde / ámbar / rojo en los avisos</td><td>Es una acción tuya, como «Sincronizar ahora». El estado de la cuenta (la franja verde) no cambia.</td></tr>
+      <tr><td>Etiqueta «Del grupo»</td><td>gris de «Comprado» con el icono en cobalto</td><td>Se puede jugar, así que no lleva el borde discontinuo de «Sin comprar». El icono de personas lo distingue de uno comprado.</td></tr>
+      <tr><td>«Ya no está en el grupo»</td><td>neutro con borde discontinuo y portada en gris</td><td>Igual que «Sin comprar», pero sin el turquesa de Pendientes: no hay que comprar nada, simplemente ya no lo tienes.</td></tr>
+    </tbody>
+  </table>
+  <p class="t">Sin tokens nuevos. Clases nuevas: <code>.lib-own--fam</code>, <code>.lib-own--gone</code>, <code>.is-gone</code> y el bloque <code>.fg*</code> en <code>perfil.css</code>.</p>
+
+  <h3>De dónde sale cada dato</h3>
+  <table>
+    <thead><tr><th>Dato</th><th>Fuente</th></tr></thead>
+    <tbody>
+      <tr><td>Lista, horas propias en prestados, fecha de última jugada</td><td><code>IFamilyGroupsService/GetSharedLibraryApps</code> (<code>rt_playtime</code>, <code>rt_last_played</code>), con el permiso de 24 h del QR, solo durante la actualización</td></tr>
+      <tr><td>Quién lo presta</td><td><code>owner_steamids</code> + nombres con <code>GetPlayerSummaries</code> (con la clave normal)</td></tr>
+      <tr><td>Logros de los prestados</td><td><code>GetPlayerAchievements</code> en la sincronización diaria de siempre (ya probado: funciona con la clave)</td></tr>
+      <tr><td>Última actualización y cifras</td><td>nueva columna en <code>hubgames_user_steam</code> (<code>family_synced_at</code>) y el origen de cada juego en <code>hubgames_user_steam_games</code> (<code>source</code>: propio / grupo, <code>family_owner_steamids</code>, <code>family_gone_at</code>)</td></tr>
+    </tbody>
+  </table>
+  <p class="t">Ningún permiso de Steam llega al navegador ni se guarda. El QR caduca a los ~2 min.</p>
+</section>
+
+<section class="sec">
+  <h2>/perfil · sección Steam · prueba en vivo</h2>
+  <p>Pulsa «Actualizar grupo familiar». En el mockup, el escaneo y la aprobación se simulan solos (unos 3 s cada uno); con «Simular» puedes forzar cada final.</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame" style="width:720px" id="live"></div></div>
+    <div class="note" style="width:320px">
+      <h2>Simular</h2>
+      <p class="t">Elige cómo acaba la próxima actualización:</p>
+      <div style="display:grid;gap:6px;margin-top:8px" id="sim">
+        <label><input type="radio" name="sim" value="ok" checked> Bien (3 nuevos, 1 ya no está)</label>
+        <label><input type="radio" name="sim" value="same"> Bien, sin cambios</label>
+        <label><input type="radio" name="sim" value="deny"> Rechazado en el móvil</label>
+        <label><input type="radio" name="sim" value="expire"> El QR caduca</label>
+        <label><input type="radio" name="sim" value="nofam"> No estás en un grupo familiar</label>
+        <label><input type="radio" name="sim" value="steam"> Steam falla</label>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Estados de la fila «Grupo familiar»</h2>
+  <p>Fotos fijas de cada momento (escritorio, 580 px de ancho de panel).</p>
+  <div class="scroller"><div class="grid-frames" id="states"></div></div>
+</section>
+
+<section class="sec">
+  <h2>Móvil · 390 px</h2>
+  <p>En el móvil no puedes escanear tu propia pantalla, así que el QR se cambia por <b>«Abrir en la app de Steam»</b>, que abre el mismo enlace del QR para aprobarlo allí. Hay que comprobar que la app lo acepta (ver preguntas).</p>
+  <div class="scroller"><div class="row-frames">
+    <div><div class="frame w-mob" id="mob-1"></div><p class="frame-cap">Nunca actualizado.</p></div>
+    <div><div class="frame w-mob" id="mob-2"></div><p class="frame-cap">Esperando la aprobación en la app.</p></div>
+    <div><div class="frame w-mob" id="mob-3"></div><p class="frame-cap">Hecho.</p></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Biblioteca · cómo se ven</h2>
+  <p>Filas de Pendientes con el filtro «Comprados o sin comprar», que gana una tercera opción. En el resto de pestañas se ve la misma etiqueta. Pasa el ratón por las filas.</p>
+  <div class="scroller"><div class="frame" style="width:900px">
+    <div class="lib-head"><h3>Pendientes <small>· 24 juegos</small></h3>
+      <div class="hg-seg" role="radiogroup" aria-label="Comprados o sin comprar">
+        <button role="radio" aria-checked="true">Todos <span class="n">24</span></button>
+        <button role="radio" aria-checked="false">Comprados <span class="n">14</span></button>
+        <button role="radio" aria-checked="false"><svg class="i" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Del grupo <span class="n">6</span></button>
+        <button role="radio" aria-checked="false">Sin comprar <span class="n">4</span></button>
+      </div>
+    </div>
+    <div class="lib" id="lib"></div>
+  </div></div>
+</section>
+
+<section class="sec">
+  <h2>Ficha del juego</h2>
+  <p>En la ficha, el chip de propiedad dice de quién es y desde cuándo lo tienes.</p>
+  <div class="scroller"><div class="row-frames">
+    <div class="frame" style="width:760px" id="ficha-1"></div>
+  </div></div>
+  <div class="scroller" style="margin-top:16px"><div class="row-frames">
+    <div class="frame" style="width:760px" id="ficha-2"></div>
+  </div></div>
+</section>
+
+<section class="sec note" id="questions">
+  <h2>Preguntas</h2>
+  <ol class="qs">
+    <li><b>¿Los prestados cuentan como «lo tienes»?</b> Recomiendo <b>sí</b>: no salen como «Sin comprar», no cuentan en «N pendientes sin comprar» ni enseñan precio u ofertas en su fila. Sí se pueden añadir a la wishlist (por si quieres comprarlo para ti), con el aviso «Lo tienes en el grupo familiar».</li>
+    <li><b>Los excluidos del préstamo</b> (Steam marca algunos como no compartibles): recomiendo <b>no importarlos</b>, porque no puedes jugarlos.</li>
+    <li><b>Cuando un juego sale del grupo</b>: recomiendo <b>mantenerlo como «Ya no está en el grupo»</b>, con tu estado, horas, logros y nota. Si vuelve, recupera la etiqueta normal. Desaparecer sin más perdería tu historial.</li>
+    <li><b>Mostrar quién lo presta</b> («Del grupo · laura_g»). Recomiendo <b>sí</b>, con su nombre de Steam. Si son varios, el primero y «+1».</li>
+    <li><b>Móvil con «Abrir en la app de Steam»</b>: no sé si la app de Steam acepta el enlace del QR abierto desde el mismo móvil. Lo pruebo al implementar y, si no funciona, en el móvil la fila diría «Actualízalo desde el ordenador».</li>
+    <li><b>Recordatorio</b>: ¿un aviso discreto («Hace 30 días que no actualizas el grupo familiar») en la fila? Recomiendo <b>sí, solo en la fila</b>, sin notificaciones.</li>
+  </ol>
+</section>
+
+</main>
+
+<script>
+/* ── Iconos (lucide) ── */
+const P = {
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  checkc: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+  phone: '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
+  ext: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+  minus: '<path d="M5 12h14"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+  hourglass: '<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
+  ghost: '<path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"/>',
+  scan: '<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/>',
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const rm = () => document.documentElement.classList.contains('rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wait = (ms) => new Promise((r) => setTimeout(r, rm() ? Math.min(ms, 80) : ms));
+
+/* ── QR de mentira (determinista) ── */
+function qrSVG(seed = 7) {
+  const N = 29; let s = seed; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  const finder = (x, y) => `<rect x="${x}" y="${y}" width="7" height="7" fill="#111"/><rect x="${x + 1}" y="${y + 1}" width="5" height="5" fill="#fff"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3" fill="#111"/>`;
+  const inF = (x, y) => (x < 8 && y < 8) || (x > N - 9 && y < 8) || (x < 8 && y > N - 9);
+  let cells = '';
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (!inF(x, y) && rnd() > 0.52) cells += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
+  return `<svg viewBox="0 0 ${N} ${N}" shape-rendering="crispEdges" aria-label="Código QR para aprobar en la app de Steam" role="img"><g fill="#111">${cells}</g>${finder(0, 0)}${finder(N - 7, 0)}${finder(0, N - 7)}</svg>`;
+}
+
+/* ── Piezas ── */
+const head = `<div class="sec-head"><span class="sec-head__icon hg-tint ok">${ic('link')}</span><h2>Steam</h2><div class="sec-head__end"><span class="pf-state hg-tint ok">${ic('checkc')}Conectada</span></div></div>
+  <div class="pf-row"><div class="pf-row__text"><span class="pf-row__label">Última sincronización</span><p class="pf-row__desc">hace 2 horas · vinculada el 14 de marzo de 2025</p></div><button class="btn btn--primary" type="button">${ic('refresh')}Sincronizar ahora</button></div>`;
+
+function famRow(o) {
+  // o: { last, stats, busy, btnLabel, reminder, mob }
+  const stats = o.stats
+    ? `<p class="fg__stats"><span>${ic('users')}<b class="${o.pop ? 'is-pop' : ''}">${o.stats.n}</b> juegos prestados</span><span>de ${o.stats.who}</span></p>`
+    : `<p class="pf-row__desc">Trae los juegos que te prestan en tu grupo familiar de Steam y tus horas en ellos.</p>`;
+  const last = o.last ? `<p class="pf-row__desc">Actualizado <time class="pf-time ${o.pop ? 'is-new' : ''}">${o.last}</time>${o.reminder ? ` · <span style="color:var(--warn-ink);font-weight:600">conviene actualizar</span>` : ''}</p>` : '';
+  const btn = o.btn === false ? '' : `<button class="btn ${o.stats ? 'btn--secondary' : 'btn--primary'} js-fg-go" type="button" ${o.busy ? 'disabled' : ''}>${ic('users')}${o.stats ? 'Actualizar' : 'Actualizar grupo familiar'}</button>`;
+  return `<div class="fg__row"><span class="fg__icon hg-tint st-todos">${ic('users')}</span>
+    <div class="pf-row__text"><span class="pf-row__label">Grupo familiar</span>${stats}${last}</div>${btn}</div>`;
+}
+
+function qrBox(o) {
+  // o: { step: 1|2, secs, expired, mob }
+  const steps = [
+    `Abre la <b>app de Steam</b> en el móvil y toca el <b>escáner de QR</b> (pestaña Steam Guard).`,
+    `Escanea el código y pulsa <b>«Aprobar»</b>. Verás «HubGames» como dispositivo.`,
+    `HubGames trae tu lista y <b>cierra la sesión</b> enseguida.`,
+  ];
+  const stepsMob = [
+    `Pulsa <b>«Abrir en la app de Steam»</b>.`,
+    `En la app, pulsa <b>«Aprobar»</b>. Verás «HubGames» como dispositivo.`,
+    `Vuelve aquí: HubGames trae tu lista y <b>cierra la sesión</b> enseguida.`,
+  ];
+  const list = (o.mob ? stepsMob : steps).map((t, i) => `<li class="${i + 1 < o.step ? 'is-done' : i + 1 === o.step ? 'is-now' : ''}"><span>${t}</span></li>`).join('');
+  const qr = `<div class="qr ${o.step >= 2 ? 'is-scanned' : ''} ${o.expired ? 'is-expired' : ''}">${qrSVG()}<span class="qr__ok">${ic('check')}</span><span class="qr__exp"><button class="btn btn--primary btn--sm js-fg-go" type="button">${ic('refresh')}Otro código</button></span></div>`;
+  const timer = o.expired
+    ? `<span class="fg-timer is-low">${ic('clock')}El código ha caducado</span>`
+    : o.step >= 2 ? `<span class="fg-timer" style="color:var(--success)">${ic('phone')}${o.mob ? 'Esperando la aprobación en la app…' : 'Escaneado: confirma en el móvil'}</span>`
+    : `<span class="fg-timer ${o.secs < 30 ? 'is-low' : ''}">${ic('clock')}Caduca en <span class="js-secs">${fmt(o.secs)}</span></span>`;
+  const open = o.mob ? `<a class="btn btn--primary fg-open" href="#" style="margin-top:.75rem">${ic('ext')}Abrir en la app de Steam</a>` : '';
+  return `<div class="fg-box"><div class="fg-qr">${qr}<div><ol class="fg-steps">${list}</ol>${open}</div></div>
+    <div class="fg-foot">${timer}<button class="btn btn--ghost btn--sm js-fg-cancel" type="button">Cancelar</button></div>
+    <p class="fg-safe">${ic('shield')}<span>HubGames no guarda ningún permiso de tu cuenta: lo usa unos segundos y lo anula en Steam.</span></p></div>`;
+}
+const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+
+function loadBox(pct = 40, label = 'Trayendo los juegos de tu grupo…') {
+  return `<div class="fg-box"><div class="fg-load"><span class="fg-load__line">${ic('refresh', 'spin')}${label}</span><div class="fg-bar"><span style="width:${pct}%"></span></div></div></div>`;
+}
+function doneBox(kind) {
+  const D = {
+    ok: `<p class="alert alert--ok" role="status">${ic('checkc', 'hg-draw')}<span><b>Grupo familiar actualizado.</b> Sesión de Steam cerrada.</span></p>
+      <ul class="fg-done__list"><li class="hg-tint st-todos">${ic('users')}50 en total</li><li class="hg-tint ok">${ic('plus')}3 nuevos</li><li class="hg-tint neutral">${ic('minus')}1 ya no está</li></ul>`,
+    same: `<p class="alert alert--ok" role="status">${ic('checkc', 'hg-draw')}<span><b>Todo al día:</b> 50 juegos, sin cambios desde la última vez. Sesión de Steam cerrada.</span></p>`,
+    deny: `<p class="alert alert--warn" role="status">${ic('x')}<span>Lo has rechazado en el móvil. No se ha cambiado nada.</span></p>`,
+    nofam: `<p class="alert alert--warn" role="status">${ic('users')}<span><b>No estás en ningún grupo familiar de Steam.</b> Si te unes a uno, vuelve a actualizar. Sesión de Steam cerrada.</span></p>`,
+    steam: `<p class="alert alert--error" role="status">${ic('alert')}<span><b>Steam no ha respondido.</b> No se ha cambiado nada y la sesión se ha cerrado. Inténtalo en un rato.</span></p>`,
+  };
+  const retry = kind === 'deny' || kind === 'steam' ? `<div><button class="btn btn--secondary btn--sm js-fg-go" type="button">${ic('refresh')}Reintentar</button></div>` : '';
+  return `<div class="fg-box"><div class="fg-done">${D[kind]}${retry}</div></div>`;
+}
+
+function section(rowHTML, drawerHTML, open, mob) {
+  return `<section class="panel pf-sec pf-steam ok">${head}<div class="fg">${rowHTML}<div class="fg__drawer ${open ? 'is-open' : ''}"><div class="js-drawer">${drawerHTML || ''}</div></div></div></section>`;
+}
+
+/* ── Prueba en vivo ── */
+const live = document.getElementById('live');
+let LV = { stats: null, last: null }; let run = 0; let tick;
+function renderLive(drawer, open, extra = {}) {
+  live.innerHTML = section(famRow({ ...LV, ...extra }), drawer, open);
+}
+renderLive('', false);
+live.addEventListener('click', (e) => {
+  if (e.target.closest('.js-fg-go')) start();
+  if (e.target.closest('.js-fg-cancel')) { run++; clearInterval(tick); closeDrawer(); }
+});
+function closeDrawer() {
+  live.querySelector('.fg__drawer')?.classList.remove('is-open');
+  setTimeout(() => renderLive('', false), rm() ? 0 : 300);
+}
+async function start() {
+  const me = ++run; clearInterval(tick);
+  const sim = document.querySelector('[name=sim]:checked').value;
+  renderLive(qrBox({ step: 1, secs: sim === 'expire' ? 8 : 120 }), false, { busy: true });
+  requestAnimationFrame(() => requestAnimationFrame(() => live.querySelector('.fg__drawer').classList.add('is-open')));
+  let secs = sim === 'expire' ? 8 : 120;
+  tick = setInterval(() => {
+    secs--; const el = live.querySelector('.js-secs'); if (el) { el.textContent = fmt(Math.max(0, secs)); el.parentElement.classList.toggle('is-low', secs < 30); }
+    if (secs <= 0) { clearInterval(tick); if (me === run) live.querySelector('.js-drawer').innerHTML = qrBox({ step: 1, secs: 0, expired: true }); }
+  }, rm() ? 100 : 1000);
+  if (sim === 'expire') return;
+  await wait(3000); if (me !== run) return;
+  live.querySelector('.js-drawer').innerHTML = qrBox({ step: 2, secs });
+  await wait(2600); if (me !== run) return;
+  clearInterval(tick);
+  if (sim === 'deny') { live.querySelector('.js-drawer').innerHTML = doneBox('deny'); unbusy(); return; }
+  live.querySelector('.js-drawer').innerHTML = loadBox(10);
+  await wait(60); live.querySelector('.fg-bar span').style.width = '55%';
+  await wait(900); if (me !== run) return;
+  live.querySelector('.fg-bar span').style.width = '90%';
+  live.querySelector('.fg-load__line').lastChild.textContent = 'Cerrando la sesión de Steam…';
+  await wait(700); if (me !== run) return;
+  if (sim === 'nofam' || sim === 'steam') { live.querySelector('.js-drawer').innerHTML = doneBox(sim); unbusy(); return; }
+  LV = { stats: { n: 50, who: 'laura_g y pablo.r' }, last: 'hace un momento' };
+  renderLive(doneBox(sim), true, { pop: true });
+  await wait(6000); if (me !== run) return;
+  closeDrawer();
+}
+function unbusy() { const b = live.querySelector('.fg__row .js-fg-go'); if (b) b.disabled = false; }
+
+/* ── Estados fijos ── */
+const ST = [
+  ['Nunca actualizado', section(famRow({}), '', false)],
+  ['Esperando que escanees (cuenta atrás)', section(famRow({ busy: true }), qrBox({ step: 1, secs: 94 }), true)],
+  ['Escaneado: falta pulsar «Aprobar»', section(famRow({ busy: true }), qrBox({ step: 2, secs: 71 }), true)],
+  ['Trayendo la lista', section(famRow({ busy: true }), loadBox(60), true)],
+  ['Hecho, con cambios', section(famRow({ stats: { n: 50, who: 'laura_g y pablo.r' }, last: 'hace un momento' }), doneBox('ok'), true)],
+  ['En reposo (el panel se cierra solo a los 6 s)', section(famRow({ stats: { n: 50, who: 'laura_g y pablo.r' }, last: 'hace 12 días' }), '', false)],
+  ['Hace más de 30 días', section(famRow({ stats: { n: 50, who: 'laura_g y pablo.r' }, last: 'hace 41 días', reminder: true }), '', false)],
+  ['Código caducado', section(famRow({ busy: true }), qrBox({ step: 1, secs: 0, expired: true }), true)],
+  ['Rechazado en el móvil', section(famRow({}), doneBox('deny'), true)],
+  ['Sin grupo familiar', section(famRow({}), doneBox('nofam'), true)],
+  ['Steam falla', section(famRow({ stats: { n: 50, who: 'laura_g y pablo.r' }, last: 'hace 12 días' }), doneBox('steam'), true)],
+  ['Sin cambios', section(famRow({ stats: { n: 50, who: 'laura_g y pablo.r' }, last: 'hace un momento' }), doneBox('same'), true)],
+];
+document.getElementById('states').innerHTML = ST.map(([cap, html]) => `<div><div class="frame">${html}</div><p class="frame-cap">${cap}</p></div>`).join('');
+document.getElementById('mob-1').innerHTML = section(famRow({ mob: true }), '', false);
+document.getElementById('mob-2').innerHTML = section(famRow({ busy: true, mob: true }), qrBox({ step: 2, secs: 80, mob: true }), true);
+document.getElementById('mob-3').innerHTML = section(famRow({ stats: { n: 50, who: 'laura_g y pablo.r' }, last: 'hace un momento', mob: true }), doneBox('ok'), true);
+
+/* ── Biblioteca ── */
+const cov = (id) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`;
+const GAMES = [
+  { id: 526870, name: 'Satisfactory', kind: 'fam', who: 'laura_g', h: '72 h', ach: [21, 40], st: 'jugando' },
+  { id: 1145360, name: 'Hades', kind: 'own', h: '38 h', ach: [31, 49], st: 'jugando' },
+  { id: 632470, name: 'Disco Elysium', kind: 'fam', who: 'pablo.r', h: '6 h', ach: [4, 45], st: 'pendiente', dur: '24 h' },
+  { id: 427520, name: 'Factorio', kind: 'fam', who: 'laura_g +1', h: '—', ach: null, st: 'pendiente', dur: '60 h' },
+  { id: 1091500, name: 'Cyberpunk 2077', kind: 'no', st: 'pendiente', dur: '26 h', price: ['29,99 €', '−50 %'] },
+  { id: 690830, name: 'Foundation', kind: 'gone', who: 'pablo.r', h: '11 h', ach: [6, 30], st: 'pendiente' },
+];
+function own(g) {
+  if (g.kind === 'own') return `<span class="lib-own">${ic('check')}Comprado</span>`;
+  if (g.kind === 'no') return `<span class="lib-own lib-own--no">${ic('cart')}Sin comprar</span>`;
+  if (g.kind === 'fam') return `<span class="lib-own lib-own--fam" title="Te lo presta ${g.who} en tu grupo familiar de Steam">${ic('users')}Del grupo <span class="lib-own__who">· ${g.who}</span></span>`;
+  return `<span class="lib-own lib-own--gone" title="${g.who} ya no lo comparte en tu grupo familiar">${ic('users')}Ya no está en el grupo</span>`;
+}
+function rowHTML(g) {
+  const cls = g.kind === 'no' ? 'is-unowned' : g.kind === 'gone' ? 'is-gone' : '';
+  const tag = g.kind === 'no' ? `<span class="lib-cover-tag">${ic('cart')}Sin comprar</span>` : '';
+  const meta = [own(g), g.h ? `<span class="lib-meta">${ic('clock')}${g.h}</span>` : '', g.dur ? `<span class="lib-meta">${ic('hourglass')}${g.dur}</span>` : ''].join('');
+  const right = g.kind === 'no'
+    ? `<span class="price"><b>${g.price[0]}</b><span style="color:var(--success);font-weight:700">${g.price[1]}</span></span>`
+    : g.ach ? `<span class="hg-row__prog"><span class="hg-row__prog-label"><span><b>${g.ach[0]}</b> / ${g.ach[1]} logros</span><span>${Math.round(g.ach[0] / g.ach[1] * 100)} %</span></span><span class="hg-bar"><span style="width:${g.ach[0] / g.ach[1] * 100}%"></span></span></span>`
+    : `<span class="hg-row__prog" style="color:var(--muted)">Sin logros</span>`;
+  return `<div class="hg-row st-${g.st} ${cls}"><span class="lib-cover"><img src="${cov(g.id)}" alt="" loading="lazy">${tag}</span>
+    <div class="hg-row__main"><a href="#" class="hg-row__link">${g.name}</a><div class="lib-row__meta">${meta}</div></div>${right}</div>`;
+}
+document.getElementById('lib').innerHTML = GAMES.map(rowHTML).join('');
+
+/* ── Ficha ── */
+document.getElementById('ficha-1').innerHTML = `<div class="ficha"><img src="${cov(526870)}" alt=""><div><h3>Satisfactory</h3>
+  <div class="ficha__chips"><span class="chip hg-tint st-todos">${ic('users')}Del grupo familiar · te lo presta laura_g</span><span class="chip hg-tint st-todos">${ic('gamepad')}Jugando</span></div>
+  <p>72 h jugadas · 21 de 40 logros · lo tienes desde el 3 de junio de 2025</p></div></div>`;
+document.getElementById('ficha-2').innerHTML = `<div class="ficha"><img src="${cov(690830)}" alt="" style="filter:grayscale(1);opacity:.7"><div><h3>Foundation</h3>
+  <div class="ficha__chips"><span class="chip hg-tint neutral">${ic('users')}Ya no está en tu grupo familiar</span></div>
+  <p>pablo.r dejó de compartirlo el 28 de octubre de 2026. Conservas tus 11 h, tus logros y tu estado. <a href="#" style="color:var(--primary);font-weight:600">Añadir a la wishlist</a></p></div></div>`;
+
+/* ── Barra del documento ── */
+document.getElementById('theme-btn').addEventListener('click', (e) => {
+  const dark = document.documentElement.dataset.theme !== 'dark';
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  e.currentTarget.setAttribute('aria-pressed', String(dark));
+});
+document.getElementById('rm-btn').addEventListener('click', (e) => {
+  const on = document.documentElement.classList.toggle('rm');
+  e.currentTarget.setAttribute('aria-pressed', String(on));
+  e.currentTarget.textContent = `Movimiento reducido: ${on ? 'sí' : 'no'}`;
+});
+</script>
+</body>
+</html>

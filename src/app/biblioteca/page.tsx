@@ -41,6 +41,7 @@ import {
     ShoppingCart,
     Star,
     Undo2,
+    Users,
     X,
 } from 'lucide-react'
 import { safeGetSession, supabase } from '@/lib/supabase/client'
@@ -213,7 +214,7 @@ const VIEWS: readonly LibraryView[] = ['lista', 'cuadricula']
 const VIEW_LABELS: Record<LibraryView, string> = { lista: 'Lista', cuadricula: 'Rejilla' }
 const VIEW_ICONS: Record<LibraryView, ReactNode> = { lista: <List aria-hidden />, cuadricula: <LayoutGrid aria-hidden /> }
 const OWN_FILTERS = Object.keys(OWN_FILTER_LABELS) as OwnFilter[]
-const OWN_ICONS: Partial<Record<OwnFilter, ReactNode>> = { comprados: <Check aria-hidden />, sin_comprar: <ShoppingCart aria-hidden /> }
+const OWN_ICONS: Partial<Record<OwnFilter, ReactNode>> = { comprados: <Check aria-hidden />, grupo: <Users aria-hidden />, sin_comprar: <ShoppingCart aria-hidden /> }
 
 function parseTab(value: string | null): LibraryTab | null {
     return LIBRARY_TABS.includes(value as LibraryTab) ? (value as LibraryTab) : null
@@ -423,7 +424,7 @@ function Biblioteca() {
 
     const inList = useMemo(() => (games ?? []).filter((g) => inTab(g, tab)), [games, tab])
     const options = useMemo(() => filterOptions(inList), [inList])
-    const mixedOwnership = inList.some((g) => !g.owned)
+    const mixedOwnership = inList.some((g) => !g.owned || g.steam_source === 'family')
     const list = useMemo(() => sortGames(inList.filter((g) => matchesFilters(g, filters)), sort), [inList, filters, sort])
     const shown = list.slice(0, visible)
     const canDrag = tab === 'pendiente' && sort === 'manual' && !hasFilters(filters)
@@ -1363,6 +1364,8 @@ function LibraryItemView({
     const perfect = isPerfect(game)
     const minutes = estimatedMinutes(game)
     const ghost = ghostHeight !== undefined
+    // Prestado por el grupo familiar que ya no está: se ve como uno tuyo pero en gris (#86).
+    const gone = !!game.family_gone_at
     // El color de la franja sale de la clase st-<estado> (lists.css); mientras se tiñe antes de salir, el del destino.
     const status = tone ?? game.status
     const motionClass = [tone && 'is-going', fresh?.back && 'is-back', shifted && 'is-shift', ghost && 'lib-ghost'].filter(Boolean).join(' ')
@@ -1373,7 +1376,10 @@ function LibraryItemView({
 
     const meta = (
         <>
-            {showOwnership &&
+            {game.steam_source === 'family' ? (
+                <FamilyTag game={game} />
+            ) : (
+                showOwnership &&
                 (game.owned ? (
                     <span className="lib-own">
                         <Check aria-hidden /> Comprado
@@ -1382,8 +1388,9 @@ function LibraryItemView({
                     <span className="lib-own lib-own--no">
                         <ShoppingCart aria-hidden /> Sin comprar
                     </span>
-                ))}
-            {game.owned && (
+                ))
+            )}
+            {(game.owned || gone) && (
                 <span className="lib-meta">
                     <Clock aria-hidden /> {formatHours(game.playtime_forever)}
                 </span>
@@ -1406,7 +1413,7 @@ function LibraryItemView({
         </>
     )
 
-    const progress = !game.owned ? (
+    const progress = !game.owned && !gone ? (
         <PriceTag game={game} />
     ) : pct !== null ? (
         <span className="hg-row__prog" title={`${game.achievements_unlocked ?? 0} de ${game.achievements_total} logros`}>
@@ -1427,7 +1434,7 @@ function LibraryItemView({
     const cover = (
         <>
             <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes={view === 'lista' ? '112px' : '(max-width: 640px) 45vw, 200px'} priority={priority} />
-            {!game.owned && (
+            {!game.owned && !gone && (
                 <span className="lib-cover-tag">
                     <ShoppingCart aria-hidden /> Sin comprar
                 </span>
@@ -1451,7 +1458,7 @@ function LibraryItemView({
                 style={liStyle}
                 data-appid={ghost ? undefined : game.appid}
                 aria-hidden={ghost || undefined}
-                className={`hg-row lib-row st-${status}${drag ? ' has-drag' : ''}${dragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}${motionClass ? ` ${motionClass}` : ''}`}
+                className={`hg-row lib-row st-${status}${drag ? ' has-drag' : ''}${dragging ? ' is-dragging' : ''}${game.owned ? '' : gone ? ' is-gone' : ' is-unowned'}${motionClass ? ` ${motionClass}` : ''}`}
             >
                 {drag}
                 <span className="hg-row__cover lib-cover">{cover}</span>
@@ -1477,7 +1484,7 @@ function LibraryItemView({
             style={liStyle}
             data-appid={ghost ? undefined : game.appid}
             aria-hidden={ghost || undefined}
-            className={`hg-card lib-card st-${status}${dragging ? ' is-dragging' : ''}${game.owned ? '' : ' is-unowned'}${motionClass ? ` ${motionClass}` : ''}`}
+            className={`hg-card lib-card st-${status}${dragging ? ' is-dragging' : ''}${game.owned ? '' : gone ? ' is-gone' : ' is-unowned'}${motionClass ? ` ${motionClass}` : ''}`}
         >
             <span className="hg-card__cover lib-cover">{cover}</span>
             <span className="hg-card__body">
@@ -1486,7 +1493,7 @@ function LibraryItemView({
                     {flags}
                 </span>
                 <span className="hg-card__meta lib-row__meta">{meta}</span>
-                {game.owned ? (
+                {game.owned || gone ? (
                     pct !== null && (
                         <span className={`hg-bar lib-card__bar${perfect ? ' is-done' : ''}`} aria-hidden>
                             <span style={{ width: `${pct}%` }} />
@@ -1502,5 +1509,23 @@ function LibraryItemView({
             </span>
             {drag && <span className="lib-card__drag">{drag}</span>}
         </li>
+    )
+}
+
+/** Prestado por el grupo familiar de Steam (#86): «Del grupo · laura_g», o «Ya no está en el grupo» si dejó de compartirse. */
+function FamilyTag({ game }: { game: Pick<LibraryGame, 'family_owners' | 'family_gone_at'> }) {
+    const owners = game.family_owners ?? []
+    const who = owners.length > 1 ? `${owners[0]} +${owners.length - 1}` : owners[0]
+    if (game.family_gone_at) {
+        return (
+            <span className="lib-own lib-own--gone" title={`${owners.join(', ') || 'Quien lo prestaba'} ya no lo comparte en tu grupo familiar`}>
+                <Users aria-hidden /> Ya no está en el grupo
+            </span>
+        )
+    }
+    return (
+        <span className="lib-own lib-own--fam" title={who ? `Te lo presta ${owners.join(', ')} en tu grupo familiar de Steam` : 'Te lo presta tu grupo familiar de Steam'}>
+            <Users aria-hidden /> Del grupo{who && <span className="lib-own__who">· {who}</span>}
+        </span>
     )
 }

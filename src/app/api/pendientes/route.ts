@@ -65,7 +65,9 @@ export async function DELETE(request: NextRequest) {
         .select('appid')
         .eq('user_id', user.id)
         .eq('appid', appid)
+        .is('family_gone_at', null)
         .maybeSingle()
+    // Los que ya no están en el grupo familiar (#86) sí se pueden quitar.
     if (owned) return NextResponse.json({ error: 'Lo tienes en Steam: cambia su estado en lugar de quitarlo' }, { status: 409 })
 
     const { error } = await admin.from('hubgames_user_games').delete().eq('user_id', user.id).eq('appid', appid)

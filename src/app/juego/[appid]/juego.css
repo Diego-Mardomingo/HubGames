@@ -1185,3 +1185,14 @@ a.juego__metacritic:hover {
     min-height: 44px;
   }
 }
+
+/* Prestado por el grupo familiar de Steam (#86) */
+.juego-family {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 0 0 0.875rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
