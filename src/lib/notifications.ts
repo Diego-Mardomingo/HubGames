@@ -1,5 +1,9 @@
+// Notificaciones push por dispositivo (#90). Cada navegador en el que se activan tiene su fila en
+// hubgames_push_subscriptions (única por endpoint) con sus propias preferencias por tipo. «Este dispositivo» se
+// reconoce por el endpoint de pushManager.getSubscription().
 import { supabase, safeGetUser } from '@/lib/supabase/client'
 import type { Json } from '@/lib/supabase/database.types'
+import { deviceNameFromUA, wantsType, type NotificationPrefs, type NotificationType } from '@/lib/notification-prefs'
 
 const VAPID_PUBLIC_KEY_RAW = process.env.NEXT_PUBLIC_WEB_PUSH_VAPID_PUBLIC_KEY
 
@@ -28,202 +32,214 @@ export async function getCurrentUserId(): Promise<string | null> {
     return user?.id ?? null
 }
 
-export async function getNotificationPreference(): Promise<boolean> {
-    const userId = await getCurrentUserId()
-    if (!userId) return false
-
-    const { data, error } = await supabase
-        .from('hubgames_push_subscriptions')
-        .select('enabled')
-        .eq('user_id', userId)
-        .maybeSingle()
-
-    if (error) {
-        console.error('Error obteniendo preferencia de notificaciones', error)
-        return false
-    }
-
-    // Si no hay registro todavía, asumimos que aún NO lo ha activado
-    if (!data) return false
-
-    return data.enabled
+export type PushDevice = {
+    id: string
+    name: string
+    enabled: boolean
+    prefs: NotificationPrefs
+    lastUsedAt: string
+    current: boolean
 }
 
-export async function subscribeToDailyNotifications(): Promise<{ success: boolean; error?: string }> {
+/** ok: se puede activar · unsupported: el navegador no tiene push · denied: el permiso está bloqueado. */
+export type NotificationSupport = 'ok' | 'unsupported' | 'denied'
+
+export type NotificationState = {
+    support: NotificationSupport
+    current: PushDevice | null
+    others: PushDevice[]
+}
+
+export function notificationSupport(): NotificationSupport {
+    if (typeof window === 'undefined') return 'unsupported'
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || typeof Notification === 'undefined') return 'unsupported'
+    return Notification.permission === 'denied' ? 'denied' : 'ok'
+}
+
+/** Endpoint de la suscripción push de este navegador, sin pedir permisos ni crear nada. */
+async function currentEndpoint(): Promise<string | null> {
+    if (notificationSupport() === 'unsupported') return null
     try {
-        if (typeof window === 'undefined') {
-            const error = 'Window no disponible'
-            console.error('[Notifications]', error)
-            return { success: false, error }
-        }
-        
-        if (!('serviceWorker' in navigator)) {
-            const error = 'Tu navegador no soporta Service Workers'
-            console.warn('[Notifications]', error)
-            return { success: false, error }
-        }
+        const registration = await navigator.serviceWorker.getRegistration()
+        const subscription = await registration?.pushManager.getSubscription()
+        return subscription?.endpoint ?? null
+    } catch {
+        return null
+    }
+}
 
-        if (!('PushManager' in window)) {
-            const error = 'Tu navegador no soporta Push Notifications'
-            console.warn('[Notifications]', error)
-            return { success: false, error }
-        }
+function thisDeviceName(): string {
+    const standalone = typeof window !== 'undefined' && window.matchMedia?.('(display-mode: standalone)').matches
+    return deviceNameFromUA(navigator.userAgent, standalone)
+}
 
-        if (typeof Notification === 'undefined') {
-            const error = 'Tu navegador no soporta la API de Notificaciones'
-            console.warn('[Notifications]', error)
-            return { success: false, error }
+/** Este dispositivo y los demás del usuario. Al consultarlo desde un dispositivo, se apunta que se ha usado. */
+export async function getNotificationState(): Promise<NotificationState> {
+    const support = notificationSupport()
+    const userId = await getCurrentUserId()
+    if (!userId) return { support, current: null, others: [] }
+
+    const [endpoint, { data, error }] = await Promise.all([
+        currentEndpoint(),
+        supabase
+            .from('hubgames_push_subscriptions')
+            .select('id, endpoint, device_name, enabled, prefs, last_used_at')
+            .eq('user_id', userId)
+            .order('last_used_at', { ascending: false }),
+    ])
+    if (error) throw new Error(error.message)
+
+    let current: PushDevice | null = null
+    const others: PushDevice[] = []
+    for (const row of data ?? []) {
+        const device: PushDevice = {
+            id: row.id,
+            name: row.device_name || 'Dispositivo sin nombre',
+            enabled: row.enabled,
+            prefs: (row.prefs ?? {}) as NotificationPrefs,
+            lastUsedAt: row.last_used_at,
+            current: endpoint !== null && row.endpoint === endpoint,
         }
+        if (device.current) current = device
+        else others.push(device)
+    }
+
+    if (current) {
+        current.lastUsedAt = new Date().toISOString()
+        void supabase.from('hubgames_push_subscriptions').update({ last_used_at: current.lastUsedAt }).eq('id', current.id).then(() => {})
+    }
+    return { support, current, others }
+}
+
+/** ¿Llegan a este dispositivo los avisos de un tipo? null si no se sabe (sin sesión o error). */
+export async function receivesOnThisDevice(type: NotificationType): Promise<boolean | null> {
+    try {
+        const { current } = await getNotificationState()
+        return Boolean(current?.enabled && wantsType(current.prefs, type))
+    } catch {
+        return null
+    }
+}
+
+/** Pide permiso, crea (o reutiliza) la suscripción push de este navegador y la activa sin tocar los demás dispositivos. */
+export async function enableThisDevice(): Promise<{ success: boolean; error?: string; device?: PushDevice }> {
+    try {
+        const support = notificationSupport()
+        if (support === 'unsupported') return { success: false, error: 'Este navegador no admite notificaciones push' }
 
         const permission = await Notification.requestPermission()
         if (permission !== 'granted') {
-            const error = `Permiso de notificaciones ${permission === 'denied' ? 'denegado' : 'no concedido'}`
-            console.warn('[Notifications]', error, ':', permission)
-            return { success: false, error }
+            return {
+                success: false,
+                error: permission === 'denied' ? 'El permiso de notificaciones está bloqueado en este navegador' : 'No se ha concedido el permiso de notificaciones',
+            }
         }
 
-        // Intentamos obtener el service worker con múltiples intentos
-        let registration: ServiceWorkerRegistration | null = null
-        
-        // Primero intentamos obtener el registro existente
-        registration = await navigator.serviceWorker.getRegistration() || null
-        
-        // Si no hay registro, intentamos esperar a que se registre (puede tardar unos segundos)
+        let registration: ServiceWorkerRegistration | null = (await navigator.serviceWorker.getRegistration()) || null
+
+        // Si no hay registro, esperamos a que se registre (puede tardar unos segundos)
         if (!registration) {
-            console.log('[Notifications] Service Worker no encontrado, esperando a que se registre...')
             try {
-                // Esperamos hasta 10 segundos a que el SW se registre
-                registration = await Promise.race([
+                registration = (await Promise.race([
                     navigator.serviceWorker.ready,
                     new Promise<ServiceWorkerRegistration | null>((resolve) => {
-                        // Intentar registrar manualmente si no está registrado
                         navigator.serviceWorker
                             .register('/sw.js', { scope: '/' })
-                            .then((reg) => {
-                                console.log('[Notifications] Service Worker registrado manualmente')
-                                // Esperar a que esté activo
-                                setTimeout(() => resolve(reg), 1000)
-                            })
+                            .then((reg) => setTimeout(() => resolve(reg), 1000))
                             .catch(() => resolve(null))
-                        
-                        // Timeout después de 10 segundos
                         setTimeout(() => resolve(null), 10000)
-                    })
-                ]) as ServiceWorkerRegistration | null
+                    }),
+                ])) as ServiceWorkerRegistration | null
             } catch (swError) {
                 console.error('[Notifications] Error obteniendo Service Worker:', swError)
             }
         } else {
-            // Si ya hay registro, esperamos a que esté listo
             try {
                 await registration.update()
-                console.log('[Notifications] Service Worker encontrado y actualizado')
             } catch (e) {
                 console.warn('[Notifications] No se pudo actualizar el Service Worker:', e)
             }
         }
 
         if (!registration) {
-            const error = 'No se ha encontrado ningún Service Worker registrado. Verifica que la PWA esté instalada correctamente.'
-            console.error('[Notifications]', error)
-            return { success: false, error }
+            return { success: false, error: 'No se ha encontrado ningún Service Worker registrado. Verifica que la PWA esté instalada correctamente.' }
         }
 
         let subscription = await registration.pushManager.getSubscription()
-
         if (!subscription) {
             const vapidPublicKey = getVapidPublicKey()
-            if (!vapidPublicKey) {
-                const error = 'Error de configuración: falta la clave VAPID pública en el servidor.'
-                console.error('[Notifications]', error)
-                return { success: false, error }
-            }
-
+            if (!vapidPublicKey) return { success: false, error: 'Error de configuración: falta la clave VAPID pública en el servidor.' }
             try {
                 subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true,
                     applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
                 })
-                console.log('[Notifications] Suscripción Push creada correctamente')
             } catch (subError: any) {
                 const errorMsg = subError?.message || 'Error desconocido al suscribirse'
-                const error = `Error al suscribirse al servicio push: ${errorMsg}. ${subError?.name === 'AbortError' ? 'En iOS, asegúrate de usar la PWA instalada (no Safari normal).' : ''}`
                 console.error('[Notifications] Error suscribiéndose a Push:', subError)
-                return { success: false, error }
-            }
-        } else {
-            console.log('[Notifications] Ya existía una suscripción Push, reutilizándola')
-        }
-
-        const userId = await getCurrentUserId()
-        if (!userId) {
-            const error = 'No se pudo obtener el usuario actual. Por favor, inicia sesión de nuevo.'
-            console.error('[Notifications]', error)
-            return { success: false, error }
-        }
-
-        console.log('[Notifications] Guardando suscripción en Supabase para usuario:', userId)
-        const { error, data } = await supabase
-            .from('hubgames_push_subscriptions')
-            .upsert(
-                {
-                    user_id: userId,
-                    subscription: subscription.toJSON() as unknown as Json,
-                    enabled: true,
-                },
-                {
-                    onConflict: 'user_id',
-                },
-            )
-            .select()
-
-        if (error) {
-            const errorMsg = `Error guardando en la base de datos: ${error.message || 'Error desconocido'}`
-            console.error('[Notifications]', errorMsg, error)
-            return { success: false, error: errorMsg }
-        }
-
-        console.log('[Notifications] ✅ Suscripción guardada correctamente en Supabase:', data)
-        return { success: true }
-    } catch (err: any) {
-        const error = `Error inesperado: ${err?.message || 'Error desconocido'}`
-        console.error('[Notifications]', error, err)
-        return { success: false, error }
-    }
-}
-
-export async function disableDailyNotifications(): Promise<boolean> {
-    if (typeof window === 'undefined') return false
-
-    const userId = await getCurrentUserId()
-    if (!userId) return false
-
-    // Marcamos como desactivado en la BBDD
-    const { error } = await supabase
-        .from('hubgames_push_subscriptions')
-        .update({ enabled: false })
-        .eq('user_id', userId)
-
-    if (error) {
-        console.error('Error desactivando notificaciones diarias', error)
-        return false
-    }
-
-    // Opcionalmente podemos cancelar la suscripción en el navegador
-    try {
-        if ('serviceWorker' in navigator) {
-            const registration = await navigator.serviceWorker.getRegistration()
-            if (registration) {
-                const subscription = await registration.pushManager.getSubscription()
-                if (subscription) {
-                    await subscription.unsubscribe()
+                return {
+                    success: false,
+                    error: `Error al suscribirse al servicio push: ${errorMsg}. ${subError?.name === 'AbortError' ? 'En iOS, asegúrate de usar la PWA instalada (no Safari normal).' : ''}`,
                 }
             }
         }
-    } catch (err) {
-        console.error('Error cancelando suscripción push en el navegador', err)
-    }
 
-    return true
+        const name = thisDeviceName()
+        const { data, error } = await supabase
+            .rpc('hubgames_push_register', { p_subscription: subscription.toJSON() as unknown as Json, p_device_name: name })
+            .single()
+        if (error || !data) {
+            console.error('[Notifications] Error guardando la suscripción', error)
+            return { success: false, error: `Error guardando en la base de datos: ${error?.message || 'Error desconocido'}` }
+        }
+
+        return {
+            success: true,
+            device: { id: data.id, name, enabled: true, prefs: (data.prefs ?? {}) as NotificationPrefs, lastUsedAt: new Date().toISOString(), current: true },
+        }
+    } catch (err: any) {
+        console.error('[Notifications] Error inesperado', err)
+        return { success: false, error: `Error inesperado: ${err?.message || 'Error desconocido'}` }
+    }
 }
 
+/**
+ * Desactiva un dispositivo (el actual u otro). No se cancela la suscripción del navegador: así, al reactivarlo, se
+ * reconoce el mismo endpoint y se recuperan sus preferencias por tipo.
+ */
+export async function setDeviceEnabled(id: string, enabled: boolean): Promise<boolean> {
+    const { error } = await supabase.from('hubgames_push_subscriptions').update({ enabled, updated_at: new Date().toISOString() }).eq('id', id)
+    if (error) console.error('[Notifications] Error cambiando el dispositivo', error)
+    return !error
+}
+
+export async function setDevicePref(device: PushDevice, type: NotificationType, value: boolean): Promise<NotificationPrefs | null> {
+    const prefs: NotificationPrefs = { ...device.prefs, [type]: value }
+    const { error } = await supabase
+        .from('hubgames_push_subscriptions')
+        .update({ prefs: prefs as unknown as Json, updated_at: new Date().toISOString() })
+        .eq('id', device.id)
+    if (error) {
+        console.error('[Notifications] Error guardando la preferencia', error)
+        return null
+    }
+    return prefs
+}
+
+/** Quita un dispositivo: deja de recibir avisos. Si es el actual, también se cancela la suscripción del navegador. */
+export async function removeDevice(device: PushDevice): Promise<boolean> {
+    const { error } = await supabase.from('hubgames_push_subscriptions').delete().eq('id', device.id)
+    if (error) {
+        console.error('[Notifications] Error quitando el dispositivo', error)
+        return false
+    }
+    if (device.current) {
+        try {
+            const registration = await navigator.serviceWorker.getRegistration()
+            await (await registration?.pushManager.getSubscription())?.unsubscribe()
+        } catch (err) {
+            console.error('[Notifications] Error cancelando la suscripción del navegador', err)
+        }
+    }
+    return true
+}

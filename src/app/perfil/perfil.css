@@ -474,6 +474,119 @@
   color: var(--muted);
 }
 
+/* Tipos de aviso de este dispositivo: sangrados bajo el interruptor general, apagados si está desactivado (#90) */
+.pf-notif-types {
+  display: grid;
+  margin: -0.5rem 0 0;
+  padding: 0 1.25rem 0.75rem calc(1.25rem + 24px);
+  list-style: none;
+}
+
+.pf-notif-type {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  padding: 0.5rem 0 0.5rem 0.875rem;
+  border-left: 2px solid var(--border);
+  transition: opacity 0.2s;
+}
+
+.pf-notif-type.is-off {
+  opacity: 0.6;
+}
+
+.pf-notif-type__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.pf-notif-types + .pf-row,
+.pf-notes + .pf-row {
+  border-top: 1px solid var(--border);
+}
+
+/* Otros dispositivos */
+.pf-devices {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pf-device {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  animation: hg-enter 0.25s var(--ease-out);
+}
+
+.pf-device__icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+}
+
+.pf-device__icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.pf-device__text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.pf-device__name {
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pf-device__meta {
+  color: var(--muted);
+  font-size: 0.78125rem;
+}
+
+.pf-device.is-off .pf-device__name {
+  color: var(--muted);
+}
+
+.pf-device__acts {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pf-device__remove:hover:not(:disabled) {
+  color: var(--danger);
+}
+
+@media (max-width: 480px) {
+  .pf-notif-types {
+    padding-left: 1.25rem;
+  }
+
+  .pf-device {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+
+  .pf-device__acts {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+}
+
 /* ── Tus datos: cada descarga con el color de lo que exporta ── */
 .pf-export {
   display: grid;
