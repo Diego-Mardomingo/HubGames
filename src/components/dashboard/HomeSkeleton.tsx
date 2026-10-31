@@ -10,9 +10,9 @@ export default function HomeSkeleton() {
                 <header className="dash-head">
                     <div className="dash-head__row">
                         <div>
-                            <h1 className="page-title">
+                            <div className="page-title">
                                 <Skeleton shape="text" w="8ch" />
-                            </h1>
+                            </div>
                             <p className="dash-status">
                                 <Skeleton shape="text" w="26ch" />
                             </p>

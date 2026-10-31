@@ -4,14 +4,18 @@ import '@/styles/lists.css'
 import '@/components/dashboard/dashboard.css'
 import './judi.css'
 
-/** Esqueleto de la portada de JUDI: cabecera de verdad (es fija), tarjeta de hoy, tus cifras y el historial con su mapa. */
-export default function JudiSkeleton() {
+/**
+ * Esqueleto de la portada de JUDI: cabecera de verdad (es fija), tarjeta de hoy, tus cifras y el historial con su mapa.
+ * `heading={false}` en `loading.tsx`: ese esqueleto va en el mismo HTML que el de la página y no debe sumar otro `h1`.
+ */
+export default function JudiSkeleton({ heading = true }: { heading?: boolean }) {
+    const Title = heading ? 'h1' : 'div'
     return (
         <SkeletonZone label="Cargando JUDI">
             <div className="jd">
                 <header className="page-head jd-head">
                     <div>
-                        <h1 className="page-title">JUDI</h1>
+                        <Title className="page-title">JUDI</Title>
                         <p className="page-subtitle">
                             Adivina el videojuego del día con 6 capturas y 5 pistas. Cuanto antes aciertes, más puntos sumas en el ranking.
                         </p>

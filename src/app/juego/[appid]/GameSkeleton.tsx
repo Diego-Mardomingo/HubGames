@@ -38,9 +38,9 @@ export default function GameSkeleton() {
                     <div className="juego__heading">
                         <div className="juego__title-row">
                             <div className="juego__title">
-                                <h1 className="page-title">
+                                <div className="page-title">
                                     <Skeleton shape="text" w="12ch" />
-                                </h1>
+                                </div>
                                 <p className="juego__studios">
                                     <Skeleton shape="text" w="18ch" />
                                 </p>

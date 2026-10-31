@@ -9,9 +9,9 @@ export default function Loading() {
             <div className="stats">
                 <header className="page-head">
                     <div>
-                        <h1 className="page-title">
+                        <div className="page-title">
                             <Skeleton shape="text" w="12ch" />
-                        </h1>
+                        </div>
                         <p className="page-subtitle">
                             <Skeleton shape="text" w="36ch" />
                         </p>

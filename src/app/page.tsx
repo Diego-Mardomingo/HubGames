@@ -9,12 +9,23 @@ import Dashboard from '@/components/dashboard/Dashboard'
 import ActivityHeatmap from '@/components/dashboard/ActivityHeatmap'
 import LandingPreview from '@/components/dashboard/LandingPreview'
 import Tile from '@/components/Tile'
+import { jsonLd, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/seo'
 import '@/components/dashboard/dashboard.css'
 
+// Los mismos título y descripción que el layout raíz (sin la plantilla «%s | HubGames»).
 export const metadata: Metadata = {
-    title: 'HubGames — Tu centro de control gamer',
-    description: 'Tu biblioteca, tus logros y el juego del día en un solo sitio.',
+    title: { absolute: SITE_TITLE },
+    description: SITE_DESCRIPTION,
+    alternates: { canonical: '/' },
 }
+
+/** Datos estructurados de la portada: el sitio (WebSite) y quién lo hace (Organization). */
+const HOME_LD = jsonLd({
+    '@graph': [
+        { '@type': 'WebSite', '@id': `${SITE_URL}/#website`, url: `${SITE_URL}/`, name: SITE_NAME, description: SITE_DESCRIPTION, inLanguage: 'es' },
+        { '@type': 'Organization', '@id': `${SITE_URL}/#organization`, url: `${SITE_URL}/`, name: SITE_NAME, logo: `${SITE_URL}/icons/apple-touch-icon.png` },
+    ],
+})
 
 // Depende de la sesión: nunca se genera estática.
 export const dynamic = 'force-dynamic'
@@ -95,7 +106,13 @@ export default async function HomePage() {
     const {
         data: { user },
     } = await supabase.auth.getUser()
-    if (!user) return <Landing />
+    if (!user)
+        return (
+            <>
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: HOME_LD }} />
+                <Landing />
+            </>
+        )
 
     const now = new Date()
     const data = await loadDashboard(supabase, user.id, now)

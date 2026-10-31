@@ -19,9 +19,9 @@ export default function Loading() {
                         <p className="wr-hero__kicker">
                             <Skeleton shape="text" w="18ch" />
                         </p>
-                        <h1 className="wr-hero__year">
+                        <div className="wr-hero__year">
                             <Skeleton shape="text" w="4.2ch" />
-                        </h1>
+                        </div>
                         <p className="wr-hero__lead">
                             <Skeleton shape="text" w="36ch" />
                         </p>
