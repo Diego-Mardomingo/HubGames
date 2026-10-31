@@ -175,6 +175,33 @@
   font-size: 0.75rem;
 }
 
+/* Avisos de precio apagados en este dispositivo: enlace a /perfil (#90) */
+.price-alert__device {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  padding: 0.5rem 0.625rem;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--warning) var(--tint), transparent);
+  font-size: 0.75rem;
+}
+
+.price-alert__device svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
+  color: color-mix(in srgb, var(--warning) 80%, var(--foreground));
+}
+
+.price-alert__device a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .price-alert__actions {
   display: flex;
   justify-content: flex-end;

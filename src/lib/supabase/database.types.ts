@@ -873,7 +873,13 @@ export type Database = {
           id: string
           user_id: string
           subscription: Json
+          /** Columna generada: subscription->>'endpoint'. Única: una fila por dispositivo (#90). */
+          endpoint: string
+          device_name: string | null
+          /** Tipos que recibe el dispositivo ({ judi, price }); un tipo ausente cuenta como activado. */
+          prefs: Json
           enabled: boolean
+          last_used_at: string
           created_at: string
           updated_at: string
         }
@@ -881,7 +887,10 @@ export type Database = {
           id?: string
           user_id: string
           subscription: Json
+          device_name?: string | null
+          prefs?: Json
           enabled?: boolean
+          last_used_at?: string
           created_at?: string
           updated_at?: string
         }
@@ -889,7 +898,10 @@ export type Database = {
           id?: string
           user_id?: string
           subscription?: Json
+          device_name?: string | null
+          prefs?: Json
           enabled?: boolean
+          last_used_at?: string
           created_at?: string
           updated_at?: string
         }
@@ -1332,6 +1344,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      hubgames_push_register: {
+        Args: { p_subscription: Json; p_device_name: string }
+        Returns: { id: string; prefs: Json }[]
+      }
       hubgames_username_available: {
         Args: { p_username: string }
         Returns: boolean

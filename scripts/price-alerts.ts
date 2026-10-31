@@ -3,7 +3,8 @@
 // - Por defecto avisa cuando un juego llega a su mínimo histórico en Steam; cada juego puede tener su propio criterio
 //   (precio objetivo, descuento mínimo o sin avisos) en hubgames_price_alerts.
 // - No repite: guarda el precio avisado y solo vuelve a avisar si baja más o en la siguiente oferta (decideAlert).
-// - Solo usuarios con las notificaciones activadas. Las suscripciones caducadas (404/410) se desactivan.
+// - Se envía a todos los dispositivos del usuario con las notificaciones y «Bajadas de precio» activadas (#90). Las
+//   suscripciones caducadas (404/410) se desactivan una a una.
 // Uso: npx tsx scripts/price-alerts.ts [--dry-run] [--user <uuid>]
 //   --dry-run: imprime qué avisaría (también a usuarios sin notificaciones) y no envía ni escribe nada.
 import { createClient } from '@supabase/supabase-js'
@@ -19,8 +20,10 @@ import {
     type PriceAlert,
     type PushPayload,
 } from '../src/lib/price-alerts'
+import { wantsType } from '../src/lib/notification-prefs'
 
 type Client = ReturnType<typeof createClient<Database>>
+type Device = { id: string; subscription: PushSubscription }
 
 function arg(name: string): string | null {
     const i = process.argv.indexOf(name)
@@ -49,7 +52,7 @@ async function send(subscription: PushSubscription, payload: PushPayload): Promi
     }
 }
 
-async function processUser(supabase: Client, userId: string, subscription: PushSubscription | null, dryRun: boolean) {
+async function processUser(supabase: Client, userId: string, devices: Device[], dryRun: boolean) {
     const [games, alerts] = await Promise.all([
         all((from, to) =>
             supabase
@@ -81,11 +84,33 @@ async function processUser(supabase: Client, userId: string, subscription: PushS
     for (const p of payloads) console.log(`  ${dryRun ? '[seco] ' : ''}Notificación: ${p.title} · ${p.body} → ${p.url}`)
     if (dryRun) return
 
-    if (!subscription) return
-    for (const p of payloads) {
-        if (!(await send(subscription, p))) {
-            console.log('La suscripción ya no existe: se desactiva.')
-            await supabase.from('hubgames_push_subscriptions').update({ enabled: false }).eq('user_id', userId)
+    if (!devices.length) return
+    // Basta con que llegue a un dispositivo para darlo por avisado; si no llega a ninguno, se reintenta mañana.
+    if (payloads.length) {
+        let delivered = 0
+        let lastError: unknown = null
+        for (const device of devices) {
+            try {
+                let alive = true
+                for (const p of payloads) {
+                    if (!(await send(device.subscription, p))) {
+                        alive = false
+                        break
+                    }
+                }
+                if (alive) delivered++
+                else {
+                    console.log(`La suscripción ${device.id} ya no existe: se desactiva.`)
+                    await supabase.from('hubgames_push_subscriptions').update({ enabled: false }).eq('id', device.id)
+                }
+            } catch (e) {
+                lastError = e
+                console.error(`  Error enviando a ${device.id}: ${e instanceof Error ? e.message : e}`)
+            }
+        }
+        console.log(`  Enviado a ${delivered} de ${devices.length} dispositivos.`)
+        if (!delivered) {
+            if (lastError) throw lastError
             return
         }
     }
@@ -132,9 +157,15 @@ async function main() {
         webpush.setVapidDetails(process.env.WEB_PUSH_VAPID_SUBJECT || 'mailto:support@hubgames.app', publicKey, privateKey)
     }
 
-    const { data: subs, error } = await supabase.from('hubgames_push_subscriptions').select('user_id, subscription').eq('enabled', true)
+    const { data: subs, error } = await supabase.from('hubgames_push_subscriptions').select('id, user_id, subscription, prefs').eq('enabled', true)
     if (error) throw new Error(`No se pudieron leer las suscripciones: ${error.message}`)
-    const subByUser = new Map(subs.map((s) => [s.user_id, s.subscription as unknown as PushSubscription]))
+    const subByUser = new Map<string, Device[]>()
+    for (const s of subs) {
+        if (!wantsType(s.prefs, 'price')) continue
+        const list = subByUser.get(s.user_id) ?? []
+        list.push({ id: s.id, subscription: s.subscription as unknown as PushSubscription })
+        subByUser.set(s.user_id, list)
+    }
 
     // En seco se revisan todos los que tienen wishlist, para ver qué se avisaría aunque no haya notificaciones activas.
     let users: string[]
@@ -145,13 +176,14 @@ async function main() {
         users = [...subByUser.keys()]
     }
     if (onlyUser) users = users.filter((u) => u === onlyUser)
-    console.log(`${dryRun ? 'Modo seco. ' : ''}${subByUser.size} suscripciones activas; ${users.length} usuarios a revisar.`)
+    const deviceCount = [...subByUser.values()].reduce((n, l) => n + l.length, 0)
+    console.log(`${dryRun ? 'Modo seco. ' : ''}${deviceCount} dispositivos con avisos de precio (${subByUser.size} usuarios); ${users.length} usuarios a revisar.`)
 
     let failed = 0
     for (const userId of users) {
         console.log(`::group::Usuario ${userId}${subByUser.has(userId) ? '' : ' (sin notificaciones activas)'}`)
         try {
-            await processUser(supabase, userId, subByUser.get(userId) ?? null, dryRun)
+            await processUser(supabase, userId, subByUser.get(userId) ?? [], dryRun)
         } catch (e) {
             failed++
             console.error(`::error::Usuario ${userId}: ${e instanceof Error ? e.message : e}`)

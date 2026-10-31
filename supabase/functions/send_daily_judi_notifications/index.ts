@@ -33,10 +33,17 @@ async function isAuthorized(req: Request): Promise<boolean> {
   return data === true;
 }
 
+// Igual que wantsType de src/lib/notification-prefs.ts: un tipo que no está en prefs cuenta como activado.
+function wantsJudi(prefs: unknown): boolean {
+  if (!prefs || typeof prefs !== "object" || Array.isArray(prefs)) return true;
+  return (prefs as Record<string, unknown>).judi !== false;
+}
+
+// Una suscripción por dispositivo (#90): se envía a todos los dispositivos activos con «JUDI diario» encendido.
 async function sendNotificationToAllEnabledUsers() {
-  const { data: subs, error } = await supabase
+  const { data: rows, error } = await supabase
     .from("hubgames_push_subscriptions")
-    .select("id, subscription")
+    .select("id, subscription, prefs")
     .eq("enabled", true);
 
   if (error) {
@@ -44,7 +51,8 @@ async function sendNotificationToAllEnabledUsers() {
     throw error;
   }
 
-  if (!subs || subs.length === 0) {
+  const subs = (rows ?? []).filter((s) => wantsJudi(s.prefs));
+  if (subs.length === 0) {
     return { sent: 0 };
   }
 

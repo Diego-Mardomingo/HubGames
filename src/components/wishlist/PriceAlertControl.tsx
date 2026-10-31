@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { Bell, BellOff, Percent, Tag, TrendingDown, type LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -17,6 +18,7 @@ import {
     type PriceAlert,
 } from '@/lib/price-alerts'
 import { formatPrice } from '@/lib/wishlist'
+import { receivesOnThisDevice } from '@/lib/notifications'
 import './wishlist.css'
 
 const HINTS: Record<AlertMode, string> = {
@@ -34,6 +36,13 @@ function todayLine(game: AlertGame): string {
     const cut = (game.discount_percent ?? 0) > 0 ? ` (-${game.discount_percent} %)` : ''
     const low = game.steam_low !== null ? ` · mínimo en Steam ${formatPrice(game.steam_low)}` : ''
     return `Hoy ${formatPrice(game.price_final)}${cut}${low}`
+}
+
+// ¿Llegan los avisos de precio a este dispositivo? Se consulta una vez, al abrir el primer aviso (#90).
+let deviceCheck: Promise<boolean | null> | null = null
+function priceAlertsHere(): Promise<boolean | null> {
+    deviceCheck ??= receivesOnThisDevice('price')
+    return deviceCheck
 }
 
 /**
@@ -62,6 +71,16 @@ export default function PriceAlertControl({
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
     const [swing, setSwing] = useState(0)
+    const [here, setHere] = useState<boolean | null>(null)
+
+    useEffect(() => {
+        if (!open) return
+        let alive = true
+        void priceAlertsHere().then((v) => alive && setHere(v))
+        return () => {
+            alive = false
+        }
+    }, [open])
 
     useEffect(() => {
         if (!swing) return
@@ -172,6 +191,14 @@ export default function PriceAlertControl({
                             {draftHit ? 'El precio de hoy ya lo cumple: te avisaremos hoy mismo.' : 'Hoy no lo cumple.'}
                         </p>
                     )
+                )}
+                {here === false && (
+                    <p className="price-alert__device">
+                        <BellOff aria-hidden />
+                        <span>
+                            Los avisos de precio están desactivados en este dispositivo. <Link href="/perfil#pf-prefs">Actívalos en tu perfil</Link>
+                        </span>
+                    </p>
                 )}
                 <div className="price-alert__actions">
                     <Button size="sm" variant="secondary" disabled={saving} onClick={() => setOpen(false)}>
