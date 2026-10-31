@@ -25,7 +25,8 @@ export default function GameAchievementsSkeleton({ appid, name, headerImage }: {
                     ) : (
                         <Skeleton className="gl-cap" />
                     )}
-                    <h1 className="page-title">{name ? `Logros de ${name}` : <Skeleton shape="text" w="14ch" />}</h1>
+                    {/* Sin nombre (loading.tsx) no es el título de verdad: un div, para no sumar un h1 vacío al HTML. */}
+                    {name ? <h1 className="page-title">Logros de {name}</h1> : <div className="page-title"><Skeleton shape="text" w="14ch" /></div>}
                     <p className="gl-meta">
                         <Skeleton shape="text" w="30ch" />
                     </p>

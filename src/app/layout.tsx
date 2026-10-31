@@ -10,6 +10,7 @@ import SiteFooter from '@/components/SiteFooter'
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
 import { themeScript } from '@/lib/theme'
 import { sidebarScript } from '@/lib/sidebar'
+import { SITE_DESCRIPTION, SITE_NAME, SITE_SHARE_DESCRIPTION, SITE_TITLE, SITE_URL } from '@/lib/seo'
 
 const onest = Onest({ subsets: ['latin'], variable: '--font-onest', display: 'swap' })
 
@@ -23,12 +24,12 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+    metadataBase: new URL(SITE_URL),
     title: {
-        default: 'HubGames — Tu biblioteca de Steam y tus logros',
-        template: '%s | HubGames'
+        default: SITE_TITLE,
+        template: `%s | ${SITE_NAME}`,
     },
-    description: 'Sigue tu biblioteca de Steam, tus logros por rareza y a qué jugar hoy. Y cada día, JUDI: adivina el videojuego del día.',
+    description: SITE_DESCRIPTION,
     keywords: ['hubgames', 'hub games', 'steam', 'biblioteca de steam', 'logros', 'tracker de juegos', 'videojuegos', 'judi', 'juego del día'],
     authors: [{ name: 'Diego López Mardomingo' }],
     creator: 'Diego López Mardomingo',
@@ -46,10 +47,9 @@ export const metadata: Metadata = {
     openGraph: {
         type: 'website',
         locale: 'es_ES',
-        url: 'https://hub-games.vercel.app/',
-        siteName: 'HubGames',
-        title: 'HubGames — Tu biblioteca de Steam y tus logros',
-        description: 'Lo que juegas, lo que te falta y a qué jugar hoy. Y cada día, JUDI: adivina el juego.',
+        siteName: SITE_NAME,
+        title: SITE_TITLE,
+        description: SITE_SHARE_DESCRIPTION,
         images: [
             {
                 url: '/img/og-hubgames.png',
@@ -61,8 +61,8 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'HubGames — Tu biblioteca de Steam y tus logros',
-        description: 'Lo que juegas, lo que te falta y a qué jugar hoy. Y cada día, JUDI: adivina el juego.',
+        title: SITE_TITLE,
+        description: SITE_SHARE_DESCRIPTION,
         images: ['/img/og-hubgames.png'],
     },
     robots: {
