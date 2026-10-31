@@ -211,6 +211,9 @@ export async function syncSteamLibrary(supabase: Client, userId: string, options
                 playtime_forever: g.playtime_forever ?? 0,
                 playtime_2weeks: g.playtime_2weeks ?? 0,
                 rtime_last_played: g.rtime_last_played ? new Date(g.rtime_last_played * 1000).toISOString() : null,
+                // Si era del grupo familiar y lo has comprado, pasa a ser tuyo.
+                source: 'own',
+                family_gone_at: null,
             })),
             { onConflict: 'user_id,appid' },
         )
@@ -233,7 +236,12 @@ export async function syncSteamLibrary(supabase: Client, userId: string, options
     }
     log(`Nuevos en la bandeja: ${fresh.length}`)
 
-    const { fetched, pending } = await fillCatalog(supabase, owned, options)
+    // Fichas de lo tuyo y de lo que te presta el grupo familiar (#86): al actualizar el grupo solo da tiempo a traer unas pocas.
+    const borrowed = await selectAll<{ appid: number }>((from, to) =>
+        supabase.from('hubgames_user_steam_games').select('appid').eq('user_id', userId).eq('source', 'family').is('family_gone_at', null).order('appid').range(from, to),
+    )
+    const ownedIds = new Set(owned.map((g) => g.appid))
+    const { fetched, pending } = await fillCatalog(supabase, [...owned, ...borrowed.filter((b) => !ownedIds.has(b.appid))], options)
 
     const { error: touchError } = await supabase
         .from('hubgames_user_steam')
@@ -311,7 +319,12 @@ export async function syncWishlist(supabase: Client, userId: string, options: St
     )
     const owned = new Set<number>()
     for (const part of chunks(wished.map((w) => w.appid), IN_CHUNK)) {
-        const { data, error } = await supabase.from('hubgames_user_steam_games').select('appid').eq('user_id', userId).in('appid', part)
+        const { data, error } = await supabase
+            .from('hubgames_user_steam_games')
+            .select('appid')
+            .eq('user_id', userId)
+            .eq('source', 'own')
+            .in('appid', part)
         if (error) throw new SteamSyncError(error.message)
         for (const row of data) owned.add(row.appid)
     }
@@ -701,5 +714,108 @@ export async function runSteamSync(
             .update({ status: 'error', finished_at: new Date().toISOString(), error: e instanceof Error ? e.message : String(e) })
             .eq('id', logRow.id)
         throw e
+    }
+}
+
+// ─── Grupo familiar (#86) ────────────────────────────────────────────────────
+
+export interface FamilySyncResult {
+    /** Prestados disponibles ahora. */
+    total: number
+    added: number
+    gone: number
+    /** Volvieron tras haber salido del grupo. */
+    back: number
+    newToTray: number
+    catalogPending: number
+}
+
+export interface FamilyGame {
+    appid: number
+    owners: string[]
+    playtimeMinutes: number
+    lastPlayed: number | null
+}
+
+/**
+ * Guarda la lista de prestados del grupo familiar: altas y horas, los que ya no están (family_gone_at), los nuevos a la
+ * Bandeja, fichas hasta el `deadline`, foto de horas y estados automáticos. Los juegos tuyos no se tocan.
+ */
+export async function syncFamilyLibrary(
+    supabase: Client,
+    userId: string,
+    games: FamilyGame[],
+    members: Record<string, string>,
+    options: SteamSyncOptions = {},
+): Promise<FamilySyncResult> {
+    const stored = await selectAll<{ appid: number; source: string; family_gone_at: string | null }>((from, to) =>
+        supabase.from('hubgames_user_steam_games').select('appid, source, family_gone_at').eq('user_id', userId).order('appid').range(from, to),
+    )
+    const byId = new Map(stored.map((r) => [r.appid, r]))
+    const borrowed = games.filter((g) => byId.get(g.appid)?.source !== 'own')
+    const now = new Date().toISOString()
+
+    for (const part of chunks(borrowed, UPSERT_CHUNK)) {
+        const { error } = await supabase.from('hubgames_user_steam_games').upsert(
+            part.map((g) => ({
+                user_id: userId,
+                appid: g.appid,
+                source: 'family',
+                family_owner_steamids: g.owners,
+                family_gone_at: null,
+                playtime_forever: g.playtimeMinutes,
+                rtime_last_played: g.lastPlayed ? new Date(g.lastPlayed * 1000).toISOString() : null,
+            })),
+            { onConflict: 'user_id,appid' },
+        )
+        if (error) throw new SteamSyncError(`No se pudieron guardar los juegos del grupo familiar: ${error.message}`)
+    }
+
+    const keep = new Set(borrowed.map((g) => g.appid))
+    const gone = stored.filter((r) => r.source === 'family' && !r.family_gone_at && !keep.has(r.appid)).map((r) => r.appid)
+    for (const part of chunks(gone, IN_CHUNK)) {
+        const { error } = await supabase
+            .from('hubgames_user_steam_games')
+            .update({ family_gone_at: now })
+            .eq('user_id', userId)
+            .in('appid', part)
+        if (error) throw new SteamSyncError(`No se pudieron marcar los que ya no están: ${error.message}`)
+    }
+
+    // Igual que los propios: los nuevos entran en la Bandeja; los que ya tienen estado se quedan como están.
+    const { data: existing, error: existingError } = await supabase.from('hubgames_user_games').select('appid').eq('user_id', userId)
+    if (existingError) throw new SteamSyncError(`No se pudieron leer tus juegos: ${existingError.message}`)
+    const tracked = new Set(existing.map((r) => r.appid))
+    const fresh = borrowed.filter((g) => !tracked.has(g.appid))
+    for (const part of chunks(fresh, UPSERT_CHUNK)) {
+        const { error } = await supabase
+            .from('hubgames_user_games')
+            .upsert(part.map((g) => ({ user_id: userId, appid: g.appid, status: 'bandeja', status_source: 'auto' })), {
+                onConflict: 'user_id,appid',
+                ignoreDuplicates: true,
+            })
+        if (error) throw new SteamSyncError(`No se pudo crear la bandeja: ${error.message}`)
+    }
+
+    const { pending } = await fillCatalog(supabase, borrowed.map((g) => ({ appid: g.appid })), options)
+
+    // La primera vez que aparece un juego su foto es la base (no suma minutos); después, lo jugado se reparte por días.
+    const { error: snapshotError } = await supabase.rpc('hubgames_take_playtime_snapshot', { p_user_id: userId })
+    if (snapshotError) throw new SteamSyncError(`No se pudo guardar la foto de horas: ${snapshotError.message}`)
+    await applyTrackerRules(supabase, userId)
+
+    const { error: touchError } = await supabase
+        .from('hubgames_user_steam')
+        .update({ family_synced_at: now, family_members: members })
+        .eq('user_id', userId)
+    if (touchError) throw new SteamSyncError(`No se pudo marcar la actualización: ${touchError.message}`)
+
+    return {
+        total: borrowed.length,
+        added: borrowed.filter((g) => !byId.has(g.appid)).length,
+        gone: gone.length,
+        back: borrowed.filter((g) => byId.get(g.appid)?.family_gone_at).length,
+        newToTray: fresh.length,
+        catalogPending: pending,
     }
 }

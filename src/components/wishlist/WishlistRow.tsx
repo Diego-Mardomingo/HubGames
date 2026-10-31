@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { AlertTriangle, BellOff, Bell, CalendarDays, Check, ExternalLink, Hourglass, ThumbsDown, ThumbsUp, Trash2, TrendingDown } from 'lucide-react'
+import { AlertTriangle, BellOff, Bell, CalendarDays, Check, ExternalLink, Hourglass, ThumbsDown, ThumbsUp, Trash2, TrendingDown, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import GameCover from '@/components/tracker/GameCover'
 import { MarkFlags, StatusChip } from '@/components/tracker/status'
@@ -223,6 +223,11 @@ export default function WishlistRow({
                     {game.price_final === null && game.coming_soon && game.release_date_text && (
                         <span className="wl-soon">
                             <CalendarDays aria-hidden /> Sale: {game.release_date_text}
+                        </span>
+                    )}
+                    {game.in_family && (
+                        <span className="lib-own lib-own--fam" title="Te lo presta tu grupo familiar de Steam: ya puedes jugarlo">
+                            <Users aria-hidden /> Lo tienes en el grupo familiar
                         </span>
                     )}
                     <AlertChip game={game} alert={alert} fresh={freshAlert} />

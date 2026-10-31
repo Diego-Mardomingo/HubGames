@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import type { Database } from '@/lib/supabase/database.types'
 import { STEAM_STATE_META, steamNeedsFix, steamState, timeAgo, type SteamState } from '@/lib/profile'
 import { PfSection, enter } from './Section'
+import FamilySetting from './FamilySetting'
 
 export type SteamLink = Database['public']['Tables']['hubgames_user_steam']['Row']
 
@@ -189,6 +190,7 @@ export default function SteamSetting({ link, onLink, index }: { link: SteamLink 
                             </div>
                         )}
                     </div>
+                    {!needsFix && <FamilySetting link={link} onLink={onLink} />}
                 </>
             )}
             {(message || syncMessage) && (

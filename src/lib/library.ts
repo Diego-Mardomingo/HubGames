@@ -56,7 +56,7 @@ export function sortsFor(tab: LibraryTab): SortKey[] {
 export type AchievementFilter = 'todos' | 'sin_logros' | 'empezados' | 'casi' | 'perfectos'
 export type DurationFilter = 'todas' | 'corto' | 'medio' | 'largo' | 'muy_largo' | 'sin_dato'
 export type MarkFilter = 'todas' | 'favoritos' | 'sin_final' | 'con_final'
-export type OwnFilter = 'todos' | 'comprados' | 'sin_comprar'
+export type OwnFilter = 'todos' | 'comprados' | 'grupo' | 'sin_comprar'
 
 export const ACHIEVEMENT_FILTER_LABELS: Record<AchievementFilter, string> = {
     todos: 'Cualquier % de logros',
@@ -85,6 +85,7 @@ export const MARK_FILTER_LABELS: Record<MarkFilter, string> = {
 export const OWN_FILTER_LABELS: Record<OwnFilter, string> = {
     todos: 'Todos',
     comprados: 'Comprados',
+    grupo: 'Del grupo',
     sin_comprar: 'Sin comprar',
 }
 
@@ -203,8 +204,14 @@ export function matchesFilters(game: LibraryGame, f: LibraryFilters): boolean {
     if (f.marks === 'favoritos' && !game.favorite) return false
     if (f.marks === 'sin_final' && !game.endless) return false
     if (f.marks === 'con_final' && game.endless) return false
-    if (f.own !== 'todos' && game.owned !== (f.own === 'comprados')) return false
+    if (f.own !== 'todos' && ownership(game) !== f.own) return false
     return true
+}
+
+/** De quién es: tuyo, prestado ahora por el grupo familiar de Steam (#86) o sin comprar (incluye los que salieron del grupo). */
+export function ownership(game: Pick<LibraryGame, 'owned' | 'steam_source'>): Exclude<OwnFilter, 'todos'> {
+    if (!game.owned) return 'sin_comprar'
+    return game.steam_source === 'family' ? 'grupo' : 'comprados'
 }
 
 const byName = (a: LibraryGame, b: LibraryGame) => (a.name ?? '').localeCompare(b.name ?? '', 'es')

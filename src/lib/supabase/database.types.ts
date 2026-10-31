@@ -570,6 +570,9 @@ export type Database = {
           all_low: number | null
           all_low_shop: string | null
           all_low_at: string | null
+          steam_source: string | null
+          family_owners: string[] | null
+          family_gone_at: string | null
         }
         Insert: {
           user_id?: string | null
@@ -617,6 +620,9 @@ export type Database = {
           all_low?: number | null
           all_low_shop?: string | null
           all_low_at?: string | null
+          steam_source?: string | null
+          family_owners?: string[] | null
+          family_gone_at?: string | null
         }
         Update: {
           user_id?: string | null
@@ -664,6 +670,9 @@ export type Database = {
           all_low?: number | null
           all_low_shop?: string | null
           all_low_at?: string | null
+          steam_source?: string | null
+          family_owners?: string[] | null
+          family_gone_at?: string | null
         }
         Relationships: []
       }
@@ -1090,6 +1099,8 @@ export type Database = {
           visibility: string
           linked_at: string
           last_sync_at: string | null
+          family_synced_at: string | null
+          family_members: Json | null
         }
         Insert: {
           user_id: string
@@ -1099,6 +1110,8 @@ export type Database = {
           visibility?: string
           linked_at?: string
           last_sync_at?: string | null
+          family_synced_at?: string | null
+          family_members?: Json | null
         }
         Update: {
           user_id?: string
@@ -1108,6 +1121,8 @@ export type Database = {
           visibility?: string
           linked_at?: string
           last_sync_at?: string | null
+          family_synced_at?: string | null
+          family_members?: Json | null
         }
         Relationships: []
       }
@@ -1123,6 +1138,9 @@ export type Database = {
           achievements_total: number | null
           achievements_unlocked: number | null
           achievements_synced_at: string | null
+          source: string
+          family_owner_steamids: string[] | null
+          family_gone_at: string | null
         }
         Insert: {
           user_id: string
@@ -1135,6 +1153,9 @@ export type Database = {
           achievements_total?: number | null
           achievements_unlocked?: number | null
           achievements_synced_at?: string | null
+          source?: string
+          family_owner_steamids?: string[] | null
+          family_gone_at?: string | null
         }
         Update: {
           user_id?: string
@@ -1147,6 +1168,9 @@ export type Database = {
           achievements_total?: number | null
           achievements_unlocked?: number | null
           achievements_synced_at?: string | null
+          source?: string
+          family_owner_steamids?: string[] | null
+          family_gone_at?: string | null
         }
         Relationships: []
       }
@@ -1274,6 +1298,7 @@ export type Database = {
           hltb_main: number | null
           hltb_main_extra: number | null
           hltb_completionist: number | null
+          in_family: boolean | null
         }
         Insert: {
           user_id?: string | null
@@ -1305,6 +1330,7 @@ export type Database = {
           hltb_main?: number | null
           hltb_main_extra?: number | null
           hltb_completionist?: number | null
+          in_family?: boolean | null
         }
         Update: {
           user_id?: string | null
@@ -1336,6 +1362,7 @@ export type Database = {
           hltb_main?: number | null
           hltb_main_extra?: number | null
           hltb_completionist?: number | null
+          in_family?: boolean | null
         }
         Relationships: []
       }

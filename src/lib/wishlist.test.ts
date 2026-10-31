@@ -36,6 +36,7 @@ function game(overrides: Partial<WishlistGame> = {}): WishlistGame {
         hltb_main: null,
         hltb_main_extra: null,
         hltb_completionist: null,
+        in_family: false,
         ...overrides,
     }
 }

@@ -24,6 +24,7 @@ import {
     Target,
     TrendingDown,
     Trophy,
+    Users,
 } from 'lucide-react'
 import {
     GAME_STATUSES,
@@ -192,6 +193,14 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
 
     return (
         <section className="juego-panel glass" aria-label="Tus datos">
+            {game.steam_source === 'family' && (
+                <p className="juego-family">
+                    <span className="lib-own lib-own--fam">
+                        <Users aria-hidden /> Del grupo familiar
+                    </span>
+                    {game.family_owners?.length ? <span>Te lo presta {game.family_owners.join(', ')}</span> : null}
+                </p>
+            )}
             <div className="juego-panel__top">
                 <div className="juego-status" role="group" aria-label="Estado">
                     {GAME_STATUSES.map((s) => {
@@ -450,9 +459,15 @@ function BuyPanel({ duration, achievementsTotal, storeUrl }: Props) {
             <section className="juego-panel glass juego-buy__price" aria-label="Precio">
                 <div className="juego-buy__state">
                     {inPending && <StatusChip status="pendiente" />}
-                    <span className="lib-own lib-own--no">
-                        <ShoppingCart aria-hidden /> {inPending ? 'Sin comprar' : 'No lo tienes'}
-                    </span>
+                    {inPending?.family_gone_at ? (
+                        <span className="lib-own lib-own--gone">
+                            <Users aria-hidden /> Ya no está en tu grupo familiar
+                        </span>
+                    ) : (
+                        <span className="lib-own lib-own--no">
+                            <ShoppingCart aria-hidden /> {inPending ? 'Sin comprar' : 'No lo tienes'}
+                        </span>
+                    )}
                     {wish && (
                         <span className="juego-buy__wish">
                             <Heart size={13} aria-hidden /> En tu wishlist{wish.source === 'steam' ? ' de Steam' : ''}
