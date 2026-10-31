@@ -56,6 +56,7 @@ describe('JUDI en el servidor (#39)', () => {
 
     it('las capturas van por el proxy, sin la URL de Steam', () => {
         assert.equal(judiCaptureUrl(268, 1), '/api/judi/captura/268/1')
+        assert.equal(judiCaptureUrl(268, 3, 'small'), '/api/judi/captura/268/3?s=sm')
     })
 
     it('localStorage de invitados: lee la clave antigua fecha::appid y escribe por fecha', () => {

@@ -396,7 +396,7 @@ function TodayCard({
     return (
         <section className={`jd-today jd-today--${status}`} aria-label="Juego del día">
             <button type="button" className="jd-today__art" onClick={() => onPlay(game)} aria-label={`${cta}: JUDI #${game.id}`} tabIndex={-1}>
-                <TodayArt src={finished && game.header_image ? game.header_image : judiCaptureUrl(game.id, 1)} />
+                <TodayArt src={finished && game.header_image ? game.header_image : judiCaptureUrl(game.id, 1, 'small')} />
                 {!finished && <span className="jd-today__badge">Captura 1 de 6</span>}
             </button>
             <div className="jd-today__body">
@@ -865,6 +865,24 @@ export default function JudiClient() {
         return () => window.clearTimeout(id)
     }, [fx])
 
+    /**
+     * Precarga en grande las capturas abiertas y la siguiente (la que abre un fallo o un salto), para que cambiar de
+     * fase o fallar no espere a la descarga. Va después de la captura visible, cuando el navegador está libre.
+     */
+    const preloadId = selectedGame && selectedGame.captureCount > 0 ? selectedGame.juego.id : null
+    useEffect(() => {
+        if (view !== 'game' || preloadId === null) return
+        const last = Math.min(6, gameState === 'playing' ? highestUnlockedPhase + 1 : 6)
+        // Las descargas ya lanzadas no se cancelan al cambiar de fase: acaban en la caché y la siguiente pasada las reutiliza.
+        const run = () => {
+            for (let phase = 1; phase <= last; phase++) new Image().src = judiCaptureUrl(preloadId, phase)
+        }
+        const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 400))
+        const cancel = window.cancelIdleCallback ?? window.clearTimeout
+        const handle = idle(run)
+        return () => cancel(handle)
+    }, [view, preloadId, highestUnlockedPhase, gameState])
+
     useEffect(() => {
         if (view !== 'game' || !selectedGame) return
         const onKey = (e: KeyboardEvent) => {
@@ -996,8 +1014,12 @@ export default function JudiClient() {
     /** Fase recién abierta por un fallo o un salto (su miniatura y su pista se animan). */
     const freshPhase = fx && (fx.kind === 'miss' || fx.kind === 'skip') ? fx.slot + 2 : null
     const nextPendingGame = selectedGame ? findNextPendingGame(games, selectedGame.juego) : null
-    const captureUrl = (phase: number) =>
-        selectedGame && selectedGame.captureCount > 0 ? `${judiCaptureUrl(selectedGame.juego.id, phase)}${captureRetry ? `?r=${captureRetry}` : ''}` : undefined
+    const captureUrl = (phase: number, size: 'full' | 'small' = 'full') => {
+        if (!selectedGame || selectedGame.captureCount === 0) return undefined
+        const url = judiCaptureUrl(selectedGame.juego.id, phase, size)
+        return captureRetry ? `${url}${url.includes('?') ? '&' : '?'}r=${captureRetry}` : url
+    }
+    const thumbUrl = (phase: number) => captureUrl(phase, 'small')
     const currentCapture = captureUrl(activeViewedPhase)
 
     const changeFilter = (next: JudiFilter) => {
@@ -1202,7 +1224,7 @@ export default function JudiClient() {
                                         <JudiStrip
                                             slots={slots}
                                             viewed={activeViewedPhase}
-                                            captureUrl={captureUrl}
+                                            captureUrl={thumbUrl}
                                             onView={setActiveViewedPhase}
                                             fx={fx}
                                             unlocked={freshPhase}
