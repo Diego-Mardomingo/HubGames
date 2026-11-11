@@ -123,7 +123,7 @@ export function durationLabel(start: string, end: string | null): string {
 }
 
 export type SyncStats = {
-    library: { ownedGames: number; newToTray: number; catalogFetched: number; catalogPending: number }
+    library: { ownedGames: number; newToTray: number; catalogFetched: number; catalogPending: number; borrowedUpdated: number; borrowedAdded: number; borrowedError: string | null }
     snapshotRows: number
     wishlist: { steamItems: number; pricesUpdated: number; lowsUpdated: number; snapshots: number; itadMatched: number; pricesError: string | null } | null
     /** La sincronización era anterior a la wishlist (no hay bloque). */
@@ -147,7 +147,15 @@ export function syncStats(raw: unknown): SyncStats | null {
     const prices = obj(wl?.prices) ?? {}
     const tr = obj(s.tracker)
     return {
-        library: { ownedGames: num(lib.ownedGames), newToTray: num(lib.newToTray), catalogFetched: num(lib.catalogFetched), catalogPending: num(lib.catalogPending) },
+        library: {
+            ownedGames: num(lib.ownedGames),
+            newToTray: num(lib.newToTray),
+            catalogFetched: num(lib.catalogFetched),
+            catalogPending: num(lib.catalogPending),
+            borrowedUpdated: num(lib.borrowedUpdated),
+            borrowedAdded: num(lib.borrowedAdded),
+            borrowedError: str(lib.borrowedError),
+        },
         snapshotRows: num(s.snapshotRows),
         wishlist: wl
             ? {
@@ -174,6 +182,9 @@ export function syncFacts(stats: SyncStats | null): Fact[] {
     const n = (v: number) => v.toLocaleString('es-ES')
     const out: Fact[] = [{ text: `${n(stats.library.ownedGames)} juegos` }]
     if (stats.library.newToTray) out.push({ text: `+${n(stats.library.newToTray)} a la bandeja` })
+    if (stats.library.borrowedUpdated) out.push({ text: `${n(stats.library.borrowedUpdated)} prestados con horas` })
+    if (stats.library.borrowedAdded) out.push({ text: `+${n(stats.library.borrowedAdded)} prestados nuevos` })
+    if (stats.library.borrowedError) out.push({ text: `Prestados: ${stats.library.borrowedError}`, tone: 'dash-warn' })
     if (stats.achievements.gamesSynced) out.push({ text: `${n(stats.achievements.gamesSynced)} con logros` })
     if (stats.tracker?.toPlaying) out.push({ text: `${n(stats.tracker.toPlaying)} a Jugando` })
     if (stats.tracker?.suggestions) out.push({ text: `${n(stats.tracker.suggestions)} sugerencias` })
