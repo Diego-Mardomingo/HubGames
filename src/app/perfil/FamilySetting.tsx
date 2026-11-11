@@ -1,8 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import QRCode from 'qrcode'
-import { Check, CircleCheck, Clock, ExternalLink, Minus, Plus, RefreshCw, ShieldCheck, Smartphone, TriangleAlert, Users, X } from 'lucide-react'
+import { CircleCheck, Clock, Minus, Monitor, Plus, RefreshCw, ShieldCheck, TriangleAlert, Users } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { timeAgo } from '@/lib/profile'
@@ -12,20 +11,18 @@ import type { SteamLink } from './SteamSetting'
 const REMIND_AFTER_DAYS = 30
 /** El resumen se queda a la vista este tiempo y el panel se cierra solo. */
 const DONE_VISIBLE_MS = 6000
+/** Cada cuánto se mira si el script del PC ya ha guardado la lista, y hasta cuándo (el QR de Steam dura ~2,5 min). */
+const WATCH_EVERY_MS = 3000
+const WATCH_FOR_MS = 5 * 60_000
+/** Enlace registrado en Windows por `npm run steam:familia:instalar`; abre scripts/steam-family-launch.mjs. */
+const PROTOCOL_URL = 'hubgames-familia://actualizar'
 
-type Result = { total: number; added: number; gone: number; back: number; sessionClosed: boolean }
 type Phase =
     | { kind: 'idle' }
-    | { kind: 'starting' }
-    | { kind: 'qr'; url: string; svg: string; expiresAt: number; interval: number; scanned: boolean; expired: boolean }
-    | { kind: 'loading' }
-    | { kind: 'done'; result: Result }
-    | { kind: 'error'; code: string; text: string }
-
-const fmt = (ms: number) => {
-    const s = Math.max(0, Math.ceil(ms / 1000))
-    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-}
+    | { kind: 'waiting' }
+    | { kind: 'done'; total: number; delta: number }
+    | { kind: 'timeout' }
+    | { kind: 'unsupported' }
 
 function ownersLabel(members: unknown, own: string): string | null {
     if (!members || typeof members !== 'object') return null
@@ -39,17 +36,16 @@ function ownersLabel(members: unknown, own: string): string | null {
 /** Fuera del componente: la regla de pureza de React no deja llamar a Date.now() en él. */
 const clock = () => Date.now()
 
-const qrSvg = (url: string) => QRCode.toString(url, { type: 'svg', margin: 0, errorCorrectionLevel: 'M' })
-
 /**
- * Grupo familiar de Steam (#86), dentro de la sección Steam. A demanda: QR → aprobar en la app de Steam → HubGames trae
- * la lista y cierra la sesión en Steam. Aquí solo se ve el QR; el permiso de Steam no llega nunca al navegador.
+ * Grupo familiar de Steam (#86), dentro de la sección Steam. Steam bloquea el QR si lo pide un servidor (IP distinta de
+ * la del móvil), así que el botón abre un script en tu PC (enlace hubgames-familia://) que muestra el QR, trae la lista y
+ * cierra la sesión en Steam. Aquí solo se espera a que la lista llegue a Supabase. Las horas y los logros de los
+ * prestados que juegas ya los pone al día la sincronización diaria.
  */
 export default function FamilySetting({ link, onLink }: { link: SteamLink; onLink: (link: SteamLink | null) => void }) {
     const [phase, setPhase] = useState<Phase>({ kind: 'idle' })
     const [open, setOpen] = useState(false)
     const [count, setCount] = useState<number | null>(null)
-    const [now, setNow] = useState(clock)
     const [fresh, setFresh] = useState(false)
     const run = useRef(0)
     const timers = useRef<ReturnType<typeof setTimeout>[]>([])
@@ -69,6 +65,7 @@ export default function FamilySetting({ link, onLink }: { link: SteamLink; onLin
             .eq('source', 'family')
             .is('family_gone_at', null)
         setCount(count ?? 0)
+        return count ?? 0
     }, [])
 
     useEffect(() => {
@@ -77,79 +74,40 @@ export default function FamilySetting({ link, onLink }: { link: SteamLink; onLin
 
     useEffect(() => () => clearTimers(), [])
 
-    // Cuenta atrás del QR.
-    useEffect(() => {
-        if (phase.kind !== 'qr' || phase.expired) return
-        const expiresAt = phase.expiresAt
-        const id = setInterval(() => {
-            const t = clock()
-            setNow(t)
-            // Caducado por tiempo aunque Steam aún no lo diga: se deja de preguntar.
-            if (t >= expiresAt) {
-                run.current++
-                clearTimers()
-                setPhase((p) => (p.kind === 'qr' ? { ...p, expired: true } : p))
-            }
-        }, 1000)
-        return () => clearInterval(id)
-    }, [phase])
-
-    async function poll(me: number, interval: number) {
+    async function watch(me: number, since: string | null, before: number, until: number) {
         if (me !== run.current) return
-        // Si Steam ya lo ha aprobado, esta petición tarda (trae la lista y la guarda): se enseña «Trayendo…».
-        const slow = setTimeout(() => {
-            if (me === run.current) setPhase((p) => (p.kind === 'qr' && p.scanned ? { kind: 'loading' } : p))
-        }, 1500)
-        const res = await fetch('/api/steam/family/poll', { method: 'POST' }).catch(() => null)
-        clearTimeout(slow)
+        const { data } = await supabase.from('hubgames_user_steam').select('*').maybeSingle()
         if (me !== run.current) return
-        const body = res ? await res.json().catch(() => ({})) : {}
-        if (!res || body.state === 'error' || !res.ok) {
-            if (body.code === 'expired') {
-                setPhase((p) => (p.kind === 'qr' ? { ...p, expired: true } : { kind: 'error', code: 'expired', text: body.error }))
-            } else {
-                setPhase({ kind: 'error', code: body.code ?? 'steam', text: body.error ?? 'Steam no ha respondido. No se ha cambiado nada.' })
-            }
-            return
-        }
-        if (body.state === 'done') {
-            setPhase({ kind: 'done', result: body })
+        if (data && data.family_synced_at && data.family_synced_at !== since) {
+            const total = await loadCount()
+            onLink(data)
             setFresh(true)
-            const { data } = await supabase.from('hubgames_user_steam').select('*').maybeSingle()
-            if (data) onLink(data)
-            await loadCount()
+            setPhase({ kind: 'done', total, delta: total - before })
             later(() => {
                 if (me === run.current) close()
             }, DONE_VISIBLE_MS)
             return
         }
-        if (body.state === 'scanned' || body.state === 'waiting') {
-            const url: string | null = body.challengeUrl
-            const svg = url ? await qrSvg(url) : null
-            setPhase((p) => (p.kind === 'qr' ? { ...p, scanned: body.state === 'scanned', ...(url && svg ? { url, svg } : {}) } : p))
-            if (me !== run.current) return
-            // Tras el escaneo la aprobación suele ser inmediata: se pregunta algo más a menudo.
-            later(() => void poll(me, interval), body.state === 'scanned' ? Math.min(interval, 2) * 1000 : interval * 1000)
+        if (clock() >= until) {
+            setPhase({ kind: 'timeout' })
+            return
         }
+        later(() => void watch(me, since, before, until), WATCH_EVERY_MS)
     }
 
-    async function start() {
+    function start() {
         const me = ++run.current
         clearTimers()
         setFresh(false)
         setOpen(true)
-        setPhase({ kind: 'starting' })
-        const res = await fetch('/api/steam/family', { method: 'POST' }).catch(() => null)
-        const body = res ? await res.json().catch(() => ({})) : {}
-        if (me !== run.current) return
-        if (!res?.ok) {
-            setPhase({ kind: 'error', code: 'steam', text: body.error ?? 'Steam no ha dado el código QR. Inténtalo en un rato.' })
+        // El script solo existe en tu PC con Windows.
+        if (!/Windows/i.test(navigator.userAgent)) {
+            setPhase({ kind: 'unsupported' })
             return
         }
-        const interval = Math.min(Math.max(Number(body.interval) || 5, 2), 10)
-        setNow(clock())
-        setPhase({ kind: 'qr', url: body.challengeUrl, svg: await qrSvg(body.challengeUrl), expiresAt: body.expiresAt, interval, scanned: false, expired: false })
-        later(() => void poll(me, interval), interval * 1000)
+        setPhase({ kind: 'waiting' })
+        window.location.assign(PROTOCOL_URL)
+        later(() => void watch(me, link.family_synced_at, count ?? 0, clock() + WATCH_FOR_MS), WATCH_EVERY_MS)
     }
 
     function close() {
@@ -159,17 +117,10 @@ export default function FamilySetting({ link, onLink }: { link: SteamLink; onLin
         later(() => setPhase({ kind: 'idle' }), 300)
     }
 
-    function cancel() {
-        void fetch('/api/steam/family', { method: 'DELETE' }).catch(() => {})
-        close()
-    }
-
-    const expired = phase.kind === 'qr' && (phase.expired || now >= phase.expiresAt)
-
     const synced = link.family_synced_at
     const owners = ownersLabel(link.family_members, link.steamid)
-    const stale = synced ? (now - Date.parse(synced)) / 86_400_000 > REMIND_AFTER_DAYS : false
-    const busy = phase.kind !== 'idle' && phase.kind !== 'done' && phase.kind !== 'error'
+    const stale = synced ? (clock() - Date.parse(synced)) / 86_400_000 > REMIND_AFTER_DAYS : false
+    const busy = phase.kind === 'waiting'
 
     return (
         <div className="pf-fg">
@@ -192,15 +143,16 @@ export default function FamilySetting({ link, onLink }: { link: SteamLink; onLin
                                 {owners && <span>de {owners}</span>}
                             </p>
                             <p className="pf-row__desc">
-                                Actualizado{' '}
+                                Lista actualizada{' '}
                                 <time key={synced} className="pf-time" dateTime={synced} title={new Date(synced).toLocaleString('es-ES')}>
                                     {timeAgo(synced)}
                                 </time>
                                 {stale && <span className="pf-fg__stale"> · conviene actualizar</span>}
+                                . Las horas y logros de los que juegas se actualizan solos cada día.
                             </p>
                         </>
                     ) : (
-                        <p className="pf-row__desc">Trae los juegos que te prestan en tu grupo familiar de Steam y tus horas en ellos.</p>
+                        <p className="pf-row__desc">Trae los juegos que te prestan en tu grupo familiar de Steam. Se hace desde tu PC.</p>
                     )}
                 </div>
                 <Button type="button" variant={synced ? 'secondary' : 'default'} disabled={busy} onClick={start}>
@@ -212,100 +164,60 @@ export default function FamilySetting({ link, onLink }: { link: SteamLink; onLin
                 <div>
                     {phase.kind !== 'idle' && (
                         <div className="pf-fg__box" aria-live="polite">
-                            {phase.kind === 'starting' && (
-                                <p className="pf-fg__load">
-                                    <RefreshCw className="hg-spin" aria-hidden /> Pidiendo el código a Steam…
-                                </p>
-                            )}
-                            {phase.kind === 'qr' && (
+                            {phase.kind === 'waiting' && (
                                 <>
-                                    <div className="pf-fg__qr">
-                                        <div className={`pf-qr${phase.scanned ? ' is-scanned' : ''}${expired ? ' is-expired' : ''}`}>
-                                            <span className="pf-qr__code" role="img" aria-label="Código QR para aprobar en la app de Steam" dangerouslySetInnerHTML={{ __html: phase.svg }} />
-                                            <span className="pf-qr__ok" aria-hidden>
-                                                <Check />
+                                    <ol className="pf-fg__steps">
+                                        <li className="is-now">
+                                            <span>
+                                                Si el navegador pregunta, pulsa <b>«Abrir»</b> (puedes marcar que lo permita siempre). Se abre una
+                                                ventana con el código QR.
                                             </span>
-                                            {expired && (
-                                                <span className="pf-qr__exp">
-                                                    <Button type="button" size="sm" onClick={start}>
-                                                        <RefreshCw data-icon="inline-start" aria-hidden /> Otro código
-                                                    </Button>
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <ol className="pf-fg__steps">
-                                                <li className={phase.scanned ? 'is-done' : 'is-now'}>
-                                                    <span className="pf-fg__on-desk">
-                                                        Abre la <b>app de Steam</b> en el móvil y toca el <b>escáner de QR</b> (pestaña Steam Guard).
-                                                    </span>
-                                                    <span className="pf-fg__on-mob">
-                                                        Pulsa <b>«Abrir en la app de Steam»</b>.
-                                                    </span>
-                                                </li>
-                                                <li className={phase.scanned ? 'is-now' : undefined}>
-                                                    <span>
-                                                        <span className="pf-fg__on-desk">Escanea el código y pulsa </span>
-                                                        <span className="pf-fg__on-mob">En la app, pulsa </span>
-                                                        <b>«Aprobar»</b>. Verás «HubGames» como dispositivo.
-                                                    </span>
-                                                </li>
-                                                <li>
-                                                    <span>
-                                                        HubGames trae tu lista y <b>cierra la sesión</b> enseguida.
-                                                    </span>
-                                                </li>
-                                            </ol>
-                                            {!expired && (
-                                                <Button asChild className="pf-fg__open">
-                                                    <a href={phase.url}>
-                                                        <ExternalLink data-icon="inline-start" aria-hidden /> Abrir en la app de Steam
-                                                    </a>
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </div>
+                                        </li>
+                                        <li>
+                                            <span>
+                                                En la <b>app de Steam</b> del móvil: Steam Guard → escáner de QR → <b>«Aprobar»</b>.
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <span>
+                                                La ventana trae tu lista, <b>cierra la sesión</b> en Steam y se cierra sola. Aquí lo verás al momento.
+                                            </span>
+                                        </li>
+                                    </ol>
                                     <div className="pf-fg__foot">
-                                        {expired ? (
-                                            <span className="pf-fg__timer is-low">
-                                                <Clock aria-hidden /> El código ha caducado
-                                            </span>
-                                        ) : phase.scanned ? (
-                                            <span className="pf-fg__timer is-ok">
-                                                <Smartphone aria-hidden /> Escaneado: confirma en el móvil
-                                            </span>
-                                        ) : (
-                                            <span className={`pf-fg__timer${phase.expiresAt - now < 30_000 ? ' is-low' : ''}`}>
-                                                <Clock aria-hidden /> Caduca en {fmt(phase.expiresAt - now)}
-                                            </span>
-                                        )}
-                                        <Button type="button" variant="ghost" size="sm" onClick={cancel}>
+                                        <span className="pf-fg__timer">
+                                            <RefreshCw className="hg-spin" aria-hidden /> Esperando a la ventana de tu PC…
+                                        </span>
+                                        <Button type="button" variant="ghost" size="sm" onClick={close}>
                                             Cancelar
                                         </Button>
                                     </div>
+                                    <p className="pf-fg__safe">
+                                        <Monitor aria-hidden />
+                                        <span>
+                                            ¿No se ha abierto nada? Hay que instalarlo una vez en tu PC: en la carpeta del proyecto,{' '}
+                                            <code>npm run steam:familia:instalar</code>.
+                                        </span>
+                                    </p>
                                     <p className="pf-fg__safe">
                                         <ShieldCheck aria-hidden />
                                         <span>HubGames no guarda ningún permiso de tu cuenta: lo usa unos segundos y lo anula en Steam.</span>
                                     </p>
                                 </>
                             )}
-                            {phase.kind === 'loading' && (
-                                <p className="pf-fg__load">
-                                    <RefreshCw className="hg-spin" aria-hidden /> Trayendo los juegos de tu grupo…
-                                </p>
-                            )}
-                            {phase.kind === 'done' && <Done result={phase.result} />}
-                            {phase.kind === 'error' && (
+                            {phase.kind === 'done' && <Done total={phase.total} delta={phase.delta} />}
+                            {(phase.kind === 'timeout' || phase.kind === 'unsupported') && (
                                 <div className="pf-fg__done">
-                                    <p className={`alert ${phase.code === 'steam' ? 'alert--error' : 'alert--warn'}`} role="status">
-                                        {phase.code === 'denied' ? <X aria-hidden /> : phase.code === 'no_family' ? <Users aria-hidden /> : <TriangleAlert aria-hidden />}
+                                    <p className="alert alert--warn" role="status">
+                                        {phase.kind === 'timeout' ? <Clock aria-hidden /> : <TriangleAlert aria-hidden />}
                                         <span>
-                                            {phase.text}
-                                            {phase.code === 'no_family' && ' Si te unes a uno, vuelve a actualizar.'}
+                                            {phase.kind === 'timeout'
+                                                ? 'No ha llegado la lista. Si la ventana dio un error, léelo allí; si no se abrió, instálalo con npm run steam:familia:instalar.'
+                                                : 'Se hace desde tu PC con Windows: Steam bloquea el código si no lo pide tu propia conexión.'}
                                         </span>
                                     </p>
                                     <div className="pf-fg__acts">
-                                        {phase.code !== 'no_family' && (
+                                        {phase.kind === 'timeout' && (
                                             <Button type="button" variant="secondary" size="sm" onClick={start}>
                                                 <RefreshCw data-icon="inline-start" aria-hidden /> Reintentar
                                             </Button>
@@ -324,51 +236,31 @@ export default function FamilySetting({ link, onLink }: { link: SteamLink; onLin
     )
 }
 
-function Done({ result }: { result: Result }) {
-    const changed = result.added + result.gone + result.back > 0
+function Done({ total, delta }: { total: number; delta: number }) {
     return (
         <div className="pf-fg__done">
             <p className="alert alert--ok" role="status">
                 <CircleCheck className="hg-draw" aria-hidden />
                 <span>
-                    {changed ? (
+                    {delta === 0 ? (
                         <>
-                            <b>Grupo familiar actualizado.</b>
+                            <b>Todo al día:</b> {total} {total === 1 ? 'juego' : 'juegos'}, sin cambios desde la última vez.
                         </>
                     ) : (
-                        <>
-                            <b>Todo al día:</b> {result.total} {result.total === 1 ? 'juego' : 'juegos'}, sin cambios desde la última vez.
-                        </>
+                        <b>Grupo familiar actualizado.</b>
                     )}
-                    {result.sessionClosed && ' Sesión de Steam cerrada.'}
                 </span>
             </p>
-            {!result.sessionClosed && (
-                <p className="alert alert--warn" role="status">
-                    <TriangleAlert aria-hidden />
-                    <span>
-                        No se pudo cerrar la sesión en Steam. Quita «HubGames» en la app de Steam → <b>Dispositivos autorizados</b>.
-                    </span>
-                </p>
-            )}
-            {changed && (
+            {delta !== 0 && (
                 <ul className="pf-fg__chips">
                     <li className="hg-tint st-todos">
                         <Users aria-hidden />
-                        {result.total} en total
+                        {total} en total
                     </li>
-                    {result.added + result.back > 0 && (
-                        <li className="hg-tint dash-ok">
-                            <Plus aria-hidden />
-                            {result.added + result.back} {result.added + result.back === 1 ? 'nuevo' : 'nuevos'}
-                        </li>
-                    )}
-                    {result.gone > 0 && (
-                        <li className="hg-tint neutral">
-                            <Minus aria-hidden />
-                            {result.gone} ya no {result.gone === 1 ? 'está' : 'están'}
-                        </li>
-                    )}
+                    <li className={`hg-tint ${delta > 0 ? 'dash-ok' : 'neutral'}`}>
+                        {delta > 0 ? <Plus aria-hidden /> : <Minus aria-hidden />}
+                        {Math.abs(delta)} {delta > 0 ? (delta === 1 ? 'nuevo' : 'nuevos') : delta === -1 ? 'ya no está' : 'ya no están'}
+                    </li>
                 </ul>
             )}
         </div>

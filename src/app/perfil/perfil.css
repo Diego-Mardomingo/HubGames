@@ -1214,7 +1214,7 @@
   }
 }
 
-/* ── Steam · Grupo familiar (#86): fila + panel que se despliega con el QR ── */
+/* ── Steam · Grupo familiar (#86): fila + panel que se despliega mientras el QR está en tu PC ── */
 .pf-fg {
   display: grid;
   border-top: 1px solid var(--border);
@@ -1303,77 +1303,6 @@
   background: var(--surface-2);
 }
 
-.pf-fg__qr {
-  display: grid;
-  grid-template-columns: 172px minmax(0, 1fr);
-  align-items: center;
-  gap: 1.25rem;
-}
-
-.pf-qr {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 172px;
-  height: 172px;
-  padding: 10px;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: var(--shadow-sm);
-}
-
-.pf-qr__code,
-.pf-qr__code svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  transition: filter 0.3s, opacity 0.3s;
-}
-
-.pf-qr.is-scanned .pf-qr__code {
-  filter: blur(3px);
-  opacity: 0.35;
-}
-
-.pf-qr.is-expired .pf-qr__code {
-  filter: blur(4px);
-  opacity: 0.25;
-}
-
-.pf-qr__ok {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: var(--success);
-  opacity: 0;
-  transform: scale(0.6);
-  transition: opacity 0.25s, transform 0.3s var(--ease-out);
-  pointer-events: none;
-}
-
-.pf-qr__ok svg {
-  width: 64px;
-  height: 64px;
-  padding: 12px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: var(--shadow-lg);
-  stroke-width: 2.6;
-}
-
-.pf-qr.is-scanned:not(.is-expired) .pf-qr__ok {
-  opacity: 1;
-  transform: none;
-}
-
-.pf-qr__exp {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-}
-
 .pf-fg__steps {
   display: grid;
   gap: 0.5rem;
@@ -1424,13 +1353,6 @@
 
 .pf-fg__steps b {
   font-weight: 600;
-}
-
-/* En escritorio se escanea el QR; en el móvil se abre el enlace en la app de Steam. */
-.pf-fg__on-mob,
-.pf-fg__open.hg-button,
-.pf-fg__open {
-  display: none;
 }
 
 .pf-fg__foot {
@@ -1556,25 +1478,5 @@
   .pf-fg__box {
     margin: 0 1rem 0.875rem;
     padding: 0.875rem;
-  }
-
-  .pf-fg__qr {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .pf-qr,
-  .pf-fg__on-desk {
-    display: none;
-  }
-
-  .pf-fg__on-mob {
-    display: inline;
-  }
-
-  .pf-fg__open.hg-button,
-  .pf-fg__open {
-    display: inline-flex;
-    width: 100%;
-    margin-top: 0.75rem;
   }
 }
