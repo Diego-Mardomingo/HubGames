@@ -1,8 +1,9 @@
 // Grupo familiar de Steam (#86): login por QR a demanda, lista de juegos compartidos y anulación del permiso.
 // Valve no ofrece otra vía: IFamilyGroupsService pide el permiso de la sesión del usuario (la clave de la Web API da 401).
-// Reglas: el permiso no sale de la función del servidor, no se guarda ni se escribe en logs, y se anula en Steam al
-// terminar. Se pide con la plataforma «navegador web», la de menos alcance (solo la web, no se puede renovar).
-import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from 'node:crypto'
+// Se ejecuta en el PC del usuario (scripts/steam-family.ts), no en Vercel: Steam rechaza por sospechoso un QR pedido
+// desde una IP distinta de la del móvil que lo aprueba.
+// Reglas: el permiso no sale del proceso, no se guarda ni se escribe en logs, y se anula en Steam al terminar. Se pide
+// con la plataforma «navegador web», la de menos alcance (solo la web, no se puede renovar).
 
 const STEAM_API = 'https://api.steampowered.com'
 const PLATFORM_WEB_BROWSER = 2
@@ -97,15 +98,14 @@ const str = (v: Decoded[number] | undefined) => (Buffer.isBuffer(v) ? v.toString
 
 // ─── Sesión del QR ───────────────────────────────────────────────────────────
 
-/** Lo que hace falta para preguntar a Steam si ya se aprobó. Viaja cifrado en una cookie httpOnly, nunca en claro. */
+/** Lo que hace falta para preguntar a Steam si ya se aprobó. */
 export interface QrSession {
-    userId: string
     clientId: string
     requestId: string
     expiresAt: number
 }
 
-export async function beginQrSession(userId: string): Promise<{ session: QrSession; challengeUrl: string; interval: number }> {
+export async function beginQrSession(): Promise<{ session: QrSession; challengeUrl: string; interval: number }> {
     const { eresult, msg } = await authCall('BeginAuthSessionViaQR', [
         ...fieldString(1, DEVICE_NAME),
         ...fieldVarint(2, PLATFORM_WEB_BROWSER),
@@ -116,7 +116,7 @@ export async function beginQrSession(userId: string): Promise<{ session: QrSessi
         throw new SteamFamilyError(`Steam no ha dado el código QR (eresult ${eresult})`, 'steam')
     }
     return {
-        session: { userId, clientId: msg[1].toString(), requestId: msg[3].toString('base64'), expiresAt: Date.now() + QR_TTL_MS },
+        session: { clientId: msg[1].toString(), requestId: msg[3].toString('base64'), expiresAt: Date.now() + QR_TTL_MS },
         challengeUrl,
         interval: typeof msg[4] === 'number' && msg[4] > 0 ? msg[4] : 5,
     }
@@ -134,7 +134,7 @@ export async function pollQrSession(session: QrSession): Promise<PollResult> {
         ...fieldBytes(2, Buffer.from(session.requestId, 'base64')),
     ])
     // 9 (FileNotFound): rechazado en el móvil, o Steam ya ha cerrado la sesión del QR.
-    if (eresult === 9) throw new SteamFamilyError('Lo has rechazado en el móvil', 'denied')
+    if (eresult === 9) throw new SteamFamilyError('Rechazado en el móvil o bloqueado por Steam', 'denied')
     if (eresult !== 1) throw new SteamFamilyError(`Steam respondió eresult ${eresult}`, 'steam')
 
     const refreshToken = str(msg[3])
@@ -213,33 +213,14 @@ export function borrowedApps(apps: SharedApp[], steamid: string): SharedApp[] {
     return apps.filter((a) => Number.isInteger(a.appid) && !a.exclude_reason && !(a.owner_steamids ?? []).includes(steamid) && (a.owner_steamids ?? []).length > 0)
 }
 
-// ─── Cookie cifrada con la sesión del QR ─────────────────────────────────────
-
-export const FAMILY_QR_COOKIE = 'hubgames_family_qr'
-
-function sealKey(): Buffer {
-    const secret = process.env.SUPABASE_SERVICE_ROLE_KEY
-    if (!secret) throw new Error('Falta SUPABASE_SERVICE_ROLE_KEY')
-    return Buffer.from(hkdfSync('sha256', secret, 'hubgames', 'steam-family-qr-cookie', 32))
-}
-
-/** AES-256-GCM: el navegador guarda la sesión del QR sin poder leerla ni cambiarla. */
-export function sealSession(session: QrSession): string {
-    const iv = randomBytes(12)
-    const cipher = createCipheriv('aes-256-gcm', sealKey(), iv)
-    const data = Buffer.concat([cipher.update(JSON.stringify(session), 'utf8'), cipher.final()])
-    return Buffer.concat([iv, cipher.getAuthTag(), data]).toString('base64url')
-}
-
-export function openSession(sealed: string | undefined, userId: string): QrSession | null {
-    if (!sealed) return null
-    try {
-        const raw = Buffer.from(sealed, 'base64url')
-        const decipher = createDecipheriv('aes-256-gcm', sealKey(), raw.subarray(0, 12))
-        decipher.setAuthTag(raw.subarray(12, 28))
-        const session = JSON.parse(Buffer.concat([decipher.update(raw.subarray(28)), decipher.final()]).toString('utf8')) as QrSession
-        return session.userId === userId ? session : null
-    } catch {
-        return null
-    }
+/** Nombres de Steam de quienes prestan (con la clave de la Web API, sin el permiso del usuario). */
+export async function personaNames(steamids: string[]): Promise<Record<string, string>> {
+    const key = process.env.STEAM_WEB_API_KEY
+    if (!key || steamids.length === 0) return {}
+    const res = await fetch(`${STEAM_API}/ISteamUser/GetPlayerSummaries/v2/?key=${key}&steamids=${steamids.slice(0, 100).join(',')}`, {
+        cache: 'no-store',
+    }).catch(() => null)
+    if (!res?.ok) return {}
+    const players = ((await res.json())?.response?.players ?? []) as { steamid: string; personaname?: string }[]
+    return Object.fromEntries(players.flatMap((p) => (p.personaname ? [[p.steamid, p.personaname]] : [])))
 }

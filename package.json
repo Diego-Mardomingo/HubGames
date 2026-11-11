@@ -13,6 +13,8 @@
     "judi:pick-daily": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/pick-judi-daily.ts",
     "judi:clean": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/clean-judi-data.ts",
     "steam:sync": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/steam-sync.ts",
+    "steam:familia": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/steam-family.ts",
+    "steam:familia:instalar": "node scripts/steam-family-install.mjs",
     "judi:backfill-dates": "node --env-file=.env.local ./node_modules/tsx/dist/cli.mjs scripts/backfill-judi-dates.ts",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test \"src/**/*.test.ts\"",
