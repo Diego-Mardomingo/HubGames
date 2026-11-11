@@ -33,6 +33,8 @@ import { AttemptPips, JudiStrip, type JudiFx } from './JudiAttempts'
 import JudiGuess, { normalizeGameName } from './JudiGuess'
 import JudiHintList, { hintFor } from './JudiHints'
 import JudiResult from './JudiResult'
+import JudiDayNav, { type JudiDayNavTarget } from './JudiDayNav'
+import { Skeleton, SkeletonZone } from '@/components/ui/skeleton'
 import JudiHome, { type JudiRank } from './JudiHistory'
 import type { JudiHistoryDay } from './JudiDayRow'
 import AnimatedCount from '@/components/AnimatedCount'
@@ -292,6 +294,24 @@ function historyDay(game: GameRecord): JudiHistoryDay | null {
     }
 }
 
+/** Cuerpo de la partida mientras carga el día al que has saltado: captura, tira y panel, con su forma real. */
+function GameBodySkeleton() {
+    return (
+        <SkeletonZone label="Cargando el JUDI" className="jd-game__grid">
+            <div className="jd-stage-col">
+                <Skeleton className="jd-stage" style={{ display: 'block' }} />
+                <Skeleton h={56} style={{ borderRadius: 'var(--radius-sm)' }} />
+            </div>
+            <div className="jd-panel">
+                <Skeleton w="14ch" h={20} />
+                <Skeleton h={44} style={{ borderRadius: 'var(--radius-sm)' }} />
+                <Skeleton w="80%" h={16} />
+                <Skeleton h={120} style={{ borderRadius: 'var(--radius)' }} />
+            </div>
+        </SkeletonZone>
+    )
+}
+
 /** Historial de intentos de la partida abierta. */
 type History = { attempts: JudiAttempt[]; names: string[]; exact: boolean }
 const EMPTY_HISTORY: History = { attempts: [], names: [], exact: true }
@@ -539,10 +559,26 @@ export default function JudiClient() {
     /** Dirección de la transición entre capturas (1 = siguiente, -1 = anterior). */
     const phaseDirRef = useRef(1)
     const lastPhaseRef = useRef(activeViewedPhase)
+    /** Cada `startJuego` se numera; solo aplica su resultado la última (cambiar de día rápido, o volver mientras carga). */
+    const loadSeqRef = useRef(0)
+    /** Día al que se está saltando con «Día anterior / siguiente» (#139): su título sale ya y el cuerpo, en esqueleto. */
+    const [dayNav, setDayNav] = useState<{ game: GameRecord; dir: -1 | 1 } | null>(null)
+    /** Lado desde el que entra el día recién abierto; `n` vuelve a lanzar la animación. */
+    const [dayEnter, setDayEnter] = useState<{ dir: -1 | 1; n: number } | null>(null)
 
     const dailyCountdownMs = useNextDailyCountdown()
 
     const historyDays = useMemo(() => games.map(historyDay).filter((d): d is JudiHistoryDay => d !== null), [games])
+    /** Todos los días publicados, del más antiguo a hoy (la lista llega hasta hoy: nunca hay días futuros). */
+    const chronoGames = useMemo(
+        () =>
+            games
+                .map((g) => ({ g, iso: judiIsoDate(g.fecha) }))
+                .filter((x): x is { g: GameRecord; iso: string } => x.iso !== null)
+                .sort((a, b) => a.iso.localeCompare(b.iso))
+                .map((x) => x.g),
+        [games]
+    )
     const todayIso = judiTodayIso()
 
     /** Abre o cierra un mes; lo que abras se recuerda durante la sesión. */
@@ -629,7 +665,9 @@ export default function JudiClient() {
         else setRank(null)
     }
 
-    const startJuego = async (game: GameRecord) => {
+    /** Abre un día. Devuelve false si mientras cargaba se abrió otro (o se volvió al historial) y esta carga se descarta. */
+    const startJuego = async (game: GameRecord): Promise<boolean> => {
+        const req = ++loadSeqRef.current
         const scrollBeforeLoader = getWindowScrollY()
         if (view === 'start' && scrollBeforeLoader > 0) {
             lastHomeScrollYRef.current = scrollBeforeLoader
@@ -644,6 +682,8 @@ export default function JudiClient() {
         setFx(null)
         setGameLoadError(null)
         setBrokenCapture(null)
+        // El destello rojo de un fallo es del día que dejas: si no, se repetiría al montarse la captura del nuevo.
+        setFlashKey(0)
 
         const { data: { user: authUser } } = await safeGetUser()
         let day: JudiDay | null
@@ -669,6 +709,7 @@ export default function JudiClient() {
                 }
             }
         }
+        if (req !== loadSeqRef.current) return false
 
         if (!day) {
             // Antes se quedaba en el listado sin decir nada: ahora, la partida con su error y «Reintentar».
@@ -676,7 +717,7 @@ export default function JudiClient() {
             setSelectedGame(null)
             setView('game')
             setLoading(false)
-            return
+            return true
         }
 
         const juego: GameRecord = {
@@ -709,6 +750,7 @@ export default function JudiClient() {
         setSelectedGame({ juego, captureCount: day.captureCount, hints: day.hints })
         setView('game')
         setLoading(false)
+        return true
     }
 
     /** Invitados: el progreso sigue en localStorage, ahora con la fecha como clave. */
@@ -787,6 +829,8 @@ export default function JudiClient() {
                 setFx({ kind: 'lost', slot, n: fxCounter.current })
                 if (!authUser) saveLocalProgress(game, { fase6: true, ...reveal })
             } else {
+                // También en la lista en memoria: los botones de cambiar de día enseñan este día como «en curso».
+                setGames((prev) => prev.map((g) => (g.id === game.id ? { ...g, [`fase${highestUnlockedPhase}`]: true } : g)))
                 if (!authUser) saveLocalProgress(game, { [`fase${highestUnlockedPhase}`]: true })
                 setFx({ kind: guess ? 'miss' : 'skip', slot, n: fxCounter.current })
                 setHighestUnlockedPhase(day.phase)
@@ -809,6 +853,35 @@ export default function JudiClient() {
     const skipAttempt = async () => {
         await sendAttempt(null)
     }
+
+    /** El día de al lado del que tienes abierto (o al que estás saltando), en orden de fecha; null en los extremos. */
+    const currentDay = dayNav?.game ?? selectedGame?.juego ?? gameLoadError ?? null
+    const adjacentDay = (dir: -1 | 1): GameRecord | null => {
+        if (!currentDay) return null
+        const i = chronoGames.findIndex((g) => g.id === currentDay.id)
+        return i < 0 ? null : (chronoGames[i + dir] ?? null)
+    }
+
+    /**
+     * «Día anterior / siguiente» (#139): el título del destino sale al momento, el cuerpo en esqueleto mientras carga y
+     * luego entra desde ese lado. No pide confirmación: el progreso ya se guarda en cada intento. Mientras se comprueba
+     * un intento no se cambia, para que su resultado caiga en su partida.
+     */
+    const goAdjacentDay = async (dir: -1 | 1) => {
+        if (guessSubmitting) return
+        const target = adjacentDay(dir)
+        if (!target) return
+        setCaptureZoomOpen(false)
+        setDayEnter(null)
+        setDayNav({ game: target, dir })
+        const applied = await startJuego(target)
+        if (applied) setDayEnter({ dir, n: loadSeqRef.current })
+        setDayNav((cur) => (cur?.game.id === target.id ? null : cur))
+    }
+    const goAdjacentDayRef = useRef(goAdjacentDay)
+    useEffect(() => {
+        goAdjacentDayRef.current = goAdjacentDay
+    })
 
     const goAdjacentPhase = useCallback(
         (delta: number) => {
@@ -898,13 +971,13 @@ export default function JudiClient() {
             const t = e.target as HTMLElement | null
             if (!t) return
             if (t.closest('input, textarea, select')) return
-            if (e.key === 'ArrowLeft') {
-                e.preventDefault()
-                goAdjacentPhase(-1)
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault()
-                goAdjacentPhase(1)
-            }
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
+            const dir = e.key === 'ArrowLeft' ? -1 : 1
+            // ← / → cambian de captura; Shift + ← / → cambian de día (#139). Con Alt, Ctrl o Meta, lo del navegador.
+            if (e.altKey || e.ctrlKey || e.metaKey) return
+            e.preventDefault()
+            if (e.shiftKey) goAdjacentDayRef.current(dir)
+            else goAdjacentPhase(dir)
         }
         window.addEventListener('keydown', onKey)
         return () => window.removeEventListener('keydown', onKey)
@@ -997,7 +1070,21 @@ export default function JudiClient() {
         return <SkeletonSwap skeleton={<JudiSkeleton />} />
     }
 
-    const playingDailyGame = Boolean(selectedGame && isJudiGameForCurrentDailyDate(selectedGame.juego))
+    /** El día de la cabecera: al saltar de día, el destino, aunque su partida aún esté cargando. */
+    const headGame = dayNav?.game ?? selectedGame?.juego ?? null
+    const playingDailyGame = Boolean(headGame && isJudiGameForCurrentDailyDate(headGame))
+    const navTarget = (g: GameRecord | null): JudiDayNavTarget | null => {
+        const date = g ? judiIsoDate(g.fecha) : null
+        return g && date ? { id: g.id, date, status: judiDayStatus(g, getFailedAttempts(g as JudiProgressRecord)) } : null
+    }
+    const dayNavButtons = (
+        <JudiDayNav
+            prev={navTarget(adjacentDay(-1))}
+            next={navTarget(adjacentDay(1))}
+            disabled={guessSubmitting}
+            onGo={(dir) => void goAdjacentDay(dir)}
+        />
+    )
 
     if (lastPhaseRef.current !== activeViewedPhase) {
         phaseDirRef.current = activeViewedPhase > lastPhaseRef.current ? 1 : -1
@@ -1009,6 +1096,9 @@ export default function JudiClient() {
     const todayGame = games.find((g) => isJudiGameForCurrentDailyDate(g)) ?? null
 
     const goBack = () => {
+        // Una partida que aún cargue (p. ej. al cambiar de día) ya no debe abrirse encima del historial.
+        loadSeqRef.current += 1
+        setDayNav(null)
         setCaptureZoomOpen(false)
         setView('start')
         setGameLoadError(null)
@@ -1111,6 +1201,10 @@ export default function JudiClient() {
                                     <h1 className="jd-game__heading">JUDI #{gameLoadError.id}</h1>
                                     <p className="jd-game__date">{formatLongDate(gameLoadError.fecha)}</p>
                                 </div>
+                                <div className="jd-game__right">
+                                    <span />
+                                    {dayNavButtons}
+                                </div>
                             </div>
                             <LoadErrorCard
                                 title={`No se ha podido cargar el JUDI #${gameLoadError.id}`}
@@ -1128,7 +1222,7 @@ export default function JudiClient() {
                                     </button>
                                     <div className="jd-game__title">
                                         <h1 className="jd-game__heading">
-                                            JUDI #{selectedGame.juego.id}
+                                            JUDI #{headGame?.id}
                                             {playingDailyGame ? (
                                                 <span className="hg-chip hg-tint st-todos">
                                                     <Clock aria-hidden /> Juego de hoy
@@ -1137,10 +1231,12 @@ export default function JudiClient() {
                                                 <span className="hg-chip jd-chip--plain">Archivo</span>
                                             )}
                                         </h1>
-                                        <p className="jd-game__date">{formatLongDate(selectedGame.juego.fecha)}</p>
+                                        <p className="jd-game__date">{headGame && formatLongDate(headGame.fecha)}</p>
                                     </div>
                                     <div className="jd-game__right">
-                                        {gameState === 'playing' ? (
+                                        {dayNav ? (
+                                            <span />
+                                        ) : gameState === 'playing' ? (
                                             <span className="jd-lives">
                                                 Quedan{' '}
                                                 <AnimatedCount value={attemptsLeft} className={`jd-lives__n${attemptsLeft <= 2 ? ' is-low' : ''}`} />{' '}
@@ -1149,10 +1245,17 @@ export default function JudiClient() {
                                         ) : (
                                             <AttemptPips slots={slots} fx={fx} />
                                         )}
+                                        {dayNavButtons}
                                     </div>
                                 </div>
 
-                                <div className={`jd-game__grid${gameState !== 'playing' ? ' is-finished' : ''}`}>
+                                {dayNav ? (
+                                    <GameBodySkeleton />
+                                ) : (
+                                <div
+                                    className={`jd-game__grid${gameState !== 'playing' ? ' is-finished' : ''}`}
+                                    data-enter={dayEnter?.dir}
+                                >
                                     <div className="jd-stage-col hg-enter" style={{ '--i': 1 } as CSSProperties}>
                                         <div
                                             className="jd-stage"
@@ -1249,7 +1352,8 @@ export default function JudiClient() {
                                                 )}
                                             </span>
                                             <span className="jd-keyhint__keys">
-                                                <kbd className="hg-kbd">←</kbd> <kbd className="hg-kbd">→</kbd> para cambiar de captura
+                                                <kbd className="hg-kbd">←</kbd> <kbd className="hg-kbd">→</kbd> captura ·{' '}
+                                                <kbd className="hg-kbd">Shift</kbd> + <kbd className="hg-kbd">←</kbd> <kbd className="hg-kbd">→</kbd> día
                                             </span>
                                         </p>
                                     </div>
@@ -1296,6 +1400,7 @@ export default function JudiClient() {
                                         />
                                     </aside>
                                 </div>
+                                )}
                             </section>
 
                             <Dialog open={captureZoomOpen} onOpenChange={setCaptureZoomOpen}>

@@ -1126,6 +1126,167 @@
   margin-left: auto;
 }
 
+/* «Día anterior / siguiente» (#139): dos botones unidos, con el número, la fecha y el estado del destino */
+.jd-daynav {
+  display: inline-flex;
+  align-items: stretch;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.jd-daynav__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  border: 0;
+  background: none;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s var(--ease-out), color 0.15s;
+}
+
+.jd-daynav__btn + .jd-daynav__btn {
+  border-left: 1px solid var(--border);
+}
+
+.jd-daynav__btn:first-child {
+  border-radius: calc(var(--radius-sm) - 1px) 0 0 calc(var(--radius-sm) - 1px);
+}
+
+.jd-daynav__btn:last-child {
+  border-radius: 0 calc(var(--radius-sm) - 1px) calc(var(--radius-sm) - 1px) 0;
+}
+
+.jd-daynav__btn > svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s var(--ease-out);
+}
+
+.jd-daynav__btn:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.jd-daynav__btn:hover:not(:disabled)[data-dir='-1'] > svg:first-child {
+  transform: translateX(-2px);
+}
+
+.jd-daynav__btn:hover:not(:disabled)[data-dir='1'] > svg:last-child {
+  transform: translateX(2px);
+}
+
+.jd-daynav__btn:active:not(:disabled) {
+  background: var(--surface-3);
+}
+
+.jd-daynav__btn:focus-visible {
+  z-index: 1;
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.jd-daynav__btn:disabled {
+  color: var(--muted);
+  opacity: 0.5;
+  cursor: default;
+}
+
+.jd-daynav__date {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Estado del día de destino: icono con su color (los del historial), nunca solo color */
+.jd-daynav__st {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+}
+
+.jd-daynav__st svg {
+  width: 11px;
+  height: 11px;
+}
+
+.jd-daynav__st.is-won {
+  background: var(--success-glow);
+  color: var(--success);
+}
+
+.jd-daynav__st.is-lost {
+  background: var(--danger-glow);
+  color: var(--danger);
+}
+
+.jd-daynav__st.is-progress {
+  background: var(--primary-glow);
+  color: var(--primary);
+}
+
+.jd-daynav__st.is-new {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+/* Tooltip con el atajo: aparece con el ratón quieto o con el foco de teclado */
+.jd-daynav__btn[data-tip]:hover:not(:disabled)::after,
+.jd-daynav__btn[data-tip]:focus-visible::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  z-index: 10;
+  padding: 5px 9px;
+  border-radius: 7px;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateX(-50%);
+  animation: jd-tip-in 0.15s var(--ease-out) 0.35s backwards;
+}
+
+@keyframes jd-tip-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -3px);
+  }
+}
+
+/* El día recién abierto entra desde el lado al que has ido */
+.jd-game__grid[data-enter] > .hg-enter {
+  animation-name: jd-day-in;
+}
+
+.jd-game__grid[data-enter='1'] {
+  --jd-day-dx: 28px;
+}
+
+.jd-game__grid[data-enter='-1'] {
+  --jd-day-dx: -28px;
+}
+
+@keyframes jd-day-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--jd-day-dx, 0));
+  }
+}
+
 .jd-game__grid {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(300px, 1fr);
@@ -1523,12 +1684,19 @@
 .jd-guess__input {
   height: 44px;
   padding-left: 2.5rem;
-  padding-right: 2.5rem;
+  /* Sitio para «Saltar −1» (abierto) o solo su icono (escribiendo) */
+  padding-right: 6.75rem;
+  transition: border-color 0.15s, box-shadow 0.15s, padding-right 0.25s var(--ease-out);
 }
 
+.jd-guess.has-text .jd-guess__input {
+  padding-right: 3rem;
+}
+
+/* El spinner, a la izquierda de «Saltar» */
 .jd-guess__spinner {
   position: absolute;
-  right: 0.875rem;
+  right: 7rem;
   top: 50%;
   width: 16px;
   height: 16px;
@@ -1643,23 +1811,92 @@
   }
 }
 
-.jd-guess__row {
-  display: flex;
+.jd-guess.has-text .jd-guess__spinner {
+  right: 3.125rem;
+}
+
+/* «Saltar» dentro del campo, a la derecha (#139). Al escribir se encoge a solo el icono. */
+.jd-skip {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  z-index: 1;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  max-width: 10rem;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background-color 0.15s, border-color 0.15s, max-width 0.25s var(--ease-out), padding 0.25s var(--ease-out), gap 0.25s var(--ease-out);
+}
+
+.jd-skip svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.jd-skip:hover:not(:disabled) {
+  border-color: var(--border-hover);
+  background: var(--surface-3);
+}
+
+.jd-skip:active:not(:disabled) {
+  transform: translateY(-50%) scale(0.97);
+}
+
+.jd-skip:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.jd-skip:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.jd-skip__lbl,
+.jd-skip__cost {
+  display: inline-block;
+  max-width: 5em;
+  overflow: hidden;
+  transition: opacity 0.15s, max-width 0.25s var(--ease-out);
+}
+
+.jd-skip__cost {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.jd-guess.has-text .jd-skip {
+  width: 32px;
+  max-width: 32px;
+  padding: 0;
+  gap: 0;
+}
+
+.jd-guess.has-text .jd-skip__lbl,
+.jd-guess.has-text .jd-skip__cost {
+  max-width: 0;
+  opacity: 0;
 }
 
 .jd-guess__help {
-  margin: 0;
+  margin: 0.5rem 0 0;
   color: var(--muted);
   font-size: 0.8125rem;
-}
-
-.jd-guess__cost {
-  color: var(--muted);
-  font-weight: 500;
 }
 
 /* Tus intentos: en orden, fallo en rojo y salto neutro */
@@ -2669,6 +2906,18 @@
 
   .jd-game__right .hg-button {
     height: 40px;
+  }
+
+  .jd-daynav__btn {
+    justify-content: center;
+    width: 44px;
+    padding: 0;
+  }
+
+  .jd-daynav__lbl,
+  .jd-daynav__st,
+  .jd-daynav__btn::after {
+    display: none;
   }
 
   .jd-stage {

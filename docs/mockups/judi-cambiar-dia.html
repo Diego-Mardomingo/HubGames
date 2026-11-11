@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup · JUDI, pasar de día dentro de la partida (#139) · HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ Tokens copiados de src/styles/globals.css ══ */
+:root {
+  --background: #eef0f3; --foreground: #1b1f27; --muted: #5d6472;
+  --surface: #ffffff; --surface-2: #e4e7ec; --surface-3: #d6dae1;
+  --border: #dadde3; --border-hover: #c3c8d1;
+  --primary: #2453ff; --primary-hover: #1a43e0; --primary-glow: rgba(36, 83, 255, 0.12); --primary-foreground: #ffffff;
+  --ring: var(--primary); --cursor: var(--primary);
+  --danger: #c7243b; --danger-glow: rgba(199, 36, 59, 0.1); --danger-foreground: #ffffff;
+  --success: #1a7743; --success-glow: rgba(26, 119, 67, 0.1); --warning: #8e5e18;
+  --st-todos: #2453ff; --st-pendiente: #0b7285;
+  --on-done: #ffffff; --tint: 12%;
+  --shadow-sm: 0 1px 2px rgba(20, 24, 33, 0.06); --shadow-lg: 0 16px 40px -16px rgba(20, 24, 33, 0.22);
+  --radius: 10px; --radius-sm: 8px; --radius-lg: 14px; --radius-xl: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  --background: #15171c; --foreground: #e8eaee; --muted: #9aa1ae;
+  --surface: #1e2129; --surface-2: #282c36; --surface-3: #323744;
+  --border: #2e323c; --border-hover: #404553;
+  --primary: #7b9bff; --primary-hover: #95afff; --primary-glow: rgba(123, 155, 255, 0.14); --primary-foreground: #0e1220;
+  --danger: #f26b7e; --danger-glow: rgba(242, 107, 126, 0.14); --danger-foreground: #1b0a0d;
+  --success: #4cc97e; --success-glow: rgba(76, 201, 126, 0.14); --warning: #f2b53a;
+  --st-todos: #7b9bff; --st-pendiente: #3bc9db;
+  --on-done: #0b1f13; --tint: 14%;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-lg: 0 20px 48px -18px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--background); color: var(--foreground); }
+body { font-family: var(--font-body); font-variant-numeric: tabular-nums; line-height: 1.5; }
+button, input { font-family: inherit; color: inherit; }
+button { cursor: pointer; }
+svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+html.theme-anim *, html.theme-anim body { transition: background-color .3s var(--ease-out), color .3s var(--ease-out), border-color .3s var(--ease-out) !important; }
+
+/* ══ Documento del mockup (no es parte del diseño) ══ */
+.doc { max-width: 1520px; margin: 0 auto; padding: 32px 32px 80px; }
+.doc-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; padding: 12px 32px; background: var(--background); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.doc-bar h1 { margin: 0; font-size: 1rem; font-weight: 700; }
+.doc-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.doc-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); font-size: 0.875rem; font-weight: 600; }
+.doc-btn:hover { border-color: var(--border-hover); }
+.doc-btn[aria-pressed='true'] { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.doc-btn--sm { height: 32px; padding: 0 10px; font-size: .8125rem; }
+.note { max-width: 1080px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9375rem; }
+.note h2 { margin: 0 0 8px; font-size: 1.0625rem; }
+.note h3 { margin: 18px 0 4px; font-size: 0.9375rem; }
+.note ul { margin: 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+.note p { margin: 4px 0; }
+.note code, .note kbd { font-family: inherit; font-size: 0.8125rem; padding: 1px 5px; border-radius: 5px; background: var(--surface-2); }
+.sec { margin-top: 48px; }
+.sec > h2 { margin: 0 0 4px; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.sec > p { margin: 0 0 16px; color: var(--muted); font-size: 0.875rem; max-width: 120ch; }
+.scroller { overflow-x: auto; padding-bottom: 8px; }
+.frame { position: relative; overflow: clip; border: 1px solid var(--border-hover); border-radius: 12px; background: var(--background); flex: none; }
+.frame.is-active { outline: 2px solid var(--primary-glow); outline-offset: 3px; }
+.tests { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 0; }
+.tests > span { color: var(--muted); font-size: .8125rem; font-weight: 600; margin-right: 4px; }
+.tests > span:not(:first-child) { margin-left: 10px; }
+.row-frames { display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap; }
+
+/* Barra lateral simplificada (ya existe en la app; aquí solo da contexto) */
+.w-desk { width: 1440px; min-height: 820px; display: grid; grid-template-columns: 232px 1fr; }
+.nv-side { border-right: 1px solid var(--border); padding: 20px 14px; display: grid; align-content: start; gap: 6px; }
+.nv-side b { padding: 4px 8px 16px; font-size: 1.0625rem; letter-spacing: -0.02em; }
+.nv-side b span { color: var(--primary); }
+.nv-side i { display: block; height: 40px; border-radius: var(--radius-sm); padding: 0 12px; line-height: 40px; font-style: normal; color: var(--muted); font-size: .9375rem; font-weight: 500; }
+.nv-side i.on { background: var(--surface); color: var(--foreground); font-weight: 600; box-shadow: inset 3px 0 0 var(--cursor), var(--shadow-sm); }
+.w-desk .main { padding: 32px 40px; min-width: 0; }
+.w-mob { width: 390px; min-height: 844px; }
+.w-mob .main { padding: 16px; }
+.mob-top { height: 56px; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--border); font-weight: 700; letter-spacing: -0.02em; }
+.mob-top span { color: var(--primary); }
+
+/* ══ Partida de JUDI (lo que ya existe, resumido) ══ */
+.jd-game { display: grid; gap: 1.25rem; max-width: 1160px; }
+.jd-game__top { display: flex; align-items: center; gap: 0.75rem 1rem; }
+.hg-icon-btn { display: inline-grid; place-items: center; border-radius: var(--radius-sm); color: var(--foreground); font-size: 18px; }
+.jd-back { flex-shrink: 0; width: 40px; height: 40px; border: 1px solid var(--border); background: var(--surface); }
+.jd-back:hover { border-color: var(--border-hover); }
+.jd-game__title { min-width: 0; }
+.jd-game__heading { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.75rem; margin: 0; font-size: clamp(1.5rem, 2.4vw, 1.875rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+.w-mob .jd-game__heading { font-size: 1.5rem; }
+.jd-game__date { margin: 0.125rem 0 0; color: var(--muted); font-size: 0.875rem; }
+.jd-game__right { display: flex; align-items: center; gap: 1rem; margin-left: auto; }
+.hg-chip { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px; border-radius: 999px; font-size: .75rem; font-weight: 700; letter-spacing: 0; }
+.hg-chip .i { font-size: 13px; }
+.hg-tint { color: var(--c); background: color-mix(in srgb, var(--c) var(--tint), transparent); }
+.st-todos { --c: var(--st-todos); }
+.jd-chip--plain { background: var(--surface-2); color: var(--muted); }
+.jd-lives { display: inline-flex; align-items: baseline; gap: 0.25rem; color: var(--muted); font-size: 0.875rem; font-weight: 600; white-space: nowrap; }
+.jd-lives b { color: var(--foreground); }
+.jd-lives b.is-low { color: var(--danger); }
+.jd-pips { display: inline-flex; gap: 4px; }
+.jd-pip { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: 12px; }
+.jd-pip .i { stroke-width: 2.75; }
+.jd-pip.is-miss { background: var(--danger); color: var(--danger-foreground); }
+.jd-pip.is-hit { background: var(--success); color: var(--on-done); }
+
+.jd-game__grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(300px, 1fr); gap: 1.25rem; align-items: start; }
+.w-mob .jd-game__grid { grid-template-columns: 1fr; }
+.jd-stage { position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-2); display: grid; place-items: center; color: var(--muted); }
+.jd-stage__art { display: grid; justify-items: center; gap: 6px; font-size: .875rem; font-weight: 600; }
+.jd-stage__art .i { font-size: 40px; opacity: .55; }
+.jd-phases { display: flex; gap: 6px; margin-top: 10px; }
+.jd-phase { flex: 1; height: 36px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); font-size: .8125rem; font-weight: 600; color: var(--muted); }
+.jd-phase.is-on { border-color: var(--primary); color: var(--primary); background: var(--primary-glow); }
+.jd-phase:disabled { opacity: .45; cursor: default; }
+.jd-side { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+
+/* Panel de respuesta (igual que en la app: src/app/judi/judi.css) */
+.jd-panel { position: relative; z-index: 3; display: grid; gap: 1.25rem; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.jd-panel__head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .5rem; }
+.jd-panel__title { display: flex; margin: 0 0 .5rem; font-size: .9375rem; font-weight: 700; letter-spacing: -0.01em; }
+.jd-panel__head .jd-panel__title { margin: 0; }
+.jd-stake { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px 0 7px; border-radius: 999px; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+.jd-stake .i { font-size: 12px; }
+.jd-guess-block { display: grid; }
+.jd-guess { position: relative; }
+.jd-guess__icon { position: absolute; left: .875rem; top: 50%; z-index: 1; transform: translateY(-50%); color: var(--muted); font-size: 16px; pointer-events: none; transition: color .18s var(--ease-out); }
+.jd-guess:focus-within .jd-guess__icon { color: var(--primary); }
+.hg-input { width: 100%; height: 44px; padding: 0 .875rem 0 2.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); font-size: .9375rem; outline: none; transition: border-color .15s, box-shadow .15s, padding .25s var(--ease-out); }
+.w-mob .hg-input { font-size: 16px; }
+.hg-input::placeholder { color: var(--muted); }
+.hg-input:hover { border-color: var(--border-hover); }
+.hg-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+.hg-input:disabled { color: var(--muted); }
+.jd-guess__spinner { position: absolute; top: 50%; right: var(--spin-r, .875rem); width: 16px; height: 16px; margin-top: -8px; border: 2px solid var(--border-hover); border-top-color: var(--primary); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.jd-guess__dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20; display: grid; gap: 2px; margin: 0; padding: 4px; list-style: none; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); }
+.jd-guess__option { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 40px; padding: 6px 10px; border: 0; border-radius: 7px; background: none; font-size: .875rem; text-align: left; }
+.jd-guess__option.is-hl { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--cursor); }
+.jd-guess__empty { padding: .625rem; color: var(--muted); font-size: .8125rem; }
+.hg-kbd { padding: 1px 6px; border-radius: 5px; background: var(--surface); border: 1px solid var(--border); font-size: .6875rem; font-weight: 600; color: var(--muted); }
+.jd-guess__help { margin: .5rem 0 0; color: var(--muted); font-size: .8125rem; }
+.jd-tries .jd-panel__title { margin-bottom: .375rem; }
+.jd-tries__list { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.jd-try { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 3px 10px 3px 4px; border-radius: 999px; font-size: .78125rem; font-weight: 600; }
+.jd-try__icon { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; }
+.jd-try__icon .i { stroke-width: 3; }
+.jd-try--miss { background: var(--danger-glow); color: var(--danger); }
+.jd-try--miss .jd-try__icon { background: var(--danger); color: var(--danger-foreground); }
+.jd-try--skip { background: var(--surface-2); color: var(--muted); }
+.jd-try--skip .jd-try__icon { background: var(--surface-3); color: var(--foreground); }
+.jd-fx-chip { animation: chip-in .35s var(--ease-out) both; }
+@keyframes chip-in { from { opacity: 0; transform: scale(.85); } }
+@keyframes shake { 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+.jd-guess.is-shake { animation: shake .3s; }
+
+/* ══ NUEVO: «Saltar» dentro del campo ══ */
+.jd-skip { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--border); background: var(--surface-2); color: var(--foreground); font-size: .8125rem; font-weight: 600; white-space: nowrap; overflow: hidden;
+  transition: background-color .15s, color .15s, border-color .15s, max-width .25s var(--ease-out), padding .25s var(--ease-out); }
+.jd-skip > .i { font-size: 14px; flex: none; }
+.jd-skip:hover:not(:disabled) { border-color: var(--border-hover); background: var(--surface-3); }
+.jd-skip:active:not(:disabled) { transform: scale(.97); }
+.jd-skip:disabled { opacity: .5; cursor: default; }
+.jd-skip__lbl, .jd-skip__cost { display: inline-block; max-width: 5em; overflow: hidden; transition: opacity .15s, max-width .25s var(--ease-out); }
+.jd-skip__cost { color: var(--muted); font-weight: 500; }
+.jd-skip__ask { display: none; }
+/* Paso de confirmación: tinte de aviso (pierdes un intento), con texto, nunca solo color */
+.jd-guess.is-confirm .jd-skip { --c: var(--warning); color: var(--c); background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); border-color: color-mix(in srgb, var(--c) 45%, transparent); }
+.jd-guess.is-confirm .jd-skip__lbl, .jd-guess.is-confirm .jd-skip__cost { display: none; }
+.jd-guess.is-confirm .jd-skip__ask { display: inline; }
+.jd-guess.is-confirm .hg-input::placeholder { color: transparent; }
+.jd-skip__bar { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: currentColor; opacity: .5; transform-origin: left; animation: drain 3s linear forwards; }
+@keyframes drain { to { transform: scaleX(0); } }
+
+/* A · Dentro del campo, a la derecha */
+.v-a .jd-skip { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); height: 32px; max-width: 160px; padding: 0 10px; border-radius: 6px; }
+.v-a .jd-skip:active:not(:disabled) { transform: translateY(-50%) scale(.97); }
+.v-a .hg-input { padding-right: calc(var(--skip-w, 96px) + 14px); }
+.v-a { --spin-r: calc(var(--skip-w, 96px) + 16px); }
+/* Al escribir se encoge a solo icono: el nombre necesita el sitio */
+.v-a.has-text .jd-skip { width: 32px; max-width: 32px; padding: 0; }
+.v-a.has-text .jd-skip__lbl, .v-a.has-text .jd-skip__cost { opacity: 0; max-width: 0; }
+.v-a.has-text .jd-skip { gap: 0; }
+.v-a.has-text .hg-input { padding-right: 48px; }
+.v-a.has-text { --spin-r: 46px; }
+.v-a.is-confirm .jd-skip { max-width: 200px; padding: 0 10px; gap: 6px; }
+.v-a.is-confirm .hg-input { padding-right: 186px; }
+.v-a.is-confirm .jd-skip__ask { opacity: 1; }
+
+/* B · Pegado al campo, como un solo control */
+.v-b { display: flex; }
+.v-b .hg-input { flex: 1; min-width: 0; border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.v-b .jd-skip { position: relative; height: 44px; padding: 0 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-left: 0; }
+.v-b { --spin-r: calc(var(--skip-w, 120px) + 12px); }
+.w-mob .v-b .jd-skip { padding: 0 12px; }
+
+.jd-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 16px; border: 0; border-radius: var(--radius); background: var(--primary); color: var(--primary-foreground); font-weight: 600; font-size: .9375rem; }
+.jd-btn--ghost { background: var(--surface-2); color: var(--foreground); }
+.jd-res { display: flex; align-items: center; gap: 12px; }
+.jd-res__ico { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; font-size: 20px; flex: none; }
+.jd-res.is-hit .jd-res__ico { background: var(--success-glow); color: var(--success); }
+.jd-res.is-miss .jd-res__ico { background: var(--danger-glow); color: var(--danger); }
+.jd-res__t { font-weight: 700; }
+.jd-res__s { color: var(--muted); font-size: .875rem; }
+.jd-hint { color: var(--muted); font-size: .8125rem; margin: 0; }
+
+/* ══ NUEVO: cambiar de día ══ */
+.jd-daynav { display: inline-flex; align-items: stretch; height: 40px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
+.jd-daynav__btn { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; border: 0; background: none; font-size: .8125rem; font-weight: 600; white-space: nowrap; color: var(--foreground); transition: background-color .15s var(--ease-out), color .15s; }
+.jd-daynav__btn + .jd-daynav__btn { border-left: 1px solid var(--border); }
+.jd-daynav__btn:first-child { border-radius: calc(var(--radius-sm) - 1px) 0 0 calc(var(--radius-sm) - 1px); }
+.jd-daynav__btn:last-child { border-radius: 0 calc(var(--radius-sm) - 1px) calc(var(--radius-sm) - 1px) 0; }
+.jd-daynav__btn > .i { font-size: 16px; transition: transform .2s var(--ease-out); }
+.jd-daynav__btn:hover:not(:disabled) { background: var(--surface-2); }
+.jd-daynav__btn:hover:not(:disabled)[data-dir='-1'] > .i:first-child { transform: translateX(-2px); }
+.jd-daynav__btn:hover:not(:disabled)[data-dir='1'] > .i:last-child { transform: translateX(2px); }
+.jd-daynav__btn:active:not(:disabled) { background: var(--surface-3); }
+.jd-daynav__btn:disabled { color: var(--muted); opacity: .5; cursor: default; }
+.jd-daynav__date { color: var(--muted); font-weight: 500; }
+/* Estado del día de destino: icono + color, nunca solo color */
+.jd-daynav__st { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 5px; font-size: 11px; }
+.jd-daynav__st .i { stroke-width: 3; }
+.jd-daynav__st.is-hit { background: var(--success-glow); color: var(--success); }
+.jd-daynav__st.is-miss { background: var(--danger-glow); color: var(--danger); }
+.jd-daynav__st.is-half { background: var(--primary-glow); color: var(--primary); }
+.jd-daynav__st.is-new { background: var(--surface-2); color: var(--muted); }
+/* Tooltip con el atajo */
+.jd-daynav__btn[data-tip]:hover:not(:disabled)::after, .jd-daynav__btn[data-tip]:focus-visible::after {
+  content: attr(data-tip); position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); z-index: 3;
+  padding: 5px 9px; border-radius: 7px; background: var(--foreground); color: var(--background); font-size: .75rem; font-weight: 600; white-space: nowrap; pointer-events: none;
+  animation: tip .15s var(--ease-out) .35s both;
+}
+@keyframes tip { from { opacity: 0; transform: translate(-50%, -3px); } to { opacity: 1; transform: translate(-50%, 0); } }
+/* Móvil: solo iconos de 40 px, el destino va en aria-label y en una línea bajo el título */
+.w-mob .jd-game__top { flex-wrap: wrap; }
+.w-mob .jd-game__right { width: 100%; justify-content: space-between; margin-left: 0; }
+.w-mob .jd-daynav__btn { width: 44px; justify-content: center; padding: 0; }
+.w-mob .jd-daynav__btn .jd-daynav__lbl, .w-mob .jd-daynav__btn .jd-daynav__st { display: none; }
+.w-mob .jd-daynav { height: 40px; }
+
+/* Transición entre días: el título se cambia sin animación, el cuerpo entra desde el lado del destino */
+.jd-swap { animation: swap-in .32s var(--ease-out) both; }
+.jd-swap[data-dir='1'] { --dx: 28px; }
+.jd-swap[data-dir='-1'] { --dx: -28px; }
+@keyframes swap-in { from { opacity: 0; transform: translateX(var(--dx, 0)); } to { opacity: 1; transform: none; } }
+.jd-title-swap { animation: fade .2s var(--ease-out) both; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.sk { border-radius: var(--radius-lg); background: var(--surface-2); animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .55; } }
+html.reduce .jd-swap, html.reduce .jd-title-swap, html.reduce .sk, html.reduce .jd-daynav__btn::after { animation: none !important; }
+html.reduce .jd-daynav__btn > .i { transition: none; transform: none !important; }
+
+/* Toast del atajo (solo para el mockup, para ver qué tecla se ha pulsado) */
+.keytoast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 8px 14px; border-radius: 10px; background: var(--foreground); color: var(--background); font-size: .875rem; font-weight: 600; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 200; }
+.keytoast.on { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>JUDI · Día anterior / Día siguiente dentro de la partida <span style="color:var(--muted);font-weight:500">(#139)</span></h1>
+  <div class="doc-bar__actions">
+    <span style="color:var(--muted);font-size:.8125rem;font-weight:600">Saltar:</span>
+    <button class="doc-btn" data-variant="a" aria-pressed="true">A · dentro del campo</button>
+    <button class="doc-btn" data-variant="b" aria-pressed="false">B · pegado al campo</button>
+    <button class="doc-btn" id="confirmBtn" aria-pressed="false">Confirmar en 2 pasos</button>
+    <button class="doc-btn" id="themeBtn" aria-pressed="false">Tema oscuro</button>
+    <button class="doc-btn" id="reduceBtn" aria-pressed="false">Reducir movimiento</button>
+  </div>
+</div>
+
+<div class="doc">
+  <div class="note">
+    <h2>Qué cambia respecto a hoy</h2>
+    <ul>
+      <li><b>En la cabecera de la partida</b>, a la derecha y antes de los intentos, aparece un grupo de dos botones: <b>‹ #313 · 7 nov</b> y <b>#315 · 9 nov ›</b>. Recorren todos los días por orden de fecha, estén jugados o no.</li>
+      <li>Cada botón lleva <b>un icono pequeño con el estado del día de destino</b> (✓ verde acertado, ✗ rojo fallado, ◐ azul a medias, ○ gris sin jugar), para saber adónde vas antes de pulsar. Siempre va con icono, nunca solo con color. <i>Es opcional: si te parece demasiado, se quita y queda solo «#315 · 10 nov».</i></li>
+      <li><b>En el primer día</b> el botón «anterior» sale desactivado, y <b>en el día de hoy</b> lo mismo con «siguiente». Se ven atenuados, pero el hueco no desaparece, así que la cabecera no se mueve.</li>
+      <li><b>En móvil</b> son dos botones de icono de 44 px en la segunda fila de la cabecera, frente a los intentos. El destino va en su <code>aria-label</code> («Día anterior: JUDI #315, 9 de noviembre, acertado»). Deslizar sobre la captura sigue cambiando de captura.</li>
+      <li><b>Teclado:</b> <kbd>Shift</kbd>+<kbd>←</kbd> / <kbd>Shift</kbd>+<kbd>→</kbd> cambia de día. <kbd>←</kbd> / <kbd>→</kbd> sin modificador sigue cambiando de captura (en la app habrá que hacer que ese manejador ignore las teclas con Shift, Alt, Ctrl o Meta). Ninguno de los dos actúa con el foco en el campo de respuesta. El tooltip del botón muestra el atajo.</li>
+      <li><b>«Siguiente reto»</b> se queda como está en el resultado: lleva al próximo día <i>pendiente</i>, mientras que estos botones van al día de al lado.</li>
+    </ul>
+    <h3>«Saltar», rediseñado</h3>
+    <p>Hoy es un botón fantasma pequeño, debajo del campo y a la derecha, junto al texto de ayuda: se pierde. Propongo meterlo <b>en el propio control de respuesta</b>, que es donde tienes la vista cuando no sabes qué poner. Hay dos variantes en la barra de arriba:</p>
+    <ul>
+      <li><b>A · Dentro del campo</b> <i>(la que recomiendo)</i>: un chip <b>⏭ Saltar −1</b> en el extremo derecho del campo. En cuanto escribes se encoge a solo el icono, para dejar sitio al nombre. Si lo vacías, vuelve a abrirse.</li>
+      <li><b>B · Pegado al campo</b>: un botón de la misma altura que el campo, unido a él como un solo control. Se ve más, pero le quita ancho al campo siempre, también en móvil.</li>
+      <li><b>Confirmar en dos pasos</b> (descartado: se salta al primer toque; queda para comparar): como ahora el botón está al lado de donde pulsas y escribes, es fácil darle sin querer. El primer toque lo convierte en <b>«¿Saltar? −1 intento»</b> con tinte de aviso y una barra que se vacía en 3 s. Un segundo toque confirma, y <kbd>Esc</kbd>, esperar o volver al campo lo cancela. Lo puedes desactivar para comparar.</li>
+      <li>El placeholder pasa a <b>«Nombre del juego»</b>, porque «Escribe el nombre del juego» no cabe al lado del botón.</li>
+      <li>Mientras se comprueba un intento, el botón se desactiva y el spinner se coloca a su izquierda. El texto de ayuda («Cada fallo o salto abre otra captura y una pista») se queda debajo, ahora solo.</li>
+      <li>El chip de intento «Saltado» entra con la misma animación que un fallo, y el contador de puntos y el de intentos bajan.</li>
+    </ul>
+    <h3>Animaciones</h3>
+    <ul>
+      <li>Al pulsar, el título (#, chip y fecha) cambia al momento. El cuerpo enseña el esqueleto mientras carga <code>hubgames_judi_get_day</code> y luego entra desplazándose 28 px desde el lado del destino (desde la derecha al ir hacia delante, desde la izquierda al ir hacia atrás) durante 320 ms.</li>
+      <li>Al pasar el ratón, el chevrón se mueve 2 px hacia su lado. Con el ratón quieto 350 ms aparece el tooltip con el atajo.</li>
+      <li>Con «Reducir movimiento» no hay desplazamiento: el contenido aparece sin más.</li>
+    </ul>
+    <h3>Cómo probarlo</h3>
+    <p>Pulsa los botones o usa <kbd>Shift</kbd>+<kbd>←/→</kbd>; el atajo actúa sobre el último marco que hayas tocado. Prueba también a escribir en el campo de respuesta y pulsar <kbd>Shift</kbd>+<kbd>←</kbd>: solo mueve el cursor. Debajo de cada marco hay atajos para saltar al primer día o al de hoy.</p>
+  </div>
+
+  <section class="sec">
+    <h2>«Saltar» · antes y estados</h2>
+    <p>Arriba a la izquierda está cómo se ve hoy, como referencia. El resto son los estados de la variante elegida en la barra: vacío, escribiendo, confirmando y comprobando. Son estáticos; para probarlo de verdad, usa los marcos de abajo.</p>
+    <div class="row-frames" id="states"></div>
+  </section>
+
+  <section class="sec">
+    <h2>Escritorio · 1440 px</h2>
+    <p>Empieza en el JUDI #314 (8 nov), a medias. Hoy es el #317 (11 nov) y el primer día es el #1.</p>
+    <div class="scroller">
+      <div class="frame w-desk is-active" data-frame="desk">
+        <aside class="nv-side"><b>Hub<span>Games</span></b><i>Inicio</i><i>Biblioteca</i><i>Logros</i><i class="on">JUDI</i><i>Ranking</i></aside>
+        <div class="main"></div>
+      </div>
+    </div>
+    <div class="tests" data-for="desk">
+      <span>Ir a:</span>
+      <button class="doc-btn doc-btn--sm" data-go="first">Primer día (#1)</button>
+      <button class="doc-btn doc-btn--sm" data-go="mid">#314 a medias</button>
+      <button class="doc-btn doc-btn--sm" data-go="today">Hoy (#317)</button>
+      <span>Carga:</span>
+      <button class="doc-btn doc-btn--sm" data-slow aria-pressed="false">Red lenta (1,2 s)</button>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Móvil · 390 px</h2>
+    <p>Solo iconos. Los intentos quedan a la izquierda y el cambio de día a la derecha, en la fila que ya existe bajo el título.</p>
+    <div class="row-frames">
+      <div>
+        <div class="frame w-mob" data-frame="mob">
+          <div class="mob-top">Hub<span>Games</span></div>
+          <div class="main"></div>
+        </div>
+        <div class="tests" data-for="mob">
+          <span>Ir a:</span>
+          <button class="doc-btn doc-btn--sm" data-go="first">Primer día</button>
+          <button class="doc-btn doc-btn--sm" data-go="mid">#314</button>
+          <button class="doc-btn doc-btn--sm" data-go="today">Hoy</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="keytoast" id="keytoast"></div>
+
+<script>
+const ICON = {
+  left: '<path d="m15 18-6-6 6-6"/>',
+  right: '<path d="m9 18 6-6-6-6"/>',
+  back: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  half: '<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor"/>',
+  dot: '<circle cx="12" cy="12" r="7"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  image: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
+  arrowR: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+  skip: '<path d="m5 4 10 8-10 8Z"/><path d="M19 5v14"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+};
+const ic = (n) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICON[n]}</svg>`;
+
+/* ── Datos: JUDI #1…#317; hoy (#317) es 11 nov 2026 ── */
+const TODAY_ID = 317;
+const TODAY = new Date(2026, 10, 11);
+const NAMES = ['Hades', 'Celeste', 'Hollow Knight', 'Portal 2', 'Stardew Valley', 'Disco Elysium', 'Outer Wilds', 'Dead Cells', 'Return of the Obra Dinn', 'Inside', 'Cuphead', 'Terraria', 'Slay the Spire', 'Firewatch', 'Undertale', 'Ori and the Blind Forest'];
+function rnd(n) { let x = Math.sin(n * 9301 + 49297) * 233280; return x - Math.floor(x); }
+const CACHE = {};
+function day(id) {
+  if (CACHE[id]) return CACHE[id];
+  const d = new Date(TODAY); d.setDate(d.getDate() - (TODAY_ID - id));
+  const r = rnd(id);
+  let state = r < .4 ? 'hit' : r < .55 ? 'miss' : r < .72 ? 'half' : 'new';
+  if (id === TODAY_ID) state = 'new';
+  if (id === 314) state = 'half';
+  if (id === 1) state = 'hit';
+  const used = state === 'hit' ? 1 + Math.floor(rnd(id + 7) * 5) : state === 'miss' ? 6 : state === 'half' ? (id === 314 ? 3 : 1 + Math.floor(rnd(id + 3) * 4)) : 0;
+  const name = NAMES[id % NAMES.length];
+  const others = NAMES.filter((n) => n !== name);
+  const tries = Array.from({ length: state === 'hit' ? used - 1 : used }, (_, i) =>
+    i % 3 === 2 ? { kind: 'skip' } : { kind: 'miss', name: others[(id + i * 5) % others.length] });
+  return (CACHE[id] = { id, date: d, state, used, name, tries });
+}
+/** Aplica un intento (null = saltar) al día. */
+function attempt(d, guess) {
+  d.used++;
+  if (guess && guess === d.name) { d.state = 'hit'; return 'hit'; }
+  d.tries.push(guess ? { kind: 'miss', name: guess } : { kind: 'skip' });
+  d.state = d.used >= 6 ? 'miss' : 'half';
+  return guess ? 'miss' : 'skip';
+}
+const fShort = (d) => d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
+const fLong = (d) => { const s = d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); return s[0].toUpperCase() + s.slice(1); };
+const fAria = (d) => d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+const ST = { hit: ['check', 'acertado'], miss: ['x', 'fallado'], half: ['half', 'a medias'], new: ['dot', 'sin jugar'] };
+
+/* ── Estado por marco ── */
+const frames = {
+  desk: { el: document.querySelector('[data-frame="desk"] .main'), id: 314, mob: false, seq: 0 },
+  mob: { el: document.querySelector('[data-frame="mob"] .main'), id: 314, mob: true, seq: 0 },
+};
+let active = 'desk';
+let slow = false;
+const reduced = () => document.documentElement.classList.contains('reduce');
+
+function navBtn(dir, cur) {
+  const tid = cur + dir;
+  const ok = tid >= 1 && tid <= TODAY_ID;
+  const lbl = dir < 0 ? 'Día anterior' : 'Día siguiente';
+  if (!ok) {
+    const why = dir < 0 ? 'Es el primer JUDI' : 'Es el JUDI de hoy';
+    return `<button type="button" class="jd-daynav__btn" data-dir="${dir}" disabled aria-label="${lbl}: no hay. ${why}">
+      ${dir < 0 ? ic('left') : ''}<span class="jd-daynav__lbl">${lbl}</span>${dir > 0 ? ic('right') : ''}</button>`;
+  }
+  const t = day(tid);
+  const [stIc, stTxt] = ST[t.state];
+  const st = `<span class="jd-daynav__st is-${t.state}">${ic(stIc)}</span>`;
+  const lab = `<span class="jd-daynav__lbl">#${t.id} <span class="jd-daynav__date">· ${fShort(t.date)}</span></span>`;
+  const kbd = dir < 0 ? 'Shift + ←' : 'Shift + →';
+  return `<button type="button" class="jd-daynav__btn" data-dir="${dir}" data-tip="${lbl} · ${kbd}"
+    aria-label="${lbl}: JUDI #${t.id}, ${fAria(t.date)}, ${stTxt}" aria-keyshortcuts="${dir < 0 ? 'Shift+ArrowLeft' : 'Shift+ArrowRight'}">
+    ${dir < 0 ? ic('left') + st + lab : lab + st + ic('right')}</button>`;
+}
+
+function header(f) {
+  const d = day(f.id);
+  const isToday = d.id === TODAY_ID;
+  const playing = d.state === 'new' || d.state === 'half';
+  const left = 6 - d.used;
+  const right = playing
+    ? `<span class="jd-lives">Quedan <b class="${left <= 2 ? 'is-low' : ''}">${left}</b> ${left === 1 ? 'intento' : 'intentos'}</span>`
+    : `<span class="jd-pips">${Array.from({ length: 6 }, (_, i) => {
+        const hitAt = d.state === 'hit' ? d.used - 1 : -1;
+        if (i === hitAt) return `<span class="jd-pip is-hit">${ic('check')}</span>`;
+        if (i < d.used) return `<span class="jd-pip is-miss">${ic('x')}</span>`;
+        return `<span class="jd-pip"></span>`;
+      }).join('')}</span>`;
+  return `<div class="jd-game__top">
+    <button type="button" class="hg-icon-btn jd-back" aria-label="Volver al historial">${ic('back')}</button>
+    <div class="jd-game__title jd-title-swap" data-k="${f.seq}">
+      <h1 class="jd-game__heading">JUDI #${d.id}
+        ${isToday ? `<span class="hg-chip hg-tint st-todos">${ic('clock')} Juego de hoy</span>` : '<span class="hg-chip jd-chip--plain">Archivo</span>'}</h1>
+      <p class="jd-game__date">${fLong(d.date)}</p>
+    </div>
+    <div class="jd-game__right">
+      ${right}
+      <nav class="jd-daynav" aria-label="Cambiar de día">${navBtn(-1, d.id)}${navBtn(1, d.id)}</nav>
+    </div>
+  </div>`;
+}
+
+function body(f) {
+  const d = day(f.id);
+  const playing = d.state === 'new' || d.state === 'half';
+  const unlocked = playing ? d.used + 1 : 6;
+  const phases = Array.from({ length: 6 }, (_, i) =>
+    `<button class="jd-phase${i === unlocked - 1 ? ' is-on' : ''}" ${i >= unlocked ? 'disabled' : ''}>${i + 1}</button>`).join('');
+  const stage = `<div><div class="jd-stage"><div class="jd-stage__art">${ic('image')}Captura ${unlocked} de 6</div></div><div class="jd-phases">${phases}</div></div>`;
+  let side;
+  if (playing) {
+    side = guessPanel(d, { mob: f.mob, fresh: f.fresh });
+    f.fresh = null;
+  } else {
+    const hit = d.state === 'hit';
+    side = `<div class="jd-side">
+      <div class="jd-res is-${d.state}"><span class="jd-res__ico">${ic(hit ? 'check' : 'x')}</span>
+        <div><div class="jd-res__t">${hit ? `¡Acertado en ${d.used}!` : 'Esta vez no'}</div><div class="jd-res__s">Era <b style="color:var(--foreground)">${d.name}</b></div></div></div>
+      <button class="jd-btn">Siguiente reto ${ic('arrowR')}</button>
+      <button class="jd-btn jd-btn--ghost">Volver al historial</button></div>`;
+  }
+  return `<div class="jd-game__grid">${stage}${side}</div>`;
+}
+
+/* ── Panel de respuesta con «Saltar» ── */
+let variant = 'a';
+let confirmOn = false;
+
+function skipBtn(o) {
+  return `<button type="button" class="jd-skip" data-act="skip" ${o.checking ? 'disabled' : ''}
+      aria-label="${o.confirm ? 'Confirmar: saltar esta captura y perder un intento' : 'Saltar captura (pierdes un intento)'}" title="${o.confirm ? '' : 'Saltar · pierdes un intento sin elegir título'}">
+    ${ic('skip')}<span class="jd-skip__lbl">Saltar</span><span class="jd-skip__cost">−1</span><span class="jd-skip__ask">¿Saltar? −1 intento</span>
+    ${o.confirm && !o.static ? '<span class="jd-skip__bar" aria-hidden="true"></span>' : ''}</button>`;
+}
+
+function results(text) {
+  const q = text.trim().toLowerCase();
+  if (q.length < 2) return null;
+  return NAMES.filter((n) => n.toLowerCase().includes(q)).slice(0, 6);
+}
+function dropdown(text, d) {
+  const r = results(text);
+  if (!r) return '';
+  const tried = new Set(d.tries.filter((t) => t.kind === 'miss').map((t) => t.name));
+  return `<ul class="jd-guess__dropdown" role="listbox" aria-label="Juegos">${r.length === 0
+    ? `<li class="jd-guess__empty">Ningún juego del pool coincide con «${text.trim()}».</li>`
+    : r.map((n, i) => `<li role="presentation"><button type="button" role="option" class="jd-guess__option${i === 0 ? ' is-hl' : ''}" data-pick="${n}" ${tried.has(n) ? 'disabled style="color:var(--muted);text-decoration:line-through"' : ''}>
+        <span>${n}</span>${i === 0 ? '<kbd class="hg-kbd">Intro</kbd>' : ''}</button></li>`).join('')}</ul>`;
+}
+
+function guessPanel(d, o = {}) {
+  const text = o.text ?? '';
+  const cls = ['jd-guess', `v-${o.variant ?? variant}`, text ? 'has-text' : '', o.confirm ? 'is-confirm' : ''].filter(Boolean).join(' ');
+  const tries = d.tries.length ? `<div class="jd-tries"><h2 class="jd-panel__title">Tus intentos</h2><ul class="jd-tries__list">${d.tries.map((t, i) =>
+    `<li class="jd-try jd-try--${t.kind}${o.fresh === i ? ' jd-fx-chip' : ''}"><span class="jd-try__icon">${ic(t.kind === 'miss' ? 'x' : 'skip')}</span>${t.kind === 'miss' ? t.name : 'Saltado'}</li>`).join('')}</ul></div>` : '';
+  return `<aside class="jd-panel"><div class="jd-guess-block">
+    <div class="jd-panel__head"><label class="jd-panel__title">¿Qué juego es?</label>
+      <span class="jd-stake hg-tint st-todos">${ic('trophy')} +${6 - d.used} si aciertas</span></div>
+    <div class="${cls}">
+      <span class="jd-guess__icon">${ic('search')}</span>
+      <input class="hg-input jd-guess__input" value="${o.checking && o.checkingName ? o.checkingName : text}" placeholder="Nombre del juego"
+        ${o.checking ? 'disabled' : ''} autocomplete="off" spellcheck="false" aria-label="¿Qué juego es?" role="combobox">
+      ${o.checking ? '<span class="jd-guess__spinner" aria-hidden="true"></span>' : ''}
+      ${skipBtn(o)}
+      <div class="jd-dd">${o.open ? dropdown(text, d) : ''}</div>
+    </div>
+    <p class="jd-guess__help">Cada fallo o salto abre otra captura y una pista.</p>
+    ${tries ? `<div style="margin-top:.875rem">${tries}</div>` : ''}
+  </div></aside>`;
+}
+
+/** Cómo es hoy (referencia para comparar). */
+function oldPanel(d) {
+  return `<aside class="jd-panel"><div class="jd-guess-block">
+    <div class="jd-panel__head"><label class="jd-panel__title">¿Qué juego es?</label>
+      <span class="jd-stake hg-tint st-todos">${ic('trophy')} +${6 - d.used} si aciertas</span></div>
+    <div class="jd-guess"><span class="jd-guess__icon">${ic('search')}</span><input class="hg-input" placeholder="Escribe el nombre del juego"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:.5rem">
+      <p class="jd-guess__help" style="margin:0">Cada fallo o salto abre otra captura y una pista.</p>
+      <button type="button" style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 8px;border:0;border-radius:8px;background:none;font-size:.8125rem;font-weight:600;white-space:nowrap">${ic('skip')} Saltar <span style="color:var(--muted);font-weight:500">(−1 intento)</span></button>
+    </div></div></aside>`;
+}
+
+function renderStates() {
+  const d = { used: 2, tries: [{ kind: 'miss', name: 'Celeste' }, { kind: 'skip' }], name: 'Hades' };
+  const cell = (title, html, w = 360) => `<div><div class="vlabel" style="font-size:.875rem;font-weight:700;margin-bottom:8px">${title}</div><div class="frame" style="width:${w}px;padding:16px">${html}</div></div>`;
+  document.getElementById('states').innerHTML = [
+    cell('Hoy', oldPanel(d)),
+    cell('Vacío', guessPanel(d, { static: true })),
+    cell('Escribiendo · se encoge', guessPanel(d, { static: true, text: 'Hollow' })),
+    cell('Primer toque · confirmar', guessPanel(d, { static: true, confirm: true })),
+    cell('Comprobando', guessPanel(d, { static: true, checking: true, checkingName: 'Hollow Knight', text: 'Hollow Knight' })),
+    cell('Móvil · 358 px', guessPanel(d, { static: true, mob: true }), 358),
+  ].join('');
+  document.querySelectorAll('#states input').forEach((i) => { i.tabIndex = -1; i.readOnly = true; });
+  syncSkipWidths(document.getElementById('states'));
+}
+
+function syncSkipWidths(root) {
+  root.querySelectorAll('.v-a:not(.has-text):not(.is-confirm), .v-b').forEach((g) => { const b = g.querySelector('.jd-skip'); if (b) g.style.setProperty('--skip-w', b.offsetWidth + 'px'); });
+}
+
+/* Interacción del panel en los marcos */
+function guessEl(key) { return frames[key].el.querySelector('.jd-guess'); }
+function cancelConfirm(key) {
+  const g = guessEl(key);
+  clearTimeout(frames[key].confirmT);
+  if (!g || !g.classList.contains('is-confirm')) return;
+  g.classList.remove('is-confirm');
+  g.querySelector('.jd-skip__bar')?.remove();
+  g.querySelector('.jd-skip').setAttribute('aria-label', 'Saltar captura (pierdes un intento)');
+}
+function askConfirm(key) {
+  const g = guessEl(key);
+  g.classList.add('is-confirm');
+  const b = g.querySelector('.jd-skip');
+  b.setAttribute('aria-label', 'Confirmar: saltar esta captura y perder un intento');
+  if (!reduced()) b.insertAdjacentHTML('beforeend', '<span class="jd-skip__bar" aria-hidden="true"></span>');
+  frames[key].confirmT = setTimeout(() => cancelConfirm(key), 3000);
+}
+function submit(key, guess) {
+  const f = frames[key];
+  const g = guessEl(key);
+  cancelConfirm(key);
+  g.querySelector('.jd-dd').innerHTML = '';
+  const input = g.querySelector('input');
+  if (guess) input.value = guess;
+  input.disabled = true;
+  g.querySelector('.jd-skip').disabled = true;
+  g.insertAdjacentHTML('beforeend', '<span class="jd-guess__spinner" aria-hidden="true"></span>');
+  setTimeout(() => {
+    const d = day(f.id);
+    const kind = attempt(d, guess);
+    if (kind !== 'hit') f.fresh = d.tries.length - 1;
+    render(key, 0, true);
+    const ng = guessEl(key);
+    if (ng) {
+      if (kind === 'miss' && !reduced()) ng.classList.add('is-shake');
+      ng.querySelector('input').focus();
+    }
+    showToast(kind === 'hit' ? '¡Acertado!' : kind === 'skip' ? 'Saltado · −1 intento' : 'Fallo · −1 intento');
+  }, slow ? 1200 : 500);
+}
+
+document.addEventListener('input', (e) => {
+  const fr = e.target.closest('.frame[data-frame]');
+  if (!fr || !e.target.matches('.jd-guess__input')) return;
+  const key = fr.dataset.frame;
+  const g = guessEl(key);
+  cancelConfirm(key);
+  g.classList.toggle('has-text', e.target.value.length > 0);
+  g.querySelector('.jd-dd').innerHTML = dropdown(e.target.value, day(frames[key].id));
+});
+document.addEventListener('focusin', (e) => {
+  const fr = e.target.closest?.('.frame[data-frame]');
+  if (fr && e.target.matches('.jd-guess__input')) cancelConfirm(fr.dataset.frame);
+});
+document.addEventListener('keydown', (e) => {
+  const fr = e.target.closest?.('.frame[data-frame]');
+  if (!fr) return;
+  const key = fr.dataset.frame;
+  if (e.key === 'Escape') { cancelConfirm(key); const dd = guessEl(key)?.querySelector('.jd-dd'); if (dd) dd.innerHTML = ''; }
+  if (e.key === 'Enter' && e.target.matches('.jd-guess__input')) {
+    const first = guessEl(key).querySelector('[data-pick]:not(:disabled)');
+    if (first) { e.preventDefault(); submit(key, first.dataset.pick); }
+  }
+});
+
+function skeleton(f) {
+  return `<div class="jd-game__grid"><div><div class="sk" style="aspect-ratio:16/9"></div><div class="sk" style="height:36px;margin-top:10px;border-radius:8px"></div></div>
+    <div class="sk" style="height:${f.mob ? 160 : 260}px"></div></div>`;
+}
+
+function render(key, dir = 0, keepTitle = false) {
+  const f = frames[key];
+  clearTimeout(f.confirmT);
+  const seq = ++f.seq;
+  const wait = dir === 0 ? 0 : slow ? 1200 : 260;
+  f.el.innerHTML = `<section class="jd-game">${header(f)}<div class="jd-body">${wait ? skeleton(f) : body(f)}</div></section>`;
+  if (keepTitle) f.el.querySelector('.jd-title-swap')?.classList.remove('jd-title-swap');
+  syncSkipWidths(f.el);
+  if (!wait) return;
+  setTimeout(() => {
+    if (seq !== f.seq) return; // ya se ha cambiado de día otra vez
+    const b = f.el.querySelector('.jd-body');
+    b.innerHTML = `<div class="jd-swap" data-dir="${dir}">${body(f)}</div>`;
+    syncSkipWidths(f.el);
+  }, wait);
+}
+
+function go(key, dir) {
+  const f = frames[key];
+  const t = f.id + dir;
+  if (t < 1 || t > TODAY_ID) return false;
+  f.id = t;
+  // Mantener el foco en el mismo botón tras re-renderizar (si sigue activo)
+  const focused = f.el.contains(document.activeElement) && document.activeElement.dataset.dir;
+  render(key, dir);
+  if (focused) {
+    const btn = f.el.querySelector(`.jd-daynav__btn[data-dir="${focused}"]`);
+    (btn && !btn.disabled ? btn : f.el.querySelector('.jd-daynav__btn:not(:disabled)'))?.focus();
+  }
+  return true;
+}
+
+function setActive(key) {
+  active = key;
+  document.querySelectorAll('.frame').forEach((el) => el.classList.toggle('is-active', el.dataset.frame === key));
+}
+
+document.addEventListener('click', (e) => {
+  const fr = e.target.closest('.frame');
+  if (fr) setActive(fr.dataset.frame);
+  const nb = e.target.closest('.jd-daynav__btn');
+  if (nb && fr) go(fr.dataset.frame, Number(nb.dataset.dir));
+  const g = e.target.closest('[data-go]');
+  if (g) {
+    const key = g.closest('.tests').dataset.for;
+    setActive(key);
+    frames[key].id = g.dataset.go === 'first' ? 1 : g.dataset.go === 'today' ? TODAY_ID : 314;
+    render(key);
+  }
+  const s = e.target.closest('[data-slow]');
+  if (s) { slow = !slow; s.setAttribute('aria-pressed', slow); }
+  const sk = e.target.closest('.jd-skip');
+  if (sk && fr && fr.dataset.frame && !sk.disabled) {
+    const key = fr.dataset.frame;
+    if (confirmOn && !guessEl(key).classList.contains('is-confirm')) askConfirm(key);
+    else submit(key, null);
+  }
+  const pk = e.target.closest('[data-pick]');
+  if (pk && fr && fr.dataset.frame) submit(fr.dataset.frame, pk.dataset.pick);
+  const v = e.target.closest('[data-variant]');
+  if (v) {
+    variant = v.dataset.variant;
+    document.querySelectorAll('[data-variant]').forEach((b) => b.setAttribute('aria-pressed', b === v));
+    renderStates(); render('desk', 0, true); render('mob', 0, true);
+  }
+  if (e.target.closest('#confirmBtn')) {
+    confirmOn = !confirmOn;
+    e.target.closest('#confirmBtn').setAttribute('aria-pressed', confirmOn);
+    cancelConfirm('desk'); cancelConfirm('mob');
+  }
+});
+
+const toast = document.getElementById('keytoast');
+let toastT;
+function showToast(msg) { toast.textContent = msg; toast.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toast.classList.remove('on'), 900); }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  if (e.target.closest && e.target.closest('input, textarea, select')) return;
+  const dir = e.key === 'ArrowLeft' ? -1 : 1;
+  if (e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
+    e.preventDefault();
+    const moved = go(active, dir);
+    showToast(moved ? `Shift + ${dir < 0 ? '←' : '→'} · ${dir < 0 ? 'día anterior' : 'día siguiente'}` : (dir < 0 ? 'Ya estás en el primer JUDI' : 'Ya estás en el JUDI de hoy'));
+  } else if (!e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
+    showToast(`${dir < 0 ? '←' : '→'} · cambia de captura (como hoy)`);
+  }
+});
+
+document.getElementById('themeBtn').addEventListener('click', (e) => {
+  const h = document.documentElement;
+  h.classList.add('theme-anim');
+  const dark = h.dataset.theme !== 'dark';
+  h.dataset.theme = dark ? 'dark' : 'light';
+  e.currentTarget.setAttribute('aria-pressed', dark);
+  e.currentTarget.textContent = dark ? 'Tema claro' : 'Tema oscuro';
+  setTimeout(() => h.classList.remove('theme-anim'), 350);
+});
+document.getElementById('reduceBtn').addEventListener('click', (e) => {
+  const on = document.documentElement.classList.toggle('reduce');
+  e.currentTarget.setAttribute('aria-pressed', on);
+});
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) { document.documentElement.classList.add('reduce'); document.getElementById('reduceBtn').setAttribute('aria-pressed', 'true'); }
+
+renderStates(); render('desk'); render('mob');
+</script>
+</body>
+</html>

@@ -36,7 +36,8 @@ function Highlight({ name, query }: { name: string; query: string }) {
 
 /**
  * Campo «¿Qué juego es?»: busca en el pool de JUDI, ↑/↓ mueve el resaltado (saltando los ya probados) e Intro elige el
- * resaltado (nunca envía el texto a medias). «Saltar» al lado, con su coste. Al fallar, el campo tiembla (`missKey`).
+ * resaltado (nunca envía el texto a medias). «Saltar» va dentro del campo, a la derecha, con su coste; al escribir se
+ * encoge a solo el icono para dejar sitio al nombre. Al fallar, el campo tiembla (`missKey`).
  */
 export default function JudiGuess({
     tried,
@@ -142,6 +143,7 @@ export default function JudiGuess({
     }
 
     const showList = open && query.trim().length >= 2 && !checking
+    const inputValue = checking ? (checkingName ?? '') : query
     const listId = `${id}-list`
 
     return (
@@ -154,14 +156,14 @@ export default function JudiGuess({
                     <Trophy aria-hidden />
                 </AnimatedCount>
             </div>
-            <div ref={shakeRef} className="jd-guess">
+            <div ref={shakeRef} className={`jd-guess${inputValue ? ' has-text' : ''}`}>
                 <Search size={16} className="jd-guess__icon" aria-hidden />
                 <input
                     ref={inputRef}
                     id={`${id}-input`}
                     type="text"
                     className="hg-input jd-guess__input"
-                    value={checking ? (checkingName ?? '') : query}
+                    value={inputValue}
                     onChange={(e) => {
                         setQuery(e.target.value)
                         setOpen(true)
@@ -170,7 +172,7 @@ export default function JudiGuess({
                     onFocus={() => setOpen(true)}
                     onBlur={() => setTimeout(() => setOpen(false), 150)}
                     onKeyDown={onKeyDown}
-                    placeholder="Escribe el nombre del juego"
+                    placeholder="Nombre del juego"
                     disabled={checking}
                     autoComplete="off"
                     autoCapitalize="none"
@@ -184,6 +186,19 @@ export default function JudiGuess({
                     aria-activedescendant={showList && hl >= 0 ? `${id}-opt-${hl}` : undefined}
                 />
                 {(searching || checking) && <span className="jd-guess__spinner" aria-hidden />}
+                <button
+                    type="button"
+                    className="jd-skip"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={onSkip}
+                    disabled={checking}
+                    aria-label="Saltar captura (pierdes un intento)"
+                    title="Saltar · pierdes un intento sin elegir título"
+                >
+                    <SkipForward aria-hidden />
+                    <span className="jd-skip__lbl">Saltar</span>
+                    <span className="jd-skip__cost">−1</span>
+                </button>
                 {showList && (results.length > 0 || !searching) && (
                     <ul id={listId} className="jd-guess__dropdown soft-scrollbar" role="listbox" aria-label="Juegos">
                         {results.length === 0 ? (
@@ -234,12 +249,7 @@ export default function JudiGuess({
                     </Button>
                 </div>
             )}
-            <div className="jd-guess__row">
-                <p className="jd-guess__help">Cada fallo o salto abre otra captura y una pista.</p>
-                <Button size="sm" variant="ghost" onClick={onSkip} disabled={checking} title="Pierdes un intento sin elegir título">
-                    <SkipForward aria-hidden /> Saltar <span className="jd-guess__cost">(−1 intento)</span>
-                </Button>
-            </div>
+            <p className="jd-guess__help">Cada fallo o salto abre otra captura y una pista.</p>
             {attempts.length > 0 && (
                 <div className="jd-tries">
                     <h2 className="jd-panel__title">Tus intentos</h2>
