@@ -38,6 +38,10 @@ export interface SteamSyncResult {
     newToTray: number
     catalogFetched: number
     catalogPending: number
+    /** Prestados del grupo familiar (#86) con horas nuevas, dados de alta y error al consultarlos (no para la sincronización). */
+    borrowedUpdated: number
+    borrowedAdded: number
+    borrowedError: string | null
 }
 
 export class SteamSyncError extends Error {}
@@ -62,6 +66,79 @@ async function fetchOwnedGames(steamid: string): Promise<OwnedGame[]> {
         throw new SteamSyncError('Steam no devuelve juegos: revisa que el perfil y los detalles de juego sean públicos')
     }
     return response.games
+}
+
+/**
+ * Jugados en las últimas 2 semanas, con horas totales. A diferencia de GetOwnedGames, incluye los prestados del grupo
+ * familiar (#86), y solo pide la clave de la Web API: así sus horas y logros siguen al día sin el login por QR.
+ */
+async function fetchRecentlyPlayed(steamid: string): Promise<OwnedGame[]> {
+    const key = process.env.STEAM_WEB_API_KEY
+    if (!key) throw new SteamSyncError('Falta STEAM_WEB_API_KEY')
+    const res = await fetch(`${STEAM_API}/IPlayerService/GetRecentlyPlayedGames/v1/?key=${key}&steamid=${steamid}&count=0&format=json`, {
+        cache: 'no-store',
+    })
+    if (!res.ok) throw new SteamSyncError(`GetRecentlyPlayedGames: ${res.status}`)
+    const games = (await res.json())?.response?.games
+    return Array.isArray(games) ? games : []
+}
+
+interface BorrowedPlayResult {
+    /** Prestados con horas nuevas (se les revisan los logros). */
+    updated: number
+    /** Prestados que no conocíamos: entran como «Del grupo», sin saber aún quién los presta. */
+    added: number[]
+}
+
+/**
+ * Horas de los prestados que has jugado. Steam no da su última partida, así que si las horas suben se pone «ahora»:
+ * la sincronización es diaria y eso basta para la Bandeja, las reglas y para que se revisen sus logros.
+ */
+async function syncBorrowedPlaytime(supabase: Client, userId: string, recent: OwnedGame[], ownedIds: Set<number>): Promise<BorrowedPlayResult> {
+    const candidates = recent.filter((g) => Number.isInteger(g.appid) && !ownedIds.has(g.appid))
+    if (candidates.length === 0) return { updated: 0, added: [] }
+
+    const { data: stored, error } = await supabase
+        .from('hubgames_user_steam_games')
+        .select('appid, source, playtime_forever, rtime_last_played, family_gone_at')
+        .eq('user_id', userId)
+        .in('appid', candidates.map((g) => g.appid))
+    if (error) throw new SteamSyncError(`No se pudieron leer los prestados: ${error.message}`)
+    const byId = new Map(stored.map((r) => [r.appid, r]))
+
+    // Solo se dan de alta prestados nuevos si alguna vez se ha cargado el grupo: sin grupo, lo jugado y no comprado
+    // será un fin de semana gratis o similar.
+    const { data: link, error: linkError } = await supabase.from('hubgames_user_steam').select('family_synced_at').eq('user_id', userId).maybeSingle()
+    if (linkError) throw new SteamSyncError(`No se pudo leer la vinculación: ${linkError.message}`)
+    const hasFamily = !!link?.family_synced_at
+
+    const now = new Date().toISOString()
+    const rows = candidates.flatMap((g) => {
+        const row = byId.get(g.appid)
+        const minutes = g.playtime_forever ?? 0
+        // Lo tuyo ya lo ha guardado GetOwnedGames; si GetOwnedGames no lo trae, mejor no tocarlo.
+        if (row?.source === 'own') return []
+        if (!row && !hasFamily) return []
+        const playedMore = !row || minutes > (row.playtime_forever ?? 0)
+        if (!playedMore && !row?.family_gone_at) return []
+        return [
+            {
+                user_id: userId,
+                appid: g.appid,
+                source: 'family',
+                // Si lo puedes jugar, sigue en el grupo.
+                family_gone_at: null,
+                playtime_forever: Math.max(minutes, row?.playtime_forever ?? 0),
+                playtime_2weeks: g.playtime_2weeks ?? 0,
+                rtime_last_played: playedMore ? now : (row?.rtime_last_played ?? null),
+            },
+        ]
+    })
+    for (const part of chunks(rows, UPSERT_CHUNK)) {
+        const { error: upsertError } = await supabase.from('hubgames_user_steam_games').upsert(part, { onConflict: 'user_id,appid' })
+        if (upsertError) throw new SteamSyncError(`No se pudieron guardar las horas de los prestados: ${upsertError.message}`)
+    }
+    return { updated: rows.filter((r) => byId.has(r.appid)).length, added: rows.filter((r) => !byId.has(r.appid)).map((r) => r.appid) }
 }
 
 /** Reintenta con espera si Steam responde 429 (límite de velocidad). */
@@ -199,7 +276,8 @@ async function fillCatalog(
 export async function syncSteamLibrary(supabase: Client, userId: string, options: SteamSyncOptions = {}): Promise<SteamSyncResult> {
     const log = options.log ?? (() => {})
 
-    const owned = await fetchOwnedGames(await getSteamId(supabase, userId))
+    const steamid = await getSteamId(supabase, userId)
+    const owned = await fetchOwnedGames(steamid)
     log(`Biblioteca: ${owned.length} juegos`)
 
     // Horas y última partida. first_seen_at no se envía: lo fija el default al insertar y se conserva al actualizar.
@@ -220,11 +298,23 @@ export async function syncSteamLibrary(supabase: Client, userId: string, options
         if (error) throw new SteamSyncError(`No se pudo guardar la biblioteca: ${error.message}`)
     }
 
+    // Prestados del grupo familiar que has jugado (#86). Si falla, la biblioteca propia sigue adelante.
+    const ownedIds = new Set(owned.map((g) => g.appid))
+    let borrowedPlay: BorrowedPlayResult = { updated: 0, added: [] }
+    let borrowedError: string | null = null
+    try {
+        borrowedPlay = await syncBorrowedPlaytime(supabase, userId, await fetchRecentlyPlayed(steamid), ownedIds)
+        log(`Prestados jugados: ${borrowedPlay.updated} con horas nuevas, ${borrowedPlay.added.length} nuevos`)
+    } catch (e) {
+        borrowedError = e instanceof Error ? e.message : String(e)
+        log(`Prestados jugados falló: ${borrowedError}`)
+    }
+
     // Los juegos nuevos entran en la Bandeja; los que ya tienen estado se dejan como están.
     const { data: existing, error: existingError } = await supabase.from('hubgames_user_games').select('appid').eq('user_id', userId)
     if (existingError) throw new SteamSyncError(`No se pudieron leer tus juegos: ${existingError.message}`)
     const tracked = new Set(existing.map((r) => r.appid))
-    const fresh = owned.filter((g) => !tracked.has(g.appid))
+    const fresh = [...owned.map((g) => g.appid), ...borrowedPlay.added].filter((appid) => !tracked.has(appid)).map((appid) => ({ appid }))
     for (const part of chunks(fresh, UPSERT_CHUNK)) {
         const { error } = await supabase
             .from('hubgames_user_games')
@@ -240,7 +330,6 @@ export async function syncSteamLibrary(supabase: Client, userId: string, options
     const borrowed = await selectAll<{ appid: number }>((from, to) =>
         supabase.from('hubgames_user_steam_games').select('appid').eq('user_id', userId).eq('source', 'family').is('family_gone_at', null).order('appid').range(from, to),
     )
-    const ownedIds = new Set(owned.map((g) => g.appid))
     const { fetched, pending } = await fillCatalog(supabase, [...owned, ...borrowed.filter((b) => !ownedIds.has(b.appid))], options)
 
     const { error: touchError } = await supabase
@@ -249,7 +338,15 @@ export async function syncSteamLibrary(supabase: Client, userId: string, options
         .eq('user_id', userId)
     if (touchError) throw new SteamSyncError(`No se pudo marcar la sincronización: ${touchError.message}`)
 
-    return { ownedGames: owned.length, newToTray: fresh.length, catalogFetched: fetched, catalogPending: pending }
+    return {
+        ownedGames: owned.length,
+        newToTray: fresh.length,
+        catalogFetched: fetched,
+        catalogPending: pending,
+        borrowedUpdated: borrowedPlay.updated,
+        borrowedAdded: borrowedPlay.added.length,
+        borrowedError,
+    }
 }
 
 // ─── Wishlist y precios (#35, #36) ───────────────────────────────────────────
@@ -685,6 +782,7 @@ export async function runSteamSync(
 
         const complete =
             library.catalogPending === 0 &&
+            library.borrowedError === null &&
             wishlist !== null &&
             wishlist.catalogPending === 0 &&
             wishlist.pricesError === null &&
