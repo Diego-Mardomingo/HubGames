@@ -189,8 +189,8 @@ export default function Nav() {
                       links: [
                           { key: 'lib', href: '/biblioteca', label: 'Biblioteca', icon: Library },
                           { key: 'ach', href: '/logros', label: 'Logros', icon: Award },
-                          // En móvil no caben en la barra inferior: se llega desde la biblioteca y desde "Tu año".
-                          { key: 'wish', href: '/wishlist', label: 'Wishlist', icon: Heart, desktopOnly: true },
+                          { key: 'wish', href: '/wishlist', label: 'Wishlist', icon: Heart },
+                          // En móvil no cabe en la barra inferior: se llega desde la biblioteca y desde "Tu año".
                           { key: 'stats', href: '/estadisticas', label: 'Estadísticas', icon: BarChart3, desktopOnly: true },
                       ] satisfies NavLink[],
                   },
@@ -200,8 +200,9 @@ export default function Nav() {
             title: 'Juego diario',
             links: [
                 { key: 'judi', href: '/judi', label: 'JUDI', icon: Gamepad2 },
-                { key: 'rank', href: '/ranking', label: 'Ranking', icon: Trophy },
-            ],
+                // Con sesión, en móvil deja su sitio a la Wishlist: se llega desde el historial del JUDI y el perfil.
+                { key: 'rank', href: '/ranking', label: 'Ranking', icon: Trophy, desktopOnly: Boolean(user) },
+            ] satisfies NavLink[],
         },
         ...(isAdmin ? [{ title: 'Administración', links: [{ key: 'admin', href: '/admin', label: 'Admin', icon: Shield }] satisfies NavLink[] }] : []),
     ]
