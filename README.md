@@ -1,7 +1,7 @@
 <div align="center">
   <img src="docs/readme/hero.png" alt="HubGames: tu biblioteca de Steam, tus logros y qué jugar hoy" width="100%">
   <p>
-    <a href="docs/readme/hubgames-promo.mp4"><strong>▶ Ver el vídeo</strong></a>
+    <a href="https://github.com/user-attachments/assets/19047dd3-a57a-478d-b24b-fbe2391d8e6b"><strong>▶ Ver el vídeo</strong></a>
   </p>
 </div>
 
@@ -15,11 +15,9 @@ Tú solo decides a qué jugar. Y si no lo tienes claro, también te echa una man
 
 > Es privada: se entra por invitación. Si estás leyendo esto y quieres probarla, pídemela.
 
-<div align="center">
-  <a href="docs/readme/hubgames-promo.mp4"><img src="docs/readme/video.png" alt="Ver el vídeo de HubGames" width="80%"></a>
-  <br>
-  <sub>Un recorrido rápido. Clic para reproducirlo.</sub>
-</div>
+https://github.com/user-attachments/assets/19047dd3-a57a-478d-b24b-fbe2391d8e6b
+
+<p align="center"><sub>Un recorrido rápido de 48 segundos.</sub></p>
 
 <img src="docs/readme/screens.png" alt="Inicio, biblioteca, logros, wishlist y JUDI, en escritorio y móvil, en claro y oscuro" width="100%">
 
