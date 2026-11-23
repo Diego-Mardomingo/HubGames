@@ -3,7 +3,7 @@
 // Puro (con tests en recommend.test.ts): lo que falta según HowLongToBeat, la posición en la cola,
 // cuánto hace que no lo juegas y el % de logros.
 import { remainingMinutes } from './dashboard'
-import { gameDuration } from './library'
+import { gameDuration, inBacklog } from './library'
 import { formatHours } from './format'
 import { isAtHistoricalLow } from './wishlist'
 import type { LibraryGame } from './tracker'
@@ -76,9 +76,12 @@ function signals(g: LibraryGame, session: SessionLength, mood: Mood, now: number
     if (!g.owned && mood !== 'nuevo') return null
     // Los juegos sin final y los rejugables no se terminan: ni "te falta poco", ni "cabe en tu sesión", ni "es corto".
     const replayable = g.endless || g.status === 'rejugable'
-    const remaining = replayable ? null : remainingMinutes(g)
+    // Añadido a Pendientes con su estado (#140): un completado, ya jugado... al que vuelves. Se propone como algo que
+    // empezar de nuevo: sus horas de antes no cuentan para «te falta poco».
+    const revisit = inBacklog(g) && g.status !== 'pendiente'
     const main = replayable ? null : gameDuration(g).main
-    const started = g.playtime_forever >= STARTED_MIN || g.status === 'jugando'
+    const remaining = replayable ? null : revisit ? main : remainingMinutes(g)
+    const started = !revisit && (g.playtime_forever >= STARTED_MIN || g.status === 'jugando')
     const last = daysAgo(g.rtime_last_played, now)
     const ach = achievementInfo(g)
     const sessionMin = SESSION_MINUTES[session]
@@ -93,7 +96,7 @@ function signals(g: LibraryGame, session: SessionLength, mood: Mood, now: number
             break
         }
         case 'nuevo': {
-            if (g.status !== 'pendiente' || g.playtime_forever >= STARTED_MIN) return null
+            if (!inBacklog(g) || started) return null
             const pos = g.backlog_position
             out.push(
                 pos !== null
@@ -134,7 +137,7 @@ function signals(g: LibraryGame, session: SessionLength, mood: Mood, now: number
     }
 
     // La cola cuenta un poco aunque no busques algo nuevo.
-    if (mood !== 'nuevo' && g.status === 'pendiente' && g.backlog_position !== null) {
+    if (mood !== 'nuevo' && inBacklog(g) && g.backlog_position !== null) {
         out.push({ points: 0.6 / (1 + g.backlog_position / 3) })
     }
     // Y los logros, si ya vas avanzado.
@@ -150,14 +153,14 @@ export function recommendedStatuses(session: SessionLength): LibraryGame['status
 }
 
 /**
- * Juegos en Jugando y Pendientes (y Rejugables con sesión corta) ordenados de mejor a peor propuesta. La UI enseña
+ * Juegos en Jugando y Pendientes (con los añadidos con su estado, #140; y Rejugables con sesión corta) ordenados de mejor a peor propuesta. La UI enseña
  * los 3 primeros y "Otra" pasa a los siguientes. `seed` cambia el orden de "Sorpréndeme".
  */
 export function recommend(games: LibraryGame[], session: SessionLength, mood: Mood, now: number = Date.now(), seed = 0): Recommendation[] {
     const out: Recommendation[] = []
     const statuses = recommendedStatuses(session)
     for (const game of games) {
-        if (!statuses.includes(game.status)) continue
+        if (!statuses.includes(game.status) && !inBacklog(game)) continue
         const s = signals(game, session, mood, now, seed)
         if (!s) continue
         const reasons = s

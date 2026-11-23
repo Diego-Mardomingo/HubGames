@@ -9,7 +9,7 @@ export const PLAYING_WINDOW_MS = 14 * DAY_MS
 /** Más de 30 días sin jugar estando en "Jugando" = se sugiere "Pausado". */
 export const IDLE_WINDOW_MS = 30 * DAY_MS
 
-/** Estados que pasan solos a "Jugando" si hay actividad. */
+/** Estados que pasan solos a "Jugando" si hay actividad (y los añadidos a Pendientes con su estado, ver `in_backlog`). */
 const AUTO_PLAYING_FROM: GameStatus[] = ['bandeja', 'pendiente', 'pausado']
 /**
  * Estados cerrados: nunca se tocan ni reciben sugerencias. "Ya jugado" y "Otros" son decisiones del usuario igual de
@@ -38,6 +38,12 @@ export interface RuleInput {
     /** Objetivo del juego (#24) y minutos de su meta según HowLongToBeat. Sin ellos, se usa la historia. */
     goal?: string | null
     goal_minutes?: number | null
+    /**
+     * Añadido a Pendientes con su estado (#140) y cuándo. Como cualquier pendiente, pasa a Jugando si lo juegas, pero
+     * solo con una partida posterior a añadirlo (lo que jugaste antes ya lo resolvía su estado).
+     */
+    in_backlog?: boolean
+    in_backlog_at?: string | null
 }
 
 export interface RuleOutput {
@@ -68,6 +74,12 @@ export function evaluateGame(game: RuleInput, now: number = Date.now()): RuleOut
     if (AUTO_PLAYING_FROM.includes(status) && playedRecently) {
         const manual = game.status_source === 'manual'
         if (!manual || (lastPlayed !== null && lastPlayed > changedAt)) {
+            status = 'jugando'
+            statusChanged = true
+        }
+    } else if (game.in_backlog && status !== 'jugando' && status !== 'descartado' && playedRecently) {
+        const addedAt = ms(game.in_backlog_at ?? null) ?? changedAt
+        if (lastPlayed !== null && lastPlayed > Math.max(addedAt, changedAt)) {
             status = 'jugando'
             statusChanged = true
         }

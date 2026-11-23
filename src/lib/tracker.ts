@@ -1,6 +1,6 @@
 // Tracker (#17): tipos de la vista hubgames_library y cambios de estado desde el navegador (RLS: cada usuario los suyos).
 import type { GameGoal } from './game-goal'
-import { parseLibraryHome, type LibraryHome } from './library'
+import { canMarkBacklog, parseLibraryHome, type LibraryHome } from './library'
 import { supabase } from './supabase/client'
 import type { Database, Json } from './supabase/database.types'
 
@@ -36,7 +36,7 @@ type LibraryRow = Database['public']['Tables']['hubgames_library']['Row']
 /** Fila de hubgames_library. La vista marca todo como nullable; estas columnas nunca lo son. */
 export type LibraryGame = Omit<
     LibraryRow,
-    'user_id' | 'appid' | 'status' | 'playtime_forever' | 'playtime_2weeks' | 'favorite' | 'endless' | 'owned'
+    'user_id' | 'appid' | 'status' | 'playtime_forever' | 'playtime_2weeks' | 'favorite' | 'endless' | 'owned' | 'in_backlog'
 > & {
     user_id: string
     appid: number
@@ -49,6 +49,11 @@ export type LibraryGame = Omit<
     endless: boolean
     /** false = pendiente sin comprar (no está en tu biblioteca de Steam). */
     owned: boolean
+    /**
+     * En Pendientes sin perder su estado (#140): un completado, ya jugado, abandonado... al que quieres volver. En la
+     * interfaz no tiene nombre propio: el juego «está en Pendientes». Ver `inBacklog` en library.ts.
+     */
+    in_backlog: boolean
 }
 
 export type GameMark = 'favorite' | 'endless'
@@ -129,11 +134,12 @@ export type StatusSnapshot = Pick<
     | 'suggestion'
     | 'favorite'
     | 'endless'
->
+> &
+    Partial<Pick<LibraryGame, 'in_backlog'>>
 
 export function statusSnapshot(game: LibraryGame): StatusSnapshot {
-    const { appid, status, status_source, status_changed_at, started_at, completed_at, rating, review, suggestion, favorite, endless } = game
-    return { appid, status, status_source, status_changed_at, started_at, completed_at, rating, review, suggestion, favorite, endless }
+    const { appid, status, status_source, status_changed_at, started_at, completed_at, rating, review, suggestion, favorite, endless, in_backlog } = game
+    return { appid, status, status_source, status_changed_at, started_at, completed_at, rating, review, suggestion, favorite, endless, in_backlog }
 }
 
 /** Deshacer (bandeja): devuelve cada juego a su estado anterior, con sus fechas, nota, reseña y marcas. */
@@ -153,6 +159,7 @@ export async function restoreGames(snapshots: StatusSnapshot[]): Promise<void> {
                     suggestion: s.suggestion,
                     favorite: s.favorite,
                     endless: s.endless,
+                    ...(s.in_backlog !== undefined ? { in_backlog: s.in_backlog } : {}),
                 })
                 .eq('appid', s.appid)
             if (res.error || (!s.status_changed_at && !s.suggestion)) return res
@@ -213,6 +220,37 @@ export async function setGameMark(appid: number, mark: GameMark, value: boolean)
         .eq('appid', appid)
     if (error) throw new Error(error.message)
     notifyChanged()
+}
+
+/**
+ * Añade a Pendientes (o quita) un juego que ya sigues sin cambiarle el estado (#140). Al final de tu orden, como un
+ * pendiente recién llegado. La base de datos la quita sola al pasar a Pendiente, Jugando o Descartado.
+ */
+export async function setInBacklog(appid: number, value: boolean): Promise<void> {
+    const { error } = await supabase
+        .from('hubgames_user_games')
+        .update(value ? { in_backlog: true, backlog_position: null } : { in_backlog: false })
+        .eq('appid', appid)
+    if (error) throw new Error(error.message)
+    notifyChanged()
+}
+
+/**
+ * «Añadir a Pendientes» desde el buscador o JUDI. Si no lo sigues, entra como pendiente sin comprar; si ya lo sigues
+ * con un estado que lo admite, se añade conservándolo (#140); en Jugando o Descartado pasa a Pendiente, como antes.
+ * Devuelve cómo queda: su estado y si está en Pendientes con él.
+ */
+export async function addToBacklog(appid: number, status: GameStatus | null): Promise<{ status: GameStatus; in_backlog: boolean }> {
+    if (!status) {
+        await addToPending(appid)
+        return { status: 'pendiente', in_backlog: false }
+    }
+    if (canMarkBacklog(status)) {
+        await setInBacklog(appid, true)
+        return { status, in_backlog: true }
+    }
+    await setGamesStatus([appid], 'pendiente')
+    return { status: 'pendiente', in_backlog: false }
 }
 
 /** Añade a Pendientes un juego que no tienes (trae su ficha, su precio y su mínimo). */

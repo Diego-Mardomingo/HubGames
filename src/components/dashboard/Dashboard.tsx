@@ -614,6 +614,8 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                                                         {name}
                                                     </Link>
                                                     <MarkFlags favorite={g.favorite} endless={g.endless} />
+                                                    {/* Añadido a Pendientes con su estado (#140): se ve cuál es. */}
+                                                    {g.status !== 'pendiente' && <StatusChip status={g.status} />}
                                                     {!g.owned && (
                                                         <span className="lib-own lib-own--no">
                                                             <ShoppingCart aria-hidden /> Sin comprar

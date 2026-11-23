@@ -2,6 +2,7 @@
  * Lógica pura del movimiento de la biblioteca y la ficha: qué le pasa a una fila al cambiar un juego (sale de la lista,
  * cambia de puesto o se queda), el cambio que se guarda al elegir un estado y cómo cuenta una cifra de horas.
  */
+import { canMarkBacklog } from './library'
 import type { GameStatus, LibraryGame } from './tracker'
 
 export type RowChange = { kind: 'leave'; index: number } | { kind: 'move'; from: number; to: number } | { kind: 'stay' } | { kind: 'none' }
@@ -33,6 +34,8 @@ export function statusPatch(game: LibraryGame, status: GameStatus, now: string, 
         suggestion: null,
         status_changed_at: now,
         ...(status === 'jugando' && !game.started_at && { started_at: now }),
+        // Como el trigger de la base de datos: en Pendiente, Jugando o Descartado pierde la marca de Pendientes (#140).
+        ...(game.in_backlog && !canMarkBacklog(status) && { in_backlog: false }),
     }
 }
 

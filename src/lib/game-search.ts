@@ -114,14 +114,15 @@ export function matchRange(name: string, term: string): [number, number] | null 
 // ── Acciones de cada resultado ──
 
 /**
- * «Pendientes»: `add` si no lo sigues (entra como pendiente sin comprar), `move` si está en otra lista (se cambia de
- * estado; el chip ya dice en cuál está) y `done` si ya está en Pendientes.
+ * «Pendientes»: `add` si no lo sigues (entra como pendiente sin comprar), `move` si está en otra lista (se añade a
+ * Pendientes conservando su estado, #140, o en Jugando y Descartado pasa a Pendiente; el chip ya dice en cuál está) y
+ * `done` si ya está en Pendientes, en ese estado o añadido con el suyo.
  */
 export type PendingAction = 'add' | 'move' | 'done'
 
-export function pendingAction(status: GameStatus | undefined): PendingAction {
+export function pendingAction(status: GameStatus | undefined, inBacklog = false): PendingAction {
     if (!status) return 'add'
-    return status === 'pendiente' ? 'done' : 'move'
+    return status === 'pendiente' || inBacklog ? 'done' : 'move'
 }
 
 /** «Wishlist» solo para lo que no sigues ni está ya en la wishlist (los que tienes en Steam no se pueden añadir). */

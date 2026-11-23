@@ -7,13 +7,13 @@ import { supabase } from '@/lib/supabase/client'
 import { judiShareText, resultSummary, type JudiAttempt, type JudiHints, type JudiSlot } from '@/lib/judi'
 import { metacriticScore, priceVerdict, steamReviewScore } from '@/lib/scores'
 import { pendingAction, canWishlist } from '@/lib/game-search'
-import { addToPending, setGamesStatus, type GameStatus } from '@/lib/tracker'
+import { addToBacklog, type GameStatus } from '@/lib/tracker'
 import { addToWishlist, formatPrice } from '@/lib/wishlist'
 import { WISHLIST_CHANGED_EVENT } from '@/lib/nav-status'
 import { storePrice } from '@/lib/store-price'
 import { Button } from '@/components/ui/button'
 import CountUp from '@/components/CountUp'
-import { MarkFlags, StatusChip } from '@/components/tracker/status'
+import { MarkFlags, StatusChips } from '@/components/tracker/status'
 import type { PriceData } from '@/components/wishlist/PriceInfo'
 import { loadGameState } from '@/app/juego/[appid]/GameContext'
 import { AttemptPips } from './JudiAttempts'
@@ -23,6 +23,8 @@ type Card = {
     loggedIn: boolean
     metacritic: number | null
     status: GameStatus | null
+    /** En Pendientes con su estado (#140). */
+    inBacklog: boolean
     favorite: boolean
     endless: boolean
     owned: boolean
@@ -58,10 +60,20 @@ async function loadCard(appid: number): Promise<Card> {
     const isFree = cat?.is_free ?? false
     const comingSoon = cat?.coming_soon ?? false
     const state = await loadGameState(appid, storePrice(cat?.price_overview), isFree, comingSoon)
-    const base = { metacritic: cat?.metacritic_score ?? null, favorite: false, endless: false, owned: false, wished: false, status: null }
+    const base = { metacritic: cat?.metacritic_score ?? null, favorite: false, endless: false, owned: false, wished: false, status: null, inBacklog: false }
     if (state.kind === 'ok') {
         const g = state.game
-        return { ...base, loggedIn: true, status: g.status, favorite: g.favorite, endless: g.endless, owned: true, price: null, metacritic: g.metacritic_score ?? base.metacritic }
+        return {
+            ...base,
+            loggedIn: true,
+            status: g.status,
+            inBacklog: g.in_backlog,
+            favorite: g.favorite,
+            endless: g.endless,
+            owned: true,
+            price: null,
+            metacritic: g.metacritic_score ?? base.metacritic,
+        }
     }
     if (state.kind === 'no_lo_tienes') {
         const g = state.pending
@@ -69,6 +81,7 @@ async function loadCard(appid: number): Promise<Card> {
             ...base,
             loggedIn: true,
             status: g?.status ?? null,
+            inBacklog: g?.in_backlog ?? false,
             favorite: g?.favorite ?? false,
             endless: g?.endless ?? false,
             wished: !!state.wish,
@@ -162,10 +175,9 @@ export default function JudiResult({
         setSaving('pend')
         setMessage(null)
         try {
-            // Si ya lo sigues, cambia de lista; si no, entra como pendiente sin comprar (como en el buscador).
-            if (card.status) await setGamesStatus([appid], 'pendiente')
-            else await addToPending(appid)
-            setCard({ ...card, status: 'pendiente' })
+            // Si ya lo sigues, se añade con su estado (#140); si no, entra como pendiente sin comprar (como en el buscador).
+            const next = await addToBacklog(appid, card.status)
+            setCard({ ...card, status: next.status, inBacklog: next.in_backlog })
             setDid('pend')
         } catch (e) {
             setMessage({ tone: 'error', text: e instanceof Error ? e.message : 'No se pudo añadir a Pendientes' })
@@ -212,7 +224,7 @@ export default function JudiResult({
         }
     }
 
-    const pend = card?.loggedIn ? pendingAction(card.status ?? undefined) : null
+    const pend = card?.loggedIn ? pendingAction(card.status ?? undefined, card.inBacklog) : null
 
     return (
         <div className={`jd-result jd-result--${state}${animate ? ' jd-fx-in' : ''}`} role="status">
@@ -243,7 +255,7 @@ export default function JudiResult({
                         <div className="jd-card__row">
                             {card.status ? (
                                 <span key={did === 'pend' ? 'pend' : 'st'} className={did === 'pend' ? 'hg-pop-in jd-card__swap' : undefined}>
-                                    <StatusChip status={card.status} />
+                                    <StatusChips status={card.status} inBacklog={card.inBacklog} />
                                 </span>
                             ) : card.wished ? (
                                 <span className={`jd-card__wished${did === 'wish' ? ' hg-pop-in' : ''}`}>
