@@ -54,6 +54,8 @@ export function libraryGame(overrides: Partial<LibraryGame> = {}): LibraryGame {
         steam_source: 'own',
         family_owners: null,
         family_gone_at: null,
+        in_backlog: false,
+        in_backlog_at: null,
         ...overrides,
     }
 }

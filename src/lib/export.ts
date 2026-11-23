@@ -33,6 +33,8 @@ export function libraryRows(games: LibraryGame[]) {
             ultima_partida: g.rtime_last_played,
             ultimo_logro: g.last_unlock_at,
             posicion_pendientes: g.backlog_position,
+            // Añadido a Pendientes con su estado (#140): en la lista Pendientes sin ser «pendiente».
+            en_pendientes: g.status === 'pendiente' || g.in_backlog,
             anadido: g.created_at,
         }))
 }
@@ -54,6 +56,7 @@ export const LIBRARY_COLUMNS: (keyof LibraryRow)[] = [
     'ultima_partida',
     'ultimo_logro',
     'posicion_pendientes',
+    'en_pendientes',
     'anadido',
 ]
 

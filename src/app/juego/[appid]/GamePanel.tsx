@@ -36,11 +36,12 @@ import {
     setGameGoal,
     setGameMark,
     setGamesStatus,
+    setInBacklog,
     type GameMark,
     type GameStatus,
     type LibraryGame,
 } from '@/lib/tracker'
-import { DURATION_SOURCE_LABEL, achievementPercent, type GameDuration } from '@/lib/library'
+import { DURATION_SOURCE_LABEL, achievementPercent, canMarkBacklog, type GameDuration } from '@/lib/library'
 import { isPerfect } from '@/lib/tracker-rules'
 import { GAME_GOALS, GOAL_LABELS, goalProgress, parseGoal, type GameGoal } from '@/lib/game-goal'
 import { addToWishlist, formatPrice, itadUrl, removeFromWishlist } from '@/lib/wishlist'
@@ -50,7 +51,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { GamePanelSkeleton } from './GameSkeleton'
 import EmptyState from '@/components/EmptyState'
 import { Spinner } from '@/components/ui/spinner'
-import { LIST_ICONS, StatusChip } from '@/components/tracker/status'
+import { LIST_ICONS, StatusChips } from '@/components/tracker/status'
 import type { PriceData } from '@/components/wishlist/PriceInfo'
 import { useGame } from './GameContext'
 import '@/styles/lists.css'
@@ -180,6 +181,8 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
             status_source: 'manual',
             suggestion: null,
             ...(status === 'jugando' && !game.started_at && { started_at: new Date().toISOString() }),
+            // Como el trigger de la base de datos: en Pendiente, Jugando o Descartado sale de Pendientes (#140).
+            ...(game.in_backlog && !canMarkBacklog(status) && { in_backlog: false }),
         })
         if (saved && status === 'jugando') {
             const { count, limit } = await playingLoad(userId)
@@ -264,6 +267,30 @@ function OwnedPanel({ game, userId, duration }: { game: LibraryGame; userId: str
                     })}
                 </div>
             </div>
+
+            {canMarkBacklog(game.status) && (
+                <div className="juego-backlog">
+                    <Button
+                        variant={game.in_backlog ? 'ghost' : 'secondary'}
+                        loading={pending === 'backlog'}
+                        disabled={busy}
+                        aria-pressed={game.in_backlog}
+                        onClick={() =>
+                            void save(
+                                'backlog',
+                                () => setInBacklog(appid, !game.in_backlog),
+                                game.in_backlog ? { in_backlog: false } : { in_backlog: true, backlog_position: null },
+                            )
+                        }
+                    >
+                        {game.in_backlog ? <BookmarkX aria-hidden /> : <BookmarkPlus aria-hidden />}{' '}
+                        {game.in_backlog ? 'Quitar de Pendientes' : 'Añadir a Pendientes'}
+                    </Button>
+                    <p className="juego-panel__note">
+                        {game.in_backlog ? `En Pendientes. Sigue como ${STATUS_LABELS[game.status]}.` : `Seguirá como ${STATUS_LABELS[game.status]}.`}
+                    </p>
+                </div>
+            )}
 
             {error && (
                 <p className="alert alert--error" role="alert">
@@ -458,7 +485,7 @@ function BuyPanel({ duration, achievementsTotal, storeUrl }: Props) {
         <div className="juego-buy">
             <section className="juego-panel glass juego-buy__price" aria-label="Precio">
                 <div className="juego-buy__state">
-                    {inPending && <StatusChip status="pendiente" />}
+                    {inPending && <StatusChips status={inPending.status} inBacklog={inPending.in_backlog} />}
                     {inPending?.family_gone_at ? (
                         <span className="lib-own lib-own--gone">
                             <Users aria-hidden /> Ya no está en tu grupo familiar

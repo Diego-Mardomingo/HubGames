@@ -573,6 +573,8 @@ export type Database = {
           steam_source: string | null
           family_owners: string[] | null
           family_gone_at: string | null
+          in_backlog: boolean | null
+          in_backlog_at: string | null
         }
         Insert: {
           user_id?: string | null
@@ -623,6 +625,8 @@ export type Database = {
           steam_source?: string | null
           family_owners?: string[] | null
           family_gone_at?: string | null
+          in_backlog?: boolean | null
+          in_backlog_at?: string | null
         }
         Update: {
           user_id?: string | null
@@ -673,6 +677,8 @@ export type Database = {
           steam_source?: string | null
           family_owners?: string[] | null
           family_gone_at?: string | null
+          in_backlog?: boolean | null
+          in_backlog_at?: string | null
         }
         Relationships: []
       }
@@ -1049,6 +1055,8 @@ export type Database = {
           suggestion_dismissed_at: string | null
           favorite: boolean
           endless: boolean
+          in_backlog: boolean
+          in_backlog_at: string | null
         }
         Insert: {
           user_id: string
@@ -1068,6 +1076,8 @@ export type Database = {
           suggestion_dismissed_at?: string | null
           favorite?: boolean
           endless?: boolean
+          in_backlog?: boolean
+          in_backlog_at?: string | null
         }
         Update: {
           user_id?: string
@@ -1087,6 +1097,8 @@ export type Database = {
           suggestion_dismissed_at?: string | null
           favorite?: boolean
           endless?: boolean
+          in_backlog?: boolean
+          in_backlog_at?: string | null
         }
         Relationships: []
       }

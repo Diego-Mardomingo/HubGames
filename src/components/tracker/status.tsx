@@ -41,6 +41,37 @@ export function StatusChip({ status, changed }: { status: GameStatus; changed?: 
     )
 }
 
+/**
+ * Distintivo de un juego añadido a Pendientes con su estado (#140), junto a su chip: «Completado · 🔖 En Pendientes».
+ * `compact`: solo el icono (cuadrícula y filas estrechas). `changed`: acaba de añadirse (pop).
+ */
+export function BacklogBadge({ compact, changed }: { compact?: boolean; changed?: boolean }) {
+    const pop = changed ? ' is-in' : ''
+    if (compact) {
+        return (
+            <span className={`hg-flag hg-tint st-pendiente${pop}`} title="En Pendientes">
+                <Bookmark aria-hidden />
+                <span className="sr-only">En Pendientes</span>
+            </span>
+        )
+    }
+    return (
+        <span className={`hg-chip hg-tint st-pendiente hg-chip--backlog${pop}`}>
+            <Bookmark aria-hidden /> En Pendientes
+        </span>
+    )
+}
+
+/** Chip de estado y, si está en Pendientes con su estado (#140), el distintivo. */
+export function StatusChips({ status, inBacklog, changed }: { status: GameStatus; inBacklog?: boolean; changed?: boolean }) {
+    return (
+        <>
+            <StatusChip status={status} changed={changed} />
+            {inBacklog && status !== 'pendiente' && <BacklogBadge />}
+        </>
+    )
+}
+
 type Mark = 'favorite' | 'endless'
 
 /**
