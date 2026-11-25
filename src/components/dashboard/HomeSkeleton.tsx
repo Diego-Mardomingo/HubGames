@@ -1,62 +1,65 @@
 import { Skeleton, SkeletonZone } from '@/components/ui/skeleton'
-import { AchievementSkeleton, HeatmapSkeleton, RowSkeleton, SectionHeadSkeleton, TileSkeleton } from '@/components/skeletons'
 import './dashboard.css'
+import './home.css'
 
-/** Esqueleto del Inicio (`app/loading.tsx`): saludo, atajos de listas, mapa con sus tiles, «En curso» y «Logros recientes». */
+/** Esqueleto del Inicio (`app/loading.tsx`): saludo con tu semana, la franja de listas, «Continuar jugando» y Pendientes. */
 export default function HomeSkeleton() {
     return (
         <SkeletonZone label="Cargando el inicio">
-            <div className="dash">
-                <header className="dash-head">
-                    <div className="dash-head__row">
+            <div className="home">
+                <header className="home-top">
+                    <div className="home-top__row">
                         <div>
-                            <div className="page-title">
-                                <Skeleton shape="text" w="8ch" />
+                            <div className="home-hello">
+                                <Skeleton shape="text" w="14ch" />
                             </div>
-                            <p className="dash-status">
-                                <Skeleton shape="text" w="26ch" />
+                            <p className="home-sub">
+                                <Skeleton shape="text" w="30ch" />
                             </p>
                         </div>
-                        <Skeleton w={176} h={40} style={{ borderRadius: 'var(--radius-sm)' }} />
+                        <ol className="home-week" aria-hidden>
+                            {Array.from({ length: 7 }, (_, i) => (
+                                <li key={i}>
+                                    <Skeleton shape="text" w="2ch" />
+                                    <Skeleton className="home-week__tile" />
+                                    <Skeleton shape="text" w="3ch" />
+                                </li>
+                            ))}
+                        </ol>
                     </div>
-                    <div className="dash-lists">
-                        {[8, 9, 10, 11, 7].map((w, i) => (
-                            <span key={i} className="dash-list">
-                                <Skeleton className="dash-list__icon" />
-                                <Skeleton shape="text" w={`${w}ch`} />
+                    <div className="home-lib">
+                        <ul className="home-lib__bar">
+                            {[2, 11, 4, 8, 17].map((n, i) => (
+                                <li key={i} style={{ '--n': n } as React.CSSProperties}>
+                                    <Skeleton className="home-lib__seg" />
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </header>
+                <section>
+                    <div className="home-head">
+                        <h2 className="home-head__title">Continuar jugando</h2>
+                    </div>
+                    <div className="home-playing">
+                        {[0, 1, 2].map((i) => (
+                            <Skeleton key={i} className="home-play" />
+                        ))}
+                    </div>
+                </section>
+                <section>
+                    <div className="home-head">
+                        <h2 className="home-head__title">Pendientes</h2>
+                    </div>
+                    <div className="home-rail home-queue">
+                        {Array.from({ length: 8 }, (_, i) => (
+                            <span key={i} className="home-poster">
+                                <Skeleton className="home-poster__art" />
+                                <Skeleton shape="text" w="10ch" />
                             </span>
                         ))}
                     </div>
-                </header>
-
-                <section className="heat glass">
-                    <dl className="hg-tiles dash-tiles">
-                        <TileSkeleton label="Horas este año" />
-                        <TileSkeleton label="Logros este año" />
-                        <TileSkeleton label="Completados" />
-                        <TileSkeleton label="Tu nota media" />
-                    </dl>
-                    <HeatmapSkeleton />
                 </section>
-
-                <div className="dash-cols">
-                    <section className="dash-sec">
-                        <SectionHeadSkeleton title="En curso" />
-                        <ul className="hg-rows">
-                            {[0, 1, 2].map((i) => (
-                                <RowSkeleton key={i} i={i} />
-                            ))}
-                        </ul>
-                    </section>
-                    <section className="dash-sec">
-                        <SectionHeadSkeleton title="Logros recientes" />
-                        <ul className="hg-achs">
-                            {[0, 1, 2, 3].map((i) => (
-                                <AchievementSkeleton key={i} i={i} />
-                            ))}
-                        </ul>
-                    </section>
-                </div>
             </div>
         </SkeletonZone>
     )

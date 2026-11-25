@@ -168,6 +168,9 @@ export default function WishlistPage() {
             loadWishlist()
                 .then((list) => {
                     if (cancelled) return
+                    // Enlaces con filtro (?filtro=minimo, desde el Inicio): llega ya filtrada.
+                    const f = new URLSearchParams(window.location.search).get('filtro')
+                    if (f && (WISHLIST_FILTERS as readonly string[]).includes(f)) setFilter(f as WishlistFilter)
                     setGames(list)
                     setEntering(true)
                     loadLibrary(list.map((g) => g.appid))

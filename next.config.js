@@ -15,9 +15,9 @@ const nextConfig = {
             },
         ]
     },
-    // Onest para la imagen del resumen anual (ImageResponse la lee del disco con readFile)
+    // Plus Jakarta Sans para la imagen del resumen anual (ImageResponse la lee del disco con readFile)
     outputFileTracingIncludes: {
-        '/api/estadisticas/resumen/imagen': ['./src/assets/fonts/onest/*.ttf'],
+        '/api/estadisticas/resumen/imagen': ['./src/assets/fonts/plus-jakarta-sans/*.ttf'],
     },
     images: {
         // Portadas del CDN de Steam (#21). Pocos anchos y caché larga: Vercel Hobby cuenta cada transformación.

@@ -43,7 +43,7 @@ Contraste medido (WCAG): `--muted` ≥ 4,8:1 sobre `--background`, `--surface` y
 
 ### Excepciones a «sin colores a mano»
 
-- Imagen para compartir del resumen anual (`src/app/api/estadisticas/resumen/imagen/wrapped-image.tsx`): `ImageResponse` no admite variables; usa los valores del tema oscuro (también los de notas y rarezas, con tintes en `rgba` al 14 %), solo flexbox, y Onest 400/700/800 desde `src/assets/fonts/onest` (OFL). Siempre oscura.
+- Imagen para compartir del resumen anual (`src/app/api/estadisticas/resumen/imagen/wrapped-image.tsx`): `ImageResponse` no admite variables; usa los valores del tema oscuro (también los de notas y rarezas, con tintes en `rgba` al 14 %), solo flexbox, y Plus Jakarta Sans 400/700/800 desde `src/assets/fonts/plus-jakarta-sans` (OFL). Siempre oscura.
 - `themeColor` de `src/app/layout.tsx` (metadato del navegador): valores de `--background`.
 - Velos oscuros sobre capturas y texto `#fff` encima (JUDI: insignia y pista sobre la captura, número de las miniaturas de la tira, zoom), y el fondo `#000` del vídeo del tráiler.
 - `#fff` sobre color sólido (bola del interruptor) y el logo de Google con sus colores de marca.
@@ -124,7 +124,12 @@ Oro, plata y bronce para los tres primeros de JUDI (`/ranking` y el top 5 del pe
 
 ## Tipografía
 
-Una sola familia: **Onest** (`--font-body`, cargada con `next/font`). Los números usan cifras tabulares (`font-variant-numeric: tabular-nums` en `body`); no hay monoespaciada.
+Una sola familia: **Plus Jakarta Sans** (`--font-body`, cargada con `next/font`): limpia y suave, sin rasgos «gaming». Los números usan cifras tabulares (`font-variant-numeric: tabular-nums` en `body`); no hay monoespaciada.
+
+Mayúsculas y minúsculas:
+
+- Títulos de página y de sección, botones, menús y texto: **mayúscula solo al principio** («Continuar jugando», nunca «Continuar Jugando»).
+- Nada en versalitas (todo mayúsculas) ni etiquetas pequeñas encima de los títulos: el recuento o el contexto va en gris junto al título, en frase («Tu cola · 23 juegos · unas 313 h»).
 
 | Uso | Tamaño | Peso |
 |---|---|---|

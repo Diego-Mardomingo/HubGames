@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inicio | HubGames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&display=swap" rel="stylesheet">
+<style>
+/* avoid-ai-design-ignore-file: SD2 ( — los verdes son de la marca y con significado (completado, rareza poco común, nota alta), no un acento decorativo) */
+/*
+  Mockup del Inicio (docs/mockups). Estilo «true-black flat» de taste-skill con los tokens de HubGames:
+  elevación solo por luminosidad (sin bordes ni sombras en tarjetas), el cobalto únicamente sobre datos,
+  el primario como píldora invertida. Rejilla: barra lateral 232 + lienzo con 32 de margen; columnas de 12 con 24 de hueco.
+*/
+:root {
+  --ground: #eef0f3; --surface: #ffffff; --raised: #e4e7ec; --active: #dfe3ea;
+  --rule: #e6e8ec;
+  --text: #1b1f27; --muted: #555c69; --faint: #5d6472;
+  --data: #2453ff; --data-track: #dde3f3;
+  --inv-bg: #1b1f27; --inv-ink: #ffffff;
+  --rar-comun: #6f747d; --rar-poco: #1f7f47; --rar-rara: #2a62c9; --rar-epica: #7a3fc6; --rar-leg: #96660a;
+  --st-bandeja: #5d6472; --st-pendiente: #0b7285; --st-jugando: #2453ff; --st-pausado: #8e5e18; --st-rejugable: #b4541c;
+  --st-completado: #1a7743; --st-yajugado: #6b6a1f; --st-otros: #9c2a84;
+  --sc-top: #1a7743; --sc-good: #4d7c0f; --sc-mid: #8e5e18;
+  --deal: #f5c400; --deal-ink: #2b2100;
+  --heat-0: #e4e7ec;
+  --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --r-card: 18px; --r-media: 10px; --r-pill: 999px;
+  --gap: 24px;
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  --ground: #121418; --surface: #1b1e25; --raised: #262a33; --active: #2c313b;
+  --rule: #23272f;
+  --text: #eceef2; --muted: #b0b6c1; --faint: #969dab;
+  --data: #7b9bff; --data-track: #2b3140;
+  --inv-bg: #ffffff; --inv-ink: #0f1115;
+  --rar-comun: #a3a8b1; --rar-poco: #4cc97e; --rar-rara: #6b9eff; --rar-epica: #b88aff; --rar-leg: #f2b53a;
+  --st-bandeja: #9aa1ae; --st-pendiente: #3bc9db; --st-jugando: #7b9bff; --st-pausado: #f2b53a; --st-rejugable: #ff9a5c;
+  --st-completado: #4cc97e; --st-yajugado: #c9c86a; --st-otros: #f07ad8;
+  --sc-top: #4cc97e; --sc-good: #a9d15b; --sc-mid: #f2b53a;
+  --deal: #ffd43b; --deal-ink: #221a00;
+  --heat-0: #23272f;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--ground); color: var(--text); }
+body { font-family: var(--font); font-size: 14px; line-height: 1.45; font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+img { display: block; }
+svg.i { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+:focus-visible { outline: 2px solid var(--data); outline-offset: 2px; border-radius: 6px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ── Armazón: la barra lateral real de HubGames, sobre el mismo fondo ── */
+.app { display: grid; grid-template-columns: 232px minmax(0, 1fr); }
+html, body { overflow-x: clip; }
+.side { position: sticky; top: 0; align-self: start; min-height: 640px; padding: 20px 12px; display: flex; flex-direction: column; gap: 2px; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 10px 20px; font-weight: 750; font-size: 16px; letter-spacing: -0.01em; }
+.brand svg { width: 26px; height: 26px; }
+.nav a { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 10px; color: var(--muted); font-weight: 500; }
+.nav a:hover { color: var(--text); }
+.nav a[aria-current] { background: var(--active); color: var(--text); font-weight: 600; }
+.nav .n { margin-left: auto; font-size: 12px; color: var(--faint); }
+.side__foot { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px; color: var(--muted); }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--raised); display: grid; place-items: center; font-weight: 700; font-size: 12px; color: var(--text); }
+.tabbar { display: none; }
+
+.canvas { padding: 28px 32px 64px; max-width: 1260px; width: 100%; }
+.stack { display: flex; flex-direction: column; gap: 40px; }
+.stack > .cols:first-of-type { margin-top: 24px; }
+.cols, .bottom { column-gap: 48px; }
+
+/* ── Cabecera ── */
+/* ── Cabecera: una sola línea con tu semana ── */
+.head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.head h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+.head__sub { margin: 6px 0 0; color: var(--muted); font-size: 14px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.head__sub b { color: var(--text); font-weight: 700; }
+.head__sub .fresh { color: var(--faint); }
+.sync { width: 28px; height: 28px; border-radius: 50%; display: inline-grid; place-items: center; color: var(--muted); transition: background .15s; }
+.sync:hover { background: var(--raised); color: var(--text); }
+.sync svg { width: 14px; height: 14px; }
+.week { display: flex; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.week li { width: 42px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; color: var(--faint); }
+.week__tile { width: 42px; height: 58px; border-radius: 8px; overflow: hidden; background: var(--raised); }
+.week__tile img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+.week li:hover .week__tile img { transform: scale(1.08); }
+.week__h { color: var(--text); font-weight: 650; }
+.week li.is-zero .week__tile { background: transparent; outline: 1.5px dashed var(--active); outline-offset: -1.5px; }
+.week li.is-zero .week__h { color: var(--faint); font-weight: 500; }
+.week li.is-today .week__d { color: var(--text); font-weight: 650; }
+ background: color-mix(in srgb, var(--data) 50%, var(--raised)); }
+h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.fresh { display: flex; align-items: center; gap: 10px; color: var(--faint); font-size: 13px; white-space: nowrap; }
+.btn { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 16px; border-radius: var(--r-pill); font-weight: 600; font-size: 13px; background: var(--raised); color: var(--text); transition: background .15s, transform .15s; }
+.btn:hover { background: var(--active); }
+.btn:active { transform: scale(.97); }
+.btn--inv { background: var(--inv-bg); color: var(--inv-ink); }
+.btn--inv:hover { background: var(--inv-bg); opacity: .9; }
+.btn svg { width: 14px; height: 14px; }
+
+/* Accesos a las listas (se quedan, como en la app) */
+/* Tu biblioteca: la franja ES la navegación. Cada tramo es un botón tan ancho como su lista, con nombre y número */
+.lib { margin-top: 22px; display: flex; gap: 20px; align-items: stretch; }
+.lib__bar { flex: 1; min-width: 0; display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.lib__bar li { flex: var(--n) 1 0; min-width: max-content; display: flex; }
+.lib__bar a { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2px; height: 64px; padding: 0 12px 6px; border-radius: 12px;
+  background: color-mix(in srgb, var(--c) 14%, var(--surface)); color: var(--text); position: relative; transition: background .15s, transform .15s; }
+.lib__bar a::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: 7px; height: 3px; border-radius: 2px; background: var(--c); }
+.lib__bar a:hover { background: color-mix(in srgb, var(--c) 26%, var(--surface)); }
+.lib__bar a:active { transform: scale(.98); }
+.lib__bar .l { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.lib__bar .l svg { width: 12px; height: 12px; opacity: 0; transform: translateX(-3px); transition: opacity .15s, transform .15s; }
+.lib__bar a:hover .l svg, .lib__bar a:focus-visible .l svg { opacity: 1; transform: none; }
+.lib__bar b { font-size: 17px; font-weight: 750; letter-spacing: -0.01em; line-height: 1.2; }
+.lib__bar b small { color: var(--faint); font-size: 13px; font-weight: 600; }
+.lib__bar .is-over b { color: var(--st-pausado); }
+.lib__tray { flex: none; display: flex; align-items: center; gap: 14px; padding-left: 20px; border-left: 1px solid var(--rule); }
+.lib__tray p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.35; }
+.lib__tray p b { display: block; color: var(--text); font-size: 20px; font-weight: 750; letter-spacing: -0.02em; }
+
+/* ── Cabecera de sección: título en frase + recuento gris + enlace ── */
+.sec-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+.sec-head h2 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+.sec-head .count { color: var(--faint); font-size: 13px; }
+.sec-head .more { margin-left: auto; color: var(--muted); font-weight: 600; font-size: 13px; }
+.sec-head .more:hover { color: var(--text); }
+.car { display: flex; gap: 6px; margin-left: 8px; align-self: center; }
+.car button { width: 32px; height: 32px; border-radius: 50%; background: var(--raised); display: grid; place-items: center; transition: background .15s, opacity .15s; }
+.car button:hover { background: var(--active); }
+.car button:disabled { opacity: .3; cursor: default; background: var(--raised); }
+.car svg { width: 14px; height: 14px; }
+.car .car__start { width: auto; padding: 0 12px 0 9px; gap: 4px; display: inline-flex; align-items: center; border-radius: var(--r-pill); font-size: 13px; font-weight: 600; color: var(--muted);
+  opacity: 0; transform: translateX(8px); pointer-events: none; transition: opacity .25s, transform .35s cubic-bezier(.22,1,.36,1), background .15s; }
+.car .car__start.is-on { opacity: 1; transform: none; pointer-events: auto; }
+.car .car__start:hover { color: var(--text); }
+.rail { display: grid; grid-auto-flow: column; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; scroll-behavior: smooth; }
+.rail::-webkit-scrollbar { display: none; }
+.rail > * { scroll-snap-align: start; transform: translateX(var(--pull, 0px)); }
+/* Con ratón el ajuste lo hace el script (inercia + imán suave); con el dedo, el del navegador */
+@media (pointer: fine) {
+  .rail { scroll-snap-type: none; scroll-behavior: auto; cursor: grab; user-select: none; -webkit-user-select: none; }
+  .rail img { -webkit-user-drag: none; pointer-events: none; }
+  .rail.is-grabbing { cursor: grabbing; }
+  .rail.is-grabbing > * { pointer-events: none; }
+  .rail.is-grabbing > * { transition: none; }
+  .rail .btn, .rail button { cursor: pointer; }
+}
+.rail.is-grabbing .poster__art img, .rail.is-grabbing .dl__art img { transform: scale(.985); }
+
+/* ── Continuar jugando ── */
+/* Continuar jugando: fichas bajas (128 px). La portada vertical a la izquierda, el progreso en medio, Jugar a la derecha */
+.playing { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.play { position: relative; display: grid; grid-template-columns: 84px minmax(0, 1fr) auto; gap: 16px; align-items: center; height: 128px; padding: 0 16px 0 0; background: var(--surface); border-radius: var(--r-card); overflow: hidden; transition: background .2s; }
+.play:hover { background: var(--raised); }
+.play__art { align-self: stretch; overflow: hidden; }
+.play__art img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s cubic-bezier(.22,1,.36,1); }
+.play:hover .play__art img { transform: scale(1.05); }
+.play__body { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.play__name { display: block; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.play__name::after { content: ''; position: absolute; inset: 0; } /* toda la ficha abre el juego */
+.play__meta { color: var(--muted); font-size: 13px; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.play__go { position: relative; z-index: 1; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--inv-bg); color: var(--inv-ink); transition: transform .15s; }
+.play__go:hover { transform: scale(1.08); }
+.play__go:active { transform: scale(.95); }
+.play__go svg { width: 16px; height: 16px; margin-left: 2px; }
+.prog__label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.prog__label b { color: var(--text); font-weight: 600; }
+.bar { height: 6px; border-radius: 99px; background: var(--data-track); overflow: hidden; }
+.bar span { display: block; height: 100%; border-radius: inherit; background: var(--data); }
+.play .prog__label { margin-bottom: 5px; font-size: 12px; }
+.play .bar { height: 4px; }
+.rar { color: var(--c); font-weight: 600; }
+/* El hueco libre: se ofrece el siguiente de la cola */
+/* El hueco libre: la misma ficha, punteada, con el siguiente de tus pendientes en espera */
+.slot { display: grid; grid-template-columns: 84px minmax(0, 1fr) auto; gap: 16px; align-items: center; height: 128px; padding-right: 16px; border-radius: var(--r-card); outline: 1.5px dashed var(--active); outline-offset: -1.5px; overflow: hidden; }
+.slot img { align-self: stretch; width: 100%; height: 100%; object-fit: cover; opacity: .45; filter: saturate(.6); }
+.slot__title { color: var(--muted); font-size: 13px; }
+.slot b { display: block; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; margin-top: 1px; }
+.slot small { color: var(--faint); font-size: 13px; white-space: nowrap; }
+
+/* ── La cola: portadas con su horizonte ── */
+.queue-wrap { position: relative; }
+.queue { grid-auto-columns: calc((100% - 7 * 16px) / 7.4); gap: 16px; }
+.poster { scroll-snap-align: start; display: flex; flex-direction: column; gap: 10px; }
+.poster__art { position: relative; aspect-ratio: 2 / 3; border-radius: var(--r-media); overflow: hidden; background: var(--raised); }
+.poster__art img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s cubic-bezier(.22,1,.36,1); }
+.poster:hover .poster__art img { transform: scale(1.04); }
+.pos { position: absolute; top: 8px; left: 8px; height: 24px; min-width: 24px; padding: 0 8px; border-radius: var(--r-pill); display: grid; place-items: center; background: rgba(10,11,14,.78); color: #fff; font-size: 12px; font-weight: 700; }
+.pos--next { background: #fff; color: #0f1115; }
+.deal { position: absolute; left: 8px; right: 8px; bottom: 8px; display: flex; align-items: baseline; justify-content: space-between; gap: 6px; padding: 5px 8px; border-radius: 8px; background: var(--deal); color: var(--deal-ink); font-size: 12px; font-weight: 700; }
+.deal s { font-weight: 500; opacity: .7; }
+.poster__name { font-weight: 650; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.poster__meta { color: var(--faint); font-size: 13px; margin-top: -6px; display: flex; justify-content: space-between; gap: 6px; }
+.poster__when { font-size: 13px; font-weight: 600; color: var(--muted); margin-top: -4px; }
+.poster__when.is-now { color: var(--st-pendiente); }
+.score { font-weight: 700; color: var(--c); }
+.horizon { margin: 16px 0 0; color: var(--faint); font-size: 13px; }
+.horizon b { color: var(--muted); font-weight: 600; }
+
+/* ── Mínimos históricos de tu wishlist: la cabecera del juego con el precio grande debajo ── */
+.deals { grid-auto-columns: calc((100% - 4 * 16px) / 4.5); gap: 16px; }
+.dl { display: flex; flex-direction: column; gap: 10px; }
+.dl__art { position: relative; aspect-ratio: 460 / 215; border-radius: var(--r-media); overflow: hidden; background: var(--raised); }
+.dl__art img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s cubic-bezier(.22,1,.36,1); }
+.dl:hover .dl__art img { transform: scale(1.04); }
+.dl__off { position: absolute; top: 8px; left: 8px; height: 24px; padding: 0 9px; border-radius: var(--r-pill); display: grid; place-items: center; background: var(--deal); color: var(--deal-ink); font-size: 12px; font-weight: 750; }
+.dl__name { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dl__price { display: flex; align-items: baseline; gap: 8px; margin-top: -6px; }
+.dl__price b { font-size: 20px; font-weight: 750; letter-spacing: -0.02em; }
+.dl__price s { color: var(--faint); font-size: 13px; }
+.dl__meta { color: var(--faint); font-size: 13px; margin-top: -6px; }
+.dl__meta b { color: var(--muted); font-weight: 600; }
+/* ── Aparcados: la cabecera del juego en gris, como cogiendo polvo; recupera el color al pasar por encima ── */
+.parked { grid-auto-columns: calc((100% - 3 * 20px) / 3.5); gap: 20px; }
+.park { background: var(--surface); border-radius: var(--r-card); overflow: hidden; display: flex; flex-direction: column; }
+.park__art { position: relative; aspect-ratio: 460 / 215; overflow: hidden; background: var(--raised); }
+.park__art img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) brightness(.62); transition: filter .4s ease, transform .5s cubic-bezier(.22,1,.36,1); }
+.park:hover .park__art img, .park:focus-within .park__art img { filter: none; transform: scale(1.03); }
+.park__days { position: absolute; left: 14px; bottom: 10px; color: #fff; line-height: 1; }
+.park__days b { font-size: 34px; font-weight: 750; letter-spacing: -0.03em; }
+.park__days span { display: block; margin-top: 4px; font-size: 13px; font-weight: 600; opacity: .85; }
+.park__body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.park__name { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.park__meta { color: var(--faint); font-size: 13px; margin-top: 1px; }
+.park__meta b { color: var(--st-pausado); font-weight: 600; }
+.park__acts { display: flex; gap: 8px; margin-top: auto; }
+.park__acts .btn { flex: 1; justify-content: center; height: 34px; }
+.btn--ghost { background: transparent; color: var(--muted); }
+.btn--ghost:hover { background: var(--raised); color: var(--text); }
+
+/* ── Dos columnas ── */
+.cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); align-items: stretch; }
+.panel { border-top: 1px solid var(--rule); padding: 20px 0 0; }
+.panel .sec-head { margin-bottom: 8px; }
+.rows { list-style: none; margin: 0; padding: 0; }
+.row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 68px; border-top: 1px solid var(--rule); }
+.row:first-child { border-top: 0; }
+.row__media { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; background: var(--raised); outline: 2px solid var(--c, transparent); outline-offset: 0; }
+.row__media img { width: 100%; height: 100%; object-fit: cover; }
+.row--wide { grid-template-columns: 88px minmax(0, 1fr) auto; min-height: 68px; }
+.row--wide .row__media { width: 88px; height: 41px; outline: 0; }
+.row__name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row__sub { color: var(--faint); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row__end { text-align: right; }
+.row__end b { display: block; font-weight: 650; }
+.row__end small { font-size: 13px; font-weight: 600; color: var(--c); }
+.row .bar { height: 4px; margin-top: 7px; }
+.soon__group { margin: 14px 0 2px; color: var(--muted); font-size: 13px; font-weight: 600; }
+.soon__group:first-child { margin-top: 0; }
+.when { display: block; font-weight: 650; }
+.when.is-close { color: var(--st-pendiente); }
+.soon-row { grid-template-columns: 88px minmax(0, 1fr) auto auto; }
+.soon__acts { display: flex; gap: 6px; }
+.add { height: 30px; padding: 0 11px; border-radius: var(--r-pill); background: var(--raised); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; transition: background .15s, transform .15s; }
+.add:hover { background: var(--active); }
+.add:active { transform: scale(.95); }
+.add svg { width: 12px; height: 12px; }
+.add[aria-pressed='true'] { background: transparent; color: var(--st-completado); padding-left: 4px; }
+
+/* ── Abajo: tu año + JUDI + objetivos ── */
+.bottom { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--gap); align-items: stretch; }
+.bottom > * { min-width: 0; }
+.goals-title { margin: 22px 0 0; font-size: 14px; font-weight: 650; }
+.year { display: flex; flex-direction: column; }
+.year__line { margin: 0 0 16px; color: var(--muted); }
+.year__line b { color: var(--text); font-weight: 650; }
+.heat { overflow-x: auto; scrollbar-width: none; }
+.heat__grid { display: grid; grid-template-rows: repeat(7, 1fr); grid-auto-flow: column; grid-auto-columns: minmax(9px, 1fr); gap: 3px; min-width: 560px; }
+.heat__grid i { aspect-ratio: 1; border-radius: 3px; background: var(--heat-0); }
+.heat__grid i[data-l='1'] { background: color-mix(in srgb, var(--data) 30%, var(--heat-0)); }
+.heat__grid i[data-l='2'] { background: color-mix(in srgb, var(--data) 55%, var(--heat-0)); }
+.heat__grid i[data-l='3'] { background: color-mix(in srgb, var(--data) 78%, var(--heat-0)); }
+.heat__grid i[data-l='4'] { background: var(--data); }
+.heat__months { display: flex; justify-content: space-between; margin-top: 8px; color: var(--faint); font-size: 13px; min-width: 560px; }
+.heat-wrap { padding-bottom: 4px; min-width: 0; }
+.year__body { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+.year__goals .goals-title { margin-top: 0; }
+.year__goals .goals { grid-template-columns: 1fr; gap: 14px; }
+.goals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 10px 0 12px; }
+.goals .goal { margin: 0; }
+.judi { display: flex; flex-direction: column; }
+.judi .judi__foot { margin-top: auto; }
+.judi__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 4px 0 18px; }
+.judi__stats dt { color: var(--faint); font-size: 13px; }
+.judi__stats dd { margin: 2px 0 0; font-size: 18px; font-weight: 700; }
+.judi__stats div { min-width: 0; }
+.right { display: flex; flex-direction: column; gap: var(--gap); }
+.judi__week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 6px 0 12px; }
+.judi__week span { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; color: var(--faint); }
+.judi__week i { width: 100%; aspect-ratio: 1; max-width: 40px; border-radius: 9px; background: var(--raised); }
+.judi__week .ok i { background: var(--data); }
+.judi__week .ko i { background: color-mix(in srgb, var(--faint) 45%, var(--raised)); }
+.judi__week .hoy i { outline: 1.5px dashed var(--faint); outline-offset: -1.5px; background: transparent; }
+.judi__foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); }
+.goal { margin-top: 12px; }
+.goal:first-of-type { margin-top: 4px; }
+.goal .prog__label { margin-bottom: 5px; }
+
+/* ── ¿Qué juego hoy? al final ── */
+.wtp { display: flex; align-items: center; gap: 20px; border-top: 1px solid var(--rule); padding-top: 20px; }
+.wtp__text { flex: 1; min-width: 0; }
+.wtp__text h2 { margin: 0; font-size: 17px; font-weight: 700; }
+.wtp__text p { margin: 2px 0 0; color: var(--muted); }
+.seg { display: inline-flex; background: var(--raised); border-radius: var(--r-pill); padding: 3px; }
+.seg button { height: 30px; padding: 0 12px; border-radius: var(--r-pill); font-size: 13px; font-weight: 600; color: var(--muted); }
+.seg button[aria-pressed='true'] { background: var(--surface); color: var(--text); }
+
+/* Controles del mockup (no son diseño) */
+.mock { position: fixed; right: 12px; bottom: 12px; z-index: 9; display: flex; gap: 6px; }
+.mock { flex-wrap: wrap; justify-content: flex-end; max-width: calc(100% - 24px); }
+.mock > button { height: 30px; padding: 0 12px; border-radius: 99px; background: var(--inv-bg); color: var(--inv-ink); font-size: 12px; font-weight: 600; }
+
+/* ── Tableta ── */
+@media (max-width: 1100px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .side { display: none; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; height: 64px; background: var(--surface); justify-content: space-around; align-items: center; }
+  .tabbar a { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; color: var(--muted); }
+  .tabbar a[aria-current] { color: var(--text); font-weight: 600; }
+  .canvas { padding: 24px 24px 100px; }
+  .lib__bar { flex-wrap: wrap; }
+  .lib__bar li { flex: 1 1 calc(25% - 4px); }
+  .parked { grid-auto-columns: 280px; }
+  .deals { grid-auto-columns: 240px; }
+  .playing { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .slot { grid-column: 1 / -1; }
+  .queue { grid-auto-columns: 150px; }
+  .bottom { grid-template-columns: minmax(0, 1fr); }
+  .year__body { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .mock { bottom: 76px; }
+}
+/* ── Móvil ── */
+@media (max-width: 640px) {
+  .soon-row { grid-template-columns: 64px minmax(0, 1fr) auto; }
+  .soon-row .row__media { width: 64px; height: 30px; }
+  .soon-row .row__end { grid-column: 2 / -1; text-align: left; }
+  .soon-row .soon__acts { grid-column: 3; grid-row: 1; }
+  .canvas { padding: 20px 18px 100px; }
+  .lib { flex-direction: column; }
+  .lib__bar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory; }
+  .lib__bar li { flex: none; min-width: 104px; scroll-snap-align: start; }
+  .lib__tray { padding: 12px 0 0; border-left: 0; border-top: 1px solid var(--rule); justify-content: space-between; }
+  .head h1 { font-size: 24px; }
+  .stack { gap: 36px; }
+  h1 { font-size: 24px; }
+  .playing { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .play, .slot { height: 112px; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 14px; }
+  .queue { grid-auto-columns: 124px; gap: 12px; }
+  .cols { grid-template-columns: 1fr; }
+  .goals { grid-template-columns: 1fr; gap: 12px; }
+  .parked { grid-auto-columns: 78%; gap: 12px; }
+  .deals { grid-auto-columns: 70%; gap: 12px; }
+  .car { display: none; }
+  .week { width: 100%; justify-content: space-between; gap: 4px; }
+  .week li { flex: 1; width: auto; }
+  .week__tile { width: 100%; max-width: 46px; height: auto; aspect-ratio: 2 / 3; }
+  .wtp { flex-direction: column; align-items: stretch; gap: 14px; }
+  .wtp .btn { justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-lib" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 4v16"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 12 5a5.5 5.5 0 0 0-10 3.5c0 2.3 1.5 4 3 5.5l7 7z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-pad" viewBox="0 0 24 24"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><rect x="2" y="6" width="20" height="12" rx="4"/></symbol>
+  <symbol id="i-rank" viewBox="0 0 24 24"><path d="M8 21V11M16 21V7M12 21V3"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13-8z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-play-o" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 22V4M4 4h13l-2 4 2 4H4"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 3"/></symbol>
+  <symbol id="i-shapes" viewBox="0 0 24 24"><circle cx="7" cy="17" r="4"/><rect x="13" y="13" width="8" height="8" rx="1"/><path d="m12 2 5 8H7z"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
+  <symbol id="i-sync" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16M3 12A9 9 0 0 1 18.5 5.8L21 8"/><path d="M21 3v5h-5M3 21v-5h5"/></symbol>
+</svg>
+
+<div class="app">
+  <aside class="side" aria-label="Navegación">
+    <a class="brand" href="#"><svg viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="8" fill="var(--data)"/><path d="M8 7v12M18 7v12M8 13h10" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>HubGames</a>
+    <nav class="nav">
+      <a href="#" aria-current="page"><svg class="i"><use href="#i-home"/></svg>Inicio</a>
+      <a href="#"><svg class="i"><use href="#i-lib"/></svg>Biblioteca</a>
+      <a href="#"><svg class="i"><use href="#i-inbox"/></svg>Bandeja<span class="n">4 por clasificar</span></a>
+      <a href="#"><svg class="i"><use href="#i-trophy"/></svg>Logros</a>
+      <a href="#"><svg class="i"><use href="#i-heart"/></svg>Wishlist</a>
+      <a href="#"><svg class="i"><use href="#i-chart"/></svg>Estadísticas</a>
+      <a href="#"><svg class="i"><use href="#i-pad"/></svg>JUDI</a>
+      <a href="#"><svg class="i"><use href="#i-rank"/></svg>Ranking</a>
+    </nav>
+    <div class="side__foot"><span class="avatar">D</span>Diego</div>
+  </aside>
+
+  <main class="canvas">
+    <div class="stack">
+      <header>
+        <div class="head">
+          <div>
+            <h1 id="greet">Buenas tardes, Diego</h1>
+            <p class="head__sub"><span id="week-fig"></span><span class="fresh">Sincronizado hace 12 min</span><button class="sync" type="button" aria-label="Sincronizar con Steam" title="Sincronizar con Steam"><svg class="i"><use href="#i-sync"/></svg></button></p>
+          </div>
+          <ol class="week" id="week" aria-label="Lo que más jugaste cada día de los últimos 7"></ol>
+        </div>
+        <nav class="lib" aria-label="Tus listas">
+          <ul class="lib__bar" id="lib-bar"></ul>
+          <div class="lib__tray"><p><b id="tray-n"></b>en la bandeja</p><a class="btn btn--inv" href="#">Clasificar</a></div>
+        </nav>
+      </header>
+
+      <section aria-labelledby="h-playing">
+        <div class="sec-head"><h2 id="h-playing">Continuar jugando</h2><span class="count" id="playing-count"></span><a class="more" href="#">Ver todos</a></div>
+        <div class="playing" id="playing"></div>
+      </section>
+
+      <section aria-labelledby="h-queue">
+        <div class="sec-head"><h2 id="h-queue">Pendientes</h2><span class="count" id="queue-count"></span><a class="more" href="#">Ordenar</a><div class="car"><button type="button" class="car__start" data-start="queue" aria-label="Volver al principio" title="Volver al principio"><svg class="i" viewBox="0 0 24 24"><path d="M6 6v12M18 6l-6 6 6 6"/></svg>Al principio</button><button type="button" data-car="queue" data-dir="-1" aria-label="Anteriores"><svg class="i" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg></button><button type="button" data-car="queue" data-dir="1" aria-label="Siguientes"><svg class="i" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button></div></div>
+        <div class="rail queue" id="queue"></div>
+        <p class="horizon" id="horizon"></p>
+      </section>
+
+      <section aria-labelledby="h-deals">
+        <div class="sec-head"><h2 id="h-deals">En su mínimo histórico</h2><span class="count" id="deals-count"></span><a class="more" href="#">Ver en la wishlist</a><div class="car"><button type="button" class="car__start" data-start="deals" aria-label="Volver al principio" title="Volver al principio"><svg class="i" viewBox="0 0 24 24"><path d="M6 6v12M18 6l-6 6 6 6"/></svg>Al principio</button><button type="button" data-car="deals" data-dir="-1" aria-label="Anteriores"><svg class="i" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg></button><button type="button" data-car="deals" data-dir="1" aria-label="Siguientes"><svg class="i" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button></div></div>
+        <div class="rail deals" id="deals"></div>
+      </section>
+
+      <section aria-labelledby="h-dusty">
+        <div class="sec-head"><h2 id="h-dusty">Aparcados</h2><span class="count" id="dusty-count"></span><a class="more" href="#">Ver pausados</a><div class="car"><button type="button" class="car__start" data-start="dusty" aria-label="Volver al principio" title="Volver al principio"><svg class="i" viewBox="0 0 24 24"><path d="M6 6v12M18 6l-6 6 6 6"/></svg>Al principio</button><button type="button" data-car="dusty" data-dir="-1" aria-label="Anteriores"><svg class="i" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg></button><button type="button" data-car="dusty" data-dir="1" aria-label="Siguientes"><svg class="i" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button></div></div>
+        <div class="rail parked" id="dusty"></div>
+      </section>
+
+      <div class="cols">
+        <section class="panel" aria-labelledby="h-achs">
+          <div class="sec-head"><h2 id="h-achs">Logros recientes</h2><a class="more" href="#">Historial</a></div>
+          <ul class="rows" id="achs"></ul>
+        </section>
+        <section class="panel" aria-labelledby="h-near">
+          <div class="sec-head"><h2 id="h-near">Sale pronto</h2><a class="more" href="#">Calendario</a></div>
+          <div id="soon"></div>
+        </section>
+      </div>
+
+      <div class="bottom">
+        <section class="panel year" aria-labelledby="h-year">
+          <div class="sec-head"><h2 id="h-year">Tu año</h2><a class="more" href="#">Estadísticas</a></div>
+          <p class="year__line" id="year-line"></p>
+          <div class="heat-wrap">
+            <div class="heat"><div class="heat__grid" id="heat" aria-label="Horas jugadas cada día del último año"></div>
+            <div class="heat__months"><span>dic</span><span>feb</span><span>abr</span><span>jun</span><span>ago</span><span>oct</span><span>nov</span></div></div>
+          </div>
+          <h3 class="goals-title">Objetivos de noviembre <span style="color:var(--faint);font-weight:500">(día 23 de 30)</span></h3>
+          <div class="goals" id="goals"></div>
+        </section>
+        <section class="panel judi" aria-labelledby="h-judi">
+          <div class="sec-head"><h2 id="h-judi">JUDI de hoy</h2><span class="count">4 días de racha</span></div>
+          <div class="judi__week" id="judi"></div>
+          <dl class="judi__stats"><div><dt>Mejor racha</dt><dd>12 días</dd></div><div><dt>Aciertos</dt><dd>17 de 22</dd></div><div><dt>Puntos</dt><dd>1.284</dd></div></dl>
+          <div class="judi__foot"><span>Aún no has jugado el de hoy.</span><a class="btn btn--inv" href="#"><svg class="i"><use href="#i-play"/></svg>Jugar</a></div>
+        </section>
+      </div>
+
+      <section class="wtp" aria-labelledby="h-wtp">
+        <div class="wtp__text"><h2 id="h-wtp">¿Qué juego hoy?</h2><p>Te propongo uno de tus pendientes que quepa en el tiempo que tienes.</p></div>
+        <div class="seg" role="group" aria-label="Tiempo disponible"><button type="button" aria-pressed="false">30 min</button><button type="button" aria-pressed="true">1 h</button><button type="button" aria-pressed="false">Toda la tarde</button></div>
+        <button class="btn btn--inv" type="button">Sorpréndeme</button>
+      </section>
+    </div>
+  </main>
+
+  <nav class="tabbar" aria-label="Navegación">
+    <a href="#" aria-current="page"><svg class="i"><use href="#i-home"/></svg>Inicio</a>
+    <a href="#"><svg class="i"><use href="#i-lib"/></svg>Biblioteca</a>
+    <a href="#"><svg class="i"><use href="#i-trophy"/></svg>Logros</a>
+    <a href="#"><svg class="i"><use href="#i-heart"/></svg>Wishlist</a>
+    <a href="#"><svg class="i"><use href="#i-pad"/></svg>JUDI</a>
+  </nav>
+</div>
+
+<div class="mock">
+  <button type="button" id="theme">Tema claro</button>
+</div>
+
+<script>
+/* ── Datos de ejemplo (todo lo que se pinta sale de aquí) ── */
+const img = (id, k) => `https://cdn.akamai.steamstatic.com/steam/apps/${id}/${k}.jpg`;
+const D = {
+  playingLimit: 3,
+  pacePerWeekH: 11, // media de tus últimos 30 días
+  playing: [
+    { id: 1145360, name: 'Hades', hours: 38, last: 'ayer', ach: [31, 49], left: null, rarest: { tier: 'leg', label: 'Legendario', pct: '2,1 %' } },
+    { id: 1086940, name: "Baldur's Gate 3", hours: 96, last: 'hace 3 días', ach: [22, 54], left: 18, rarest: { tier: 'epica', label: 'Épico', pct: '7,8 %' } },
+  ],
+  queue: [
+    { id: 367520, name: 'Hollow Knight', h: 27, sc: 87 },
+    { id: 753640, name: 'Outer Wilds', h: 18, sc: 85 },
+    { id: 632470, name: 'Disco Elysium', h: 22, sc: 91 },
+    { id: 553420, name: 'Tunic', h: 12, sc: 85, deal: { now: '8,49 €', was: '28,99 €' } },
+    { id: 504230, name: 'Celeste', h: 8, sc: 88 },
+    { id: 814380, name: 'Sekiro', h: 30, sc: 77 },
+    { id: 1794680, name: 'Vampire Survivors', h: null, sc: 74 },
+    { id: 1145350, name: 'Hades II', h: 25, sc: 94 },
+    { id: 268910, name: 'Cuphead', h: 11, sc: 86 },
+    { id: 1868140, name: 'Dave the Diver', h: 21, sc: 90 },
+    { id: 1150690, name: 'OMORI', h: 20, sc: 87 },
+    { id: 391540, name: 'Undertale', h: 6, sc: 92 },
+    { id: 620, name: 'Portal 2', h: 8, sc: 95, deal: { now: '0,81 €', was: '8,19 €' } },
+    { id: 1313140, name: 'Cult of the Lamb', h: 13, sc: 82 },
+    { id: 1426210, name: 'It Takes Two', h: 14, sc: 89 },
+    { id: 1057090, name: 'Ori and the Will of the Wisps', h: 11, sc: 90 },
+    { id: 2050650, name: 'Resident Evil 4', h: 16, sc: 93 },
+    { id: 1817070, name: "Marvel's Spider-Man Remastered", h: 17, sc: 87 },
+    { id: 1817190, name: "Marvel's Spider-Man: Miles Morales", h: 8, sc: 85 },
+    { id: 2420110, name: 'Horizon Forbidden West', h: 30, sc: 88 },
+    { id: 774361, name: 'Blasphemous', h: 13, sc: 82 },
+    { id: 105600, name: 'Terraria', h: null, sc: 83 },
+    { id: 427520, name: 'Factorio', h: null, sc: 90 },
+  ],
+  wishlistTotal: 41,
+  deals: [
+    { id: 1328670, name: 'Mass Effect Legendary Edition', now: '5,99 €', was: '59,99 €', off: 90, all: true, ends: '2 de diciembre' },
+    { id: 1174180, name: 'Red Dead Redemption 2', now: '14,99 €', was: '59,99 €', off: 75, all: true, ends: '2 de diciembre' },
+    { id: 412020, name: 'Metro Exodus', now: '5,99 €', was: '29,99 €', off: 80, all: false, ends: '30 de noviembre' },
+    { id: 1593500, name: 'God of War', now: '19,99 €', was: '49,99 €', off: 60, all: true, ends: '2 de diciembre' },
+    { id: 1151640, name: 'Horizon Zero Dawn Remastered', now: '24,99 €', was: '49,99 €', off: 50, all: false, ends: '28 de noviembre' },
+    { id: 553420, name: 'Tunic', now: '8,49 €', was: '28,99 €', off: 71, all: true, ends: '2 de diciembre', queued: true },
+  ],
+  lists: [
+    ['jugando', 'Jugando', 'i-play-o', '2', '/3'], ['pendiente', 'Pendiente', 'i-book', '23'], ['pausado', 'Pausado', 'i-pause', '5'],
+    ['rejugable', 'Rejugable', 'i-repeat', '8'], ['completado', 'Completado', 'i-flag', '16'], ['yajugado', 'Ya jugado', 'i-history', '21'],
+    ['otros', 'Otros', 'i-shapes', '13'], ['bandeja', 'Bandeja', 'i-inbox', '4'],
+  ],
+  achs: [
+    { id: 1145360, name: 'Ni un rasguño', game: 'Hades', when: 'hace 2 h', tier: 'leg', label: 'Legendario', pct: '2,1 %' },
+    { id: 1086940, name: 'Diplomacia ante todo', game: "Baldur's Gate 3", when: 'ayer', tier: 'epica', label: 'Épico', pct: '7,8 %' },
+    { id: 1145360, name: 'Cuerpo a cuerpo', game: 'Hades', when: 'ayer', tier: 'rara', label: 'Raro', pct: '14,0 %' },
+    { id: 413150, name: 'Granjero de verdad', game: 'Stardew Valley', when: 'hace 4 días', tier: 'poco', label: 'Poco común', pct: '32,5 %' },
+    { id: 1086940, name: 'Bajo la piel', game: "Baldur's Gate 3", when: 'hace 5 días', tier: 'rara', label: 'Raro', pct: '11,3 %' },
+    { id: 1145360, name: 'Viaje de vuelta', game: 'Hades', when: 'hace 6 días', tier: 'comun', label: 'Común', pct: '58,0 %' },
+  ],
+  near: [
+    { id: 413150, name: 'Stardew Valley', ach: [36, 40] },
+    { id: 646570, name: 'Slay the Spire', ach: [37, 46] },
+    { id: 2379780, name: 'Balatro', ach: [25, 37] },
+    { id: 588650, name: 'Dead Cells', ach: [65, 122] },
+  ],
+  monthMinutes: [2400], yearHours: 48,
+  judi: ['ok', 'ok', 'ko', 'ok', 'ok', 'ok', 'hoy'],
+  // Últimos 7 días: día, minutos, logros y el juego al que más jugaste ese día
+  week: [['mi', 95, 2, 1145360, 'Hades'], ['ju', 0, 0], ['vi', 130, 1, 1086940, "Baldur's Gate 3"], ['sá', 210, 4, 1086940, "Baldur's Gate 3"], ['do', 165, 3, 1145360, 'Hades'], ['lu', 45, 1, 413150, 'Stardew Valley'], ['hoy', 25, 0, 1145360, 'Hades']],
+  dusty: [
+    { id: 1245620, name: 'Elden Ring', status: 'Pausado', days: 74, ach: [21, 42] },
+    { id: 1091500, name: 'Cyberpunk 2077', status: 'Pausado', days: 112, ach: [18, 57] },
+    { id: 990080, name: 'Hogwarts Legacy', status: 'Pausado', days: 63, ach: [9, 46] },
+    { id: 1716740, name: 'Starfield', status: 'Pausado', days: 141, ach: [12, 50] },
+    { id: 1196590, name: 'Resident Evil Village', status: 'Pausado', days: 88, ach: [14, 49] },
+    { id: 1030300, name: 'Hollow Knight: Silksong', status: 'Jugando', days: 66, ach: [8, 46] },
+  ],
+  judiDays: ['lu', 'ma', 'mi', 'ju', 'vi', 'sá', 'hoy'],
+  goals: [['Completados', 2, 3], ['Logros', 58, 80], ['Horas', 40, 45]],
+};
+
+/* Comprobaciones: lo que aparece dos veces es una sola cifra */
+const queueHours = D.queue.reduce((s, g) => s + (g.h ?? 0), 0);
+D.queueTotal = D.queue.length;
+console.assert(D.lists.find(l => l[0] === 'pendiente')[3] === String(D.queueTotal), 'pendientes = cola');
+console.assert(D.lists.find(l => l[0] === 'pausado')[3] === '5', 'cinco pausados');
+console.assert(D.lists.find(l => l[0] === 'jugando')[3] === String(D.playing.length), 'jugando = en curso');
+console.assert(D.monthMinutes[0] / 60 === D.goals[2][1], 'horas del mes = objetivo de horas');
+
+const pct = ([a, b]) => Math.round((a / b) * 100);
+const free = D.playingLimit - D.playing.length;
+const next = D.queue[0];
+
+
+/* Tu semana */
+const fmtH = m => m === 0 ? '0' : m < 60 ? `${m} min` : `${String(Math.round(m / 6) / 10).replace('.', ',')} h`;
+const weekMin = D.week.reduce((t, d) => t + d[1], 0);
+const weekAch = D.week.reduce((t, d) => t + d[2], 0);
+const hour = Number(new Intl.DateTimeFormat('es-ES', { hour: 'numeric', hourCycle: 'h23', timeZone: 'Europe/Madrid' }).format(new Date()));
+document.getElementById('greet').textContent = `${hour >= 6 && hour < 14 ? 'Buenos días' : hour >= 14 && hour < 21 ? 'Buenas tardes' : 'Buenas noches'}, Diego`;
+document.getElementById('week-fig').innerHTML = `Esta semana llevas <b>${String(Math.round(weekMin / 6) / 10).replace('.', ',')} h</b> y <b>${weekAch} logros</b>.`;
+const dayName = { lu: 'lunes', ma: 'martes', mi: 'miércoles', ju: 'jueves', vi: 'viernes', 'sá': 'sábado', do: 'domingo', hoy: 'hoy' };
+document.getElementById('week').innerHTML = D.week.map(([d, m, a, id, name], i) => {
+  const today = i === D.week.length - 1;
+  const label = today ? 'Hoy' : d;
+  const tip = m ? `${dayName[d][0].toUpperCase() + dayName[d].slice(1)}: ${fmtH(m)}, sobre todo ${name}${a ? `, ${a} ${a === 1 ? 'logro' : 'logros'}` : ''}` : `${dayName[d][0].toUpperCase() + dayName[d].slice(1)}: no jugaste`;
+  return `<li class="${m ? '' : 'is-zero'}${today ? ' is-today' : ''}" title="${tip}"><span class="week__d">${label}</span>
+    <span class="week__tile">${m ? `<img src="${img(id, 'library_600x900')}" alt="">` : ''}</span>
+    <span class="week__h">${m ? fmtH(m) : '0'}</span><span class="sr">${tip}</span></li>`;
+}).join('');
+
+/* Hace tiempo que no los tocas */
+D.dusty.sort((x, y) => y.days - x.days);
+document.getElementById('dusty-count').textContent = `${D.dusty.length} juegos con más de 60 días sin jugar`;
+document.getElementById('dusty').innerHTML = D.dusty.map(g => `
+  <article class="park">
+    <a class="park__art" href="#" aria-label="${g.name}"><img src="${img(g.id, 'header')}" alt=""><span class="park__days"><b>${g.days} días</b><span>sin jugar</span></span></a>
+    <div class="park__body">
+      <div><a class="park__name" href="#">${g.name}</a><div class="park__meta"><b>${g.status}</b>, con el ${pct(g.ach)} % de los logros</div></div>
+      <div class="park__acts"><button class="btn btn--ghost" type="button">Dejarlo</button><button class="btn" type="button">Retomar</button></div>
+    </div>
+  </article>`).join('');
+
+const shelves = D.lists.filter(l => l[0] !== 'bandeja');
+const tray = D.lists.find(l => l[0] === 'bandeja');
+const libTotal = shelves.reduce((t, l) => t + Number(l[3]), 0);
+document.getElementById('lib-bar').innerHTML = shelves.map(([k, label, , n, of]) => {
+  const over = of && Number(n) > Number(of.slice(1));
+  return `<li style="--n:${n}"><a href="#" class="${over ? 'is-over' : ''}" style="--c:var(--st-${k})" title="Ver ${label.toLowerCase()} (${n} de ${libTotal})">
+    <span class="l">${label}<svg class="i" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span><b>${n}${of ? `<small>${of}</small>` : ''}</b></a></li>`;
+}).join('');
+document.getElementById('tray-n').textContent = `${tray[3]} juegos`;
+
+
+document.getElementById('playing-count').textContent = `${D.playing.length} de ${D.playingLimit} a la vez`;
+document.getElementById('playing').innerHTML = D.playing.map(g => `
+  <article class="play">
+    <span class="play__art"><img src="${img(g.id, 'library_600x900')}" alt=""></span>
+    <div class="play__body">
+      <div><a class="play__name" href="#">${g.name}</a>
+        <div class="play__meta">${g.hours} h jugadas, ${g.last}</div></div>
+      <div>
+        <div class="prog__label"><span><b>${g.ach[0]}</b> de ${g.ach[1]} logros</span><span class="rar" style="--c:var(--rar-${g.rarest.tier})" title="Tu logro más raro">${g.rarest.label} ${g.rarest.pct}</span></div>
+        <div class="bar"><span style="width:${pct(g.ach)}%"></span></div>
+      </div>
+    </div>
+    <a class="play__go" href="#" aria-label="Jugar a ${g.name}" title="Jugar"><svg class="i"><use href="#i-play"/></svg></a>
+  </article>`).join('') + (free > 0 ? `
+  <div class="slot">
+    <img src="${img(next.id, 'library_600x900')}" alt="">
+    <div><div class="slot__title">Tienes un hueco libre</div><b>${next.name}</b><small>Es el siguiente en Pendientes</small></div>
+    <a class="btn btn--inv" href="#">Empezar</a>
+  </div>` : '');
+
+/* El horizonte: cuándo llegas a cada juego al ritmo de los últimos 30 días */
+document.getElementById('queue-count').textContent = `${D.queueTotal} juegos, unas ${queueHours} h`;
+let acc = 0;
+document.getElementById('queue').innerHTML = D.queue.map((g, i) => {
+  const weeks = Math.round(acc / D.pacePerWeekH);
+  const when = i === 0 && free > 0 ? 'Puedes empezarlo ya' : weeks <= 1 ? 'La semana que viene' : `En unas ${weeks} semanas`;
+  acc += g.h ?? 0;
+  const tier = g.sc >= 85 ? 'top' : g.sc >= 75 ? 'good' : 'mid';
+  return `<a class="poster" href="#">
+    <span class="poster__art"><img src="${img(g.id, 'library_600x900')}" alt="" onerror="this.src='${img(g.id, 'header')}'">
+      <span class="pos${i === 0 ? ' pos--next' : ''}">${i === 0 ? 'Siguiente' : i + 1}</span>
+      ${g.deal ? `<span class="deal">${g.deal.now} <s>${g.deal.was}</s></span>` : ''}</span>
+    <span class="poster__name">${g.name}</span>
+    <span class="poster__meta"><span>${g.h !== null ? `Historia ${g.h} h` : 'Sin final'}</span><span class="score" style="--c:var(--sc-${tier})">${g.sc}</span></span>
+    <span class="poster__when${i === 0 && free > 0 ? ' is-now' : ''}">${when}</span>
+  </a>`;
+}).join('');
+document.getElementById('horizon').innerHTML =
+  `Calculado a tu ritmo de los últimos 30 días, <b>${D.pacePerWeekH} h por semana</b>. A ese ritmo acabas todos tus pendientes en unas ${Math.round(queueHours / D.pacePerWeekH)} semanas.`;
+
+/* Mínimos históricos de la wishlist */
+document.getElementById('deals-count').textContent = `${D.deals.length} de los ${D.wishlistTotal} de tu wishlist`;
+document.getElementById('deals').innerHTML = D.deals.map(g => `
+  <a class="dl" href="#">
+    <span class="dl__art"><img src="${img(g.id, 'header')}" alt=""><span class="dl__off">−${g.off} %</span></span>
+    <span class="dl__name">${g.name}</span>
+    <span class="dl__price"><b>${g.now}</b><s>${g.was}</s></span>
+    <span class="dl__meta">${g.all ? '<b>Mínimo en todas las tiendas</b>' : 'Mínimo en Steam'}, hasta el ${g.ends}${g.queued ? '. Está en tus pendientes' : ''}</span>
+  </a>`).join('');
+
+document.getElementById('achs').innerHTML = D.achs.map(a => `
+  <li class="row" style="--c:var(--rar-${a.tier})"><span class="row__media"><img src="${img(a.id, 'capsule_184x69')}" alt=""></span>
+    <span><div class="row__name">${a.name}</div><div class="row__sub">${a.game}, ${a.when}</div></span>
+    <span class="row__end"><b>${a.pct}</b><small>${a.label}</small></span></li>`).join('');
+
+/* Sale pronto: de tu wishlist solo los que tienen fecha; después, lo más esperado de Steam que no tienes en la wishlist */
+const SOON = {
+  wishlist: [
+    { id: 2868840, name: 'Slay the Spire 2', date: '4 de diciembre', days: 9 },
+    { id: 1962700, name: 'Subnautica 2', date: '12 de diciembre', days: 17 },
+    { id: 2527500, name: 'Mina the Hollower', date: '20 de enero', days: 56 },
+  ],
+  wishlistNoDate: 4,
+  hyped: [
+    { id: 3065800, name: 'Marathon', date: '10 de diciembre', days: 15, rank: 1 },
+    { id: 2215430, name: 'Ghost of Yōtei', date: '18 de diciembre', days: 23, rank: 2 },
+    { id: 3321460, name: 'Crimson Desert', date: '15 de enero', days: 51, rank: 4 },
+  ],
+};
+const inDays = d => d <= 1 ? 'Mañana' : d < 14 ? `En ${d} días` : d < 60 ? `En ${Math.round(d / 7)} semanas` : `En ${Math.round(d / 30)} meses`;
+const addBtn = (what, label) => `<button class="add" type="button" data-add="${what}" aria-pressed="false" title="Añadir a ${label}"><svg class="i"><use href="#i-plus"/></svg>${label}</button>`;
+const soonRow = (g, sub, acts) => `<li class="row row--wide soon-row"><span class="row__media"><img src="${img(g.id, 'header')}" alt="" onerror="this.style.visibility='hidden'"></span>
+    <span><div class="row__name">${g.name}</div><div class="row__sub">${sub}</div></span>
+    <span class="row__end"><b class="when${g.days < 14 ? ' is-close' : ''}">${inDays(g.days)}</b></span>
+    <span class="soon__acts">${acts}</span></li>`;
+document.getElementById('soon').innerHTML = `
+  <h3 class="soon__group">De tu wishlist</h3>
+  <ul class="rows">${SOON.wishlist.map(g => soonRow(g, g.date, addBtn('pendientes', 'Pendientes'))).join('')}</ul>
+  <h3 class="soon__group">Lo más esperado en Steam</h3>
+  <ul class="rows">${SOON.hyped.map(g => soonRow(g, `${g.date}, nº ${g.rank} en lo más esperado`, addBtn('wishlist', 'Wishlist'))).join('')}</ul>`;
+
+document.getElementById('year-line').innerHTML = `<b>${D.yearHours} h</b> jugadas este año, <b>${D.monthMinutes[0] / 60} h</b> de ellas en noviembre.`;
+let seed = 11; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+document.getElementById('heat').innerHTML = Array.from({ length: 52 * 7 }, (_, i) =>
+  `<i data-l="${i > 330 ? Math.floor(rnd() * 5) : rnd() < .78 ? 0 : Math.ceil(rnd() * 2)}"></i>`).join('');
+
+document.getElementById('judi').innerHTML = D.judi.map((s, i) => `<span class="${s}"><i></i>${D.judiDays[i]}</span>`).join('');
+document.getElementById('goals').innerHTML = D.goals.map(([label, have, want]) => `
+  <div class="goal"><div class="prog__label"><span>${label}</span><span><b>${have}</b> de ${want}</span></div>
+  <div class="bar"><span style="width:${Math.min(100, Math.round(have / want * 100))}%"></span></div></div>`).join('');
+
+document.querySelectorAll('.wtp .seg button').forEach(b => b.onclick = () =>
+  document.querySelectorAll('.wtp .seg button').forEach(x => x.setAttribute('aria-pressed', x === b)));
+
+document.getElementById('soon').addEventListener('click', e => {
+  const b = e.target.closest('.add'); if (!b) return;
+  const on = b.getAttribute('aria-pressed') !== 'true';
+  b.setAttribute('aria-pressed', on);
+  const label = b.dataset.add === 'wishlist' ? 'Wishlist' : 'Pendientes';
+  b.innerHTML = on ? `<svg class="i"><use href="#i-check"/></svg>En ${label.toLowerCase()}` : `<svg class="i"><use href="#i-plus"/></svg>${label}`;
+});
+
+/* Carruseles
+   Con ratón: se agarran y se arrastran (cursor de mano), siguen con inercia al soltar, rebotan con un muelle
+   si tiras más allá del borde y acaban posándose suavemente en la tarjeta más cercana.
+   Con el dedo: el desplazamiento nativo con su imán. */
+const syncCar = id => {
+  const r = document.getElementById(id);
+  const max = r.scrollWidth - r.clientWidth;
+  document.querySelector(`[data-car="${id}"][data-dir="-1"]`).disabled = r.scrollLeft < 4;
+  document.querySelector(`[data-car="${id}"][data-dir="1"]`).disabled = r.scrollLeft >= max - 4;
+  document.querySelector(`[data-start="${id}"]`).classList.toggle('is-on', r.scrollLeft > r.clientWidth * 0.6);
+};
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const easeOut = t => 1 - Math.pow(1 - t, 4);
+function makeRail(r) {
+  let raf = 0, pull = 0;
+  const max = () => r.scrollWidth - r.clientWidth;
+  const stop = () => cancelAnimationFrame(raf);
+  const setPull = v => { pull = v; r.style.setProperty('--pull', `${v.toFixed(2)}px`); };
+  // Las posiciones en las que una tarjeta queda alineada a la izquierda
+  const stops = () => [...r.children].map(c => Math.min(c.offsetLeft - r.firstElementChild.offsetLeft, max()));
+  const nearest = x => stops().reduce((a, b) => Math.abs(b - x) < Math.abs(a - x) ? b : a, 0);
+  // Desliza hasta x con una curva que frena al final
+  const glide = (to, ms = 520) => {
+    stop();
+    const from = r.scrollLeft, d = to - from, t0 = performance.now();
+    if (reduced || Math.abs(d) < 1) { r.scrollLeft = to; return; }
+    const tick = now => {
+      const t = Math.min(1, (now - t0) / ms);
+      r.scrollLeft = from + d * easeOut(t);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+  };
+  // El tirón de más allá del borde vuelve con un muelle amortiguado
+  const springBack = () => {
+    let v = 0;
+    const tick = () => {
+      v = (v - pull * 0.14) * 0.74;
+      setPull(pull + v);
+      if (Math.abs(pull) > 0.3 || Math.abs(v) > 0.3) raf = requestAnimationFrame(tick); else setPull(0);
+    };
+    raf = requestAnimationFrame(tick);
+  };
+  // Inercia: sigue a la velocidad con la que soltaste y frena poco a poco; al final, imán a la tarjeta
+  const coast = v => {
+    // Dónde acabaría con esta fricción; se elige la tarjeta más cercana a ese punto y se llega a ella con una sola curva
+    const target = nearest(Math.max(0, Math.min(max(), r.scrollLeft - Math.max(-1.4, Math.min(1.4, v * 20 / r.clientWidth)) * r.clientWidth)));
+    const dist = Math.abs(target - r.scrollLeft);
+    glide(target, Math.max(380, Math.min(900, 300 + dist * 0.9)));
+  };
+
+  let down = false, moved = false, x0 = 0, s0 = 0, lastX = 0, lastT = 0, vel = 0;
+  r.querySelectorAll('a, img').forEach(el => { el.draggable = false; });
+  r.addEventListener('dragstart', e => e.preventDefault());
+  r.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    if (!e.target.closest('button')) e.preventDefault(); // sin selección de texto ni arrastre de enlaces
+    stop(); setPull(pull);
+    down = true; moved = false; x0 = lastX = e.clientX; s0 = r.scrollLeft; lastT = performance.now(); vel = 0;
+  });
+  window.addEventListener('pointermove', e => {
+    if (!down) return;
+    const dx = e.clientX - x0;
+    if (!moved && Math.abs(dx) < 4) return;
+    if (!moved) { moved = true; r.classList.add('is-grabbing'); r.setPointerCapture?.(e.pointerId); }
+    const want = s0 - dx;
+    const m = max();
+    // Dentro: la tarjeta va pegada al ratón. Fuera del borde: resistencia que crece cuanto más tiras
+    const over = want < 0 ? want : want > m ? want - m : 0;
+    r.scrollLeft = Math.max(0, Math.min(m, want));
+    setPull(over ? -Math.sign(over) * 140 * (1 - Math.exp(-Math.abs(over) / 220)) : 0);
+    const now = performance.now(), dt = Math.max(1, now - lastT);
+    vel = 0.7 * ((e.clientX - lastX) / dt) * 16 + 0.3 * vel; // px por fotograma, suavizada
+    lastX = e.clientX; lastT = now;
+  });
+  const up = () => {
+    if (!down) return;
+    down = false;
+    if (!moved) return;
+    r.classList.remove('is-grabbing');
+    if (performance.now() - lastT > 80) vel = 0; // si te paraste antes de soltar, no hay lanzamiento
+    if (pull) springBack(); else coast(vel);
+  };
+  window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', up);
+  // Un arrastre no es un clic: no abre el juego que había debajo
+  r.addEventListener('click', e => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+  r.addEventListener('scroll', () => syncCar(r.id), { passive: true });
+  syncCar(r.id);
+  // Las flechas: casi una pantalla, a la tarjeta más cercana, con la misma curva
+  const go = dir => glide(nearest(Math.max(0, Math.min(max(), r.scrollLeft + dir * r.clientWidth * 0.9))), 640);
+  go.start = () => glide(0, Math.min(1100, 520 + r.scrollLeft * 0.12));
+  return go;
+}
+const rails = {};
+['queue', 'deals', 'dusty'].forEach(id => { rails[id] = makeRail(document.getElementById(id)); });
+document.querySelectorAll('.car [data-car]').forEach(b => b.onclick = () => rails[b.dataset.car](Number(b.dataset.dir)));
+document.querySelectorAll('.car [data-start]').forEach(b => b.onclick = () => rails[b.dataset.start].start());
+const tb = document.getElementById('theme');
+tb.onclick = () => { const r = document.documentElement; r.dataset.theme = r.dataset.theme === 'dark' ? 'light' : 'dark'; tb.textContent = r.dataset.theme === 'dark' ? 'Tema claro' : 'Tema oscuro'; };
+</script>
+</body>
+</html>
