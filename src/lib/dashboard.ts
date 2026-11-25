@@ -207,3 +207,115 @@ export function minutesInMonth(playtime: { date: string; minutes: number }[], mo
     const prefix = month.slice(0, 7)
     return playtime.reduce((sum, r) => sum + (r.date.startsWith(prefix) ? r.minutes : 0), 0)
 }
+
+// ── Inicio à la Refract ──
+
+/** Una fila de hubgames_playtime_daily: minutos de un juego en un día de Madrid (YYYY-MM-DD). */
+export interface PlaytimeDay {
+    date: string
+    minutes: number
+    appid: number | null
+}
+
+const DAY_SHORT = ['do', 'lu', 'ma', 'mi', 'ju', 'vi', 'sá']
+
+export interface WeekDay {
+    date: string
+    /** «lu», «ma»… y «Hoy» para el último. */
+    label: string
+    today: boolean
+    minutes: number
+    unlocks: number
+    /** El juego al que más jugaste ese día (su portada), o null si no jugaste. */
+    appid: number | null
+}
+
+function dayMs(date: string): number {
+    return Date.parse(`${date}T00:00:00Z`)
+}
+
+function isoDay(ms: number): string {
+    return new Date(ms).toISOString().slice(0, 10)
+}
+
+/**
+ * Tus últimos 7 días (el último, hoy): minutos, logros y el juego que más jugaste cada día.
+ * `today` y las fechas de `playtime` son días de Madrid; `unlockDays`, los días de Madrid de cada logro.
+ */
+export function weekStrip(playtime: PlaytimeDay[], unlockDays: string[], today: string): WeekDay[] {
+    const end = dayMs(today)
+    return Array.from({ length: 7 }, (_, i) => {
+        const ms = end - (6 - i) * 86400_000
+        const date = isoDay(ms)
+        const byGame = new Map<number, number>()
+        let minutes = 0
+        for (const r of playtime) {
+            if (r.date !== date || r.minutes <= 0) continue
+            minutes += r.minutes
+            if (r.appid !== null) byGame.set(r.appid, (byGame.get(r.appid) ?? 0) + r.minutes)
+        }
+        const top = [...byGame].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]
+        return {
+            date,
+            label: i === 6 ? 'Hoy' : DAY_SHORT[new Date(ms).getUTCDay()],
+            today: i === 6,
+            minutes,
+            unlocks: unlockDays.filter((d) => d === date).length,
+            appid: top ? top[0] : null,
+        }
+    })
+}
+
+/** Tu ritmo: minutos por semana de media en los últimos `days` días (hoy incluido). */
+export function weeklyPace(playtime: PlaytimeDay[], today: string, days: number = 28): number {
+    const from = isoDay(dayMs(today) - (days - 1) * 86400_000)
+    const total = playtime.reduce((sum, r) => sum + (r.date >= from && r.date <= today && r.minutes > 0 ? r.minutes : 0), 0)
+    return Math.round((total / days) * 7)
+}
+
+/**
+ * Cuándo llegas a cada pendiente a tu ritmo: semanas hasta empezarlo, sumando lo que falta de los anteriores.
+ * Con un hueco libre en «Jugando», el primero se puede empezar ya (0). null si no has jugado nada últimamente.
+ */
+export function queueHorizon(queue: LibraryGame[], paceMinutes: number, freeSlot: boolean): (number | null)[] {
+    if (paceMinutes <= 0) return queue.map(() => null)
+    let ahead = 0
+    return queue.map((g, i) => {
+        const weeks = i === 0 && freeSlot ? 0 : Math.max(1, Math.round(ahead / paceMinutes))
+        ahead += g.endless ? 0 : (remainingMinutes(g) ?? 0)
+        return weeks
+    })
+}
+
+/** Minutos de historia que suman tus pendientes (sin los que no tienen final ni duración). */
+export function queueMinutes(queue: LibraryGame[]): number {
+    return queue.reduce((sum, g) => sum + (g.endless ? 0 : (remainingMinutes(g) ?? 0)), 0)
+}
+
+/** Aparcados: pausados (y «jugando» olvidados) con más de `minDays` días sin abrirlos, el más olvidado primero. */
+export function parkedGames(games: LibraryGame[], now: number, minDays: number = 60): { game: LibraryGame; days: number }[] {
+    return games
+        .filter((g) => (g.status === 'pausado' || g.status === 'jugando') && g.rtime_last_played)
+        .map((game) => ({ game, days: Math.floor((now - Date.parse(game.rtime_last_played!)) / 86400_000) }))
+        .filter((p) => p.days >= minDays)
+        .sort((a, b) => b.days - a.days || (a.game.name ?? '').localeCompare(b.game.name ?? ''))
+}
+
+/** Lo que sale desde hoy (fecha YYYY-MM-DD conocida), el más cercano primero, con los días que faltan. */
+export function upcomingReleases<T extends { release_date: string | null }>(rows: T[], today: string, limit: number = 4): (T & { release_date: string; days: number })[] {
+    const end = dayMs(today)
+    return rows
+        .filter((r): r is T & { release_date: string } => !!r.release_date && /^\d{4}-\d{2}-\d{2}$/.test(r.release_date) && r.release_date >= today)
+        .map((r) => ({ ...r, days: Math.round((dayMs(r.release_date) - end) / 86400_000) }))
+        .sort((a, b) => a.days - b.days)
+        .slice(0, limit)
+}
+
+/** «Hoy», «Mañana», «En 9 días», «En 3 semanas», «En 3 meses». */
+export function untilRelease(days: number): string {
+    if (days <= 0) return 'Hoy'
+    if (days === 1) return 'Mañana'
+    if (days < 14) return `En ${days} días`
+    if (days < 60) return `En ${Math.round(days / 7)} semanas`
+    return `En ${Math.round(days / 30)} meses`
+}

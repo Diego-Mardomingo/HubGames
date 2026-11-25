@@ -1,70 +1,52 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
-import {
-    AlertTriangle,
-    Bookmark,
-    CalendarClock,
-    Check,
-    Clock,
-    Dices,
-    ExternalLink,
-    Flag,
-    Flame,
-    Gamepad2,
-    Gem,
-    Hourglass,
-    Inbox,
-    Infinity as InfinityIcon,
-    Play,
-    ShoppingCart,
-    Star,
-    ThumbsUp,
-    Trophy,
-    Wrench,
-    X,
-} from 'lucide-react'
+import { AlertTriangle, Check, Clock, Flag, Flame, Gamepad2, Inbox, Play, Star, Trophy, Wrench, X } from 'lucide-react'
 import {
     judiStreak,
     judiWeek,
     listCounts,
     minutesInMonth,
-    nearHundred,
     nextInQueue,
+    parkedGames,
     playingNow,
+    queueHorizon,
+    queueMinutes,
     recentActivity,
     steamRunUrl,
+    untilRelease,
+    upcomingReleases,
+    weekStrip,
+    weeklyPace,
     yearSummary,
     type Activity,
     type JudiTodayState,
 } from '@/lib/dashboard'
-import type { DashboardData } from '@/lib/dashboard-db'
-import { buildHeatmap } from '@/lib/activity-heatmap'
+import type { DashboardData, HomeWishlistGame } from '@/lib/dashboard-db'
+import { buildHeatmap, madridDate } from '@/lib/activity-heatmap'
 import { RARITY_TIER_LABELS, rarityColor, rarityTier } from '@/lib/rarity'
 import { formatPercent } from '@/lib/achievements'
 import { countsByMonth, monthElapsed, monthName, progressFor, suggestTargets } from '@/lib/goals'
 import { achievementPercent, gameDuration } from '@/lib/library'
 import { formatHours } from '@/lib/format'
-import { GOAL_LABELS, goalMinutes, goalRemainingMinutes, parseGoal } from '@/lib/game-goal'
-import { metacriticScore, ratingTier, steamReviewScore } from '@/lib/scores'
+import { metacriticScore, ratingTier } from '@/lib/scores'
+import { formatPrice, isAtAllStoresLow, isAtHistoricalLow } from '@/lib/wishlist'
+import { loadMostWishlisted } from '@/lib/steam-upcoming'
 import type { LibraryGame } from '@/lib/tracker'
-import { isPerfect } from '@/lib/tracker-rules'
 import { isJudiMaintenance, maintenanceReturn, maintenanceReturnLine, maintenanceUntilRaw, parseMaintenanceUntil } from '@/lib/judi-maintenance'
 import { Button } from '@/components/ui/button'
 import GameCover from '@/components/tracker/GameCover'
-import SuggestionsPanel from '@/components/tracker/SuggestionsPanel'
-import { MarkFlags, StatusChip } from '@/components/tracker/status'
-import { PriceTag } from '@/components/wishlist/PriceInfo'
-import KeyboardList from '@/components/KeyboardList'
 import CountUp from '@/components/CountUp'
-import Tile from '@/components/Tile'
 import ActivityHeatmap from './ActivityHeatmap'
 import SyncButton from './SyncButton'
-import EmptyState from '@/components/EmptyState'
 import WhatToPlay from './WhatToPlay'
 import ListShortcuts from './ListShortcuts'
 import MonthlyGoals from './MonthlyGoals'
 import OpenSearchButton from './OpenSearchButton'
+import Carousel from './Carousel'
+import { ParkedActions, SoonActions } from './HomeActions'
 import { shortDate, timeAgo } from './format'
 import './dashboard.css'
+import './home.css'
 import { achievementIconUrl } from '@/lib/steam-icon'
 
 type CSSVars = React.CSSProperties & Record<`--${string}`, string | number>
@@ -72,133 +54,309 @@ type CSSVars = React.CSSProperties & Record<`--${string}`, string | number>
 /** Posición en la entrada escalonada (`.hg-enter`, styles/lists.css). */
 const enter = (i: number): CSSVars => ({ '--i': i })
 
-/** Horas que cuentan al llegar: «312 h», «4,5 h»; menos de una hora, tal cual («45 min»). */
-function Hours({ minutes }: { minutes: number }) {
-    if (minutes < 60) return <>{formatHours(minutes)}</>
-    const hours = minutes / 60
-    return hours < 10 ? <CountUp value={Math.round(hours * 10) / 10} decimals={1} suffix="h" /> : <CountUp value={Math.round(hours)} suffix="h" />
+const HOUR = new Intl.DateTimeFormat('es-ES', { hour: 'numeric', hourCycle: 'h23', timeZone: 'Europe/Madrid' })
+const LONG_DAY = new Intl.DateTimeFormat('es-ES', { weekday: 'long', timeZone: 'UTC' })
+const RELEASE_DAY = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' })
+
+/** «Buenos días» de 6 a 14, «Buenas tardes» hasta las 21 y «Buenas noches» el resto, en hora de Madrid. */
+function greeting(now: number): string {
+    const h = Number(HOUR.format(new Date(now)))
+    return h >= 6 && h < 14 ? 'Buenos días' : h >= 14 && h < 21 ? 'Buenas tardes' : 'Buenas noches'
 }
 
-/** Cabecera de sección: icono tintado con el color de la lista a la que pertenece, título, recuento y acciones. */
-function SectionHead({ id, tone, icon, title, count, children }: { id: string; tone: string; icon: React.ReactNode; title: string; count?: string; children?: React.ReactNode }) {
+/** «1,6 h», «45 min» o «0». */
+function short(minutes: number): string {
+    return minutes === 0 ? '0' : formatHours(minutes)
+}
+
+/** Cabecera del panel de JUDI: título y, a la derecha, su estado. */
+function SectionHead({ id, title, children }: { id: string; tone?: string; icon?: React.ReactNode; title: string; children?: React.ReactNode }) {
     return (
-        <header className="dash-sec__head">
-            <span className={`dash-sec__icon hg-tint ${tone}`} aria-hidden>
-                {icon}
-            </span>
-            <h2 id={id} className="dash-sec__title">
+        <header className="home-head">
+            <h2 id={id} className="home-head__title">
                 {title}
             </h2>
-            {count && <span className="dash-sec__count">{count}</span>}
-            {children && <span className="dash-sec__end">{children}</span>}
+            {children && <span className="home-head__end">{children}</span>}
         </header>
     )
 }
 
-/** Vacío de un panel: icono con el color de la sección, una frase y, si hay, una acción (`EmptyState`). */
-function Empty({ tone, icon, title, text, action }: { tone: string; icon: React.ReactNode; title: string; text: string; action?: React.ReactNode }) {
-    return (
-        <EmptyState tone={tone} icon={icon} title={title} action={action}>
-            {text}
-        </EmptyState>
-    )
-}
-
-function Cover({ game, title }: { game: Pick<LibraryGame, 'appid' | 'name' | 'header_image'>; title?: string }) {
-    return (
-        <span className="hg-row__cover lib-cover" title={title}>
-            <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="112px" />
-        </span>
-    )
-}
-
-function Scores({ game }: { game: LibraryGame }) {
-    const mc = game.metacritic_score !== null ? metacriticScore(game.metacritic_score) : null
-    const rev = game.steamspy_userscore ? steamReviewScore(game.steamspy_userscore) : null
+/** Cabecera de sección: título en frase, recuento en gris y un enlace. */
+function Head({ id, title, count, more }: { id: string; title: string; count?: string; more?: { href: string; label: string } }) {
     return (
         <>
-            {mc && (
-                <span className={`hg-score hg-tint sc-${mc.tier}`} title={`Metacritic: ${mc.label}`}>
-                    {game.metacritic_score}
-                </span>
-            )}
-            {rev && (
-                <span className={`hg-score hg-tint sc-${rev.tier}`} title={`Reseñas de Steam: ${rev.label}`}>
-                    <ThumbsUp aria-hidden /> {Math.round(game.steamspy_userscore!)} %<span className="sr-only"> ({rev.label})</span>
-                </span>
+            <h2 id={id} className="home-head__title">
+                {title}
+            </h2>
+            {count && <span className="home-head__count">{count}</span>}
+            {more && (
+                <Link href={more.href} className="home-head__more">
+                    {more.label}
+                </Link>
             )}
         </>
     )
 }
 
-function Bar({ pct, index, done }: { pct: number; index: number; done?: boolean }) {
+/** Tu semana: una portada por día con lo que más jugaste y las horas debajo; los días sin jugar, un hueco punteado. */
+function WeekStrip({ data }: { data: DashboardData }) {
+    const unlockDays = data.activity.unlockTimes.map((t) => madridDate(t))
+    const week = weekStrip(data.activity.playtime, unlockDays, data.activity.today)
+    const names = new Map(data.games.map((g) => [g.appid, g]))
     return (
-        <span className={`hg-bar hg-bar--fill${done ? ' is-done' : ''}`} style={enter(index)} aria-hidden>
-            <span style={{ width: `${pct}%` }} />
-        </span>
+        <ol className="home-week" aria-label="Lo que más jugaste cada día de los últimos 7">
+            {week.map((d) => {
+                const g = d.appid !== null ? names.get(d.appid) : undefined
+                const day = d.today ? 'Hoy' : LONG_DAY.format(new Date(`${d.date}T00:00:00Z`))
+                const tip = d.minutes
+                    ? `${day[0].toUpperCase() + day.slice(1)}: ${formatHours(d.minutes)}${g?.name ? `, sobre todo ${g.name}` : ''}${d.unlocks ? `, ${d.unlocks} ${d.unlocks === 1 ? 'logro' : 'logros'}` : ''}`
+                    : `${day[0].toUpperCase() + day.slice(1)}: no jugaste`
+                return (
+                    <li key={d.date} className={`${d.minutes ? '' : 'is-zero'}${d.today ? ' is-today' : ''}`} title={tip}>
+                        <span className="home-week__d" aria-hidden>
+                            {d.label}
+                        </span>
+                        <span className="home-week__tile" aria-hidden>
+                            {d.appid !== null && <GameCover appid={d.appid} name={g?.name ?? null} headerImage={g?.header_image ?? null} variant="vertical" sizes="48px" />}
+                        </span>
+                        <span className="home-week__h" aria-hidden>
+                            {short(d.minutes)}
+                        </span>
+                        <span className="sr-only">{tip}</span>
+                    </li>
+                )
+            })}
+        </ol>
     )
 }
 
-/** Fila de un juego en curso: franja de Jugando, horas, última partida, lo que falta, logro más raro y progreso. */
-function PlayingRow({ game, rarest, index, now }: { game: LibraryGame; rarest: number | undefined; index: number; now: number }) {
+/** Continuar jugando: fichas bajas con la portada vertical, el progreso de logros y Jugar; el hueco libre ofrece el siguiente pendiente. */
+function PlayingTile({ game, rarest, now }: { game: LibraryGame; rarest: number | undefined; now: number }) {
     const tier = rarityTier(rarest)
-    const left = goalRemainingMinutes(game)
-    const target = goalMinutes(game)
-    const goal = GOAL_LABELS[parseGoal(game.goal)]
-    const duration = gameDuration(game)
     const name = game.name ?? `App ${game.appid}`
     const pct = achievementPercent(game)
-    const perfect = isPerfect(game)
     return (
-        <li className="hg-row lib-row dash-row--playing st-jugando" style={tier ? ({ '--rar': rarityColor(tier) } as CSSVars) : undefined}>
-            <span className={`hg-row__cover lib-cover${tier ? ' has-rar' : ''}`}>
-                <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="112px" />
+        <article className="home-play">
+            <span className="home-play__art">
+                <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="vertical" sizes="96px" />
             </span>
-            <span className="hg-row__main">
-                <span className="lib-row__name">
-                    <Link href={`/juego/${game.appid}`} className="hg-row__link" data-row-link>
+            <div className="home-play__body">
+                <div>
+                    <Link href={`/juego/${game.appid}`} className="home-play__name">
                         {name}
                     </Link>
-                    <MarkFlags favorite={game.favorite} endless={game.endless} />
+                    <div className="home-play__meta" title={game.rtime_last_played ? `Última partida: ${shortDate(game.rtime_last_played)}` : undefined}>
+                        {formatHours(game.playtime_forever)} jugadas, {game.rtime_last_played ? timeAgo(game.rtime_last_played, now) : 'sin jugar'}
+                    </div>
+                </div>
+                {pct === null ? (
+                    <div className="home-prog__label">Sin logros</div>
+                ) : (
+                    <div>
+                        <div className="home-prog__label">
+                            <Link href={`/juego/${game.appid}/logros`} className="home-play__ach">
+                                <b>{game.achievements_unlocked ?? 0}</b> de {game.achievements_total} logros
+                            </Link>
+                            {tier && rarest !== undefined && (
+                                <span className="home-rar" style={{ '--c': rarityColor(tier) } as CSSVars} title="Tu logro más raro">
+                                    {RARITY_TIER_LABELS[tier]} {formatPercent(rarest)}
+                                </span>
+                            )}
+                        </div>
+                        <span className="home-bar" aria-hidden>
+                            <span style={{ width: `${pct}%` }} />
+                        </span>
+                    </div>
+                )}
+            </div>
+            <a className="home-play__go" href={steamRunUrl(game.appid)} aria-label={`Jugar a ${name}`} title="Jugar">
+                <Play aria-hidden />
+            </a>
+        </article>
+    )
+}
+
+function FreeSlot({ next }: { next: LibraryGame | undefined }) {
+    if (!next)
+        return (
+            <div className="home-slot">
+                <span className="home-slot__art" />
+                <div>
+                    <div className="home-slot__title">Tienes un hueco libre</div>
+                    <small>Elige algo de la bandeja o busca un juego</small>
+                </div>
+                <OpenSearchButton size="sm" />
+            </div>
+        )
+    return (
+        <div className="home-slot">
+            <span className="home-slot__art">
+                <GameCover appid={next.appid} name={next.name} headerImage={next.header_image} variant="vertical" sizes="96px" />
+            </span>
+            <div>
+                <div className="home-slot__title">Tienes un hueco libre</div>
+                <b>{next.name ?? `App ${next.appid}`}</b>
+                <small>Es el siguiente en Pendientes</small>
+            </div>
+            {next.owned ? (
+                <a className="home-btn home-btn--inv" href={steamRunUrl(next.appid)}>
+                    Empezar
+                </a>
+            ) : (
+                <Link className="home-btn home-btn--inv" href={`/juego/${next.appid}`}>
+                    Ver
+                </Link>
+            )}
+        </div>
+    )
+}
+
+/** Un pendiente en el carrusel: portada, posición, oferta si no lo tienes, duración, nota y cuándo llegas a él. */
+function Poster({ game, index, weeks, freeSlot }: { game: LibraryGame; index: number; weeks: number | null; freeSlot: boolean }) {
+    const main = gameDuration(game).main
+    const mc = game.metacritic_score !== null ? metacriticScore(game.metacritic_score) : null
+    const deal = !game.owned && (game.discount_percent ?? 0) > 0 ? { now: formatPrice(game.price_final), was: formatPrice(game.price_initial) } : null
+    const now = weeks === 0
+    const when = weeks === null ? null : now ? 'Puedes empezarlo ya' : weeks <= 1 ? 'La semana que viene' : `En unas ${weeks} semanas`
+    return (
+        <Link href={`/juego/${game.appid}`} className="home-poster" role="listitem">
+            <span className="home-poster__art">
+                <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="vertical" sizes="192px" />
+                <span className={`home-pos${index === 0 ? ' home-pos--next' : ''}`}>{index === 0 ? 'Siguiente' : index + 1}</span>
+                {deal && (
+                    <span className="home-deal">
+                        {deal.now} <s>{deal.was}</s>
+                    </span>
+                )}
+            </span>
+            <span className="home-poster__name">{game.name ?? `App ${game.appid}`}</span>
+            <span className="home-poster__meta">
+                <span>{game.endless ? 'Sin final' : main !== null ? `Historia ${formatHours(main)}` : 'Sin duración'}</span>
+                {mc && (
+                    <span className={`home-score sc-${mc.tier}`} title={`Metacritic: ${mc.label}`}>
+                        {game.metacritic_score}
+                    </span>
+                )}
+            </span>
+            {when && <span className={`home-poster__when${now && freeSlot ? ' is-now' : ''}`}>{when}</span>}
+        </Link>
+    )
+}
+
+/** Un juego de la wishlist en su mínimo histórico. */
+function Deal({ game, queued }: { game: HomeWishlistGame; queued: boolean }) {
+    return (
+        <Link href={`/juego/${game.appid}`} className="home-dl" role="listitem">
+            <span className="home-dl__art">
+                <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="384px" />
+                <span className="home-dl__off">−{game.discount_percent} %</span>
+            </span>
+            <span className="home-dl__name">{game.name ?? `App ${game.appid}`}</span>
+            <span className="home-dl__price">
+                <b>{formatPrice(game.price_final)}</b>
+                <s>{formatPrice(game.price_initial)}</s>
+            </span>
+            <span className="home-dl__meta">
+                {isAtAllStoresLow(game) ? <b>Mínimo en todas las tiendas</b> : 'Mínimo en Steam'}
+                {queued && '. Está en tus pendientes'}
+            </span>
+        </Link>
+    )
+}
+
+/** Aparcado: la cabecera en gris (coge polvo) con los días sin jugar; recupera el color al pasar por encima. */
+function Parked({ game, days }: { game: LibraryGame; days: number }) {
+    const name = game.name ?? `App ${game.appid}`
+    const pct = achievementPercent(game)
+    return (
+        <article className="home-park" role="listitem">
+            <Link href={`/juego/${game.appid}`} className="home-park__art" aria-label={name}>
+                <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="384px" />
+                <span className="home-park__days">
+                    <b>{days} días</b>
+                    <span>sin jugar</span>
                 </span>
-                <span className="hg-row__meta lib-row__meta">
-                    <span className="lib-meta" title="Horas jugadas">
-                        <Clock aria-hidden /> {formatHours(game.playtime_forever)}
-                    </span>
-                    <span className="lib-meta" title={game.rtime_last_played ? `Última partida: ${shortDate(game.rtime_last_played)}` : undefined}>
-                        <CalendarClock aria-hidden /> {game.rtime_last_played ? timeAgo(game.rtime_last_played, now) : 'sin jugar'}
-                    </span>
-                    {left !== null && target !== null && duration.source && (
-                        <span className="lib-meta dash-left" title={`${goal}: ${formatHours(target)}`}>
-                            <Hourglass aria-hidden /> {left > 0 ? `faltan ~${formatHours(left)}` : `${goal.toLowerCase()}: superado`}
-                        </span>
-                    )}
-                    {tier && rarest !== undefined && (
-                        <span className="dash-rar rar-ink" style={{ '--c': rarityColor(tier) } as CSSVars} title="El logro más raro que tienes">
-                            <Gem aria-hidden /> {RARITY_TIER_LABELS[tier]} {formatPercent(rarest)}
-                        </span>
-                    )}
+            </Link>
+            <div className="home-park__body">
+                <div>
+                    <Link href={`/juego/${game.appid}`} className="home-park__name">
+                        {name}
+                    </Link>
+                    <div className="home-park__meta">
+                        <b>{game.status === 'pausado' ? 'Pausado' : 'Jugando'}</b>
+                        {pct !== null ? `, con el ${pct} % de los logros` : `, ${formatHours(game.playtime_forever)} jugadas`}
+                    </div>
+                </div>
+                <ParkedActions appid={game.appid} status={game.status} name={name} />
+            </div>
+        </article>
+    )
+}
+
+/** Fecha de una fila de «Sale pronto» («4 de diciembre»). */
+function releaseDay(date: string): string {
+    return RELEASE_DAY.format(new Date(`${date}T00:00:00Z`))
+}
+
+/** Sale pronto: lo de tu wishlist que tiene fecha y, debajo, lo más deseado de Steam que aún no sigues. */
+async function SoonList({ data, today, tracked, pending }: { data: DashboardData; today: string; tracked: Set<number>; pending: Set<number> }) {
+    // Solo con día concreto: «2027» o «Q1 2027» no dicen cuándo sale.
+    const dated = data.wishlist.filter((w) => w.coming_soon !== false && /\b\d{1,2}\b/.test(w.release_date_text ?? ''))
+    const mine = upcomingReleases(dated, today, 4)
+    const wished = new Set(data.wishlist.map((w) => w.appid))
+    const hyped = upcomingReleases(
+        (await loadMostWishlisted()).filter((h) => !wished.has(h.appid) && !tracked.has(h.appid)),
+        today,
+        4,
+    )
+    if (mine.length === 0 && hyped.length === 0) return <p className="home-empty">No hay lanzamientos con fecha en tu wishlist ni entre lo más esperado de Steam.</p>
+    const row = (g: { appid: number; name: string | null; header_image: string | null; release_date: string; days: number }, sub: string, wishlist: boolean) => (
+        <li key={g.appid} className="home-row home-row--soon">
+            <span className="home-row__media home-row__media--wide">
+                <GameCover appid={g.appid} name={g.name} headerImage={g.header_image} variant="header" sizes="192px" />
+            </span>
+            <span className="home-row__main">
+                <Link href={`/juego/${g.appid}`} className="home-row__name">
+                    {g.name ?? `App ${g.appid}`}
+                </Link>
+                <span className="home-row__sub">
+                    <b className={g.days < 14 ? 'is-close' : undefined}>{untilRelease(g.days)}</b>, {sub}
                 </span>
             </span>
-            {pct === null ? (
-                <span className="hg-row__prog hg-row__prog--none">Sin logros</span>
-            ) : (
-                <span className="hg-row__prog">
-                    <span className="hg-row__prog-label">
-                        <Link href={`/juego/${game.appid}/logros`} className="hg-row__ach-link">
-                            <b>{game.achievements_unlocked ?? 0}</b> / {game.achievements_total} logros
-                        </Link>
-                        <span className={perfect ? 'lib-perfect' : undefined}>{pct} %</span>
-                    </span>
-                    <Bar pct={pct} index={index} done={perfect} />
-                </span>
-            )}
-            <Button asChild size="sm" variant="secondary" className="dash-play">
-                <a href={steamRunUrl(game.appid)} aria-label={`Jugar a ${name}`}>
-                    <Play aria-hidden /> <span className="dash-play__label">Jugar</span>
-                </a>
-            </Button>
+            <SoonActions appid={g.appid} name={g.name ?? `App ${g.appid}`} pending={pending.has(g.appid)} wishlist={wishlist} />
         </li>
+    )
+    return (
+        <>
+            {mine.length > 0 && (
+                <>
+                    <h3 className="home-soon__group">De tu wishlist</h3>
+                    <ul className="home-rows">{mine.map((g) => row(g, releaseDay(g.release_date), true))}</ul>
+                </>
+            )}
+            {hyped.length > 0 && (
+                <>
+                    <h3 className="home-soon__group">Lo más esperado en Steam</h3>
+                    <ul className="home-rows">{hyped.map((g) => row(g, `${releaseDay(g.release_date)}. Nº ${g.rank} en lo más deseado`, false))}</ul>
+                </>
+            )}
+        </>
+    )
+}
+
+function SoonSkeleton() {
+    return (
+        <ul className="home-rows" aria-busy="true" aria-label="Cargando lo que sale pronto">
+            {[0, 1, 2, 3].map((i) => (
+                <li key={i} className="home-row home-row--soon is-loading">
+                    <span className="home-row__media home-row__media--wide" />
+                    <span className="home-row__main">
+                        <span className="home-skel" style={{ width: '60%' }} />
+                        <span className="home-skel" style={{ width: '35%' }} />
+                    </span>
+                </li>
+            ))}
+        </ul>
     )
 }
 
@@ -401,13 +559,15 @@ function ConnectCard() {
     )
 }
 
-/** Dashboard (#29): el "centro de control" para ver de un vistazo a qué jugar hoy. */
+
+/**
+ * Inicio con sesión: tu semana y tus listas arriba; lo que juegas, tus pendientes (lo más usado), los mínimos de la
+ * wishlist y lo aparcado en carruseles; logros y lanzamientos; tu año y JUDI; y «¿Qué juego hoy?» al final.
+ */
 export default function Dashboard({ data, now, seed }: { data: DashboardData; now: number; seed: number }) {
     const playing = playingNow(data.games)
-    const queue = nextInQueue([...data.games, ...data.unowned])
-    const near = nearHundred(data.games)
-    // Tantos logros como quepan junto a «En curso» (entre 3 y 5), para que las dos columnas queden parejas.
-    const activity = recentActivity(data.recentUnlocks, data.games, Math.min(5, Math.max(3, playing.length + 1)))
+    const queue = nextInQueue([...data.games, ...data.unowned], Infinity)
+    const activity = recentActivity(data.recentUnlocks, data.games, 6)
     const year = yearSummary(data.games, data.unlocksThisYear, data.minutesThisYear)
     const goalCounts = countsByMonth(data.games, data.goals.unlockTimes)
     const monthProgress = progressFor(goalCounts, data.goals.month)
@@ -419,30 +579,46 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
     const linked = data.steam.linked
     const hidden = linked && data.steam.visibility !== null && data.steam.visibility !== 'publico'
 
+    const weekFrom = Date.parse(`${data.activity.today}T00:00:00Z`) - 6 * 86400_000
+    const weekMinutes = data.activity.playtime.reduce((s, r) => s + (Date.parse(`${r.date}T00:00:00Z`) >= weekFrom ? r.minutes : 0), 0)
+    const weekUnlocks = data.activity.unlockTimes.filter((t) => Date.parse(`${madridDate(t)}T00:00:00Z`) >= weekFrom).length
+
     const head = (
-        <header className="dash-head hg-enter" style={enter(0)}>
-            <div className="dash-head__row">
+        <header className="home-top hg-enter" style={enter(0)}>
+            <div className="home-top__row">
                 <div>
-                    <h1 className="page-title">{data.username ? `Hola, ${data.username}` : 'Hola'}</h1>
-                    <p className="dash-status">
+                    <h1 className="home-hello">{data.username ? `${greeting(now)}, ${data.username}` : greeting(now)}</h1>
+                    <p className="home-sub">
                         {!linked ? (
                             <span>Conecta tu cuenta de Steam para ver tu biblioteca y tus logros.</span>
-                        ) : data.steam.lastSyncAt ? (
-                            <span className="dash-status__ok" title={new Date(data.steam.lastSyncAt).toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}>
-                                <Check aria-hidden /> Sincronizado con Steam {timeAgo(data.steam.lastSyncAt, now)}
-                            </span>
                         ) : (
-                            <span>Aún no se ha sincronizado con Steam.</span>
+                            <>
+                                <span>
+                                    Esta semana llevas <b>{formatHours(weekMinutes)}</b> y{' '}
+                                    <b>
+                                        {weekUnlocks} {weekUnlocks === 1 ? 'logro' : 'logros'}
+                                    </b>
+                                    .
+                                </span>
+                                <span className="home-sub__sync" title={data.steam.lastSyncAt ? new Date(data.steam.lastSyncAt).toLocaleString('es-ES', { timeZone: 'Europe/Madrid' }) : undefined}>
+                                    {data.steam.lastSyncAt ? `Sincronizado ${timeAgo(data.steam.lastSyncAt, now)}` : 'Aún no se ha sincronizado'}
+                                </span>
+                            </>
                         )}
                         {hidden && (
-                            <span className="dash-status__warn">
+                            <span className="home-sub__warn">
                                 <AlertTriangle aria-hidden /> Tu perfil de Steam oculta los detalles de juego: no se pueden leer horas ni logros.{' '}
                                 <Link href="/perfil">Cómo cambiarlo</Link>
                             </span>
                         )}
                     </p>
                 </div>
-                {linked && <SyncButton />}
+                {linked && (
+                    <div className="home-top__end">
+                        <WeekStrip data={data} />
+                        <SyncButton variant="secondary" />
+                    </div>
+                )}
             </div>
             {linked && <ListShortcuts counts={counts} limit={data.playingLimit} style={enter(1)} />}
         </header>
@@ -450,113 +626,141 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
 
     if (!linked) {
         return (
-            <div className="dash">
+            <div className="home">
                 {head}
                 <ConnectCard />
-                <div className="dash-grid">
+                <div className="home-bottom">
                     <JudiPanel data={data} index={2} now={now} />
                 </div>
             </div>
         )
     }
 
+    const free = Math.max(0, data.playingLimit - playing.length)
+    const pace = weeklyPace(data.activity.playtime, data.activity.today)
+    const horizon = queueHorizon(queue, pace, free > 0)
+    const queueTotal = queueMinutes(queue)
+    const pending = new Set(queue.map((g) => g.appid))
+    const tracked = new Set([...data.games, ...data.unowned].map((g) => g.appid))
+    const deals = data.wishlist.filter(isAtHistoricalLow).sort((a, b) => (b.discount_percent ?? 0) - (a.discount_percent ?? 0))
+    const parked = parkedGames(data.games, now)
     const rating = year.averageRating
+
     return (
-        <div className="dash">
+        <div className="home">
             {head}
 
-            <SuggestionsPanel games={data.games.filter((g) => g.suggestion)} now={now} />
+            <section className="hg-enter" style={enter(2)} aria-labelledby="home-playing">
+                <div className="home-head">
+                    <Head
+                        id="home-playing"
+                        title="Continuar jugando"
+                        count={`${playing.length} de ${data.playingLimit} a la vez`}
+                        more={{ href: '/biblioteca?estado=jugando', label: 'Ver todos' }}
+                    />
+                </div>
+                <div className="home-playing">
+                    {playing.map((g) => (
+                        <PlayingTile key={g.appid} game={g} rarest={data.rarestPercent[g.appid]} now={now} />
+                    ))}
+                    {free > 0 && <FreeSlot next={queue[0]} />}
+                </div>
+            </section>
 
-            <div className="hg-enter" style={enter(2)}>
-                <ActivityHeatmap
-                    map={heatmap}
-                    header={
-                        <dl className="hg-tiles dash-tiles">
-                            <Tile icon={<Clock aria-hidden />} tone="st-jugando" label="Horas este año">
-                                <dd className="hg-tile__value">
-                                    <Hours minutes={year.minutes} />
-                                </dd>
-                                <dd className="hg-tile__note">
-                                    <b>{formatHours(minutesInMonth(data.activity.playtime, data.goals.month))}</b> en {month}
-                                </dd>
-                            </Tile>
-                            <Tile icon={<Trophy aria-hidden />} tone="st-sin_final" label="Logros este año">
-                                <dd className="hg-tile__value">
-                                    <CountUp value={year.unlocks} />
-                                </dd>
-                                <dd className="hg-tile__note">
-                                    <b>{year.perfect}</b> {year.perfect === 1 ? 'juego' : 'juegos'} al 100 %
-                                </dd>
-                            </Tile>
-                            <Tile icon={<Flag aria-hidden />} tone="st-completado" label="Completados">
-                                <dd className="hg-tile__value">
-                                    <CountUp value={year.completed} />
-                                </dd>
-                                <dd className="hg-tile__note">
-                                    <b>{monthProgress.completar}</b> en {month}
-                                </dd>
-                            </Tile>
-                            <Tile icon={<Star aria-hidden />} tone={rating !== null ? `sc-${ratingTier(rating)}` : 'st-pausado'} label="Tu nota media">
-                                <dd className={`hg-tile__value${rating !== null ? ' hg-tile__value--tinted' : ''}`}>
-                                    {rating !== null ? <CountUp value={rating} decimals={1} /> : '—'}
-                                </dd>
-                                <dd className="hg-tile__note">{rating !== null ? `De los completados este año` : 'Se pone al completar un juego'}</dd>
-                            </Tile>
-                        </dl>
-                    }
-                    footer={
-                        <span className="heat__extra">
-                            <Link href="/estadisticas" className="dash-link">
-                                Ver estadísticas
-                            </Link>
-                        </span>
-                    }
-                />
-            </div>
-
-            <div className="dash-cols">
-                <section className="dash-sec hg-enter" style={enter(3)} aria-labelledby="dash-playing">
-                    <SectionHead id="dash-playing" tone="st-jugando" icon={<Play />} title="En curso" count={playing.length ? `${playing.length} de ${data.playingLimit} a la vez` : undefined}>
-                        {playing.length > 1 && (
-                            <span className="hg-keyhint">
-                                <kbd>↑</kbd> <kbd>↓</kbd> o <kbd>j</kbd> <kbd>k</kbd> para moverte
-                            </span>
-                        )}
-                        <Link href="/biblioteca?estado=jugando" className="dash-link">
-                            Ver todos
-                        </Link>
-                    </SectionHead>
-                    {playing.length === 0 ? (
-                        <Empty
-                            tone="st-jugando"
-                            icon={<Play />}
-                            title="Nada en curso"
-                            text="Elige algo de tu cola o de «¿Qué juego hoy?»."
-                            action={
-                                <Button asChild size="sm" variant="secondary">
-                                    <a href="#dash-wtp">
-                                        <Dices aria-hidden /> Elegir a qué jugar
-                                    </a>
-                                </Button>
+            <section className="hg-enter" style={enter(3)} aria-labelledby="home-queue">
+                {queue.length === 0 ? (
+                    <>
+                        <div className="home-head">
+                            <Head id="home-queue" title="Pendientes" />
+                        </div>
+                        <p className="home-empty">
+                            Tu lista de pendientes está vacía.{' '}
+                            {counts.bandeja > 0 ? (
+                                <Link href="/biblioteca/bandeja">
+                                    <Inbox aria-hidden /> Clasifica los {counts.bandeja} de la bandeja
+                                </Link>
+                            ) : (
+                                'Busca un juego para añadirlo.'
+                            )}
+                        </p>
+                    </>
+                ) : (
+                    <>
+                        <Carousel
+                            label="Tus pendientes, en orden"
+                            className="home-queue"
+                            head={
+                                <Head
+                                    id="home-queue"
+                                    title="Pendientes"
+                                    count={`${queue.length} ${queue.length === 1 ? 'juego' : 'juegos'}${queueTotal ? `, unas ${Math.round(queueTotal / 60)} h` : ''}`}
+                                    more={{ href: '/biblioteca?estado=pendiente', label: 'Ordenar' }}
+                                />
                             }
-                        />
-                    ) : (
-                        <KeyboardList className="hg-rows" label="Juegos en curso">
-                            {playing.map((g, i) => (
-                                <PlayingRow key={g.appid} game={g} rarest={data.rarestPercent[g.appid]} index={i} now={now} />
+                        >
+                            {queue.map((g, i) => (
+                                <Poster key={g.appid} game={g} index={i} weeks={horizon[i]} freeSlot={free > 0} />
                             ))}
-                        </KeyboardList>
-                    )}
-                </section>
+                        </Carousel>
+                        {pace > 0 && (
+                            <p className="home-note">
+                                Calculado a tu ritmo de los últimos 28 días, <b>{formatHours(pace)} por semana</b>.
+                                {queueTotal > 0 && ` A ese ritmo acabas todos tus pendientes en unas ${Math.max(1, Math.round(queueTotal / pace))} semanas.`}
+                            </p>
+                        )}
+                    </>
+                )}
+            </section>
 
-                <section className="dash-sec hg-enter" style={enter(4)} aria-labelledby="dash-activity">
-                    <SectionHead id="dash-activity" tone="dash-leg" icon={<Trophy />} title="Logros recientes">
-                        <Link href="/logros/historial" className="dash-link">
-                            Historial
-                        </Link>
-                    </SectionHead>
+            {deals.length > 0 && (
+                <section className="hg-enter" style={enter(4)} aria-labelledby="home-deals">
+                    <Carousel
+                        label="Juegos de tu wishlist en su mínimo histórico"
+                        className="home-deals"
+                        head={
+                            <Head
+                                id="home-deals"
+                                title="En su mínimo histórico"
+                                count={`${deals.length} de los ${data.wishlist.length} de tu wishlist`}
+                                more={{ href: '/wishlist?filtro=minimo', label: 'Ver en la wishlist' }}
+                            />
+                        }
+                    >
+                        {deals.map((g) => (
+                            <Deal key={g.appid} game={g} queued={pending.has(g.appid)} />
+                        ))}
+                    </Carousel>
+                </section>
+            )}
+
+            {parked.length > 0 && (
+                <section className="hg-enter" style={enter(5)} aria-labelledby="home-parked">
+                    <Carousel
+                        label="Juegos aparcados"
+                        className="home-parked"
+                        head={
+                            <Head
+                                id="home-parked"
+                                title="Aparcados"
+                                count={`${parked.length} ${parked.length === 1 ? 'juego' : 'juegos'} con más de 60 días sin jugar`}
+                                more={{ href: '/biblioteca?estado=pausado', label: 'Ver pausados' }}
+                            />
+                        }
+                    >
+                        {parked.map((p) => (
+                            <Parked key={p.game.appid} game={p.game} days={p.days} />
+                        ))}
+                    </Carousel>
+                </section>
+            )}
+
+            <div className="home-cols">
+                <section className="home-panel hg-enter" style={enter(6)} aria-labelledby="home-activity">
+                    <div className="home-head">
+                        <Head id="home-activity" title="Logros recientes" more={{ href: '/logros/historial', label: 'Historial' }} />
+                    </div>
                     {activity.length === 0 ? (
-                        <Empty tone="dash-leg" icon={<Trophy />} title="Sin logros todavía" text="Aparecerán aquí al sincronizar." action={<SyncButton label="Sincronizar ahora" variant="secondary" />} />
+                        <p className="home-empty">Aparecerán aquí al sincronizar.</p>
                     ) : (
                         <ul className="hg-achs">
                             {activity.map((a, i) => (
@@ -565,154 +769,62 @@ export default function Dashboard({ data, now, seed }: { data: DashboardData; no
                         </ul>
                     )}
                 </section>
-            </div>
-
-            <div className="hg-enter" style={enter(5)}>
-                <WhatToPlay games={data.games} unowned={data.unowned} now={now} initialSeed={seed} />
-            </div>
-
-            <div className="dash-grid">
-                <div className="dash-col">
-                    <section className="dash-sec hg-enter" style={enter(6)} aria-labelledby="dash-queue">
-                        <SectionHead id="dash-queue" tone="st-pendiente" icon={<Bookmark />} title="Siguientes en la cola" count={queue.length ? `${counts.pendiente} pendientes` : undefined}>
-                            <Link href="/biblioteca?estado=pendiente" className="dash-link">
-                                Ordenar
-                            </Link>
-                        </SectionHead>
-                        {queue.length === 0 ? (
-                            <Empty
-                                tone="st-pendiente"
-                                icon={<Bookmark />}
-                                title="Tu cola está vacía"
-                                text="Clasifica juegos de la bandeja o busca uno para añadirlo."
-                                action={
-                                    counts.bandeja > 0 ? (
-                                        <Button asChild size="sm" variant="secondary">
-                                            <Link href="/biblioteca/bandeja">
-                                                <Inbox aria-hidden /> Ir a la bandeja ({counts.bandeja})
-                                            </Link>
-                                        </Button>
-                                    ) : (
-                                        <OpenSearchButton size="sm" />
-                                    )
-                                }
-                            />
-                        ) : (
-                            <ol className="hg-rows">
-                                {queue.map((g, i) => {
-                                    const main = gameDuration(g).main
-                                    const name = g.name ?? `App ${g.appid}`
-                                    return (
-                                        <li key={g.appid} className={`hg-row lib-row dash-row--queue st-pendiente${g.owned ? '' : ' is-unowned'}`}>
-                                            <span className="dash-pos hg-tint st-pendiente" aria-label={`Posición ${i + 1}`}>
-                                                {i + 1}
-                                            </span>
-                                            <Cover game={g} />
-                                            <span className="hg-row__main">
-                                                <span className="lib-row__name">
-                                                    <Link href={`/juego/${g.appid}`} className="hg-row__link">
-                                                        {name}
-                                                    </Link>
-                                                    <MarkFlags favorite={g.favorite} endless={g.endless} />
-                                                    {!g.owned && (
-                                                        <span className="lib-own lib-own--no">
-                                                            <ShoppingCart aria-hidden /> Sin comprar
-                                                        </span>
-                                                    )}
-                                                </span>
-                                                <span className="hg-row__meta lib-row__meta">
-                                                    {g.endless ? (
-                                                        <span className="lib-meta dash-endless">
-                                                            <InfinityIcon aria-hidden /> Sin final
-                                                        </span>
-                                                    ) : main !== null ? (
-                                                        <span className="lib-meta" title="Duración de la historia">
-                                                            <Hourglass aria-hidden /> Historia {formatHours(main)}
-                                                        </span>
-                                                    ) : (
-                                                        <span className="lib-meta">Sin duración</span>
-                                                    )}
-                                                    <Scores game={g} />
-                                                </span>
-                                                {!g.owned && <PriceTag game={g} />}
-                                            </span>
-                                            {g.owned ? (
-                                                <a className="hg-icon-btn" href={steamRunUrl(g.appid)} aria-label={`Jugar a ${name}`} title="Jugar">
-                                                    <Play size={16} aria-hidden />
-                                                </a>
-                                            ) : (
-                                                <a
-                                                    className="hg-icon-btn"
-                                                    href={`https://store.steampowered.com/app/${g.appid}/`}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    aria-label={`${name} en la tienda de Steam`}
-                                                    title="Ver en Steam"
-                                                >
-                                                    <ExternalLink size={16} aria-hidden />
-                                                </a>
-                                            )}
-                                        </li>
-                                    )
-                                })}
-                            </ol>
-                        )}
-                    </section>
-
-                    <section className="dash-sec hg-enter" style={enter(7)} aria-labelledby="dash-near">
-                        <SectionHead id="dash-near" tone="st-completado" icon={<Trophy />} title="Cerca del 100 %">
-                            <Link href="/logros" className="dash-link">
-                                Logros
-                            </Link>
-                        </SectionHead>
-                        {near.length === 0 ? (
-                            <Empty tone="st-completado" icon={<Trophy />} title="Nada cerca del 100 %" text="Aquí salen los juegos con más de la mitad de los logros." />
-                        ) : (
-                            <ul className="hg-rows">
-                                {near.map((g, i) => {
-                                    const left = (g.achievements_total ?? 0) - (g.achievements_unlocked ?? 0)
-                                    const pct = achievementPercent(g) ?? 0
-                                    return (
-                                        <li key={g.appid} className={`hg-row lib-row dash-row--near st-${g.status}`}>
-                                            <Cover game={g} />
-                                            <span className="hg-row__main">
-                                                <Link href={`/juego/${g.appid}/logros`} className="hg-row__link">
-                                                    {g.name ?? `App ${g.appid}`}
-                                                </Link>
-                                                <span className="hg-row__meta">{left === 1 ? 'Te falta 1 logro' : `Te faltan ${left} logros`}</span>
-                                            </span>
-                                            <span className="hg-row__prog">
-                                                <span className="hg-row__prog-label">
-                                                    <span>
-                                                        <b>{g.achievements_unlocked ?? 0}</b> / {g.achievements_total}
-                                                    </span>
-                                                    <span>{pct} %</span>
-                                                </span>
-                                                <Bar pct={pct} index={i} />
-                                            </span>
-                                            <StatusChip status={g.status} />
-                                        </li>
-                                    )
-                                })}
-                            </ul>
-                        )}
-                    </section>
-                </div>
-
-                <div className="dash-col">
-                    <JudiPanel data={data} index={6} now={now} />
-                    <div className="hg-enter" style={enter(7)}>
-                        <MonthlyGoals
-                            userId={data.userId}
-                            month={data.goals.month}
-                            saved={data.goals.targets}
-                            suggested={suggestTargets(goalCounts, data.goals.month)}
-                            progress={monthProgress}
-                            elapsed={monthElapsed(data.goals.month, new Date(now))}
-                            today={monthDay}
-                        />
+                <section className="home-panel hg-enter" style={enter(7)} aria-labelledby="home-soon">
+                    <div className="home-head">
+                        <Head id="home-soon" title="Sale pronto" more={{ href: '/wishlist', label: 'Wishlist' }} />
                     </div>
+                    <Suspense fallback={<SoonSkeleton />}>
+                        <SoonList data={data} today={data.activity.today} tracked={tracked} pending={pending} />
+                    </Suspense>
+                </section>
+            </div>
+
+            <div className="home-bottom">
+                <div className="home-year hg-enter" style={enter(8)}>
+                    <ActivityHeatmap
+                        map={heatmap}
+                        header={
+                            <p className="home-year__line">
+                                <b>
+                                    <CountUp value={Math.round(year.minutes / 60)} suffix=" h" />
+                                </b>{' '}
+                                jugadas este año, <b>{formatHours(minutesInMonth(data.activity.playtime, data.goals.month))}</b> en {month}.{' '}
+                                <b>{year.unlocks}</b> logros y <b>{year.completed}</b> completados
+                                {rating !== null && (
+                                    <>
+                                        , con un{' '}
+                                        <b className={`home-score sc-${ratingTier(rating)}`}>
+                                            <Star aria-hidden /> {String(rating).replace('.', ',')}
+                                        </b>{' '}
+                                        de media
+                                    </>
+                                )}
+                                .
+                            </p>
+                        }
+                        footer={
+                            <span className="heat__extra">
+                                <Link href="/estadisticas" className="dash-link">
+                                    Ver estadísticas
+                                </Link>
+                            </span>
+                        }
+                    />
+                    <MonthlyGoals
+                        userId={data.userId}
+                        month={data.goals.month}
+                        saved={data.goals.targets}
+                        suggested={suggestTargets(goalCounts, data.goals.month)}
+                        progress={monthProgress}
+                        elapsed={monthElapsed(data.goals.month, new Date(now))}
+                        today={monthDay}
+                    />
                 </div>
+                <JudiPanel data={data} index={9} now={now} />
+            </div>
+
+            <div className="hg-enter" style={enter(10)}>
+                <WhatToPlay games={data.games} unowned={data.unowned} now={now} initialSeed={seed} />
             </div>
         </div>
     )

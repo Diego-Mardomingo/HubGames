@@ -5,8 +5,15 @@ import { judiTodayState, playingNow, type JudiDay, type JudiTodayState, type Rec
 import { heatmapStart, madridDate } from './activity-heatmap'
 import { AVERAGE_MONTHS, monthKey, previousMonths, type GoalKind } from './goals'
 import { DEFAULT_PLAYING_LIMIT, type LibraryGame } from './tracker'
+import type { WishlistGame } from './wishlist'
 
 type Client = SupabaseClient<Database>
+
+/** Lo que el Inicio usa de la wishlist: los mínimos históricos y lo que sale pronto. */
+export type HomeWishlistGame = Pick<
+    WishlistGame,
+    'appid' | 'name' | 'header_image' | 'release_date' | 'release_date_text' | 'coming_soon' | 'price_initial' | 'price_final' | 'discount_percent' | 'steam_low' | 'all_low'
+>
 
 export interface DashboardData {
     userId: string
@@ -25,7 +32,9 @@ export interface DashboardData {
     /** Metas del mes (#31): las guardadas y las fechas de tus logros del mes y los anteriores, para el progreso y la media. */
     goals: { month: string; targets: Partial<Record<GoalKind, number>>; unlockTimes: string[] }
     /** Mapa de actividad: minutos por día (hubgames_playtime_daily) y logros desde el inicio del mapa (último año). */
-    activity: { today: string; playtime: { date: string; minutes: number }[]; unlockTimes: string[] }
+    activity: { today: string; playtime: { date: string; minutes: number; appid: number | null }[]; unlockTimes: string[] }
+    /** Tu wishlist entera (pocas columnas): mínimos históricos y lanzamientos con fecha. */
+    wishlist: HomeWishlistGame[]
     /** % global del logro más raro conseguido en cada juego en curso (franja de color de su fila). */
     rarestPercent: Record<number, number>
 }
@@ -65,7 +74,7 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
     const goalsFromMs = Date.parse(`${since}T00:00:00Z`) - 86400_000
     const unlocksFromMs = Math.min(goalsFromMs, Date.parse(`${activityFrom}T00:00:00Z`) - 86400_000)
 
-    const [profile, steam, games, unowned, recent, yearUnlocks, playtime, judiDays, goals, unlockTimes] = await Promise.all([
+    const [profile, steam, games, unowned, recent, yearUnlocks, playtime, judiDays, goals, unlockTimes, wishlist] = await Promise.all([
         supabase.from('hubgames_usuarios').select('username, playing_limit').eq('id', userId).maybeSingle(),
         supabase.from('hubgames_user_steam').select('last_sync_at, visibility').eq('user_id', userId).maybeSingle(),
         all((from, to) => supabase.from('hubgames_library').select('*').eq('user_id', userId).eq('owned', true).order('appid').range(from, to)),
@@ -90,7 +99,7 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
         all((from, to) =>
             supabase
                 .from('hubgames_playtime_daily')
-                .select('date, minutes')
+                .select('date, minutes, appid')
                 .eq('user_id', userId)
                 .gte('date', activityFrom < yearStart ? activityFrom : yearStart)
                 .order('date')
@@ -108,6 +117,14 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
                 .eq('achieved', true)
                 .gte('unlocktime', new Date(unlocksFromMs).toISOString())
                 .order('unlocktime')
+                .range(from, to),
+        ),
+        all((from, to) =>
+            supabase
+                .from('hubgames_wishlist')
+                .select('appid, name, header_image, release_date, release_date_text, coming_soon, price_initial, price_final, discount_percent, steam_low, all_low')
+                .eq('user_id', userId)
+                .order('appid')
                 .range(from, to),
         ),
     ])
@@ -171,9 +188,10 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
         },
         activity: {
             today: activityToday,
-            playtime: playtime.flatMap((r) => (r.date && r.minutes ? [{ date: r.date, minutes: r.minutes }] : [])),
+            playtime: playtime.flatMap((r) => (r.date && r.minutes ? [{ date: r.date, minutes: r.minutes, appid: r.appid }] : [])),
             unlockTimes: unlockTimeList.filter((t) => Date.parse(t) >= Date.parse(`${activityFrom}T00:00:00Z`) - 86400_000),
         },
         rarestPercent,
+        wishlist: wishlist.filter((w): w is HomeWishlistGame => w.appid !== null),
     }
 }
