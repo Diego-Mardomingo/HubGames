@@ -1,14 +1,14 @@
 'use client'
 
 import { useLayoutEffect } from 'react'
-import { Onest } from 'next/font/google'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import '@/styles/globals.css'
 import '@/styles/lists.css'
 import { Logo } from '@/components/brand/Logo'
 import ErrorView from '@/components/ErrorView'
 import { getThemePref } from '@/lib/theme'
 
-const onest = Onest({ subsets: ['latin'], variable: '--font-onest', display: 'swap' })
+const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-jakarta', display: 'swap' })
 
 /**
  * Fallo del propio layout raíz (barra lateral, proveedores): sustituye al documento entero, así que trae su `<html>`, sus
@@ -23,7 +23,7 @@ export default function GlobalError({ error, retry }: { error: Error & { digest?
     }, [])
 
     return (
-        <html lang="es" className={onest.variable} suppressHydrationWarning>
+        <html lang="es" className={jakarta.variable} suppressHydrationWarning>
             <head>
                 <title>Algo ha fallado | HubGames</title>
             </head>

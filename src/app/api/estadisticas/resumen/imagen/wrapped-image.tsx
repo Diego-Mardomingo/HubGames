@@ -79,14 +79,14 @@ function Stat({ icon, color, label, value }: { icon: keyof typeof ICONS; color: 
     )
 }
 
-// Onest (OFL, src/assets/fonts/onest) en los tres pesos que usa la imagen; se lee una vez por instancia.
-const FONT_DIR = join(process.cwd(), 'src/assets/fonts/onest')
+// Plus Jakarta Sans (OFL, src/assets/fonts/plus-jakarta-sans) en los tres pesos que usa la imagen; se lee una vez por instancia.
+const FONT_DIR = join(process.cwd(), 'src/assets/fonts/plus-jakarta-sans')
 const fonts = Promise.all(
     ([
-        ['Onest-Regular.ttf', 400],
-        ['Onest-Bold.ttf', 700],
-        ['Onest-ExtraBold.ttf', 800],
-    ] as const).map(async ([file, weight]) => ({ name: 'Onest', data: await readFile(join(FONT_DIR, file)), weight, style: 'normal' as const })),
+        ['PlusJakartaSans-Regular.ttf', 400],
+        ['PlusJakartaSans-Bold.ttf', 700],
+        ['PlusJakartaSans-ExtraBold.ttf', 800],
+    ] as const).map(async ([file, weight]) => ({ name: 'Plus Jakarta Sans', data: await readFile(join(FONT_DIR, file)), weight, style: 'normal' as const })),
 )
 
 /** Imagen de 1200×630 del resumen de un año, siempre en oscuro. */
@@ -112,7 +112,7 @@ export async function wrappedImage(w: WrappedView, headers?: Record<string, stri
                     padding: '52px 56px',
                     background: C.bg,
                     color: C.text,
-                    fontFamily: 'Onest',
+                    fontFamily: 'Plus Jakarta Sans',
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

@@ -97,7 +97,7 @@
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --font-body: var(--font-onest), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: var(--font-jakarta), system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --nav-h: 60px;
   --side-w: 232px;
@@ -356,6 +356,7 @@ a {
   font-size: 0.9375rem;
   max-width: 60ch;
 }
+
 
 /* Paneles (antes de cristal): superficie plana */
 .glass {

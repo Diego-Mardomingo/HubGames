@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Onest } from 'next/font/google'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import '@/styles/globals.css'
 import '@/styles/nav.css'
 import '@/styles/lists.css'
@@ -12,7 +12,7 @@ import { themeScript } from '@/lib/theme'
 import { sidebarScript } from '@/lib/sidebar'
 import { SITE_DESCRIPTION, SITE_NAME, SITE_SHARE_DESCRIPTION, SITE_TITLE, SITE_URL } from '@/lib/seo'
 
-const onest = Onest({ subsets: ['latin'], variable: '--font-onest', display: 'swap' })
+const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-jakarta', display: 'swap' })
 
 export const viewport: Viewport = {
     themeColor: [
@@ -77,7 +77,7 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
     return (
-        <html lang="es" className={onest.variable} suppressHydrationWarning>
+        <html lang="es" className={jakarta.variable} suppressHydrationWarning>
             <head>
                 <script dangerouslySetInnerHTML={{ __html: themeScript }} />
                 <script dangerouslySetInnerHTML={{ __html: sidebarScript }} />
