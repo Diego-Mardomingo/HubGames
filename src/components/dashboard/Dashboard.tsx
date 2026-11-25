@@ -131,7 +131,7 @@ function WeekStrip({ data }: { data: DashboardData }) {
     )
 }
 
-/** Continuar jugando: fichas bajas con la portada vertical, el progreso de logros y Jugar; el hueco libre ofrece el siguiente pendiente. */
+/** Continuar jugando: la cabecera horizontal de fondo, recortada, y encima, sobre una franja desenfocada, horas, Jugar y logros. */
 function PlayingTile({ game, rarest, now }: { game: LibraryGame; rarest: number | undefined; now: number }) {
     const tier = rarityTier(rarest)
     const name = game.name ?? `App ${game.appid}`
@@ -139,16 +139,21 @@ function PlayingTile({ game, rarest, now }: { game: LibraryGame; rarest: number 
     return (
         <article className="home-play">
             <span className="home-play__art">
-                <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="vertical" sizes="96px" />
+                <GameCover appid={game.appid} name={game.name} headerImage={game.header_image} variant="header" sizes="(max-width: 640px) 85vw, (max-width: 1100px) 50vw, 460px" />
             </span>
             <div className="home-play__body">
-                <div>
-                    <Link href={`/juego/${game.appid}`} className="home-play__name">
-                        {name}
-                    </Link>
-                    <div className="home-play__meta" title={game.rtime_last_played ? `Última partida: ${shortDate(game.rtime_last_played)}` : undefined}>
-                        {formatHours(game.playtime_forever)} jugadas, {game.rtime_last_played ? timeAgo(game.rtime_last_played, now) : 'sin jugar'}
+                <div className="home-play__top">
+                    <div className="home-play__id">
+                        <Link href={`/juego/${game.appid}`} className="home-play__name">
+                            {name}
+                        </Link>
+                        <div className="home-play__meta" title={game.rtime_last_played ? `Última partida: ${shortDate(game.rtime_last_played)}` : undefined}>
+                            {formatHours(game.playtime_forever)} jugadas, {game.rtime_last_played ? timeAgo(game.rtime_last_played, now) : 'sin jugar'}
+                        </div>
                     </div>
+                    <a className="home-play__go" href={steamRunUrl(game.appid)} aria-label={`Jugar a ${name}`} title="Jugar">
+                        <Play aria-hidden />
+                    </a>
                 </div>
                 {pct === null ? (
                     <div className="home-prog__label">Sin logros</div>
@@ -170,44 +175,45 @@ function PlayingTile({ game, rarest, now }: { game: LibraryGame; rarest: number 
                     </div>
                 )}
             </div>
-            <a className="home-play__go" href={steamRunUrl(game.appid)} aria-label={`Jugar a ${name}`} title="Jugar">
-                <Play aria-hidden />
-            </a>
         </article>
     )
 }
 
+/** El hueco libre: la misma ficha, punteada, con la cabecera del siguiente pendiente (o vacía) y cómo llenarlo. */
 function FreeSlot({ next }: { next: LibraryGame | undefined }) {
-    if (!next)
-        return (
-            <div className="home-slot">
-                <span className="home-slot__art" />
-                <div>
-                    <div className="home-slot__title">Tienes un hueco libre</div>
-                    <small>Elige algo de la bandeja o busca un juego</small>
-                </div>
-                <OpenSearchButton size="sm" />
-            </div>
-        )
     return (
         <div className="home-slot">
             <span className="home-slot__art">
-                <GameCover appid={next.appid} name={next.name} headerImage={next.header_image} variant="vertical" sizes="96px" />
+                {next ? (
+                    <GameCover appid={next.appid} name={next.name} headerImage={next.header_image} variant="header" sizes="(max-width: 640px) 85vw, (max-width: 1100px) 50vw, 460px" />
+                ) : (
+                    <Gamepad2 aria-hidden />
+                )}
             </span>
-            <div>
-                <div className="home-slot__title">Tienes un hueco libre</div>
-                <b>{next.name ?? `App ${next.appid}`}</b>
-                <small>Es el siguiente en Pendientes</small>
+            <div className="home-slot__body">
+                <div>
+                    <div className="home-slot__title">Tienes un hueco libre</div>
+                    {next ? (
+                        <>
+                            <b>{next.name ?? `App ${next.appid}`}</b>
+                            <small>Es el siguiente en Pendientes</small>
+                        </>
+                    ) : (
+                        <small>Elige algo de la bandeja o busca un juego</small>
+                    )}
+                </div>
+                {!next ? (
+                    <OpenSearchButton size="sm" />
+                ) : next.owned ? (
+                    <a className="home-btn home-btn--inv" href={steamRunUrl(next.appid)}>
+                        Empezar
+                    </a>
+                ) : (
+                    <Link className="home-btn home-btn--inv" href={`/juego/${next.appid}`}>
+                        Ver
+                    </Link>
+                )}
             </div>
-            {next.owned ? (
-                <a className="home-btn home-btn--inv" href={steamRunUrl(next.appid)}>
-                    Empezar
-                </a>
-            ) : (
-                <Link className="home-btn home-btn--inv" href={`/juego/${next.appid}`}>
-                    Ver
-                </Link>
-            )}
         </div>
     )
 }
