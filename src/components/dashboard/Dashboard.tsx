@@ -35,6 +35,7 @@ import type { LibraryGame } from '@/lib/tracker'
 import { isJudiMaintenance, maintenanceReturn, maintenanceReturnLine, maintenanceUntilRaw, parseMaintenanceUntil } from '@/lib/judi-maintenance'
 import { Button } from '@/components/ui/button'
 import GameCover from '@/components/tracker/GameCover'
+import { StatusChip } from '@/components/tracker/status'
 import CountUp from '@/components/CountUp'
 import ActivityHeatmap from './ActivityHeatmap'
 import SyncButton from './SyncButton'
@@ -230,6 +231,8 @@ function Poster({ game, index, weeks, freeSlot }: { game: LibraryGame; index: nu
                 )}
             </span>
             <span className="home-poster__name">{game.name ?? `App ${game.appid}`}</span>
+            {/* Añadido a Pendientes con su estado (#140): se ve cuál es. */}
+            {game.status !== 'pendiente' && <StatusChip status={game.status} />}
             <span className="home-poster__meta">
                 <span>{game.endless ? 'Sin final' : main !== null ? `Historia ${formatHours(main)}` : 'Sin duración'}</span>
                 {mc && (

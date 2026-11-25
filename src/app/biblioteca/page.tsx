@@ -60,6 +60,7 @@ import {
     restoreGames,
     setGameMark,
     setGamesStatus,
+    setInBacklog,
     setLibraryHome,
     setPlayingLimit,
     statusSnapshot,
@@ -82,6 +83,7 @@ import {
     estimatedMinutes,
     filterOptions,
     hasFilters,
+    inBacklog,
     inTab,
     matchesFilters,
     moveInOrder,
@@ -113,7 +115,7 @@ import Segmented from '@/components/Segmented'
 import { TrayFly, type TrayFlight } from './bandeja/TrayParts'
 import { openGameSearch } from '@/components/tracker/GameSearch'
 import SearchShortcut from '@/components/tracker/SearchShortcut'
-import { LIST_ICONS, MarkFlags, StatusChip, listClass } from '@/components/tracker/status'
+import { BacklogBadge, LIST_ICONS, MarkFlags, StatusChip, listClass } from '@/components/tracker/status'
 import { PriceTag } from '@/components/wishlist/PriceInfo'
 import '@/components/wishlist/wishlist.css'
 import './biblioteca.css'
@@ -166,7 +168,7 @@ interface LibToastData {
     name: string
     status: GameStatus | null
     /** Sin estado: la marca que se ha quitado y ha sacado al juego de su lista. */
-    left: 'favorito' | 'sin_final' | null
+    left: 'favorito' | 'sin_final' | 'pendiente' | null
 }
 
 const MARK_LIST: Record<Mark, 'favorito' | 'sin_final'> = { favorite: 'favorito', endless: 'sin_final' }
@@ -428,7 +430,8 @@ function Biblioteca() {
     const list = useMemo(() => sortGames(inList.filter((g) => matchesFilters(g, filters)), sort), [inList, filters, sort])
     const shown = list.slice(0, visible)
     const canDrag = tab === 'pendiente' && sort === 'manual' && !hasFilters(filters)
-    const showStatus = tab === 'todos' || tab === 'favorito' || tab === 'sin_final'
+    // En Pendientes, el chip distingue los añadidos con su estado (#140) de los que están en estado Pendiente.
+    const showStatus = tab === 'todos' || tab === 'favorito' || tab === 'sin_final' || (tab === 'pendiente' && inList.some((g) => g.status !== 'pendiente'))
 
     const current: LibraryHome = { tab, sort, filters, view }
     const isHomeTab = home?.tab === tab
@@ -594,13 +597,19 @@ function Biblioteca() {
         if (!games) return
         const name = game.name ?? `App ${game.appid}`
         const patch: Partial<LibraryGame> =
-            a.kind === 'status' ? statusPatch(game, a.status, new Date().toISOString(), suggestedCompletionDate(game)?.date ?? null) : { [a.mark]: a.on }
+            a.kind === 'status'
+                ? statusPatch(game, a.status, new Date().toISOString(), suggestedCompletionDate(game)?.date ?? null)
+                : a.kind === 'backlog'
+                  ? { in_backlog: a.on, ...(a.on && { backlog_position: null, in_backlog_at: new Date().toISOString() }) }
+                  : { [a.mark]: a.on }
         const write =
             a.kind === 'status'
                 ? a.status === 'completado'
                     ? completeGames([game])
                     : setGamesStatus([game.appid], a.status)
-                : setGameMark(game.appid, a.mark, a.on)
+                : a.kind === 'backlog'
+                  ? setInBacklog(game.appid, a.on)
+                  : setGameMark(game.appid, a.mark, a.on)
         const action: LibAction = { id: ++seq.current, game, snapshot: statusSnapshot(game), write, undone: false }
         const next = { ...game, ...patch }
         lastAction.current = action
@@ -609,7 +618,7 @@ function Biblioteca() {
             setAnnounce(`${name} pasa a ${TAB_LABELS[a.status]}`)
             setToast({ id: action.id, name, status: a.status, left: null })
         } else {
-            const list = MARK_LIST[a.mark]
+            const list = a.kind === 'backlog' ? 'pendiente' : MARK_LIST[a.mark]
             const leaves = visibleIds(games).includes(game.appid) && !visibleIds(games.map((g) => (g.appid === game.appid ? next : g))).includes(game.appid)
             setAnnounce(`${name}: ${a.on ? 'añadido a' : 'quitado de'} ${TAB_LABELS[list]}`)
             setToast(leaves ? { id: action.id, name, status: null, left: list } : null)
@@ -625,7 +634,11 @@ function Biblioteca() {
                 setToast(null)
             }
         })
-        applyChange(game, next, a.kind === 'status' ? { action, dest: a.status } : { action, mark: { mark: a.mark, on: a.on } })
+        applyChange(
+            game,
+            next,
+            a.kind === 'status' ? { action, dest: a.status } : a.kind === 'backlog' ? { action } : { action, mark: { mark: a.mark, on: a.on } },
+        )
     }
 
     /** Devuelve el juego como estaba (Deshacer o error): vuelve a su sitio con el cursor encendido un instante. */
@@ -1043,6 +1056,7 @@ function Biblioteca() {
                                                     view={view}
                                                     showStatus={showStatus}
                                                     showOwnership={tab === 'pendiente' || !item.ghost.game.owned}
+                                                    backlogTab={tab === 'pendiente'}
                                                     ghostHeight={item.ghost.height}
                                                 />
                                             ) : (
@@ -1054,6 +1068,7 @@ function Biblioteca() {
                                                     position={canDrag ? item.index + 1 : null}
                                                     showStatus={showStatus}
                                                     showOwnership={tab === 'pendiente' || !item.game.owned}
+                                                    backlogTab={tab === 'pendiente'}
                                                     priority={item.index < 6}
                                                     tone={tint[item.game.appid] ?? null}
                                                     fresh={fresh[item.game.appid]}
@@ -1269,6 +1284,7 @@ function LibraryItem({
     onAct,
     onChange,
     onError,
+    backlogTab,
 }: {
     game: LibraryGame
     view: LibraryView
@@ -1285,6 +1301,7 @@ function LibraryItem({
     onAct: (act: GameMenuAct) => void
     onChange: (patch: Partial<LibraryGame> | null) => void
     onError: (message: string) => void
+    backlogTab: boolean
 }) {
     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
         id: game.appid,
@@ -1319,6 +1336,7 @@ function LibraryItem({
             tone={tone}
             fresh={fresh}
             shifted={shifted}
+            backlogTab={backlogTab}
             menu={<GameMenu game={game} onAct={onAct} onChange={onChange} onError={onError} />}
         />
     )
@@ -1343,11 +1361,14 @@ function LibraryItemView({
     shifted = false,
     menu,
     ghostHeight,
+    backlogTab = false,
 }: {
     game: LibraryGame
     view: LibraryView
     showStatus: boolean
     showOwnership: boolean
+    /** En la lista Pendientes: el chip de estado ya distingue a los añadidos con su estado (#140). */
+    backlogTab?: boolean
     priority?: boolean
     nodeRef?: (el: HTMLElement | null) => void
     style?: CSSProperties
@@ -1371,7 +1392,14 @@ function LibraryItemView({
     const motionClass = [tone && 'is-going', fresh?.back && 'is-back', shifted && 'is-shift', ghost && 'lib-ghost'].filter(Boolean).join(' ')
     const liStyle: CSSProperties = ghost ? ({ '--h': `${ghostHeight}px` } as CSSProperties) : (style ?? {})
     const chip = showStatus ? <StatusChip status={status} changed={!!fresh?.status || !!tone} /> : null
-    const flags = <MarkFlags favorite={game.favorite} endless={game.endless} lit={fresh?.lit} leaving={fresh?.leaving} />
+    // Añadido a Pendientes con su estado (#140): distintivo junto a las marcas, salvo en la propia lista Pendientes.
+    const backlogFlag = game.in_backlog && game.status !== 'pendiente' && !backlogTab
+    const flags = (
+        <>
+            <MarkFlags favorite={game.favorite} endless={game.endless} lit={fresh?.lit} leaving={fresh?.leaving} />
+            {backlogFlag && <BacklogBadge compact />}
+        </>
+    )
     const menuNode = ghost ? <span className="hg-icon-btn" aria-hidden /> : menu
 
     const meta = (
@@ -1395,7 +1423,7 @@ function LibraryItemView({
                     <Clock aria-hidden /> {formatHours(game.playtime_forever)}
                 </span>
             )}
-            {(game.status === 'pendiente' || !game.owned) && minutes !== null && !game.endless && (
+            {(inBacklog(game) || !game.owned) && minutes !== null && !game.endless && (
                 <span className="lib-meta" title="Duración de la historia">
                     <Hourglass aria-hidden /> {formatHours(minutes)}
                 </span>

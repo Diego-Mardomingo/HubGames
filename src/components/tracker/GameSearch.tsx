@@ -23,7 +23,7 @@ import {
     Trophy,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
-import { addToPending, formatHours, setGamesStatus, type GameStatus } from '@/lib/tracker'
+import { addToBacklog, formatHours, type GameStatus } from '@/lib/tracker'
 import { addToWishlist } from '@/lib/wishlist'
 import { metacriticScore, ratingTier, steamReviewScore } from '@/lib/scores'
 import {
@@ -44,7 +44,7 @@ import { PriceTag } from '@/components/wishlist/PriceInfo'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useSearchShortcut } from './SearchShortcut'
-import { MarkFlags, StatusChip } from './status'
+import { MarkFlags, StatusChips } from './status'
 import './tracker.css'
 
 const DEBOUNCE_MS = 250
@@ -101,6 +101,8 @@ export default function GameSearch({ deals = [] }: { deals?: WishlistDeal[] }) {
 /** Lo que sabemos de un juego que sigues (vista hubgames_library). */
 interface Tracked {
     status: GameStatus
+    /** En Pendientes con su estado (#140). */
+    inBacklog: boolean
     favorite: boolean
     endless: boolean
     owned: boolean
@@ -145,7 +147,7 @@ async function loadMarks(ids: number[]): Promise<{ tracked: Map<number, Tracked>
         supabase
             .from('hubgames_library')
             .select(
-                `appid, status, favorite, endless, owned, rating, playtime_forever, achievements_unlocked, achievements_total, steamspy_userscore, metacritic_score, ${PRICE_COLUMNS}`
+                `appid, status, in_backlog, favorite, endless, owned, rating, playtime_forever, achievements_unlocked, achievements_total, steamspy_userscore, metacritic_score, ${PRICE_COLUMNS}`
             )
             .in('appid', ids),
         supabase.from('hubgames_wishlist').select(`appid, steamspy_userscore, ${PRICE_COLUMNS}`).in('appid', ids),
@@ -155,6 +157,7 @@ async function loadMarks(ids: number[]): Promise<{ tracked: Map<number, Tracked>
         if (r.appid === null || !r.status) continue
         tracked.set(r.appid, {
             status: r.status as GameStatus,
+            inBacklog: r.in_backlog === true,
             favorite: r.favorite === true,
             endless: r.endless === true,
             owned: r.owned !== false,
@@ -333,9 +336,8 @@ function SearchBody({ deals, onNavigate }: { deals: WishlistDeal[]; onNavigate: 
         setSaving({ appid: item.appid, to: 'pend' })
         try {
             const current = tracked.get(item.appid)
-            // Si ya lo sigues, cambia de lista; si no, entra como pendiente sin comprar, con su precio.
-            if (current) await setGamesStatus([item.appid], 'pendiente')
-            else await addToPending(item.appid)
+            // Si ya lo sigues, se añade con su estado (#140); si no, entra como pendiente sin comprar, con su precio.
+            const next = await addToBacklog(item.appid, current?.status ?? null)
             setTracked((m) =>
                 new Map(m).set(item.appid, {
                     ...(current ?? {
@@ -350,7 +352,8 @@ function SearchBody({ deals, onNavigate }: { deals: WishlistDeal[]; onNavigate: 
                         metacritic: item.hit?.metacritic ?? null,
                         price: wished.get(item.appid)?.price ?? null,
                     }),
-                    status: 'pendiente',
+                    status: next.status,
+                    inBacklog: next.in_backlog,
                 })
             )
             markAdded(item.appid, 'pend')
@@ -399,16 +402,16 @@ function SearchBody({ deals, onNavigate }: { deals: WishlistDeal[]; onNavigate: 
         const shownPrice = t?.owned ? null : price
         const metacritic = item.hit?.metacritic ?? t?.metacritic ?? null
         const reviews = t?.reviews ?? w?.reviews ?? item.reviews ?? null
-        const pend = pendingAction(status)
+        const pend = pendingAction(status, t?.inBacklog)
         const isSaving = (to: 'pend' | 'wish') => saving?.appid === item.appid && saving.to === to
 
         const statusPart: ReactNode = status ? (
             did?.pend ? (
                 <span className="hg-pop-in game-search__swap" style={{ animationDelay: '0s' }}>
-                    <StatusChip status={status} />
+                    <StatusChips status={status} inBacklog={t?.inBacklog} />
                 </span>
             ) : (
-                <StatusChip status={status} />
+                <StatusChips status={status} inBacklog={t?.inBacklog} />
             )
         ) : w ? (
             <span className={`game-search__wished${did?.wish ? ' hg-pop-in' : ''}`} style={did?.wish ? { animationDelay: '0s' } : undefined}>

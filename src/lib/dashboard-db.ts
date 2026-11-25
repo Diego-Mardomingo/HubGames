@@ -78,9 +78,9 @@ export async function loadDashboard(supabase: Client, userId: string, now: Date 
         supabase.from('hubgames_usuarios').select('username, playing_limit').eq('id', userId).maybeSingle(),
         supabase.from('hubgames_user_steam').select('last_sync_at, visibility').eq('user_id', userId).maybeSingle(),
         all((from, to) => supabase.from('hubgames_library').select('*').eq('user_id', userId).eq('owned', true).order('appid').range(from, to)),
-        // Pendientes sin comprar: consulta aparte para que horas, completados y metas sigan contando solo lo que tienes.
+        // Pendientes sin comprar (también los añadidos con su estado, #140): consulta aparte para que horas, completados y metas sigan contando solo lo que tienes.
         all((from, to) =>
-            supabase.from('hubgames_library').select('*').eq('user_id', userId).eq('owned', false).eq('status', 'pendiente').order('appid').range(from, to),
+            supabase.from('hubgames_library').select('*').eq('user_id', userId).eq('owned', false).or('status.eq.pendiente,in_backlog.is.true').order('appid').range(from, to),
         ),
         supabase
             .from('hubgames_achievements')

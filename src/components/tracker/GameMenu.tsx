@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { BookmarkX, Check, MoreHorizontal } from 'lucide-react'
+import { BookmarkPlus, BookmarkX, Check, MoreHorizontal } from 'lucide-react'
 import {
     GAME_STATUSES,
     STATUS_LABELS,
@@ -9,6 +9,7 @@ import {
     removeFromPending,
     setGameMark,
     setGamesStatus,
+    setInBacklog,
     suggestedCompletionDate,
     type GameMark,
     type GameStatus,
@@ -16,11 +17,16 @@ import {
 } from '@/lib/tracker'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Spinner } from '@/components/ui/spinner'
+import { canMarkBacklog } from '@/lib/library'
 import { LIST_ICONS } from './status'
 import './tracker.css'
 
 /** Lo que el usuario pide en el menú cuando la página guarda por su cuenta (al momento, con Deshacer). */
-export type GameMenuAct = { kind: 'status'; status: GameStatus } | { kind: 'mark'; mark: GameMark; on: boolean }
+export type GameMenuAct =
+    | { kind: 'status'; status: GameStatus }
+    | { kind: 'mark'; mark: GameMark; on: boolean }
+    /** Añadir a Pendientes (o quitar) sin cambiar el estado (#140). */
+    | { kind: 'backlog'; on: boolean }
 
 interface Props {
     game: LibraryGame
@@ -151,6 +157,34 @@ export default function GameMenu({ game, onAct, onChange, onError }: Props) {
                         )
                     })}
                 </div>
+                {game.owned && canMarkBacklog(game.status) && (
+                    <div className="game-menu__group">
+                        <button
+                            type="button"
+                            className="game-menu__opt st-pendiente"
+                            aria-pressed={game.in_backlog}
+                            aria-busy={pending === 'backlog' || undefined}
+                            disabled={busy}
+                            title={`Seguirá como ${STATUS_LABELS[game.status]}`}
+                            onClick={() => {
+                                const on = !game.in_backlog
+                                if (onAct) {
+                                    onAct({ kind: 'backlog', on })
+                                    setOpen(false)
+                                } else run('backlog', () => setInBacklog(game.appid, on), on ? { in_backlog: true, backlog_position: null } : { in_backlog: false })
+                            }}
+                        >
+                            {pending === 'backlog' ? (
+                                <Spinner className="game-menu__icon" />
+                            ) : game.in_backlog ? (
+                                <BookmarkX className="game-menu__icon" aria-hidden />
+                            ) : (
+                                <BookmarkPlus className="game-menu__icon" aria-hidden />
+                            )}{' '}
+                            {game.in_backlog ? 'Quitar de Pendientes' : 'Añadir a Pendientes'}
+                        </button>
+                    </div>
+                )}
                 {!game.owned && (
                     <div className="game-menu__group">
                         <button
@@ -158,7 +192,10 @@ export default function GameMenu({ game, onAct, onChange, onError }: Props) {
                             className="game-menu__opt"
                             aria-busy={pending === 'quitar' || undefined}
                             disabled={busy}
-                            onClick={() => run('quitar', () => removeFromPending(game.appid), null)}
+                            onClick={() =>
+                                // Añadido con su estado (#140): la ruta quita la marca y el juego se queda en tu biblioteca.
+                                run('quitar', () => removeFromPending(game.appid), game.in_backlog && game.status !== 'pendiente' ? { in_backlog: false } : null)
+                            }
                         >
                             {pending === 'quitar' ? <Spinner className="game-menu__icon" /> : <BookmarkX className="game-menu__icon" aria-hidden />} Quitar de Pendientes
                         </button>

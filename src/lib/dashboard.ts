@@ -1,6 +1,6 @@
 // Dashboard (#29): qué juegas, qué viene después y qué ha pasado últimamente. Puro, con tests en dashboard.test.ts.
 import { nearCompletion } from './achievements'
-import { gameDuration } from './library'
+import { gameDuration, inBacklog } from './library'
 import type { LibraryGame } from './tracker'
 
 /** Juegos en "Jugando", el de la última partida primero. */
@@ -10,10 +10,10 @@ export function playingNow(games: LibraryGame[]): LibraryGame[] {
         .sort((a, b) => time(b.rtime_last_played) - time(a.rtime_last_played) || (a.name ?? '').localeCompare(b.name ?? ''))
 }
 
-/** Los primeros `limit` pendientes en tu orden (#21); los que no tienen posición, al final por nombre. */
+/** Los primeros `limit` pendientes en tu orden (#21), también los añadidos con su estado (#140); sin posición, al final por nombre. */
 export function nextInQueue(games: LibraryGame[], limit = 5): LibraryGame[] {
     return games
-        .filter((g) => g.status === 'pendiente')
+        .filter(inBacklog)
         .sort(
             (a, b) =>
                 (a.backlog_position ?? Number.MAX_SAFE_INTEGER) - (b.backlog_position ?? Number.MAX_SAFE_INTEGER) ||
@@ -155,12 +155,20 @@ function time(iso: string | null): number {
 export type ListCountKey = 'jugando' | 'pendiente' | 'pausado' | 'rejugable' | 'completado' | 'ya_jugado' | 'otros' | 'bandeja'
 
 /**
- * Juegos por lista para los atajos de la cabecera. `unowned` son los pendientes sin comprar (cuentan en Pendiente,
- * como en la biblioteca).
+ * Juegos por lista para los atajos de la cabecera. `unowned` son los pendientes sin comprar (cuentan solo en
+ * Pendiente, como en la biblioteca).
  */
-export function listCounts(games: Pick<LibraryGame, 'status'>[], unowned: Pick<LibraryGame, 'status'>[] = []): Record<ListCountKey, number> {
+export function listCounts(
+    games: Pick<LibraryGame, 'status' | 'in_backlog'>[],
+    unowned: Pick<LibraryGame, 'status' | 'in_backlog'>[] = [],
+): Record<ListCountKey, number> {
     const out: Record<ListCountKey, number> = { jugando: 0, pendiente: 0, pausado: 0, rejugable: 0, completado: 0, ya_jugado: 0, otros: 0, bandeja: 0 }
-    for (const g of [...games, ...unowned]) if (g.status in out) out[g.status as ListCountKey]++
+    for (const g of games) {
+        if (g.status in out) out[g.status as ListCountKey]++
+        // Los añadidos a Pendientes con su estado (#140) cuentan en las dos listas, como en la biblioteca.
+        if (g.status !== 'pendiente' && inBacklog(g)) out.pendiente++
+    }
+    for (const g of unowned) if (inBacklog(g)) out.pendiente++
     return out
 }
 

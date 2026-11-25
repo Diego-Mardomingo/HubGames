@@ -177,14 +177,28 @@ export function completedYear(game: Pick<LibraryGame, 'completed_at'>): number |
     return game.completed_at ? new Date(game.completed_at).getFullYear() : null
 }
 
+/** Estados en los que no se ofrece añadir a Pendientes sin cambiar el estado (#140); la base de datos quita la marca. */
+const NO_BACKLOG_MARK: GameStatus[] = ['pendiente', 'jugando', 'descartado']
+
+/** Se puede añadir a Pendientes conservando el estado: todos menos Pendiente (ya lo está), Jugando y Descartado. */
+export function canMarkBacklog(status: GameStatus): boolean {
+    return !NO_BACKLOG_MARK.includes(status)
+}
+
+/** Está en la lista Pendientes: en estado Pendiente o añadido con su estado (#140). */
+export function inBacklog(game: Pick<LibraryGame, 'status' | 'in_backlog'>): boolean {
+    return game.status === 'pendiente' || (game.in_backlog && canMarkBacklog(game.status))
+}
+
 /** Estados que no salen en "Todos" (además de la bandeja). */
 const OUT_OF_ALL: GameStatus[] = ['descartado', 'otros']
 
-export function inTab(game: Pick<LibraryGame, 'status' | 'favorite' | 'endless'>, tab: LibraryTab): boolean {
+export function inTab(game: Pick<LibraryGame, 'status' | 'favorite' | 'endless' | 'in_backlog'>, tab: LibraryTab): boolean {
     // Los descartados y "Otros" (software, demos, bandas sonoras...) tienen su propia lista: en "Todos" solo estorban.
     if (tab === 'todos') return game.status !== 'bandeja' && !OUT_OF_ALL.includes(game.status)
     if (tab === 'favorito') return game.favorite
     if (tab === 'sin_final') return game.endless
+    if (tab === 'pendiente') return inBacklog(game)
     return game.status === tab
 }
 
@@ -214,6 +228,11 @@ export function ownership(game: Pick<LibraryGame, 'owned' | 'steam_source'>): Ex
     return game.steam_source === 'family' ? 'grupo' : 'comprados'
 }
 
+/** Cuándo llegó a Pendientes: al cambiar a ese estado o al añadirlo con el suyo (#140). */
+function backlogSince(game: LibraryGame): string | null {
+    return game.status === 'pendiente' ? game.status_changed_at : (game.in_backlog_at ?? game.status_changed_at)
+}
+
 const byName = (a: LibraryGame, b: LibraryGame) => (a.name ?? '').localeCompare(b.name ?? '', 'es')
 
 /** Fechas ISO de más reciente a más antigua; los null al final. */
@@ -229,8 +248,8 @@ function byNumber(a: number | null, b: number | null, asc = false): number {
 
 export function sortGames(games: LibraryGame[], key: SortKey): LibraryGame[] {
     const cmp: Record<SortKey, (a: LibraryGame, b: LibraryGame) => number> = {
-        // Sin posición (recién pasados a Pendiente) van al final, por orden de llegada.
-        manual: (a, b) => byNumber(a.backlog_position, b.backlog_position, true) || byDateDesc(b.status_changed_at, a.status_changed_at),
+        // Sin posición (recién pasados o añadidos a Pendientes) van al final, por orden de llegada.
+        manual: (a, b) => byNumber(a.backlog_position, b.backlog_position, true) || byDateDesc(backlogSince(b), backlogSince(a)),
         nombre: () => 0,
         horas: (a, b) => b.playtime_forever - a.playtime_forever,
         reciente: (a, b) => byDateDesc(a.rtime_last_played, b.rtime_last_played),
